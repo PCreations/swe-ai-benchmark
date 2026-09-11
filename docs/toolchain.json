@@ -100,7 +100,7 @@
       "version": "v2.1.0",
       "license": "Apache-2.0",
       "url": "https://garagehq.deuxfleurs.fr/_releases/v2.1.0/x86_64-unknown-linux-musl/garage",
-      "sha256": null,
+      "sha256": "543b0414d1464ab855ebe9b843938a5e5361fd24436891ce3dff9e03d02839d8",
       "url_reachable_on": "2026-09-11",
       "note": "Retenu contre MinIO (AGPL-3.0) — ADR-003. Aucun sha256 publie a cette URL."
     },
@@ -108,7 +108,7 @@
       "trust": "tofu",
       "version": null,
       "url": "https://temporal.download/cli/archive/latest?platform=linux&arch=amd64",
-      "sha256": null,
+      "sha256": "6f0afac1e9ddea71f480c43a49f5db5167a244c21db923707f069a79bcabdfea",
       "note": "L'URL 'latest' n'est pas reproductible : le premier bootstrap fige la version resolue ET son sha256 ici."
     },
     "temporal-test-server": {

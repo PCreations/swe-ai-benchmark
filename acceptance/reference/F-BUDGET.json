@@ -1,0 +1,147 @@
+{
+  "schema": "bench.reference.fixture/1",
+  "fixture": "F-BUDGET",
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      105
+    ],
+    "relecture": "chaque cahier_line se relit par `sed -n '<n>p' docs/cahier.md`"
+  },
+  "scellement": {
+    "tache": "T00",
+    "role": "fixture-transcriber",
+    "methode": "double transcription independante du §F, comparee valeur par valeur avant materialisation",
+    "transcriptions": [
+      ".bench/fixtures/A",
+      ".bench/fixtures/B"
+    ],
+    "archive": "ledger claude/gallant-fermi-51jlsx-ledger, fixtures-transcripts/T00/",
+    "concordance_A_B": true,
+    "arbitrages_appliques": []
+  },
+  "valeurs": {
+    "budget": {
+      "valeur": 1000,
+      "cahier_line": 105
+    },
+    "sous_cas_1_concurrence": {
+      "montant_par_reservation": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "nombre_de_demandes_concurrentes": {
+        "valeur": 2,
+        "cahier_line": 105
+      },
+      "acceptees_au_plus": {
+        "valeur": 1,
+        "cahier_line": 105,
+        "note": "« ne peuvent pas etre toutes deux acceptees »"
+      }
+    },
+    "sous_cas_2_apres_reglement": {
+      "montant_du_reglement": {
+        "valeur": 340,
+        "cahier_line": 105
+      },
+      "spent": {
+        "valeur": 340,
+        "cahier_line": 105
+      },
+      "reserved": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "available": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_3a_depuis_le_sous_cas_2": {
+      "teste_separement": {
+        "valeur": true,
+        "cahier_line": 105,
+        "note": "« Depuis cet etat, tester separement »"
+      },
+      "montant_demande": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 60,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_3b_depuis_le_sous_cas_2": {
+      "teste_separement": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "montant_demande": {
+        "valeur": 661,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": false,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_4_reservation_ambigue": {
+      "independant_des_autres_sous_cas": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "budget": {
+        "valeur": 1000,
+        "cahier_line": 105,
+        "note": "« budget frais » : la ligne 105 ne reecrit pas le montant pour ce sous-cas ; c'est le budget de la fixture, enonce en tete de la meme ligne"
+      },
+      "depense_initiale": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "montant_reserve_ambigu": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "available": {
+        "valeur": 400,
+        "cahier_line": 105
+      },
+      "condition": {
+        "valeur": "tant qu'elle n'est pas reconciliee",
+        "cahier_line": 105
+      }
+    }
+  },
+  "non_fixe_par_le_cahier": [
+    "l'unite des montants n'est pas ecrite ligne 105",
+    "laquelle des deux reservations concurrentes de 600 est acceptee",
+    "la ventilation spent/reserved des sous-cas 3a et 4 : la ligne 105 n'y enonce que `available`",
+    "le code de refus applique a la reservation de 661"
+  ],
+  "ambiguites_reportees": [
+    {
+      "id": "AMB-BUDGET-1",
+      "releve_par": "B",
+      "question": "au sous-cas 4, les 600 non reconcilies sont-ils comptes en `reserved` ou dans un poste distinct ?",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "seule la valeur enoncee (available=400) est materialisee ; la ventilation ne l'est pas"
+    }
+  ]
+}

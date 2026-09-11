@@ -1,0 +1,128 @@
+{
+  "schema": "bench.reference.fixture/1",
+  "fixture": "F-FAILURE",
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      121
+    ],
+    "relecture": "chaque cahier_line se relit par `sed -n '<n>p' docs/cahier.md`"
+  },
+  "scellement": {
+    "tache": "T00",
+    "role": "fixture-transcriber",
+    "methode": "double transcription independante du §F, comparee valeur par valeur avant materialisation",
+    "transcriptions": [
+      ".bench/fixtures/A",
+      ".bench/fixtures/B"
+    ],
+    "archive": "ledger claude/gallant-fermi-51jlsx-ledger, fixtures-transcripts/T00/",
+    "concordance_A_B": true,
+    "arbitrages_appliques": [
+      {
+        "id": "SC-001",
+        "section": "DIV-1",
+        "statut": "RESOLU",
+        "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+        "effet": "unite des couts = null (non specifiee)"
+      }
+    ]
+  },
+  "valeurs": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "candidat": {
+      "valeur": "sans deploiement sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "condition_de_Q_et_R_a_zero": {
+      "valeur": "si les exigences et usages y sont presents",
+      "cahier_line": 121,
+      "note": "sans eux, la convention de la ligne 111 donnerait null"
+    },
+    "couts": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "cahier_line": 121
+    },
+    "unite_des_couts": {
+      "valeur": null,
+      "cahier_line": 121,
+      "note": "NON SPECIFIEE : la chaine « micro-USD » n'apparait pas ligne 121 — controle execute `sed -n '121p' docs/cahier.md | grep -c 'micro-USD'` -> 0 (SC-001, DIV-1)"
+    },
+    "arret_de_calcul_apres_P2": {
+      "periodes_conservees": {
+        "valeur": [
+          "P3",
+          "P4"
+        ],
+        "cahier_line": 121
+      },
+      "factures_ajoutees": {
+        "valeur": 0,
+        "cahier_line": 121,
+        "note": "« aucune facture imaginaire n'y est ajoutee »"
+      }
+    }
+  },
+  "non_fixe_par_le_cahier": [
+    "l'unite des couts",
+    "le nombre d'exigences actives dues par periode et leurs poids : seule leur presence est requise pour que Q vaille 0 et non null",
+    "le nombre d'intentions offertes par periode",
+    "lequel des etats d'arret (BUDGET_EXHAUSTED, RUNNER_BLOCKED, CANCELLED) porte l'arret apres P2"
+  ],
+  "ambiguites_reportees": [
+    {
+      "id": "AMB-FAILURE-1",
+      "releve_par": "B",
+      "question": "combien d'intentions sont offertes par periode ?",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "aucun cardinal d'intentions n'est materialise : §F n'en enonce pas"
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "releve_par": "B",
+      "question": "quel etat d'arret porte l'arret de calcul apres P2 ?",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "aucun etat d'arret n'est materialise ; seuls les effets enonces le sont"
+    }
+  ]
+}

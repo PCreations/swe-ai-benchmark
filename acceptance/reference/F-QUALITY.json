@@ -1,0 +1,430 @@
+{
+  "schema": "bench.reference.fixture/1",
+  "fixture": "F-QUALITY",
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      107,
+      109,
+      111
+    ],
+    "relecture": "chaque cahier_line se relit par `sed -n '<n>p' docs/cahier.md`"
+  },
+  "scellement": {
+    "tache": "T00",
+    "role": "fixture-transcriber",
+    "methode": "double transcription independante du §F, comparee valeur par valeur avant materialisation",
+    "transcriptions": [
+      ".bench/fixtures/A",
+      ".bench/fixtures/B"
+    ],
+    "archive": "ledger claude/gallant-fermi-51jlsx-ledger, fixtures-transcripts/T00/",
+    "concordance_A_B": true,
+    "arbitrages_appliques": [
+      {
+        "id": "SC-001",
+        "statut": "RESOLU",
+        "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+        "effet": "en P3 et P4, B@1 pese 1 et C@1 pese 2"
+      }
+    ]
+  },
+  "valeurs": {
+    "periodes": {
+      "nombre": {
+        "valeur": 4,
+        "cahier_line": 107
+      },
+      "memes_durees": {
+        "valeur": true,
+        "cahier_line": 107
+      }
+    },
+    "Q_par_periode": {
+      "litteral_cahier": "[1, 1/2, 3/4, 1]",
+      "cahier_line": 107,
+      "serie": [
+        {
+          "rationnel": {
+            "num": 1,
+            "den": 1
+          },
+          "decimal_exact": 1
+        },
+        {
+          "rationnel": {
+            "num": 1,
+            "den": 2
+          },
+          "decimal_exact": 0.5
+        },
+        {
+          "rationnel": {
+            "num": 3,
+            "den": 4
+          },
+          "decimal_exact": 0.75
+        },
+        {
+          "rationnel": {
+            "num": 1,
+            "den": 1
+          },
+          "decimal_exact": 1
+        }
+      ]
+    },
+    "V": {
+      "litteral_cahier": "V=13/16=0.8125",
+      "rationnel": {
+        "num": 13,
+        "den": 16
+      },
+      "decimal_exact": 0.8125,
+      "cahier_line": 107
+    },
+    "R_par_periode": {
+      "litteral_cahier": "[1, 1/2, null, 1/2]",
+      "cahier_line": 107,
+      "serie": [
+        {
+          "rationnel": {
+            "num": 1,
+            "den": 1
+          },
+          "decimal_exact": 1
+        },
+        {
+          "rationnel": {
+            "num": 1,
+            "den": 2
+          },
+          "decimal_exact": 0.5
+        },
+        {
+          "rationnel": null,
+          "decimal_exact": null,
+          "note": "null : aucune intention admissible proposee (convention ligne 111)"
+        },
+        {
+          "rationnel": {
+            "num": 1,
+            "den": 2
+          },
+          "decimal_exact": 0.5
+        }
+      ]
+    },
+    "intentions_offertes": {
+      "valeur": [
+        4,
+        4,
+        0,
+        2
+      ],
+      "cahier_line": 107
+    },
+    "intentions_reussies": {
+      "valeur": [
+        4,
+        2,
+        0,
+        1
+      ],
+      "cahier_line": 107
+    },
+    "U": {
+      "litteral_cahier": "2/3",
+      "rationnel": {
+        "num": 2,
+        "den": 3
+      },
+      "decimal_exact": null,
+      "cahier_line": 107,
+      "note": "developpement decimal infini : comparer en rationnel (ligne 143)"
+    },
+    "exposition": {
+      "litteral_cahier": "3/4",
+      "rationnel": {
+        "num": 3,
+        "den": 4
+      },
+      "decimal_exact": 0.75,
+      "cahier_line": 107
+    },
+    "reussite_agregee_par_intention": {
+      "litteral_cahier": "7/10",
+      "rationnel": {
+        "num": 7,
+        "den": 10
+      },
+      "decimal_exact": 0.7,
+      "cahier_line": 107
+    },
+    "trois_nombres_distincts": {
+      "valeur": [
+        "U",
+        "exposition",
+        "reussite agregee par intention"
+      ],
+      "cahier_line": 107,
+      "note": "« Ces trois derniers nombres sont differents et doivent rester identifies »"
+    },
+    "entrees_exactes_de_Q": {
+      "cahier_line": 109,
+      "toutes_les_exigences_citees_sont_dues": {
+        "valeur": true,
+        "cahier_line": 109
+      },
+      "regle_de_poids": {
+        "valeur": "le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active",
+        "cahier_line": null,
+        "source": "docs/spec-conflicts/SC-001-poids-des-exigences.md (statut RESOLU)",
+        "note": "la ligne 109 n'ecrit chaque poids qu'une fois, a l'introduction : A@1 et B@1 poids 1 (P1), C@1 poids 2 (P2), A@2 poids 1 (P3). Les poids de B@1 et C@1 en P3/P4 sont reconduits en vertu de SC-001, PAS deduits de l'arithmetique : d'autres poids reproduisent les memes Q."
+      },
+      "P1": {
+        "actives_dues": [
+          {
+            "id": "A@1",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          },
+          {
+            "id": "B@1",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          }
+        ]
+      },
+      "P2": {
+        "changement": {
+          "valeur": "P2 ajoute C@1 de poids 2, non satisfaite ; A et B restent satisfaites",
+          "cahier_line": 109
+        },
+        "actives_dues": [
+          {
+            "id": "A@1",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109,
+              "note": "poids reconduit, SC-001"
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          },
+          {
+            "id": "B@1",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109,
+              "note": "poids reconduit, SC-001"
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          },
+          {
+            "id": "C@1",
+            "poids": {
+              "valeur": 2,
+              "cahier_line": 109
+            },
+            "satisfaite": {
+              "valeur": false,
+              "cahier_line": 109
+            }
+          }
+        ]
+      },
+      "P3": {
+        "changement": {
+          "valeur": "P3 remplace A@1 par A@2 de poids 1 satisfaite ; B@1 est violee ; C@1 satisfaite",
+          "cahier_line": 109
+        },
+        "retirees": [
+          {
+            "id": "A@1",
+            "motif": {
+              "valeur": "remplacee par A@2",
+              "cahier_line": 109
+            }
+          }
+        ],
+        "actives_dues": [
+          {
+            "id": "A@2",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          },
+          {
+            "id": "B@1",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109,
+              "note": "poids reconduit, SC-001"
+            },
+            "satisfaite": {
+              "valeur": false,
+              "cahier_line": 109
+            }
+          },
+          {
+            "id": "C@1",
+            "poids": {
+              "valeur": 2,
+              "cahier_line": 109,
+              "note": "poids reconduit, SC-001"
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          }
+        ]
+      },
+      "P4": {
+        "changement": {
+          "valeur": "P4 retire B ; A@2 et C@1 restent satisfaites",
+          "cahier_line": 109
+        },
+        "retirees": [
+          {
+            "id": "B@1",
+            "motif": {
+              "valeur": "retiree",
+              "cahier_line": 109
+            }
+          }
+        ],
+        "actives_dues": [
+          {
+            "id": "A@2",
+            "poids": {
+              "valeur": 1,
+              "cahier_line": 109,
+              "note": "poids reconduit, SC-001"
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          },
+          {
+            "id": "C@1",
+            "poids": {
+              "valeur": 2,
+              "cahier_line": 109,
+              "note": "poids reconduit, SC-001"
+            },
+            "satisfaite": {
+              "valeur": true,
+              "cahier_line": 109
+            }
+          }
+        ]
+      },
+      "test_negatif": {
+        "enonce": {
+          "valeur": "le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance",
+          "cahier_line": 109
+        },
+        "invariant": {
+          "valeur": "le poids d'une exigence revelee non encore due n'entre ni au numerateur ni au denominateur de Q avant son echeance",
+          "cahier_line": 109
+        },
+        "id": {
+          "valeur": null,
+          "cahier_line": 109,
+          "note": "non fixe par le cahier"
+        },
+        "version": {
+          "valeur": null,
+          "cahier_line": 109,
+          "note": "non fixe par le cahier"
+        },
+        "poids": {
+          "valeur": null,
+          "cahier_line": 109,
+          "note": "non fixe par le cahier"
+        },
+        "periode_de_revelation": {
+          "valeur": null,
+          "cahier_line": 109,
+          "note": "non fixe par le cahier"
+        },
+        "echeance": {
+          "valeur": null,
+          "cahier_line": 109,
+          "note": "non fixe par le cahier"
+        }
+      }
+    }
+  },
+  "regles": [
+    {
+      "enonce": "R vaut `null` lorsqu’aucune intention admissible n’est proposée.",
+      "cahier_line": 111
+    },
+    {
+      "enonce": "U est la moyenne temporelle sur les périodes exposées, avec l’exposition publiée.",
+      "cahier_line": 111
+    },
+    {
+      "enonce": "Une campagne confirmatoire exige une exposition prédéfinie non nulle.",
+      "cahier_line": 111
+    },
+    {
+      "enonce": "Une trajectoire indisponible face à des intentions prévues a R=0, jamais `null`.",
+      "cahier_line": 111
+    },
+    {
+      "enonce": "Q est `null` si aucun poids d’exigence active due ; le préflight interdit ce cas dans une période confirmatoire mesurée.",
+      "cahier_line": 111
+    },
+    {
+      "enonce": "Les séries de simple préparation restent marquées hors mesure.",
+      "cahier_line": 111
+    }
+  ],
+  "non_fixe_par_le_cahier": [
+    "la duree absolue des quatre periodes : seule leur egalite est enoncee",
+    "la nature des intentions derriere les cardinaux [4,4,0,2] et [4,2,0,1]",
+    "identifiant, version, poids, periode de revelation et echeance de l'exigence du test negatif"
+  ],
+  "ambiguites_reportees": [
+    {
+      "id": "test negatif de Q",
+      "releve_par": "A et B",
+      "question": "§F ne donne ni id, ni version, ni poids, ni periode de revelation, ni echeance de l'exigence revelee non encore due",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "seul l'invariant est scelle ; les cinq parametres sont inscrits a null, aucune valeur du cahier n'en depend"
+    }
+  ]
+}

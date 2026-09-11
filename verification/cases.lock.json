@@ -1463,7 +1463,7 @@
       ],
       "blockable": false,
       "proof_kind": "behaviour",
-      "perturbation": "injecter du non-determinisme dans l'agent scripte (horodater ou reordonner les appels d'outils, ordre d'iteration non stable des patches) : deux executions du meme script divergent, rouge exige ; noter qu'un stub constant garderait ce cas vert",
+      "perturbation": "Injecter le facteur interdit — le non-determinisme — dans l'agent scripte : horodater ou reordonner les appels d'outils, rendre non stable l'ordre d'iteration des patches appliques. Deux executions du MEME script doivent alors diverger (patches ou suite d'appels logiques differents) et le cas doit passer au ROUGE. Perturbation ciblee obligatoire : c'est un cas d'invariance, un stub constant rendrait les deux cotes de l'egalite identiques et laisserait le cas VERT (faux PASS).",
       "note": "Le cas affirme une valeur produite : un meme script donne les memes patches et les memes appels logiques, donc behaviour, avec une perturbation par injection de non-determinisme."
     },
     {
@@ -1478,7 +1478,7 @@
       ],
       "blockable": false,
       "proof_kind": "behaviour",
-      "perturbation": "stuber l'export de restauration de memoire autorisee (renvoyer une memoire vide au demarrage de la periode suivante) : la memoire autorisee n'est plus restauree, rouge exige",
+      "perturbation": "Stuber l'export de restauration de la memoire autorisee du runner : au demarrage de la periode suivante, rendre une memoire vide (ou la memoire d'une autre periode) au lieu de la memoire autorisee persistee. La memoire n'est plus retrouvee a la periode P+1 et le cas doit passer au ROUGE.",
       "note": "Le cas affirme une valeur produite et presente (la memoire autorisee est retrouvee a la periode suivante), donc behaviour."
     },
     {
@@ -1493,7 +1493,7 @@
       ],
       "blockable": false,
       "proof_kind": "absence",
-      "perturbation": "recopier l'historique conversationnel de la periode precedente dans le contexte neuf de l'agent (le rendre PRESENT) : rouge exige",
+      "perturbation": "Rendre la chose interdite PRESENTE : recopier l'historique conversationnel de la periode precedente (au-dela de la memoire autorisee) dans le contexte neuf remis a l'agent au demarrage de la periode suivante. Le contexte neuf contient alors de l'historique non autorise et le cas doit passer au ROUGE. Stuber les exports produirait un contexte VIDE, qui satisfait trivialement l'assertion : faux PASS.",
       "note": "Le cas affirme qu'un contexte neuf NE CONTIENT PAS d'historique conversationnel non autorise : un export stube produirait un contexte vide et laisserait le cas vert, donc absence."
     },
     {
@@ -1508,7 +1508,7 @@
       ],
       "blockable": false,
       "proof_kind": "absence",
-      "perturbation": "rendre stop inoperant (ne pas fermer la session ni annuler la boucle de l'agent) de sorte qu'une soumission supplementaire soit acceptee apres l'arret : la soumission interdite devient PRESENTE, rouge exige",
+      "perturbation": "Rendre la chose interdite PRESENTE : rendre `stop` inoperant (ne pas clore la session ni annuler la boucle de l'agent) de sorte qu'une soumission supplementaire soit acceptee et enregistree APRES l'arret. La nouvelle soumission interdite apparait et le cas doit passer au ROUGE. Sous un stub des exports, aucune soumission n'est jamais produite et l'assertion « plus aucune nouvelle soumission » resterait VERTE a vide.",
       "note": "Le cas affirme qu'apres arret PLUS AUCUNE nouvelle soumission n'apparait : sous un export stube, l'absence de soumission serait vraie a vide, donc absence."
     },
     {
@@ -1523,7 +1523,7 @@
       ],
       "blockable": false,
       "proof_kind": "refusal",
-      "perturbation": "rendre l'adaptateur PERMISSIF : accepter une reponse modele archivee invalide et la coercer en soumission au lieu de lever l'erreur typee, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "perturbation": "Perturbation INVERSE : rendre l'adaptateur PERMISSIF. Accepter une reponse modele archivee invalide (schema viole, appel d'outil malforme, troncature) et la coercer en soumission — ou l'ignorer silencieusement — au lieu de lever l'erreur typee ; second volet, ne pas conserver la depense deja engagee lors du rejet. Le cas doit passer au ROUGE. Piege : un stub qui LEVE rendrait ce cas vert sans rien prouver.",
       "note": "Le cas affirme qu'une reponse invalide est REJETEE par une erreur typee (la depense restant conservee) ; l'assertion decisive est le rejet, donc refusal."
     },
     {
@@ -1537,9 +1537,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": "indeterminee tant que le mode n'est pas tranche : la perturbation differe selon l'assertion visee (rendre le service client permissif pour une lecture anticipee, rendre une sentinelle presente dans les entrees, ou casser une reponse connue) et ces trois perturbations ne convergent pas",
-      "note": "La ligne 313 dit seulement que l'acces au service client << respecte T06 >> sans nommer laquelle des assertions de T06 (l.207 : absence de sentinelle A1, refus NOT_RELEASED A2, reponse exacte A3, UNSPECIFIED A4, rejet de cycle A5) est exercee : l'assertion decisive, et donc le mode, ne peut etre determinee sans deviner."
+      "proof_kind": "refusal",
+      "perturbation": "Perturbation INVERSE : rendre PERMISSIF le chemin d'acces au service client ouvert a l'agent par le runner, c'est-a-dire le faire contourner le regime de revelation de T06 — servir la reponse d'une periode non encore revelee (au lieu de `NOT_RELEASED`) et fabriquer une reponse plausible pour une question hors table (au lieu d'`UNSPECIFIED`), par exemple en remettant a l'outil le pack prive complet plutot que la vue disponible de la periode courante. Le cas doit passer au ROUGE. Piege : un stub qui LEVE sur tout appel au service client garderait ce cas VERT sans rien prouver ; et stuber la table de reponses (perturbation 'behaviour') ne mord pas ici, puisque l'exactitude d'une reponse couverte est deja l'objet de T06.A3 et n'est pas ce que le runner apporte.",
+      "note": "La l.313 predique la CONFORMITE d'un chemin d'acces a un regime (« l'acces au service client respecte T06 »), pas la valeur d'une reponse ; la delegation se resout, comme pour T28.A6 (« perte de reponse respecte T17 »), par le sujet de la phrase : les faits de T06 (l.207) qui gouvernent l'acces au service client sont « A2 lecture anticipee renvoie NOT_RELEASED » et « A4 une question non couverte donne UNSPECIFIED, sans inventer de regle » — deux assertions de REFUS que la meme perturbation permissive fait tomber ensemble. La l.311 impose la meme lecture cote T18 : « l'agent recoit workspace, faits disponibles, outils autorises et limites [...] il ne peut pas consulter les oracles » — ce que le runner ajoute est la non-contournabilite de la porte, pas la reproduction d'une reponse. Donc refusal."
     },
     {
       "id": "T18.A7",
@@ -1553,7 +1553,7 @@
       ],
       "blockable": false,
       "proof_kind": "absence",
-      "perturbation": "faire honorer par le moteur un evenement d'agent portant accepted=true (laisser l'evenement de session fixer le verdict au lieu du verificateur) : l'autorite usurpee devient PRESENTE dans le verdict, rouge exige",
+      "perturbation": "Rendre l'autorite usurpee PRESENTE : faire honorer par le moteur un evenement de session emis par l'agent portant `accepted=true` (laisser l'evenement d'agent fixer le verdict au lieu du verificateur independant). Le verdict devient accepte sur la seule foi de l'agent et le cas doit passer au ROUGE. Sous un stub des exports, aucun verdict n'est pose, le verdict reste non accepte et l'assertion « pas d'autorite » resterait VERTE a vide.",
       "note": "Le cas affirme que les evenements de l'agent N'ONT AUCUN effet autoritatif pour poser accepted=true : sous un export stube le verdict resterait non accepte et le cas vert, donc absence."
     },
     {
@@ -4146,5 +4146,5 @@
       "why": "FAIL-CLOSED : une tache dont un cas requis est UNCLASSIFIED ne peut pas etre attestee. Deviner 273 classifications serait exactement le genre d'affirmation non fondee que ce socle existe pour empecher."
     }
   },
-  "classified_cases": 278
+  "classified_cases": 279
 }

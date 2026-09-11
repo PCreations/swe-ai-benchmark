@@ -235,6 +235,14 @@
         "cahier_line": 109,
         "enonce": "Le test négatif ajoute une exigence révélée mais non encore due : son poids ne doit pas entrer dans Q avant son échéance.",
         "invariant": "le poids de l'exigence revelee non encore due n'entre pas dans Q avant son echeance"
+      },
+      "origine_des_poids": {
+        "cahier_line": 109,
+        "constat": "La ligne 109 n'ecrit chaque poids QU'UNE FOIS, a l'introduction de l'exigence : « A@1 et B@1, poids 1 chacun » (P1), « C@1 de poids 2 » (P2), « A@2 de poids 1 » (P3). Le poids de B@1 et de C@1 en P3 et P4 n'est ecrit nulle part.",
+        "regle_appliquee": "Le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active.",
+        "source_de_la_regle": "docs/spec-conflicts/SC-001-poids-des-exigences.md — statut RESOLU",
+        "consequence_transcrite": "en P2, P3 et P4 : A@1/A@2 pesent 1, B@1 pese 1, C@1 pese 2",
+        "non_deduit_de_l_arithmetique": "Q=[1,1/2,3/4,1] ne discrimine pas les jeux de poids : d'autres poids reproduisent les memes Q. La propagation vient de SC-001, pas d'un calcul."
       }
     }
   },
@@ -274,7 +282,9 @@
       "enonce_du_cahier": "Le test négatif ajoute une exigence révélée mais non encore due : son poids ne doit pas entrer dans Q avant son échéance.",
       "manque": "§F ne donne ni l'identifiant, ni la version, ni le poids de cette exigence, ni la periode ou elle est revelee, ni son echeance.",
       "consequence": "materialiser ce sous-cas exige de choisir ces quatre parametres ; §F ne les fixe pas. Seul l'invariant (Q inchange avant echeance) est enonce.",
-      "non_tranche": true
+      "non_tranche": true,
+      "porte_sur_une_valeur_materialisee": false,
+      "justification_non_bloquante": "Aucune valeur de cette fixture n'en depend : Q=[1,1/2,3/4,1], V, U, exposition et le ratio d'intentions sont enonces par le cahier et restent inchanges. Le sous-cas negatif n'enonce qu'un invariant (le poids d'une exigence non encore due n'entre pas dans Q). Consignee pour report, pas pour arret : seul un parametre que ni A ni B n'inscrit manque."
     }
   ]
 }

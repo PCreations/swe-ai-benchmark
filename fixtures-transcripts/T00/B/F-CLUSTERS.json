@@ -2,148 +2,129 @@
   "schema": "bench.fixture.transcription/1",
   "fixture": "F-CLUSTERS",
   "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d acceptation qui citent la fixture ont ete lus en premier, puis confrontes au texte de §F",
   "role": "fixture-transcriber",
   "tache": "T00",
   "etage": "FIXTURES",
   "cahier": "docs/cahier.md",
   "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
-  "verification": "chaque champ cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
+  "verification": "chaque cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
   "source_lines": [
     115
+  ],
+  "citations": [
+    {
+      "cahier_line": 115,
+      "texte": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
   ],
   "consommateurs": [
     {
       "cas": "T32.A2",
       "cahier_line": 435,
-      "exige": "F-CLUSTERS ne change pas apres duplication des repetitions P1"
-    },
-    {
-      "cas": "T32 (fin)",
-      "cahier_line": 437,
-      "exige": "mutations detectant le pooling des lignes"
+      "exige": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "implique": "l estimation ponctuelle doit etre calculee par parent, pas sur les lignes"
     },
     {
       "cas": "T33.A5",
       "cahier_line": 443,
-      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents"
+      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "implique": "meme invariance, cote bootstrap"
     },
     {
       "cas": "T33.A6",
       "cahier_line": 443,
-      "exige": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets"
+      "exige": "une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l inference interprojets",
+      "implique": "F-CLUSTERS en a deux : elle n est pas le cas limite"
     }
   ],
-  "valeurs": {
-    "projets": {
-      "P1": {
+  "donnees": {
+    "projets": [
+      {
+        "id": {
+          "valeur": "P1",
+          "cahier_line": 115
+        },
         "cout_A": {
-          "v": 10,
+          "valeur": 10,
           "cahier_line": 115
         },
         "cout_B": {
-          "v": 20,
+          "valeur": 20,
           "cahier_line": 115
         },
         "repetitions": {
-          "v": 10,
-          "identiques": true,
-          "cahier_line": 115
+          "valeur": 10,
+          "cahier_line": 115,
+          "note": "dix repetitions identiques"
         }
       },
-      "P2": {
+      {
+        "id": {
+          "valeur": "P2",
+          "cahier_line": 115
+        },
         "cout_A": {
-          "v": 90,
+          "valeur": 90,
           "cahier_line": 115
         },
         "cout_B": {
-          "v": 100,
+          "valeur": 100,
           "cahier_line": 115
         },
         "repetitions": {
-          "v": 1,
+          "valeur": 1,
           "cahier_line": 115
         }
       }
-    },
+    ],
     "moyennes_interprojets": {
       "A": {
-        "v": 50,
+        "valeur": 50,
         "cahier_line": 115
       },
       "B": {
-        "v": 60,
+        "valeur": 60,
         "cahier_line": 115
       }
     },
-    "interdiction": {
-      "v": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation.",
+    "moyenne_naive_interdite": {
+      "valeur": "une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
       "cahier_line": 115
     },
     "invariance_par_duplication": {
-      "v": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
-      "portee": "estimation ponctuelle",
+      "valeur": "dupliquer toutes les repetitions de P1 laisse l estimation ponctuelle inchangee",
       "cahier_line": 115
     }
   },
+  "verifications_arithmetiques": [
+    {
+      "expression": "moyenne par parent puis entre parents : (10+90)/2",
+      "resultat": 50
+    },
+    {
+      "expression": "(20+100)/2",
+      "resultat": 60
+    },
+    {
+      "expression": "lignes totales = 10 + 1",
+      "resultat": 11,
+      "commentaire": "le nombre de lignes que la moyenne naive agregerait a tort"
+    }
+  ],
   "conventions": [
     {
-      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants (invariant D11).",
-      "cahier_line": 73
+      "regle": "Les nombres exacts se verifient en entier ou rationnel ; tolerance flottante au maximum 1e-12 pour les fixtures arithmetiques de §F.",
+      "cahier_line": 143
     },
     {
-      "regle": "Le bootstrap principal reechantillonne les moyennes par parent.",
-      "cahier_line": 445
-    },
-    {
-      "regle": "L'invariance annoncee porte explicitement sur l'estimation PONCTUELLE, pas sur la dispersion.",
-      "cahier_line": 115
+      "regle": "Les montants du domaine sont des chaines d entiers non negatifs en micro-USD ; 1000000 vaut 1 USD. Regle generale de §E, non repetee par chaque fixture.",
+      "cahier_line": 80
     }
   ],
-  "derives_non_cahier": [
-    {
-      "nom": "nombre_de_lignes",
-      "calcul": "10 + 1 = 11",
-      "corrobore_par": "la ligne 115 parle d'une 'moyenne naive sur onze lignes'"
-    },
-    {
-      "nom": "moyennes_interprojets_recalculees",
-      "calcul": "A: (10 + 90)/2 = 50 ; B: (20 + 100)/2 = 60"
-    },
-    {
-      "nom": "valeur_du_contre-exemple_poole",
-      "calcul": "A: 190/11 ; B: 300/11 ; ratio 190/300 = 19/30",
-      "obtenu_par": "arithmetique sur les onze lignes ; ces nombres ne figurent PAS dans le cahier et ne doivent pas devenir des attendus"
-    },
-    {
-      "nom": "ratio_interprojets",
-      "calcul": "50/60 = 5/6",
-      "corrobore_par": "F-COST-RATIO, ligne 113"
-    }
+  "non_fixe_par_le_cahier": [
+    "l unite des couts n est pas ecrite ligne 115",
+    "le facteur de duplication du controle d invariance (« dupliquer toutes les repetitions de P1 ») n est pas chiffre ; seule l invariance du resultat est enoncee"
   ],
-  "ambiguites": [
-    {
-      "id": "AMB-CLUSTERS-1",
-      "fixture": "F-CLUSTERS",
-      "point": "'Dupliquer toutes les repetitions de P1' ne precise pas le facteur (x2 -> 20 repetitions ?) ni si P2 est duplique aussi.",
-      "pourquoi_non_tranche": "Le facteur change le nombre de lignes du jeu de controle, donc l'empreinte de la fixture.",
-      "cahier_line": 115
-    },
-    {
-      "id": "AMB-CLUSTERS-2",
-      "fixture": "F-CLUSTERS",
-      "point": "Le cahier ne dit pas si les dix repetitions de P1 portent des identifiants distincts (repetition_id) ou sont dix copies indistinguables.",
-      "pourquoi_non_tranche": "T33.A5 demande l'invariance par permutation des lignes, ce qui suppose des lignes identifiables.",
-      "cahier_line": 115
-    },
-    {
-      "id": "AMB-CLUSTERS-3",
-      "fixture": "F-CLUSTERS",
-      "point": "Aucune valeur de V, U ou de reussite n'est donnee pour F-CLUSTERS ; seuls les couts le sont.",
-      "pourquoi_non_tranche": "La decision de T34 exige aussi V et U ; cette fixture ne les fournit pas.",
-      "cahier_line": 115
-    }
-  ],
-  "verbatim": {
-    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
-  }
+  "ambiguites": []
 }

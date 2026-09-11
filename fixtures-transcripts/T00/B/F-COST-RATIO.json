@@ -2,124 +2,142 @@
   "schema": "bench.fixture.transcription/1",
   "fixture": "F-COST-RATIO",
   "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d acceptation qui citent la fixture ont ete lus en premier, puis confrontes au texte de §F",
   "role": "fixture-transcriber",
   "tache": "T00",
   "etage": "FIXTURES",
   "cahier": "docs/cahier.md",
   "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
-  "verification": "chaque champ cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
+  "verification": "chaque cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
   "source_lines": [
     113
+  ],
+  "citations": [
+    {
+      "cahier_line": 113,
+      "texte": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+    }
   ],
   "consommateurs": [
     {
       "cas": "T32.A1",
       "cahier_line": 435,
-      "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6"
-    },
-    {
-      "cas": "T32 (fin)",
-      "cahier_line": 437,
-      "exige": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs"
+      "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "implique": "les deux moyennes et le ratio sont trois valeurs distinctes a inscrire"
     },
     {
       "cas": "T36.A2",
       "cahier_line": 473,
-      "exige": "F-COST-RATIO affiche 5/6 et les deux moyennes"
+      "exige": "F-COST-RATIO affiche 5/6 et les deux moyennes",
+      "implique": "le rapport publie porte les trois valeurs"
+    },
+    {
+      "cas": "T32.fin",
+      "cahier_line": 437,
+      "exige": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs",
+      "implique": "0,7 est le resultat incorrect que la mutation « moyenne des ratios » produit"
     }
   ],
-  "valeurs": {
-    "nombre_de_projets": {
-      "v": 2,
-      "poids": "egal",
-      "cahier_line": 113
+  "donnees": {
+    "projets": {
+      "nombre": {
+        "valeur": 2,
+        "cahier_line": 113
+      },
+      "poids": {
+        "valeur": "egal",
+        "cahier_line": 113
+      }
     },
-    "couts_bras_A": {
-      "v": [
-        10,
-        90
-      ],
-      "cahier_line": 113
+    "couts": {
+      "bras_A": {
+        "valeur": [
+          10,
+          90
+        ],
+        "cahier_line": 113,
+        "note": "un cout par projet, dans l ordre des deux projets"
+      },
+      "bras_B": {
+        "valeur": [
+          20,
+          100
+        ],
+        "cahier_line": 113
+      }
     },
-    "couts_bras_B": {
-      "v": [
-        20,
-        100
-      ],
-      "cahier_line": 113
+    "moyennes": {
+      "A": {
+        "valeur": 50,
+        "cahier_line": 113
+      },
+      "B": {
+        "valeur": 60,
+        "cahier_line": 113
+      }
     },
-    "moyenne_A": {
-      "v": 50,
-      "cahier_line": 113
+    "ratio_principal": {
+      "definition": {
+        "valeur": "A/B sur les moyennes",
+        "cahier_line": 113
+      },
+      "rationnel": {
+        "valeur": "5/6",
+        "cahier_line": 113
+      },
+      "decimal_exact": {
+        "valeur": null,
+        "cahier_line": 113,
+        "note": "5/6 n a pas d ecriture decimale finie ; comparer en rationnel (ligne 143)"
+      }
     },
-    "moyenne_B": {
-      "v": 60,
-      "cahier_line": 113
-    },
-    "ratio_principal_A_sur_B": {
-      "rationnel": "5/6",
-      "cahier_line": 113
-    },
-    "resultat_incorrect_temoin": {
-      "nom": "moyenne des ratios",
-      "v": 0.7,
-      "regle": "La moyenne des ratios serait 0.7 et constitue un resultat incorrect pour cette metrique.",
-      "cahier_line": 113
+    "resultat_incorrect_a_detecter": {
+      "definition": {
+        "valeur": "moyenne des ratios",
+        "cahier_line": 113
+      },
+      "valeur": {
+        "valeur": 0.7,
+        "cahier_line": 113
+      },
+      "statut": {
+        "valeur": "INCORRECT pour cette metrique",
+        "cahier_line": 113
+      }
     }
   },
-  "conventions": [
+  "verifications_arithmetiques": [
     {
-      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants (invariant D11).",
-      "cahier_line": 73
+      "expression": "(10+90)/2",
+      "resultat": 50
     },
     {
-      "regle": "Les nombres exacts se verifient en entier ou rationnel ; tolerance maximale 1e-12.",
+      "expression": "(20+100)/2",
+      "resultat": 60
+    },
+    {
+      "expression": "50/60",
+      "resultat": "5/6"
+    },
+    {
+      "expression": "((10/20) + (90/100))/2 = (0.5+0.9)/2",
+      "resultat": 0.7,
+      "commentaire": "la valeur incorrecte, enoncee ligne 113"
+    }
+  ],
+  "conventions": [
+    {
+      "regle": "Les nombres exacts se verifient en entier ou rationnel ; tolerance flottante au maximum 1e-12 pour les fixtures arithmetiques de §F.",
       "cahier_line": 143
     },
     {
-      "regle": "Poids des scenarios appliques a l'interieur du parent avant poids entre parents (T32.A6).",
-      "cahier_line": 435
+      "regle": "Les montants du domaine sont des chaines d entiers non negatifs en micro-USD ; 1000000 vaut 1 USD. Regle generale de §E, non repetee par chaque fixture.",
+      "cahier_line": 80
     }
   ],
-  "derives_non_cahier": [
-    {
-      "nom": "moyennes_recalculees",
-      "calcul": "A: (10+90)/2 = 50 ; B: (20+100)/2 = 60"
-    },
-    {
-      "nom": "ratio_recalcule",
-      "calcul": "50/60 = 5/6"
-    },
-    {
-      "nom": "moyenne_des_ratios_recalculee",
-      "calcul": "(10/20 + 90/100)/2 = (1/2 + 9/10)/2 = 7/10 = 0.7",
-      "corrobore_par": "la valeur 0.7 est ecrite ligne 113"
-    }
+  "non_fixe_par_le_cahier": [
+    "l unite des couts n est pas ecrite ligne 113",
+    "les identifiants des deux projets ne sont pas nommes ligne 113 ; F-CLUSTERS (ligne 115) nomme P1 et P2 sur les memes moyennes par projet"
   ],
-  "ambiguites": [
-    {
-      "id": "AMB-COSTRATIO-1",
-      "fixture": "F-COST-RATIO",
-      "point": "L'appariement des couts est implicite : le cahier ecrit A=[10,90] et B=[20,100] sans nommer les deux projets ni dire que l'index 1 de A va avec l'index 1 de B.",
-      "pourquoi_non_tranche": "L'appariement par index est necessaire pour que la moyenne des ratios vaille 0.7, mais il n'est pas ecrit.",
-      "cahier_line": 113
-    },
-    {
-      "id": "AMB-COSTRATIO-2",
-      "fixture": "F-COST-RATIO",
-      "point": "Les deux projets portent les memes couts que P1/P2 de F-CLUSTERS (10/20 et 90/100) ; le cahier ne dit pas s'il s'agit des memes entites avec une repetition chacune, ou d'un jeu distinct.",
-      "pourquoi_non_tranche": "F-BOOTSTRAP dit 'sur les deux projets precedents' et se rattache a F-CLUSTERS ; la relation avec F-COST-RATIO n'est jamais enoncee.",
-      "cahier_line": 113
-    },
-    {
-      "id": "AMB-COSTRATIO-3",
-      "fixture": "F-COST-RATIO",
-      "point": "Aucun nombre de repetitions n'est donne pour F-COST-RATIO, alors que F-CLUSTERS en donne (dix et une).",
-      "pourquoi_non_tranche": "Sans ce nombre, l'agregation repetition -> projet n'est pas exercee par cette fixture.",
-      "cahier_line": 113
-    }
-  ],
-  "verbatim": {
-    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
-  }
+  "ambiguites": []
 }

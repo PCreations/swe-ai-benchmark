@@ -2,159 +2,187 @@
   "schema": "bench.fixture.transcription/1",
   "fixture": "F-FAILURE",
   "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d acceptation qui citent la fixture ont ete lus en premier, puis confrontes au texte de §F",
   "role": "fixture-transcriber",
   "tache": "T00",
   "etage": "FIXTURES",
   "cahier": "docs/cahier.md",
   "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
-  "verification": "chaque champ cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
+  "verification": "chaque cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
   "source_lines": [
     121
+  ],
+  "citations": [
+    {
+      "cahier_line": 121,
+      "texte": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
   ],
   "consommateurs": [
     {
       "cas": "T05.A6",
       "cahier_line": 199,
-      "exige": "sans deploiement, la cloture d'une periode produit les demandes non servies prevues par F-FAILURE"
+      "exige": "sans deploiement, la cloture d une periode produit les demandes non servies prevues par F-FAILURE",
+      "implique": "la fixture doit porter des intentions offertes non servies ; §F n en donne pas le nombre"
     },
     {
       "cas": "T11.A4",
       "cahier_line": 251,
-      "exige": "F-FAILURE conserve quatre resultats"
+      "exige": "F-FAILURE conserve quatre resultats",
+      "implique": "les quatre lignes survivent a l absence de deploiement"
     },
     {
       "cas": "T31.A1",
       "cahier_line": 427,
-      "exige": "F-FAILURE exporte quatre periodes et total 150"
+      "exige": "F-FAILURE exporte quatre periodes et total 150",
+      "implique": "les quatre lignes et le total 150 sont des valeurs de reference"
     },
     {
       "cas": "T38.A7",
       "cahier_line": 493,
-      "exige": "F-FAILURE produit un echec produit dans une execution moteur terminee"
+      "exige": "F-FAILURE produit un echec produit dans une execution moteur terminee",
+      "implique": "un echec candidat n est pas un echec du moteur (distinction de la ligne 28)"
     }
   ],
-  "valeurs": {
+  "donnees": {
     "K": {
-      "v": 4,
-      "cahier_line": 121
+      "valeur": 4,
+      "cahier_line": 121,
+      "note": "quatre periodes"
     },
-    "condition": {
-      "v": "un candidat sans deploiement sur les quatre periodes",
+    "deploiement": {
+      "valeur": "aucun sur les quatre periodes",
       "cahier_line": 121
     },
     "lignes_conservees": {
-      "v": 4,
+      "valeur": 4,
       "cahier_line": 121
     },
     "Q_par_periode": {
-      "v": [
+      "valeur": [
         0,
         0,
         0,
         0
       ],
-      "regle": "quatre lignes avec Q=0 si les exigences sont presentes",
-      "cahier_line": 121
+      "cahier_line": 121,
+      "note": "« conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont presents »"
     },
     "R_par_periode": {
-      "v": [
+      "valeur": [
         0,
         0,
         0,
         0
       ],
-      "regle": "quatre lignes avec R=0 si les usages sont presents",
+      "cahier_line": 121,
+      "note": "meme condition : exigences et usages presents"
+    },
+    "condition_de_non_nullite": {
+      "valeur": "Q=0 et R=0 supposent que les exigences et usages sont presents ; sans eux, la convention de la ligne 111 donnerait null",
       "cahier_line": 121
     },
-    "couts_par_periode": {
-      "v": [
+    "couts": {
+      "valeur": [
         100,
         50,
         0,
         0
       ],
-      "unite": "micro-USD",
       "cahier_line": 121
     },
     "cout_total": {
-      "v": 150,
+      "valeur": 150,
       "cahier_line": 121
+    },
+    "unite_des_couts": {
+      "valeur": null,
+      "cahier_line": 121,
+      "note": "NON SPECIFIEE : la chaine « micro-USD » n apparait pas ligne 121 (arbitrage SC-001, DIV-1, regle sans arbitrage par controle execute)"
     },
     "arret_de_calcul": {
-      "v": "un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n'y est ajoutee",
-      "cahier_line": 121
+      "enonce": {
+        "valeur": "un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n y est ajoutee",
+        "cahier_line": 121
+      },
+      "periodes_conservees": {
+        "valeur": [
+          "P3",
+          "P4"
+        ],
+        "cahier_line": 121
+      },
+      "factures_ajoutees": {
+        "valeur": 0,
+        "cahier_line": 121
+      }
     }
   },
+  "verifications_arithmetiques": [
+    {
+      "expression": "100 + 50 + 0 + 0",
+      "resultat": 150,
+      "commentaire": "le total enonce ligne 121"
+    }
+  ],
   "conventions": [
     {
-      "regle": "Un echec conserve ses depenses, ses intentions non servies et son backlog (invariant D5).",
-      "cahier_line": 67
+      "regle": "Les nombres exacts se verifient en entier ou rationnel ; tolerance flottante au maximum 1e-12 pour les fixtures arithmetiques de §F.",
+      "cahier_line": 143
     },
     {
-      "regle": "Les etats d'arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n'effacent pas la periode de l'analyse.",
-      "cahier_line": 97
+      "regle": "Les montants du domaine sont des chaines d entiers non negatifs en micro-USD ; 1000000 vaut 1 USD. Regle generale de §E, non repetee par chaque fixture.",
+      "cahier_line": 80
     },
     {
-      "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null.",
-      "cahier_line": 111
-    },
-    {
-      "regle": "Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide.",
+      "regle": "un defaut de prerequis produit BLOCKED, jamais PASS ; une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide",
       "cahier_line": 28
     },
     {
-      "regle": "Aucun filtre implicite de survivants et aucune valeur vide convertie en zero.",
-      "cahier_line": 429
+      "regle": "un echec conserve ses depenses, ses intentions non servies et son backlog",
+      "cahier_line": 67
+    },
+    {
+      "regle": "les etats d arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n effacent pas la periode de l analyse",
+      "cahier_line": 97
+    },
+    {
+      "regle": "Q est null si aucun poids d exigence active due ; R est null si aucune intention admissible n est proposee",
+      "cahier_line": 111
     }
   ],
-  "derives_non_cahier": [
+  "arbitrages_appliques": [
     {
-      "nom": "total_recalcule",
-      "calcul": "100 + 50 + 0 + 0 = 150",
-      "corrobore_par": "le total 150 est ecrit ligne 121 et repris par T31.A1 ligne 427"
-    },
-    {
-      "nom": "V",
-      "calcul": "moyenne de Q sur quatre periodes de meme duree = 0",
-      "obtenu_par": "convention de V (ligne 107) appliquee a Q=[0,0,0,0] ; V n'est PAS ecrit pour F-FAILURE"
-    },
-    {
-      "nom": "U",
-      "calcul": "moyenne temporelle de R sur les periodes exposees = 0, exposition = 4/4",
-      "obtenu_par": "convention ligne 111 ; non ecrit pour F-FAILURE"
+      "id": "SC-001",
+      "section": "DIV-1",
+      "statut": "RESOLU",
+      "regle": "l unite des couts de F-FAILURE reste non specifiee : « micro-USD » n est pas en ligne 121",
+      "effet_ici": "unite_des_couts = null"
     }
+  ],
+  "non_fixe_par_le_cahier": [
+    "l unite des couts",
+    "le nombre d exigences actives dues par periode et leurs poids (seule leur presence est requise pour que Q vaille 0 et non null)",
+    "le nombre d intentions offertes par periode, donc le nombre exact de demandes non servies attendu par T05.A6",
+    "lequel des etats d arret (BUDGET_EXHAUSTED, RUNNER_BLOCKED, CANCELLED) porte l arret apres P2",
+    "si le vecteur de couts [100,50,0,0] decrit la meme trajectoire que le sous-cas d arret apres P2 ou une trajectoire distincte : les deux lectures donnent les memes montants et le meme total"
   ],
   "ambiguites": [
     {
       "id": "AMB-FAILURE-1",
-      "fixture": "F-FAILURE",
-      "point": "L'etat d'arret apres P2 n'est pas nomme parmi BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED (ligne 97).",
-      "pourquoi_non_tranche": "Le choix change le champ de statut exporte par T31.",
-      "cahier_line": 121
+      "question": "Combien d intentions sont offertes par periode ? T05.A6 (ligne 199) attend « les demandes non servies prevues par F-FAILURE », mais la ligne 121 ne donne aucun cardinal d intentions, seulement R=0.",
+      "ce_que_le_cahier_fixe": "R=0 sur les quatre periodes, ce qui impose au moins une intention offerte et zero reussie par periode",
+      "ce_qui_reste_ouvert": "le nombre exact par periode",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi": "je n inscris aucun cardinal d intentions : §F n en enonce pas. Aucune valeur materialisee ici n en depend."
     },
     {
       "id": "AMB-FAILURE-2",
-      "fixture": "F-FAILURE",
-      "point": "Le nombre d'intentions offertes par periode et les poids des exigences ne sont pas donnes ; seuls Q=0 et R=0 le sont.",
-      "pourquoi_non_tranche": "T05.A6 exige des 'demandes non servies prevues par F-FAILURE' : leur cardinalite est absente du cahier.",
-      "cahier_line": 121
-    },
-    {
-      "id": "AMB-FAILURE-3",
-      "fixture": "F-FAILURE",
-      "point": "Les couts 0 de P3 et P4 ne sont pas qualifies : zero connu, ou absence de depense. T31.A4 exige qu'un cout UNKNOWN reste accompagne de bornes ou d'un statut inconnu.",
-      "pourquoi_non_tranche": "La ligne 121 dit seulement qu'aucune facture imaginaire n'y est ajoutee.",
-      "cahier_line": 121
-    },
-    {
-      "id": "AMB-FAILURE-4",
-      "fixture": "F-FAILURE",
-      "point": "Le cahier ne dit pas si F-FAILURE partage le scenario de F-QUALITY (meme K=4, memes exigences) ou constitue une trajectoire independante.",
-      "pourquoi_non_tranche": "Le partage determinerait les exigences presentes, donc le denominateur de Q=0.",
-      "cahier_line": 121
+      "question": "Quel etat d arret porte l arret de calcul apres P2 (BUDGET_EXHAUSTED, RUNNER_BLOCKED ou CANCELLED, enumeres ligne 97) ?",
+      "ce_que_le_cahier_fixe": "P3 et P4 ne sont pas supprimees et aucune facture ne leur est ajoutee (ligne 121)",
+      "ce_qui_reste_ouvert": "l etat d arret nomme",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi": "je n inscris pas d etat d arret ; seuls les effets enonces le sont."
     }
-  ],
-  "verbatim": {
-    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
-  }
+  ]
 }

@@ -2,197 +2,216 @@
   "schema": "bench.fixture.transcription/1",
   "fixture": "F-BUDGET",
   "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d acceptation qui citent la fixture ont ete lus en premier, puis confrontes au texte de §F",
   "role": "fixture-transcriber",
   "tache": "T00",
   "etage": "FIXTURES",
   "cahier": "docs/cahier.md",
   "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
-  "verification": "chaque champ cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
+  "verification": "chaque cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
   "source_lines": [
     105
+  ],
+  "citations": [
+    {
+      "cahier_line": 105,
+      "texte": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+    }
   ],
   "consommateurs": [
     {
       "cas": "T16.A2",
       "cahier_line": 295,
-      "exige": "F-BUDGET respecte tous ses montants sous transactions concurrentes"
+      "exige": "F-BUDGET respecte tous ses montants sous transactions concurrentes",
+      "implique": "chaque montant enonce ligne 105 est une valeur de reference ; la concurrence est une condition d execution, pas une valeur"
     },
     {
-      "cas": "T16 (fin)",
+      "cas": "T16.fin",
       "cahier_line": 297,
-      "exige": "invariant `spent + reserved + available = limit` dans les cas sans depassement fournisseur, entiers exacts"
+      "exige": "invariants `spent + reserved + available = limit` dans les cas sans depassement fournisseur, entiers exacts",
+      "implique": "les trois etats enonces ligne 105 doivent sommer a la limite du budget"
     },
     {
-      "cas": "T16.A5",
+      "cas": "T17.A2",
+      "cahier_line": 303,
+      "exige": "panne apres facture et avant reception de reponse donne UNKNOWN, un seul appel et reservation maintenue",
+      "implique": "eclaire le troisieme sous-cas de la ligne 105 : une reservation ambigue reste tenue tant qu elle n est pas reconciliee"
+    },
+    {
+      "cas": "T16.A7",
       "cahier_line": 295,
-      "exige": "un cout inconnu ne devient jamais zero"
+      "exige": "une reservation dont le cout maximal est non borne est refusee en mode plafond strict avec `UNBOUNDED_COST`",
+      "implique": "cas voisin ; aucune valeur de F-BUDGET n en depend"
     }
   ],
-  "valeurs": {
-    "budget_limite": {
-      "v": 1000,
-      "cahier_line": 105
+  "donnees": {
+    "limite": {
+      "valeur": 1000,
+      "cahier_line": 105,
+      "note": "ligne 105 ecrit « Budget 1000 » ; aucune unite n est ecrite sur cette ligne"
     },
-    "sous_cas": {
-      "SC1-concurrence": {
-        "description": {
-          "v": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
-          "cahier_line": 105
-        },
-        "montant_de_chaque_demande": {
-          "v": 600,
-          "cahier_line": 105
-        },
-        "acceptees_simultanement": {
-          "v": false,
-          "cahier_line": 105
-        }
+    "unite": {
+      "valeur": null,
+      "cahier_line": 105,
+      "note": "NON ENONCEE ligne 105. §E ligne 80 pose que tous les montants du domaine sont des entiers non negatifs en micro-USD ; c est une regle generale, pas une mention de la fixture. Meme precaution que l arbitrage SC-001 DIV-1 sur F-FAILURE."
+    },
+    "sous_cas_1_concurrence": {
+      "montant_de_chaque_reservation": {
+        "valeur": 600,
+        "cahier_line": 105
       },
-      "SC2-apres-reglement": {
-        "montant_du_reglement": {
-          "v": 340,
-          "cahier_line": 105
-        },
-        "spent": {
-          "v": 340,
-          "cahier_line": 105
-        },
-        "reserved": {
-          "v": 0,
-          "cahier_line": 105
-        },
-        "available": {
-          "v": 660,
-          "cahier_line": 105
-        }
+      "nombre_de_reservations_concurrentes": {
+        "valeur": 2,
+        "cahier_line": 105
       },
-      "SC3a-reservation-600-depuis-SC2": {
-        "independance": {
-          "v": "teste separement depuis l'etat SC2",
-          "cahier_line": 105
-        },
-        "montant": {
-          "v": 600,
-          "cahier_line": 105
-        },
-        "admissible": {
-          "v": true,
-          "cahier_line": 105
-        },
-        "available_apres": {
-          "v": 60,
-          "cahier_line": 105
-        }
+      "acceptees_au_plus": {
+        "valeur": 1,
+        "cahier_line": 105,
+        "note": "ligne 105 : « ne peuvent pas etre toutes deux acceptees »"
       },
-      "SC3b-reservation-661-depuis-SC2": {
-        "independance": {
-          "v": "teste separement depuis l'etat SC2",
-          "cahier_line": 105
-        },
-        "montant": {
-          "v": 661,
-          "cahier_line": 105
-        },
-        "admissible": {
-          "v": false,
-          "cahier_line": 105
-        },
-        "available_apres": {
-          "v": 660,
-          "cahier_line": 105
-        }
+      "identite_de_l_acceptee": {
+        "valeur": null,
+        "cahier_line": 105,
+        "note": "non fixee par le cahier ; ligne 385 pose d ailleurs que les tests n exigent pas que la meme transaction remporte une course lorsque l ordre n est pas specifie"
+      }
+    },
+    "sous_cas_2_apres_reglement": {
+      "montant_regle": {
+        "valeur": 340,
+        "cahier_line": 105,
+        "note": "meme nombre que le cout d appel de F-MONEY, ligne 103"
       },
-      "SC4-reservation-ambigue": {
-        "independance": {
-          "v": "troisieme sous-cas independant, budget frais et zero depense",
-          "cahier_line": 105
-        },
-        "montant": {
-          "v": 600,
-          "cahier_line": 105
-        },
-        "etat": {
-          "v": "ambigue, non reconciliee",
-          "cahier_line": 105
-        },
-        "available_maintenu": {
-          "v": 400,
-          "cahier_line": 105
-        }
+      "spent": {
+        "valeur": 340,
+        "cahier_line": 105
+      },
+      "reserved": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "available": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_3a_depuis_l_etat_precedent": {
+      "enonce": {
+        "valeur": "une reservation de 600 est admissible et laisse 60 disponibles",
+        "cahier_line": 105
+      },
+      "montant_demande": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 60,
+        "cahier_line": 105
+      },
+      "independance": {
+        "valeur": "teste separement du sous-cas 3b",
+        "cahier_line": 105,
+        "note": "ligne 105 : « Depuis cet etat, tester separement »"
+      }
+    },
+    "sous_cas_3b_depuis_l_etat_precedent": {
+      "enonce": {
+        "valeur": "une de 661 est refusee et laisse 660",
+        "cahier_line": 105
+      },
+      "montant_demande": {
+        "valeur": 661,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": false,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_4_reservation_ambigue": {
+      "enonce": {
+        "valeur": "dans un troisieme sous-cas independant avec budget frais et zero depense, une reservation ambigue de 600 maintient `available=400` tant qu elle n est pas reconciliee",
+        "cahier_line": 105
+      },
+      "budget": {
+        "valeur": "frais",
+        "cahier_line": 105
+      },
+      "depense_initiale": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "montant_demande": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "available": {
+        "valeur": 400,
+        "cahier_line": 105
+      },
+      "condition": {
+        "valeur": "tant qu elle n est pas reconciliee",
+        "cahier_line": 105
       }
     }
   },
-  "conventions": [
+  "verifications_arithmetiques": [
     {
-      "regle": "spent + reserved + available = limit dans les cas sans depassement fournisseur ; entiers exacts.",
-      "cahier_line": 297
+      "expression": "spent 340 + reserved 0 + available 660",
+      "resultat": 1000,
+      "commentaire": "somme = limite ; invariant enonce ligne 297"
     },
     {
-      "regle": "Un appel fournisseur dont la reponse est perdue n'est pas relance aveuglement ; son etat reste ambigu tant qu'il n'est pas reconcilie (invariant D7).",
-      "cahier_line": 69
+      "expression": "340 + 600 + 60",
+      "resultat": 1000,
+      "commentaire": "sous-cas 3a : coherent avec l invariant si les 600 sont comptes en `reserved`"
     },
     {
-      "regle": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires (invariant D9).",
-      "cahier_line": 71
+      "expression": "340 + 0 + 660",
+      "resultat": 1000,
+      "commentaire": "sous-cas 3b : la reservation refusee ne laisse aucune trace comptable"
     },
     {
-      "regle": "Etats d'appel : RESERVED, DISPATCH_STARTED, RESPONSE_STORED, SETTLED, UNKNOWN, CANCELLED_BEFORE_DISPATCH.",
-      "cahier_line": 99
+      "expression": "0 + 600 + 400",
+      "resultat": 1000,
+      "commentaire": "sous-cas 4 : coherent avec l invariant si les 600 sont comptes en `reserved` ; la ligne 105 n ecrit que available=400 et le budget frais vaut donc 1000"
     }
   ],
-  "derives_non_cahier": [
+  "conventions": [
     {
-      "nom": "SC1_etat_apres_arbitrage",
-      "calcul": "spent=0, reserved=600, available=400",
-      "obtenu_par": "invariant ligne 297 applique a une seule reservation de 600 retenue sur un budget de 1000"
+      "regle": "Les nombres exacts se verifient en entier ou rationnel ; tolerance flottante au maximum 1e-12 pour les fixtures arithmetiques de §F.",
+      "cahier_line": 143
     },
     {
-      "nom": "SC3a_etat_complet",
-      "calcul": "spent=340, reserved=600, available=60",
-      "obtenu_par": "invariant ligne 297 ; seul available=60 est ecrit ligne 105"
+      "regle": "Les montants du domaine sont des chaines d entiers non negatifs en micro-USD ; 1000000 vaut 1 USD. Regle generale de §E, non repetee par chaque fixture.",
+      "cahier_line": 80
     },
     {
-      "nom": "SC3b_etat_complet",
-      "calcul": "spent=340, reserved=0, available=660",
-      "obtenu_par": "invariant ligne 297 ; le refus ne change pas l'etat"
-    },
-    {
-      "nom": "SC4_etat_complet",
-      "calcul": "spent=0, reserved=600, available=400",
-      "obtenu_par": "invariant ligne 297 ; seul available=400 est ecrit ligne 105"
+      "regle": "`spent + reserved + available = limit` dans les cas sans depassement fournisseur, entiers exacts",
+      "cahier_line": 297
     }
+  ],
+  "non_fixe_par_le_cahier": [
+    "l unite des montants n est pas ecrite ligne 105",
+    "laquelle des deux reservations concurrentes de 600 est acceptee",
+    "la decomposition spent/reserved des sous-cas 3a et 4 : la ligne 105 n enonce que `available`",
+    "le montant du « budget frais » du sous-cas 4 n est pas reecrit ; 1000 - 600 = 400 le rend coherent avec la limite 1000 de la meme fixture"
   ],
   "ambiguites": [
     {
       "id": "AMB-BUDGET-1",
-      "fixture": "F-BUDGET",
-      "point": "Aucun code de refus n'est nomme : ni pour la seconde reservation concurrente de 600 (SC1), ni pour celle de 661 (SC3b). Le cahier ne nomme qu'UNBOUNDED_COST, et pour un autre cas (T16.A7).",
-      "pourquoi_non_tranche": "Choisir un code inventerait une partie du contrat d'erreur.",
-      "cahier_line": 295
-    },
-    {
-      "id": "AMB-BUDGET-2",
-      "fixture": "F-BUDGET",
-      "point": "SC1 dit que les deux reservations ne peuvent pas etre toutes deux acceptees, sans dire laquelle gagne ni si l'arbitrage est deterministe (premier arrive, ordre d'admission explicite, autre).",
-      "pourquoi_non_tranche": "F-RESERVATION impose une sequence d'admission explicite (ligne 123) mais rien ne l'etend a F-BUDGET.",
-      "cahier_line": 105
-    },
-    {
-      "id": "AMB-BUDGET-3",
-      "fixture": "F-BUDGET",
-      "point": "SC4 ne dit pas quel evenement reconcilie la reservation ambigue, ni vers quel montant elle se resout, ni quel etat d'appel (UNKNOWN ?) la porte.",
-      "pourquoi_non_tranche": "La sortie de l'etat ambigu determinerait available apres reconciliation, valeur absente du cahier.",
-      "cahier_line": 105
-    },
-    {
-      "id": "AMB-BUDGET-4",
-      "fixture": "F-BUDGET",
-      "point": "SC2 regle a 340 une reservation de 600 : le cahier ne dit pas si le solde de 260 est libere par le reglement lui-meme ou par une ecriture distincte.",
-      "pourquoi_non_tranche": "Seul l'etat final (340/0/660) est donne ; le chemin ne l'est pas.",
-      "cahier_line": 105
+      "question": "Dans le sous-cas 4 (reservation ambigue), les 600 non reconcilies sont-ils comptes en `reserved`, ou dans un poste distinct (par ex. un montant d etat UNKNOWN) ?",
+      "ce_que_le_cahier_fixe": "available=400, ligne 105",
+      "ce_qui_reste_ouvert": "la ventilation entre spent, reserved et un eventuel poste ambigu",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi": "je n inscris que la valeur enoncee (available=400) ; la ventilation n est pas materialisee dans cette transcription. T17.A2 (ligne 303, « reservation maintenue ») et l invariant de la ligne 297 pointent vers reserved=600, mais ni l un ni l autre ne l ecrit pour ce sous-cas."
     }
-  ],
-  "verbatim": {
-    "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
-  }
+  ]
 }

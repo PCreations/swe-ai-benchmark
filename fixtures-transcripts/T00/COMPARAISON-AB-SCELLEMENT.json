@@ -1,0 +1,291 @@
+{
+  "schema": "bench.fixture.comparaison/2",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "verdict": "FIXTURES_CONCORDANTES",
+  "scelle": true,
+  "remplace": {
+    "document": "fixtures-transcripts/T00/COMPARAISON-AB.json",
+    "commit_ledger": "f17785e",
+    "verdict_precedent": "FIXTURES_DISCORDANTES",
+    "ce_qui_a_change": "les trois divergences de valeur DIV-1/2/3 ont ete tranchees par SC-001 (RESOLU) et les deux transcriptions ont ete revisees en consequence ; les versions archivees a f17785e sont les versions PRE-arbitrage et restent lisibles a ce commit"
+  },
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "methode": "comparaison VALEUR PAR VALEUR, pas fichier par fichier : les deux transcripteurs encodent differemment (A : rationnels {num,den} ; B : chaines « 5/6 » plus decimal), et un diff textuel n'aurait rien prouve. Les rationnels ont ete normalises avant comparaison ; un diff mecanique des multi-ensembles de nombres a ete execute par fixture, et chaque ecart restant a ete explique (encodage, ou valeur de §H que B reporte pour tracabilite et que A inscrit en `non_specifie`).",
+  "nombre_de_fixtures": 10,
+  "nombre_scelle": 10,
+  "divergences_de_valeur": [],
+  "controles_executes": [
+    {
+      "objet": "DIV-1, unite des couts de F-FAILURE",
+      "commande": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+      "resultat": "0",
+      "conclusion": "la chaine n'est pas en ligne 121 ; l'unite reste NON SPECIFIEE (SC-001)"
+    },
+    {
+      "objet": "DIV-2, nombre attendu de F-REGRESSION",
+      "commande": "sed -n '129p' docs/cahier.md",
+      "resultat": "« ... satisfaite en P3 puis violee en P4 en produit une »",
+      "conclusion": "1 est une transcription, pas un calcul (SC-001)"
+    },
+    {
+      "objet": "DIV-3, poids des exigences en P3/P4 de F-QUALITY",
+      "commande": "docs/spec-conflicts/SC-001-poids-des-exigences.md (RESOLU)",
+      "resultat": "poids fixe a l'introduction",
+      "conclusion": "B@1 pese 1, C@1 pese 2 en P3 et P4 ; reconduit par arbitrage, PAS deduit de l'arithmetique"
+    },
+    {
+      "objet": "coherence des poids scelles avec Q de la ligne 107",
+      "commande": "recalcul des quatre Q depuis acceptance/reference/F-QUALITY.json",
+      "resultat": "Q = [1, 1/2, 3/4, 1] et V = 13/16",
+      "conclusion": "controle de coherence, pas source des poids : d'autres poids reproduiraient les memes Q (c'est le constat de SC-001)"
+    },
+    {
+      "objet": "forme exigee par la verification des references (cahier L165)",
+      "commande": "comptage des occurrences autonomes de 340 et 680 dans acceptance/reference/**, puis simulation de la corruption 340->341 sur la premiere occurrence",
+      "resultat": "F-MONEY.json : 340 x1, 680 x1 ; seul porteur du nom de la fixture ; apres corruption aucun porteur ne porte plus 340 et le fichier reste du JSON bien forme",
+      "conclusion": "la corruption est detectable par le controle de CONTENU, en plus du controle de GEL"
+    },
+    {
+      "objet": "etat de la racine gelee apres commit",
+      "commande": "checkReferences()",
+      "resultat": "source docs/FROZEN_ROOTS.json, racine GELEE, F-MONEY CONFORME, 0 probleme"
+    }
+  ],
+  "concordances_verifiees": {
+    "F-MONEY": "grille 2/1/5, appel 100/40/20 -> 340, deux appels -> 680, champs d'entree disjoints",
+    "F-BUDGET": "budget 1000, deux demandes de 600 dont une au plus acceptee, reglement 340 -> spent 340 / reserved 0 / available 660, puis 600 admissible -> 60 et 661 refusee -> 660, sous-cas independant 600 ambigu -> available 400",
+    "F-QUALITY": "Q=[1,1/2,3/4,1], V=13/16=0.8125, R=[1,1/2,null,1/2], offertes [4,4,0,2], reussies [4,2,0,1], U=2/3, exposition 3/4, reussite agregee 7/10 ; poids A@1=1, B@1=1, C@1=2, A@2=1",
+    "F-COST-RATIO": "[10,90] et [20,100], moyennes 50 et 60, ratio 5/6, contre-valeur 0,7 INCORRECTE",
+    "F-CLUSTERS": "P1 10/20 sur 10 repetitions, P2 90/100 sur 1, moyennes interprojets 50 et 60, onze lignes",
+    "F-BOOTSTRAP": "tirages [P1,P1][P1,P2][P2,P1][P2,P2], ratios [1/2,5/6,5/6,9/10], intervalle 2,5-97,5 % = [1/2,9/10]",
+    "F-RESERVATION": "horloges P1 2030-01-01T00:00:00Z, P2 T01:00, P3 2030-01-02T11:00, P4 T13:00 ; S1 capacite 1 debutant 2030-01-03T12:00:00Z ; frontiere 2030-01-02T12:00:00Z acceptee, +1 ms refusee ; entree de P4 : A annule, B confirme, C en attente ; NOT_FOUND intertenant",
+    "F-FAILURE": "K=4, quatre lignes, Q=[0,0,0,0], R=[0,0,0,0], couts [100,50,0,0] -> 150, unite non specifiee",
+    "F-POWER": "B=(100,1,1) ; A=(80,1,1)/(100,1,1)/(80,0.96,1)/(80,0.99,0.99) ; bornes ratio 0,8/1/0,8/0,8 ; dV 0/0/-0,04/-0,01 ; dU 0/0/0/-0,01 ; T34 [vrai,faux,faux,vrai]",
+    "F-REGRESSION": "cancel@1 (P2) remplacee par cancel@2 (P3) sans regression ; isolation@1 satisfaite P3 puis violee P4 -> 1 regression"
+  },
+  "ambiguites_reportees": [
+    {
+      "id": "test negatif de Q",
+      "releve_par": "A (et recouverte par B)",
+      "fixture": "F-QUALITY",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "id, version, poids, periode de revelation et echeance de l'exigence revelee non encore due ne sont fixes par aucune ligne ; la reference n'inscrit que l'invariant et met les cinq parametres a null"
+    },
+    {
+      "id": "AMB-BUDGET-1",
+      "releve_par": "B",
+      "fixture": "F-BUDGET",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "la ventilation spent/reserved du sous-cas 4 n'est pas materialisee ; seule available=400 l'est"
+    },
+    {
+      "id": "AMB-RESERVATION-1",
+      "releve_par": "B",
+      "fixture": "F-RESERVATION",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "aucun volume de migration n'est materialise ; les 100 reservations de T09.A3 et T21.A1 appartiennent au jeu de donnees de ces taches"
+    },
+    {
+      "id": "AMB-FAILURE-1",
+      "releve_par": "B",
+      "fixture": "F-FAILURE",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "aucun cardinal d'intentions n'est materialise"
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "releve_par": "B",
+      "fixture": "F-FAILURE",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi": "aucun etat d'arret n'est materialise"
+    }
+  ],
+  "regle_appliquee": "une ambiguite n'arrete l'etage que si elle porte sur une valeur a ecrire. Les cinq ci-dessus portent toutes sur des parametres qu'aucune des deux transcriptions n'inscrit et que la reference n'inscrit pas : elles sont citees, pas tranchees.",
+  "materialisation": {
+    "racine": "acceptance/reference",
+    "fichiers": [
+      {
+        "chemin": "acceptance/reference/F-MONEY.json",
+        "sha256": "1e45f792dd7a9f25a25daeff672658425479a06f3bed7a114275f0f29ba6d8d8"
+      },
+      {
+        "chemin": "acceptance/reference/F-BUDGET.json",
+        "sha256": "e6ad0a4d290fb21a491f13aa49f8bfa272bf590bbe35ce50581cc8d28d8e5b86"
+      },
+      {
+        "chemin": "acceptance/reference/F-QUALITY.json",
+        "sha256": "49b57f858208206d751be80404596b821cf37292a8b16c051363d81a3a27dff1"
+      },
+      {
+        "chemin": "acceptance/reference/F-COST-RATIO.json",
+        "sha256": "e2f60aaa5b4a813b894f1df6bd534cbf533727d2e1e1c5acc175e7ce7ba4dcfe"
+      },
+      {
+        "chemin": "acceptance/reference/F-CLUSTERS.json",
+        "sha256": "c108dc5176a02630c79d7ae4eb03868c31be7e0ec6b6e79073f5d4a0e7366b7c"
+      },
+      {
+        "chemin": "acceptance/reference/F-BOOTSTRAP.json",
+        "sha256": "5e9d095233cca29edd2c8eb39a4f5f75c9e8f1e8de73216e456ba11691e46ca6"
+      },
+      {
+        "chemin": "acceptance/reference/F-RESERVATION.json",
+        "sha256": "bc4b6a017d0a2c0ff406cd391062a6f0e5e8505e3fc5cb6be87c7461ca4e3066"
+      },
+      {
+        "chemin": "acceptance/reference/F-FAILURE.json",
+        "sha256": "d7d641e6747a87bba323c22e167cd93dc51ae94168dba079ec8ebe5bb9a1b761"
+      },
+      {
+        "chemin": "acceptance/reference/F-POWER.json",
+        "sha256": "ff2220c51564884399a97edae61cdae00ba98a1f22a89057e05db5c1a94a9f30"
+      },
+      {
+        "chemin": "acceptance/reference/F-REGRESSION.json",
+        "sha256": "a2c8a26b14e5c2924ab0b4ec810a7592d07323de3b347316780fd3273c523a73"
+      }
+    ],
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_de_la_racine": "cd23991",
+    "commit_du_gel": "83bfefd",
+    "declaration": "docs/FROZEN_ROOTS.json"
+  },
+  "archive": [
+    {
+      "source": ".bench/fixtures/A/F-BOOTSTRAP.json",
+      "ledger": "fixtures-transcripts/T00/A/F-BOOTSTRAP.json",
+      "sha256": "ee9be5419c842906e89dafad0976297d4900dcdd2a76b0a0a05844634458ddf0",
+      "octets": 2369
+    },
+    {
+      "source": ".bench/fixtures/A/F-BUDGET.json",
+      "ledger": "fixtures-transcripts/T00/A/F-BUDGET.json",
+      "sha256": "90685a80ac2cd53ffd56d7e2fd026bbf9379719f9641795a8dcdc5a93f41880c",
+      "octets": 4875
+    },
+    {
+      "source": ".bench/fixtures/A/F-CLUSTERS.json",
+      "ledger": "fixtures-transcripts/T00/A/F-CLUSTERS.json",
+      "sha256": "cc76756e2fd472369ae02c77a25a06cad59a28143a75349876717f09e4355441",
+      "octets": 2209
+    },
+    {
+      "source": ".bench/fixtures/A/F-COST-RATIO.json",
+      "ledger": "fixtures-transcripts/T00/A/F-COST-RATIO.json",
+      "sha256": "50db4f3cad204fe7bf840290d6081333bc0a2459a8e4ba5c89e529920ec18a3f",
+      "octets": 1885
+    },
+    {
+      "source": ".bench/fixtures/A/F-FAILURE.json",
+      "ledger": "fixtures-transcripts/T00/A/F-FAILURE.json",
+      "sha256": "b458d9958772abda25496df989741feb405a8e70c38d4942524a1a98d21415a0",
+      "octets": 2029
+    },
+    {
+      "source": ".bench/fixtures/A/F-MONEY.json",
+      "ledger": "fixtures-transcripts/T00/A/F-MONEY.json",
+      "sha256": "44d6ec361fe5dbb4ffe137e5e79b9e0d1a942ba5f334411c07c224d3f3f4229e",
+      "octets": 2492
+    },
+    {
+      "source": ".bench/fixtures/A/F-POWER.json",
+      "ledger": "fixtures-transcripts/T00/A/F-POWER.json",
+      "sha256": "eb100f9b9ddda3664ca627b28341484743fb8b7d29cee71fef94df355b5fe6b6",
+      "octets": 6681
+    },
+    {
+      "source": ".bench/fixtures/A/F-QUALITY.json",
+      "ledger": "fixtures-transcripts/T00/A/F-QUALITY.json",
+      "sha256": "1ddde4676a034e363eef5d8c91257a2b3d39a58de7c52942a1dbc89cf7cffc5d",
+      "octets": 9392
+    },
+    {
+      "source": ".bench/fixtures/A/F-REGRESSION.json",
+      "ledger": "fixtures-transcripts/T00/A/F-REGRESSION.json",
+      "sha256": "9b527b3e449f5fa3e81654dc8813339bd4115e25ea45c98b569d3ff02b325d67",
+      "octets": 1726
+    },
+    {
+      "source": ".bench/fixtures/A/F-RESERVATION.json",
+      "ledger": "fixtures-transcripts/T00/A/F-RESERVATION.json",
+      "sha256": "e701bf7e1d0d1f4a9f7639d3c67a5527c823551e3ad7479570107c5d118ed3d1",
+      "octets": 8117
+    },
+    {
+      "source": ".bench/fixtures/B/F-BOOTSTRAP.json",
+      "ledger": "fixtures-transcripts/T00/B/F-BOOTSTRAP.json",
+      "sha256": "1b8e674e4975c65f8b5569c7b72ee3e91c4bed12326b74f05c75377a457b0cf7",
+      "octets": 5612
+    },
+    {
+      "source": ".bench/fixtures/B/F-BUDGET.json",
+      "ledger": "fixtures-transcripts/T00/B/F-BUDGET.json",
+      "sha256": "70c591811c536a1f2c4614c940335406d2b65e4869486daa4993911d701eb53f",
+      "octets": 8260
+    },
+    {
+      "source": ".bench/fixtures/B/F-CLUSTERS.json",
+      "ledger": "fixtures-transcripts/T00/B/F-CLUSTERS.json",
+      "sha256": "7f5d4e096e0ab0f9e99359c348e175d1046d88d8d36d72cb90a0334deed66b79",
+      "octets": 4073
+    },
+    {
+      "source": ".bench/fixtures/B/F-COST-RATIO.json",
+      "ledger": "fixtures-transcripts/T00/B/F-COST-RATIO.json",
+      "sha256": "93be3c121e9a4d0460905a111072cf1b0991db5e31e826a2bfbd18298c87e6a4",
+      "octets": 4021
+    },
+    {
+      "source": ".bench/fixtures/B/F-FAILURE.json",
+      "ledger": "fixtures-transcripts/T00/B/F-FAILURE.json",
+      "sha256": "91947ab470e9a11d7a177273c592f6924fb9caea21e066420081f8431eca5d61",
+      "octets": 6963
+    },
+    {
+      "source": ".bench/fixtures/B/F-MONEY.json",
+      "ledger": "fixtures-transcripts/T00/B/F-MONEY.json",
+      "sha256": "23b82fdbb1663c67537d90bbd0164e05c6c1d67ed8cfb2cf1a24e5230cea453a",
+      "octets": 6167
+    },
+    {
+      "source": ".bench/fixtures/B/F-POWER.json",
+      "ledger": "fixtures-transcripts/T00/B/F-POWER.json",
+      "sha256": "a9b332466c213b3d5dcd29e6d9cfb2838c0ef5ed100bec0c4ad030fe0d97340e",
+      "octets": 8818
+    },
+    {
+      "source": ".bench/fixtures/B/F-QUALITY.json",
+      "ledger": "fixtures-transcripts/T00/B/F-QUALITY.json",
+      "sha256": "61bd840bf6613642af63833efe57dfb932a908c887dd6641b4abdf440c2fe18b",
+      "octets": 15923
+    },
+    {
+      "source": ".bench/fixtures/B/F-REGRESSION.json",
+      "ledger": "fixtures-transcripts/T00/B/F-REGRESSION.json",
+      "sha256": "4714e4d7443eac5a724d84bcfd9a174cc674b58f37b6fcc2762ba27437dd6c52",
+      "octets": 4398
+    },
+    {
+      "source": ".bench/fixtures/B/F-RESERVATION.json",
+      "ledger": "fixtures-transcripts/T00/B/F-RESERVATION.json",
+      "sha256": "2f985dd267ee59e12bfe008e85d17abd89a2631c73ce6f9f0638cdbe68dba204",
+      "octets": 14448
+    },
+    {
+      "source": ".bench/fixtures/B/INDEX.json",
+      "ledger": "fixtures-transcripts/T00/B/INDEX.json",
+      "sha256": "544d6757c1ccc8ce4528ba36b43198add0a42f99a9e8f4015e5f926535ba1a3b",
+      "octets": 10113
+    }
+  ]
+}

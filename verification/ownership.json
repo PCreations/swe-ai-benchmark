@@ -1,0 +1,70 @@
+{
+  "$comment": [
+    "Partition de chemins par zone, et zones ecrivables par role.",
+    "L'ordre des zones compte : la premiere qui matche gagne. SPEC doit donc",
+    "preceder DOCS, puisque docs/specs/** est inclus dans docs/**.",
+    "Tout chemin suivi doit appartenir a exactement une zone : un chemin non",
+    "revendique declenche UNCLAIMED_PATHS (fail-closed), parce qu'un fichier",
+    "hors partition est aussi hors de tout input_digest.",
+    "Ce fichier est une composante GLOBALE de input_digest : l'elargir re-perime",
+    "les 44 taches, sous un diff qui nomme qui a change les regles."
+  ],
+  "schema": "bench.ownership/1",
+  "zones": {
+    "SPEC": ["docs/specs/**"],
+    "REFERENCE": ["acceptance/reference/**", "docs/FROZEN_ROOTS.json"],
+    "ACCEPTANCE": [
+      "acceptance/*.spec.ts",
+      "acceptance/helpers/**",
+      "analysis/tests/**"
+    ],
+    "GENERATOR": ["verification/generators/**"],
+    "MUTANT": ["verification/mutants/**"],
+    "REGISTRY": [
+      "verification/tasks.json",
+      "verification/cases.lock.json",
+      "verification/limitations.lock.json",
+      "verification/ownership.json"
+    ],
+    "HARNESS": [
+      "verification/runner/**",
+      "verification/schemas/**",
+      "tools/**"
+    ],
+    "IMPL": ["packages/**", "apps/**", "analysis/src/**"],
+    "INFRA": [
+      "infra/**",
+      ".devcontainer/**",
+      ".githooks/**",
+      ".claude/**",
+      ".gitignore",
+      ".gitattributes",
+      "package.json",
+      "pnpm-workspace.yaml",
+      "pnpm-lock.yaml",
+      "tsconfig.base.json",
+      "tsconfig.json",
+      "jest.config.mjs",
+      "analysis/pyproject.toml",
+      "analysis/uv.lock"
+    ],
+    "DOCS": [
+      "docs/**",
+      "README.md",
+      "CLAUDE.md"
+    ]
+  },
+  "roles": {
+    "spec-extractor": ["SPEC", "REGISTRY"],
+    "fixture-transcriber": ["REFERENCE"],
+    "test-author": ["ACCEPTANCE", "MUTANT", "GENERATOR"],
+    "implementer": ["IMPL"],
+    "integrator": ["HARNESS", "REGISTRY", "DOCS", "INFRA", "IMPL"]
+  },
+  "judgement_zones": ["ACCEPTANCE", "REFERENCE", "MUTANT", "GENERATOR"],
+  "notes": {
+    "two_key_rule": "Aucun commit ne peut toucher IMPL et une judgement_zone a la fois, quel que soit le role. C'est le coeur de l'anti-biais coder-reviewer.",
+    "integrator": "Seul role transversal. Ses commits croisant des zones doivent porter un trailer Bench-Cross-Zone referencant un ADR : c'est de la detection (git log --grep), pas de la prevention.",
+    "frozen": "REFERENCE est gelee apres T01. Toute modification deplace docs/FROZEN_ROOTS.json, invalide les 44 attestations et exige un SPEC_CONFLICT."
+  }
+}

@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# ANTI-CIRCULARITÉ (cahier §G) — NE PAS SUIVRE LES PREUVES BRUTES.
+#
+# §G exige que les preuves d'exécution vivent HORS des fichiers suivis, sinon
+# produire la preuve change le commit qu'elle certifie. Les preuves durables
+# vivent sur la branche orpheline `<branch>-ledger`, jamais ici.
+#
+# Ce fichier est lui-même une composante GLOBALE de input_digest : y ajouter un
+# chemin résolu à l'exécution est un affaiblissement visible au diff, jamais
+# silencieux.
+# ─────────────────────────────────────────────────────────────────────────────
+verification/results/
+.bench/
+
+# Dépendances et sorties de build. Motif : la résolution de modules peut
+# atteindre un dist/ périmé invisible à `git status --porcelain` ; c'est
+# pourquoi toute vérification probante s'exécute dans un worktree détaché neuf
+# (`bench accept`), jamais dans l'arbre de travail de l'agent.
+node_modules/
+dist/
+*.tsbuildinfo
+.turbo/
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Divers
+.DS_Store
+*.log

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash tools/bench-resume-hook.sh",
+            "timeout": 10,
+            "statusMessage": "Lecture de l'etat du benchmark"
+          }
+        ]
+      }
+    ]
+  }
+}

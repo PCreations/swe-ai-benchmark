@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────────────────────
+# RÈGLE DES DEUX CLÉS — retour rapide, PAS L'AUTORITÉ.
+#
+# Ce hook est contournable (`--no-verify`) et c'est assumé : l'autorité est
+# `bench accept`, qui re-dérive la partition sur la plage de commits issue du
+# ledger — une valeur que l'implémenteur ne peut pas écrire lui-même. Contourner
+# le hook ne procure donc aucun avantage, seulement un PROOF_TAINTED plus tard.
+# ─────────────────────────────────────────────────────────────────────────────
+set -u
+MSG=$(cat "$1")
+FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$FILES" ] && exit 0
+
+die() { echo "commit refuse - $1" >&2; shift; for l in "$@"; do echo "  $l" >&2; done; exit 1; }
+trailer() { printf '%s\n' "$MSG" | sed -n "s/^$1:[[:space:]]*//p" | tail -1; }
+
+phase=$(trailer Bench-Phase); role=$(trailer Bench-Role); task=$(trailer Bench-Task)
+
+# Le commit de base est l'axiome declare : aucun verificateur ne le controle,
+# `bench resume` l'affiche comme tel, et il n'est JAMAIS atteste.
+[ "$phase" = "bootstrap" ] && exit 0
+
+[ -f verification/ownership.json ] || die "verification/ownership.json absent" \
+  "Tant que la partition n'existe pas, seuls les commits 'Bench-Phase: bootstrap'" \
+  "sont acceptes (fail-closed)."
+
+[ -n "$role" ] || die "trailer 'Bench-Role:' manquant" \
+  "Roles : spec-extractor | fixture-transcriber | test-author | implementer | integrator"
+[ -n "$task" ] || die "trailer 'Bench-Task:' manquant" "Exemple : Bench-Task: T04"
+printf '%s' "$task" | grep -qE '^T([0-3][0-9]|4[0-3])$' \
+  || die "Bench-Task invalide : '$task'" "Attendu T00..T43."
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "node absent : partition non verifiee ici - 'bench accept' la verifiera" >&2
+  exit 0
+fi
+
+printf '%s\n' "$FILES" | xargs node verification/runner/guard-paths.mjs "$role" || exit 1
+exit 0

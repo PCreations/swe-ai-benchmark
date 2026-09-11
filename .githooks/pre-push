@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────────────────────
+# pre-push — refuse la reecriture d'historique sur les refs porteuses de preuve.
+#
+# La reecriture ne peut pas etre EMPECHEE (pas de protection de branche cote
+# serveur ici), seulement DETECTEE. Ce hook ferme le cas accidentel : un
+# rebase/--amend sur le ledger effacerait la trace d'une violation de partition
+# avant qu'aucune porte ne voie la plage de commits.
+# ─────────────────────────────────────────────────────────────────────────────
+set -u
+ZERO=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in *-ledger) ;; *) continue ;; esac
+  [ "$remote_sha" = "$ZERO" ] && continue   # creation de la ref
+  if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+    echo "push refuse - $remote_ref n'est pas en avance rapide." >&2
+    echo "  Le ledger est append-only : il porte les preuves." >&2
+    echo "  Recupere d'abord : bench ledger merge (union-merge, jamais ecraser)." >&2
+    exit 1
+  fi
+done
+exit 0

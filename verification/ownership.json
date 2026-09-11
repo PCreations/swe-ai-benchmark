@@ -60,7 +60,9 @@
       "tsconfig.json",
       "jest.config.mjs",
       "analysis/pyproject.toml",
-      "analysis/uv.lock"
+      "analysis/uv.lock",
+      ".github/**",
+      "docs/toolchain.json"
     ],
     "DOCS": [
       "docs/**",
@@ -104,6 +106,7 @@
     "two_key_rule": "Aucun commit ne peut toucher IMPL et une judgement_zone a la fois, quel que soit le role. C'est le coeur de l'anti-biais coder-reviewer.",
     "integrator": "Seul role transversal. Ses commits croisant des zones doivent porter un trailer Bench-Cross-Zone referencant un ADR : c'est de la detection (git log --grep), pas de la prevention.",
     "frozen": "REFERENCE est gelee apres T01. Toute modification deplace docs/FROZEN_ROOTS.json, invalide les 44 attestations et exige un SPEC_CONFLICT.",
-    "bootstrap_exception": "ADR-004 : l'implementeur de T00/T01 peut ecrire HARNESS et INFRA, parce que le livrable EST le verificateur. L'exception elargit les zones ecrivables ; elle ne touche PAS a l'interdiction de meler IMPL et une zone de jugement dans un meme commit."
+    "bootstrap_exception": "ADR-004 : l'implementeur de T00/T01 peut ecrire HARNESS et INFRA, parce que le livrable EST le verificateur. L'exception elargit les zones ecrivables ; elle ne touche PAS a l'interdiction de meler IMPL et une zone de jugement dans un meme commit.",
+    "infra_scope": ".github/** et docs/toolchain.json sont en INFRA : ce sont des livrables de T00 que le role implementer doit pouvoir ecrire. docs/toolchain.json precede DOCS dans l'ordre des zones, donc il est bien attribue a INFRA (premiere zone qui matche gagne)."
   }
 }

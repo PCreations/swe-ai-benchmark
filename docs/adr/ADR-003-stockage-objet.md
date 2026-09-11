@@ -9,7 +9,7 @@ statique unique, sans démon Docker, politiques d'identité par préfixe qu'exig
 Épinglé : Garage v2.1.0, `x86_64-unknown-linux-musl`. Aucune somme de contrôle
 n'est publiée à l'URL de téléchargement (404 sur `.sha256` et `.sha256sum`,
 vérifié le 11/09/2026) : l'épinglage est donc du *Trust On First Use*, ce que
-`infra/toolchain.lock.json` nomme explicitement plutôt que d'afficher un faux
+`docs/toolchain.json` nomme explicitement plutôt que d'afficher un faux
 digest éditeur.
 
 MinIO reste une alternative équivalente si le besoin change.

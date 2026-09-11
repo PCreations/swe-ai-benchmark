@@ -13,6 +13,7 @@ export const meta = {
     { title: 'Impl', detail: 'zones IMPL/HARNESS — jamais dans le meme commit qu une zone de jugement' },
     { title: 'Audit', detail: 'auditeurs block-only : leur silence n accorde rien' },
     { title: 'Accept', detail: 'bench accept : clean-room, attestation, push' },
+    { title: 'Settle', detail: 'reattester les taches PERIMEES par le travail du tour — sinon la dependance reste WAITING' },
   ],
 }
 
@@ -736,6 +737,31 @@ const results = await pipeline(
   (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME }))
 )
 
+/**
+ * ETAGE SETTLE — CONVERGENCE.
+ *
+ * Observe en vrai, et c'est structurel, pas accidentel : T00 et T01 partagent
+ * des source_paths (verification/, acceptance/). Travailler T01 fait donc bouger
+ * les entrees de T00, dont la preuve tombe PERIMEE ; or T01 depend de T00, donc
+ * T01 accepte et poussee reste affichee « W attend ». Le tour se termine avec
+ * une attestation valide et un tableau qui dit le contraire.
+ *
+ * L'agent d'acceptation avait raison de ne pas rejouer T00 lui-meme — son etage
+ * est nomme T01, et franchir cette frontiere est exactement ce que la partition
+ * interdit. Le rejeu appartient a un etage propre, et c'est celui-ci.
+ *
+ * CE N'EST PAS UNE BOUCLE INFINIE : `bench accept` n'ecrit que sur la branche
+ * ORPHELINE de ledger, dont les commits ne changent jamais le tree hash des
+ * sources. Re-attester ne modifie donc aucun input_digest, et le point fixe est
+ * atteint en un tour. La borne a 5 iterations est une ceinture, pas la garantie.
+ *
+ * AUCUN AFFAIBLISSEMENT POSSIBLE ICI : `bench accept` reste la seule fabrique
+ * d'attestations et refait TOUTE la porte — clean-room vierge, deux cles, porte
+ * rouge, capacites du boot. Cet etage ne fait que la RAPPELER sur des taches que
+ * le tour a perimees ; il ne peut pas en fabriquer le verdict.
+ */
+const settle = await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME })
+
 // L'issue rendue ici est un COMPTE RENDU, pas une preuve. La seule preuve est
 // ce que `bench resume` recalcule depuis les objets git au prochain appel.
 return {
@@ -743,5 +769,6 @@ return {
   classification: classification ? classification.state : 'deja classee',
   frontiere: frontier,
   issues: frontier.map((T, i) => ({ task: T, resultat: results[i] })),
+  settle: settle ? { ok: settle.ok, state: settle.state } : null,
   rappel: 'Verdict reel : relancer `node tools/bench resume`. Ce retour n\'atteste rien.',
 }

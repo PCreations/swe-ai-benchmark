@@ -1,0 +1,93 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "A",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "cadrage": "transcription depuis la SOURCE seule (docs/cahier.md §F) ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      103
+    ],
+    "relecture": [
+      "sed -n '103p' docs/cahier.md"
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 103,
+      "texte": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  ],
+  "conventions_heritees": [
+    {
+      "cahier_line": 80,
+      "extrait": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; `1000000` vaut 1 USD.",
+      "effet": "les montants sont des entiers non negatifs exprimes en micro-USD ; forme canonique = chaine decimale"
+    }
+  ],
+  "grille_tarifaire": {
+    "unite": "micro-USD par token",
+    "entree_non_cachee": {
+      "valeur": 2,
+      "cahier_line": 103
+    },
+    "entree_cachee": {
+      "valeur": 1,
+      "cahier_line": 103
+    },
+    "sortie": {
+      "valeur": 5,
+      "cahier_line": 103
+    }
+  },
+  "appel_de_reference": {
+    "usage": {
+      "tokens_entree_non_caches": {
+        "valeur": 100,
+        "cahier_line": 103
+      },
+      "tokens_entree_caches": {
+        "valeur": 40,
+        "cahier_line": 103
+      },
+      "tokens_sortie": {
+        "valeur": 20,
+        "cahier_line": 103
+      }
+    },
+    "cout_attendu": {
+      "micro_usd": 340,
+      "canonique": "340",
+      "cahier_line": 103
+    }
+  },
+  "deux_appels_identiques": {
+    "nombre_d_appels": {
+      "valeur": 2,
+      "cahier_line": 103
+    },
+    "cout_attendu": {
+      "micro_usd": 680,
+      "canonique": "680",
+      "cahier_line": 103
+    }
+  },
+  "regle_de_disjonction_des_entrees": {
+    "enonce": "Les champs d'entree sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+    "cahier_line": 103,
+    "effet": "les 100 tokens non caches et les 40 caches ne se recouvrent pas ; un total fournisseur de 140 doit etre normalise en 100 + 40 AVANT facturation"
+  },
+  "ambiguites": [
+    {
+      "id": "A-MONEY-1",
+      "portee": "hors perimetre §F",
+      "constat": "Les agregats 2720 (par trajectoire) et 16320 (total) ne figurent PAS en §F. Ils n'apparaissent qu'autour des lignes 491-495 (fixture et acceptation de T38, section H/J).",
+      "position_du_transcripteur": "non transcrits ici : mon cadrage m'interdit les lignes d'acceptation. Signale a l'etage de scellement pour qu'il decide ou ces agregats appartiennent.",
+      "tranche": false
+    }
+  ]
+}

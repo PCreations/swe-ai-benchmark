@@ -1,0 +1,315 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-POWER",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      127
+    ],
+    "relecture": [
+      "sed -n '127p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 127,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "clause": "Acceptation : `T35.A1` F-POWER traversant le vrai pipeline d’analyse produit décisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "exigence_deduite": "la fixture, traversant le VRAI pipeline d analyse, doit rendre decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25."
+    },
+    {
+      "cas": "T35.A2",
+      "cahier_line": 463,
+      "clause": "`A2` 1800 succès sur 2000 donnent 0,9 et sqrt(0,09/2000)",
+      "exigence_deduite": "la formule d erreur standard est epinglee par un second exemple : 1800/2000 -> p=0,9 et se=sqrt(0,09/2000)."
+    },
+    {
+      "cas": "T35.A5",
+      "cahier_line": 463,
+      "clause": "`A5` même entrée/version/graine donne même sortie",
+      "exigence_deduite": "meme entree/version/graine rend la meme sortie."
+    },
+    {
+      "cas": "T35.A6",
+      "cahier_line": 463,
+      "clause": "`A6` arrêt anticipé à la première significativité interdit dans ce plan à effectif fixé",
+      "exigence_deduite": "arret anticipe a la premiere significativite interdit dans ce plan a effectif fixe."
+    },
+    {
+      "cas": "T34.A1",
+      "cahier_line": 453,
+      "clause": "Acceptation : `T34.A1` bornes ratio 0,8, ΔV=0, ΔU=0 et critiques absentes donnent supériorité sur fixture",
+      "exigence_deduite": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite — c est la campagne 1."
+    },
+    {
+      "cas": "T34.A2",
+      "cahier_line": 453,
+      "clause": "`A2` borne ratio=1 refuse",
+      "exigence_deduite": "borne ratio=1 refuse — c est la campagne 2."
+    }
+  ],
+  "donnees": {
+    "nombre_de_campagnes": {
+      "valeur": 4,
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "ids": [
+        "P1",
+        "P2"
+      ],
+      "distincts": true,
+      "portent_les_memes_valeurs": true,
+      "cahier_line": 127
+    },
+    "bras_B": {
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "cahier_line": 127,
+      "citation": "Dans chaque parent, B coûte 100 et a V=U=1"
+    },
+    "bras_A_par_campagne": [
+      {
+        "campagne": 1,
+        "cout": 80,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "cout": 80,
+        "V": 0.96,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99,
+        "cahier_line": 127
+      }
+    ],
+    "conditions_communes": {
+      "comptabilite": "resolue",
+      "violation_critique": "absente",
+      "valeurs": "connues sur les deux bras",
+      "cahier_line": 127
+    },
+    "tirages_parents": {
+      "nature": "exhaustifs",
+      "consequence": "distributions ponctuelles",
+      "cahier_line": 127,
+      "citation": "Les tirages parents exhaustifs donnent des distributions ponctuelles"
+    }
+  },
+  "attendus": [
+    {
+      "nom": "bornes_de_ratio",
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "exact": true,
+      "cahier_line": 127,
+      "citation": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8"
+    },
+    {
+      "nom": "bornes_de_delta_V",
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "exact": true,
+      "cahier_line": 127,
+      "citation": "celles de ΔV 0 / 0 / −0,04 / −0,01"
+    },
+    {
+      "nom": "bornes_de_delta_U",
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "exact": true,
+      "cahier_line": 127,
+      "citation": "celles de ΔU 0 / 0 / 0 / −0,01"
+    },
+    {
+      "nom": "decisions_T34",
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "exact": true,
+      "cahier_line": 127,
+      "citation": "T34 doit produire `[vrai,faux,faux,vrai]`"
+    },
+    {
+      "nom": "puissance",
+      "valeur": 0.5,
+      "exact": true,
+      "cahier_line": 463,
+      "citation": "Acceptation : `T35.A1` F-POWER traversant le vrai pipeline d’analyse produit décisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "portee": "consommateur T35"
+    },
+    {
+      "nom": "erreur_standard",
+      "valeur": 0.25,
+      "exact": true,
+      "cahier_line": 463,
+      "citation": "Acceptation : `T35.A1` F-POWER traversant le vrai pipeline d’analyse produit décisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "portee": "consommateur T35"
+    }
+  ],
+  "regle_de_decision_appliquee": {
+    "cahier_line": 451,
+    "citation": "Règle : supériorité coût si borne supérieure du ratio <1 ; non-infériorité V/U si leurs bornes inférieures >−marge ; aucune violation critique interdite ; comptabilité résolue et données admissibles. Marges d’exemple 0,02. Pour J contrastes et trois critères inférentiels, la famille contient 3J intervalles ; niveau marginal `1−0,05/(3J)` avec correction de Bonferroni. L’absence de violation observée n’est pas un intervalle de sécurité universel.",
+    "criteres": [
+      "superiorite cout si BORNE SUPERIEURE du ratio < 1",
+      "non-inferiorite V/U si leurs BORNES INFERIEURES > -marge",
+      "aucune violation critique",
+      "comptabilite resolue et donnees admissibles"
+    ],
+    "marge": {
+      "valeur": 0.02,
+      "cahier_line": 451,
+      "qualificatif_du_cahier": "« Marges d’exemple 0,02 »",
+      "voir_ambiguite": "AMB-POWER-1"
+    }
+  },
+  "controles_de_coherence": [
+    {
+      "campagne": 1,
+      "calcul": "ratio 80/100 = 0,8 < 1 ; ΔV = 1−1 = 0 > −0,02 ; ΔU = 0 > −0,02",
+      "resultat": "vrai",
+      "concorde_avec": "L127"
+    },
+    {
+      "campagne": 2,
+      "calcul": "ratio 100/100 = 1, non < 1",
+      "resultat": "faux",
+      "concorde_avec": "L127"
+    },
+    {
+      "campagne": 3,
+      "calcul": "ratio 0,8 < 1 ; ΔV = 0,96−1 = −0,04, non > −0,02",
+      "resultat": "faux",
+      "concorde_avec": "L127"
+    },
+    {
+      "campagne": 4,
+      "calcul": "ratio 0,8 < 1 ; ΔV = −0,01 > −0,02 ; ΔU = 0,99−1 = −0,01 > −0,02",
+      "resultat": "vrai",
+      "concorde_avec": "L127"
+    },
+    {
+      "grandeur": "puissance",
+      "calcul": "2 decisions vraies sur 4 campagnes",
+      "resultat": 0.5,
+      "concorde_avec": "L463"
+    },
+    {
+      "grandeur": "erreur_standard",
+      "calcul": "sqrt(p(1−p)/N) = sqrt(0,5·0,5/4) = sqrt(0,0625)",
+      "resultat": 0.25,
+      "concorde_avec": "L463 ; la FORME de la formule est epinglee par T35.A2 (« 1800 succès sur 2000 donnent 0,9 et sqrt(0,09/2000) »)"
+    },
+    {
+      "grandeur": "distributions ponctuelles",
+      "observation": "les deux parents portant les memes valeurs, les quatre reechantillonnages exhaustifs ([P1,P1],[P1,P2],[P2,P1],[P2,P2], cf. L117) rendent tous la meme valeur : borne superieure = borne inferieure = valeur ponctuelle",
+      "concorde_avec": "L127"
+    }
+  ],
+  "limites_declarees": [
+    {
+      "cahier_line": 127,
+      "citation": "Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    },
+    {
+      "cahier_line": 451,
+      "citation": "L’absence de violation observée n’est pas un intervalle de sécurité universel."
+    }
+  ],
+  "derivations_non_enoncees": [],
+  "ambiguites": [
+    {
+      "id": "AMB-POWER-1",
+      "bloquant": false,
+      "porte": "marge utilisee pour les decisions de F-POWER",
+      "question": "§F (L127) enonce les decisions [vrai,faux,faux,vrai] sans nommer la marge. La marge 0,02 est donnee en L451 comme « Marges d’exemple ».",
+      "lectures": [
+        "la marge de F-POWER est 0,02",
+        "la marge de F-POWER est une autre valeur de l intervalle qui reproduit les memes decisions"
+      ],
+      "pourquoi_non_tranche": "Toute marge strictement comprise entre 0,01 et 0,04 reproduit [vrai,faux,faux,vrai] (il faut −0,04 refuse et −0,01 accepte). Le texte n epingle donc pas 0,02 PAR F-POWER.",
+      "appui_textuel": "T34.A3 (L453) : « borne ΔV=−0,02 refuse ». Avec le critere « borne inferieure > −marge », un refus a exactement −0,02 impose marge = 0,02 et une inegalite STRICTE. C est un appui fort, mais il porte sur un cas de T34, pas sur une campagne de F-POWER.",
+      "transcription_retenue_ici": "marge 0,02, avec son qualificatif « d exemple » conserve."
+    },
+    {
+      "id": "AMB-POWER-2",
+      "bloquant": false,
+      "porte": "formule de l erreur standard",
+      "question": "L463 donne se = 0,25 pour F-POWER sans ecrire la formule.",
+      "lectures": [
+        "sqrt(p(1−p)/N) avec N = 4 campagnes",
+        "une autre estimation Monte-Carlo"
+      ],
+      "pourquoi_non_tranche": "T35.A2 (« 1800 succès sur 2000 donnent 0,9 et sqrt(0,09/2000) ») epingle la forme sqrt(p(1−p)/N) ; appliquee a p=0,5 et N=4 elle rend exactement 0,25. La concordance est parfaite mais elle est deduite d un AUTRE cas.",
+      "statut": "levee par concordance, consignee"
+    },
+    {
+      "id": "AMB-POWER-3",
+      "bloquant": false,
+      "porte": "structure interne des campagnes",
+      "question": "« Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 » ne dit ni le nombre de repetitions par parent, ni le nombre de scenarios, ni les budgets.",
+      "lectures": [
+        "une repetition par parent et par bras",
+        "un nombre non specifie, sans effet sur des valeurs ponctuelles"
+      ],
+      "pourquoi_non_tranche": "Les parents portant les memes valeurs et les distributions etant ponctuelles, aucun nombre enonce ne depend de ce choix — mais la fixture materialisee doit bien avoir une forme.",
+      "consequence": "la fixture ne peut pas chiffrer les repetitions sans les inventer."
+    },
+    {
+      "id": "AMB-POWER-4",
+      "bloquant": false,
+      "porte": "rattachement de T34.A3 et T34.A4",
+      "question": "T34.A3 (ΔV=−0,02 refuse) et T34.A4 (ΔU=−0,04 refuse) ne correspondent a AUCUNE campagne de F-POWER (dont les ΔV valent 0/0/−0,04/−0,01 et les ΔU 0/0/0/−0,01).",
+      "lectures": [
+        "ce sont des cas synthetiques propres a T34",
+        "ce sont des variantes de F-POWER a materialiser"
+      ],
+      "pourquoi_non_tranche": "Le cahier ne les rattache pas a F-POWER ; ils sont inscrits ici en consommateurs seulement, sans etre ajoutes aux donnees de la fixture."
+    }
+  ]
+}

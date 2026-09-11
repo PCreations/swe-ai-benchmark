@@ -1,0 +1,103 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "cadrage": "transcription depuis la SOURCE seule (docs/cahier.md §F) ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      121
+    ],
+    "relecture": [
+      "sed -n '121p' docs/cahier.md"
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 121,
+      "texte": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
+  ],
+  "K": {
+    "valeur": 4,
+    "verbatim": "A K=4",
+    "cahier_line": 121
+  },
+  "candidat": {
+    "description": "sans deploiement sur les quatre periodes",
+    "cahier_line": 121
+  },
+  "lignes_conservees": {
+    "nombre": 4,
+    "enonce": "conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont presents",
+    "cahier_line": 121,
+    "condition": "si les exigences et usages y sont presents"
+  },
+  "Q_par_periode": {
+    "valeurs": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cahier_line": 121
+  },
+  "R_par_periode": {
+    "valeurs": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cahier_line": 121,
+    "note": "R=0 et non null : des usages sont presents (cf. convention ligne 111)"
+  },
+  "couts": {
+    "valeurs": [
+      100,
+      50,
+      0,
+      0
+    ],
+    "verbatim": "`[100,50,0,0]`",
+    "cahier_line": 121,
+    "total": {
+      "valeur": 150,
+      "cahier_line": 121
+    }
+  },
+  "arret_de_calcul": {
+    "enonce": "Un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n'y est ajoutee.",
+    "cahier_line": 121,
+    "apres": "P2",
+    "P3_P4": {
+      "conservees": true,
+      "cout_ajoute": 0,
+      "interdit": "facture imaginaire"
+    }
+  },
+  "ambiguites": [
+    {
+      "id": "A-FAILURE-1",
+      "constat": "L'unite des couts [100,50,0,0] n'est pas ecrite ligne 121.",
+      "position_du_transcripteur": "je n'y applique pas d'office le micro-USD de la ligne 80 : F-FAILURE ne parle pas de facturation de modele mais de couts de periode.",
+      "tranche": false
+    },
+    {
+      "id": "A-FAILURE-2",
+      "constat": "« Q=0 et R=0 » est conditionne a « si les exigences et usages y sont presents ». §F ne dit pas ce que valent Q et R quand ils sont absents ; la ligne 111 donne null dans ce cas, mais pour F-QUALITY.",
+      "position_du_transcripteur": "condition transcrite telle quelle, branche absente non completee.",
+      "tranche": false
+    },
+    {
+      "id": "A-FAILURE-3",
+      "constat": "Le total 150 est enonce ligne 121 ; il correspond aux couts donnes. Aucun cout par periode apres l'arret n'est chiffre autrement que par les zeros de P3 et P4.",
+      "position_du_transcripteur": "transcrit tel quel.",
+      "tranche": false
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BUDGET",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      105
+    ],
+    "relecture": [
+      "sed -n '105p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 105,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T16.A2",
+      "cahier_line": 295,
+      "clause": "`A2` F-BUDGET respecte tous ses montants sous transactions concurrentes",
+      "exigence_deduite": "tous les montants de F-BUDGET doivent tenir SOUS TRANSACTIONS CONCURRENTES : la fixture doit donc nommer separement chaque sous-cas et son etat, sinon la concurrence est intestable."
+    },
+    {
+      "cas": "T16.A5",
+      "cahier_line": 295,
+      "clause": "`A5` un coût inconnu ne devient jamais zéro",
+      "exigence_deduite": "un cout inconnu ne devient jamais zero — relie au sous-cas de la reservation ambigue non reconciliee."
+    },
+    {
+      "cas": "T16.A7",
+      "cahier_line": 295,
+      "clause": "`A7` une réservation dont le coût maximal est non borné est refusée en mode plafond strict avec `UNBOUNDED_COST`.",
+      "exigence_deduite": "une reservation au cout maximal non borne est refusee avec `UNBOUNDED_COST` en mode plafond strict ; ce code n est PAS enonce par §F."
+    }
+  ],
+  "donnees": {
+    "limite": 1000,
+    "cahier_line": 105,
+    "invariant": {
+      "formule": "spent + reserved + available = limit",
+      "cahier_line": 297,
+      "citation": "invariants `spent + reserved + available = limit` dans les cas sans dépassement fournisseur",
+      "source_de_la_citation": "L297 (Commande/Fin de T16)"
+    }
+  },
+  "sous_cas": [
+    {
+      "id": "P0-concurrence",
+      "cahier_line": 105,
+      "entree": "deux reservations concurrentes de 600 sur un budget de 1000",
+      "attendu": "les deux ne peuvent pas etre toutes deux acceptees",
+      "citation": "deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées",
+      "nombre_d_acceptees_enonce": null,
+      "note": "le cahier interdit l acceptation des DEUX ; il n ecrit pas explicitement « exactement une est acceptee ». Voir AMB-BUDGET-1."
+    },
+    {
+      "id": "P1-reglement",
+      "cahier_line": 105,
+      "depend_de": "P0-concurrence",
+      "entree": "reglement a 340 de la reservation acceptee",
+      "etat_attendu": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "citation": "Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`."
+    },
+    {
+      "id": "P2a-reservation-600-admissible",
+      "cahier_line": 105,
+      "depend_de": "P1-reglement",
+      "independant_de": [
+        "P2b-reservation-661-refusee"
+      ],
+      "entree": "depuis l etat P1, une reservation de 600",
+      "attendu": {
+        "admissible": true,
+        "available_apres": 60
+      },
+      "citation": "une réservation de 600 est admissible et laisse 60 disponibles",
+      "note_exclusivite": "« Depuis cet état, tester séparément » : P2a et P2b partent tous deux de l etat P1 et ne se composent pas."
+    },
+    {
+      "id": "P2b-reservation-661-refusee",
+      "cahier_line": 105,
+      "depend_de": "P1-reglement",
+      "independant_de": [
+        "P2a-reservation-600-admissible"
+      ],
+      "entree": "depuis l etat P1, une reservation de 661",
+      "attendu": {
+        "admissible": false,
+        "available_apres": 660
+      },
+      "citation": "une de 661 est refusée et laisse 660"
+    },
+    {
+      "id": "P3-reservation-ambigue",
+      "cahier_line": 105,
+      "independant": true,
+      "entree": "budget frais, zero depense, une reservation ambigue de 600",
+      "attendu": {
+        "available": 400,
+        "tant_que": "la reservation n est pas reconciliee"
+      },
+      "citation": "Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+    }
+  ],
+  "attendus": [
+    {
+      "nom": "limite",
+      "valeur": 1000,
+      "exact": true,
+      "cahier_line": 105
+    },
+    {
+      "nom": "P1.spent",
+      "valeur": 340,
+      "exact": true,
+      "cahier_line": 105
+    },
+    {
+      "nom": "P1.reserved",
+      "valeur": 0,
+      "exact": true,
+      "cahier_line": 105
+    },
+    {
+      "nom": "P1.available",
+      "valeur": 660,
+      "exact": true,
+      "cahier_line": 105
+    },
+    {
+      "nom": "P2a.available",
+      "valeur": 60,
+      "exact": true,
+      "cahier_line": 105
+    },
+    {
+      "nom": "P2b.available",
+      "valeur": 660,
+      "exact": true,
+      "cahier_line": 105
+    },
+    {
+      "nom": "P3.available",
+      "valeur": 400,
+      "exact": true,
+      "cahier_line": 105
+    }
+  ],
+  "anti_attendus": [
+    {
+      "nom": "double_acceptation_concurrente",
+      "description": "les deux reservations de 600 acceptees",
+      "cahier_line": 105,
+      "effet_attendu": "interdit"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "etat": "P1",
+      "calcul": "340 + 0 + 660",
+      "resultat": 1000,
+      "concorde_avec": "limite 1000"
+    },
+    {
+      "etat": "P2a",
+      "calcul": "340 + 600 + 60",
+      "resultat": 1000,
+      "concorde_avec": "limite 1000"
+    },
+    {
+      "etat": "P2b",
+      "calcul": "340 + 0 + 660",
+      "resultat": 1000,
+      "concorde_avec": "limite 1000"
+    },
+    {
+      "etat": "P3",
+      "calcul": "0 + 600 + 400",
+      "resultat": 1000,
+      "concorde_avec": "la limite du budget frais vaut donc 1000, pinnee par l arithmetique"
+    },
+    {
+      "etat": "P2b",
+      "calcul": "661 > 660",
+      "resultat": "refus",
+      "concorde_avec": "available=660 apres refus"
+    }
+  ],
+  "conventions_heritees": [
+    {
+      "source": "L69 (§D.7)",
+      "regle": "Un appel fournisseur dont la réponse est perdue n’est pas relancé aveuglément. Son état reste ambigu tant qu’il n’est pas réconcilié.",
+      "effet": "fonde le sous-cas P3 : la reservation ambigue reste reservee, elle ne redevient ni disponible ni depensee"
+    },
+    {
+      "source": "L71 (§D.9)",
+      "regle": "Les dépenses utilisent des entiers exacts, jamais une addition de flottants monétaires."
+    },
+    {
+      "source": "L639 (§K)",
+      "regle": "La revue a déjà fixé les ambiguïtés de budget […] ; l’agent ne doit pas réintroduire une autre convention implicitement.",
+      "effet": "interdit d inventer une convention de budget qui ne soit pas celle de L105"
+    }
+  ],
+  "derivations_non_enoncees": [],
+  "ambiguites": [
+    {
+      "id": "AMB-BUDGET-1",
+      "bloquant": false,
+      "porte": "sous-cas P0",
+      "question": "Le cahier interdit que les deux reservations concurrentes de 600 soient acceptees ; il n ecrit pas qu exactement une l est.",
+      "lectures": [
+        "exactement une acceptee, une refusee",
+        "au plus une acceptee (zero acceptee resterait conforme a la lettre)"
+      ],
+      "pourquoi_non_tranche": "Aucun nombre enonce ne separe les deux. La suite (« la réservation acceptée » au singulier, L105) soutient la premiere lecture sans la demontrer.",
+      "appui_textuel": "L105 : « Après règlement à 340 de la réservation acceptée » — le singulier defini presuppose une acceptee."
+    },
+    {
+      "id": "AMB-BUDGET-2",
+      "bloquant": false,
+      "porte": "code de refus",
+      "question": "Le refus de la reservation de 661 (P2b) et le refus concurrent (P0) ne portent aucun code d erreur nomme en §F.",
+      "lectures": [
+        "reutiliser un code defini ailleurs (§H T16.A7 nomme `UNBOUNDED_COST`, qui vise un autre cas)",
+        "laisser le code libre"
+      ],
+      "pourquoi_non_tranche": "`UNBOUNDED_COST` (L295) vise le cout maximal non borne, pas le depassement de budget. Aucun code de depassement n est nomme dans le cahier."
+    },
+    {
+      "id": "AMB-BUDGET-3",
+      "bloquant": false,
+      "porte": "limite du budget frais (P3)",
+      "question": "Le cahier dit « budget frais » sans re-enoncer sa limite.",
+      "lectures": [
+        "limite 1000, comme la fixture",
+        "une autre limite"
+      ],
+      "pourquoi_non_tranche": "L arithmetique la PINNE : available=400 avec 600 reserves et zero depense impose limit=1000. L ambiguite est donc levee par le cahier lui-meme et n est consignee que pour tracer le raisonnement.",
+      "statut": "levee par arithmetique"
+    }
+  ]
+}

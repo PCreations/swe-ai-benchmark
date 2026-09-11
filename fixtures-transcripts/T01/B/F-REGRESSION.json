@@ -1,0 +1,230 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-REGRESSION",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      129
+    ],
+    "relecture": [
+      "sed -n '129p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 129,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+    },
+    {
+      "cahier_line": 189,
+      "role": "definitions de G et G_new (§H, T04)",
+      "verbatim": "Précision : G compte les régressions actuellement ouvertes, c’est-à-dire les exigences actives dues, autrefois satisfaites et actuellement violées. `G_new` compte celles qui étaient satisfaites à la période précédente comparable et deviennent violées. Une régression persistante contribue à G, sans redevenir nouvelle à chaque période."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "cahier_line": 191,
+      "clause": "`A3` F-REGRESSION exclut `cancel@1` et compte `isolation@1`",
+      "exigence_deduite": "le comptage doit EXCLURE `cancel@1` (retire par remplacement) et COMPTER `isolation@1` (satisfaite puis violee)."
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "clause": "`A4` deux périodes consécutives cassées donnent G=1 aux deux et G_new=1 puis 0",
+      "exigence_deduite": "cas voisin : deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0 — il epingle la distinction G / G_new."
+    },
+    {
+      "cas": "T11.A2",
+      "cahier_line": 251,
+      "clause": "`A2` remplacement de règle en P3 visible et ancienne règle retirée",
+      "exigence_deduite": "le remplacement de regle en P3 doit etre VISIBLE et l ancienne regle RETIREE."
+    }
+  ],
+  "donnees": {
+    "exigences": [
+      {
+        "ref": "cancel@1",
+        "id": "cancel",
+        "version": 1,
+        "cahier_line": 129,
+        "statut_par_periode": {
+          "P2": "satisfaite",
+          "P3": "retiree (remplacee par cancel@2)"
+        },
+        "citation": "Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression."
+      },
+      {
+        "ref": "cancel@2",
+        "id": "cancel",
+        "version": 2,
+        "cahier_line": 129,
+        "introduite_en": "P3",
+        "statut_par_periode": {
+          "P3": null,
+          "P4": null
+        },
+        "note": "le cahier ne dit pas si cancel@2 est satisfaite — voir AMB-REGRESSION-2"
+      },
+      {
+        "ref": "isolation@1",
+        "id": "isolation",
+        "version": 1,
+        "cahier_line": 129,
+        "statut_par_periode": {
+          "P3": "satisfaite",
+          "P4": "violee"
+        },
+        "citation": "Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une."
+      }
+    ],
+    "regle_de_comptage": {
+      "texte": "Compter par id/version active, pas par nombre d’assertions.",
+      "cahier_line": 129
+    }
+  },
+  "definitions_heritees": [
+    {
+      "grandeur": "G",
+      "cahier_line": 189,
+      "texte": "G compte les régressions actuellement ouvertes, c’est-à-dire les exigences actives dues, autrefois satisfaites et actuellement violées."
+    },
+    {
+      "grandeur": "G_new",
+      "cahier_line": 189,
+      "texte": "`G_new` compte celles qui étaient satisfaites à la période précédente comparable et deviennent violées."
+    },
+    {
+      "grandeur": "persistance",
+      "cahier_line": 189,
+      "texte": "Une régression persistante contribue à G, sans redevenir nouvelle à chaque période."
+    }
+  ],
+  "attendus": [
+    {
+      "nom": "regressions_produites_par_le_retrait_de_cancel@1",
+      "valeur": 0,
+      "exact": true,
+      "cahier_line": 129,
+      "citation": "le retrait de `cancel@1` ne produit pas de régression"
+    },
+    {
+      "nom": "regressions_produites_par_isolation@1",
+      "valeur": 1,
+      "exact": true,
+      "cahier_line": 129,
+      "citation": "Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une.",
+      "note": "« en produit une » est une transcription du nombre 1, pas un calcul du transcripteur (arbitrage DIV-2 de SC-001)."
+    },
+    {
+      "nom": "unite_de_comptage",
+      "valeur": "id/version active",
+      "cahier_line": 129,
+      "citation": "Compter par id/version active, pas par nombre d’assertions."
+    }
+  ],
+  "anti_attendus": [
+    {
+      "nom": "comptage_par_assertions",
+      "description": "compter les regressions par nombre d assertions",
+      "cahier_line": 129,
+      "effet_attendu": "interdit"
+    },
+    {
+      "nom": "regression_au_remplacement",
+      "description": "compter une regression quand cancel@1 est retiree au profit de cancel@2",
+      "cahier_line": 129,
+      "effet_attendu": "interdit"
+    },
+    {
+      "nom": "poids_par_assertions",
+      "description": "faire dependre le poids du nombre d assertions",
+      "cahier_line": 72,
+      "citation": "10. Le nombre d’assertions ou de tests ne détermine pas le poids d’une fonctionnalité.",
+      "effet_attendu": "interdit"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "grandeur": "cancel@1 en P3",
+      "raisonnement": "cancel@1 n est plus une exigence ACTIVE due en P3 (remplacee) ; la definition de G (L189) ne retient que les exigences actives dues : elle est donc hors du comptage",
+      "concorde_avec": "L129 + L189"
+    },
+    {
+      "grandeur": "isolation@1 en P4",
+      "raisonnement": "active due, autrefois satisfaite (P3), actuellement violee (P4) : elle satisfait la definition de G",
+      "concorde_avec": "L129 + L189"
+    }
+  ],
+  "derivations_non_enoncees": [
+    {
+      "nom": "G(P4)",
+      "valeur": 1,
+      "derivation": "isolation@1 est la seule exigence active due, autrefois satisfaite et actuellement violee en P4",
+      "enonce_par_le_cahier": "partiellement — L129 dit « en produit une », L189 donne la definition de G ; le cahier n ecrit pas le symbole G(P4)=1"
+    },
+    {
+      "nom": "G_new(P4)",
+      "valeur": 1,
+      "derivation": "isolation@1 etait satisfaite en P3, periode precedente comparable, et devient violee en P4",
+      "enonce_par_le_cahier": false,
+      "note": "deduit de la definition de L189 appliquee aux statuts de L129"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-REGRESSION-1",
+      "bloquant": false,
+      "porte": "valeurs de G et G_new pour P1, P2, P3",
+      "question": "L129 ne donne un nombre que pour la violation d isolation@1 (« en produit une »). G et G_new des autres periodes ne sont pas ecrits.",
+      "lectures": [
+        "G=0 et G_new=0 en P1, P2, P3 (aucune exigence autrefois satisfaite n y est violee)",
+        "non specifie"
+      ],
+      "pourquoi_non_tranche": "La premiere lecture decoule de la definition de L189 appliquee aux statuts de L129, mais aucune ligne ne l ecrit. Elle est inscrite en derivation, pas en attendu.",
+      "transcription_retenue_ici": "non inscrite en attendu."
+    },
+    {
+      "id": "AMB-REGRESSION-2",
+      "bloquant": false,
+      "porte": "statut de cancel@2",
+      "question": "Le cahier ne dit pas si `cancel@2`, introduite en P3, est satisfaite en P3 ou en P4.",
+      "lectures": [
+        "satisfaite (le remplacement est reussi)",
+        "statut non specifie"
+      ],
+      "pourquoi_non_tranche": "Aucune ligne ne l ecrit. Si cancel@2 etait violee en P4 apres avoir ete satisfaite en P3, elle produirait une SECONDE regression et le nombre 1 de L129 tomberait ; la fixture depend donc de ce statut.",
+      "consequence": "le statut est laisse a null, ce qui rend le comptage global de la fixture indetermine hors du cas isolation@1."
+    },
+    {
+      "id": "AMB-REGRESSION-3",
+      "bloquant": false,
+      "porte": "echeance et activite d isolation@1 avant P3",
+      "question": "« satisfaite en P3 » n indique pas si isolation@1 etait deja active et due en P1 ou P2.",
+      "lectures": [
+        "revelee et due a P3",
+        "active plus tot avec un autre statut"
+      ],
+      "pourquoi_non_tranche": "Le nombre 1 de L129 ne depend pas de ce choix, mais le contenu de la fixture (quelles lignes pour P1 et P2) en depend."
+    },
+    {
+      "id": "AMB-REGRESSION-4",
+      "bloquant": false,
+      "porte": "poids des exigences de F-REGRESSION",
+      "question": "Aucun poids n est donne a `cancel@1`, `cancel@2` ni `isolation@1`.",
+      "lectures": [
+        "poids sans objet : G compte des exigences, il ne les pondere pas",
+        "poids necessaires si la fixture doit aussi produire Q"
+      ],
+      "pourquoi_non_tranche": "L129 compte « par id/version active » — un comptage, non une ponderation. Mais le contrat `Requirement` (L88) impose un poids.",
+      "transcription_retenue_ici": "aucun poids inscrit."
+    }
+  ]
+}

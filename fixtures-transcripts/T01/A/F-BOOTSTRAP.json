@@ -1,0 +1,135 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "A",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "cadrage": "transcription depuis la SOURCE seule (docs/cahier.md §F) ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      117
+    ],
+    "relecture": [
+      "sed -n '117p' docs/cahier.md"
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 117,
+      "texte": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  ],
+  "conventions_heritees": [
+    {
+      "cahier_line": 143,
+      "extrait": "Les nombres exacts se verifient en entier ou rationnel. Les fonctions statistiques utilisant des flottants precisent leur tolerance, au maximum `1e-12` pour les fixtures arithmetiques ci-dessus.",
+      "effet": "comparer en entier/rationnel quand la valeur est exacte ; tolerance flottante <= 1e-12"
+    }
+  ],
+  "population": {
+    "enonce": "Sur les deux projets precedents",
+    "cahier_line": 117,
+    "renvoi": "F-COST-RATIO / F-CLUSTERS : P1 (A=10,B=20) et P2 (A=90,B=100)"
+  },
+  "liste_de_reechantillonnages_forcee": {
+    "valeur": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ],
+    "verbatim": "`[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`",
+    "cahier_line": 117,
+    "nombre": 4,
+    "note": "liste FORCEE : aucun tirage pseudo-aleatoire ne doit intervenir"
+  },
+  "ratios_cout_A_sur_B": {
+    "valeurs": [
+      {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "exact_en_float64": true
+      },
+      {
+        "rationnel": "5/6",
+        "num": 5,
+        "den": 6,
+        "exact_en_float64": false
+      },
+      {
+        "rationnel": "5/6",
+        "num": 5,
+        "den": 6,
+        "exact_en_float64": false
+      },
+      {
+        "rationnel": "9/10",
+        "num": 9,
+        "den": 10,
+        "exact_en_float64": false
+      }
+    ],
+    "verbatim": "`[1/2,5/6,5/6,9/10]`",
+    "cahier_line": 117,
+    "ordre": "aligne sur la liste de reechantillonnages ci-dessus"
+  },
+  "intervalle": {
+    "convention": "quantile empirique inverse",
+    "convention_verbatim": "Pour la convention de quantile empirique inverse",
+    "bornes_pourcentage": [
+      2.5,
+      97.5
+    ],
+    "bornes_verbatim": "l'intervalle 2,5 %-97,5 %",
+    "valeur": {
+      "bas": {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "exact_en_float64": true
+      },
+      "haut": {
+        "rationnel": "9/10",
+        "num": 9,
+        "den": 10,
+        "exact_en_float64": false
+      }
+    },
+    "valeur_verbatim": "`[1/2,9/10]`",
+    "cahier_line": 117
+  },
+  "portee_declaree": {
+    "enonce": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+    "cahier_line": 117
+  },
+  "ambiguites": [
+    {
+      "id": "A-BOOTSTRAP-1",
+      "constat": "« convention de quantile empirique inverse » n'est pas definie en §F (choix d'indice, interpolation, arrondi).",
+      "position_du_transcripteur": "je transcris le resultat annonce [1/2,9/10] sans reconstituer la formule.",
+      "tranche": false
+    },
+    {
+      "id": "A-BOOTSTRAP-2",
+      "constat": "§F ne dit pas si les deux bras A et B suivent les memes indices parents dans un meme reechantillonnage.",
+      "position_du_transcripteur": "les quatre ratios donnes sont compatibles avec des indices appaires, mais le texte de §F ne l'enonce pas ; je ne l'ecris pas comme regle.",
+      "tranche": false
+    }
+  ]
+}

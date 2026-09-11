@@ -1,0 +1,168 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-COST-RATIO",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      113
+    ],
+    "relecture": [
+      "sed -n '113p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 113,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "clause": "Acceptation : `T32.A1` F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "exigence_deduite": "l agregation doit rendre les deux moyennes (50 et 60) ET le ratio 5/6 : trois nombres, pas un seul."
+    },
+    {
+      "cas": "T32.A6",
+      "cahier_line": 435,
+      "clause": "`A6` poids des scénarios appliqués à l’intérieur du parent avant poids entre parents.",
+      "exigence_deduite": "les poids de scenario s appliquent A L INTERIEUR du parent avant les poids entre parents ; ici les deux projets sont de poids egal."
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "clause": "`A2` F-COST-RATIO affiche 5/6 et les deux moyennes",
+      "exigence_deduite": "le rapport affiche 5/6 ET les deux moyennes."
+    }
+  ],
+  "donnees": {
+    "projets": [
+      {
+        "id": "projet_1",
+        "cout_A": 10,
+        "cout_B": 20,
+        "cahier_line": 113
+      },
+      {
+        "id": "projet_2",
+        "cout_A": 90,
+        "cout_B": 100,
+        "cahier_line": 113
+      }
+    ],
+    "poids_des_projets": {
+      "egal": true,
+      "valeur_numerique": null,
+      "cahier_line": 113,
+      "citation": "Deux projets de poids égal",
+      "note": "le cahier dit « de poids egal » sans chiffrer le poids"
+    },
+    "appariement_A_B": {
+      "valeur": "par projet, indice a indice",
+      "cahier_line": 113,
+      "appui": "confirme par L115 (F-CLUSTERS) qui nomme les memes couples : « Projet P1 : A=10, B=20 […] Projet P2 : A=90, B=100 »"
+    }
+  },
+  "attendus": [
+    {
+      "nom": "moyenne_A",
+      "valeur": 50,
+      "exact": true,
+      "cahier_line": 113,
+      "citation": "Moyennes A=50 et B=60"
+    },
+    {
+      "nom": "moyenne_B",
+      "valeur": 60,
+      "exact": true,
+      "cahier_line": 113,
+      "citation": "Moyennes A=50 et B=60"
+    },
+    {
+      "nom": "ratio_principal_A_sur_B",
+      "valeur": "5/6",
+      "exact": true,
+      "forme": "rationnelle",
+      "cahier_line": 113,
+      "citation": "ratio principal A/B=`5/6`",
+      "definition": "ratio DES MOYENNES, pas moyenne des ratios"
+    }
+  ],
+  "anti_attendus": [
+    {
+      "nom": "moyenne_des_ratios",
+      "valeur_fausse": 0.7,
+      "exact": true,
+      "cahier_line": 113,
+      "citation": "La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique.",
+      "effet_attendu": "resultat incorrect pour cette metrique — une mutation doit le detecter (T32, Fin, L437)"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "grandeur": "moyenne_A",
+      "calcul": "(10+90)/2",
+      "resultat": 50,
+      "concorde_avec": "L113"
+    },
+    {
+      "grandeur": "moyenne_B",
+      "calcul": "(20+100)/2",
+      "resultat": 60,
+      "concorde_avec": "L113"
+    },
+    {
+      "grandeur": "ratio",
+      "calcul": "50/60",
+      "resultat": "5/6",
+      "concorde_avec": "L113"
+    },
+    {
+      "grandeur": "moyenne_des_ratios",
+      "calcul": "(10/20 + 90/100)/2",
+      "resultat": 0.7,
+      "concorde_avec": "L113 (anti-attendu)"
+    }
+  ],
+  "conventions_heritees": [
+    {
+      "source": "L143 (§G)",
+      "regle": "Les nombres exacts se vérifient en entier ou rationnel. […] au maximum `1e-12` pour les fixtures arithmétiques ci-dessus.",
+      "effet": "5/6 se verifie en rationnel, pas en decimal tronque"
+    }
+  ],
+  "derivations_non_enoncees": [],
+  "ambiguites": [
+    {
+      "id": "AMB-COST-RATIO-1",
+      "bloquant": false,
+      "porte": "unite des couts",
+      "question": "Le cahier ne donne aucune unite aux couts [10,90] et [20,100] de la ligne 113.",
+      "lectures": [
+        "micro-USD par heritage de F-MONEY (L103)",
+        "sans unite : nombres purs de la fixture arithmetique"
+      ],
+      "pourquoi_non_tranche": "Controle execute : `sed -n '113p' docs/cahier.md | grep -c 'micro-USD'` rend 0. L unite n est pas ecrite sur cette ligne ; l inscrire serait l inventer (meme faute que DIV-1 de SC-001).",
+      "transcription_retenue_ici": "aucune unite inscrite."
+    },
+    {
+      "id": "AMB-COST-RATIO-2",
+      "bloquant": false,
+      "porte": "valeur numerique du poids des projets",
+      "question": "« Deux projets de poids egal » ne chiffre pas le poids (1 chacun ? 1/2 chacun ?).",
+      "lectures": [
+        "1 et 1",
+        "1/2 et 1/2"
+      ],
+      "pourquoi_non_tranche": "Les deux donnent moyenne_A=50 et moyenne_B=60 ; aucun nombre enonce ne les separe."
+    }
+  ]
+}

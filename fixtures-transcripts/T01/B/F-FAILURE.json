@@ -1,0 +1,280 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-FAILURE",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      121
+    ],
+    "relecture": [
+      "sed -n '121p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 121,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "clause": "`A6` sans déploiement, la clôture d’une période produit les demandes non servies prévues par F-FAILURE.",
+      "exigence_deduite": "sans deploiement, la CLOTURE d une periode doit produire les demandes non servies prevues par la fixture : les intentions ne disparaissent pas."
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "clause": "`A4` F-FAILURE conserve quatre résultats",
+      "exigence_deduite": "F-FAILURE conserve QUATRE resultats : aucune periode n est supprimee."
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "clause": "Acceptation : `T31.A1` F-FAILURE exporte quatre périodes et total 150",
+      "exigence_deduite": "l export rend quatre periodes ET le total 150."
+    },
+    {
+      "cas": "T31.A4",
+      "cahier_line": 427,
+      "clause": "`A4` coût UNKNOWN reste accompagné de bornes ou statut inconnu",
+      "exigence_deduite": "un cout UNKNOWN reste accompagne de bornes ou d un statut inconnu — jamais converti en zero."
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "clause": "`A7` F-FAILURE produit un échec produit dans une exécution moteur terminée",
+      "exigence_deduite": "F-FAILURE produit un ECHEC PRODUIT dans une execution moteur TERMINEE : les deux niveaux (echec produit / execution valide) restent distincts."
+    }
+  ],
+  "donnees": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121,
+      "signification": "nombre de periodes"
+    },
+    "deploiement": {
+      "valeur": "aucun sur les quatre periodes",
+      "cahier_line": 121,
+      "deployment_coverage": "NO_DEPLOYMENT",
+      "deployment_coverage_source": "L97 (§E) — enum ; la valeur est deduite de « sans déploiement », elle n est pas ecrite en L121"
+    },
+    "condition": {
+      "texte": "si les exigences et usages y sont présents",
+      "cahier_line": 121,
+      "effet": "Q=0 et R=0 ne valent que sous cette condition ; sans usage, CONV-R-NULL (L111) s appliquerait"
+    },
+    "couts": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "unite": null,
+      "cahier_line": 121,
+      "note_unite": "controle execute : `sed -n '121p' docs/cahier.md | grep -c 'micro-USD'` rend 0. L unite n est PAS ecrite sur cette ligne ; elle n est pas inscrite ici (cf. DIV-1 de SC-001)."
+    },
+    "arret_de_calcul": {
+      "apres": "P2",
+      "cahier_line": 121,
+      "effet": "ne supprime pas P3 et P4 ; aucune facture imaginaire n y est ajoutee",
+      "etat_nomme": null,
+      "etats_possibles": [
+        "BUDGET_EXHAUSTED",
+        "RUNNER_BLOCKED",
+        "CANCELLED"
+      ],
+      "etats_possibles_source": "L97 (§E)"
+    }
+  },
+  "attendus": [
+    {
+      "nom": "nombre_de_lignes",
+      "valeur": 4,
+      "exact": true,
+      "cahier_line": 121,
+      "citation": "conserve quatre lignes"
+    },
+    {
+      "nom": "Q_par_periode",
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "exact": true,
+      "cahier_line": 121,
+      "citation": "quatre lignes avec Q=0 et R=0"
+    },
+    {
+      "nom": "R_par_periode",
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "exact": true,
+      "cahier_line": 121,
+      "citation": "quatre lignes avec Q=0 et R=0"
+    },
+    {
+      "nom": "couts_par_periode",
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "exact": true,
+      "cahier_line": 121,
+      "citation": "Ses coûts `[100,50,0,0]`"
+    },
+    {
+      "nom": "cout_total",
+      "valeur": 150,
+      "exact": true,
+      "cahier_line": 121,
+      "citation": "totalisent 150"
+    },
+    {
+      "nom": "periodes_exportees",
+      "valeur": 4,
+      "exact": true,
+      "cahier_line": 427,
+      "citation": "Acceptation : `T31.A1` F-FAILURE exporte quatre périodes et total 150",
+      "portee": "consommateur T31"
+    }
+  ],
+  "anti_attendus": [
+    {
+      "nom": "suppression_de_P3_P4",
+      "description": "l arret de calcul apres P2 retire P3 et P4",
+      "cahier_line": 121,
+      "effet_attendu": "interdit"
+    },
+    {
+      "nom": "facture_imaginaire",
+      "description": "ajouter une facture a P3 ou P4",
+      "cahier_line": 121,
+      "effet_attendu": "interdit"
+    },
+    {
+      "nom": "filtre_de_survivants",
+      "description": "exclure la trajectoire echouee de l analyse",
+      "cahier_line": 429,
+      "citation": "Fin : aucun filtre implicite de survivants et aucune valeur vide convertie en zéro.",
+      "effet_attendu": "interdit"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "grandeur": "cout_total",
+      "calcul": "100 + 50 + 0 + 0",
+      "resultat": 150,
+      "concorde_avec": "L121 et L427"
+    },
+    {
+      "grandeur": "couts P3/P4",
+      "observation": "les zeros de P3 et P4 sont coherents avec « aucune facture imaginaire n y est ajoutee » apres l arret de calcul",
+      "concorde_avec": "L121"
+    },
+    {
+      "grandeur": "deux niveaux",
+      "observation": "L28 (§B) : « Une vraie IA qui échoue à développer produit un résultat candidat `FAILED` dans une exécution du moteur éventuellement valide. » — c est exactement ce que T38.A7 exige de F-FAILURE",
+      "concorde_avec": "L493"
+    }
+  ],
+  "derivations_non_enoncees": [
+    {
+      "nom": "V",
+      "valeur": 0,
+      "derivation": "moyenne de Q=[0,0,0,0]",
+      "enonce_par_le_cahier": false
+    },
+    {
+      "nom": "U",
+      "valeur": 0,
+      "derivation": "moyenne de R=[0,0,0,0] sur les periodes exposees",
+      "enonce_par_le_cahier": false
+    },
+    {
+      "nom": "exposition",
+      "valeur": "4/4",
+      "derivation": "les quatre periodes ont des usages presents (condition de L121) donc R != null partout",
+      "enonce_par_le_cahier": false
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-FAILURE-1",
+      "bloquant": false,
+      "porte": "unite des couts",
+      "question": "L121 ecrit des couts sans unite.",
+      "lectures": [
+        "micro-USD par heritage de F-MONEY (L103)",
+        "sans unite"
+      ],
+      "pourquoi_non_tranche": "Le controle `sed -n '121p' docs/cahier.md | grep -c 'micro-USD'` rend 0. Attribuer micro-USD a cette ligne serait une attribution non soutenue par sa source — c est exactement l erreur DIV-1 relevee contre la transcription B lors du scellement precedent (SC-001).",
+      "transcription_retenue_ici": "unite: null"
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "bloquant": false,
+      "porte": "etat d arret de calcul",
+      "question": "L121 dit « un arret de calcul apres P2 » sans nommer lequel des trois etats de L97 (BUDGET_EXHAUSTED, RUNNER_BLOCKED, CANCELLED).",
+      "lectures": [
+        "BUDGET_EXHAUSTED",
+        "RUNNER_BLOCKED",
+        "CANCELLED"
+      ],
+      "pourquoi_non_tranche": "L invariant exige (P3 et P4 conservees, aucune facture imaginaire) est le meme pour les trois ; mais la fixture materialisee doit bien porter UNE valeur d enum.",
+      "transcription_retenue_ici": "etat_nomme: null, avec les trois possibles listes."
+    },
+    {
+      "id": "AMB-FAILURE-3",
+      "bloquant": false,
+      "porte": "lien entre les couts [100,50,0,0] et l arret apres P2",
+      "question": "Le cahier enonce les couts puis, dans la phrase suivante, l arret apres P2. Il n ecrit pas que l arret est la CAUSE des zeros.",
+      "lectures": [
+        "un seul scenario : l arret apres P2 explique les couts nuls de P3 et P4",
+        "deux enonces independants sur la meme fixture"
+      ],
+      "pourquoi_non_tranche": "Les nombres sont les memes dans les deux lectures ; le NOMBRE DE SCENARIOS que la fixture doit materialiser differe (un ou deux)."
+    },
+    {
+      "id": "AMB-FAILURE-4",
+      "bloquant": false,
+      "porte": "attempt_outcome",
+      "question": "§E (L97) impose `attempt_outcome` parmi SUCCESS/FAILED/CANCELLED. §F ne le donne pas pour F-FAILURE.",
+      "lectures": [
+        "FAILED sur les quatre periodes",
+        "FAILED puis CANCELLED apres l arret de calcul"
+      ],
+      "pourquoi_non_tranche": "Aucune ligne ne l ecrit. Non inscrit plutot qu invente.",
+      "transcription_retenue_ici": "non inscrit."
+    },
+    {
+      "id": "AMB-FAILURE-5",
+      "bloquant": false,
+      "porte": "intentions offertes et exigences",
+      "question": "« si les exigences et usages y sont présents » conditionne Q=0 et R=0, sans chiffrer ni les exigences ni les intentions offertes par periode.",
+      "lectures": [
+        "reprendre les intentions de F-QUALITY ([4,4,0,2])",
+        "un jeu propre a F-FAILURE, non chiffre"
+      ],
+      "pourquoi_non_tranche": "R=0 sur les QUATRE periodes exige des intentions offertes NON NULLES sur les quatre (sinon CONV-R-NULL, L111, rendrait null) : cela EXCLUT la reprise telle quelle de [4,4,0,2], dont P3 vaut 0. Aucun autre jeu n est ecrit.",
+      "consequence": "la fixture ne peut pas chiffrer les intentions offertes sans les inventer."
+    }
+  ]
+}

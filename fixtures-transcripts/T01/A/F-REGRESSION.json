@@ -1,0 +1,89 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcripteur": "A",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "cadrage": "transcription depuis la SOURCE seule (docs/cahier.md §F) ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      129
+    ],
+    "relecture": [
+      "sed -n '129p' docs/cahier.md"
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 129,
+      "texte": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+    }
+  ],
+  "cas": [
+    {
+      "id": "REGRESSION-1-remplacement",
+      "exigence": "cancel@1",
+      "chronologie": [
+        {
+          "periode": "P2",
+          "fait": "satisfaite",
+          "cahier_line": 129
+        },
+        {
+          "periode": "P3",
+          "fait": "remplacee par `cancel@2`",
+          "cahier_line": 129
+        }
+      ],
+      "remplacant": "cancel@2",
+      "regression": false,
+      "enonce": "le retrait de `cancel@1` ne produit pas de regression",
+      "cahier_line": 129
+    },
+    {
+      "id": "REGRESSION-2-violation",
+      "exigence": "isolation@1",
+      "chronologie": [
+        {
+          "periode": "P3",
+          "fait": "satisfaite",
+          "cahier_line": 129
+        },
+        {
+          "periode": "P4",
+          "fait": "violee",
+          "cahier_line": 129
+        }
+      ],
+      "regression": true,
+      "enonce": "Une exigence `isolation@1` satisfaite en P3 puis violee en P4 en produit une.",
+      "cahier_line": 129
+    }
+  ],
+  "nombre_de_regressions_attendu": {
+    "valeur": 1,
+    "cahier_line": 129,
+    "justification_textuelle": "un seul « en produit une » dans l'enonce ; le cas `cancel@1` en produit zero"
+  },
+  "regle_de_comptage": {
+    "enonce": "Compter par id/version active, pas par nombre d'assertions.",
+    "cahier_line": 129
+  },
+  "ambiguites": [
+    {
+      "id": "A-REGRESSION-1",
+      "constat": "§F ne dit pas si les deux cas coexistent dans UNE meme trajectoire (auquel cas le total vaut 1) ou s'ils sont deux scenarios separes (1 et 0).",
+      "position_du_transcripteur": "j'inscris le compte par cas et un total de 1, en signalant la lecture.",
+      "tranche": "partiellement"
+    },
+    {
+      "id": "A-REGRESSION-2",
+      "constat": "P1 n'est pas mentionnee ; le nombre de periodes de F-REGRESSION n'est pas enonce (P2, P3 et P4 seules sont citees).",
+      "position_du_transcripteur": "aucun K inscrit pour cette fixture.",
+      "tranche": false
+    }
+  ]
+}

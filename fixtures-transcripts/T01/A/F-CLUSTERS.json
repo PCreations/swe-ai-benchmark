@@ -1,0 +1,87 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "A",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "cadrage": "transcription depuis la SOURCE seule (docs/cahier.md §F) ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      115
+    ],
+    "relecture": [
+      "sed -n '115p' docs/cahier.md"
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 115,
+      "texte": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  ],
+  "projets": [
+    {
+      "id": "P1",
+      "A": 10,
+      "B": 20,
+      "repetitions": 10,
+      "qualificatif": "dix repetitions identiques",
+      "cahier_line": 115
+    },
+    {
+      "id": "P2",
+      "A": 90,
+      "B": 100,
+      "repetitions": 1,
+      "cahier_line": 115
+    }
+  ],
+  "moyennes_interprojets": {
+    "A": {
+      "valeur": 50,
+      "cahier_line": 115
+    },
+    "B": {
+      "valeur": 60,
+      "cahier_line": 115
+    },
+    "verbatim": "Moyennes interprojets encore 50 et 60.",
+    "note": "« encore » renvoie aux moyennes de F-COST-RATIO (ligne 113)"
+  },
+  "regle_anti_naive": {
+    "enonce": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation.",
+    "cahier_line": 115,
+    "nombre_de_lignes": 11,
+    "valeur_naive": null,
+    "valeur_naive_note": "le cahier ne chiffre PAS la moyenne naive ; je ne la calcule pas (les valeurs viennent du cahier, jamais d'un calcul)"
+  },
+  "invariance_par_duplication": {
+    "enonce": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+    "cahier_line": 115,
+    "repetitions_P1_apres_duplication": 20,
+    "estimation_ponctuelle_attendue": "inchangee"
+  },
+  "ambiguites": [
+    {
+      "id": "A-CLUSTERS-1",
+      "constat": "« l'estimation ponctuelle » n'est pas nommee ligne 115 : moyennes 50/60, ratio, ou les deux ?",
+      "position_du_transcripteur": "je n'arbitre pas ; j'inscris « inchangee » sans fixer quelle grandeur.",
+      "tranche": false
+    },
+    {
+      "id": "A-CLUSTERS-2",
+      "constat": "Le ratio interprojets n'est pas reenonce ligne 115 ; seules les moyennes 50 et 60 le sont.",
+      "position_du_transcripteur": "je ne reporte pas 5/6 ici depuis la ligne 113, malgre le mot « encore ».",
+      "tranche": false
+    },
+    {
+      "id": "A-CLUSTERS-3",
+      "constat": "« repetitions identiques » : P1 porte dix fois exactement (A=10, B=20). Le nombre de repetitions de P2 (1) est deduit de « sur une repetition ».",
+      "position_du_transcripteur": "lecture litterale.",
+      "tranche": false
+    }
+  ]
+}

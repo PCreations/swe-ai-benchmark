@@ -1,0 +1,208 @@
+{
+  "schema": "bench.fixtures-comparaison/1",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber (scellement)",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [101, 129]
+  },
+  "transcriptions_comparees": {
+    "A": {
+      "cadrage": "source d'abord — §F fixture par fixture, aucun cas d'acceptation lu",
+      "fichiers": 10
+    },
+    "B": {
+      "cadrage": "consommateurs d'abord — les cas d'acceptation qui citent la fixture sont lus avant §F",
+      "fichiers": 11,
+      "note": "B ajoute un INDEX.json recapitulatif"
+    }
+  },
+  "methode": [
+    "comparaison VALEUR PAR VALEUR, pas fichier par fichier : les deux transcriptions ont des schemas differents (A serialise les rationnels en {num,den}, B en chaines '5/6' ; A n'ecrit que §F, B annote en plus les valeurs de §H avec un champ `portee`).",
+    "extraction mecanique de l'ensemble des scalaires de chaque fixture des deux cotes, puis diff des ensembles ; chaque ecart a ete ouvert et qualifie a la main.",
+    "puis confrontation de la transcription COMMUNE a la racine deja scellee acceptance/reference/** : 59 attendus du §F, chacun verifie present des trois cotes (A, B, scelle)."
+  ],
+  "resultat": {
+    "divergences_de_valeur": 0,
+    "verdict": "CONCORDANTES",
+    "attendus_du_F_verifies": 59,
+    "attendus_en_defaut": 0
+  },
+  "ecarts_ouverts_et_qualifies": [
+    {
+      "fixture": "F-MONEY",
+      "ecart": "B inscrit 2720, 16320, 48 et l'anti-attendu 341 ; A ne les inscrit pas",
+      "qualification": "PAS UNE DIVERGENCE DE VALEUR — ces nombres sont en §H (L165, L493), pas en §F. B les porte avec un champ `portee` explicite (« consommateur T38 », « pas §F ») ; A les signale hors perimetre (A-MONEY-1). Les deux transcriptions s'accordent donc sur le fait qu'ils n'appartiennent pas a §F. Aucun n'est materialise dans la racine.",
+      "cahier_line": 493
+    },
+    {
+      "fixture": "F-POWER",
+      "ecart": "B inscrit puissance 0,5, erreur standard 0,25 et marge 0,02 ; A ne les inscrit pas",
+      "qualification": "PAS UNE DIVERGENCE — L463 (T35) et L451 sont en §H. B les marque `portee: consommateur T35` ; A declare explicitement ne pas les avoir lues (A-POWER-2). La racine scellee les liste en `non_fixe_par_le_cahier` pour la ligne 127.",
+      "cahier_line": 463
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "ecart": "B inscrit 100 reservations preservees par la migration P4 ; A ne l'inscrit pas",
+      "qualification": "PAS UNE DIVERGENCE — le nombre 100 vient de T09.A3 (L233). B le porte avec `portee: consommateur T09`. §F ne chiffre aucun volume ; la racine scellee l'inscrit en `non_fixe_par_le_cahier`.",
+      "cahier_line": 233
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "ecart": "B inscrit nombre_de_grappes = 2 ; A ne l'inscrit pas",
+      "qualification": "PAS UNE DIVERGENCE — B le derive de « Projet P1 » / « Projet P2 » et le marque comme deduit. Aucune valeur contraire cote A.",
+      "cahier_line": 115
+    },
+    {
+      "fixture": "F-QUALITY, F-COST-RATIO, F-BOOTSTRAP",
+      "ecart": "A serialise les rationnels en {num, den} (3, 4, 7, 10, 13, 16, 5, 6, 9) ; B en chaines ('3/4', '7/10', '13/16', '5/6', '9/10') plus un champ decimal (0,5 / 0,7 / 0,75 / 0,9)",
+      "qualification": "PAS UNE DIVERGENCE — meme nombre, deux serialisations. Le §F ne fixe pas de format ; L143 exige seulement la comparaison en entier ou rationnel.",
+      "cahier_line": 143
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "ecart": "A ecrit `regression: false` pour le retrait de cancel@1 ; B ecrit la valeur 0",
+      "qualification": "PAS UNE DIVERGENCE — « ne produit pas de regression » : booleen d'un cote, cardinal de l'autre, meme fait. Les deux portent 1 pour isolation@1.",
+      "cahier_line": 129
+    },
+    {
+      "fixture": "F-BUDGET, F-COST-RATIO",
+      "ecart": "A inscrit 600, 661, 2 comme nombres ; B les porte dans des champs de texte (`entree`, `calcul`)",
+      "qualification": "PAS UNE DIVERGENCE — memes montants, l'un structure, l'autre cite.",
+      "cahier_line": 105
+    }
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets": [
+        "F-QUALITY : le poids est fixe a l'introduction — B@1 pese 1 et C@1 pese 2 en P3 et P4. A et B l'appliquent tous deux ; B cite explicitement SC-001 et conserve la reserve que la regle n'est epinglee par aucune valeur du cahier.",
+        "F-FAILURE (DIV-1) : l'unite des couts reste NON SPECIFIEE. Controle reexecute ce tour : `sed -n '121p' docs/cahier.md | grep -c 'micro-USD'` -> 0. A et B inscrivent tous deux null.",
+        "F-REGRESSION (DIV-2) : le nombre attendu vaut 1, transcrit de « en produit une » (L129). A et B concordent."
+      ]
+    }
+  ],
+  "ambiguites_reportees_non_bloquantes": [
+    {
+      "id": "A-RESERVATION-1 / AMB-RESERVATION-2",
+      "releve_par": "A et B",
+      "fixture": "F-RESERVATION",
+      "cahier_line": 125,
+      "question": "« P3 le 2 janvier a 11:00, P4 a 13:00 » : le jour de P4 n'est pas reenonce.",
+      "porte_sur_une_valeur_scellee": true,
+      "valeur_scellee": "2030-01-02T13:00:00Z",
+      "pourquoi_non_bloquante": [
+        "AUCUNE DIVERGENCE : les deux transcripteurs, a cadrages opposes et sans se voir, ont ecrit le meme instant. C'est exactement le signal que la double transcription existe pour produire.",
+        "L'ellipse de jour n'est pas propre a P4 : la meme phrase la pratique deja pour P2 (« P2 a 01:00 », jour repris du 1er janvier de P1), et personne ne conteste 2030-01-01T01:00:00Z. Refuser l'ellipse pour P4 en l'acceptant pour P2 appliquerait deux regles contradictoires a une meme enumeration ; la lecture alternative (3 janvier) exigerait en outre d'inventer un jour que la phrase n'ecrit pas.",
+        "La valeur n'est pas introduite par ce scellement : elle est deja dans la racine gelee, inscrite avec sa note « date par ellipse sur le 2 janvier de P3 ». Bloquer ici n'empecherait donc aucun gel : ce serait de la prudence sans effet."
+      ],
+      "ce_qui_reste_une_hypothese": "Le jour de P4 n'est ecrit nulle part dans le cahier. Si l'ellipse est mal lue, l'erreur serait silencieuse. Cette entree dit exactement ce qui est suppose, plutot que de laisser croire que le cahier l'enonce."
+    },
+    {
+      "id": "A-BUDGET-1 / AMB-BUDGET-3",
+      "releve_par": "A et B",
+      "fixture": "F-BUDGET",
+      "cahier_line": 105,
+      "question": "Le « budget frais » du 3e sous-cas ne reenonce pas sa limite.",
+      "porte_sur_une_valeur_scellee": true,
+      "valeur_scellee": 1000,
+      "pourquoi_non_bloquante": "A et B concordent : available=400 avec 600 reserves et zero depense impose limit=1000. B classe l'ambiguite « levee par arithmetique » ; A demande confirmation sans proposer d'autre valeur. Aucune autre limite n'est satisfaisable. La racine porte la note qui dit d'ou vient le nombre.",
+      "ce_qui_reste_une_hypothese": "aucune : la contrainte 0 + 600 + 400 = 1000 est exacte et unique."
+    },
+    {
+      "id": "A-MONEY-1 / AMB-MONEY-2",
+      "releve_par": "A et B",
+      "fixture": "F-MONEY",
+      "cahier_line": 493,
+      "question": "2720 et 16320 appartiennent-ils a F-MONEY ou a la fixture golden-six de T38 ?",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "aucun agregat n'est materialise dans la racine : §F n'en enonce aucun. La question se reporte a T38."
+    },
+    {
+      "id": "AMB-RESERVATION-1",
+      "releve_par": "B",
+      "fixture": "F-RESERVATION",
+      "cahier_line": 233,
+      "question": "T09.A3 exige 100 reservations preservees, alors que §F ne decrit que trois acteurs et un creneau de capacite 1.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "aucun volume n'est materialise ; le chiffre appartient au jeu de donnees de T09."
+    },
+    {
+      "id": "AMB-QUALITY-1 / A-QUALITY-2",
+      "releve_par": "A et B",
+      "fixture": "F-QUALITY",
+      "cahier_line": 109,
+      "question": "L'exigence du test negatif n'a ni id, ni version, ni poids, ni echeance.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "seul l'invariant est scelle ; les cinq parametres sont a null. Aucune valeur enoncee n'en depend."
+    },
+    {
+      "id": "AMB-QUALITY-4",
+      "releve_par": "B",
+      "fixture": "F-QUALITY",
+      "cahier_line": 88,
+      "question": "Le contrat `Requirement` de §E impose capability_id, date de revelation, echeance, criticite et source ; §F ne les donne pas.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "aucun de ces champs n'est materialise ; les inventer fabriquerait des valeurs absentes du cahier."
+    },
+    {
+      "id": "AMB-FAILURE-2 / AMB-FAILURE-4 / AMB-FAILURE-5",
+      "releve_par": "B",
+      "fixture": "F-FAILURE",
+      "cahier_line": 121,
+      "question": "Etat d'arret de calcul, attempt_outcome et cardinal des intentions offertes ne sont pas enonces.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "aucun des trois n'est materialise ; ils figurent en `non_fixe_par_le_cahier`. B releve au passage que R=0 sur les quatre periodes EXCLUT de reprendre [4,4,0,2] tel quel (P3 y vaut 0) : constat utile a l'etage TESTS, sans valeur a inscrire ici.",
+      "a_reporter_a": "T05, T11, T31"
+    },
+    {
+      "id": "AMB-BOOTSTRAP-1",
+      "releve_par": "A et B",
+      "fixture": "F-BOOTSTRAP",
+      "cahier_line": 117,
+      "question": "La convention de quantile empirique inverse est NOMMEE mais pas ecrite ; sur 4 valeurs, les bornes enoncees sont le min et le max, ce qui ne discrimine aucune convention.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "seul le resultat enonce [1/2, 9/10] est scelle, pas l'algorithme.",
+      "a_reporter_a": "T33 (L445 : archiver la convention)"
+    },
+    {
+      "id": "AMB-POWER-1",
+      "releve_par": "B",
+      "fixture": "F-POWER",
+      "cahier_line": 451,
+      "question": "La marge qui transforme les bornes en [vrai,faux,faux,vrai] n'est pas donnee en §F ; toute marge strictement entre 0,01 et 0,04 reproduit le verdict.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "la racine ne scelle que le verdict enonce ligne 127 ; la regle de decision et sa marge sont listees en `non_fixe_par_le_cahier`.",
+      "a_reporter_a": "T34, T35"
+    },
+    {
+      "id": "AMB-REGRESSION-2",
+      "releve_par": "B",
+      "fixture": "F-REGRESSION",
+      "cahier_line": 129,
+      "question": "Le statut de cancel@2 n'est pas enonce ; si elle etait satisfaite en P3 puis violee en P4, elle produirait une SECONDE regression.",
+      "porte_sur_une_valeur_scellee": false,
+      "pourquoi_non_bloquante": "le statut est laisse non fixe dans la racine ; le nombre 1 est celui que L129 ecrit pour isolation@1 (SC-001 DIV-2).",
+      "a_reporter_a": "T04"
+    }
+  ],
+  "etat_de_la_racine": {
+    "constat": "la racine acceptance/reference/** portait deja, valeur pour valeur, la transcription COMMUNE de A et B pour T01 : 59 attendus du §F verifies presents des trois cotes, 0 en defaut.",
+    "consequence": "l'etage est IDEMPOTENT (bench-driver : « chaque etage lit l'etat reel avant d'agir »). Aucun octet de la zone REFERENCE n'a ete reecrit : reestampiller la provenance T00 -> T01 aurait deplace le tree oid d'une racine gelee, invalide les attestations et exige un SPEC_CONFLICT, pour zero changement de valeur.",
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_du_gel": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "relecture": "git rev-parse HEAD:acceptance/reference",
+    "declaration": "docs/FROZEN_ROOTS.json — tree_oid identique, verifie ce tour",
+    "worktree_vs_HEAD": "identique (git status --porcelain -- acceptance/reference docs/FROZEN_ROOTS.json : vide)"
+  },
+  "fixtures_scellees": [
+    "F-BOOTSTRAP", "F-BUDGET", "F-CLUSTERS", "F-COST-RATIO", "F-FAILURE",
+    "F-MONEY", "F-POWER", "F-QUALITY", "F-REGRESSION", "F-RESERVATION"
+  ],
+  "nombre_de_fixtures_scellees": 10
+}

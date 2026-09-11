@@ -1,0 +1,268 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BOOTSTRAP",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      117
+    ],
+    "relecture": [
+      "sed -n '117p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 117,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    },
+    {
+      "cahier_line": 115,
+      "role": "definition des deux projets « precedents » repris par F-BOOTSTRAP",
+      "verbatim": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "clause": "Acceptation : `T33.A1` F-BOOTSTRAP donne les quatre ratios et l’intervalle [1/2,9/10]",
+      "exigence_deduite": "la fixture doit rendre les QUATRE ratios ET l intervalle [1/2,9/10] : cinq nombres nommes."
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "clause": "`A2` les deux bras suivent exactement les mêmes indices parents",
+      "exigence_deduite": "les deux bras suivent exactement les memes indices parents : la liste de tirages est appariee, pas tiree deux fois."
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "clause": "`A3` multiplier tous les coûts par 7 ne change ni ratio ni intervalle",
+      "exigence_deduite": "multiplier tous les couts par 7 ne change ni ratio ni intervalle : la fixture doit porter cette variante d echelle."
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "clause": "`A4` A=B donne tous les ratios égaux à 1",
+      "exigence_deduite": "A=B rend tous les ratios egaux a 1 : variante degeneree."
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "clause": "`A5` permuter les lignes ou dupliquer des répétitions identiques ne change pas les résultats avec la même liste de tirages parents",
+      "exigence_deduite": "permuter les lignes ou dupliquer des repetitions identiques ne change rien A LISTE DE TIRAGES CONSTANTE."
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "clause": "`A7` les bandes ponctuelles ne sont jamais étiquetées simultanées.",
+      "exigence_deduite": "les bandes ponctuelles ne sont jamais etiquetees simultanees : l intervalle [1/2,9/10] est une bande ponctuelle."
+    }
+  ],
+  "donnees": {
+    "projets": [
+      {
+        "id": "P1",
+        "cout_A": 10,
+        "cout_B": 20,
+        "cahier_line": 115
+      },
+      {
+        "id": "P2",
+        "cout_A": 90,
+        "cout_B": 100,
+        "cahier_line": 115
+      }
+    ],
+    "liste_de_reechantillonnages_forcee": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ],
+    "liste_cahier_line": 117,
+    "convention_de_quantile": {
+      "nom": "quantile empirique inverse",
+      "cahier_line": 117,
+      "definition_donnee_par_le_cahier": false
+    },
+    "niveaux": {
+      "bas": "2,5 %",
+      "haut": "97,5 %",
+      "cahier_line": 117
+    }
+  },
+  "attendus": [
+    {
+      "nom": "ratios_cout_A_sur_B",
+      "valeur": [
+        "1/2",
+        "5/6",
+        "5/6",
+        "9/10"
+      ],
+      "valeur_decimale": [
+        0.5,
+        null,
+        null,
+        0.9
+      ],
+      "exact": true,
+      "forme": "rationnelle",
+      "cahier_line": 117,
+      "citation": "Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`.",
+      "ordre": "aligne sur la liste de reechantillonnages, dans l ordre enonce"
+    },
+    {
+      "nom": "intervalle_2_5_97_5",
+      "valeur": [
+        "1/2",
+        "9/10"
+      ],
+      "exact": true,
+      "forme": "rationnelle",
+      "cahier_line": 117,
+      "citation": "l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`"
+    }
+  ],
+  "variantes_exigees_par_les_consommateurs": [
+    {
+      "id": "echelle-x7",
+      "cahier_line": 443,
+      "cas": "T33.A3",
+      "transformation": "multiplier TOUS les couts par 7",
+      "attendu": "ratios et intervalle inchanges",
+      "valeurs_attendues": {
+        "ratios": [
+          "1/2",
+          "5/6",
+          "5/6",
+          "9/10"
+        ],
+        "intervalle": [
+          "1/2",
+          "9/10"
+        ]
+      },
+      "enonce_par_F": false
+    },
+    {
+      "id": "A-egal-B",
+      "cahier_line": 443,
+      "cas": "T33.A4",
+      "transformation": "poser A = B",
+      "attendu": "tous les ratios valent 1",
+      "enonce_par_F": false
+    },
+    {
+      "id": "grappe-unique",
+      "cahier_line": 443,
+      "cas": "T33.A6",
+      "transformation": "une seule grappe",
+      "attendu": "`INSUFFICIENT_CLUSTERS` pour l inference interprojets",
+      "enonce_par_F": false
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "tirage": "[P1,P1]",
+      "calcul": "moyenne A = 10, moyenne B = 20 -> 10/20",
+      "resultat": "1/2",
+      "concorde_avec": "L117"
+    },
+    {
+      "tirage": "[P1,P2]",
+      "calcul": "moyenne A = 50, moyenne B = 60 -> 50/60",
+      "resultat": "5/6",
+      "concorde_avec": "L117"
+    },
+    {
+      "tirage": "[P2,P1]",
+      "calcul": "moyenne A = 50, moyenne B = 60 -> 50/60",
+      "resultat": "5/6",
+      "concorde_avec": "L117"
+    },
+    {
+      "tirage": "[P2,P2]",
+      "calcul": "moyenne A = 90, moyenne B = 100 -> 90/100",
+      "resultat": "9/10",
+      "concorde_avec": "L117"
+    },
+    {
+      "grandeur": "forme du ratio",
+      "observation": "chaque ratio est un RATIO DE MOYENNES sur les parents reechantillonnes ; une moyenne de ratios ne rendrait pas cette liste",
+      "concorde_avec": "L113 (anti-attendu 0.7)"
+    },
+    {
+      "grandeur": "intervalle",
+      "observation": "liste triee [1/2, 5/6, 5/6, 9/10] ; les bornes enoncees sont le minimum et le maximum",
+      "concorde_avec": "L117"
+    }
+  ],
+  "limites_declarees": [
+    {
+      "cahier_line": 117,
+      "citation": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    },
+    {
+      "cahier_line": 443,
+      "citation": "`A7` les bandes ponctuelles ne sont jamais étiquetées simultanées."
+    }
+  ],
+  "derivations_non_enoncees": [],
+  "ambiguites": [
+    {
+      "id": "AMB-BOOTSTRAP-1",
+      "bloquant": false,
+      "porte": "definition du quantile empirique inverse",
+      "question": "Le cahier NOMME la convention (« quantile empirique inverse ») mais ne l ecrit pas. Sur 4 valeurs, plusieurs conventions rendent [1/2, 9/10].",
+      "lectures": [
+        "inverse de la fonction de repartition empirique (indice = ceil(p*n), 1-indexe)",
+        "toute convention dont les bornes 2,5 % / 97,5 % tombent sur le minimum et le maximum de 4 valeurs"
+      ],
+      "pourquoi_non_tranche": "Les deux bornes enoncees sont le min et le max de la liste : ce cas particulier ne discrimine PAS les conventions. La fixture epingle un resultat, pas l algorithme. T33 doit archiver la convention (L445).",
+      "consequence": "un test qui passe sur cette fixture ne prouve pas que la convention implementee est la bonne pour une autre liste."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-2",
+      "bloquant": false,
+      "porte": "nature de l intervalle",
+      "question": "Le cahier ecrit « l’intervalle 2,5 %–97,5 % » sans dire s il est ouvert, ferme, ni s il est etiquete ponctuel ou simultane a cet endroit.",
+      "lectures": [
+        "intervalle ferme [1/2, 9/10]",
+        "bande percentile bilaterale"
+      ],
+      "pourquoi_non_tranche": "T33.A7 (L443) interdit d etiqueter les bandes ponctuelles comme simultanees, ce qui contraint l ETIQUETTE, pas la forme de l intervalle."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-3",
+      "bloquant": false,
+      "porte": "variantes T33.A3 / A4 / A6",
+      "question": "L echelle x7, le cas A=B et la grappe unique sont exiges par §H (L443) mais ne sont pas enonces en §F.",
+      "lectures": [
+        "ils font partie de la fixture F-BOOTSTRAP materialisee",
+        "ce sont des cas de test propres a T33"
+      ],
+      "pourquoi_non_tranche": "Le scellement doit decider si la racine de reference les porte. Ils sont inscrits ici sous `variantes_exigees_par_les_consommateurs` avec `enonce_par_F: false`."
+    }
+  ]
+}

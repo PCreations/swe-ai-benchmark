@@ -1,0 +1,296 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "cadrage": "transcription depuis la SOURCE seule (docs/cahier.md §F) ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      127
+    ],
+    "relecture": [
+      "sed -n '127p' docs/cahier.md"
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 127,
+      "texte": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "conventions_heritees": [
+    {
+      "cahier_line": 143,
+      "extrait": "Les nombres exacts se verifient en entier ou rationnel. Les fonctions statistiques utilisant des flottants precisent leur tolerance, au maximum `1e-12` pour les fixtures arithmetiques ci-dessus.",
+      "effet": "comparer en entier/rationnel quand la valeur est exacte ; tolerance flottante <= 1e-12"
+    }
+  ],
+  "nombre_de_campagnes": {
+    "valeur": 4,
+    "verbatim": "Quatre petites campagnes statistiques",
+    "cahier_line": 127
+  },
+  "hypotheses_communes": {
+    "enonce": "Comptabilite resolue, absence de violation critique, valeurs connues sur les deux bras.",
+    "cahier_line": 127,
+    "items": [
+      "comptabilite resolue",
+      "absence de violation critique",
+      "valeurs connues sur les deux bras"
+    ]
+  },
+  "tirages_parents": {
+    "enonce": "Les tirages parents exhaustifs donnent des distributions ponctuelles",
+    "cahier_line": 127,
+    "exhaustifs": true
+  },
+  "campagnes": [
+    {
+      "campagne": 1,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "note": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      "bras_A": {
+        "cout": 80,
+        "V": 1,
+        "U": 1,
+        "verbatim_triplet": "(cout,V,U) = (80,1,1)",
+        "cahier_line": 127
+      },
+      "bornes": {
+        "nature": "distribution ponctuelle (tirages parents exhaustifs) : borne basse = borne haute",
+        "cahier_line": 127,
+        "ratio": {
+          "valeur": 0.8,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": 0,
+          "cahier_line": 127
+        }
+      }
+    },
+    {
+      "campagne": 2,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "note": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      "bras_A": {
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "verbatim_triplet": "(cout,V,U) = (100,1,1)",
+        "cahier_line": 127
+      },
+      "bornes": {
+        "nature": "distribution ponctuelle (tirages parents exhaustifs) : borne basse = borne haute",
+        "cahier_line": 127,
+        "ratio": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": 0,
+          "cahier_line": 127
+        }
+      }
+    },
+    {
+      "campagne": 3,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "note": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      "bras_A": {
+        "cout": 80,
+        "V": 0.96,
+        "U": 1,
+        "verbatim_triplet": "(cout,V,U) = (80,0.96,1)",
+        "cahier_line": 127
+      },
+      "bornes": {
+        "nature": "distribution ponctuelle (tirages parents exhaustifs) : borne basse = borne haute",
+        "cahier_line": 127,
+        "ratio": {
+          "valeur": 0.8,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": -0.04,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": 0,
+          "cahier_line": 127
+        }
+      }
+    },
+    {
+      "campagne": 4,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "note": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      "bras_A": {
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99,
+        "verbatim_triplet": "(cout,V,U) = (80,0.99,0.99)",
+        "cahier_line": 127
+      },
+      "bornes": {
+        "nature": "distribution ponctuelle (tirages parents exhaustifs) : borne basse = borne haute",
+        "cahier_line": 127,
+        "ratio": {
+          "valeur": 0.8,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": -0.01,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": -0.01,
+          "cahier_line": 127
+        }
+      }
+    }
+  ],
+  "bornes_verbatim": {
+    "ratio": {
+      "texte": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8",
+      "valeurs": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127
+    },
+    "delta_V": {
+      "texte": "celles de ΔV 0 / 0 / −0,04 / −0,01",
+      "valeurs": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "delta_U": {
+      "texte": "celles de ΔU 0 / 0 / 0 / −0,01",
+      "valeurs": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127
+    }
+  },
+  "decision_attendue": {
+    "destinataire": "T34",
+    "valeur": [
+      true,
+      false,
+      false,
+      true
+    ],
+    "verbatim": "T34 doit produire `[vrai,faux,faux,vrai]`",
+    "cahier_line": 127
+  },
+  "portee_declaree": {
+    "enonce": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+    "cahier_line": 127
+  },
+  "ambiguites": [
+    {
+      "id": "A-POWER-1",
+      "constat": "§F donne le verdict `[vrai,faux,faux,vrai]` mais PAS la regle de decision ni ses seuils (seuil de gain de cout, tolerance sur ΔV, sur ΔU).",
+      "position_du_transcripteur": "je transcris le verdict comme une valeur attendue, pas comme le resultat d'une regle que j'aurais reconstituee. Les seuils devront venir d'ailleurs que de §F.",
+      "tranche": false
+    },
+    {
+      "id": "A-POWER-2",
+      "constat": "§F ne chiffre en §F ni la puissance ni l'erreur standard de F-POWER.",
+      "position_du_transcripteur": "aucune de ces deux grandeurs inscrite ; je n'ai pas consulte les lignes d'acceptation qui pourraient les porter.",
+      "tranche": false
+    },
+    {
+      "id": "A-POWER-3",
+      "constat": "0.96 / 0.99 / −0,04 / −0,01 / 0,8 ne sont pas exactement representables en float64.",
+      "position_du_transcripteur": "valeurs transcrites telles qu'ecrites ; tolerance <= 1e-12 (ligne 143).",
+      "tranche": false
+    },
+    {
+      "id": "A-POWER-5",
+      "constat": "La ligne 127 melange DEUX notations decimales : les triplets (cout,V,U) utilisent le point (`(80,0.96,1)`, `(80,0.99,0.99)`) tandis que les bornes utilisent la virgule francaise et le signe moins U+2212 (`0,8`, `−0,04`, `−0,01`). Une transcription qui lirait `0,8` comme un couple de valeurs, ou qui normaliserait le U+2212 en trait d'union ASCII, divergerait.",
+      "position_du_transcripteur": "les deux notations sont conservees telles qu'ecrites dans les champs verbatim, et normalisees en nombres dans les champs de valeur ; la coexistence est signalee pour que le scellement compare des nombres, pas des chaines.",
+      "tranche": false
+    },
+    {
+      "id": "A-POWER-4",
+      "constat": "L'unite du cout (100, 80) n'est pas donnee ligne 127.",
+      "position_du_transcripteur": "nombres nus.",
+      "tranche": false
+    }
+  ]
+}

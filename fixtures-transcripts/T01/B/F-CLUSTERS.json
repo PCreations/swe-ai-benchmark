@@ -1,0 +1,173 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-CLUSTERS",
+  "tache": "T01",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : les cas d'acceptation qui citent la fixture sont lus en premier (verification/cases.lock.json + docs/cahier.md §H), ce qu ils exigent est deduit, PUIS confronte au texte de §F. Aucune implementation n a ete consultee ; aucune valeur ne provient d un calcul de l implementation.",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      115
+    ],
+    "relecture": [
+      "sed -n '115p' docs/cahier.md"
+    ]
+  },
+  "sources": [
+    {
+      "cahier_line": 115,
+      "role": "enonce integral de la fixture",
+      "verbatim": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "clause": "`A2` F-CLUSTERS ne change pas après duplication des répétitions P1",
+      "exigence_deduite": "l estimation ne change pas apres duplication des repetitions de P1 : la fixture doit porter la variante DUPLIQUEE en plus de la variante nominale."
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "clause": "`A5` permuter les lignes ou dupliquer des répétitions identiques ne change pas les résultats avec la même liste de tirages parents",
+      "exigence_deduite": "dupliquer des repetitions identiques ne change pas les resultats a liste de tirages parents constante."
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "clause": "`A6` une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l’inférence interprojets",
+      "exigence_deduite": "une seule grappe rend `INSUFFICIENT_CLUSTERS` pour l inference interprojets : la fixture a DEUX grappes, la variante a une seule est un cas negatif."
+    },
+    {
+      "cas": "T38.A8",
+      "cahier_line": 493,
+      "clause": "`A8` inférence interprojets refusée sur cette fixture à un seul parent, malgré six trajectoires.",
+      "exigence_deduite": "l inference interprojets est refusee sur une fixture a un seul parent, meme avec six trajectoires."
+    }
+  ],
+  "donnees": {
+    "projets": [
+      {
+        "id": "P1",
+        "cout_A": 10,
+        "cout_B": 20,
+        "repetitions": 10,
+        "repetitions_identiques": true,
+        "cahier_line": 115
+      },
+      {
+        "id": "P2",
+        "cout_A": 90,
+        "cout_B": 100,
+        "repetitions": 1,
+        "cahier_line": 115
+      }
+    ],
+    "nombre_de_lignes_brutes": {
+      "valeur": 11,
+      "cahier_line": 115,
+      "citation": "Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation."
+    },
+    "variante_dupliquee": {
+      "description": "toutes les repetitions de P1 dupliquees",
+      "repetitions_P1_apres": 20,
+      "cahier_line": 115,
+      "citation": "Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  },
+  "attendus": [
+    {
+      "nom": "moyenne_interprojets_A",
+      "valeur": 50,
+      "exact": true,
+      "cahier_line": 115,
+      "citation": "Moyennes interprojets encore 50 et 60."
+    },
+    {
+      "nom": "moyenne_interprojets_B",
+      "valeur": 60,
+      "exact": true,
+      "cahier_line": 115,
+      "citation": "Moyennes interprojets encore 50 et 60."
+    },
+    {
+      "nom": "invariance_par_duplication",
+      "valeur": "estimation ponctuelle inchangee",
+      "cahier_line": 115,
+      "citation": "Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée.",
+      "effet": "moyenne_interprojets_A = 50 et moyenne_interprojets_B = 60 AUSSI dans la variante dupliquee"
+    },
+    {
+      "nom": "nombre_de_grappes",
+      "valeur": 2,
+      "cahier_line": 115,
+      "note": "les deux projets sont les grappes ; deduit du texte « Projet P1 » / « Projet P2 »"
+    }
+  ],
+  "anti_attendus": [
+    {
+      "nom": "moyenne_naive_sur_onze_lignes",
+      "valeur_fausse": null,
+      "cahier_line": 115,
+      "citation": "Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation.",
+      "effet_attendu": "interdit",
+      "note": "le cahier ne CHIFFRE pas cette moyenne naive ; aucun nombre n est inscrit ici pour ne pas en inventer un (cf. DIV-1 de SC-001)."
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "grandeur": "moyenne_interprojets_A",
+      "calcul": "(10 + 90)/2",
+      "resultat": 50,
+      "concorde_avec": "L115"
+    },
+    {
+      "grandeur": "moyenne_interprojets_B",
+      "calcul": "(20 + 100)/2",
+      "resultat": 60,
+      "concorde_avec": "L115"
+    },
+    {
+      "grandeur": "lignes_brutes",
+      "calcul": "10 repetitions de P1 + 1 de P2",
+      "resultat": 11,
+      "concorde_avec": "L115 (« onze lignes »)"
+    },
+    {
+      "grandeur": "identite_avec_F-COST-RATIO",
+      "observation": "les couples (A,B) de P1/P2 sont ceux de L113 ; les moyennes 50/60 y sont identiques",
+      "concorde_avec": "L113 et L117 (« les deux projets précédents »)"
+    }
+  ],
+  "derivations_non_enoncees": [],
+  "ambiguites": [
+    {
+      "id": "AMB-CLUSTERS-1",
+      "bloquant": false,
+      "porte": "ratio interprojets de cette fixture",
+      "question": "L115 enonce les moyennes 50 et 60 mais pas le ratio ; L113 (F-COST-RATIO) enonce 5/6 sur les memes couples.",
+      "lectures": [
+        "F-CLUSTERS herite du ratio 5/6 de F-COST-RATIO",
+        "F-CLUSTERS ne porte que des moyennes"
+      ],
+      "pourquoi_non_tranche": "L117 (F-BOOTSTRAP) dit « les deux projets précédents », ce qui relie explicitement les trois fixtures ; mais aucune ligne n ecrit un ratio pour F-CLUSTERS.",
+      "transcription_retenue_ici": "aucun ratio inscrit dans F-CLUSTERS ; le lien est consigne en controle de coherence."
+    },
+    {
+      "id": "AMB-CLUSTERS-2",
+      "bloquant": false,
+      "porte": "unite des couts",
+      "question": "Aucune unite n est ecrite ligne 115.",
+      "lectures": [
+        "micro-USD par heritage",
+        "sans unite"
+      ],
+      "pourquoi_non_tranche": "Meme constat que AMB-COST-RATIO-1 : `sed -n '115p' docs/cahier.md | grep -c 'micro-USD'` rend 0.",
+      "transcription_retenue_ici": "aucune unite inscrite."
+    }
+  ]
+}

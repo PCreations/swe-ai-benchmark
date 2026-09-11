@@ -1,0 +1,14 @@
+{
+  "$comment": [
+    "Fichier SOLUTION : il ne compile rien lui-meme, il enumere les projets.",
+    "`pnpm build` = `tsc --build`, qui suit les references dans l'ordre des",
+    "dependances et n'emet que ce qui a change.",
+    "",
+    "Il est deliberement vide de compilerOptions : tsconfig.base.json est la",
+    "seule source de la stricture (cahier §C), et la dupliquer ici ouvrirait la",
+    "possibilite d'un desaccord silencieux entre ce que `tsc --build` verifie et",
+    "ce que les paquets declarent."
+  ],
+  "files": [],
+  "references": [{ "path": "./packages/contracts" }]
+}

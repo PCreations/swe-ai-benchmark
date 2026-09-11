@@ -21,7 +21,28 @@
     "comme tel : il prouve que rien n'a change depuis la premiere machine, pas",
     "que l'artefact est celui que l'editeur a publie. Verifie le 11/09/2026 :",
     "ni Garage ni la CLI Temporal ne publient de somme de controle aux URL de",
-    "telechargement (404 sur .sha256 et .sha256sum)."
+    "telechargement (404 sur .sha256 et .sha256sum).",
+    "",
+    "QUATRIEME NIVEAU, AJOUTE EN T00 ET NOMME PLUTOT QUE CONFONDU :",
+    "",
+    "  lockfile-integrity  la version exacte est epinglee dans package.json /",
+    "                      pyproject.toml, et l'integrite des octets est portee",
+    "                      par pnpm-lock.yaml (sha512 par tarball) et",
+    "                      analysis/uv.lock (sha256 par roue). Ce n'est ni un",
+    "                      digest editeur ni un tofu : c'est la chaine du",
+    "                      gestionnaire de paquets, verifiee a chaque",
+    "                      installation figee.",
+    "",
+    "Les empreintes des deux verrous ne sont PAS recopiees ici : un sha256",
+    "duplique rancit des le premier `pnpm add`, et une valeur rancie ment plus",
+    "qu'elle ne prouve. Les deux verrous sont deja des entrees GLOBALES de",
+    "input_digest (verification/runner/input-digest.mjs) ; leur changement",
+    "re-perime les 44 taches sans passer par ce fichier.",
+    "",
+    "CHEMIN : le cahier §H nomme `docs/toolchain.json`. Ce fichier s'appelait",
+    "`infra/toolchain.lock.json` jusqu'a T00 ; il a ete deplace, et non",
+    "duplique, pour que T43.A1 (« toute reference documentaire pointe vers un",
+    "fichier existant ») porte sur un seul artefact."
   ],
   "schema": "bench.toolchain/1",
   "recorded_on": "2026-09-11",
@@ -33,9 +54,27 @@
       "pin_on_first_build": true,
       "note": "Resolu et epingle au premier build du devcontainer ; cet hote n'a pas de demon Docker pour le faire."
     },
-    "node": { "trust": "apt-version", "version": "22.22.2", "channel": "LTS", "verified_here": true },
-    "pnpm": { "trust": "apt-version", "version": "10.33.0", "via": "corepack", "verified_here": true },
-    "python": { "trust": "apt-version", "version": "3.12", "via": "uv", "verified_here": true },
+    "node": {
+      "trust": "apt-version",
+      "version": "22.22.2",
+      "channel": "LTS",
+      "verified_here": true,
+      "engines_range": ">=22.22.2 <23"
+    },
+    "pnpm": {
+      "trust": "apt-version",
+      "version": "10.33.0",
+      "via": "corepack",
+      "verified_here": true
+    },
+    "python": {
+      "trust": "apt-version",
+      "version": "3.12",
+      "via": "uv",
+      "verified_here": true,
+      "requires_python": "==3.12.*",
+      "observed_here": "3.12.3"
+    },
     "postgresql": {
       "trust": "apt-version",
       "version": "18.6-1.pgdg24.04+2",
@@ -43,9 +82,19 @@
       "verified_here": true,
       "note": "Version presente dans l'index pgdg noble le 11/09/2026. NE JAMAIS se rabattre sur le PostgreSQL 16.13 deja installe sur cet hote : la sonde exige server_version_num >= 180000."
     },
-    "runc": { "trust": "apt-version", "version": "1.3.4", "verified_here": true },
-    "iproute2": { "trust": "apt-version", "version": "6.1.0-1ubuntu6.2" },
-    "nftables": { "trust": "apt-version", "version": null },
+    "runc": {
+      "trust": "apt-version",
+      "version": "1.3.4",
+      "verified_here": true
+    },
+    "iproute2": {
+      "trust": "apt-version",
+      "version": "6.1.0-1ubuntu6.2"
+    },
+    "nftables": {
+      "trust": "apt-version",
+      "version": null
+    },
     "garage": {
       "trust": "tofu",
       "version": "v2.1.0",
@@ -67,6 +116,77 @@
       "version": null,
       "sha256": null,
       "note": "PRE-TELECHARGE obligatoirement. Un telechargement paresseux depuis la suite de tests ferait passer T24.A2 pour la mauvaise raison et serait perdu au recyclage du conteneur."
+    }
+  },
+  "moved_from": "infra/toolchain.lock.json",
+  "language_toolchains": {
+    "$comment": [
+      "Niveau de confiance : lockfile-integrity (voir $comment en tete).",
+      "Aucune plage semver, aucun ^, aucun ~ : le cahier §C interdit que les",
+      "versions soient remplacees par latest a chaque execution."
+    ],
+    "typescript": {
+      "trust": "lockfile-integrity",
+      "version": "6.0.3",
+      "declared_in": "package.json#devDependencies.typescript",
+      "verified_here": true,
+      "note": "TypeScript 7.0.2 existe mais est HORS de la plage de pairs de ts-jest 29.4.12 (`typescript: >=4.3 <7`). 6.0.3 est la derniere stable compatible. Prendre 7.x aurait exige d'abandonner ts-jest, donc de changer de framework pour eviter une contrainte — ce que §C interdit explicitement."
+    },
+    "jest": {
+      "trust": "lockfile-integrity",
+      "version": "30.5.1",
+      "declared_in": "package.json#devDependencies.jest",
+      "verified_here": true,
+      "esm_flag": "--experimental-vm-modules",
+      "note": "Node 22 exige encore ce drapeau pour l'API vm.Module dont Jest se sert en ESM ; il est porte par le script `test` de package.json, pas par une variable d'environnement que l'on peut oublier."
+    },
+    "ts-jest": {
+      "trust": "lockfile-integrity",
+      "version": "29.4.12",
+      "declared_in": "package.json#devDependencies.ts-jest",
+      "verified_here": true,
+      "peer_range_satisfied": {
+        "jest": "^29.0.0 || ^30.0.0",
+        "typescript": ">=4.3 <7"
+      }
+    },
+    "@types/jest": {
+      "trust": "lockfile-integrity",
+      "version": "30.0.0",
+      "declared_in": "package.json#devDependencies.@types/jest"
+    },
+    "@types/node": {
+      "trust": "lockfile-integrity",
+      "version": "22.20.2",
+      "declared_in": "package.json#devDependencies.@types/node",
+      "note": "Majeure alignee sur le Node 22 de `engines`, pas sur la derniere publiee."
+    },
+    "pytest": {
+      "trust": "lockfile-integrity",
+      "version": "9.1.1",
+      "declared_in": "analysis/pyproject.toml#dependency-groups.dev",
+      "verified_here": true
+    }
+  },
+  "lockfiles": {
+    "$comment": [
+      "ADR-005 §4 : le pluriel du §G l'emporte, les DEUX chaines sont",
+      "verrouillees. Le controle est une comparaison sha256 avant/apres,",
+      "jamais une egalite d'octets constatee a l'oeil."
+    ],
+    "pnpm-lock.yaml": {
+      "frozen_command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ]
+    },
+    "analysis/uv.lock": {
+      "frozen_command": [
+        "uv",
+        "sync",
+        "--frozen"
+      ]
     }
   }
 }

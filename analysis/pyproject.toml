@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Chaine Python de l'analyse (cahier §C : « Python 3.12 et pytest pour
+# l'analyse »).
+#
+# VERSIONS EXACTES, SANS PLAGE. `requires-python = "==3.12.*"` n'est pas un
+# minimum : une borne ouverte ferait tourner l'analyse sur 3.13 des qu'un hote
+# en dispose, et §C epingle 3.12. `pytest==9.1.1` suit la meme regle que le
+# cote TypeScript — §C : les versions « ne sont pas remplacees par latest a
+# chaque execution ».
+#
+# `package = false` : ce projet n'est pas distribue. Le declarer installable
+# forcerait un backend de build et un `analysis/src` qui n'existe pas encore
+# (il appartient a T31+), c'est-a-dire une dependance inventee.
+# ─────────────────────────────────────────────────────────────────────────────
+[project]
+name = "swe-ai-benchmark-analysis"
+version = "0.0.0"
+description = "Agregats, bootstrap, decision et dimensionnement."
+requires-python = "==3.12.*"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest==9.1.1"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+minversion = "9.1"
+# `tests` est en zone ACCEPTANCE (verification/ownership.json) : ce fichier la
+# DESIGNE, il n'y ecrit pas.
+testpaths = ["tests"]
+# --strict-markers et --strict-config transforment en erreur ce qui serait
+# sinon un avertissement : un marqueur inconnu ou une cle ini inconnue feraient
+# passer une suite pour verte en n'executant pas ce qu'on croit. §G : « le
+# verificateur refuse les tests sautes ».
+addopts = "-ra --strict-markers --strict-config"
+xfail_strict = true

@@ -36,7 +36,7 @@ export const GLOBAL_PATHS = [
   'acceptance/reference',
   'acceptance/helpers',
   'analysis/tests/conftest.py',
-  'infra/toolchain.lock.json',
+  'docs/toolchain.json',
   'infra/profiles.json',
   'package.json',
   'pnpm-workspace.yaml',

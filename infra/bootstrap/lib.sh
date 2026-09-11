@@ -2,7 +2,7 @@
 # Fonctions communes aux scripts de bootstrap.
 set -euo pipefail
 ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || echo /workspaces/swe-ai-benchmark)"
-LOCK="$ROOT/infra/toolchain.lock.json"
+LOCK="$ROOT/docs/toolchain.json"
 BENCH_HOME="${BENCH_HOME:-$ROOT/.bench/home}"
 log() { printf '  %s\n' "$*"; }
 die() { printf 'ECHEC: %s\n' "$*" >&2; exit 1; }

@@ -4,8 +4,30 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": { "node": ">=22.22.2 <23" },
+  "$comment": [
+    "VERSIONS EXACTES, SANS ^ NI ~ (cahier §C : « T00 choisit et verrouille les",
+    "versions exactes compatibles ; elles ne sont pas remplacees par latest a",
+    "chaque execution »). Une plage semver rendrait l'installation dependante",
+    "de la date, donc l'input_digest menteur : deux boots liraient le meme",
+    "pnpm-lock.yaml et installeraient deux arbres differents des qu'un amont",
+    "publie un patch.",
+    "",
+    "Les versions retenues et leur compatibilite mutuelle sont justifiees dans",
+    "docs/toolchain.json, section toolchain.typescript."
+  ],
   "scripts": {
     "bench": "node tools/bench",
-    "verify:task": "node tools/bench verify:task"
+    "verify:task": "node tools/bench verify:task",
+    "build": "tsc --build",
+    "typecheck": "tsc --build --force",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:py": "uv --project analysis run pytest"
+  },
+  "devDependencies": {
+    "@types/jest": "30.0.0",
+    "@types/node": "22.20.2",
+    "jest": "30.5.1",
+    "ts-jest": "29.4.12",
+    "typescript": "6.0.3"
   }
 }

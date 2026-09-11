@@ -1,0 +1,19 @@
+{
+  "$comment": [
+    "ADR-005 §3 : la compilation de ce paquet ne doit dependre ni de Temporal,",
+    "ni de Docker, ni d'un SDK fournisseur, ni d'aucun appel externe.",
+    "`types: []` rend cette propriete MECANIQUE plutot que declarative : aucun",
+    "@types/* n'est injecte implicitement, et le paquet n'importe rien — pas",
+    "meme node:crypto. Le compilateur echoue donc si quelqu'un ajoute une",
+    "dependance, au lieu de la laisser passer silencieusement."
+  ],
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

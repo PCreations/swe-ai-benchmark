@@ -16,6 +16,6 @@ $SUDO curl -sSLf -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
 echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${CODENAME}-pgdg main" \
   | $SUDO tee /etc/apt/sources.list.d/pgdg.list >/dev/null
 $SUDO apt-get update -qq
-VER="$(node -e "console.log(require('$(git rev-parse --show-toplevel)/infra/toolchain.lock.json').artifacts.postgresql.version)")"
+VER="$(node -e "console.log(require('$(git rev-parse --show-toplevel)/docs/toolchain.json').artifacts.postgresql.version)")"
 $SUDO apt-get install -y -qq "postgresql-18=${VER}" || $SUDO apt-get install -y -qq postgresql-18
 /usr/lib/postgresql/18/bin/postgres --version

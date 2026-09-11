@@ -11,6 +11,7 @@ import { runProbes, writeEvidence, readEvidence } from '../verification/runner/d
 import { loadRegistry } from '../verification/runner/registry.mjs'
 import { inputDigest } from '../verification/runner/input-digest.mjs'
 import { run as runSelftest } from '../verification/runner/selftest.mjs'
+import { verifyTask, render as renderResult } from '../verification/runner/verify-task.mjs'
 
 const [cmd = 'resume', ...rest] = process.argv.slice(2)
 const has = (f) => rest.includes(f)
@@ -22,6 +23,12 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
                          sorties : 0 travail restant · 2 registre invalide
                                    3 tout prouve   · 4 divergence / non pousse
                                    11 rien d'actionnable
+  verify:task <Txx>      controle ciblé d'une tache. Ecrit verification/results/<Txx>.json
+             [--json]    sorties (ADR-005) : 0 PASS · 1 ASSERTION_FAILED
+                                   2 NOT_IMPLEMENTED / UNKNOWN_TASK / REGISTRY_INVALID
+                         BENCH_REGISTRY=<fichier> detourne la lecture du registre.
+                         SQUELETTE : la verification n'est pas implementee ; toute
+                         tache connue sort en 2 / NOT_IMPLEMENTED.
   doctor [--json]        EXECUTE chaque sonde de capacite et ecrit .bench/doctor.json
   registry lint          valide le registre : id inconnu, cycle, doublon,
                          dependance absente, status non fige, cas retires
@@ -80,6 +87,20 @@ switch (cmd) {
       ].join('\n'),
       0
     )
+    break
+  }
+
+  case 'verify:task': {
+    const id = rest.find((a) => !a.startsWith('-'))
+    if (!id) {
+      // Il n'y a pas de tache a adjuger : cet echec n'est AUCUNE des quatre
+      // issues d'ADR-005 §1, donc il n'invente pas de `reason`. Sortie 2, et
+      // pas de rapport — on ne saurait pas sous quel nom l'ecrire.
+      process.stderr.write(`usage : bench verify:task <Txx>\n`)
+      process.exit(2)
+    }
+    const { report, path, exit } = verifyTask(id)
+    out(json ? JSON.stringify(report, null, 2) : renderResult(report, path), exit)
     break
   }
 

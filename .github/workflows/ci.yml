@@ -1,0 +1,94 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Première CI (cahier §H, livrable de T00).
+#
+# PÉRIMÈTRE ASSUMÉ, ET DIT PLUTÔT QUE MASQUÉ. ADR-005 §7 : « §T00 livre
+# "première CI" mais aucun des six cas ne la contraint ; le premier cas qui le
+# fasse est T41.A5. » Cette CI est donc LIVRÉE, pas prouvée : elle ne figure
+# dans aucun `required_cases`, et rien ici ne doit être présenté comme une
+# preuve de T00. Inventer un septième cas maison pour la couvrir rendrait T00
+# non comparable à sa propre spécification.
+#
+# Elle fait exactement trois choses, toutes entièrement connaissables en T00 :
+#   1. installer À PARTIR DES VERROUS, et refuser si un verrou bouge ;
+#   2. compiler le paquet de contrats en mode strict ;
+#   3. valider le registre des 44 tâches.
+#
+# Ce qu'elle ne fait PAS : exécuter `verify:task`. Le squelette sort en 2 sur
+# toute tâche connue — une CI qui l'appellerait serait rouge en permanence, donc
+# ignorée, donc inutile. Elle l'appellera quand la vérification existera.
+#
+# LIMITE CONNUE : les actions ci-dessous sont référencées par étiquette majeure,
+# pas par digest de commit. C'est le seul endroit du dépôt où une référence
+# n'est pas épinglée exactement, et ce n'est pas un oubli : épingler un digest
+# que l'on n'a pas vérifié serait pire que de nommer le trou. Il se referme en
+# T41, où la CI acquiert enfin un cas d'acceptation.
+# ─────────────────────────────────────────────────────────────────────────────
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  socle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm vient de corepack, à la version EXACTE que package.json déclare
+      # dans `packageManager`. Aucune action tierce : une de moins à épingler.
+      - name: corepack + pnpm 10.33.0
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.0 --activate
+          pnpm --version
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+
+      # ── 1. INSTALLATION FIGÉE ─────────────────────────────────────────────
+      # ADR-005 §4 : le pluriel du §G l'emporte, les DEUX chaînes sont
+      # verrouillées, et le contrôle est une comparaison sha256 avant/après.
+      # `--frozen-lockfile` échoue déjà si le verrou devait changer ; la
+      # comparaison qui suit le prouve plutôt que de le supposer.
+      - name: pnpm install --frozen-lockfile (verrou inchangé)
+        run: |
+          before=$(sha256sum pnpm-lock.yaml | cut -d' ' -f1)
+          pnpm install --frozen-lockfile
+          after=$(sha256sum pnpm-lock.yaml | cut -d' ' -f1)
+          echo "pnpm-lock.yaml  avant=$before  apres=$after"
+          [ "$before" = "$after" ] || { echo "::error::pnpm-lock.yaml a change pendant une installation figee"; exit 1; }
+
+      - name: uv 0.8.17
+        run: |
+          curl -LsSf https://astral.sh/uv/0.8.17/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: uv sync --frozen (verrou inchangé)
+        working-directory: analysis
+        run: |
+          before=$(sha256sum uv.lock | cut -d' ' -f1)
+          uv sync --frozen
+          after=$(sha256sum uv.lock | cut -d' ' -f1)
+          echo "analysis/uv.lock  avant=$before  apres=$after"
+          [ "$before" = "$after" ] || { echo "::error::analysis/uv.lock a change pendant une installation figee"; exit 1; }
+
+      # ── 2. BUILD ──────────────────────────────────────────────────────────
+      - name: build (TypeScript strict)
+        run: pnpm build
+
+      # ── 3. REGISTRE ───────────────────────────────────────────────────────
+      # §J : le validateur refuse id inconnu, cycle, doublon ou dépendance
+      # absente. Sortie 2 = registre invalide, et la CI doit rougir.
+      - name: bench registry lint
+        run: node tools/bench registry lint

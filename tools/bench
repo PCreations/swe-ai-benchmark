@@ -1,0 +1,102 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// bench — point d'entrée unique du socle.
+//
+// Une seule règle pour qui lit ce fichier : `resume` est la seule commande qui
+// dit ce qui est fait. Aucune autre — et surtout aucun résumé de conversation —
+// ne fait foi.
+// ─────────────────────────────────────────────────────────────────────────────
+import { computeBoard, render, EXIT } from '../verification/runner/resume.mjs'
+import { runProbes, writeEvidence, readEvidence } from '../verification/runner/doctor.mjs'
+import { loadRegistry } from '../verification/runner/registry.mjs'
+import { inputDigest } from '../verification/runner/input-digest.mjs'
+
+const [cmd = 'resume', ...rest] = process.argv.slice(2)
+const has = (f) => rest.includes(f)
+const json = has('--json')
+
+const USAGE = `bench — socle de preuve du benchmark longitudinal
+
+  resume [--json]        etat reel, recalcule depuis git + sondes. N'ecrit rien.
+                         sorties : 0 travail restant · 2 registre invalide
+                                   3 tout prouve   · 4 divergence / non pousse
+                                   11 rien d'actionnable
+  doctor [--json]        EXECUTE chaque sonde de capacite et ecrit .bench/doctor.json
+  registry lint          valide le registre : id inconnu, cycle, doublon,
+                         dependance absente, status non fige, cas retires
+  digest <Txx>           imprime l'input_digest d'une tache et ses composantes
+  help
+`
+
+function out(text, code = 0) {
+  process.stdout.write(text.endsWith('\n') ? text : text + '\n')
+  process.exit(code)
+}
+
+switch (cmd) {
+  case 'resume': {
+    const board = computeBoard()
+    const { text, exit } = render(board, { json })
+    out(text, exit)
+    break
+  }
+
+  case 'doctor': {
+    const reg = loadRegistry()
+    const needed = reg.byId ? [...new Set([...reg.byId.values()].flatMap((t) => t.requires ?? []))] : null
+    const results = runProbes(needed?.length ? needed.concat(['live-credentials']) : null)
+    const doc = writeEvidence(results)
+    if (json) out(JSON.stringify(doc, null, 2))
+    const L = [`DOCTOR   boot_id ${doc.boot_id.slice(0, 8)}   (aucun cache entre deux boots)`, '']
+    let absent = 0
+    for (const [k, v] of Object.entries(results)) {
+      if (!v.present) absent++
+      L.push(`  ${v.present ? 'OK ' : 'ABS'}  ${k.padEnd(26)} ${v.present ? v.detail : v.reason}`)
+      if (!v.present && v.remedy) L.push(`        remede : ${v.remedy}`)
+    }
+    L.push('')
+    L.push(`${Object.keys(results).length - absent} capacite(s) presente(s), ${absent} absente(s).`)
+    if (absent) L.push('Une capacite absente donne BLOCKED (sortie 2), jamais un PASS affaibli.')
+    out(L.join('\n'), 0)
+    break
+  }
+
+  case 'registry': {
+    if (rest[0] !== 'lint') out(USAGE, 1)
+    const reg = loadRegistry()
+    if (reg.problems.length) {
+      out(['REGISTRE INVALIDE', '', ...reg.problems.map((p) => `  ${p}`)].join('\n'), EXIT.REGISTRY_INVALID)
+    }
+    const nCases = [...reg.byId.values()].reduce((a, t) => a + t.required_cases.length, 0)
+    out(
+      [
+        `REGISTRE VALIDE`,
+        `  ${reg.byId.size} taches, ${nCases} cas requis`,
+        `  graphe acyclique, aucun doublon, aucune dependance absente`,
+        `  status fige a NOT_IMPLEMENTED sur les ${reg.byId.size} taches`,
+        `  chaque carte est un sur-ensemble de cases.lock.json`,
+      ].join('\n'),
+      0
+    )
+    break
+  }
+
+  case 'digest': {
+    const id = rest[0]
+    const reg = loadRegistry()
+    if (reg.problems.length) out('registre invalide — lance `bench registry lint`', EXIT.REGISTRY_INVALID)
+    const t = reg.byId.get(id)
+    if (!t) out(`tache inconnue : ${id}`, 2)
+    out(`${id}  input_digest = ${inputDigest(t, 'HEAD')}`, 0)
+    break
+  }
+
+  case 'help':
+  case '--help':
+  case '-h':
+    out(USAGE, 0)
+    break
+
+  default:
+    out(`commande inconnue : ${cmd}\n\n${USAGE}`, 1)
+}

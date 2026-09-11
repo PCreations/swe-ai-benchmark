@@ -1,0 +1,11 @@
+{
+  "name": "swe-ai-benchmark",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": { "node": ">=22.22.2 <23" },
+  "scripts": {
+    "bench": "node tools/bench",
+    "verify:task": "node tools/bench verify:task"
+  }
+}

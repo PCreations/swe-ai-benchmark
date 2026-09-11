@@ -1,0 +1,6 @@
+# Les paquets definissent des frontieres LOGIQUES (cahier §C) : un petit depot
+# coherent, pas 44 microservices. Seuls les composants ayant besoin d'identites,
+# de permissions ou de ressources distinctes deviennent des processus separes.
+packages:
+  - 'packages/*'
+  - 'apps/*'

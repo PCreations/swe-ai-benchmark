@@ -1,0 +1,1803 @@
+{
+  "$comment": [
+    "Registre des 44 taches. Les dependances proviennent de la table §J du cahier,",
+    "les cas requis de la section §H, les deux re-derives mecaniquement depuis",
+    "docs/cahier.md et confrontes a une extraction independante : zero ecart.",
+    "",
+    "status est FIGE a NOT_IMPLEMENTED et le validateur rejette toute autre valeur.",
+    "Le cahier (§J) le dit : « editer ce champ en DONE ne valide rien ». DONE est",
+    "DERIVE, jamais stocke : recalcule par `bench resume` depuis les objets git,",
+    "les attestations du ledger et les sondes de capacite du boot courant.",
+    "",
+    "required_cases est un MINIMUM : des cas supplementaires sont permis s'ils",
+    "couvrent un risque concret, mais aucun ne peut etre retire (monotonie)."
+  ],
+  "schema": "bench.tasks/1",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "task_count": 44,
+  "required_case_count": 279,
+  "tasks": [
+    {
+      "id": "T00",
+      "title": "Initialiser le dépôt et le vérificateur minimal",
+      "depends_on": [],
+      "source_paths": [
+        "verification/tasks.json",
+        "verification",
+        "docs/toolchain.json",
+        "docs",
+        "analysis",
+        "packages/contracts"
+      ],
+      "acceptance_entry": "analysis/tests/test_T00.py",
+      "required_cases": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A3",
+        "T00.A4",
+        "T00.A5",
+        "T00.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T00"
+      ],
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        149,
+        158
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T01",
+      "title": "Rendre le système de preuve non contournable par accident",
+      "depends_on": [
+        "T00"
+      ],
+      "source_paths": [
+        "verification",
+        "acceptance/reference",
+        "acceptance"
+      ],
+      "acceptance_entry": "acceptance/T01.spec.ts",
+      "required_cases": [
+        "T01.A1",
+        "T01.A2",
+        "T01.A3",
+        "T01.A4",
+        "T01.A5",
+        "T01.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T01"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        159,
+        168
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T02",
+      "title": "Implémenter les types primitifs déterministes",
+      "depends_on": [
+        "T01"
+      ],
+      "source_paths": [
+        "packages/contracts"
+      ],
+      "acceptance_entry": "acceptance/T02.spec.ts",
+      "required_cases": [
+        "T02.A1",
+        "T02.A2",
+        "T02.A3",
+        "T02.A4",
+        "T02.A5",
+        "T02.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T02"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        169,
+        176
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T03",
+      "title": "Définir les schémas et compiler un manifeste de campagne",
+      "depends_on": [
+        "T02"
+      ],
+      "source_paths": [
+        "packages/contracts",
+        "packages/domain",
+        "fixtures"
+      ],
+      "acceptance_entry": "acceptance/T03.spec.ts",
+      "required_cases": [
+        "T03.A1",
+        "T03.A2",
+        "T03.A3",
+        "T03.A4",
+        "T03.A5",
+        "T03.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T03"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        177,
+        184
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T04",
+      "title": "Implémenter les métriques de période et leurs dénominateurs",
+      "depends_on": [
+        "T02",
+        "T03"
+      ],
+      "source_paths": [
+        "packages/domain"
+      ],
+      "acceptance_entry": "acceptance/T04.spec.ts",
+      "required_cases": [
+        "T04.A1",
+        "T04.A2",
+        "T04.A3",
+        "T04.A4",
+        "T04.A5",
+        "T04.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T04"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        185,
+        194
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T05",
+      "title": "Programmer les transitions d’une période sans infrastructure",
+      "depends_on": [
+        "T03",
+        "T04"
+      ],
+      "source_paths": [
+        "packages/domain"
+      ],
+      "acceptance_entry": "acceptance/T05.spec.ts",
+      "required_cases": [
+        "T05.A1",
+        "T05.A2",
+        "T05.A3",
+        "T05.A4",
+        "T05.A5",
+        "T05.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T05"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        195,
+        202
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T06",
+      "title": "Compiler les scénarios et contrôler leur révélation",
+      "depends_on": [
+        "T03"
+      ],
+      "source_paths": [
+        "packages/scenario",
+        "fixtures"
+      ],
+      "acceptance_entry": "acceptance/T06.spec.ts",
+      "required_cases": [
+        "T06.A1",
+        "T06.A2",
+        "T06.A3",
+        "T06.A4",
+        "T06.A5",
+        "T06.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T06"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        203,
+        210
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T07",
+      "title": "Construire l’oracle métier indépendant de réservation",
+      "depends_on": [
+        "T02",
+        "T06"
+      ],
+      "source_paths": [
+        "packages/oracle"
+      ],
+      "acceptance_entry": "acceptance/T07.spec.ts",
+      "required_cases": [
+        "T07.A1",
+        "T07.A2",
+        "T07.A3",
+        "T07.A4",
+        "T07.A5",
+        "T07.A6",
+        "T07.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T07"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        211,
+        218
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T08",
+      "title": "Générer et exécuter les intentions d’usage",
+      "depends_on": [
+        "T06",
+        "T07"
+      ],
+      "source_paths": [
+        "packages/workload"
+      ],
+      "acceptance_entry": "acceptance/T08.spec.ts",
+      "required_cases": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A3",
+        "T08.A4",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T08"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        219,
+        226
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T09",
+      "title": "Fournir les applications témoins et les migrations connues",
+      "depends_on": [
+        "T07"
+      ],
+      "source_paths": [
+        "fixtures",
+        "infra"
+      ],
+      "acceptance_entry": "acceptance/T09.spec.ts",
+      "required_cases": [
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A4",
+        "T09.A5"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T09"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        227,
+        236
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T10",
+      "title": "Qualifier les oracles et détecter les tests défectueux",
+      "depends_on": [
+        "T07",
+        "T08",
+        "T09"
+      ],
+      "source_paths": [
+        "packages/evaluation",
+        "fixtures"
+      ],
+      "acceptance_entry": "acceptance/T10.spec.ts",
+      "required_cases": [
+        "T10.A1",
+        "T10.A2",
+        "T10.A3",
+        "T10.A4",
+        "T10.A5",
+        "T10.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T10"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        237,
+        244
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T11",
+      "title": "Livrer une première trajectoire verticale en mémoire",
+      "depends_on": [
+        "T04",
+        "T05",
+        "T06",
+        "T08",
+        "T10"
+      ],
+      "source_paths": [
+        "apps/cli",
+        "packages/domain",
+        "packages/scenario",
+        "packages/workload"
+      ],
+      "acceptance_entry": "acceptance/T11.spec.ts",
+      "required_cases": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T11"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        245,
+        254
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T12",
+      "title": "Persister les événements et résultats dans PostgreSQL",
+      "depends_on": [
+        "T03",
+        "T05"
+      ],
+      "source_paths": [
+        "packages/storage"
+      ],
+      "acceptance_entry": "acceptance/T12.spec.ts",
+      "required_cases": [
+        "T12.A1",
+        "T12.A2",
+        "T12.A3",
+        "T12.A4",
+        "T12.A5",
+        "T12.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T12"
+      ],
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        255,
+        264
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T13",
+      "title": "Construire le stockage immuable d’artefacts",
+      "depends_on": [
+        "T02",
+        "T03"
+      ],
+      "source_paths": [
+        "packages/storage"
+      ],
+      "acceptance_entry": "acceptance/T13.spec.ts",
+      "required_cases": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5",
+        "T13.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T13"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        265,
+        272
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T14",
+      "title": "Ajouter l’adaptateur S3 et son test de contrat réel",
+      "depends_on": [
+        "T13"
+      ],
+      "source_paths": [
+        "packages/storage",
+        "infra"
+      ],
+      "acceptance_entry": "acceptance/T14.spec.ts",
+      "required_cases": [
+        "T14.A1",
+        "T14.A2",
+        "T14.A3",
+        "T14.A4",
+        "T14.A5",
+        "T14.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T14"
+      ],
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        273,
+        280
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T15",
+      "title": "Capturer et restaurer des checkpoints cohérents",
+      "depends_on": [
+        "T09",
+        "T12",
+        "T13",
+        "T14"
+      ],
+      "source_paths": [
+        "packages/storage",
+        "packages/contracts"
+      ],
+      "acceptance_entry": "acceptance/T15.spec.ts",
+      "required_cases": [
+        "T15.A1",
+        "T15.A2",
+        "T15.A3",
+        "T15.A4",
+        "T15.A5",
+        "T15.A6",
+        "T15.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T15"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        281,
+        290
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T16",
+      "title": "Implémenter le budget et les écritures comptables atomiques",
+      "depends_on": [
+        "T02",
+        "T12"
+      ],
+      "source_paths": [
+        "packages/billing",
+        "packages/storage"
+      ],
+      "acceptance_entry": "acceptance/T16.spec.ts",
+      "required_cases": [
+        "T16.A1",
+        "T16.A2",
+        "T16.A3",
+        "T16.A4",
+        "T16.A5",
+        "T16.A6",
+        "T16.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T16"
+      ],
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        291,
+        298
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T17",
+      "title": "Construire la passerelle modèle et gérer la réponse perdue",
+      "depends_on": [
+        "T12",
+        "T16"
+      ],
+      "source_paths": [
+        "packages/gateway",
+        "packages/billing"
+      ],
+      "acceptance_entry": "acceptance/T17.spec.ts",
+      "required_cases": [
+        "T17.A1",
+        "T17.A2",
+        "T17.A3",
+        "T17.A4",
+        "T17.A5",
+        "T17.A6",
+        "T17.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T17"
+      ],
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        299,
+        306
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T18",
+      "title": "Formaliser le contrat AgentRunner avec un agent scripté",
+      "depends_on": [
+        "T03",
+        "T06",
+        "T15",
+        "T17"
+      ],
+      "source_paths": [
+        "packages/agents"
+      ],
+      "acceptance_entry": "acceptance/T18.spec.ts",
+      "required_cases": [
+        "T18.A1",
+        "T18.A2",
+        "T18.A3",
+        "T18.A4",
+        "T18.A5",
+        "T18.A6",
+        "T18.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T18"
+      ],
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        307,
+        316
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T19",
+      "title": "Exécuter le candidat dans une isolation réellement testée",
+      "depends_on": [
+        "T14",
+        "T15",
+        "T17",
+        "T18"
+      ],
+      "source_paths": [
+        "packages/sandbox",
+        "infra"
+      ],
+      "acceptance_entry": "acceptance/T19.spec.ts",
+      "required_cases": [
+        "T19.A1",
+        "T19.A2",
+        "T19.A3",
+        "T19.A4",
+        "T19.A5",
+        "T19.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T19"
+      ],
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        317,
+        326
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T20",
+      "title": "Exécuter l’évaluateur sur des copies privées jetables",
+      "depends_on": [
+        "T10",
+        "T15",
+        "T19"
+      ],
+      "source_paths": [
+        "packages/evaluation",
+        "packages/sandbox"
+      ],
+      "acceptance_entry": "acceptance/T20.spec.ts",
+      "required_cases": [
+        "T20.A1",
+        "T20.A2",
+        "T20.A3",
+        "T20.A4",
+        "T20.A5",
+        "T20.A6",
+        "T20.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T20"
+      ],
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        327,
+        336
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T21",
+      "title": "Admettre les livraisons et protéger les migrations",
+      "depends_on": [
+        "T05",
+        "T09",
+        "T15",
+        "T20"
+      ],
+      "source_paths": [
+        "packages/evaluation",
+        "packages/domain",
+        "packages/activities"
+      ],
+      "acceptance_entry": "acceptance/T21.spec.ts",
+      "required_cases": [
+        "T21.A1",
+        "T21.A2",
+        "T21.A3",
+        "T21.A4",
+        "T21.A5",
+        "T21.A6",
+        "T21.A7",
+        "T21.A8"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T21"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        337,
+        344
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T22",
+      "title": "Transformer les observations en incidents et backlog",
+      "depends_on": [
+        "T04",
+        "T08",
+        "T20",
+        "T21"
+      ],
+      "source_paths": [
+        "packages/evaluation",
+        "packages/domain"
+      ],
+      "acceptance_entry": "acceptance/T22.spec.ts",
+      "required_cases": [
+        "T22.A1",
+        "T22.A2",
+        "T22.A3",
+        "T22.A4",
+        "T22.A5",
+        "T22.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T22"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        345,
+        352
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T23",
+      "title": "Assembler une période persistante complète",
+      "depends_on": [
+        "T12",
+        "T15",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22"
+      ],
+      "source_paths": [
+        "apps/cli",
+        "packages/activities",
+        "packages/storage",
+        "packages/sandbox",
+        "packages/evaluation"
+      ],
+      "acceptance_entry": "acceptance/T23.spec.ts",
+      "required_cases": [
+        "T23.A1",
+        "T23.A2",
+        "T23.A3",
+        "T23.A4",
+        "T23.A5",
+        "T23.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T23"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        353,
+        360
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T24",
+      "title": "Orchestrer les trajectoires avec Temporal et tester le replay",
+      "depends_on": [
+        "T05",
+        "T23"
+      ],
+      "source_paths": [
+        "packages/workflows",
+        "packages/activities"
+      ],
+      "acceptance_entry": "acceptance/T24.spec.ts",
+      "required_cases": [
+        "T24.A1",
+        "T24.A2",
+        "T24.A3",
+        "T24.A4",
+        "T24.A5"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T24"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        361,
+        370
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T25",
+      "title": "Résister aux workers périmés et à l’annulation",
+      "depends_on": [
+        "T17",
+        "T19",
+        "T23",
+        "T24"
+      ],
+      "source_paths": [
+        "packages/workflows",
+        "packages/activities",
+        "packages/gateway",
+        "packages/sandbox"
+      ],
+      "acceptance_entry": "acceptance/T25.spec.ts",
+      "required_cases": [
+        "T25.A1",
+        "T25.A2",
+        "T25.A3",
+        "T25.A4",
+        "T25.A5",
+        "T25.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T25"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        371,
+        378
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T26",
+      "title": "Réguler le parallélisme et les quotas équitablement",
+      "depends_on": [
+        "T03",
+        "T17",
+        "T24",
+        "T25"
+      ],
+      "source_paths": [
+        "packages/gateway",
+        "packages/workflows",
+        "packages/activities"
+      ],
+      "acceptance_entry": "acceptance/T26.spec.ts",
+      "required_cases": [
+        "T26.A1",
+        "T26.A2",
+        "T26.A3",
+        "T26.A4",
+        "T26.A5",
+        "T26.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T26"
+      ],
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        379,
+        386
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T27",
+      "title": "Créer les branches expérimentales et les politiques de maintenance",
+      "depends_on": [
+        "T15",
+        "T16",
+        "T24",
+        "T26"
+      ],
+      "source_paths": [
+        "apps/cli",
+        "packages/storage",
+        "packages/billing"
+      ],
+      "acceptance_entry": "acceptance/T27.spec.ts",
+      "required_cases": [
+        "T27.A1",
+        "T27.A2",
+        "T27.A3",
+        "T27.A4",
+        "T27.A5",
+        "T27.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T27"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        387,
+        394
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T28",
+      "title": "Ajouter un premier adaptateur de modèle réel",
+      "depends_on": [
+        "T17",
+        "T18",
+        "T19",
+        "T25"
+      ],
+      "source_paths": [
+        "packages/agents",
+        "packages/gateway"
+      ],
+      "acceptance_entry": "acceptance/T28.spec.ts",
+      "required_cases": [
+        "T28.A1",
+        "T28.A2",
+        "T28.A3",
+        "T28.A4",
+        "T28.A5",
+        "T28.A6",
+        "T28.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T28"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        395,
+        404
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T29",
+      "title": "Automatiser la fabrique de scénarios sans auto-certification libre",
+      "depends_on": [
+        "T06",
+        "T07",
+        "T10",
+        "T17",
+        "T28"
+      ],
+      "source_paths": [
+        "packages/scenario",
+        "packages/agents",
+        "fixtures"
+      ],
+      "acceptance_entry": "acceptance/T29.spec.ts",
+      "required_cases": [
+        "T29.A1",
+        "T29.A2",
+        "T29.A3",
+        "T29.A4",
+        "T29.A5",
+        "T29.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T29"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        405,
+        414
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T30",
+      "title": "Geler et préenregistrer les campagnes",
+      "depends_on": [
+        "T03",
+        "T10"
+      ],
+      "source_paths": [
+        "packages/scenario",
+        "packages/contracts",
+        "apps/cli"
+      ],
+      "acceptance_entry": "acceptance/T30.spec.ts",
+      "required_cases": [
+        "T30.A1",
+        "T30.A2",
+        "T30.A3",
+        "T30.A4",
+        "T30.A5",
+        "T30.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T30"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        415,
+        422
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T31",
+      "title": "Exporter des données d’analyse complètes et traçables",
+      "depends_on": [
+        "T04",
+        "T12",
+        "T16"
+      ],
+      "source_paths": [
+        "packages/storage",
+        "apps/cli",
+        "analysis"
+      ],
+      "acceptance_entry": "analysis/tests/test_T31.py",
+      "required_cases": [
+        "T31.A1",
+        "T31.A2",
+        "T31.A3",
+        "T31.A4",
+        "T31.A5",
+        "T31.A6",
+        "T31.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T31"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        423,
+        430
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T32",
+      "title": "Implémenter les estimations au niveau des projets",
+      "depends_on": [
+        "T04",
+        "T31"
+      ],
+      "source_paths": [
+        "analysis"
+      ],
+      "acceptance_entry": "analysis/tests/test_T32.py",
+      "required_cases": [
+        "T32.A1",
+        "T32.A2",
+        "T32.A3",
+        "T32.A4",
+        "T32.A5",
+        "T32.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T32"
+      ],
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        431,
+        438
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T33",
+      "title": "Implémenter le bootstrap apparié et les bandes",
+      "depends_on": [
+        "T02",
+        "T32"
+      ],
+      "source_paths": [
+        "analysis"
+      ],
+      "acceptance_entry": "analysis/tests/test_T33.py",
+      "required_cases": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A6",
+        "T33.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T33"
+      ],
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        439,
+        446
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T34",
+      "title": "Coder la règle de décision économique et ses limites",
+      "depends_on": [
+        "T03",
+        "T32",
+        "T33"
+      ],
+      "source_paths": [
+        "analysis"
+      ],
+      "acceptance_entry": "analysis/tests/test_T34.py",
+      "required_cases": [
+        "T34.A1",
+        "T34.A2",
+        "T34.A3",
+        "T34.A4",
+        "T34.A5",
+        "T34.A6",
+        "T34.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T34"
+      ],
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        447,
+        456
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T35",
+      "title": "Programmer le dimensionnement par simulation",
+      "depends_on": [
+        "T02",
+        "T32",
+        "T33",
+        "T34"
+      ],
+      "source_paths": [
+        "analysis"
+      ],
+      "acceptance_entry": "analysis/tests/test_T35.py",
+      "required_cases": [
+        "T35.A1",
+        "T35.A2",
+        "T35.A3",
+        "T35.A4",
+        "T35.A5",
+        "T35.A6",
+        "T35.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T35"
+      ],
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        457,
+        466
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T36",
+      "title": "Générer un rapport dont les nombres proviennent des résultats",
+      "depends_on": [
+        "T31",
+        "T32",
+        "T33",
+        "T34"
+      ],
+      "source_paths": [
+        "analysis",
+        "apps/cli"
+      ],
+      "acceptance_entry": "analysis/tests/test_T36.py",
+      "required_cases": [
+        "T36.A1",
+        "T36.A2",
+        "T36.A3",
+        "T36.A4",
+        "T36.A5",
+        "T36.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T36"
+      ],
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        467,
+        476
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T37",
+      "title": "Balayer les points de panne et vérifier les reprises",
+      "depends_on": [
+        "T15",
+        "T17",
+        "T20",
+        "T23",
+        "T24",
+        "T25",
+        "T26",
+        "T31"
+      ],
+      "source_paths": [
+        "acceptance",
+        "verification",
+        "packages/activities",
+        "packages/workflows",
+        "fixtures"
+      ],
+      "acceptance_entry": "acceptance/T37.spec.ts",
+      "required_cases": [
+        "T37.A1",
+        "T37.A2",
+        "T37.A3",
+        "T37.A4",
+        "T37.A5",
+        "T37.A6",
+        "T37.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T37"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        477,
+        486
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T38",
+      "title": "Valider six trajectoires complètes avec un résultat chiffré exact",
+      "depends_on": [
+        "T23",
+        "T24",
+        "T26",
+        "T30",
+        "T31",
+        "T32",
+        "T33",
+        "T34",
+        "T36",
+        "T37"
+      ],
+      "source_paths": [
+        "fixtures/golden-six.json",
+        "fixtures",
+        "acceptance",
+        "apps/cli",
+        "analysis"
+      ],
+      "acceptance_entry": "analysis/tests/test_T38.py",
+      "required_cases": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A4",
+        "T38.A5",
+        "T38.A6",
+        "T38.A7",
+        "T38.A8"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T38"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        487,
+        496
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T39",
+      "title": "Fournir la recette d’un pilote complet et son préflight",
+      "depends_on": [
+        "T28",
+        "T29",
+        "T30",
+        "T35",
+        "T38"
+      ],
+      "source_paths": [
+        "fixtures",
+        "apps/cli",
+        "docs"
+      ],
+      "acceptance_entry": "acceptance/T39.spec.ts",
+      "required_cases": [
+        "T39.A1",
+        "T39.A2",
+        "T39.A3",
+        "T39.A4",
+        "T39.A5",
+        "T39.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T39"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        497,
+        504
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T40",
+      "title": "Vérifier la capacité de distribution sans facture IA massive",
+      "depends_on": [
+        "T24",
+        "T25",
+        "T26",
+        "T31",
+        "T38"
+      ],
+      "source_paths": [
+        "infra",
+        "packages/workflows",
+        "packages/activities",
+        "apps/cli"
+      ],
+      "acceptance_entry": "acceptance/T40.spec.ts",
+      "required_cases": [
+        "T40.A1",
+        "T40.A2",
+        "T40.A3",
+        "T40.A4",
+        "T40.A5",
+        "T40.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T40"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        505,
+        512
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T41",
+      "title": "Livrer les commandes opérationnelles et la CI de qualification",
+      "depends_on": [
+        "T30",
+        "T36",
+        "T37",
+        "T38",
+        "T39",
+        "T40"
+      ],
+      "source_paths": [
+        "apps/cli",
+        "infra",
+        "docs"
+      ],
+      "acceptance_entry": "acceptance/T41.spec.ts",
+      "required_cases": [
+        "T41.A1",
+        "T41.A2",
+        "T41.A3",
+        "T41.A4",
+        "T41.A5",
+        "T41.A6",
+        "T41.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T41"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        513,
+        522
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T42",
+      "title": "Effectuer une qualification indépendante de bout en bout",
+      "depends_on": [
+        "T00",
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T09",
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22",
+        "T23",
+        "T24",
+        "T25",
+        "T26",
+        "T27",
+        "T28",
+        "T29",
+        "T30",
+        "T31",
+        "T32",
+        "T33",
+        "T34",
+        "T35",
+        "T36",
+        "T37",
+        "T38",
+        "T39",
+        "T40",
+        "T41"
+      ],
+      "source_paths": [
+        "acceptance",
+        "verification",
+        "docs"
+      ],
+      "acceptance_entry": "acceptance/T42.spec.ts",
+      "required_cases": [
+        "T42.A1",
+        "T42.A2",
+        "T42.A3",
+        "T42.A4",
+        "T42.A5",
+        "T42.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T42"
+      ],
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        523,
+        530
+      ],
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T43",
+      "title": "Produire le paquet de passation et l’état final exact",
+      "depends_on": [
+        "T42"
+      ],
+      "source_paths": [
+        "docs",
+        "verification",
+        "fixtures",
+        "acceptance"
+      ],
+      "acceptance_entry": "acceptance/T43.spec.ts",
+      "required_cases": [
+        "T43.A1",
+        "T43.A2",
+        "T43.A3",
+        "T43.A4",
+        "T43.A5",
+        "T43.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T43"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "cahier_lines": [
+        531,
+        661
+      ],
+      "status": "NOT_IMPLEMENTED"
+    }
+  ]
+}

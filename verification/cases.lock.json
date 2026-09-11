@@ -1,0 +1,3278 @@
+{
+  "$comment": [
+    "Transcription GELEE des cas d acceptation de la section §H, avec pour chacun",
+    "la ligne de docs/cahier.md ou il est enonce. Toute citation est donc",
+    "verifiable par `sed -n '<ligne>p' docs/cahier.md`.",
+    "",
+    "La carte de registre de chaque tache doit etre un SUR-ENSEMBLE de son entree",
+    "ici : un cas ne peut jamais etre retire, seulement ajoute. Une reduction leve",
+    "ACCEPTANCE_WEAKENED et bloque l attestation.",
+    "",
+    "blockable est false PARTOUT, deliberement. Une capacite absente produit un",
+    "verdict BLOCKED au niveau de la TACHE (sortie 2), jamais un PASS partiel.",
+    "PARTIAL n existe que si un cas est explicitement marque blockable ici — un",
+    "changement visible au diff, jamais une decision d execution."
+  ],
+  "schema": "bench.caseslock/1",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "case_count": 279,
+  "cases": [
+    {
+      "id": "T00.A1",
+      "task": "T00",
+      "cahier_line": 155,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T00.A2",
+      "task": "T00",
+      "cahier_line": 155,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T00.A3",
+      "task": "T00",
+      "cahier_line": 155,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T00.A4",
+      "task": "T00",
+      "cahier_line": 155,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T00.A5",
+      "task": "T00",
+      "cahier_line": 155,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T00.A6",
+      "task": "T00",
+      "cahier_line": 155,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T01.A1",
+      "task": "T01",
+      "cahier_line": 165,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T01.A2",
+      "task": "T01",
+      "cahier_line": 165,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T01.A3",
+      "task": "T01",
+      "cahier_line": 165,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T01.A4",
+      "task": "T01",
+      "cahier_line": 165,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T01.A5",
+      "task": "T01",
+      "cahier_line": 165,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T01.A6",
+      "task": "T01",
+      "cahier_line": 165,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T02.A1",
+      "task": "T02",
+      "cahier_line": 173,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T02.A2",
+      "task": "T02",
+      "cahier_line": 173,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T02.A3",
+      "task": "T02",
+      "cahier_line": 173,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T02.A4",
+      "task": "T02",
+      "cahier_line": 173,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T02.A5",
+      "task": "T02",
+      "cahier_line": 173,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T02.A6",
+      "task": "T02",
+      "cahier_line": 173,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T03.A1",
+      "task": "T03",
+      "cahier_line": 181,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T03.A2",
+      "task": "T03",
+      "cahier_line": 181,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T03.A3",
+      "task": "T03",
+      "cahier_line": 181,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T03.A4",
+      "task": "T03",
+      "cahier_line": 181,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T03.A5",
+      "task": "T03",
+      "cahier_line": 181,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T03.A6",
+      "task": "T03",
+      "cahier_line": 181,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T04.A1",
+      "task": "T04",
+      "cahier_line": 191,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T04.A2",
+      "task": "T04",
+      "cahier_line": 191,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T04.A3",
+      "task": "T04",
+      "cahier_line": 191,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T04.A4",
+      "task": "T04",
+      "cahier_line": 191,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T04.A5",
+      "task": "T04",
+      "cahier_line": 191,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T04.A6",
+      "task": "T04",
+      "cahier_line": 191,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T05.A1",
+      "task": "T05",
+      "cahier_line": 199,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T05.A2",
+      "task": "T05",
+      "cahier_line": 199,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T05.A3",
+      "task": "T05",
+      "cahier_line": 199,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T05.A4",
+      "task": "T05",
+      "cahier_line": 199,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T05.A5",
+      "task": "T05",
+      "cahier_line": 199,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T05.A6",
+      "task": "T05",
+      "cahier_line": 199,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T06.A1",
+      "task": "T06",
+      "cahier_line": 207,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T06.A2",
+      "task": "T06",
+      "cahier_line": 207,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T06.A3",
+      "task": "T06",
+      "cahier_line": 207,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T06.A4",
+      "task": "T06",
+      "cahier_line": 207,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T06.A5",
+      "task": "T06",
+      "cahier_line": 207,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T06.A6",
+      "task": "T06",
+      "cahier_line": 207,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A1",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A2",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A3",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A4",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A5",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A6",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T07.A7",
+      "task": "T07",
+      "cahier_line": 215,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T08.A1",
+      "task": "T08",
+      "cahier_line": 223,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T08.A2",
+      "task": "T08",
+      "cahier_line": 223,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T08.A3",
+      "task": "T08",
+      "cahier_line": 223,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T08.A4",
+      "task": "T08",
+      "cahier_line": 223,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T08.A5",
+      "task": "T08",
+      "cahier_line": 223,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T08.A6",
+      "task": "T08",
+      "cahier_line": 223,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T09.A1",
+      "task": "T09",
+      "cahier_line": 233,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T09.A2",
+      "task": "T09",
+      "cahier_line": 233,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T09.A3",
+      "task": "T09",
+      "cahier_line": 233,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T09.A4",
+      "task": "T09",
+      "cahier_line": 233,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T09.A5",
+      "task": "T09",
+      "cahier_line": 233,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T10.A1",
+      "task": "T10",
+      "cahier_line": 241,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T10.A2",
+      "task": "T10",
+      "cahier_line": 241,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T10.A3",
+      "task": "T10",
+      "cahier_line": 241,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T10.A4",
+      "task": "T10",
+      "cahier_line": 241,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T10.A5",
+      "task": "T10",
+      "cahier_line": 241,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T10.A6",
+      "task": "T10",
+      "cahier_line": 241,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T11.A1",
+      "task": "T11",
+      "cahier_line": 251,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T11.A2",
+      "task": "T11",
+      "cahier_line": 251,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T11.A3",
+      "task": "T11",
+      "cahier_line": 251,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T11.A4",
+      "task": "T11",
+      "cahier_line": 251,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T11.A5",
+      "task": "T11",
+      "cahier_line": 251,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T11.A6",
+      "task": "T11",
+      "cahier_line": 251,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T12.A1",
+      "task": "T12",
+      "cahier_line": 261,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T12.A2",
+      "task": "T12",
+      "cahier_line": 261,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T12.A3",
+      "task": "T12",
+      "cahier_line": 261,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T12.A4",
+      "task": "T12",
+      "cahier_line": 261,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T12.A5",
+      "task": "T12",
+      "cahier_line": 261,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T12.A6",
+      "task": "T12",
+      "cahier_line": 261,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T13.A1",
+      "task": "T13",
+      "cahier_line": 269,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T13.A2",
+      "task": "T13",
+      "cahier_line": 269,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T13.A3",
+      "task": "T13",
+      "cahier_line": 269,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T13.A4",
+      "task": "T13",
+      "cahier_line": 269,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T13.A5",
+      "task": "T13",
+      "cahier_line": 269,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T13.A6",
+      "task": "T13",
+      "cahier_line": 269,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T14.A1",
+      "task": "T14",
+      "cahier_line": 277,
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T14.A2",
+      "task": "T14",
+      "cahier_line": 277,
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T14.A3",
+      "task": "T14",
+      "cahier_line": 277,
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T14.A4",
+      "task": "T14",
+      "cahier_line": 277,
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T14.A5",
+      "task": "T14",
+      "cahier_line": 277,
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T14.A6",
+      "task": "T14",
+      "cahier_line": 277,
+      "requires": [
+        "node22",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A1",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A2",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A3",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A4",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A5",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A6",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T15.A7",
+      "task": "T15",
+      "cahier_line": 287,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A1",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A2",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A3",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A4",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A5",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A6",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T16.A7",
+      "task": "T16",
+      "cahier_line": 295,
+      "requires": [
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A1",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A2",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A3",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A4",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A5",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A6",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T17.A7",
+      "task": "T17",
+      "cahier_line": 303,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A1",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A2",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A3",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A4",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A5",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A6",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T18.A7",
+      "task": "T18",
+      "cahier_line": 313,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T19.A1",
+      "task": "T19",
+      "cahier_line": 323,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T19.A2",
+      "task": "T19",
+      "cahier_line": 323,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T19.A3",
+      "task": "T19",
+      "cahier_line": 323,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T19.A4",
+      "task": "T19",
+      "cahier_line": 323,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T19.A5",
+      "task": "T19",
+      "cahier_line": 323,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T19.A6",
+      "task": "T19",
+      "cahier_line": 323,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.cgroup-pids",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "net.veth-egress",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A1",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A2",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A3",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A4",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A5",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A6",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T20.A7",
+      "task": "T20",
+      "cahier_line": 333,
+      "requires": [
+        "containers.cgroup-mem",
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "net.netns-loopback",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A1",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A2",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A3",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A4",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A5",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A6",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A7",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T21.A8",
+      "task": "T21",
+      "cahier_line": 341,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T22.A1",
+      "task": "T22",
+      "cahier_line": 349,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T22.A2",
+      "task": "T22",
+      "cahier_line": 349,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T22.A3",
+      "task": "T22",
+      "cahier_line": 349,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T22.A4",
+      "task": "T22",
+      "cahier_line": 349,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T22.A5",
+      "task": "T22",
+      "cahier_line": 349,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T22.A6",
+      "task": "T22",
+      "cahier_line": 349,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T23.A1",
+      "task": "T23",
+      "cahier_line": 357,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T23.A2",
+      "task": "T23",
+      "cahier_line": 357,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T23.A3",
+      "task": "T23",
+      "cahier_line": 357,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T23.A4",
+      "task": "T23",
+      "cahier_line": 357,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T23.A5",
+      "task": "T23",
+      "cahier_line": 357,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T23.A6",
+      "task": "T23",
+      "cahier_line": 357,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T24.A1",
+      "task": "T24",
+      "cahier_line": 367,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T24.A2",
+      "task": "T24",
+      "cahier_line": 367,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T24.A3",
+      "task": "T24",
+      "cahier_line": 367,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T24.A4",
+      "task": "T24",
+      "cahier_line": 367,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T24.A5",
+      "task": "T24",
+      "cahier_line": 367,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T25.A1",
+      "task": "T25",
+      "cahier_line": 375,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T25.A2",
+      "task": "T25",
+      "cahier_line": 375,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T25.A3",
+      "task": "T25",
+      "cahier_line": 375,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T25.A4",
+      "task": "T25",
+      "cahier_line": 375,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T25.A5",
+      "task": "T25",
+      "cahier_line": 375,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T25.A6",
+      "task": "T25",
+      "cahier_line": 375,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T26.A1",
+      "task": "T26",
+      "cahier_line": 383,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T26.A2",
+      "task": "T26",
+      "cahier_line": 383,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T26.A3",
+      "task": "T26",
+      "cahier_line": 383,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T26.A4",
+      "task": "T26",
+      "cahier_line": 383,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T26.A5",
+      "task": "T26",
+      "cahier_line": 383,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T26.A6",
+      "task": "T26",
+      "cahier_line": 383,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T27.A1",
+      "task": "T27",
+      "cahier_line": 391,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T27.A2",
+      "task": "T27",
+      "cahier_line": 391,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T27.A3",
+      "task": "T27",
+      "cahier_line": 391,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T27.A4",
+      "task": "T27",
+      "cahier_line": 391,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T27.A5",
+      "task": "T27",
+      "cahier_line": 391,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T27.A6",
+      "task": "T27",
+      "cahier_line": 391,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A1",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A2",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A3",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A4",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A5",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A6",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T28.A7",
+      "task": "T28",
+      "cahier_line": 401,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T29.A1",
+      "task": "T29",
+      "cahier_line": 411,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T29.A2",
+      "task": "T29",
+      "cahier_line": 411,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T29.A3",
+      "task": "T29",
+      "cahier_line": 411,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T29.A4",
+      "task": "T29",
+      "cahier_line": 411,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T29.A5",
+      "task": "T29",
+      "cahier_line": 411,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T29.A6",
+      "task": "T29",
+      "cahier_line": 411,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T30.A1",
+      "task": "T30",
+      "cahier_line": 419,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T30.A2",
+      "task": "T30",
+      "cahier_line": 419,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T30.A3",
+      "task": "T30",
+      "cahier_line": 419,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T30.A4",
+      "task": "T30",
+      "cahier_line": 419,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T30.A5",
+      "task": "T30",
+      "cahier_line": 419,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T30.A6",
+      "task": "T30",
+      "cahier_line": 419,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A1",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A2",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A3",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A4",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A5",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A6",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T31.A7",
+      "task": "T31",
+      "cahier_line": 427,
+      "requires": [
+        "node22",
+        "postgres18",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T32.A1",
+      "task": "T32",
+      "cahier_line": 435,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T32.A2",
+      "task": "T32",
+      "cahier_line": 435,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T32.A3",
+      "task": "T32",
+      "cahier_line": 435,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T32.A4",
+      "task": "T32",
+      "cahier_line": 435,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T32.A5",
+      "task": "T32",
+      "cahier_line": 435,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T32.A6",
+      "task": "T32",
+      "cahier_line": 435,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A1",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A2",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A3",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A4",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A5",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A6",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T33.A7",
+      "task": "T33",
+      "cahier_line": 443,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A1",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A2",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A3",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A4",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A5",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A6",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T34.A7",
+      "task": "T34",
+      "cahier_line": 453,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A1",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A2",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A3",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A4",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A5",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A6",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T35.A7",
+      "task": "T35",
+      "cahier_line": 463,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T36.A1",
+      "task": "T36",
+      "cahier_line": 473,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T36.A2",
+      "task": "T36",
+      "cahier_line": 473,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T36.A3",
+      "task": "T36",
+      "cahier_line": 473,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T36.A4",
+      "task": "T36",
+      "cahier_line": 473,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T36.A5",
+      "task": "T36",
+      "cahier_line": 473,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T36.A6",
+      "task": "T36",
+      "cahier_line": 473,
+      "requires": [
+        "node22",
+        "python312"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A1",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A2",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A3",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A4",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A5",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A6",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T37.A7",
+      "task": "T37",
+      "cahier_line": 483,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A1",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A2",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A3",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A4",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A5",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A6",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A7",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T38.A8",
+      "task": "T38",
+      "cahier_line": 493,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "python312",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T39.A1",
+      "task": "T39",
+      "cahier_line": 501,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T39.A2",
+      "task": "T39",
+      "cahier_line": 501,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T39.A3",
+      "task": "T39",
+      "cahier_line": 501,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T39.A4",
+      "task": "T39",
+      "cahier_line": 501,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T39.A5",
+      "task": "T39",
+      "cahier_line": 501,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T39.A6",
+      "task": "T39",
+      "cahier_line": 501,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T40.A1",
+      "task": "T40",
+      "cahier_line": 509,
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T40.A2",
+      "task": "T40",
+      "cahier_line": 509,
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T40.A3",
+      "task": "T40",
+      "cahier_line": 509,
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T40.A4",
+      "task": "T40",
+      "cahier_line": 509,
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T40.A5",
+      "task": "T40",
+      "cahier_line": 509,
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T40.A6",
+      "task": "T40",
+      "cahier_line": 509,
+      "requires": [
+        "node22",
+        "postgres18",
+        "temporal",
+        "temporal-timeskip"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A1",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A2",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A3",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A4",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A5",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A6",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T41.A7",
+      "task": "T41",
+      "cahier_line": 519,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T42.A1",
+      "task": "T42",
+      "cahier_line": 527,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T42.A2",
+      "task": "T42",
+      "cahier_line": 527,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T42.A3",
+      "task": "T42",
+      "cahier_line": 527,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T42.A4",
+      "task": "T42",
+      "cahier_line": 527,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T42.A5",
+      "task": "T42",
+      "cahier_line": 527,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T42.A6",
+      "task": "T42",
+      "cahier_line": 527,
+      "requires": [
+        "containers.runc",
+        "containers.userns",
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3",
+        "temporal"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T43.A1",
+      "task": "T43",
+      "cahier_line": 535,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T43.A2",
+      "task": "T43",
+      "cahier_line": 535,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T43.A3",
+      "task": "T43",
+      "cahier_line": 535,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T43.A4",
+      "task": "T43",
+      "cahier_line": 535,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T43.A5",
+      "task": "T43",
+      "cahier_line": 535,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    },
+    {
+      "id": "T43.A6",
+      "task": "T43",
+      "cahier_line": 535,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false
+    }
+  ]
+}

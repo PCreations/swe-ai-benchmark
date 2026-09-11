@@ -84,11 +84,15 @@ jobs:
           curl -LsSf https://astral.sh/uv/0.8.17/install.sh | sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: uv sync --frozen (verrou inchangé)
+      - name: uv sync --locked (verrou inchangé)
         working-directory: analysis
         run: |
           before=$(sha256sum uv.lock | cut -d' ' -f1)
-          uv sync --frozen
+          # `--locked` et non `--frozen` : chez uv, `--frozen` n'examine meme pas
+          # pyproject.toml et rend 0 sur un manifeste desynchronise du lockfile.
+          # Faux ami de `--frozen-lockfile`. Mesure : uv 0.8.17, exit 0 contre
+          # exit 1 pour `--locked`.
+          uv sync --locked
           after=$(sha256sum uv.lock | cut -d' ' -f1)
           echo "analysis/uv.lock  avant=$before  apres=$after"
           [ "$before" = "$after" ] || { echo "::error::analysis/uv.lock a change pendant une installation figee"; exit 1; }

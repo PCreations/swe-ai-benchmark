@@ -185,7 +185,7 @@
       "frozen_command": [
         "uv",
         "sync",
-        "--frozen"
+        "--locked"
       ]
     }
   }

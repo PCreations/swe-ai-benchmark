@@ -51,7 +51,10 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
   lease <sous-cmd>       bail du pilote, pour que deux tirs de Routine ne
                          pilotent jamais ensemble. L'atomicite est la POUSSEE :
                          une course perdue est un refus de fast-forward.
-                         status   qui tient le bail (n'ecrit rien)
+                         status   qui tient le bail (n'ecrit rien).
+                                  sortie 0 libre ou deja mien · 1 tenu par un
+                                  autre. Un tir autonome decide sur le CODE,
+                                  jamais en interpretant le texte.
                          acquire  sortie 0 pris · 1 tenu par un autre / course
                                   perdue -> se retirer SANS notifier
                          renew    battement, a appeler apres chaque etage
@@ -189,16 +192,21 @@ switch (cmd) {
     if (sub === 'status') {
       const st = lease.status()
       if (json) out(JSON.stringify(st, null, 2), 0)
+      // Tenu par QUELQU'UN D'AUTRE et encore vivant => sortie 1. Un bail
+      // perime (STALE) sort 0 : il est volable, donc il reste du travail
+      // possible pour qui appelle.
+      const occupied = st.state === 'HELD' && !st.mine
       out(
         [
           `BAIL DU PILOTE   ${st.state}`,
           `  titulaire      ${st.owner ?? '(aucun)'}${st.mine ? '  <- moi' : ''}`,
           `  moi            ${st.me}`,
           st.lease ? `  muet depuis    ${st.silent_for_s}s   (volable a ${st.ttl_s}s)` : '',
+          occupied ? `  -> se retirer SANS notifier : une autre session pilote` : '',
         ]
           .filter(Boolean)
           .join('\n'),
-        0
+        occupied ? 1 : 0
       )
     }
     if (sub === 'acquire') {

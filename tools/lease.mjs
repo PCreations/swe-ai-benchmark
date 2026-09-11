@@ -125,7 +125,11 @@ function silence(held, now) {
   return Math.round((now - hb) / 1000)
 }
 
-export function status({ now = Date.now() } = {}) {
+export function status({ now = Date.now(), sync = true } = {}) {
+  // Synchroniser AVANT de lire : un bail lu sur un ledger perime designe un
+  // titulaire deja parti — ou pire, en cache un bien vivant, et deux sessions
+  // pilotent. `sync: false` n'existe que pour les demonstrations hors reseau.
+  if (sync) syncLedger()
   const me = owner()
   const held = readLease()
   if (!held) return { state: 'FREE', owner: null, mine: false, me, lease: null }

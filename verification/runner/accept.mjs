@@ -44,11 +44,11 @@
 // réévaluation, jamais le fichier, qui fait qu'une tâche est `[H]`.
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync } from 'node:child_process'
-import { repoRoot, git, gitOrNull, headSha, branchName, isClean, isAncestor, pushState } from './git.mjs'
+import { repoRoot, git, gitOrNull, headSha, branchName, isClean, isAncestor, pushState, oidAt } from './git.mjs'
 import { loadRegistry, attestability } from './registry.mjs'
 import { inputDigest } from './input-digest.mjs'
 import { readEvidence, runProbes, bootId } from './doctor.mjs'
-import { resolveLedger, appendToLedger, ledgerRef, attestationsByTask } from './ledger.mjs'
+import { resolveLedger, appendToLedger, ledgerRef, attestationsByTask, ledgerOrder } from './ledger.mjs'
 import { runInCleanRoom } from './cleanroom.mjs'
 import { requiredCapabilities } from './verify-task.mjs'
 
@@ -82,10 +82,14 @@ export function redGate(taskId) {
     if (doc.schema !== 'bench.red/1' || doc.task !== taskId) continue
     if (doc.verdict !== 'RED_RECORDED') continue
     if (!doc.subject_commit || !isAncestor(doc.subject_commit, 'HEAD')) continue
-    const order = Number(gitOrNull(['rev-list', '--count', ref, '--', f]) ?? '0')
-    gates.push({ path: f, order, doc })
+    // MEME PIEGE que les attestations : `rev-list --count <ref> -- <f>` compte
+    // les commits touchant <f> et vaut 1 pour toute porte, ecrite une fois.
+    // Le rang doit etre la PROFONDEUR du commit, sinon « la plus recente »
+    // veut dire « la derniere de l'alphabet » — et la plage des deux cles est
+    // alors bornee par la mauvaise porte.
+    gates.push({ path: f, order: ledgerOrder(ref, f), doc })
   }
-  gates.sort((a, b) => a.order - b.order)
+  gates.sort((a, b) => a.order - b.order || a.path.localeCompare(b.path))
   return gates.length ? gates[gates.length - 1] : null
 }
 
@@ -207,7 +211,12 @@ export function accept(taskId, { dryRun = false } = {}) {
     tag: `accept-${taskId}`,
     prepare: [
       'pnpm install --frozen-lockfile --reporter=silent',
-      'uv --project analysis sync --frozen',
+      // `--locked`, PAS `--frozen` : chez uv, `--frozen` signifie « n'examine
+      // meme pas pyproject.toml », donc il rend 0 sur un manifeste desynchronise
+      // du lockfile — mesure : uv 0.8.17, exit 0. `--locked` est le veritable
+      // equivalent de `pnpm install --frozen-lockfile` (exit 1). Faux amis :
+      // meme mot, garantie opposee, et c'est la preparation du CLEAN-ROOM.
+      'uv --project analysis sync --locked',
     ],
     // `node tools/bench` et non `pnpm verify:task` : pnpm prefixe sa sortie de
     // deux lignes de banniere, et le rapport adjuge doit etre la SEULE chose
@@ -255,7 +264,7 @@ export function accept(taskId, { dryRun = false } = {}) {
     clean_room_run: summarize(observed),
     report: slim(report),
     depends_on: task.depends_on,
-    limitations: report.limitations ?? [],
+    limitations: [...(report.limitations ?? []), ...driftLimitations(task, gate)],
     boot_id: bootId(),
     produced_at: new Date().toISOString(),
     duration_ms: Date.now() - started,
@@ -268,6 +277,37 @@ export function accept(taskId, { dryRun = false } = {}) {
     `accept(${taskId}): PASS atteste en clean-room sur ${head.slice(0, 8)}`
   )
   return { ok: true, verdict: 'PASS', doc, ledger }
+}
+
+/**
+ * LA PORTE ROUGE PARLE-T-ELLE ENCORE DES ASSERTIONS ACTUELLES ?
+ *
+ * `accept` exige une porte rouge dont le commit sujet soit un ancetre de HEAD.
+ * Rien n'exige que l'entree d'acceptation n'ait pas change depuis : un cas
+ * ajoute APRES la porte n'a jamais ete observe rouge, et son vert pourrait donc
+ * venir d'un cas vide — exactement ce que la porte existe pour exclure.
+ *
+ * Le rendre bloquant serait malhonnete : une fois la tache implementee, on ne
+ * peut plus reproduire le rouge sans desinstaller l'implementation. On fait
+ * donc ce que le cahier fait ailleurs — DETECTER ET NOMMER plutot que
+ * pretendre. L'attestation porte la limitation en clair, et `bench resume`
+ * l'affiche : un lecteur voit ce que la preuve ne couvre pas.
+ */
+export function driftLimitations(task, gate) {
+  const entry = task.acceptance_entry
+  if (!entry || !gate?.doc?.subject_commit) return []
+  const atRed = oidAt(gate.doc.subject_commit, entry)
+  const atHead = oidAt('HEAD', entry)
+  if (atRed === atHead) return []
+  return [
+    {
+      code: 'RED_GATE_PREDATES_ACCEPTANCE_EDIT',
+      detail:
+        `${entry} a change depuis la porte rouge ${gate.doc.subject_commit.slice(0, 12)} ` +
+        `(${atRed.slice(0, 12)} -> ${atHead.slice(0, 12)}). Le rouge observe ne porte pas ` +
+        `sur les assertions actuelles : ce qui a ete ajoute depuis n'a jamais ete vu echouer.`,
+    },
+  ]
 }
 
 /** Ce qu'on garde du run : assez pour rejouer, jamais la sortie entiere. */

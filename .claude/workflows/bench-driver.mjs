@@ -7,6 +7,7 @@ export const meta = {
     { title: 'Preflight', detail: 'bench resume + doctor + bootstrap infra — la seule source de verite' },
     { title: 'Classify', detail: "proof_kind des 279 cas, en UN commit (cases.lock.json est une entree GLOBALE)" },
     { title: 'Spec', detail: 'extraction verbatim du cahier, zone SPEC' },
+    { title: 'Fixtures', detail: 'DOUBLE transcription du §F, cadrages opposes, scellee seulement si les deux concordent' },
     { title: 'Tests', detail: 'suite + mutants, zones ACCEPTANCE/MUTANT — aveugle a l implementation' },
     { title: 'Red', detail: 'bench red : chaque cas requis observe ROUGE avant toute implementation' },
     { title: 'Impl', detail: 'zones IMPL/HARNESS — jamais dans le meme commit qu une zone de jugement' },
@@ -295,6 +296,112 @@ Rapporte le nombre de blocs et le resultat de cette comparaison.
 
 Commit zone SPEC, Bench-Role: spec-extractor. Puis push.`
 
+/**
+ * LES DEUX TRANSCRIPTEURS DE FIXTURES.
+ *
+ * §F impose de materialiser les fixtures maitresses « sans recalcul depuis
+ * l'implementation ». Un seul transcripteur ne peut pas satisfaire ca de facon
+ * verifiable : rien ne distingue une transcription fidele d'une transcription
+ * fautive, et une fixture fausse rend VERTS des cas qui devraient rougir —
+ * pour toujours, puisque REFERENCE est gelee apres T01.
+ *
+ * D'ou DEUX transcriptions a CADRAGES OPPOSES, ecrites sans se voir :
+ *   A part de la SOURCE  — il lit §F fixture par fixture et materialise.
+ *   B part des CONSOMMATEURS — il lit les cas d'acceptation qui citent chaque
+ *     fixture et deduit ce qu'elle doit contenir pour que ces cas aient un sens.
+ * Une erreur de A devrait etre reproduite a l'identique par B pour survivre.
+ * Les deux ecrivent dans .bench/ (gitignore) : aucun n'ecrit dans le depot, donc
+ * aucune course sur l'index, et la comparaison reste possible.
+ */
+const fixturePrompt = (T, side) => `${BASE}
+
+ROLE : fixture-transcriber (${side}). ETAGE FIXTURES, tache ${T}.
+
+Tu materialises les fixtures maitresses de la section §F du cahier
+(docs/cahier.md, autour des lignes 101-135 : F-MONEY, F-BUDGET, F-QUALITY,
+F-COST-RATIO, F-CLUSTERS, F-BOOTSTRAP, F-RESERVATION, F-FAILURE, F-POWER,
+F-REGRESSION, et toute autre F-* que tu y trouves — verifie, ne te fie pas a
+cette liste).
+
+TON CADRAGE, ET LUI SEUL :
+${
+  side === 'A'
+    ? `Tu pars de la SOURCE. Tu lis §F fixture par fixture, dans l'ordre du
+cahier, et tu materialises exactement ce que le texte enonce. Tu ne consultes
+AUCUN cas d'acceptation, AUCUNE suite de tests, AUCUNE implementation.`
+    : `Tu pars des CONSOMMATEURS. Pour chaque fixture, tu cherches d'abord quels
+cas d'acceptation la citent (verification/cases.lock.json, docs/cahier.md §H) et
+tu deduis ce que la fixture doit contenir pour que ces cas aient un sens ; tu
+confrontes ensuite au texte de §F. Tu ne consultes AUCUNE implementation.`
+}
+
+OU ECRIRE : \`.bench/fixtures/${side}/\` — un fichier JSON par fixture, nomme
+d'apres elle (\`F-MONEY.json\`, \`F-QUALITY.json\`, …). N'ECRIS RIEN dans le
+depot : pas de git add, pas de commit. Ton etage ne produit aucun commit, et
+c'est voulu — c'est l'etage de scellement qui materialise, si et seulement si
+toi et l'autre transcripteur concordez.
+
+REGLES :
+- Les valeurs viennent du CAHIER, jamais d'un calcul fait par une implementation.
+  Chaque valeur porte sa ligne source (champ \`cahier_line\`), verifiable par
+  \`sed -n '<n>p' docs/cahier.md\`.
+- Les nombres exacts sont exacts : \`V=13/16=0.8125\`, \`340\`, \`2720\`, \`16320\`,
+  les horloges de F-RESERVATION. Une valeur arrondie est une fixture fausse.
+- Si le cahier est ambigu sur un point, NE TRANCHE PAS : consigne l'ambiguite
+  dans un champ \`ambiguites\` du fichier concerne. L'etage de scellement
+  s'arretera dessus, ce qui est le bon resultat.
+- Conventions explicites du cahier (par ex. « R vaut null lorsqu'aucune intention
+  admissible n'est proposee ») : elles font partie de la fixture.
+
+Rends : le nombre de fixtures ecrites, leur liste, les ambiguites relevees.
+ok=true si tu as ecrit tes fichiers ; commit vide, pushed=false — c'est normal
+pour cet etage.`
+
+/**
+ * LE SCELLEMENT. C'est ici, et nulle part ailleurs, que REFERENCE est ecrite.
+ * Un desaccord entre A et B n'est PAS un incident a resoudre au jugement : c'est
+ * le signal que le §F a ete lu de deux facons, donc qu'il ne sera pas lu de la
+ * meme facon par les sept roles en aval. On s'arrete.
+ */
+const fixtureSealPrompt = (T) => `${BASE}
+
+ROLE : fixture-transcriber (scellement). ETAGE FIXTURES, tache ${T}.
+
+Deux transcriptions independantes du §F t'attendent dans \`.bench/fixtures/A/\`
+et \`.bench/fixtures/B/\`, ecrites par deux agents a cadrages opposes qui ne se
+sont pas vus.
+
+1. COMPARE-LES, valeur par valeur (pas fichier par fichier : la mise en forme
+   peut differer legitimement, les VALEURS non). Toute divergence de valeur, et
+   toute \`ambiguites\` non vide, ARRETE l'etage : rends ok=false, state
+   \`FIXTURES_DISCORDANTES\` ou \`FIXTURES_AMBIGUES\`, et NOMME la divergence
+   exacte (fixture, champ, valeur A, valeur B, ligne du cahier). N'arbitre pas,
+   ne choisis pas « la plus plausible » : deux lectures divergentes du §F, c'est
+   precisement ce que la double transcription existe pour attraper, et le gel
+   rendrait l'erreur permanente.
+
+2. SI ET SEULEMENT SI elles concordent : materialise \`acceptance/reference/**\`
+   depuis la transcription commune. Un fichier par fixture, chaque valeur portant
+   sa \`cahier_line\`.
+
+3. GELE : ecris \`docs/FROZEN_ROOTS.json\` avec le tree oid de
+   \`acceptance/reference\` (\`git rev-parse HEAD:acceptance/reference\` APRES le
+   commit — donc ecris-le en second commit, ou inscris l'oid calcule par
+   \`git write-tree\` sur l'index ; explique ce que tu as fait). Ce fichier est
+   ce qui rend toute alteration ulterieure detectable.
+
+4. ARCHIVE LES DEUX TRANSCRIPTIONS sur le ledger, sous
+   \`fixtures-transcripts/${T}/\` (le repertoire existe deja). C'est ce qui rend
+   la concordance AUDITABLE plus tard, et pas seulement affirmee maintenant.
+   Utilise la plomberie du ledger, jamais un checkout de la branche de ledger.
+
+5. Commit zone REFERENCE (\`acceptance/reference/**\` et
+   \`docs/FROZEN_ROOTS.json\` sont tous deux dans cette zone),
+   Bench-Role: fixture-transcriber. Puis push les deux refs.
+
+Rends le nombre de fixtures scellees, le tree oid gele, et le resultat de la
+comparaison A/B en clair.`
+
 const testsPrompt = (T) => `${BASE}
 
 ROLE : test-author. ETAGE TESTS, tache ${T}.
@@ -518,6 +625,26 @@ log(`Frontiere : ${frontier.join(', ')}`)
 const results = await pipeline(
   frontier,
   (T) => agent(specPrompt(T), { label: `spec:${T}`, phase: 'Spec', schema: OUTCOME }),
+  // FIXTURES. Les deux transcripteurs en parallele — ils n'ecrivent que dans
+  // .bench/, donc aucune course sur l'index — puis le scellement, qui refuse de
+  // materialiser si leurs valeurs divergent. Sans cet etage, T01.A6 (« F-MONEY
+  // corrompue a 341 detectee ») ne peut pas rougir : acceptance/reference/**
+  // n'existe pas, et l'implementeur n'a pas le droit de l'ecrire.
+  (prev, T) =>
+    prev?.ok === false
+      ? null
+      : parallel(
+          ['A', 'B'].map((side) => () =>
+            agent(fixturePrompt(T, side), { label: `fixtures:${T}:${side}`, phase: 'Fixtures', schema: OUTCOME })
+          )
+        ).then((sides) => {
+          const dead = ['A', 'B'].filter((_, i) => !sides[i])
+          if (dead.length)
+            return { ok: false, state: 'FIXTURES_TRANSCRIPTION_ABSENTE', detail: `transcripteur(s) sans rendu : ${dead.join(', ')} — une seule transcription ne vaut rien, c'est la CONCORDANCE qui prouve`, pushed: false }
+          const ko = sides.filter((v) => v.ok === false)
+          if (ko.length) return { ok: false, state: 'FIXTURES_TRANSCRIPTION_ECHOUEE', detail: ko.map((v) => v.state).join(' | '), pushed: false }
+          return agent(fixtureSealPrompt(T), { label: `fixtures:${T}:scellement`, phase: 'Fixtures', schema: OUTCOME })
+        }),
   (prev, T) => (prev?.ok === false ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME })),
   (prev, T) => (prev?.ok === false ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME })),
   (prev, T) => (prev?.ok === false ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME })),

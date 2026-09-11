@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T01",
+  "subject_commit": "6094d2a2a7e77b5088bb57aee84b23870911dabb",
+  "dirty": false,
+  "input_digest": "ce920c497e9600e54671e8be521791cc02a085ef099e59bea3346598ab3c970f",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T01.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M1",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, adjudicate() : `vacuous` force a [] et le filtre de `executed` prive de l'exclusion TEST_STATUS.VACUOUS (variante prescrite : ne compter que les CAS verts sans jamais regarder le nombre d'assertions). OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A1 ROUGE (bloc `vide` : refuse false / pass true la ou la suite exige refuse true / pass false), A2 A3 A4 A5 A6 restes VERTS, conforme a doit_rester_vert. RESTAURE par git checkout, arbre propre verifie."
+    },
+    {
+      "id": "T01.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M2",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, adjudicate() : `skipped` force a [] (le cas saute sort du decompte, la tache est declaree complete sans lui). OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A2 ROUGE, A1 A3 A4 A5 A6 restes VERTS. RESTAURE par git checkout, arbre propre verifie."
+    },
+    {
+      "id": "T01.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M3",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, adjudicate() : `missing` force a [] — la liste des cas requis du registre n'est plus confrontee aux identifiants observes dans le rapport. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A3 ROUGE, A1 A2 A4 A5 A6 restes VERTS. RESTAURE par git checkout, arbre propre verifie. RESERVE HONNETE : le mutant complementaire T01.M7 (amputation de T18.A6 dans verification/tasks.json ET verification/cases.lock.json, compteurs decrementes a 278) a ete ECRIT sur le disque puis ANNULE SANS OBSERVATION : le classificateur de securite de l'hote a refuse d'executer toute commande tant que le registre etait ampute. Le troisieme bloc d'assertions d'A3 (confrontation du registre au cahier) n'est donc PAS couvert par une contre-epreuve executee ici ; seule sa premiere moitie l'est, par T01.M3 que le verrou de cas designe comme mutant principal."
+    },
+    {
+      "id": "T01.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M4",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, decide() : variante (a) du mutant — l'empreinte des fixtures est RECALCULEE APRES COUP (`let before = fixtureDigest(scope)` puis `before = after` apres runAcceptance), de sorte qu'une fixture modifiee en vol se rehache dans son etat final. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A4 ROUGE, A1 A2 A3 A5 A6 restes VERTS ; le run TEMOIN reste satisfait (deux etats de fixture distincts donnent toujours deux empreintes distinctes), donc c'est bien la branche PROOF_INVALIDATED qui tombe. RESTAURE par git checkout, arbre propre verifie."
+    },
+    {
+      "id": "T01.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M5",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, buildReport() : variante (b) du mutant — `commit: headSha()` remplace par la constante '0'x40, la liaison au commit devient inoperante faute d'operande. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A5 ROUGE (le temps 1, commitLieAHead, tombe), A1 A2 A3 A4 A6 restes VERTS. RESTAURE par git checkout, arbre propre verifie."
+    },
+    {
+      "id": "T01.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M6",
+      "note": "APPLIQUE dans verification/runner/references.mjs, checkReferences() : les DEUX controles de valeur desarmes (`if (false && dirty.length)` pour le gel arbre-de-travail-contre-HEAD, `if (false && missing.length)` pour les entiers 340/680 du cahier L103), seul le controle de PRESENCE et de NOM des fichiers de acceptance/reference subsistant. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A6 ROUGE, A1 A2 A3 A4 A5 restes VERTS. RESTAURE par git checkout ; git status --porcelain -- acceptance/reference rend une sortie vide, la racine gelee est intacte."
+    }
+  ],
+  "mutation_proof": {
+    "T01.A1": {
+      "killed_by": "T01.M1",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, adjudicate() : `vacuous` force a [] et le filtre de `executed` prive de l'exclusion TEST_STATUS.VACUOUS (variante prescrite : ne compter que les CAS verts sans jamais regarder le nombre d'assertions). OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A1 ROUGE (bloc `vide` : refuse false / pass true la ou la suite exige refuse true / pass false), A2 A3 A4 A5 A6 restes VERTS, conforme a doit_rester_vert. RESTAURE par git checkout, arbre propre verifie."
+    },
+    "T01.A2": {
+      "killed_by": "T01.M2",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, adjudicate() : `skipped` force a [] (le cas saute sort du decompte, la tache est declaree complete sans lui). OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A2 ROUGE, A1 A3 A4 A5 A6 restes VERTS. RESTAURE par git checkout, arbre propre verifie."
+    },
+    "T01.A3": {
+      "killed_by": "T01.M3",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, adjudicate() : `missing` force a [] — la liste des cas requis du registre n'est plus confrontee aux identifiants observes dans le rapport. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A3 ROUGE, A1 A2 A4 A5 A6 restes VERTS. RESTAURE par git checkout, arbre propre verifie. RESERVE HONNETE : le mutant complementaire T01.M7 (amputation de T18.A6 dans verification/tasks.json ET verification/cases.lock.json, compteurs decrementes a 278) a ete ECRIT sur le disque puis ANNULE SANS OBSERVATION : le classificateur de securite de l'hote a refuse d'executer toute commande tant que le registre etait ampute. Le troisieme bloc d'assertions d'A3 (confrontation du registre au cahier) n'est donc PAS couvert par une contre-epreuve executee ici ; seule sa premiere moitie l'est, par T01.M3 que le verrou de cas designe comme mutant principal."
+    },
+    "T01.A4": {
+      "killed_by": "T01.M4",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, decide() : variante (a) du mutant — l'empreinte des fixtures est RECALCULEE APRES COUP (`let before = fixtureDigest(scope)` puis `before = after` apres runAcceptance), de sorte qu'une fixture modifiee en vol se rehache dans son etat final. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A4 ROUGE, A1 A2 A3 A5 A6 restes VERTS ; le run TEMOIN reste satisfait (deux etats de fixture distincts donnent toujours deux empreintes distinctes), donc c'est bien la branche PROOF_INVALIDATED qui tombe. RESTAURE par git checkout, arbre propre verifie."
+    },
+    "T01.A5": {
+      "killed_by": "T01.M5",
+      "note": "APPLIQUE dans verification/runner/verify-task.mjs, buildReport() : variante (b) du mutant — `commit: headSha()` remplace par la constante '0'x40, la liaison au commit devient inoperante faute d'operande. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A5 ROUGE (le temps 1, commitLieAHead, tombe), A1 A2 A3 A4 A6 restes VERTS. RESTAURE par git checkout, arbre propre verifie."
+    },
+    "T01.A6": {
+      "killed_by": "T01.M6",
+      "note": "APPLIQUE dans verification/runner/references.mjs, checkReferences() : les DEUX controles de valeur desarmes (`if (false && dirty.length)` pour le gel arbre-de-travail-contre-HEAD, `if (false && missing.length)` pour les entiers 340/680 du cahier L103), seul le controle de PRESENCE et de NOM des fichiers de acceptance/reference subsistant. OBSERVE : pnpm test acceptance/T01.spec.ts -> T01.A6 ROUGE, A1 A2 A3 A4 A5 restes VERTS. RESTAURE par git checkout ; git status --porcelain -- acceptance/reference rend une sortie vide, la racine gelee est intacte."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

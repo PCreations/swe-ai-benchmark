@@ -24,6 +24,17 @@
 //    `cleanroom.mjs` applique au checkout : ne jamais adjuger un fichier trouvé
 //    sur le disque.
 //
+// 3. LE NOMBRE D'ASSERTIONS RÉELLEMENT EXÉCUTÉES EST UNE OBSERVATION, PAS UNE
+//    DÉDUCTION. §G l.139 : « un programme qui écrit seulement `passed=true`, un
+//    test avec zéro assertion […] ne satisfait pas le contrat ». Un test vide
+//    sort `passed` dans les deux chaînes : le statut ne distingue pas « a
+//    vérifié quelque chose » de « n'a rien vérifié ». Chaque test observé porte
+//    donc `asserts`, lu dans la chaîne elle-même — `numPassingAsserts` côté
+//    Jest, un compteur de hook côté pytest. `asserts: null` signifie NON
+//    OBSERVÉ, et `verify-task.mjs` le traite comme zéro : un compteur absent ne
+//    peut pas valoir satisfaction, sinon casser le compteur rendrait le
+//    contrôle inopérant sans qu'aucun test ne rougisse.
+//
 // POURQUOI PAS DE PARSEUR XML EN DÉPENDANCE. Ajouter une dépendance au
 // vérificateur pour lire quarante lignes de JUnit élargirait la surface que
 // §C demande de verrouiller, pour un gain nul : le format produit par pytest
@@ -40,7 +51,7 @@ import { repoRoot } from './git.mjs'
 const R = repoRoot()
 
 /** Statuts normalisés — le vocabulaire que `verify-task.mjs` adjuge. */
-export const TEST_STATUS = { PASS: 'PASS', FAIL: 'FAIL', SKIPPED: 'SKIPPED' }
+export const TEST_STATUS = { PASS: 'PASS', FAIL: 'FAIL', SKIPPED: 'SKIPPED', VACUOUS: 'VACUOUS' }
 
 /**
  * La chaîne se déduit de l'extension de `acceptance_entry`, et de rien d'autre.
@@ -69,7 +80,7 @@ function runDir(tag) {
   return { id, dir }
 }
 
-function exec(command, cwd) {
+function exec(command, cwd, env = undefined) {
   try {
     const stdout = execSync(command, {
       cwd,
@@ -77,6 +88,7 @@ function exec(command, cwd) {
       timeout: 30 * 60 * 1000,
       maxBuffer: 64 * 1024 * 1024,
       stdio: ['ignore', 'pipe', 'pipe'],
+      ...(env ? { env } : {}),
     })
     return { exit_code: 0, stdout, stderr: '' }
   } catch (e) {
@@ -125,6 +137,14 @@ function runJest(entry, out) {
   const tests = []
   for (const tr of doc.testResults ?? []) {
     for (const a of tr.assertionResults ?? []) {
+      // `numPassingAsserts` est le compteur que Jest tient lui-meme : il vaut 0
+      // pour un `test('...', () => {})` qui sort pourtant `passed`. Les
+      // assertions qui ONT echoue s'y ajoutent — elles ont ete executees, ce
+      // qui est la propriete mesuree ici ; le statut FAIL, lui, est porte a
+      // part. Un champ absent (version de Jest inattendue) donne `null`, donc
+      // NON OBSERVE, jamais zero implicitement satisfaisant.
+      const passing = typeof a.numPassingAsserts === 'number' ? a.numPassingAsserts : null
+      const failing = Array.isArray(a.failureMessages) ? a.failureMessages.length : 0
       tests.push({
         name: a.fullName || a.title,
         status:
@@ -134,6 +154,7 @@ function runJest(entry, out) {
               ? TEST_STATUS.FAIL
               : TEST_STATUS.SKIPPED,
         raw_status: a.status,
+        asserts: passing === null ? null : passing + failing,
       })
     }
   }
@@ -191,21 +212,63 @@ export function parseJUnit(xml) {
 }
 
 /**
+ * Rattache à chaque `testcase` JUnit le nombre d'assertions que le plugin a
+ * compté pour lui.
+ *
+ * JUnit et pytest ne nomment pas un test pareil : `classname` + `name` d'un
+ * côté, `nodeid` de l'autre. La jointure se fait sur le dernier segment du
+ * nodeid, qui EST le `name` JUnit. FAIL-CLOSED sur les deux façons dont elle
+ * peut rater : aucun enregistrement trouvé donne `null` (non observé, donc
+ * refusé), et plusieurs enregistrements homonymes donnent le MINIMUM — jamais
+ * le maximum, qui laisserait un test creux emprunter le compteur de son
+ * homonyme.
+ */
+export function attachPytestAsserts(tests, countsFile) {
+  let doc = null
+  try {
+    doc = JSON.parse(readFileSync(countsFile, 'utf8'))
+  } catch {
+    return tests.map((t) => ({ ...t, asserts: null }))
+  }
+  const byName = new Map()
+  for (const rec of doc?.tests ?? []) {
+    if (typeof rec?.name !== 'string' || typeof rec?.asserts !== 'number') continue
+    const prev = byName.get(rec.name)
+    byName.set(rec.name, prev === undefined ? rec.asserts : Math.min(prev, rec.asserts))
+  }
+  return tests.map((t) => {
+    const short = t.name.includes('::') ? t.name.slice(t.name.lastIndexOf('::') + 2) : t.name
+    const n = byName.get(short)
+    return { ...t, asserts: typeof n === 'number' ? n : null }
+  })
+}
+
+/**
  * `uv --project analysis run` : l'environnement Python est celui qu'`analysis/
  * uv.lock` décrit, jamais l'interpréteur du système. §C épingle 3.12 ; laisser
  * pytest tourner sur l'interpréteur ambiant rendrait le verdict dépendant de
  * l'hôte, ce que `doctor.mjs` existe précisément pour interdire.
  */
-function runPytest(entry, out) {
+function runPytest(entry, out, countsFile) {
   const command =
     `uv --project analysis run pytest ${JSON.stringify(entry)} ` +
-    `--junitxml=${JSON.stringify(out)} -p no:cacheprovider`
-  const proc = exec(command, R)
+    `--junitxml=${JSON.stringify(out)} -p no:cacheprovider -p bench_assert_counts`
+  // Le plugin vit en zone HARNESS (verification/runner/pytest) et est atteint
+  // par PYTHONPATH, jamais installé : l'ajouter aux dépendances de `analysis`
+  // ferait dépendre l'environnement mesuré d'un paquet du mesureur.
+  const env = {
+    ...process.env,
+    BENCH_ASSERT_COUNTS: countsFile,
+    PYTHONPATH: [`${R}/verification/runner/pytest`, process.env.PYTHONPATH]
+      .filter((x) => typeof x === 'string' && x !== '')
+      .join(':'),
+  }
+  const proc = exec(command, R, env)
 
   if (!existsSync(out)) {
     return { command, ...proc, loaded: false, why: 'pytest n a produit aucun rapport JUnit', tests: [] }
   }
-  const tests = parseJUnit(readFileSync(out, 'utf8'))
+  const tests = attachPytestAsserts(parseJUnit(readFileSync(out, 'utf8')), countsFile)
   // pytest rend 2..5 pour une erreur de collecte, d'usage ou une interruption :
   // la suite ne s'est pas exécutée, il n'y a rien à adjuger.
   const collectionFailed = proc.exit_code >= 2 && tests.length === 0
@@ -253,7 +316,8 @@ export function runAcceptance(entry) {
 
   const { id, dir } = runDir(chain)
   const out = `${dir}/${chain === 'jest' ? 'jest.json' : 'junit.xml'}`
-  const r = chain === 'jest' ? runJest(entry, out) : runPytest(entry, out)
+  const counts = `${dir}/asserts.json`
+  const r = chain === 'jest' ? runJest(entry, out) : runPytest(entry, out, counts)
 
   return {
     entry,
@@ -281,10 +345,15 @@ export function runAcceptance(entry) {
  * `test_T30_A1[T30.A1]` (pytest, via l'identifiant de paramétrage). Le point
  * est échappé : sans cela `T30.A1` matcherait `T30XA1`.
  *
- * FAIL-CLOSED sur trois points :
+ * FAIL-CLOSED sur quatre points :
  *   • un cas sans aucun test observé vaut NOT_RUN, jamais PASS ;
  *   • un cas dont UN SEUL test échoue vaut FAIL, même si dix autres passent ;
- *   • un cas sauté vaut SKIPPED, et §G refuse les tests sautés.
+ *   • un cas sauté vaut SKIPPED, et §G refuse les tests sautés ;
+ *   • un cas dont les tests sortent verts SANS avoir exécuté une seule
+ *     assertion vaut VACUOUS — §G l.139 : « un test avec zéro assertion […] ne
+ *     satisfait pas le contrat ». Un compteur NON OBSERVÉ (`asserts: null`)
+ *     compte pour zéro : c'est la seule lecture qui ne récompense pas la panne
+ *     du compteur.
  */
 export function projectCases(requiredCases, tests) {
   const statuses = []
@@ -292,15 +361,27 @@ export function projectCases(requiredCases, tests) {
     const re = new RegExp(id.replace(/\./g, '\\.'))
     const mine = tests.filter((t) => re.test(t.name))
     if (mine.length === 0) {
-      statuses.push({ id, status: 'NOT_RUN', observed: 0 })
+      statuses.push({ id, status: 'NOT_RUN', observed: 0, asserts: 0, asserts_observable: false })
       continue
     }
     const failed = mine.filter((t) => t.status === TEST_STATUS.FAIL).length
     const skipped = mine.filter((t) => t.status === TEST_STATUS.SKIPPED).length
+    const observable = mine.every((t) => typeof t.asserts === 'number')
+    const asserts = mine.reduce((n, t) => n + (typeof t.asserts === 'number' ? t.asserts : 0), 0)
+    const vacuous = !observable || asserts === 0
     statuses.push({
       id,
-      status: failed > 0 ? TEST_STATUS.FAIL : skipped > 0 ? TEST_STATUS.SKIPPED : TEST_STATUS.PASS,
+      status:
+        failed > 0
+          ? TEST_STATUS.FAIL
+          : skipped > 0
+            ? TEST_STATUS.SKIPPED
+            : vacuous
+              ? TEST_STATUS.VACUOUS
+              : TEST_STATUS.PASS,
       observed: mine.length,
+      asserts,
+      asserts_observable: observable,
     })
   }
   return statuses

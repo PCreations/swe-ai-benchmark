@@ -36,3 +36,10 @@ testpaths = ["tests"]
 # verificateur refuse les tests sautes ».
 addopts = "-ra --strict-markers --strict-config"
 xfail_strict = true
+# §G l.139 : « un test avec zero assertion [...] ne satisfait pas le contrat ».
+# Le rapport JUnit ne porte aucun compteur d'assertions : un `def test(): pass`
+# y est indiscernable d'un test qui verifie. Ce drapeau active le hook
+# `pytest_assertion_pass`, dont verification/runner/pytest/bench_assert_counts.py
+# tire le compteur que le verificateur exige. Sans lui, la chaine pytest serait
+# le trou par lequel la regle ne s'appliquerait qu'a Jest.
+enable_assertion_pass_hook = true

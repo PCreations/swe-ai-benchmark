@@ -20,16 +20,38 @@
 //   4. entrée d'acceptation absente, ou suite qui ne se charge pas, ou aucun
 //      cas requis observé → 2 / NOT_IMPLEMENTED. Rien n'a tourné : ce n'est pas
 //      un échec d'assertion (ADR-005 §1 : « 1 signifie que la tâche a tourné »).
-//   5. un cas requis rouge, sauté ou jamais vu → 1 / ASSERTION_FAILED.
-//   6. tous les cas requis observés VERTS → 0 / PASS.
+//   5. une racine de fixtures gelée qui a bougé → 2 / REFERENCE_TAMPERED. §G
+//      l.139 : la racine des fixtures de référence est gelée après T01 ; toute
+//      modification « invalide les preuves précédentes ». Le contrôle précède
+//      l'exécution : faire tourner une suite sur des références corrompues
+//      produirait un verdict sur un arbre que personne n'a validé.
+//   6. les fixtures ont bougé PENDANT l'exécution → 2 / PROOF_INVALIDATED.
+//      §T01 l.165. L'empreinte est prise avant la chaîne et reprise après ;
+//      celle inscrite au rapport est celle d'AVANT, c'est-à-dire l'arbre que
+//      les assertions ont réellement lu.
+//   7. aucun cas requis n'a exécuté la moindre assertion → 2 / VACUOUS_PROOF.
+//      §G l.139 : « un test avec zéro assertion ne satisfait pas le contrat ».
+//      Le code est 2 et non 1 pour la raison d'ADR-005 §1 : aucune assertion
+//      n'a échoué, puisqu'aucune n'a été exécutée.
+//   8. un cas requis rouge, sauté, creux ou jamais vu → 1 / ASSERTION_FAILED.
+//   9. tous les cas requis observés VERTS → 0 / PASS.
 //
 // CE QUI REND `PASS` ATTEIGNABLE, ET CE QUI LE REND DIFFICILE. §D-12 : « un
 // résultat PASS nécessite l'exécution des assertions obligatoires ; ni test
 // sauté, ni rapport absent, ni simple code de sortie d'un sous-processus ne
-// suffisent ». Les trois interdits sont fermés ici, chacun par une ligne de
+// suffisent ». Les interdits sont fermés ici, chacun par une ligne de
 // `adjudicate()` : le rapport machine de la chaîne est la seule entrée (jamais
-// son code de sortie), un cas sauté est refusé comme un cas rouge, et un cas
-// requis jamais observé est refusé comme un cas rouge.
+// son code de sortie), un cas sauté est refusé comme un cas rouge, un cas
+// requis jamais observé est refusé comme un cas rouge, et un cas dont les
+// tests sortent verts sans avoir exécuté une seule assertion est refusé comme
+// un cas rouge — c'est le `VACUOUS` que `chains.mjs` projette.
+//
+// LE REFUS N'EST PAS UNE COMPÉTENCE. Un vérificateur qui refuserait TOUT
+// satisferait la lettre de ces interdits sans rien vérifier. Aucune des
+// branches ajoutées ne refuse par défaut : une racine gelée ABSENTE ne refuse
+// pas (il n'y a rien à geler), une empreinte de fixtures INCHANGÉE ne refuse
+// pas, et un compteur d'assertions qui compte 1 ne refuse pas. C'est ce que
+// les jumeaux SAINS de l'acceptation mesurent, cas par cas.
 //
 // CE QUE CE FICHIER NE FAIT TOUJOURS PAS, ET POURQUOI CE N'EST PAS UN MANQUE.
 // §G parle aussi des DÉPENDANCES. Elles ne commandent pas le verdict ici : la
@@ -55,6 +77,8 @@ import { loadRegistryForVerification } from './registry.mjs'
 import { inputDigest } from './input-digest.mjs'
 import { readEvidence, runProbes, bootId } from './doctor.mjs'
 import { runAcceptance, projectCases, TEST_STATUS } from './chains.mjs'
+import { fixtureDigest, fixtureDelta } from './fixtures.mjs'
+import { frozenRoots, checkReferences } from './references.mjs'
 
 const R = repoRoot()
 
@@ -66,6 +90,10 @@ export const REASON = {
   UNKNOWN_TASK: 'UNKNOWN_TASK',
   REGISTRY_INVALID: 'REGISTRY_INVALID',
   BLOCKED: 'BLOCKED',
+  // T01 — trois façons de sortir 0 sans avoir rien prouvé, chacune nommée.
+  VACUOUS_PROOF: 'VACUOUS_PROOF',
+  PROOF_INVALIDATED: 'PROOF_INVALIDATED',
+  REFERENCE_TAMPERED: 'REFERENCE_TAMPERED',
 }
 
 /** La projection des issues sur les trois codes du §G. */
@@ -76,6 +104,15 @@ export const EXIT_FOR_REASON = {
   [REASON.UNKNOWN_TASK]: 2,
   [REASON.REGISTRY_INVALID]: 2,
   [REASON.BLOCKED]: 2,
+  // ADR-005 §1 : « 1 signifie qu'une assertion a échoué, donc que la tâche a
+  // tourné ». Aucune des trois issues ci-dessous n'est un échec d'assertion —
+  // une preuve creuse n'en a exécuté aucune, une preuve invalidée a observé un
+  // arbre qui n'existe plus, une référence altérée arrête avant la chaîne. Les
+  // faire sortir en 1 mentirait sur la nature de l'issue ; elles sortent donc
+  // en 2, comme les autres « rien n'a été prouvé ».
+  [REASON.VACUOUS_PROOF]: 2,
+  [REASON.PROOF_INVALIDATED]: 2,
+  [REASON.REFERENCE_TAMPERED]: 2,
 }
 
 const sha256File = (p) => {
@@ -147,16 +184,23 @@ export function requiredCapabilities(task) {
  */
 export function adjudicate(requiredCases, run) {
   const statuses = projectCases(requiredCases, run.tests ?? [])
-  const executed = statuses.filter((s) => s.status !== 'NOT_RUN').map((s) => s.id)
   const failed = statuses.filter((s) => s.status === TEST_STATUS.FAIL).map((s) => s.id)
   const skipped = statuses.filter((s) => s.status === TEST_STATUS.SKIPPED).map((s) => s.id)
   const missing = statuses.filter((s) => s.status === 'NOT_RUN').map((s) => s.id)
+  const vacuous = statuses.filter((s) => s.status === TEST_STATUS.VACUOUS).map((s) => s.id)
+  // « Exécuté » se mesure en ASSERTIONS, pas en tests lancés : un cas dont le
+  // test est entré et sorti sans rien vérifier n'a rien exécuté au sens de
+  // §D-12. C'est la seule définition qui fait tomber le rapport creux.
+  const executed = statuses
+    .filter((s) => s.status !== 'NOT_RUN' && s.status !== TEST_STATUS.VACUOUS)
+    .map((s) => s.id)
+  const assertions = statuses.reduce((n, s) => n + (s.asserts ?? 0), 0)
 
   // La suite ne s'est pas chargée, ou aucun cas requis n'a été vu : il n'y a
   // rien à adjuger. Une tâche qui n'a rien exécuté n'a pas ÉCHOUÉ, elle n'est
   // pas implémentée — les confondre ferait passer un import cassé pour un
   // contrat violé, et inversement.
-  if (!run.loaded || executed.length === 0) {
+  if (!run.loaded || (executed.length === 0 && vacuous.length === 0)) {
     return {
       reason: REASON.NOT_IMPLEMENTED,
       statuses,
@@ -164,6 +208,8 @@ export function adjudicate(requiredCases, run) {
       failed,
       skipped,
       missing,
+      vacuous,
+      assertions,
       detail: [
         run.why ?? `aucun cas requis observe parmi ${run.tests?.length ?? 0} test(s) executes`,
         ...(run.suite_errors ?? []).slice(0, 3),
@@ -171,7 +217,28 @@ export function adjudicate(requiredCases, run) {
     }
   }
 
-  if (failed.length || skipped.length || missing.length) {
+  // Les tests des cas requis ont TOUS tourné sans exécuter une assertion. La
+  // chaîne sort en 0, le rapport annonce des tests « passed », et pourtant
+  // aucune sortie n'a été observée : §G l.139 refuse exactement cet objet.
+  if (executed.length === 0) {
+    return {
+      reason: REASON.VACUOUS_PROOF,
+      statuses,
+      executed,
+      failed,
+      skipped,
+      missing,
+      vacuous,
+      assertions,
+      detail: [
+        `aucune assertion executee sur les ${vacuous.length} cas requis observes : ${vacuous.join(', ')}`,
+        'Un test a zero assertion ne satisfait pas le contrat (cahier L139) : la chaine',
+        'sort en 0 sans avoir rien verifie, et un code de sortie ne prouve rien (§D-12).',
+      ],
+    }
+  }
+
+  if (failed.length || skipped.length || missing.length || vacuous.length) {
     return {
       reason: REASON.ASSERTION_FAILED,
       statuses,
@@ -179,15 +246,18 @@ export function adjudicate(requiredCases, run) {
       failed,
       skipped,
       missing,
+      vacuous,
+      assertions,
       detail: [
         failed.length ? `cas en echec : ${failed.join(', ')}` : null,
         skipped.length ? `cas SAUTES — §G les refuse : ${skipped.join(', ')}` : null,
         missing.length ? `cas requis jamais observes : ${missing.join(', ')}` : null,
+        vacuous.length ? `cas CREUX — zero assertion executee (cahier L139) : ${vacuous.join(', ')}` : null,
       ].filter(Boolean),
     }
   }
 
-  return { reason: REASON.PASS, statuses, executed, failed, skipped, missing, detail: [] }
+  return { reason: REASON.PASS, statuses, executed, failed, skipped, missing, vacuous, assertions, detail: [] }
 }
 
 /**
@@ -226,14 +296,83 @@ export function decide(taskId, env = process.env) {
       ],
     }
 
+  // LES RACINES GELÉES, AVANT TOUTE EXÉCUTION. §G l.139 : toute modification de
+  // la racine des fixtures de référence « invalide les preuves précédentes ».
+  // Elle doit donc invalider aussi celle qu'on s'apprête à produire, et il n'y
+  // a aucune raison de dépenser une exécution sur un arbre déjà disqualifié.
+  const roots = frozenRoots()
+  const references = checkReferences(roots)
+  if (references.problems.length)
+    return {
+      reason: REASON.REFERENCE_TAMPERED,
+      registry: reg,
+      task,
+      prereq,
+      blockedBy,
+      references,
+      detail: [
+        ...references.problems,
+        'La racine des fixtures de reference est gelee (cahier L139) : toute modification',
+        'invalide les preuves. Rendre la racine identique a HEAD, ou ouvrir un SPEC_CONFLICT.',
+      ],
+    }
+
+  // L'EMPREINTE DES FIXTURES, AVANT ET APRÈS. Le périmètre est celui que la
+  // carte déclare (`source_paths`), augmenté des racines gelées : c'est
+  // exactement « les fixtures de la tâche », et non une constante ni l'arbre
+  // entier — les deux mutations que le registre des mutants nomme (M4c).
+  const scope = [...(task.source_paths ?? []), ...roots.roots]
+  const before = fixtureDigest(scope)
+
   const run = runAcceptance(task.acceptance_entry)
+
+  const after = fixtureDigest(scope)
+  const delta = fixtureDelta(before, after)
   const verdict = adjudicate(task.required_cases ?? [], run)
-  return { reason: verdict.reason, registry: reg, task, prereq, blockedBy, run, verdict, detail: verdict.detail }
+
+  // Ce qui a été observé l'a été sur `before`. Si l'arbre a bougé pendant, la
+  // preuve porte sur un arbre qui n'existe plus : aucun statut vert ne peut
+  // survivre à ça, y compris ceux qui étaient sincèrement verts.
+  if (before.digest === null || after.digest === null || before.digest !== after.digest) {
+    const invalidated = (verdict.statuses ?? []).map((st) => ({ ...st, status: 'INVALIDATED' }))
+    return {
+      reason: REASON.PROOF_INVALIDATED,
+      registry: reg,
+      task,
+      prereq,
+      blockedBy,
+      references,
+      run,
+      fixtures: { before, after, delta },
+      verdict: { ...verdict, reason: REASON.PROOF_INVALIDATED, statuses: invalidated, executed: [] },
+      detail: [
+        before.digest === null || after.digest === null
+          ? 'empreinte des fixtures non observable : git ls-files n a pas repondu'
+          : `${delta.moved.length} fixture(s) ont bouge PENDANT l execution : ${delta.moved.slice(0, 5).join(', ')}`,
+        `empreinte avant ${String(before.digest).slice(0, 12)} / apres ${String(after.digest).slice(0, 12)}`,
+        'Une fixture modifiee apres execution invalide la preuve (cahier L165) : les',
+        'assertions ont lu un arbre qui n existe plus.',
+      ],
+    }
+  }
+
+  return {
+    reason: verdict.reason,
+    registry: reg,
+    task,
+    prereq,
+    blockedBy,
+    references,
+    run,
+    fixtures: { before, after, delta },
+    verdict,
+    detail: verdict.detail,
+  }
 }
 
 /** Construit le rapport du §G à partir de ce qui a été réellement observé. */
 export function buildReport(taskId, decision, startedAt) {
-  const { reason, registry, task, detail, run, verdict } = decision
+  const { reason, registry, task, detail, run, verdict, references, fixtures } = decision
   const prereq = decision.prereq ?? prerequisites(requiredCapabilities(task))
   const blockedBy = Object.entries(prereq)
     .filter(([, v]) => !v.present)
@@ -264,10 +403,26 @@ export function buildReport(taskId, decision, startedAt) {
       problems: registry.problems,
     },
 
-    // §G : « empreinte des fixtures ». Lue dans l'OBJET GIT, jamais par un
-    // parcours de fichiers : git.mjs explique pourquoi (un worktree sparse
-    // empreinterait l'ensemble vide et rendrait T01.A4 auto-satisfaisant).
-    fixtures: { 'acceptance/reference': oidAt('HEAD', 'acceptance/reference') },
+    // §G l.135 : « empreinte des fixtures ». C'est celle d'AVANT l'exécution —
+    // l'arbre que les assertions ont réellement lu. La recalculer à la fin
+    // serait la mutation M4(a) : une fixture modifiée en vol s'y re-hacherait
+    // dans son état final et paraîtrait intacte.
+    fixtures_digest: fixtures?.before?.digest ?? null,
+    fixtures: {
+      schema: 'bench.fixtures/1',
+      scope: fixtures?.before?.scope ?? [],
+      file_count: fixtures?.before?.count ?? 0,
+      digest_before: fixtures?.before?.digest ?? null,
+      digest_after: fixtures?.after?.digest ?? null,
+      stable: fixtures ? fixtures.before.digest !== null && fixtures.before.digest === fixtures.after.digest : null,
+      moved: fixtures?.delta?.moved ?? [],
+      // L'oid de l'objet git de la racine gelée, en plus du hachage d'arbre de
+      // travail : les deux lectures ne voient pas la même chose (git.mjs).
+      frozen_roots_head: Object.fromEntries(
+        (references?.roots ?? ['acceptance/reference']).map((r) => [r, oidAt('HEAD', r)]),
+      ),
+    },
+    references: references ?? null,
     input_digest: task ? inputDigest(task, 'HEAD') : null,
 
     // §G : « versions ».
@@ -290,9 +445,13 @@ export function buildReport(taskId, decision, startedAt) {
     executed_cases: executed,
     assertions_expected: expected.length,
     assertions_executed: executed.length,
+    // Le nombre d'assertions RÉELLEMENT exécutées, distinct du nombre de cas :
+    // c'est lui qui distingue une suite qui vérifie d'une suite qui passe.
+    assertions_observed: verdict?.assertions ?? 0,
     case_statuses: statuses,
     skipped_cases: verdict?.skipped ?? [],
     missing_cases: verdict?.missing ?? expected,
+    vacuous_cases: verdict?.vacuous ?? [],
 
     // §G : « fichiers de preuves ». Le rapport machine de la chaîne, celui que
     // CE run vient d'écrire dans un répertoire nommé par nonce.
@@ -310,6 +469,8 @@ export function buildReport(taskId, decision, startedAt) {
 
     limitations: [
       'Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.',
+      'Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).',
+      'La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.',
       'Ce rapport n\'est PAS une attestation tant qu\'il n\'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).',
       'La CI n\'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici.',
     ],
@@ -367,15 +528,49 @@ export function render(report, path) {
   }
   for (const c of report.commands ?? []) L.push(`  commande      ${c.command}   -> ${c.exit_code}`)
   L.push('')
-  L.push(`  cas attendus  ${report.assertions_expected}   executes ${report.assertions_executed}`)
+  L.push(
+    `  cas attendus  ${report.assertions_expected}   executes ${report.assertions_executed}` +
+      `   assertions observees ${report.assertions_observed ?? 0}`,
+  )
+  const MARK = { PASS: 'OK  ', FAIL: 'ROUGE', SKIPPED: 'SAUTE', VACUOUS: 'CREUX', INVALIDATED: 'NUL  ' }
   for (const s of report.case_statuses ?? []) {
-    const mark = s.status === 'PASS' ? 'OK  ' : s.status === 'FAIL' ? 'ROUGE' : s.status === 'SKIPPED' ? 'SAUTE' : 'NON  '
-    L.push(`    ${mark} ${s.id}`)
+    const n = typeof s.asserts === 'number' ? `  (${s.asserts} assertion${s.asserts > 1 ? 's' : ''})` : ''
+    L.push(`    ${MARK[s.status] ?? 'NON  '} ${s.id}${n}`)
+  }
+  if (report.fixtures) {
+    const f = report.fixtures
+    L.push(
+      `  fixtures      ${String(f.digest_before).slice(0, 12)}  ${f.file_count} fichier(s)` +
+        `  sur [${(f.scope ?? []).join(', ')}]` +
+        (f.stable === false ? `  — A BOUGE PENDANT L EXECUTION` : ''),
+    )
+  }
+  if (report.references) {
+    for (const o of report.references.observed ?? []) {
+      const fx = (o.fixtures ?? []).map((x) => `${x.fixture}=${x.state}`).join(' ')
+      L.push(`  reference     ${o.root}  ${o.state}  ${o.files} fichier(s)${fx ? `  ${fx}` : ''}`)
+    }
   }
   if (report.requires.length) {
     L.push(`  prerequis     ${report.requires.map((c) => `${c}${report.prerequisites[c]?.present ? '' : ' (ABSENT)'}`).join(', ')}`)
   }
   L.push('')
+  if (report.reason === REASON.VACUOUS_PROOF) {
+    L.push('  La chaine est sortie en 0 et ses tests sont « passed », mais AUCUNE')
+    L.push('  assertion n\'a ete executee. Un test a zero assertion ne satisfait pas le')
+    L.push('  contrat (cahier L139) ; le code de sortie ne prouve rien (§D-12).')
+    L.push('')
+  }
+  if (report.reason === REASON.PROOF_INVALIDATED) {
+    L.push('  Les fixtures ont bouge PENDANT l\'execution : la preuve porte sur un arbre')
+    L.push('  qui n\'existe plus (cahier L165). Aucun statut vert ne survit a ca.')
+    L.push('')
+  }
+  if (report.reason === REASON.REFERENCE_TAMPERED) {
+    L.push('  La racine des fixtures de reference est gelee (cahier L139). Elle differe')
+    L.push('  de HEAD, ou ne porte plus les valeurs que le cahier lui assigne.')
+    L.push('')
+  }
   if (report.reason === REASON.NOT_IMPLEMENTED) {
     L.push('  Aucun cas requis n\'a ete observe : rien n\'a tourne. §D-12 interdit de')
     L.push('  conclure sans assertions executees — ce n\'est pas un echec d\'assertion.')

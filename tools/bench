@@ -11,6 +11,7 @@ import { runProbes, writeEvidence, readEvidence } from '../verification/runner/d
 import { loadRegistry } from '../verification/runner/registry.mjs'
 import { inputDigest } from '../verification/runner/input-digest.mjs'
 import { run as runSelftest } from '../verification/runner/selftest.mjs'
+import { observeSuite, adjudicate, record } from '../verification/runner/red.mjs'
 import { verifyTask, render as renderResult } from '../verification/runner/verify-task.mjs'
 
 const [cmd = 'resume', ...rest] = process.argv.slice(2)
@@ -34,6 +35,9 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
                          dependance absente, status non fige, cas retires
   digest <Txx>           imprime l'input_digest d'une tache et ses composantes
   selftest               le socle se prouve lui-meme : demonstrations executees
+  red <Txx>              execute la suite et enregistre la PORTE ROUGE sur le ledger.
+                         Refuse : suite non chargee, cas non observes, cas VERT
+                         sans contre-epreuve par mutation (VACUOUS).
   help
 `
 
@@ -121,6 +125,31 @@ switch (cmd) {
     L.push('')
     L.push(ok ? `${results.length} controles passent.` : `${failed.length} controle(s) en echec.`)
     out(L.join('\n'), ok ? 0 : 1)
+    break
+  }
+
+  case 'red': {
+    const id = rest[0]
+    if (!id) out('usage: bench red <Txx>', 1)
+    // Contre-epreuves de mutation deja observees, passees par --proof (JSON).
+    const proofArg = rest.find((r) => r.startsWith('--proof='))
+    const proof = proofArg ? JSON.parse(proofArg.slice('--proof='.length)) : {}
+    process.stderr.write(`execution de la suite pour ${id}...\n`)
+    const observed = observeSuite(id)
+    const adj = adjudicate(id, observed, proof)
+    const L = [`PORTE ROUGE ${id} — ${adj.verdict}`, '']
+    for (const r of adj.rows ?? []) {
+      const mark = r.state === 'RED' ? 'ROUGE ' : r.state === 'VACUOUS' ? 'VIDE  ' : 'VERT+M'
+      L.push(`  ${mark} ${r.id}  ${r.reason ?? r.killed_by ?? ''}`)
+    }
+    if (adj.verdict !== 'RED_RECORDED') {
+      L.push('', `REFUSE : ${adj.reason ?? ''} ${adj.detail ?? ''}`)
+      if (adj.vacuous?.length) L.push(`  cas vides de sens : ${adj.vacuous.join(', ')}`)
+      out(L.join('\n'), 1)
+    }
+    const { path } = record(id, observed, adj, proof)
+    L.push('', `enregistre : ${path}`)
+    out(L.join('\n'), 0)
     break
   }
 

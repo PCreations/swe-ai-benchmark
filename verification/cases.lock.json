@@ -18,7 +18,8 @@
     "que la porte pretend proteger. Un cas 'artifact' n'appelle aucun export, donc",
     "stuber n'y change rien. Chaque cas porte donc son mode de preuve et sa",
     "perturbation ciblee. UNCLASSIFIED est FAIL-CLOSED : la tache ne peut pas etre",
-    "attestee tant qu'un de ses cas requis n'est pas classe."
+    "attestee tant qu'un de ses cas requis n'est pas classe.",
+    "CONTRAINTE SUR LA PORTE NECESSITE, trouvee independamment par quatre des six classificateurs : le stub de la perturbation 'module-stub' doit LEVER, jamais renvoyer une constante ni un export vide. Les cas d'INVARIANCE et de DETERMINISME (T03.A2, T04.A2, T08.A1, T11.A5, T18.A1, T26.A5, T27.A2, T29.A5, T31.A6, T33.A3, T33.A5, T35.A5, T38.A5) affirment qu'une sortie ne depend PAS d'un facteur — nombre de workers, echelle, ordre des lignes, rejeu. Un stub constant rendrait les deux cotes de l'egalite identiques et les laisserait VERTS : faux PASS sur des cas classes 'behaviour', c'est-a-dire la ou la regle universelle est censee etre valide. C'est le meme defaut que R05, sur un autre mode. Leur champ 'perturbation' porte donc une perturbation ciblee qui INTRODUIT le facteur interdit, et elle prime sur la perturbation generique du mode."
   ],
   "schema": "bench.caseslock/1",
   "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
@@ -104,8 +105,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre le validateur de rapport PERMISSIF : accepter un verification/results/T01.json dont la liste d'assertions est vide (0 assertion executee) comme preuve valide, au lieu de le refuser. Le cas doit devenir ROUGE. Un stub qui leve le garderait vert a tort, puisqu'il produirait lui-meme l'erreur attendue.",
+      "note": "Le cas affirme qu'un rapport vide est REFUSE ; l.163 precise qu'un sous-processus sortant avec 0 sans produire ses preuves n'est pas suffisant, et l.167 qualifie les six cas de T01 de « six variantes negatives ». L'assertion decisive porte donc sur le rejet."
     },
     {
       "id": "T01.A2",
@@ -115,8 +117,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre le validateur PERMISSIF sur le statut skipped : compter une assertion sautee comme executee/reussie (ou l'exclure du decompte des assertions attendues) au lieu de refuser le rapport. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'un rapport contenant une assertion sautee est REFUSE (l.163 : echouer si les assertions manquent, sont sautees ou proviennent d'un ancien commit) ; l'assertion decisive est le rejet."
     },
     {
       "id": "T01.A3",
@@ -126,8 +129,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre le controle de completude PERMISSIF : ne plus comparer la liste des cas requis du registre aux identifiants presents dans le rapport, de sorte qu'un rapport auquel manque un identifiant obligatoire soit accepte. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'un rapport ou un identifiant de cas obligatoire est absent est REFUSE ; l'assertion decisive est le rejet, pas une valeur produite."
     },
     {
       "id": "T01.A4",
@@ -137,8 +141,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre la verification d'empreinte de fixtures PERMISSIVE : recalculer l'empreinte des fixtures F apres coup (ou ne plus la comparer a celle enregistree dans le rapport), de sorte qu'une fixture modifiee apres l'execution laisse la preuve valide. Le cas doit devenir ROUGE. Muter l'artefact n'apporterait rien ici : la mutation de la fixture est deja le scenario du cas.",
+      "note": "Le cas manipule un fichier de fixture mais son assertion decisive est que la preuve est INVALIDEE (rejet) apres modification ; d'ou refusal plutot qu'artifact."
     },
     {
       "id": "T01.A5",
@@ -148,8 +153,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre la liaison au commit PERMISSIVE : supprimer la comparaison entre le commit enregistre dans le rapport et HEAD (accepter n'importe quel commit), de sorte qu'un rapport produit a un ancien commit valide le commit courant. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'un rapport d'un ancien commit NE VALIDE PAS le commit courant ; l'assertion decisive est le refus de la preuve perimee."
     },
     {
       "id": "T01.A6",
@@ -159,8 +165,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre la verification des references PERMISSIVE : ne controler que la presence et le nom des fixtures de acceptance/reference sans comparer leurs valeurs attendues (ou leur empreinte), de sorte qu'un F-MONEY portant 341 au lieu de 340 (l.103) ne soit plus detecte. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme que la corruption d'une fixture maitresse EST DETECTEE, c'est-a-dire refusee ; il ne recalcule pas 340 par une regle metier (c'est T16.A1 qui le fait), donc refusal et non numeric."
     },
     {
       "id": "T02.A1",
@@ -170,8 +177,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de sérialisation canonique de `packages/contracts` (la fonction qui produit les octets canoniques) par un throw `NOT_IMPLEMENTED` : le cas, qui doit réellement sérialiser les deux objets aux clés permutées pour comparer leurs octets, doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite en cas de succès — deux objets aux mêmes clés en ordre différent donnent les mêmes octets canoniques — donc behaviour."
     },
     {
       "id": "T02.A2",
@@ -181,8 +189,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export d'empreinte/sérialisation canonique de `packages/contracts` pour qu'il renvoie une constante indépendante de l'entrée : le tableau et son inverse donnent alors la même empreinte, l'assertion « empreintes différentes » tombe, on exige le ROUGE.",
+      "note": "Le cas affirme une valeur produite — l'empreinte d'un tableau inversé diffère de l'originale — donc behaviour."
     },
     {
       "id": "T02.A3",
@@ -192,8 +201,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher le vecteur d'entrée `abc` ni la constante attendue, fausser la règle de calcul du digest : hacher `input.slice(0, -1)` (ou ajouter un octet de padding avant le hash) dans l'export SHA-256 de `packages/contracts` — la sortie ne vaut plus `ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad` et le cas doit passer au ROUGE.",
+      "note": "Le cas reproduit une valeur exacte littéralement énoncée par le cahier ligne 173 (le digest `ba7816bf…15ad` des octets `abc`), donc numeric ; le mode est retenu sur la valeur épinglée, même si cette valeur est un hex et non un montant."
     },
     {
       "id": "T02.A4",
@@ -203,8 +213,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre le constructeur de montant de `packages/contracts` PERMISSIF — supprimer les gardes et accepter `-5`, `1.5` et `NaN` en les renvoyant tels quels (hors écriture d'ajustement) ; le cas, qui attend un rejet pour chacun, doit passer au ROUGE.",
+      "note": "Le cas affirme que des entrées (montants négatifs hors ajustement, décimaux, NaN) sont REJETÉES, donc refusal : un stub qui lève le garderait faussement vert."
     },
     {
       "id": "T02.A5",
@@ -214,8 +225,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber la dérivation de graines de `packages/contracts` pour que le flux `workload` soit tiré du même compteur global que le flux `bootstrap` (une seule séquence partagée) : après n tirages bootstrap, le flux workload dérive et le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite — la suite dérivée du flux workload est identique quel que soit le nombre de tirages du flux bootstrap — donc behaviour."
     },
     {
       "id": "T02.A6",
@@ -225,8 +237,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le générateur pseudo-aléatoire seedé de `packages/contracts` pour qu'il s'initialise sur `Date.now()` / le hasard global au lieu de la graine et de la version d'algorithme passées : le rejeu à même graine ne reproduit plus la suite du vecteur publié, on exige le ROUGE.",
+      "note": "Le cas affirme une valeur produite — rejouer avec la même graine et la même version d'algorithme redonne exactement la même suite, comparée au vecteur publié — donc behaviour ; le cahier ligne 173 ne chiffre pas ce vecteur, il n'y a donc pas de valeur exacte à reproduire."
     },
     {
       "id": "T03.A1",
@@ -236,8 +249,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle d'enumeration des cellules sans toucher la fixture de manifeste (boucler les 3 repetitions jusqu'a n-1, soit 4 identites au lieu de 6) : exiger le rouge",
+      "note": "Le cas reproduit un compte exact enonce par le cahier — exactement six identites distinctes pour 1x1x2x3x1 — donc une valeur chiffree, pas un simple resultat d'export."
     },
     {
       "id": "T03.A2",
@@ -247,8 +261,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire entrer le nombre de workers dans la derivation d'identite de cellule (le concatener a la graine), puis compiler le meme manifeste avec 2 puis 8 workers : les deux jeux d'identites divergent, exiger le rouge",
+      "note": "Le cas affirme une valeur produite par le compilateur — le jeu d'identites — et son invariance au nombre de workers."
     },
     {
       "id": "T03.A3",
@@ -258,8 +273,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le validateur PERMISSIF : dedupliquer silencieusement un id en doublon et compiler avec succes au lieu de rejeter — exiger le rouge (un stub qui leve laisserait ce cas vert a tort)",
+      "note": "Le cas affirme qu'un manifeste contenant un id en doublon est REJETE."
     },
     {
       "id": "T03.A4",
@@ -269,8 +285,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le schema PERMISSIF : autoriser additionalProperties et rendre le budget optionnel, la compilation reussit — exiger le rouge",
+      "note": "Le cas affirme le rejet d'une propriete inconnue ou d'un budget absent ; l'exactitude du chemin d'erreur est l'accessoire du refus, qui est l'assertion decisive."
     },
     {
       "id": "T03.A5",
@@ -280,8 +297,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire perdre l'etiquette de provenance a l'expansion (les cellules heritent d'une provenance par defaut « reelle » au lieu de « synthetique ») : exiger le rouge",
+      "note": "Le cas affirme une valeur produite : l'etiquette synthetique propagee a toutes les cellules planifiees."
     },
     {
       "id": "T03.A6",
@@ -291,8 +309,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la verification d'empreinte PERMISSIVE : journaliser un avertissement et poursuivre l'execution malgre un digest qui ne correspond pas — exiger le rouge",
+      "note": "Le cas affirme qu'un mismatch d'empreinte est REFUSE avant toute execution ; l'anteriorite du controle accompagne le refus, qui est l'assertion decisive."
     },
     {
       "id": "T04.A1",
@@ -302,8 +321,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la regle de calcul sans toucher la fixture F-QUALITY : moyenner V sur 3 periodes au lieu de 4 (0,75 au lieu de 13/16=0,8125), ou inclure la periode a R=null au denominateur de U (2/4=0,5 au lieu de 2/3). Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit les valeurs exactes enoncees par le cahier en l.107 (V=13/16=0,8125, U=2/3, exposition 3/4, reussite agregee 7/10) : il reproduit des valeurs exactes, donc numeric."
     },
     {
       "id": "T04.A2",
@@ -313,8 +333,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export du calcul de Q (fonctions pures de metriques, l.187) pour qu'il LEVE : le cas doit devenir ROUGE. Attention, un stub renvoyant une constante ne suffirait pas — l'egalite avant/apres duplication resterait vraie. Controle plus fin : faire compter Q par nombre d'assertions au lieu d'id/version active (l.129) de sorte que dupliquer les assertions change Q.",
+      "note": "Le cas exerce l'export Q et observe le resultat produit (invariance sous duplication d'assertions) ; aucune valeur exacte du cahier n'est reproduite, donc behaviour et non numeric."
     },
     {
       "id": "T04.A3",
@@ -324,8 +345,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de calcul des regressions pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : compter cancel@1 retiree en P3 comme regression (ignorer son remplacement par cancel@2, l.129), ce qui ajoute une regression a la seule isolation@1 attendue.",
+      "note": "Le cas exerce le calcul des regressions sur F-REGRESSION et observe la composition du resultat (exclut cancel@1, compte isolation@1) ; l'assertion porte sur des identifiants inclus/exclus, pas sur une valeur numerique enoncee, donc behaviour."
     },
     {
       "id": "T04.A4",
@@ -335,8 +357,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la regle de G_new sans toucher la fixture : supprimer la condition « satisfaite a la periode precedente comparable » (l.189) de sorte qu'une regression persistante redevienne nouvelle a chaque periode — G_new vaudrait 1 puis 1 au lieu de 1 puis 0. Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit les valeurs exactes enoncees dans la ligne d'acceptation elle-meme (G=1 aux deux periodes, G_new=1 puis 0), adossees a la regle de l.189 : donc numeric."
     },
     {
       "id": "T04.A5",
@@ -346,8 +369,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la regle du denominateur de R sans toucher la fixture : coalescer null en 0 quand aucune intention admissible n'est proposee (contre la convention de l.111), et symetriquement renvoyer null au lieu de 0 pour la panne a quatre usages. Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit deux sorties exactes enoncees par le cahier (R=null en l'absence d'intention, R=0 pour une trajectoire indisponible face a quatre usages, l.111) ; ce sont des valeurs exactes attendues, donc numeric."
     },
     {
       "id": "T04.A6",
@@ -357,8 +381,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre PRESENT ce que le cas dit absent : retirer le filtre d'echeance pour que le poids de l'exigence revelee mais non encore due entre dans le denominateur de Q (l.109 : « son poids ne doit pas entrer dans Q avant son echeance »). Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme l'ABSENCE d'une exigence non encore due dans le denominateur — un export stube ou vide garderait cette absence vraie, d'ou absence et non behaviour."
     },
     {
       "id": "T05.A1",
@@ -368,8 +393,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le reducer pur de `packages/domain` (la fonction de transition) en identité — il renvoie l'état d'entrée inchangé : la suite de phases observée n'est plus celle de §E (`PENDING`→…→`COMPLETED`) et le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite en cas de succès — la séquence de phases d'un parcours nominal est celle énumérée en §E — donc behaviour."
     },
     {
       "id": "T05.A2",
@@ -379,8 +405,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre la table de transitions PERMISSIVE — autoriser `DEPLOYING` depuis n'importe quel état en supprimant l'exigence d'un passage préalable par `VALIDATING` ; le déploiement avant validation réussit alors et le cas, qui attend un refus, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une commande (déployer avant validation) est REFUSÉE, donc refusal."
     },
     {
       "id": "T05.A3",
@@ -390,8 +417,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre l'effet dupliqué PRÉSENT : supprimer la déduplication par clé d'opération/empreinte d'entrée du reducer, de sorte que le second événement d'identité et de contenu identiques applique une seconde fois son effet (compteur, écriture ou commande émise deux fois) ; le cas doit passer au ROUGE.",
+      "note": "Le cas affirme qu'un effet supplémentaire N'EST PAS produit lors du rejeu d'un événement identique, donc absence — un stub no-op du reducer laisserait cette assertion faussement verte."
     },
     {
       "id": "T05.A4",
@@ -401,8 +429,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre le contrôle d'idempotence PERMISSIF — accepter la même identité avec un contenu différent en écrasant le contenu précédent et en renvoyant un succès, sans comparer les empreintes ; le cas, qui attend `IDEMPOTENCY_CONFLICT`, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une entrée (même identité, contenu différent) est REJETÉE avec l'erreur typée `IDEMPOTENCY_CONFLICT`, donc refusal."
     },
     {
       "id": "T05.A5",
@@ -412,8 +441,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber la branche `BUDGET_EXHAUSTED` du reducer de `packages/domain` pour qu'elle renvoie l'état inchangé et une liste de commandes vide : les commandes de mesure de la version existante attendues par le cas disparaissent, on exige le ROUGE.",
+      "note": "Le cas affirme une valeur produite — budget épuisé fait émettre les transitions/commandes de mesure de la version déjà déployée — l'assertion décisive porte sur ces commandes présentes, pas sur un rejet ; le volet « pas de succès fictif » est secondaire."
     },
     {
       "id": "T05.A6",
@@ -423,8 +453,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber la fonction de clôture de période de `packages/domain` pour qu'elle renvoie un résultat sans liste de demandes non servies (champ vide) : la clôture sans déploiement ne produit plus les demandes non servies de F-FAILURE et le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite par la clôture d'une période sans déploiement (les demandes non servies prévues par F-FAILURE) ; F-FAILURE ligne 121 ne chiffre pas ces demandes, donc behaviour et non numeric."
     },
     {
       "id": "T06.A1",
@@ -434,8 +465,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la sentinelle PRESENTE : inclure la charge utile de la periode P+1 (donc sa sentinelle distincte) dans les entrees remises a l'agent en periode P — exiger le rouge",
+      "note": "Le cas affirme qu'une sentinelle d'evenement futur NE FIGURE PAS dans les entrees de l'agent avant revelation."
     },
     {
       "id": "T06.A2",
@@ -445,8 +477,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la porte de revelation PERMISSIVE : renvoyer avec succes le contenu de la periode future au lieu de NOT_RELEASED — exiger le rouge (un stub qui leve sur toute lecture garderait le cas vert)",
+      "note": "Le cas affirme qu'une lecture anticipee est REJETEE avec le code NOT_RELEASED."
     },
     {
       "id": "T06.A3",
@@ -456,8 +489,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber la table de reponses client (renvoyer une reponse constante, ou celle de la question voisine) : exiger le rouge",
+      "note": "Le cas affirme une valeur produite en cas de succes : la reponse disponible exacte pour une question couverte."
     },
     {
       "id": "T06.A4",
@@ -467,8 +501,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la reponse PERMISSIVE : pour une question hors table, inferer et renvoyer une reponse plausible au lieu d'UNSPECIFIED — exiger le rouge",
+      "note": "Le cas affirme que le pack refuse de repondre a une question non couverte (UNSPECIFIED) plutot que d'inventer une regle."
     },
     {
       "id": "T06.A5",
@@ -478,8 +513,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le compilateur de pack PERMISSIF : desactiver la resolution des dependances, de sorte qu'un cycle et une reference vers un evenement inexistant soient acceptes — exiger le rouge",
+      "note": "Le cas affirme qu'une dependance cyclique ou pendante est REJETEE a la compilation du pack."
     },
     {
       "id": "T06.A6",
@@ -489,8 +525,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "decaler d'une periode l'instant de bascule du versionnement (ou desactiver la version de remplacement au lieu de l'ancienne) : exiger le rouge",
+      "note": "Le cas affirme un resultat produit : quelle version d'exigence est active, et a quel instant, apres un remplacement."
     },
     {
       "id": "T07.A1",
@@ -500,8 +537,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de projection metier de l'oracle pour P1 (renvoyer un etat vide ou sans le rejeu de cle idempotente) : le compte de reservations confirmees ne vaut plus exactement 1, rouge exige",
+      "note": "Le cas exerce la projection canonique de l'oracle sur F-RESERVATION P1 et observe un resultat produit en cas de succes (une seule reservation confirmee, rejeu idempotent sans doublon), donc mode behaviour."
     },
     {
       "id": "T07.A2",
@@ -511,8 +549,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de projection de la file d'attente de P2 (renvoyer une file vide apres l'annulation de A) : la promotion de B avant C n'est plus observable, rouge exige",
+      "note": "Le cas affirme une valeur produite en cas de succes (apres annulation de A, B est promu confirme et C reste premier en attente), donc behaviour."
     },
     {
       "id": "T07.A3",
@@ -522,8 +561,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'annulation de l'oracle (le faire lever ou renvoyer un refus) : l'annulation de B exactement a 2030-01-02T12:00:00Z n'est plus permise, rouge exige",
+      "note": "Le cas affirme qu'une annulation est PERMISE exactement a la frontiere des 24 h (frontiere incluse) : l'assertion decisive porte sur un succes, donc behaviour et non refusal."
     },
     {
       "id": "T07.A4",
@@ -533,8 +573,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la garde de frontiere PERMISSIVE (accepter l'annulation a 2030-01-02T12:00:00.001Z, p. ex. en arrondissant a la seconde ou en comparant avec >= sur la marge) : le refus metier disparait, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une entree est REFUSEE (refus metier 1 ms apres la frontiere des 24 h), donc refusal et perturbation inverse."
     },
     {
       "id": "T07.A5",
@@ -544,8 +585,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "retirer le filtre de locataire dans l'oracle pour que les reservations legacy apparaissent dans la projection servie a un acteur du locataire other (au lieu de NOT_FOUND sans donnee divulguee) : la donnee interdite devient PRESENTE, rouge exige",
+      "note": "Le cas affirme qu'aucune donnee legacy n'est visible par l'acteur other : un export stube renverrait du vide et laisserait le cas vert, donc absence."
     },
     {
       "id": "T07.A6",
@@ -555,8 +597,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'idempotence PERMISSIVE : sur meme cle et arguments differents, renvoyer silencieusement le resultat du premier appel (ou creer une seconde operation) au lieu du conflit explicite, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une repetition d'operation avec meme cle et arguments differents est REJETEE par un conflit explicite, donc refusal."
     },
     {
       "id": "T07.A7",
@@ -566,8 +609,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "retirer la garde de rejeu sur l'annulation pour qu'une seconde annulation de A declenche une nouvelle promotion (C confirme en plus de B) : la double promotion devient PRESENTE, rouge exige",
+      "note": "Le cas affirme qu'une seconde promotion N'A PAS lieu lors d'une annulation repetee : un export stube (file vide) laisserait cette assertion vraie a vide, donc absence."
     },
     {
       "id": "T08.A1",
@@ -577,8 +621,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire dependre la generation du nombre de workers (partitionner la graine par worker, ou ordonner les intentions par ordre d'achevement au lieu d'une cle stable) : le plan a 1 worker et a N workers differe, rouge exige ; noter qu'un stub constant garderait ce cas vert",
+      "note": "Le cas affirme une valeur produite : pour un meme scenario et une meme graine, le plan d'intentions est identique quel que soit le nombre de workers ; l'assertion porte sur la sortie, donc behaviour, mais la perturbation doit injecter de la non-determinisme et non stuber."
     },
     {
       "id": "T08.A2",
@@ -588,8 +633,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber/filtrer l'export qui propose les usages pour F-QUALITY (ne proposer que les usages dont le candidat a deja cree la donnee, donc moins de quatre) : les quatre usages ne sont plus proposes, rouge exige",
+      "note": "Le cas affirme un resultat produit par le generateur : les quatre usages de F-QUALITY sont proposes meme quand le candidat n'a cree aucune donnee, donc behaviour."
     },
     {
       "id": "T08.A3",
@@ -599,8 +645,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire supprimer du plan l'intention dont la reference externe manque a la suite d'un echec anterieur (au lieu de la conserver avec le statut non servie) : l'intention attendue n'est plus presente dans le plan, rouge exige",
+      "note": "Le cas affirme une valeur produite et PRESENTE (l'intention subsiste avec un statut non servie plutot que d'etre supprimee), cassable par un export stube, donc behaviour."
     },
     {
       "id": "T08.A4",
@@ -610,8 +657,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "compter un essai negatif de securite comme echec d'un parcours metier valide (le faire entrer dans le numerateur/denominateur des usages metier) : la contamination devient PRESENTE, rouge exige",
+      "note": "Le cas affirme deux choses (les essais negatifs alimentent conformite/criticite, et n'apparaissent pas dans les echecs des parcours metier valides) ; l'assertion decisive est la non-contamination du comptage metier, donc absence."
     },
     {
       "id": "T08.A5",
@@ -621,8 +669,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre l'horloge metier globale/partagee entre trajectoires (avancer A ecrit dans la meme source de temps que B) : la fuite de temps de A vers B devient PRESENTE, rouge exige",
+      "note": "Le cas affirme qu'une avance de temps sur A n'a AUCUN effet sur l'horloge de B : une horloge stube constante laisserait le cas vert, donc absence."
     },
     {
       "id": "T08.A6",
@@ -632,8 +681,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "neutraliser l'avance de l'horloge metier (advance devient un no-op, les gardes lisent l'horloge systeme) : la frontiere des 24 h de F-RESERVATION n'est plus franchissable ni observable sans attente reelle, rouge exige",
+      "note": "Le cas affirme un resultat produit : le controle de la frontiere 24 h s'obtient en avancant l'horloge metier isolee, sans attente physique, donc behaviour."
     },
     {
       "id": "T09.A1",
@@ -646,8 +696,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de reservation du temoin conforme (creation/annulation n'ecrit plus rien en base) : le deroule F-RESERVATION P1-P4 ne produit plus les faits attendus, le cas doit devenir rouge",
+      "note": "Le cas exerce les operations metier du temoin conforme sur le scenario F-RESERVATION (ligne 119) et observe les faits reellement produits."
     },
     {
       "id": "T09.A2",
@@ -660,8 +711,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le temoin PERMISSIF : retirer le verrou transactionnel / le controle de capacite du creneau S1 pour que les deux demandes concurrentes liberees par la barriere soient toutes deux acceptees (2 reservations sur capacite 1) - le cas doit devenir rouge ; un stub qui leve, lui, laisserait ce cas vert car zero reservation ne depasse pas la capacite",
+      "note": "L'assertion decisive est le rejet de la seconde demande concurrente (aucun surbooking), pas la valeur produite par la demande acceptee."
     },
     {
       "id": "T09.A3",
@@ -674,8 +726,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de migration sans toucher la fixture : migrer avec un OFFSET 1 / LIMIT 99 (une ligne sautee) de sorte que 99 reservations seulement soient rattachees a legacy - le cas qui exige exactement 100 doit devenir rouge",
+      "note": "Le cas reproduit un compte exact enonce ligne 233 : la migration P4 preserve 100 reservations et les rattache a legacy ; l'off-by-one sur la regle de selection est la perturbation ciblee."
     },
     {
       "id": "T09.A4",
@@ -688,8 +741,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'oracle PERMISSIF : comparer l'etat du temoin drop-one-row a l'etat attendu avec une tolerance (ou sur un simple total agrege) de sorte qu'il soit declare conforme - le cas doit devenir rouge ; un stub qui leve produirait lui aussi un ecart et laisserait le cas vert",
+      "note": "L'assertion decisive est la DETECTION du temoin fautif : exactement une reservation perdue et un etat distinguable de l'etat attendu, donc un rejet."
     },
     {
       "id": "T09.A5",
@@ -702,8 +756,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export metier de restauration (l'import de l'export canonique n'ecrit aucun fait) : les faits metier retrouves apres restauration sont vides, le cas doit devenir rouge",
+      "note": "Le cas exerce l'export metier puis sa restauration et observe que les memes faits sont retrouves, sans exiger un schema SQL identique."
     },
     {
       "id": "T10.A1",
@@ -716,8 +771,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de qualification du pipeline (faire renvoyer un verdict vide/undefined, ou aucun verdict, pour le temoin conforme au lieu de ACCEPTE) : le cas doit devenir ROUGE.",
+      "note": "Le cas exerce le pipeline de qualification sur un temoin conforme et observe le verdict d'acceptation produit en cas de succes."
     },
     {
       "id": "T10.A2",
@@ -730,8 +786,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre chaque controle nomme PERMISSIF a tour de role (le controle de capacite accepte une reservation au-dela de la capacite, le controle FIFO accepte l'ordre inverse, le controle de frontiere accepte la limite 24 h fausse, le controle d'isolement accepte la lecture intertenant, le controle de migration accepte la reservation perdue, le controle d'idempotence accepte le doublon) : chaque mutant redevient non detecte et le cas doit virer au ROUGE. Un stub qui leve ferait au contraire 'echouer' tous les mutants et laisserait ce cas VERT.",
+      "note": "Le cas affirme que six mutants semantiques sont chacun REJETES par leur controle nomme : l'assertion decisive porte sur l'echec du mutant, pas sur une valeur de succes."
     },
     {
       "id": "T10.A3",
@@ -744,8 +801,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "retirer le controle de coherence assertion/contrat du pipeline, pour qu'un scenario dont l'assertion contredit le contrat ressorte avec un verdict normal au lieu d'entrer dans la file de quarantaine : exiger le ROUGE.",
+      "note": "Le cas affirme qu'un scenario portant une assertion contradictoire au contrat est ecarte (mis en quarantaine) : c'est un rejet d'entree, pas une valeur produite en cas de succes."
     },
     {
       "id": "T10.A4",
@@ -758,8 +816,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le detecteur d'instabilite PERMISSIF : ramener les repetitions de dix a une, ou traiter 'au moins un succes sur dix' comme stable, pour que l'evaluateur factice alternant succes/echec soit declare stable et qualifie : exiger le ROUGE.",
+      "note": "Le cas affirme qu'un evaluateur factice alternant succes et echec est reconnu instable, donc ecarte comme fixture non fiable : l'assertion decisive est le rejet, pas une valeur de succes."
     },
     {
       "id": "T10.A5",
@@ -772,8 +831,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : supprimer le filtre d'exclusion du constructeur de manifeste confirmatoire (ou y injecter directement l'identifiant d'un cas mis en quarantaine) pour qu'un cas quarantaine figure dans le manifeste : exiger le ROUGE.",
+      "note": "Le cas affirme qu'AUCUN cas mis en quarantaine n'est present dans un manifeste confirmatoire : c'est une assertion de non-presence."
     },
     {
       "id": "T10.A6",
@@ -786,8 +846,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'exclusions du pipeline (renvoyer une liste vide, ou omettre les champs raison et proportion du rapport de qualification) : le cas doit devenir ROUGE.",
+      "note": "Le cas exerce un export (raisons et proportions d'exclusion) et observe son resultat ; le cahier n'y enonce aucune valeur chiffree exacte, donc behaviour et non numeric."
     },
     {
       "id": "T11.A1",
@@ -797,8 +858,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber le pilote de periode de `bench demo --mode recorded --storage memory` (aucune periode executee) : la sequence ordonnee des quatre periodes disparait du resultat JSON, le cas doit devenir rouge",
+      "note": "Le cas exerce la trajectoire verticale en memoire et observe l'ordre d'execution des quatre periodes produites."
     },
     {
       "id": "T11.A2",
@@ -808,8 +870,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de decision/revelation de regle en P3 (la demo continue de renvoyer le jeu de regles de P2) : le remplacement n'est plus visible en P3, le cas doit devenir rouge",
+      "note": "Le cas affirme un resultat produit en P3 - la nouvelle regle visible, l'ancienne retiree ; la moitie positive (remplacement visible) est l'assertion decisive."
     },
     {
       "id": "T11.A3",
@@ -819,8 +882,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export qui alimente l'historique metier (P4 renvoie un historique vide) : la presence exigee en P4 tombe, le cas doit devenir rouge",
+      "note": "Le cas observe la presence effective de l'historique metier dans le resultat produit en P4."
     },
     {
       "id": "T11.A4",
@@ -830,8 +894,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de collecte des resultats sans toucher F-FAILURE : arreter la conservation a K-1 (trois resultats) ou filtrer les periodes a Q=0/R=0 - le cas qui exige les quatre resultats doit devenir rouge",
+      "note": "Le cas reproduit un compte exact enonce par le cahier (F-FAILURE, ligne 121 : quatre lignes conservees, aucun filtre de survivants)."
     },
     {
       "id": "T11.A5",
@@ -841,8 +906,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "injecter une source non deterministe dans le resultat canonique de la demo (horodatage d'execution ou identifiant aleatoire dans la sortie JSON) : les deux executions identiques divergent, le cas doit devenir rouge",
+      "note": "Le cas exerce deux fois la demo et compare les resultats canoniques produits en cas de succes ; attention, un stub renvoyant une constante laisserait l'egalite vraie, d'ou la perturbation par non-determinisation."
     },
     {
       "id": "T11.A6",
@@ -852,8 +918,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le controle metier PERMISSIF : faire passer le controle d'isolation intertenant alors que la variante `cross-tenant-read` lit des reservations `legacy` depuis le locataire `other` - le cas doit devenir rouge ; un stub qui leve ferait echouer le controle et laisserait le cas vert",
+      "note": "L'assertion decisive est que la variante fautive fait ECHOUER le controle metier associe (detection), pas une valeur produite en cas de succes."
     },
     {
       "id": "T12.A1",
@@ -864,8 +931,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export du repository (chargement d'etat, l.257) pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : servir l'etat depuis un cache memoire non persiste, de sorte qu'apres arret/reconnexion l'etat relu differe de l'etat ecrit.",
+      "note": "Le cas exerce la persistance reelle puis relit l'etat apres reconnexion et compare le resultat produit : assertion positive sur une valeur produite, donc behaviour."
     },
     {
       "id": "T12.A2",
@@ -876,8 +944,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de publication transactionnelle / outbox (l.257) pour qu'il LEVE : le cas doit devenir ROUGE (aucun resultat logique produit). Controle plus fin : retirer la contrainte d'unicite (ou la clause ON CONFLICT) de sorte que vingt publications concurrentes du meme resultat creent vingt lignes logiques.",
+      "note": "Le cas exerce vingt publications concurrentes et observe l'etat produit (exactement un resultat logique) : assertion positive sur un resultat, donc behaviour ; contrairement a A5 elle n'est pas satisfaite par une implementation qui ne fait rien."
     },
     {
       "id": "T12.A3",
@@ -888,8 +957,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre la detection de conflit PERMISSIVE : supprimer l'index unique sur la cle d'idempotence, ou transformer l'ecriture en upsert qui ecrase le digest existant, de sorte qu'une meme cle portant un autre digest soit acceptee sans conflit. Le cas doit devenir ROUGE. Un stub qui leve le garderait vert a tort.",
+      "note": "Le cas affirme qu'une ecriture « meme cle / autre digest » est REJETEE par un conflit : l'assertion decisive est le rejet."
     },
     {
       "id": "T12.A4",
@@ -900,8 +970,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre l'orphelin PRESENT : ecrire le resultat (ou l'evenement outbox) hors de la transaction, en autocommit, avant le point de panne, de sorte qu'apres la panne pre-commit une ligne de resultat ou un evenement orphelin soit visible. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme que RIEN n'est visible apres une panne avant commit (ni resultat, ni evenement orphelin) : une implementation qui n'ecrit rien garderait cette absence vraie, donc absence."
     },
     {
       "id": "T12.A5",
@@ -912,8 +983,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre le doublon PRESENT : supprimer le controle d'idempotence a la reprise (republier l'entree outbox et reinserer le resultat sans deduplication) de sorte que la reprise apres commit cree une seconde ligne/un second evenement. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'aucun doublon n'apparait a la reprise apres commit : c'est une assertion de non-presence, qu'un export stube ou inerte laisserait verte, donc absence."
     },
     {
       "id": "T12.A6",
@@ -924,8 +996,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de publication transactionnelle pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : supprimer la boucle de reprise sur conflit de serialisation (laisser remonter l'erreur au premier conflit), ou rendre la limite de reprise illimitee, de sorte que la borne annoncee ne soit plus respectee.",
+      "note": "Le cas exerce une transaction concurrente conflictuelle et observe le resultat produit (reprise effective dans une limite fixee, unicite conservee) : assertion positive sur le comportement, donc behaviour ; la clause « sans perdre l'unicite » est secondaire ici et deja couverte par A2/A3."
     },
     {
       "id": "T13.A1",
@@ -935,8 +1008,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export `ArtifactStore.put` / le calcul de référence de contenu de `packages/storage` par un throw `NOT_IMPLEMENTED` : le cas, qui doit réellement écrire deux fois les mêmes octets et comparer les références rendues, doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite en cas de succès — deux écritures des mêmes octets rendent la même référence de contenu — donc behaviour."
     },
     {
       "id": "T13.A2",
@@ -946,8 +1020,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le calcul de référence de contenu de `packages/storage` pour qu'il ignore le dernier octet (hacher `bytes.subarray(0, len-1)`) : les deux payloads ne différant que d'un octet obtiennent la même référence, l'assertion « référence différente » tombe, on exige le ROUGE.",
+      "note": "Le cas affirme une valeur produite — un octet modifié donne une référence de contenu différente — donc behaviour."
     },
     {
       "id": "T13.A3",
@@ -957,8 +1032,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre la lecture PERMISSIVE — supprimer la vérification d'empreinte avant usage dans l'adaptateur local, de sorte que la lecture d'un objet corrompu rende les octets corrompus sans lever ; le cas, qui attend `ARTIFACT_CORRUPT`, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une lecture après corruption est REJETÉE avec l'erreur typée `ARTIFACT_CORRUPT`, donc refusal."
     },
     {
       "id": "T13.A4",
@@ -968,8 +1044,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre l'adaptateur PERMISSIF — renvoyer un buffer vide (ou `null`) pour une clé inexistante au lieu de lever `ARTIFACT_MISSING` ; le cas doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une lecture de fichier absent est REJETÉE avec l'erreur typée `ARTIFACT_MISSING`, donc refusal."
     },
     {
       "id": "T13.A5",
@@ -979,8 +1056,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre l'objet partiel PRÉSENT : supprimer le schéma écriture-temporaire-puis-renommage-atomique de l'adaptateur local et écrire directement sur le chemin final, de sorte qu'une écriture interrompue en cours laisse un objet listable et lisible comme objet final ; le cas doit passer au ROUGE.",
+      "note": "Le cas affirme qu'un objet final N'EST PAS visible après une écriture interrompue, donc absence — un stub qui lève laisserait l'objet absent et l'assertion faussement verte."
     },
     {
       "id": "T13.A6",
@@ -990,8 +1068,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre l'extracteur PERMISSIF — supprimer la normalisation de chemin et le contrôle des liens, puis extraire l'archive d'attaque ; `../escape`, le chemin absolu et le lien sortant s'écrivent hors destination sans erreur. Le cas doit passer au ROUGE sur les deux assertions (absence d'erreur de refus, et fichier trouvé hors destination).",
+      "note": "Le cas affirme d'abord que l'extraction de l'archive piégée (`../escape`, chemin absolu, lien sortant) est REFUSÉE — assertion décisive, donc refusal — la sous-assertion « aucune écriture hors destination » relève de l'absence et la perturbation la couvre aussi."
     },
     {
       "id": "T14.A1",
@@ -1002,8 +1081,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'adaptateur S3 : faire pointer la suite de contrat ArtifactStore sur le faux en memoire au lieu du service reel de test — exiger le rouge",
+      "note": "Le cas affirme que tous les cas du contrat ArtifactStore passent en exercant l'adaptateur reel contre le service S3 de test."
     },
     {
       "id": "T14.A2",
@@ -1014,8 +1094,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre le doublon PRESENT : faire que la reprise ouvre un nouvel upload/une nouvelle cle au lieu de reutiliser l'identifiant de l'upload interrompu, de sorte que deux objets logiques coexistent — exiger le rouge",
+      "note": "Le cas affirme qu'apres transfert interrompu puis repris un SECOND objet logique N'EXISTE PAS ; un stub de stockage ne creerait pas ce doublon et laisserait le cas vert, d'ou le mode absence plutot que behaviour."
     },
     {
       "id": "T14.A3",
@@ -1026,8 +1107,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "deriver la reference d'un suffixe aleatoire ou horodate au lieu du contenu : deux uploads simultanes des memes octets rendent deux references differentes — exiger le rouge",
+      "note": "Le cas affirme une valeur produite en cas de succes : la reference identique rendue par deux uploads concurrents des memes octets."
     },
     {
       "id": "T14.A4",
@@ -1038,8 +1120,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'autorisation PERMISSIVE : elargir la politique de l'identite restreinte au bucket entier (supprimer la condition de prefixe), la lecture du prefixe prive d'evaluation reussit — exiger le rouge",
+      "note": "Le cas affirme qu'une lecture du prefixe prive d'evaluation par une identite limitee est REFUSEE."
     },
     {
       "id": "T14.A5",
@@ -1050,8 +1133,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'adaptateur PERMISSIF : sur autorisation expiree, retomber sur un acces anonyme qui reussit au lieu d'un refus explicite — exiger le rouge",
+      "note": "Le cas affirme qu'une autorisation expiree donne un REFUS explicite, jamais un fallback anonyme."
     },
     {
       "id": "T14.A6",
@@ -1062,8 +1146,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre le secret PRESENT : recopier la cle d'acces et la query string de l'URL signee telles quelles dans le message d'erreur publie au rapport — exiger le rouge",
+      "note": "Le cas affirme qu'AUCUN secret ne figure dans les rapports d'erreur (fuite nulle)."
     },
     {
       "id": "T15.A1",
@@ -1077,8 +1162,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de capture/restauration de checkpoint (restauration no-op renvoyant l'etat courant, ou renvoyant un etat vide) : les faits metier relus apres restauration ne correspondent plus a l'etat apres l'operation 42 et le cas doit devenir ROUGE.",
+      "note": "Le cas exerce snapshot puis restauration et observe l'etat metier reconstitue ; 42/43 est un indice de borne dans la fixture, pas une valeur chiffree calculee par une regle, donc behaviour et non numeric."
     },
     {
       "id": "T15.A2",
@@ -1092,8 +1178,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : deplacer la publication du pointeur/manifeste de checkpoint AVANT la fin de la boucle d'upload, pour qu'un arret apres un upload laisse un checkpoint complet publie : exiger le ROUGE.",
+      "note": "Le cas affirme qu'aucun checkpoint complet n'est publie lorsqu'on interrompt apres chaque upload : c'est une assertion de non-presence, qui resterait verte sous un stub qui ne publie rien."
     },
     {
       "id": "T15.A3",
@@ -1107,8 +1194,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'import PERMISSIF : supprimer le controle de presence de chaque objet reference par le manifeste, pour qu'une restauration a objet manquant renvoie OK au lieu de CHECKPOINT_INCOMPLETE : exiger le ROUGE. Un stub qui leve garderait ce cas VERT.",
+      "note": "Le cas affirme qu'un checkpoint dont un objet manque est refuse avec le code CHECKPOINT_INCOMPLETE : l'assertion decisive porte sur le rejet."
     },
     {
       "id": "T15.A4",
@@ -1122,8 +1210,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la verification d'integrite PERMISSIVE : ne plus comparer l'empreinte des octets restaures a celle du manifeste, pour qu'un objet corrompu (un octet inverse) soit accepte et la restauration reussie : exiger le ROUGE.",
+      "note": "Le cas affirme qu'un checkpoint corrompu est REFUSE : l'assertion decisive est le rejet, et un stub qui leve la satisferait a tort."
     },
     {
       "id": "T15.A5",
@@ -1137,8 +1226,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de finalisation pour qu'il fabrique une identite neuve a chaque appel (uuid aleatoire ou horodatage au lieu de l'identite derivee du contenu) : les deux finalisations identiques divergent et le cas doit devenir ROUGE.",
+      "note": "Le cas exerce deux finalisations identiques et observe la valeur produite (la meme identite) en cas de succes."
     },
     {
       "id": "T15.A6",
@@ -1152,8 +1242,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la reduction PRESENTE : inclure le grand livre des depenses centrales dans le perimetre restaure (le checkpoint restaure aussi le compteur de depenses), pour que la restauration code/base/memoire ramene les depenses a leur valeur anterieure : exiger le ROUGE.",
+      "note": "Le cas affirme qu'aucune reduction des depenses centrales n'apparait apres restauration ; sous un stub de restauration no-op aucune reduction ne se produirait non plus, donc la perturbation doit rendre la reduction presente."
     },
     {
       "id": "T15.A7",
@@ -1167,8 +1258,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre l'echappement PRESENT : ouvrir un chemin d'ecriture applicative qui contourne la barriere (ecriture directe en base ou sur objet, sans passer par la porte d'ecriture, pendant la fenetre de capture) : l'ecriture echappee doit etre observee et le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'AUCUNE ecriture applicative n'echappe a la barriere testee : assertion de non-presence, verte a tort sous un stub qui n'ecrit rien du tout."
     },
     {
       "id": "T16.A1",
@@ -1179,8 +1271,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de tarification sans toucher F-MONEY : facturer l'entree cachee a 2 micro-USD au lieu de 1 (340 devient 380), ou compter 101 tokens non caches - le cas doit devenir rouge",
+      "note": "Le cas reproduit la valeur exacte enoncee ligne 103 : 100 tokens non caches a 2, 40 caches a 1, 20 de sortie a 5 = 340 micro-USD."
     },
     {
       "id": "T16.A2",
@@ -1191,8 +1284,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle comptable sans toucher F-BUDGET : ne pas liberer la reservation au reglement (available reste 60 au lieu de 660) ou decaler la borne d'un micro-USD (accepter 661) - les montants exiges par F-BUDGET ne sont plus reproduits, le cas doit devenir rouge",
+      "note": "Le cas reproduit les montants exacts enonces ligne 105 (spent=340, reserved=0, available=660 ; 600 admissible, 661 refusee, ambigue 600 -> available=400) sous transactions concurrentes ; le sous-cas de refus de 661 est subordonne a la reproduction des montants."
     },
     {
       "id": "T16.A3",
@@ -1203,8 +1297,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'importation de recu (aucune ecriture comptable produite) : le compte de depenses attendu apres dix importations passe de 1 a 0, le cas doit devenir rouge",
+      "note": "Le cas exerce dix importations du meme recu et observe l'etat comptable produit : une depense et une seule."
     },
     {
       "id": "T16.A4",
@@ -1215,8 +1310,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'ecriture comptable des recus (aucune depense enregistree) : les deux depenses distinctes attendues n'apparaissent plus, le cas doit devenir rouge",
+      "note": "Le cas exerce l'import de deux recus distincts de meme montant et observe les deux depenses produites (anti-deduplication abusive)."
     },
     {
       "id": "T16.A5",
@@ -1227,8 +1323,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : faire ecrire 0 pour un cout inconnu (coalesce UNKNOWN -> 0 dans la normalisation ou l'agregation des couts) - le cas doit devenir rouge ; sans cela il resterait vert meme sur un pipeline ne produisant aucune ligne",
+      "note": "Le cas affirme une NON-presence : aucun zero ne se substitue jamais a un cout inconnu."
     },
     {
       "id": "T16.A6",
@@ -1239,8 +1336,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'ajustement comptable (aucune ecriture produite) : l'ecriture de correction liee a l'original est absente du registre, le cas doit devenir rouge",
+      "note": "Le cas exerce l'ajout d'une correction et observe l'ecriture produite ainsi que son lien vers l'ecriture d'origine."
     },
     {
       "id": "T16.A7",
@@ -1251,8 +1349,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'implementation PERMISSIVE : en mode plafond strict, accepter une reservation dont le cout maximal est non borne (emettre sans lever `UNBOUNDED_COST`) - le cas doit devenir rouge ; un stub qui leve produirait une erreur et laisserait ce cas vert",
+      "note": "L'assertion decisive est un REFUS explicite, avec le code `UNBOUNDED_COST`, en mode plafond strict."
     },
     {
       "id": "T17.A1",
@@ -1264,8 +1363,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le journal durable d'appel (l.301) pour que l'ecriture DISPATCH_STARTED soit un no-op, ou la deplacer APRES l'envoi reseau (l.99 impose l'inverse) : le fournisseur factice recoit alors une requete sans DISPATCH_STARTED prealable. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme la PRESENCE d'un enregistrement DISPATCH_STARTED anterieur a toute requete recue par le fournisseur : assertion positive sur l'etat produit, donc behaviour."
     },
     {
       "id": "T17.A2",
@@ -1277,8 +1377,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de la passerelle modele pour qu'il LEVE (ni statut, ni compteur, ni reservation) : le cas doit devenir ROUGE. Controle plus fin : faire classer l'appel SETTLED ou FAILED a la reprise et liberer la reservation apres une panne survenue avant reception de la reponse.",
+      "note": "Le cas affirme trois valeurs produites apres injection de panne : statut UNKNOWN, un seul appel, reservation maintenue ; l'assertion decisive porte sur le resultat produit, pas sur un rejet, donc behaviour."
     },
     {
       "id": "T17.A3",
@@ -1290,8 +1391,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre le second appel PRESENT : supprimer l'idempotence logique (l.301) de sorte que la reprise de la meme operation redispatche vers le fournisseur factice, dont le compteur de receptions passe a 2 au lieu de rester a 1. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'un deuxieme appel N'EST PAS emis a la reprise : une passerelle stubee ou inerte n'emettrait rien non plus et laisserait le cas vert, donc absence."
     },
     {
       "id": "T17.A4",
@@ -1303,8 +1405,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la regle de tarification au reglement sans toucher F-MONEY : facturer les 40 tokens caches au tarif non cache (2 au lieu de 1 micro-USD) — le reglement vaut alors 380 au lieu de 340 — ou introduire un off-by-one reglant 341. Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit la valeur exacte 340 enoncee en l.103 lors de l'ingestion du recu, donc numeric ; il porte une seconde clause d'absence (« sans inventer de reponse textuelle ») qui merite une perturbation complementaire : faire fabriquer par la passerelle un texte de reponse de substitution doit aussi le rendre rouge."
     },
     {
       "id": "T17.A5",
@@ -1316,8 +1419,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre la reception PRESENTE : inverser l'ordre en envoyant au fournisseur factice avant d'ecrire DISPATCH_STARTED, de sorte qu'une panne « avant DISPATCH_STARTED » laisse le compteur de receptions du fournisseur a 1 au lieu de 0. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme ZERO reception prealable cote fournisseur factice avant d'autoriser la reprise : assertion de non-presence, qu'un stub inerte garderait verte, donc absence."
     },
     {
       "id": "T17.A6",
@@ -1329,8 +1433,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Supprimer la regle conservatrice de l.99 : faire dependre le statut de reprise du compteur du fournisseur factice, de sorte qu'une panne juste apres DISPATCH_STARTED avec zero appel recu produise un statut definitif (CANCELLED_BEFORE_DISPATCH ou cout zero) au lieu d'UNKNOWN. Le cas doit devenir ROUGE ; stuber l'export de la passerelle pour qu'il leve doit egalement le rendre rouge.",
+      "note": "Le cas affirme la valeur produite du statut (UNKNOWN, conservativement) malgre zero reception : assertion positive sur un resultat, donc behaviour et non absence — l'absence de reception est ici la condition, pas la conclusion."
     },
     {
       "id": "T17.A7",
@@ -1342,8 +1447,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre le controle de cle d'idempotence PERMISSIF : accepter une seconde requete portant la meme cle avec une charge utile differente (ecraser l'entree du journal au lieu de rejeter). Le cas doit devenir ROUGE. Un stub qui leve le garderait vert a tort.",
+      "note": "Le cas affirme qu'une meme cle accompagnee d'une autre requete est REJETEE : l'assertion decisive est le rejet."
     },
     {
       "id": "T18.A1",
@@ -1356,8 +1462,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "injecter du non-determinisme dans l'agent scripte (horodater ou reordonner les appels d'outils, ordre d'iteration non stable des patches) : deux executions du meme script divergent, rouge exige ; noter qu'un stub constant garderait ce cas vert",
+      "note": "Le cas affirme une valeur produite : un meme script donne les memes patches et les memes appels logiques, donc behaviour, avec une perturbation par injection de non-determinisme."
     },
     {
       "id": "T18.A2",
@@ -1370,8 +1477,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de restauration de memoire autorisee (renvoyer une memoire vide au demarrage de la periode suivante) : la memoire autorisee n'est plus restauree, rouge exige",
+      "note": "Le cas affirme une valeur produite et presente (la memoire autorisee est retrouvee a la periode suivante), donc behaviour."
     },
     {
       "id": "T18.A3",
@@ -1384,8 +1492,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "recopier l'historique conversationnel de la periode precedente dans le contexte neuf de l'agent (le rendre PRESENT) : rouge exige",
+      "note": "Le cas affirme qu'un contexte neuf NE CONTIENT PAS d'historique conversationnel non autorise : un export stube produirait un contexte vide et laisserait le cas vert, donc absence."
     },
     {
       "id": "T18.A4",
@@ -1398,8 +1507,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre stop inoperant (ne pas fermer la session ni annuler la boucle de l'agent) de sorte qu'une soumission supplementaire soit acceptee apres l'arret : la soumission interdite devient PRESENTE, rouge exige",
+      "note": "Le cas affirme qu'apres arret PLUS AUCUNE nouvelle soumission n'apparait : sous un export stube, l'absence de soumission serait vraie a vide, donc absence."
     },
     {
       "id": "T18.A5",
@@ -1412,8 +1522,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'adaptateur PERMISSIF : accepter une reponse modele archivee invalide et la coercer en soumission au lieu de lever l'erreur typee, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une reponse invalide est REJETEE par une erreur typee (la depense restant conservee) ; l'assertion decisive est le rejet, donc refusal."
     },
     {
       "id": "T18.A6",
@@ -1427,7 +1538,8 @@
       ],
       "blockable": false,
       "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "perturbation": "indeterminee tant que le mode n'est pas tranche : la perturbation differe selon l'assertion visee (rendre le service client permissif pour une lecture anticipee, rendre une sentinelle presente dans les entrees, ou casser une reponse connue) et ces trois perturbations ne convergent pas",
+      "note": "La ligne 313 dit seulement que l'acces au service client << respecte T06 >> sans nommer laquelle des assertions de T06 (l.207 : absence de sentinelle A1, refus NOT_RELEASED A2, reponse exacte A3, UNSPECIFIED A4, rejet de cycle A5) est exercee : l'assertion decisive, et donc le mode, ne peut etre determinee sans deviner."
     },
     {
       "id": "T18.A7",
@@ -1440,8 +1552,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "faire honorer par le moteur un evenement d'agent portant accepted=true (laisser l'evenement de session fixer le verdict au lieu du verificateur) : l'autorite usurpee devient PRESENTE dans le verdict, rouge exige",
+      "note": "Le cas affirme que les evenements de l'agent N'ONT AUCUN effet autoritatif pour poser accepted=true : sous un export stube le verdict resterait non accepte et le cas vert, donc absence."
     },
     {
       "id": "T19.A1",
@@ -1461,8 +1574,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le profil PERMISSIF : monter le depot de controle (ou le chemin de la sentinelle privee) lisible dans le conteneur candidat, de sorte que la lecture aboutisse au lieu d'echouer, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une lecture ECHOUE (fichier sentinelle prive illisible depuis le sandbox), donc refusal et perturbation inverse."
     },
     {
       "id": "T19.A2",
@@ -1482,8 +1596,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le reseau PERMISSIF : ouvrir depuis la netns du sandbox la route vers la base centrale, vers Temporal et vers la netns d'une autre trajectoire, de sorte que les connexions aboutissent, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme que des acces ECHOUENT (base centrale, Temporal et autre trajectoire inaccessibles depuis le sandbox), donc refusal."
     },
     {
       "id": "T19.A3",
@@ -1503,8 +1618,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le filtrage de sortie PERMISSIF : ajouter l'hote fournisseur et le collecteur interdit a la liste d'egress autorisee, de sorte que l'appel direct et l'exfiltration aboutissent, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme que l'appel fournisseur direct et la sortie vers un collecteur interdit sont BLOQUES, donc refusal."
     },
     {
       "id": "T19.A4",
@@ -1524,8 +1640,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la passerelle PERMISSIVE : faire confiance a l'identite de trajectoire fournie par l'appelant (retirer la liaison jeton -> trajectoire) de sorte que la revendication frauduleuse soit servie, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une identite de trajectoire revendiquee frauduleusement est REFUSEE par la passerelle, donc refusal."
     },
     {
       "id": "T19.A5",
@@ -1545,8 +1662,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre les limites PERMISSIVES : relever memory.max et pids.max du profil bien au-dessus de ce que consomme le programme de depassement, de sorte que le run se termine normalement, sans terminaison ni raison observable, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'un depassement memoire/processus est TERMINE (avec une raison observable comme canal d'observation) ; l'assertion decisive est l'application de la limite, donc refusal."
     },
     {
       "id": "T19.A6",
@@ -1566,8 +1684,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "elargir la destruction au prefixe/label commun (detruire toutes les ressources correspondantes et pas la seule trajectoire visee) : le dommage collateral sur l'autre trajectoire devient PRESENT, rouge exige",
+      "note": "Le cas affirme que la destruction d'une trajectoire N'AFFECTE PAS une autre trajectoire, donc absence."
     },
     {
       "id": "T20.A1",
@@ -1584,8 +1703,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la sentinelle PRESENTE : recopier le journal du runner d'evaluation (qui contient la sentinelle) dans un repertoire de logs accessible au developpeur, ou laisser la ligne sentinelle dans la base developpeur apres destruction de la copie jetable : le balayage base/fichiers/logs doit la trouver et le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'une sentinelle creee par les tests N'APPARAIT ni en base, ni en fichiers, ni dans les logs accessibles au developpeur."
     },
     {
       "id": "T20.A2",
@@ -1602,8 +1722,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le cote controle PERMISSIF : lui faire lire comme faisant autorite le champ verdict du JSON renvoye par le candidat (ou sauter la verification de signature du verdict), pour qu'un faux verdict candidat change le verdict signe : exiger le ROUGE. Un stub qui leve garderait ce cas VERT.",
+      "note": "Le cas affirme qu'un faux verdict JSON fourni par le candidat est ignore/rejete cote controle : l'assertion decisive est le rejet de l'entree falsifiee."
     },
     {
       "id": "T20.A3",
@@ -1620,8 +1741,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre l'element commun PRESENT : injecter le meme identifiant de scenario dans le jeu de validation et dans le jeu d'audit (ou faire tirer les deux runners dans la meme partition) : l'intersection cesse d'etre vide et le cas doit devenir ROUGE.",
+      "note": "L'assertion decisive est que l'intersection des jeux de validation et d'audit est vide ; un stub renvoyant des jeux vides laisserait cette intersection vide, donc verte a tort."
     },
     {
       "id": "T20.A4",
@@ -1638,8 +1760,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la divulgation PRESENTE : ajouter au retour borne le chemin ou le nom du fichier de test cache (ou le texte de l'assertion cachee), tout en y laissant le cas operationnel autorise : exiger le ROUGE.",
+      "note": "Le cas affirme deux choses — le retour borne contient le cas operationnel autorise, ET il ne revele pas le fichier de test ; la moitie 'contient' meurt deja sous un stub, la moitie decisive pour la preuve est la non-divulgation, que la perturbation vise."
     },
     {
       "id": "T20.A5",
@@ -1656,8 +1779,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de verdict du runner sur copie privee (renvoyer une table de verdicts vide ou undefined pour le temoin et pour les six mutants T10) : le cas doit devenir ROUGE.",
+      "note": "Le cas exerce l'evaluation sur copies privees et observe que temoins et mutants rendent toujours leurs verdicts : valeur produite en cas de succes."
     },
     {
       "id": "T20.A6",
@@ -1674,8 +1798,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le runner PERMISSIF : traiter une execution tronquee (flux de resultats coupe, sandbox tue en cours de test) comme un succes et renvoyer PASS au lieu de EVALUATION_INCOMPLETE : exiger le ROUGE. Un stub qui leve garderait ce cas VERT.",
+      "note": "Le cas affirme qu'un test interrompu donne EVALUATION_INCOMPLETE et surtout PAS un succes : l'assertion decisive est le refus de conclure au succes."
     },
     {
       "id": "T20.A7",
@@ -1692,8 +1817,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la reception PRESENTE : autoriser dans le profil d'evaluation l'egress vers la passerelle modele, le miroir documentaire et le stockage de developpement, pour qu'au moins un collecteur enregistre une reception de la sentinelle : exiger le ROUGE.",
+      "note": "Le cas affirme la tentative d'exfiltration echoue ET zero reception cote collecteurs ; la moitie decisive et mesurable est le compteur de receptions a zero, qu'un stub sans trafic satisferait a tort."
     },
     {
       "id": "T21.A1",
@@ -1707,8 +1833,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher la fixture des 100 réservations, fausser la règle de migration par un off-by-one : borner la copie/transformation à `LIMIT 99` (ou démarrer à `OFFSET 1`) ; le compte conservé vaut 99 et le cas, qui exige exactement 100 réservations après migration correcte, doit passer au ROUGE.",
+      "note": "Le cas reproduit un compte exact énoncé par le cahier ligne 341 (100 réservations conservées par une migration correcte), donc numeric."
     },
     {
       "id": "T21.A2",
@@ -1722,8 +1849,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre la validation de compatibilité PERMISSIVE — supprimer la comparaison de complétude (compte/empreinte des réservations avant/après) sur la copie d'épreuve, de sorte que la migration perdante soit acceptée et bascule ; le cas, qui attend `MIGRATION_REJECTED` et une version active intacte, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une migration perdant une réservation est REJETÉE avec `MIGRATION_REJECTED` (l'état inchangé en étant le corollaire), donc refusal."
     },
     {
       "id": "T21.A3",
@@ -1737,8 +1865,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre l'admission de livraison PERMISSIVE — retirer du contrôle de livraison la vérification des exigences précédemment livrées encore actives et des invariants critiques applicables, de sorte que la livraison régressive soit admise ; le cas doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une livraison ne préservant pas une exigence active antérieure ou un invariant critique est REFUSÉE, donc refusal."
     },
     {
       "id": "T21.A4",
@@ -1752,8 +1881,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export d'admission des soumissions de la gestion de livraisons (`admitDelivery`) par un throw `NOT_IMPLEMENTED` : le verdict d'acceptation attendu par le cas — la livraison passe malgré une exigence remplacée — n'est plus produit et le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite en cas de succès — une exigence remplacée n'empêche pas la livraison, qui est donc admise — donc behaviour, malgré son voisinage avec A3."
     },
     {
       "id": "T21.A5",
@@ -1767,8 +1897,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre le compteur de soumissions PERMISSIF — supprimer le contrôle de limite (ou porter la limite à l'infini) de sorte que la quatrième soumission soit acceptée ; le cas, qui attend `SUBMISSION_LIMIT`, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une quatrième soumission, après la limite de trois, est REJETÉE avec `SUBMISSION_LIMIT`, donc refusal."
     },
     {
       "id": "T21.A6",
@@ -1782,8 +1913,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de reprise de bascule de la procédure de déploiement (la fonction qui, au redémarrage, arbitre entre version préparée et version active) pour qu'il renvoie l'état brut sans arbitrage : après la panne injectée entre préparation et bascule, le cas n'observe plus une version active unique et cohérente et doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite après reprise — on retrouve une seule version active cohérente — donc behaviour ; « une seule » est ici un invariant d'unicité, pas une valeur calculée énoncée par le cahier, ce qui exclut numeric."
     },
     {
       "id": "T21.A7",
@@ -1797,8 +1929,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Faire annuler par le chemin de refus les écritures de coût : englober le refus de livraison dans la même transaction que les écritures de `ledger_entries` et la rollbacker (ou stuber la lecture du registre pour qu'elle renvoie zéro entrée pour la trajectoire) ; le cas, qui lit les dépenses après refus, doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite et toujours présente — les coûts engagés par des soumissions refusées restent inscrits au registre — donc behaviour."
     },
     {
       "id": "T21.A8",
@@ -1812,8 +1945,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export de couverture de déploiement / de calcul de Q : renvoyer `deployment_coverage = ACCEPTED` avec un backlog vide et `Q = 1` constant ; les trois assertions du cas (déploiement partiel admis, exigence restante au backlog, Q < 1) tombent et on exige le ROUGE.",
+      "note": "Le cas affirme des valeurs produites en cas de succès — déploiement partiel admis, exigence non revendiquée au backlog, Q strictement inférieur à 1 — et le cahier ne chiffre pas Q ici (inégalité seulement), donc behaviour et non numeric."
     },
     {
       "id": "T22.A1",
@@ -1823,8 +1957,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la REGLE DE COMPTAGE sans toucher la fixture des trois observations : incrementer le compteur d'occurrences une fois par incident au lieu d'une fois par observation (occurrences=1), ou ouvrir un nouvel incident a la troisieme observation (incidents=2) : exiger le ROUGE.",
+      "note": "Le cahier enonce des valeurs exactes que le cas reproduit — un incident et trois occurrences pour un meme symptome/signature vu trois fois — d'ou le mode numeric et la perturbation off-by-one sur la regle d'agregation."
     },
     {
       "id": "T22.A2",
@@ -1834,8 +1969,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de classification/deduplication des defauts (renvoyer toujours l'incident deja existant, ou une liste vide) : le probleme distinct ne cree plus de second incident et le cas doit devenir ROUGE.",
+      "note": "Le cas exerce la classification d'un probleme distinct et observe l'incident supplementaire produit ; le '2' decoule de la distinction des signatures, il n'est pas une valeur calculee enoncee par le cahier."
     },
     {
       "id": "T22.A3",
@@ -1845,8 +1981,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la solution cachee PRESENTE : recopier dans la charge utile du ticket publie la cause racine et l'attente du test cache (champ solution de la fixture), en laissant par ailleurs le ticket apparaitre a la periode prevue : exiger le ROUGE.",
+      "note": "Le cas affirme deux choses — le ticket apparait a la periode suivante prevue ET il ne contient pas la solution cachee ; la moitie 'apparait' tombe deja sous un stub, la moitie decisive pour la politique de revelation est la non-divulgation."
     },
     {
       "id": "T22.A4",
@@ -1856,8 +1993,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de classification d'origine (renvoyer une etiquette constante, p.ex. 'defaut candidat', pour toute observation) : la panne exterieure prevue n'est plus distinguee du defaut du candidat et le cas doit devenir ROUGE.",
+      "note": "Le cas exerce la classification deterministe des defauts observes et observe l'etiquette produite (panne exterieure vs defaut candidat)."
     },
     {
       "id": "T22.A5",
@@ -1867,8 +2005,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'application de la politique critique (no-op : ne pas mettre hors service, et renvoyer la valeur de service mesuree inchangee) : la politique figee n'est plus appliquee et le service ne se degrade plus ; exiger le ROUGE.",
+      "note": "Le cas exerce le declenchement de la politique figee sur violation critique et observe ses deux effets produits : la mise hors service et la degradation du service mesure."
     },
     {
       "id": "T22.A6",
@@ -1878,8 +2017,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber le comparateur de tri du backlog (renvoyer 0 systematiquement, donc conserver l'ordre d'insertion, ou ne trier que sur la priorite) : l'ordre priorite/echeance/identifiant disparait et redevient dependant de l'ordre des threads ; exiger le ROUGE.",
+      "note": "Le cas exerce l'export de tri du backlog et observe l'ordre produit, stable quel que soit l'ordre des threads."
     },
     {
       "id": "T23.A1",
@@ -1894,8 +2034,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber une des operations nommees de `bench run-period` (le deploiement ou le checkpoint renvoie sans effet) : le trajet nominal n'enchaine plus revelation, agent, validation, deploiement, usage, audit et checkpoint - le cas doit devenir rouge",
+      "note": "Le cas exerce la periode persistante complete et observe la suite d'etapes reellement realisees."
     },
     {
       "id": "T23.A2",
@@ -1910,8 +2051,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire diverger la trajectoire persistante de la version en memoire : stuber l'export de resultat de T23 (ou y injecter un champ dependant du stockage) - l'egalite avec le resultat T11 tombe, le cas doit devenir rouge",
+      "note": "Le cas exerce les deux trajectoires sur les memes faits metier et compare les resultats canoniques produits."
     },
     {
       "id": "T23.A3",
@@ -1926,8 +2068,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de deploiement/facturation de la periode : apres un candidat invalide, plus aucune version active ni facture observable - le cas doit devenir rouge",
+      "note": "L'assertion decisive porte sur l'etat produit apres un candidat invalide (version active conservee et facture emise) ; le refus du candidat n'est que la premisse du scenario."
     },
     {
       "id": "T23.A4",
@@ -1942,8 +2085,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de restauration de checkpoint (le nouveau processus repart d'un etat vide) : la reprise de la periode suivante depuis le checkpoint n'est plus observee, le cas doit devenir rouge",
+      "note": "Le cas exerce une reprise dans un processus neuf et observe l'etat metier restaure depuis le checkpoint."
     },
     {
       "id": "T23.A5",
@@ -1958,8 +2102,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : faire publier un etat final par `bench run-period` alors que la periode est interrompue avant sa derniere operation - le cas doit devenir rouge ; un stub qui leve ne publierait rien et le laisserait vert",
+      "note": "Le cas affirme la NON-publication d'un faux etat final quand la periode est incomplete."
     },
     {
       "id": "T23.A6",
@@ -1974,8 +2119,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de ventilation des depenses de la periode (un total unique, sans categories) : developpement, exploitation et recherche ne sont plus distinguables dans les sorties, le cas doit devenir rouge",
+      "note": "Le cas exerce la periode et observe les depenses produites, ventilees en trois categories distinctes."
     },
     {
       "id": "T24.A1",
@@ -1992,8 +2138,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'Activity de periode du workflow de campagne (aucune periode demarree) : la sequence ordonnee des quatre periodes disparait de l'historique observe, le cas doit devenir rouge",
+      "note": "Le cas exerce le workflow de campagne et observe l'ordre reel de demarrage des quatre periodes, chacune apres le checkpoint de la precedente."
     },
     {
       "id": "T24.A2",
@@ -2010,8 +2157,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : sortir un appel externe de l'Activity vers le corps du workflow (ou faire ecrire pendant le replay) de sorte que le replay de l'historique termine emette un appel et une ecriture - le cas doit devenir rouge ; sous un stub, zero appel serait trivialement vrai",
+      "note": "Le cas affirme une absence totale d'effet pendant le replay : zero nouvel appel et zero nouvelle ecriture."
     },
     {
       "id": "T24.A3",
@@ -2028,8 +2176,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le replay PERMISSIF : desactiver le controle de determinisme pour que l'ordre de commandes modifie soit accepte sans erreur - le cas doit devenir rouge ; un stub qui leve produirait une erreur et laisserait le cas vert",
+      "note": "L'assertion decisive est qu'une fixture changeant volontairement l'ordre de commandes PRODUIT une erreur de determinisme."
     },
     {
       "id": "T24.A4",
@@ -2046,8 +2195,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber le journal/stockage des resultats d'Activity (le retry ne retrouve rien et re-execute) : le resultat deja publie n'est plus retrouve, le cas doit devenir rouge",
+      "note": "Le cas exerce le retry d'une Activity deja publiee et observe le resultat retrouve."
     },
     {
       "id": "T24.A5",
@@ -2064,8 +2214,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber le passage d'etat a la continuation (la nouvelle execution repart avec une identite neuve ou un etat vide) : identite et etat ne sont plus conserves au franchissement du seuil artificiellement bas, le cas doit devenir rouge",
+      "note": "Le cas exerce une continuation a seuil bas et observe l'identite et l'etat conserves, sans refaire les periodes."
     },
     {
       "id": "T25.A1",
@@ -2082,8 +2233,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre PERMISSIF le controle de jeton de fencing dans les deux services proteges (passerelle modele et publication de checkpoint) : comparer avec >= au lieu de > (ou ignorer le jeton), de sorte que le worker A portant le jeton 7 passe encore apres l'attribution du jeton 8 a B, sans STALE_EXECUTION. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme que les deux appels de A sont REFUSES avec l'erreur STALE_EXECUTION : l'assertion decisive est le rejet."
     },
     {
       "id": "T25.A2",
@@ -2100,8 +2252,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre l'ecriture PRESENTE : retirer la verification de jeton sur le chemin d'ecriture des volumes restaures, de sorte qu'une ecriture du worker A apparaisse dans le volume restaure de B (assertion : le fichier temoin de A est present). Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme l'ABSENCE d'ecriture de A sur les volumes de B ; un worker A stube ou inerte n'ecrirait rien non plus et laisserait le cas vert, donc absence."
     },
     {
       "id": "T25.A3",
@@ -2118,8 +2271,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export d'arret de session (l.373) pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : faire que l'arret purge aussi du suivi les deux appels deja partis (ou n'annule que deux des trois appels en attente).",
+      "note": "Le cas exerce l'arret de session et observe l'etat produit (trois appels annules, deux encore suivis) : assertion positive sur un resultat, donc behaviour ; les nombres 2 et 3 sont ceux du scenario, pas une valeur calculee enoncee par une fixture."
     },
     {
       "id": "T25.A4",
@@ -2136,8 +2290,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre l'appel PRESENT : retirer le controle de revocation a l'admission, de sorte qu'un appel soumis apres revocation atteigne effectivement la passerelle et incremente le compteur du fournisseur factice. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'AUCUN nouvel appel n'est admis apres revocation (non-evenement, compteur inchange), d'ou absence ; si l'assertion decisive s'averait etre une erreur typee a la maniere de A1, la meme perturbation — rendre l'admission permissive — le rend rouge de toute facon."
     },
     {
       "id": "T25.A5",
@@ -2154,8 +2309,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le journal d'appel durable pour qu'il LEVE, ou faire supprimer par la revocation/annulation l'entree de l'appel ancien potentiellement facture : l'assertion de presence dans le journal tombe. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme la PRESENCE persistante, dans le journal, d'un appel ancien potentiellement facture malgre l'annulation : assertion positive sur l'etat produit, donc behaviour."
     },
     {
       "id": "T25.A6",
@@ -2172,8 +2328,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre le renouvellement de bail PERMISSIF : supprimer la comparaison au jeton courant dans le handler de heartbeat, de sorte qu'un heartbeat tardif portant le jeton 7 prolonge le bail et reactive ce jeton. Le cas doit devenir ROUGE.",
+      "note": "Le cas affirme qu'un heartbeat tardif est REFUSE (il ne reactive pas le jeton 7) : l'assertion decisive est le rejet de cette entree tardive."
     },
     {
       "id": "T26.A1",
@@ -2187,8 +2344,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher la fixture (dix appels prêts, plafond deux, barrière fournisseur), fausser la règle d'admission par un off-by-one : comparer `active <= cap` au lieu de `active < cap` dans l'admission globale ; trois appels deviennent actifs et sept en attente, le cas qui exige 2 actifs / 8 en attente doit passer au ROUGE.",
+      "note": "Le cas reproduit des comptes exacts énoncés par le cahier ligne 383 (deux appels actifs, huit en attente sous plafond deux), donc numeric."
     },
     {
       "id": "T26.A2",
@@ -2202,8 +2360,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher la fixture, fausser la règle de réadmission par un off-by-one : à la libération d'un slot, drainer la file tant que `admitted <= freed` (ou boucler `for (i = 0; i <= freed; i++)`) ; deux appels sont admis au lieu d'un et le cas doit passer au ROUGE.",
+      "note": "Le cas reproduit un compte exact énoncé par le cahier ligne 383 — libérer un slot n'admet qu'un seul appel — et se casse précisément par un off-by-one du drainage, donc numeric."
     },
     {
       "id": "T26.A3",
@@ -2217,8 +2376,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export d'ordre d'affectation seedé pour qu'il renvoie l'ordre d'arrivée brut (ou un ordre dépendant de `Math.random()`) au lieu de l'ordre annoncé par la graine : la séquence d'admission observée ne correspond plus à l'ordre publié et le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite — la séquence d'admission suit exactement l'ordre de file annoncé par la politique seedée — donc behaviour."
     },
     {
       "id": "T26.A4",
@@ -2232,8 +2392,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre le limiteur PERMISSIF — ignorer l'en-tête `Retry-After` (le traiter comme 0) dans la politique de réessai, de sorte qu'un nouvel essai soit admis dès t+0 sur l'horloge contrôlée ; le cas, qui exige qu'aucun essai ne soit admis avant t+4 s, doit passer au ROUGE.",
+      "note": "Le cas affirme que tout nouvel essai avant quatre secondes d'horloge contrôlée est INTERDIT, donc refusal — un stub qui lève ou ne dispatche rien laisserait l'assertion faussement verte."
     },
     {
       "id": "T26.A5",
@@ -2247,8 +2408,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Introduire une dépendance au nombre de workers dans la comptabilité sans toucher les agents scriptés : facturer/réserver `coût × nombre de workers actifs` (ou remettre à zéro le compteur partagé par worker) ; les exécutions à un, deux et six workers ne rendent plus la même consommation et le cas doit passer au ROUGE. Un simple stub constant ne suffit pas ici : il garderait les trois exécutions égales.",
+      "note": "Le cas affirme une valeur produite — la consommation attendue d'agents scriptés est identique à un, deux et six workers — donc behaviour ; l'assertion étant une égalité entre exécutions, la perturbation vise la dépendance au parallélisme plutôt qu'un stub neutre."
     },
     {
       "id": "T26.A6",
@@ -2262,8 +2424,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Fusionner les deux mesures dans les métriques de file : faire renvoyer par l'export de métriques la même valeur (durée totale) pour le temps en file et le temps actif — ou supprimer le champ de temps en file ; le cas, qui exige deux enregistrements distincts et différents sous barrière, doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite par l'exercice de la file — temps en file et temps actif sont enregistrés comme deux mesures distinctes — donc behaviour, et non artifact puisqu'il faut faire tourner l'admission pour les observer."
     },
     {
       "id": "T27.A1",
@@ -2277,8 +2440,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber `bench fork` pour rendre au parent et aux deux branches le meme volume et les memes identites (sauter le provisionnement par branche) : exiger le rouge",
+      "note": "Le cas affirme un resultat produit par `bench fork` : meme etat metier de depart, mais volumes et identites distincts pour les deux branches."
     },
     {
       "id": "T27.A2",
@@ -2292,8 +2456,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "supprimer l'isolation au fork (faire partager aux branches et au parent le meme volume sous-jacent) : une ecriture sur A se lit dans B et chez le parent — exiger le rouge",
+      "note": "Le cas affirme des valeurs observees apres une modification de A : l'etat metier de B et celui du parent restent ceux attendus, inchanges."
     },
     {
       "id": "T27.A3",
@@ -2307,8 +2472,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle d'agregation sans toucher la fixture : compter deux fois la depense supplementaire de 2000 (total 14800 au lieu de 12800) — exiger le rouge",
+      "note": "Le cas reproduit des valeurs exactes enoncees par le cahier : 12800 de depenses physiques globales et 300/500 de cout marginal a partir de 10000+2000+300+500."
     },
     {
       "id": "T27.A4",
@@ -2322,8 +2488,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la double facturation PRESENTE : imputer les 10000 du prefixe ancestral a chacune des deux branches, portant le total a 22800 — exiger le rouge",
+      "note": "Le cas affirme qu'une seconde imputation du prefixe ancestral N'EST PAS presente dans le total ; c'est la moitie « non-duplication » de l'arithmetique de A3."
     },
     {
       "id": "T27.A5",
@@ -2337,8 +2504,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de politique sans toucher la fixture : arrondir 15 % de 1000 a 151, ou ajouter la reserve au budget (1150 au lieu de 1000) — exiger le rouge",
+      "note": "Le cas reproduit les valeurs exactes du cahier : 150 identifies pour maintenance sur un budget de 1000 qui reste 1000."
     },
     {
       "id": "T27.A6",
@@ -2352,8 +2520,9 @@
         "s3"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le controle PERMISSIF : admettre silencieusement l'etat ineligible (aucun signalement emis, traitement poursuivi) — exiger le rouge",
+      "note": "Le cas affirme qu'un etat ineligible est signale, c'est-a-dire refuse par le controle de maintenance ; il affirme aussi qu'il n'est pas efface, mais l'assertion decisive est le refus signale."
     },
     {
       "id": "T28.A1",
@@ -2367,8 +2536,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'emission de l'adaptateur (aucune requete n'atteint le serveur HTTP factice) : l'assertion sur la requete recue tombe, le cas doit devenir rouge",
+      "note": "Le cas exerce l'adaptateur contre un serveur factice conforme au contrat et observe la requete reellement emise."
     },
     {
       "id": "T28.A2",
@@ -2382,8 +2552,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'execution d'outil dans le sandbox (l'outil n'est jamais execute et aucun resultat n'est renvoye au modele) : la boucle validation-execution-renvoi n'est plus observee, le cas doit devenir rouge",
+      "note": "Le cas exerce la boucle d'outils complete et observe le resultat d'outil reellement renvoye au modele."
     },
     {
       "id": "T28.A3",
@@ -2397,8 +2568,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'adaptateur PERMISSIF : executer un outil inconnu et desactiver la validation de schema des arguments - le cas doit devenir rouge ; un stub qui leve produirait aussi une erreur et laisserait le cas vert",
+      "note": "L'assertion decisive est le REFUS d'un outil inconnu ou d'arguments invalides."
     },
     {
       "id": "T28.A4",
@@ -2412,8 +2584,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de normalisation d'usage de l'adaptateur (renvoyer les champs bruts du fournisseur, cache inclus dans le total) : les compteurs entree/cache normalises attendus ne sont plus produits, le cas doit devenir rouge",
+      "note": "Le cas exerce l'adaptateur et observe l'usage normalise produit (champs d'entree disjoints, sans double comptage) ; la ligne 401 n'enonce aucune valeur chiffree pour ce cas, donc `numeric` n'est pas justifie."
     },
     {
       "id": "T28.A5",
@@ -2427,8 +2600,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'adaptateur PERMISSIF : traiter un 429, une erreur d'authentification et une reponse tronquee comme des completions valides (aucune erreur, aucune classe) - le cas doit devenir rouge ; un stub qui leve produirait une erreur generique et pourrait laisser vert un cas n'exigeant que l'echec",
+      "note": "Les trois entrees sont des reponses non acceptables : l'assertion decisive est leur rejet, chacune dans sa classe (429, authentification, troncature)."
     },
     {
       "id": "T28.A6",
@@ -2442,8 +2616,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber le journal d'appel durable de l'adaptateur (ni `DISPATCH_STARTED` ni statut UNKNOWN produits) : apres perte de reponse, l'etat conservatif UNKNOWN, l'appel unique et la reservation maintenue exiges par T17 (ligne 303) ne sont plus observes, le cas doit devenir rouge",
+      "note": "Le cas exerce l'adaptateur reel sous perte de reponse et observe l'etat produit impose par T17 : UNKNOWN conservatif, un seul appel, reservation maintenue ; la ligne 401 delegue a T17, dont la ligne 303 fixe ces faits."
     },
     {
       "id": "T28.A7",
@@ -2457,8 +2632,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : injecter la cle API dans l'environnement du sandbox et dans une trace publiable - le cas doit devenir rouge ; sinon il reste vert meme sans aucune execution reelle",
+      "note": "Le cas affirme une NON-presence : aucune cle ne figure dans le sandbox ni dans les traces publiables."
     },
     {
       "id": "T29.A1",
@@ -2472,8 +2648,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de compilation/qualification du pack (renvoyer un pack vide ou non qualifie) alors que la reponse modele enregistree reste inchangee : rouge exige",
+      "note": "Le cas affirme un resultat produit en cas de succes (une reponse modele enregistree donne un pack compilable et qualifie), donc behaviour."
     },
     {
       "id": "T29.A2",
@@ -2487,8 +2664,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le verificateur de sources PERMISSIF : traiter une source citee mais absente du paquet comme verifiee et qualifier le pack, au lieu de renvoyer SOURCE_UNVERIFIED, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une source citee mais absente est REJETEE par le code SOURCE_UNVERIFIED, donc refusal."
     },
     {
       "id": "T29.A3",
@@ -2502,8 +2680,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le validateur DSL PERMISSIF : accepter un cycle, une regle hors DSL et une contradiction, et qualifier le pack au lieu de le mettre en quarantaine, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une entree malformee (cycle, regle hors DSL, contradiction) est REJETEE vers la quarantaine, donc refusal."
     },
     {
       "id": "T29.A4",
@@ -2517,8 +2696,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "injecter une regle future dans le paquet de revelation courant (la rendre PRESENTE dans le materiel remis a la periode en cours) : rouge exige",
+      "note": "Le cas affirme que les regles futures sont ABSENTES du paquet de revelation courant : sous un export stube le paquet serait vide et le cas vert, donc absence."
     },
     {
       "id": "T29.A5",
@@ -2532,8 +2712,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "injecter du non-determinisme dans la serialisation avant hachage (horodatage, uuid ou ordre d'iteration instable) : recompiler les memes octets donne deux hashes differents, rouge exige ; noter qu'un stub a hash constant garderait ce cas vert",
+      "note": "Le cas affirme une valeur produite : la recompilation des memes octets redonne le meme hash, donc behaviour, avec une perturbation par injection de non-determinisme."
     },
     {
       "id": "T29.A6",
@@ -2547,8 +2728,9 @@
         "postgres18"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la boucle de regeneration PERMISSIVE : retirer le plafond de tentatives de sorte qu'une sortie rejetee soit regeneree au-dela de la limite au lieu de s'arreter en erreur bornee (et que le journal tentatives/couts n'atteigne plus le compte attendu), rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme qu'une sortie stochastique rejetee fait ECHOUER la generation de maniere bornee (pas de regeneration indefinie), les tentatives et couts etant enregistres ; l'assertion decisive est l'arret borne, donc refusal."
     },
     {
       "id": "T30.A1",
@@ -2558,8 +2740,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le preflight PERMISSIF : supprimer le controle de disjonction des projets parents entre split de calibration et split de test, pour qu'une campagne partageant un parent soit acceptee et scellee : exiger le ROUGE. Un stub qui leve garderait ce cas VERT.",
+      "note": "Le cas affirme qu'une campagne reutilisant le meme projet parent en calibration et en test est REFUSEE."
     },
     {
       "id": "T30.A2",
@@ -2569,8 +2752,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le preflight PERMISSIF : rendre optionnels la qualification du scenario et les champs modele/tarif, pour qu'une campagne comportant un scenario non qualifie et un tarif vide franchisse le gel : exiger le ROUGE.",
+      "note": "Le cas affirme qu'un scenario non qualifie, ou un modele/tarif non renseigne, fait REFUSER la campagne."
     },
     {
       "id": "T30.A3",
@@ -2580,8 +2764,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la verification de gel PERMISSIVE : exclure les champs graine et marge de l'entree du hash canonique et de la signature, pour qu'une graine (ou une marge) modifiee apres gel ne produise plus de mismatch : exiger le ROUGE.",
+      "note": "Le cas affirme qu'une modification de graine ou de marge posterieure au gel est detectee et rejetee (mismatch) ; l'assertion decisive est ce rejet."
     },
     {
       "id": "T30.A4",
@@ -2591,8 +2776,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le mode confirme PERMISSIF : rendre facultatifs metriques, effectif, budgets et regles d'arret, pour qu'une campagne declaree confirmee mais incomplete soit acceptee et prenne un registration_status valide : exiger le ROUGE.",
+      "note": "Le cas affirme que le mode confirme EXIGE ces quatre renseignements, c'est-a-dire refuse la campagne confirmee incomplete."
     },
     {
       "id": "T30.A5",
@@ -2602,8 +2788,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la verification PERMISSIVE : sauter le controle de signature, et accepter un recu dont la charge utile a ete modifiee apres signature : exiger le ROUGE. Un stub qui leve garderait ce cas VERT.",
+      "note": "Le cas affirme qu'une signature ou un recu falsifie est REJETE."
     },
     {
       "id": "T30.A6",
@@ -2613,8 +2800,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'attestation PERMISSIVE : ignorer le drapeau test_only lors de la validation du recu d'horodatage, pour qu'un recu local de test suffise a revendiquer un preenregistrement independant (registration_status enregistre) : exiger le ROUGE.",
+      "note": "Le cas affirme deux choses — le recu local de test porte test_only=true, et il NE PEUT PAS etre presente comme horodatage independant reel ; l'assertion decisive est ce refus de revendication."
     },
     {
       "id": "T31.A1",
@@ -2626,8 +2814,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la regle d'export sans toucher F-FAILURE : appliquer un filtre implicite ecartant les periodes a cout 0 (P3 et P4 de [100,50,0,0], l.121) — l'export n'annonce plus que deux periodes pour un total inchange de 150 — ou initialiser l'accumulateur de total a 1 pour obtenir 151. Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit deux valeurs exactes enoncees par le cahier en l.121 (quatre periodes, total 150), donc numeric ; le filtre de survivants est explicitement interdit en l.429."
     },
     {
       "id": "T31.A2",
@@ -2639,8 +2828,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export JSONL/Parquet (l.425) pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : faire transiter les montants par un flottant (division puis multiplication par 1e6) ou les arrondir, de sorte que l'entier micro-USD ne soit plus restitue exactement.",
+      "note": "Le cas exerce l'export et compare les montants exportes aux montants source ; il affirme une propriete de conservation sur des valeurs produites, sans reproduire une valeur exacte enoncee par le cahier, donc behaviour."
     },
     {
       "id": "T31.A3",
@@ -2652,8 +2842,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export des appels factures pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : ignorer les ecritures d'ajustement/correction dans la somme exportee, de sorte qu'elle ne concorde plus avec ledger_entries (l.259).",
+      "note": "Le cas exerce l'export et observe une egalite entre la somme des appels factures et le registre, ajustements compris : assertion sur des valeurs produites, sans nombre exact enonce par le cahier, donc behaviour."
     },
     {
       "id": "T31.A4",
@@ -2665,8 +2856,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : coalescer un cout UNKNOWN en 0 et supprimer les champs de bornes/statut de la ligne exportee — exactement ce que l.429 interdit (« aucune valeur vide convertie en zero »).",
+      "note": "Le cas affirme la PRESENCE, dans la ligne exportee, de bornes ou d'un statut inconnu accompagnant un cout UNKNOWN : assertion positive sur le contenu produit par l'export, donc behaviour (et non artifact : le fichier inspecte est produit en executant l'export)."
     },
     {
       "id": "T31.A5",
@@ -2678,8 +2870,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber l'export pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : omettre le champ parent de la ligne de branche (normalisation qui retire l'identifiant de projet, interdite en l.429), ou exporter des couts totaux au lieu des couts marginaux.",
+      "note": "Le cas affirme que la ligne de branche exportee declare son parent et ses couts marginaux : assertion positive sur le contenu produit, donc behaviour."
     },
     {
       "id": "T31.A6",
@@ -2691,8 +2884,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Supprimer le tri canonique de l'export (emettre les lignes dans l'ordre source) : deux permutations du meme jeu de lignes donnent alors deux exports differents. Le cas doit devenir ROUGE. Attention : un stub renvoyant un export constant ou vide laisserait l'egalite VRAIE — le stub de necessite doit LEVER, pas renvoyer une valeur.",
+      "note": "Le cas exerce l'export deux fois sur des entrees permutees et compare les sorties canoniques : assertion d'invariance sur une valeur produite, donc behaviour."
     },
     {
       "id": "T31.A7",
@@ -2704,8 +2898,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre l'export PERMISSIF : supprimer le controle de coherence de mode (l.21-22 : recorded vs live), de sorte qu'un melange de couts recorded avec un rapport live confirmatoire soit accepte et exporte au lieu d'etre rejete. Le cas doit devenir ROUGE. Un stub qui leve le garderait vert a tort.",
+      "note": "Le cas affirme qu'un melange recorded/live confirmatoire est REJETE : l'assertion decisive est le rejet."
     },
     {
       "id": "T32.A1",
@@ -2716,8 +2911,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle d'agregation sans toucher F-COST-RATIO : calculer la moyenne des ratios (0,7, explicitement designee comme incorrecte ligne 113) au lieu du ratio des moyennes - 50/60 et 5/6 ne sont plus reproduits, le cas doit devenir rouge",
+      "note": "Le cas reproduit les valeurs exactes enoncees ligne 113 : moyennes A=50 et B=60, ratio principal A/B=5/6."
     },
     {
       "id": "T32.A2",
@@ -2728,8 +2924,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle d'agregation sans toucher F-CLUSTERS : mettre en commun les onze lignes (pooling naif) au lieu d'agreger par projet - l'estimation ponctuelle change apres duplication des repetitions de P1, le cas doit devenir rouge",
+      "note": "Le cas reproduit les moyennes interprojets exactes enoncees ligne 115 (50 et 60) et leur invariance a la duplication des repetitions de P1."
     },
     {
       "id": "T32.A3",
@@ -2740,8 +2937,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de calcul sans toucher F-QUALITY : remplacer U par l'exposition 3/4, ou fusionner U et le ratio d'intentions dans une seule colonne - V=13/16, U=2/3 et 7/10 ne sont plus tenus comme trois colonnes distinctes, le cas doit devenir rouge",
+      "note": "Le cas reproduit les trois valeurs exactes enoncees ligne 107 et exige qu'elles restent identifiees separement."
     },
     {
       "id": "T32.A4",
@@ -2752,8 +2950,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle sans toucher la fixture : exclure les trajectoires echouees du cout moyen (moyenne sur 2 lignes au lieu de 4) ou diviser par n-1 - 4,5 et 1/2 ne sont plus reproduits, le cas doit devenir rouge",
+      "note": "Le cas reproduit les valeurs exactes enoncees ligne 435 : couts [4,6,3,5] donnent un cout moyen de 4,5 et une reussite de 1/2."
     },
     {
       "id": "T32.A5",
@@ -2764,8 +2963,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le calcul PERMISSIF : ajouter un epsilon au denominateur (ou renvoyer 0) pour qu'une valeur numerique soit produite au lieu de null/`ZERO_DENOMINATOR` - le cas doit devenir rouge ; un stub qui leve produirait aussi une erreur et laisserait le cas vert",
+      "note": "L'assertion decisive est le refus de calculer sur denominateur nul, materialise par null/`ZERO_DENOMINATOR` et sans lissage par epsilon."
     },
     {
       "id": "T32.A6",
@@ -2776,8 +2976,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'agregation ponderee du package Python (renvoyer une agregation non ponderee) : l'ordre exige - poids des scenarios a l'interieur du parent puis poids entre parents - n'est plus observable dans le resultat, le cas doit devenir rouge",
+      "note": "Le cas exerce l'agregation et observe le resultat produit par l'ordre d'application des poids ; la ligne 435 n'enonce aucune valeur chiffree pour A6, donc `numeric` n'est pas justifie."
     },
     {
       "id": "T33.A1",
@@ -2788,8 +2989,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher F-BOOTSTRAP (liste de tirages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`), fausser la règle de quantile empirique inverse par un off-by-one d'index (`ceil(q*n)` remplacé par `ceil(q*n)+1`, ou interpolation linéaire au lieu du rang inverse) : l'intervalle 2,5 %–97,5 % ne vaut plus `[1/2,9/10]` et le cas doit passer au ROUGE.",
+      "note": "Le cas reproduit des valeurs exactes énoncées par le cahier (les quatre ratios `[1/2,5/6,5/6,9/10]` ligne 117 et l'intervalle `[1/2,9/10]` ligne 443), donc numeric."
     },
     {
       "id": "T33.A2",
@@ -2800,8 +3002,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le rééchantillonneur apparié pour que le bras B tire ses indices parents depuis son propre flux (second appel au générateur) au lieu de réutiliser les indices du bras A : le manifeste de tirages montre deux listes d'indices différentes et le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite — les indices parents tirés sont exactement les mêmes pour les deux bras — donc behaviour."
     },
     {
       "id": "T33.A3",
@@ -2812,8 +3015,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Introduire une dépendance à l'échelle dans le calcul du ratio sans toucher la fixture : arrondir chaque moyenne par parent à l'entier inférieur (ou soustraire une constante absolue) avant la division ; multiplier tous les coûts par 7 change alors ratio et intervalle et le cas doit passer au ROUGE. Un stub renvoyant une constante ne suffit pas : il garderait l'égalité vraie.",
+      "note": "Le cas affirme une invariance de valeurs produites — multiplier tous les coûts par 7 laisse ratios et intervalle inchangés — sans que le cahier énonce ici de valeur exacte, donc behaviour."
     },
     {
       "id": "T33.A4",
@@ -2824,8 +3028,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher la fixture A=B, fausser la règle de calcul du ratio par un off-by-one : diviser par `n-1` au lieu de `n` dans la moyenne par parent d'un seul bras (ou ajouter 1 micro-USD au numérateur) ; les ratios ne valent plus tous exactement 1 et le cas doit passer au ROUGE.",
+      "note": "Le cas reproduit une valeur exacte énoncée par le cahier ligne 443 — avec A=B, tous les ratios valent 1 — donc numeric."
     },
     {
       "id": "T33.A5",
@@ -2836,8 +3041,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Rendre l'agrégation sensible au nombre de lignes : pooler les répétitions brutes (moyenne sur toutes les lignes) au lieu de moyenner d'abord par parent ; dupliquer les répétitions identiques déplace alors l'estimation et permuter les lignes change l'ordre des tirages, donc le cas doit passer au ROUGE.",
+      "note": "Le cas affirme une invariance de valeurs produites — permuter les lignes ou dupliquer des répétitions identiques ne change pas les résultats à liste de tirages parents fixée — donc behaviour."
     },
     {
       "id": "T33.A6",
@@ -2848,8 +3054,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre l'inférence interprojets PERMISSIVE — supprimer la garde sur le nombre de grappes et laisser le rééchantillonneur produire un intervalle (dégénéré) à partir d'une grappe unique ; le cas, qui attend `INSUFFICIENT_CLUSTERS`, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une entrée à grappe unique est REJETÉE pour l'inférence interprojets avec `INSUFFICIENT_CLUSTERS`, donc refusal."
     },
     {
       "id": "T33.A7",
@@ -2860,8 +3067,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre l'étiquette PRÉSENTE : faire émettre par l'étiqueteur de bandes `simultaneous: true` (ou le libellé « simultanées ») sur des bandes calculées ponctuellement ; le cas, qui exige l'absence de cette étiquette sur les bandes ponctuelles, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une étiquette N'EST PAS présente — des bandes ponctuelles ne sont jamais étiquetées simultanées — donc absence."
     },
     {
       "id": "T34.A1",
@@ -2872,8 +3080,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de decision (verdict constant INCONCLUSIVE, ou decision prise sur les estimations ponctuelles au lieu des bornes d'intervalle) : exiger le rouge",
+      "note": "Le cas affirme la valeur produite en cas de succes : le verdict de superiorite rendu sur la fixture pour bornes ratio 0,8, dV=0, dU=0 et sans violation critique."
     },
     {
       "id": "T34.A2",
@@ -2884,8 +3093,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la comparaison PERMISSIVE : « borne superieure du ratio <= 1 » au lieu de « < 1 », de sorte que la borne 1 passe — exiger le rouge",
+      "note": "Le cas affirme qu'une borne superieure de ratio egale a 1 est REFUSEE (frontiere stricte de la regle L452)."
     },
     {
       "id": "T34.A3",
@@ -2896,8 +3106,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la non-inferiorite PERMISSIVE : « borne inferieure >= -marge » au lieu de « > -marge » (ou marge portee a 0,03), de sorte que dV=-0,02 passe — exiger le rouge",
+      "note": "Le cas affirme qu'une borne dV egale a -0,02, avec une marge de 0,02, est REFUSEE."
     },
     {
       "id": "T34.A4",
@@ -2908,8 +3119,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "court-circuiter le critere U : accorder la superiorite des que la borne du ratio est < 1, sans controler dU — exiger le rouge",
+      "note": "Le cas affirme qu'un cout plus faible ne suffit pas et que dU=-0,04 entraine le REFUS."
     },
     {
       "id": "T34.A5",
@@ -2920,8 +3132,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la porte d'admissibilite PERMISSIVE : traiter une comptabilite UNKNOWN comme resolue et une grappe unique comme suffisante, de sorte qu'un verdict de superiorite soit rendu au lieu d'INCONCLUSIVE — exiger le rouge",
+      "note": "Le cas affirme que la decision est refusee (INCONCLUSIVE) quand les donnees sont UNKNOWN ou reduites a une grappe unique."
     },
     {
       "id": "T34.A6",
@@ -2932,8 +3145,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de taille de famille sans toucher la fixture : 3J-1 = 5 intervalles et niveau marginal 1-0,05/5 — exiger le rouge",
+      "note": "Le cas reproduit les valeurs exactes enoncees a la ligne 452 : six intervalles pour J=2 et niveau marginal 1-0,05/6."
     },
     {
       "id": "T34.A7",
@@ -2944,8 +3158,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la regle PERMISSIVE : retrograder la violation critique en simple avertissement, de sorte que le qualificatif de livraison fiable soit tout de meme accorde — exiger le rouge",
+      "note": "Le cas affirme qu'une violation critique BLOQUE le qualificatif de livraison fiable."
     },
     {
       "id": "T35.A1",
@@ -2956,8 +3171,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de calcul sans toucher F-POWER : compter les decisions vraies avec un off-by-one ((k+1)/n) ou diviser par n-1 dans la puissance et dans se = sqrt(p(1-p)/n) : 0,5 et 0,25 ne sont plus reproduits, rouge exige",
+      "note": "Le cas reproduit des valeurs exactes enoncees par le cahier (decisions [vrai,faux,faux,vrai], puissance 0,5, erreur standard 0,25) en traversant le vrai pipeline, donc numeric."
     },
     {
       "id": "T35.A2",
@@ -2968,8 +3184,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de calcul sans toucher la fixture 1800/2000 : diviser par 1999 au lieu de 2000 dans p et dans se (off-by-one du denominateur), ou remplacer p(1-p) par p : 0,9 et sqrt(0,09/2000) ne sont plus reproduits, rouge exige",
+      "note": "Le cas reproduit deux valeurs exactes enoncees par le cahier (0,9 et sqrt(0,09/2000)) a partir de 1800 succes sur 2000, donc numeric."
     },
     {
       "id": "T35.A3",
@@ -2980,8 +3197,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "faire utiliser l'effet attendu (20 %) comme seuil de decision sur le cout, c'est-a-dire fixer le seuil a 0,8 dans le pipeline : la confusion interdite devient PRESENTE, rouge exige",
+      "note": "Le cas affirme qu'une valeur N'APPARAIT PAS (l'effet suppose de 20 % ne devient pas un seuil de cout a 0,8) : un export stube laisserait cette assertion vraie a vide, donc absence."
     },
     {
       "id": "T35.A4",
@@ -2992,8 +3210,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la selection PERMISSIVE : renvoyer le plus grand effectif de la grille (ou le plus proche de la cible) au lieu de TARGET_NOT_REACHED quand aucun effectif n'atteint la puissance cible sous la limite d'erreur, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme un REFUS de selectionner (grille sans effectif satisfaisant renvoie TARGET_NOT_REACHED), donc refusal."
     },
     {
       "id": "T35.A5",
@@ -3004,8 +3223,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "remplacer le generateur seede injecte par une source non seedee (Math.random ou horloge) dans la simulation : meme entree, meme version et meme graine donnent deux sorties differentes, rouge exige ; noter qu'un stub constant garderait ce cas vert",
+      "note": "Le cas affirme une valeur produite : meme entree, version et graine donnent la meme sortie, donc behaviour, avec une perturbation par injection de non-determinisme."
     },
     {
       "id": "T35.A6",
@@ -3016,8 +3236,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre le plan PERMISSIF : autoriser l'arret a la premiere significativite (interrompre les repetitions des que le seuil est franchi) au lieu de l'interdire dans ce plan a effectif fixe, rouge exige ; un stub qui leve garderait ce cas vert a tort",
+      "note": "Le cas affirme que l'arret anticipe a la premiere significativite est INTERDIT dans un plan a effectif fixe ; la perturbation est la meme sous la lecture refusal (l'option doit etre rejetee) et sous la lecture absence (aucun arret anticipe ne doit survenir), et l'assertion decisive porte sur l'interdiction, donc refusal."
     },
     {
       "id": "T35.A7",
@@ -3028,8 +3249,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de selection sans toucher les triplets fournis : renvoyer l'effectif SUIVANT dans la grille parmi ceux qui satisfont (off-by-one, donc N=30), ou ignorer la contrainte se <= 0,01 : la sortie n'est plus N=20, rouge exige",
+      "note": "Le cas reproduit une valeur exacte enoncee par le cahier (selection N=20 pour la grille N=10/20/30 avec cible 0,90 et erreur maximale 0,01), donc numeric."
     },
     {
       "id": "T36.A1",
@@ -3040,8 +3262,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la liaison de fait sans toucher F-QUALITY : faire pointer le fact_id de U vers la reussite agregee par intention (7/10 = 0,7) au lieu de la moyenne des R (2/3) — le piege explicite de l.107 — ou arrondir V a 0,813 tout en annoncant quatre decimales. Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit dans le rapport les valeurs exactes enoncees en l.107 (0,8125 et 2/3) et interdit la substitution par 0,7, donc numeric."
     },
     {
       "id": "T36.A2",
@@ -3052,8 +3275,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Fausser la regle sans toucher F-COST-RATIO : faire afficher au rapport la moyenne des ratios (0,7, explicitement declaree incorrecte en l.113) au lieu du ratio des moyennes 5/6, ou diviser les moyennes par n-1 (A=100, B=120 au lieu de 50 et 60). Le cas doit devenir ROUGE.",
+      "note": "Le cas reproduit les valeurs exactes enoncees en l.113 (moyennes 50 et 60, ratio 5/6), donc numeric."
     },
     {
       "id": "T36.A3",
@@ -3064,8 +3288,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le module de construction des series de graphiques pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : ajouter un filtre de survivants (ne garder que les trajectoires a attempt_outcome SUCCESS) de sorte que la trajectoire echouee disparaisse des donnees sous-jacentes des courbes.",
+      "note": "Le cas affirme la PRESENCE de la trajectoire echouee dans les donnees des courbes produites par le moteur de rapport : assertion positive sur un contenu produit, donc behaviour."
     },
     {
       "id": "T36.A4",
@@ -3076,8 +3301,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le generateur de graphiques pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : retirer un champ de metadonnees obligatoire de chaque graphique (par exemple la nature des bandes, ou les unites), la comparaison portant sur les donnees et metadonnees et non sur un hash de pixels (l.475).",
+      "note": "Le cas affirme la PRESENCE de quatre metadonnees sur chaque graphique produit ; ces metadonnees sont generees en executant le moteur de rapport, donc behaviour et non artifact."
     },
     {
       "id": "T36.A5",
@@ -3088,8 +3314,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Stuber le moteur de rapport pour qu'il LEVE : le cas doit devenir ROUGE. Controle plus fin : filtrer a l'assemblage les lignes de statut UNKNOWN et les trous de donnees, de sorte que le cout non reconcilie et les donnees manquantes n'apparaissent plus dans le rapport.",
+      "note": "Le cas affirme la PRESENCE, dans le rapport rendu, du cout non reconcilie et des donnees manquantes : assertion positive sur un contenu produit, donc behaviour."
     },
     {
       "id": "T36.A6",
@@ -3100,8 +3327,9 @@
         "python312"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Rendre la garde narrative PERMISSIVE : supprimer le controle qui exige qu'un chiffre d'une note soit rattache a un fact_id calcule (l.471), de sorte qu'une note narrative portant un chiffre contradictoire soit rendue telle quelle dans le rapport certifie. Le cas doit devenir ROUGE. Un stub qui leve le garderait vert a tort.",
+      "note": "Le cas affirme qu'une note narrative contradictoire est REFUSEE ou supprimee : l'assertion decisive est le rejet ; la clause « sans changer le tableau calcule » est une garantie secondaire d'invariance."
     },
     {
       "id": "T37.A1",
@@ -3117,8 +3345,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter l'artefact lui-meme : retirer du catalogue de points d'injection livre par T37 le scenario, ou l'attente explicite, d'un point obligatoire (p.ex. 'bail expire' ou 'pendant checkpoint') : exiger le ROUGE.",
+      "note": "Le cas inspecte la completude du catalogue de points d'injection face aux points obligatoires enonces par le cahier, sans executer de code metier."
     },
     {
       "id": "T37.A2",
@@ -3134,8 +3363,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre le doublon PRESENT : desactiver la cle d'idempotence de la reprise (ou la deduplication cote publication) pour que le rejeu apres injection publie une seconde fois le meme effet local : exiger le ROUGE.",
+      "note": "Le cas affirme que le rejeu des effets locaux controles ne produit AUCUNE double publication ; c'est la non-presence d'une seconde publication qui est decisive, et un stub qui ne publie rien la satisferait a tort."
     },
     {
       "id": "T37.A3",
@@ -3151,8 +3381,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de decision d'etat sur reponse fournisseur ambigue (renvoyer undefined, ou retomber sur zero/aucun effet, au lieu de UNKNOWN ou d'une reconciliation prouvee) : le cas doit devenir ROUGE.",
+      "note": "Le cas exerce le traitement d'une reponse distante ambigue et observe l'etat produit : UNKNOWN ou reconciliation prouvee, jamais zero."
     },
     {
       "id": "T37.A4",
@@ -3168,8 +3399,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre les choses PRESENTES : rendre le nettoyage no-op pour une ancienne copie d'evaluation (elle subsiste apres le balayage) et ecrire la sentinelle dans un emplacement accessible au developpeur : exiger le ROUGE.",
+      "note": "Le cas affirme que les anciennes copies d'evaluation ne sont plus presentes et qu'aucune sentinelle n'est divulguee : double assertion de non-presence."
     },
     {
       "id": "T37.A5",
@@ -3185,8 +3417,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la reconciliation des recus PERMISSIVE : ne comparer que le nombre total de recus (ou dedupliquer silencieusement) au lieu des identites recu par recu, pour qu'un recu volontairement perdu et un recu duplique ne soient plus signales : exiger le ROUGE. Un stub qui leve ferait faussement 'detecter'.",
+      "note": "Le cas affirme que pertes et doublons de recus sont DETECTES, c'est-a-dire rejetes par le controle de reconciliation : l'assertion decisive porte sur l'echec signale, pas sur une valeur de succes."
     },
     {
       "id": "T37.A6",
@@ -3202,8 +3435,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre le retrait PRESENT : faire supprimer (ou marquer 'sautee') une periode du calendrier lors du second arret/reprise : exiger le ROUGE.",
+      "note": "Le cas affirme qu'un arret repete ne retire AUCUNE periode du calendrier : assertion de non-presence d'une perte, verte a tort sous un stub qui ne planifie rien."
     },
     {
       "id": "T37.A7",
@@ -3219,8 +3453,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export d'ecriture du journal de reprise (omettre les entrees d'un point d'injection, ou regenerer un identifiant aleatoire a chaque reprise) : le journal cesse d'etre complet et a identites stables, le cas doit devenir ROUGE.",
+      "note": "Le cas exerce le runner de fault tests puis observe le journal qu'il produit : completude et stabilite des identites sont des valeurs produites, pas un simple fichier statique."
     },
     {
       "id": "T38.A1",
@@ -3237,8 +3472,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle d'expansion sans toucher golden-six : produire 3 periodes par trajectoire (18 periodes au lieu de 24) — exiger le rouge",
+      "note": "Le cas reproduit les comptes exacts du cahier pour la fixture golden-six : six trajectoires et 24 periodes."
     },
     {
       "id": "T38.A2",
@@ -3255,8 +3491,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser la regle de comptage sans toucher la fixture : omettre le dernier appel du decompte des appels regles (47 au lieu de 48) — exiger le rouge",
+      "note": "Le cas reproduit le compte exact du cahier : 48 appels F-MONEY recus et regles (4 periodes x 2 appels x 6 trajectoires)."
     },
     {
       "id": "T38.A3",
@@ -3273,8 +3510,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser le tarif sans toucher la fixture : 339 micro-USD par appel au lieu de 340, soit 2712 par trajectoire et 16272 au total — exiger le rouge",
+      "note": "Le cas reproduit les montants exacts enonces par le cahier : 2720 micro-USD par trajectoire et 16320 au total."
     },
     {
       "id": "T38.A4",
@@ -3291,8 +3529,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser un denominateur sans toucher la fixture : inclure dans Q une exigence non encore due (Q < 1), ou compter une exigence remplacee comme regression ouverte (G = 1) — exiger le rouge",
+      "note": "Le cas reproduit les valeurs exactes annoncees pour golden-six : Q=R=V=U=1 et G=0."
     },
     {
       "id": "T38.A5",
@@ -3309,8 +3548,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire dependre l'agregation du nombre de workers (totaux partitionnes par worker et jamais fusionnes) : les executions a 2 et 6 workers divergent de celle a 1 worker — exiger le rouge",
+      "note": "Le cas affirme des valeurs produites — resultats metier, comptes et verdicts — et leur identite a 1, 2 et 6 workers."
     },
     {
       "id": "T38.A6",
@@ -3327,8 +3567,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire jeter les intentions emises pendant l'indisponibilite forcee au lieu de les enregistrer : le compte d'intentions chute et R cesse de baisser — exiger le rouge",
+      "note": "Le cas affirme deux valeurs produites par l'execution : toutes les intentions conservees malgre l'indisponibilite, et une baisse de R."
     },
     {
       "id": "T38.A7",
@@ -3345,8 +3586,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire remonter l'echec F-FAILURE comme erreur moteur qui interrompt l'execution (ou l'avaler sans enregistrer d'echec produit) : exiger le rouge",
+      "note": "Le cas affirme un resultat produit : un echec PRODUIT enregistre a l'interieur d'une execution MOTEUR qui, elle, se termine normalement."
     },
     {
       "id": "T38.A8",
@@ -3363,8 +3605,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre l'inference PERMISSIVE : traiter les six trajectoires du parent unique comme six projets independants et produire une estimation interprojets — exiger le rouge",
+      "note": "Le cas affirme que l'inference interprojets est REFUSEE sur une fixture a un seul parent, malgre ses six trajectoires."
     },
     {
       "id": "T39.A1",
@@ -3380,8 +3623,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "Sans toucher le manifeste modèle (six projets sources, douze périodes, deux configurations, trois répétitions), fausser la règle de cardinalité de la compilation par un off-by-one : générer `périodes-1` périodes par trajectoire (ou omettre une répétition dans le produit) ; on obtient 396 périodes au lieu de 432, ou 30 trajectoires au lieu de 36, et le cas doit passer au ROUGE.",
+      "note": "Le cas reproduit des comptes exacts énoncés par le cahier ligne 501 — 36 trajectoires et 432 périodes compilées — donc numeric."
     },
     {
       "id": "T39.A2",
@@ -3397,8 +3641,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "Inverse : rendre le préflight PERMISSIF — retirer le budget (et l'exposition) de l'ensemble des prérequis contrôlés, de sorte qu'une configuration amputée soit déclarée prête ou ne signale qu'une partie des manques ; le cas, qui exige le refus AVEC la liste complète des cinq prérequis absents, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'une configuration à laquelle manquent modèle, prix, corpus, exposition ou budget est REJETÉE avant tout appel, la liste complète étant le contenu du rejet, donc refusal."
     },
     {
       "id": "T39.A3",
@@ -3414,8 +3659,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Fausser la règle de regroupement du compilateur : dériver `parent_project_id` de l'identifiant d'instance du clone au lieu du projet source, de sorte que les six clones déclarent six parents statistiques ; le cas, qui exige un unique parent et le refus de les compter comme six projets indépendants, doit passer au ROUGE.",
+      "note": "Le cas affirme une valeur produite par la compilation — six clones d'un même scénario conservent un seul parent statistique — donc behaviour ; « un seul » est ici un invariant de regroupement, non une quantité calculée épinglée par le cahier."
     },
     {
       "id": "T39.A4",
@@ -3431,8 +3677,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Fausser l'estampillage du profil recorded : faire poser `execution_mode=live` / `cost_origin` réel (ou omettre ces champs) sur les résultats produits par le passage recorded du pilote ; le cas, qui exige un passage complet de la mécanique avec ses labels fictifs, doit passer au ROUGE. Variante équivalente : stuber l'adaptateur d'agent scripté par un throw, la mécanique ne tourne plus.",
+      "note": "Le cas affirme une valeur produite en cas de succès — le pilote tourne en profil recorded et ses résultats portent les labels fictifs de §B — donc behaviour."
     },
     {
       "id": "T39.A5",
@@ -3448,8 +3695,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "Rétablir un filtre de survivants dans l'export de résultats : écarter les trajectoires dont l'`attempt_outcome` vaut `FAILED` ; la campagne live autorisée dont tous les candidats échouent ne laisse alors aucun résultat et le cas doit passer au ROUGE. Second volet : rendre le contrôle de plafond permissif (ne pas comparer la réservation au plafond configuré) pour casser l'assertion de respect des plafonds.",
+      "note": "Le cas affirme une valeur produite — une campagne live autorisée laisse des résultats même quand tous les candidats échouent, tout en respectant ses plafonds — donc behaviour, l'assertion décisive portant sur la présence des résultats."
     },
     {
       "id": "T39.A6",
@@ -3465,8 +3713,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "Rendre le lancement PRÉSENT : faire appeler par la commande de préflight le lanceur de campagne en fin d'exécution (démarrage du premier workflow / `bench campaign`) ; l'espion du cas observe alors une campagne démarrée et le cas, qui exige zéro lancement, doit passer au ROUGE.",
+      "note": "Le cas affirme qu'un lancement de campagne N'EST PAS déclenché par le préflight, donc absence."
     },
     {
       "id": "T40.A1",
@@ -3479,8 +3728,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "numeric",
+      "perturbation": "fausser le produit du plan sans toucher le plan : compter 4 repetitions au lieu de 5 (720 trajectoires) ou 23 periodes par trajectoire (20700 au lieu de 21600) — exiger le rouge",
+      "note": "Le cas reproduit les comptes exacts du cahier : 900 trajectoires et 21600 periodes pour 30x2x3x5x1."
     },
     {
       "id": "T40.A2",
@@ -3493,8 +3743,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre l'appel PRESENT : inserer un appel au fournisseur de modele dans le chemin de validation du plan, que le compteur/espion doit voir — exiger le rouge",
+      "note": "Le cas affirme qu'AUCUN appel modele n'a lieu pendant la validation du plan (zero appel)."
     },
     {
       "id": "T40.A3",
@@ -3507,8 +3758,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "faire perdre ou dupliquer une completion dans le run borne (acquitter avant persistance du resultat, ou rejouer un id de workflow) : moins de 100 resultats, ou un doublon — exiger le rouge",
+      "note": "Le cas affirme un resultat produit par un run borne de 100 workflows courts a Activities factices : 100 resultats, sans doublon ; le 100 est la borne du test, pas une valeur calculee enoncee par le cahier, d'ou behaviour plutot que numeric."
     },
     {
       "id": "T40.A4",
@@ -3521,8 +3773,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre l'etat interdit PRESENT : porter le semaphore d'admission a 11 (ou supprimer l'acquisition), de sorte que la barriere observe 11 jobs actifs simultanement — exiger le rouge",
+      "note": "Le cas affirme qu'un onzieme job actif simultane N'EXISTE JAMAIS ; une implementation qui n'execute rien laisserait ce cas vert, d'ou absence plutot que behaviour."
     },
     {
       "id": "T40.A5",
@@ -3535,8 +3788,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas persister la file a l'arret (vider les jobs en vol au redemarrage) : la reprise rend moins de resultats qu'il n'y a eu de jobs soumis — exiger le rouge",
+      "note": "Le cas affirme un resultat produit : apres arret puis reprise du scheduler, l'ensemble des jobs soumis rend toujours ses resultats."
     },
     {
       "id": "T40.A6",
@@ -3549,8 +3803,9 @@
         "temporal-timeskip"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre le contenu PRESENT : inliner les octets du gros artefact dans l'historique du workflow au lieu de n'y mettre que sa reference — exiger le rouge",
+      "note": "Le cas affirme que le contenu des gros artefacts N'EST PAS present dans les historiques, qui n'en portent que les references."
     },
     {
       "id": "T41.A1",
@@ -3566,8 +3821,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber les sondes de capacite de `bench doctor` (rapport vide, ou toutes les dependances declarees presentes) alors qu'une dependance est reellement retiree : l'absence n'est plus nommee, le cas doit devenir rouge",
+      "note": "Le cas exerce `bench doctor` avec des dependances retirees et observe le rapport produit, qui doit nommer chaque dependance absente."
     },
     {
       "id": "T41.A2",
@@ -3583,8 +3839,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : faire lire une credential reelle par un gate recorded (exiger `ANTHROPIC_API_KEY` sur le chemin recorded) - le cas doit devenir rouge ; sous un simple stub, la non-necessite resterait trivialement vraie",
+      "note": "Le cas affirme une NON-presence : aucun gate recorded n'exige de cle reelle."
     },
     {
       "id": "T41.A3",
@@ -3600,8 +3857,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la CLI PERMISSIVE : laisser l'option live demarrer sans modele, sans budget et sans credential jusqu'a l'etape d'emission - le cas doit devenir rouge ; un stub qui leve ferait echouer la commande et laisserait le cas vert",
+      "note": "L'assertion decisive est un ECHEC avant emission lorsque modele, budget ou credential manquent."
     },
     {
       "id": "T41.A4",
@@ -3617,8 +3875,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : faire supprimer par `campaign cancel` les artefacts de la campagne annulee et ceux d'une campagne voisine - le cas doit devenir rouge ; une annulation stubee qui ne fait rien laisserait les artefacts en place et le cas vert",
+      "note": "Le cas affirme l'ABSENCE d'effet destructeur de l'annulation sur les artefacts, les siens comme ceux d'une autre campagne."
     },
     {
       "id": "T41.A5",
@@ -3634,8 +3893,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre la CI PERMISSIVE : faire sortir 0 au job de qualification alors qu'un cas d'acceptation echoue - le cas doit devenir rouge ; un stub qui leve ferait echouer la CI et laisserait le cas vert",
+      "note": "L'assertion decisive est un code de sortie non nul de la CI en presence d'un echec d'acceptation."
     },
     {
       "id": "T41.A6",
@@ -3651,8 +3911,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : retirer le filtre d'identite de test du nettoyage (selecteur elargi) pour qu'une ressource voisine sans identite de test soit supprimee - le cas doit devenir rouge ; un nettoyage stube qui ne supprime rien le laisserait vert",
+      "note": "Le cas affirme une NON-atteinte : aucune ressource depourvue de l'identite de test n'est touchee par le nettoyage."
     },
     {
       "id": "T41.A7",
@@ -3668,8 +3929,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter l'artefact : ajouter (ou retirer) une commande dans la documentation / le help fige sans toucher au parseur - la correspondance documentee/parsee doit devenir rouge ; aucun export metier n'est en jeu, stuber n'y changerait rien",
+      "note": "Le cas inspecte la liste des commandes documentees et figees dans le help face aux commandes reellement parsees, sans executer de code metier."
     },
     {
       "id": "T42.A1",
@@ -3685,8 +3947,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter l'archive d'attestations : retirer (ou perimer en changeant son subject_commit) la preuve courante d'une des 42 taches, sans toucher aucun export metier : rouge exige",
+      "note": "Le cas inspecte une propriete du registre de preuves (chaque tache T00-T41 possede une attestation courante au commit sujet) sans exercer d'export metier, donc artifact : stuber les exports n'y changerait rien."
     },
     {
       "id": "T42.A2",
@@ -3702,8 +3965,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de rejeu du pack golden-six (renvoyer un rapport vide ou sans les trajectoires attendues) depuis l'installation vierge : rouge exige",
+      "note": "Le cas affirme un resultat produit en cas de succes (le pack golden-six se rejoue depuis une installation vierge), donc behaviour."
     },
     {
       "id": "T42.A3",
@@ -3719,8 +3983,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "refusal",
+      "perturbation": "rendre les gates PERMISSIFS : elargir la tolerance du gate cout, neutraliser la garde de revelation, accepter le denominateur R altere, l'appariement statistique altere et l'etat UNKNOWN altere, de sorte qu'au moins un mutant survive au lieu d'echouer, rouge exige ; un stub qui leve ferait echouer tous les mutants et garderait ce cas vert a tort",
+      "note": "Le cas affirme que cinq versions volontairement alterees ECHOUENT chacune a leur gate, donc refusal et perturbation inverse."
     },
     {
       "id": "T42.A4",
@@ -3736,8 +4001,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber les exports consommes par la reconstruction (renvoyer des agregats nuls ou decales) alors que le rapport de reference reste celui de la fixture : les valeurs reconstruites ne coincident plus, rouge exige",
+      "note": "Le cas affirme une valeur produite : reconstruire le rapport depuis les seuls exports redonne les memes valeurs que le rapport publie, donc behaviour."
     },
     {
       "id": "T42.A5",
@@ -3753,8 +4019,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'export de verification de checkpoints (renvoyer un ensemble vide, donc aucun checkpoint de l'echantillon fixe reellement verifie) dans le processus neuf : rouge exige",
+      "note": "Le cas affirme un resultat produit en cas de succes (un echantillon fixe de checkpoints se verifie sur un processus neuf), donc behaviour."
     },
     {
       "id": "T42.A6",
@@ -3770,8 +4037,9 @@
         "temporal"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "faire emettre l'attestation LIVE_VALIDATED alors qu'aucun recu live n'existe (drapeau live par defaut a vrai, ou acceptation d'un ensemble de recus vide) : l'attestation interdite devient PRESENTE, rouge exige",
+      "note": "Le cas affirme qu'AUCUNE attestation LIVE_VALIDATED n'existe sans recu live : sous un export stube l'attestation serait absente et le cas vert, donc absence."
     },
     {
       "id": "T43.A1",
@@ -3781,8 +4049,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter l'artefact lui-meme : faire pointer une reference d'un document livre vers un chemin inexistant (renommer le fichier cible, ou modifier le lien dans le guide operatoire) : exiger le ROUGE.",
+      "note": "Le cas inspecte les references documentaires du paquet et leur existence sur disque, sans executer de code metier."
     },
     {
       "id": "T43.A2",
@@ -3792,8 +4061,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter le manifeste des taches : retirer d'une entree de tache sa commande de verification (ou ses dependances, ou son pointeur de preuve) : exiger le ROUGE.",
+      "note": "Le cas inspecte le manifeste des taches et la documentation pour verifier que dependances, commande et preuve sont identifiables par tache : propriete d'une configuration, sans appel d'export metier."
     },
     {
       "id": "T43.A3",
@@ -3803,8 +4073,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la chose PRESENTE : inserer un TODO non resolu sur un chemin source obligatoire et un test.skip / it.skip dans une suite d'acceptation : exiger le ROUGE.",
+      "note": "Le cas affirme qu'AUCUN TODO non resolu sur chemin obligatoire ni test saute n'est present dans les suites d'acceptation."
     },
     {
       "id": "T43.A4",
@@ -3814,8 +4085,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter le resume final livre : en retirer l'une des trois mentions (p.ex. HANDOFF_COMPLETE), ou y inscrire LIVE_VALIDATED alors qu'aucun recu live ne figure dans le paquet : exiger le ROUGE.",
+      "note": "Le cas inspecte le contenu du resume final du paquet de passation (trois mentions plus statut live exact, croise avec les recus presents dans le paquet), sans executer de code metier."
     },
     {
       "id": "T43.A5",
@@ -3825,8 +4097,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "artifact",
+      "perturbation": "muter l'artefact lui-meme : incrementer la version declaree dans le manifeste de livraison, ou y inscrire un autre sha de commit, sans toucher aux preuves enregistrees : exiger le ROUGE.",
+      "note": "Le cas inspecte la correspondance entre versions et commit de livraison declares et les preuves stockees : propriete de fichiers et de metadonnees, sans appel d'export metier."
     },
     {
       "id": "T43.A6",
@@ -3836,8 +4109,9 @@
         "node22"
       ],
       "blockable": false,
-      "proof_kind": "UNCLASSIFIED",
-      "perturbation": null
+      "proof_kind": "absence",
+      "perturbation": "rendre la dependance PRESENTE : faire lire au chemin de recalcul une cle API (ou declencher un appel reseau, ou exiger une valeur qui n'existe pas dans le paquet) pour que la reprise du calcul en salle blanche, sans credential ni etat exterieur, echoue : exiger le ROUGE.",
+      "note": "Le cas affirme que refaire le recalcul numerique depuis le seul paquet ne necessite NI cle API NI memoire de la conversation : c'est l'absence de toute dependance exterieure qui est affirmee, et un stub qui ne calcule rien n'en consommerait aucune."
     }
   ],
   "proof_kinds": {
@@ -3872,5 +4146,5 @@
       "why": "FAIL-CLOSED : une tache dont un cas requis est UNCLASSIFIED ne peut pas etre attestee. Deviner 273 classifications serait exactement le genre d'affirmation non fondee que ce socle existe pour empecher."
     }
   },
-  "classified_cases": 6
+  "classified_cases": 278
 }

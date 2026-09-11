@@ -108,6 +108,38 @@ const AUDIT = {
   required: ['blocking', 'violations', 'detail'],
 }
 
+/**
+ * LES AUDITEURS — un angle ET un modele chacun.
+ *
+ * POURQUOI FABLE. Le plan promettait de « decorreler » les auditeurs par le
+ * modele. Tant que tout heritait du modele de la session, les trois auditeurs
+ * ET l'implementeur etaient le MEME modele : un relecteur qui partage les
+ * angles morts de ce qu'il relit, c'est-a-dire le biais coder-reviewer que ce
+ * depot existe pour casser (ADR-001).
+ *
+ * Fable 5.1 n'est pas un palier inferieur : c'est le modele le plus capable
+ * d'Anthropic. Sous block-only, un auditeur plus faible serait nuisible — il ne
+ * peut que RATER un blocage legitime, jamais en inventer un utile. Fable est
+ * donc le seul choix qui decorrele SANS affaiblir. Les tarifs vont dans le meme
+ * sens pour ce role : 10$/50$ par MTok contre 5$/25$, mais les lectures de
+ * cache sont a 0,25$/MTok contre 0,50$ pour Opus 5 — et un auditeur relit sans
+ * cesse le meme diff, donc l'essentiel de ses tokens sont des lectures.
+ *
+ * La correlation ENTRE les trois reste, et c'est assume : elle est traitee par
+ * la diversite des angles, qui les fait chercher des choses differentes.
+ *
+ * RISQUE CONNU, et c'est pour lui que l'etage est fail-closed ci-dessous :
+ * Fable 5.1 rejette `tool_choice` force (400), or `schema:` force un appel a
+ * l'outil de sortie structuree. Si cette combinaison ne passe pas, les trois
+ * agents rendent `null` — et il ne faut SURTOUT pas que ca ressemble a un audit
+ * clair.
+ */
+const AUDITORS = [
+  { lens: 'provenance', model: 'fable' },
+  { lens: 'partition', model: 'fable' },
+  { lens: 'vacuite', model: 'fable' },
+]
+
 /* ──────────────────────────────────────────────────────────────── le socle */
 
 /**
@@ -494,17 +526,48 @@ const results = await pipeline(
     prev?.ok === false
       ? null
       : parallel(
-          ['provenance', 'partition', 'vacuite'].map((lens) => () =>
-            agent(auditPrompt(T, lens), { label: `audit:${T}:${lens}`, phase: 'Audit', schema: AUDIT })
+          AUDITORS.map((a) => () =>
+            agent(auditPrompt(T, a.lens), {
+              label: `audit:${T}:${a.lens}@${a.model}`,
+              phase: 'Audit',
+              schema: AUDIT,
+              model: a.model,
+            })
           )
         ).then((votes) => {
-          const blocking = votes.filter(Boolean).filter((v) => v.blocking)
-          // Block-only : le silence n'accorde rien. Un blocage suffit a arreter
-          // la tache — aucune majorite n'est requise pour bloquer, et aucune
-          // unanimite n'accorde quoi que ce soit.
+          const who = AUDITORS.map((a) => `${a.lens}@${a.model}`).join(', ')
+          // FAIL-CLOSED, ET C'EST LE POINT DE TOUT L'ETAGE.
+          //
+          // `parallel` resout un agent mort a `null`. L'ancien code faisait
+          // `votes.filter(Boolean)` : un auditeur qui PLANTE devenait donc
+          // indistinguable d'un auditeur qui n'a rien trouve. Sous block-only
+          // — « le silence n'accorde rien » — c'est un faux PASS, et le pire
+          // possible : trois auditeurs morts rendaient AUDIT_CLEAR en
+          // annoncant « 0 auditeurs, aucun blocage citable ».
+          //
+          // Un audit ABSENT n'est pas un audit CLAIR. On exige les trois.
+          const dead = AUDITORS.filter((_, i) => !votes[i])
+          if (dead.length) {
+            log(`AUDIT INCOMPLET ${T} : ${dead.map((a) => `${a.lens}@${a.model}`).join(', ')} sans verdict`)
+            return {
+              ok: false,
+              state: 'AUDIT_INCOMPLETE',
+              detail:
+                `auditeur(s) sans verdict : ${dead.map((a) => `${a.lens}@${a.model}`).join(', ')}. ` +
+                `Un audit absent n'est pas un audit clair. Cause probable si le modele est fable : ` +
+                `Fable 5.1 rejette tool_choice force (400) et \`schema:\` force l'outil de sortie structuree.`,
+              auditors: who,
+              pushed: true,
+            }
+          }
+          // Block-only : un blocage suffit a arreter la tache — aucune majorite
+          // n'est requise pour bloquer, et aucune unanimite n'accorde quoi que
+          // ce soit. `who` part dans l'issue pour que la correlation des
+          // auditeurs reste VISIBLE, comme le plan l'exigeait.
+          const blocking = votes.filter((v) => v.blocking)
           return blocking.length
-            ? { ok: false, state: 'AUDIT_BLOCKED', detail: blocking.flatMap((v) => v.violations).join(' | '), pushed: true }
-            : { ok: true, state: 'AUDIT_CLEAR', detail: `${votes.filter(Boolean).length} auditeurs, aucun blocage citable`, pushed: true }
+            ? { ok: false, state: 'AUDIT_BLOCKED', detail: blocking.flatMap((v) => v.violations).join(' | '), auditors: who, pushed: true }
+            : { ok: true, state: 'AUDIT_CLEAR', detail: `${votes.length} auditeurs (${who}), aucun blocage citable`, auditors: who, pushed: true }
         }),
   (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME }))
 )

@@ -1,0 +1,84 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      121
+    ]
+  },
+  "verbatim": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "donnees": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "candidat": {
+      "valeur": "sans déploiement sur les quatre périodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "condition_Q_R_a_zero": {
+      "valeur": "si les exigences et usages y sont présents",
+      "cahier_line": 121
+    },
+    "couts": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "cahier_line": 121
+    }
+  },
+  "regles": [
+    {
+      "enonce": "Un arrêt de calcul après P2 ne supprime pas P3 et P4.",
+      "cahier_line": 121
+    },
+    {
+      "enonce": "Aucune facture imaginaire n'y est ajoutée.",
+      "cahier_line": 121
+    }
+  ],
+  "non_specifie": [
+    "§F ne donne pas l'unite des couts [100,50,0,0] dans cette fixture.",
+    "§F n'enumere pas les exigences et usages presents : il en fait la condition de Q=0 et R=0."
+  ],
+  "ambiguites": []
+}

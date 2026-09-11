@@ -1,0 +1,119 @@
+{
+  "schema": "bench.fixture.comparaison/1",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "verdict": "FIXTURES_DISCORDANTES",
+  "scelle": false,
+  "acceptance_reference_materialisee": false,
+  "docs_FROZEN_ROOTS_ecrit": false,
+  "raison": "Les deux transcriptions independantes du §F divergent sur des valeurs, et leurs champs `ambiguites` ne sont pas vides. Le mandat de scellement interdit d'arbitrer : le gel rendrait l'erreur permanente.",
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [101, 129]
+  },
+  "fixtures_comparees": [
+    "F-MONEY", "F-BUDGET", "F-QUALITY", "F-COST-RATIO", "F-CLUSTERS",
+    "F-BOOTSTRAP", "F-RESERVATION", "F-FAILURE", "F-POWER", "F-REGRESSION"
+  ],
+  "nombre_de_fixtures": 10,
+  "nombre_scelle": 0,
+  "concordances_verifiees": {
+    "commentaire": "Tous les nombres litteraux communs aux deux transcriptions coincident. Les ecarts d'encodage (A: {num,den} ; B: chaine '5/6') ont ete normalises avant comparaison et ne sont PAS comptes comme divergences.",
+    "exemples": [
+      "F-MONEY 2/1/5, 100/40/20, 340, 680",
+      "F-BUDGET 1000, 600, 340/0/660, 600->60, 661 refuse ->660, 600 ambigu ->400",
+      "F-QUALITY Q=[1,1/2,3/4,1], V=13/16=0.8125, R=[1,1/2,null,1/2], offertes [4,4,0,2], reussies [4,2,0,1], U=2/3, exposition 3/4, reussite agregee 7/10",
+      "F-COST-RATIO [10,90]/[20,100], 50/60, 5/6, contre-valeur 0.7",
+      "F-CLUSTERS P1 10/20 x10, P2 90/100 x1, moyennes 50/60",
+      "F-BOOTSTRAP tirages [P1,P1][P1,P2][P2,P1][P2,P2], ratios [1/2,5/6,5/6,9/10], intervalle [1/2,9/10]",
+      "F-RESERVATION horloges P1 2030-01-01T00:00:00Z, P2 2030-01-01T01:00:00Z, P3 2030-01-02T11:00:00Z, P4 2030-01-02T13:00:00Z ; frontiere 2030-01-02T12:00:00Z et 12:00:00.001Z ; S1 capacite 1 debutant 2030-01-03T12:00:00Z",
+      "F-FAILURE K=4, Q=[0,0,0,0], R=[0,0,0,0], couts [100,50,0,0], total 150",
+      "F-POWER B=(100,1,1) ; A=(80,1,1)/(100,1,1)/(80,0.96,1)/(80,0.99,0.99) ; ratios 0.8/1/0.8/0.8 ; dV 0/0/-0.04/-0.01 ; dU 0/0/0/-0.01 ; T34 [vrai,faux,faux,vrai]",
+      "F-REGRESSION cancel@1 P2 -> cancel@2 P3 sans regression ; isolation@1 P3 satisfaite, P4 violee -> regression"
+    ]
+  },
+  "divergences_de_valeur": [
+    {
+      "id": "DIV-1",
+      "fixture": "F-FAILURE",
+      "champ": "unite des couts [100,50,0,0]",
+      "A": "ABSENTE. A l'inscrit en clair dans `non_specifie` : \"§F ne donne pas l'unite des couts [100,50,0,0] dans cette fixture.\"",
+      "B": "\"micro-USD\", portee par `valeurs.couts_par_periode.unite`, attribuee a `cahier_line: 121`.",
+      "cahier_line": 121,
+      "observation_executee": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'  ->  0",
+      "portee": "La chaine 'micro-USD' n'apparait qu'a la ligne 103 (F-MONEY). L'attribution de B a la ligne 121 n'est pas soutenue par le texte de cette ligne.",
+      "consequence_si_gele": "Sceller la lecture de B fige une unite non ecrite a sa source declaree ; sceller celle de A laisse l'unite ouverte. Les deux ne peuvent pas etre vraies a la fois."
+    },
+    {
+      "id": "DIV-2",
+      "fixture": "F-REGRESSION",
+      "champ": "nombre_de_regressions_attendu",
+      "A": "1, portee par `donnees.nombre_de_regressions_attendu`, attribuee a `cahier_line: 129`.",
+      "B": "ABSENTE, et refusee explicitement par AMB-REGRESSION-4 : \"Aucune valeur chiffree de G ou G_new n'est donnee pour F-REGRESSION ; le cahier dit seulement 'ne produit pas de regression' et 'en produit une'. Publier G=1 en P4 serait un calcul du transcripteur, pas une valeur du cahier.\"",
+      "cahier_line": 129,
+      "portee": "Contradiction frontale sur le statut d'un chiffre : valeur du cahier pour A, calcul du transcripteur pour B.",
+      "consequence_si_gele": "Un cas d'acceptation qui asserte 'exactement 1 regression' devient soit un attendu du cahier, soit une invention scellee."
+    },
+    {
+      "id": "DIV-3",
+      "fixture": "F-QUALITY",
+      "champ": "poids des exigences en P2, P3 et P4 (entrees exactes de Q)",
+      "A": "Poids propages a toutes les periodes : A@1 poids 1 en P2 ; B@1 poids 1 en P2 et P3 ; C@1 poids 2 en P2, P3 et P4 ; A@2 poids 1 en P4.",
+      "B": "Champs `poids` volontairement absents la ou la ligne 109 ne les redonne pas (A@1 en P2, B@1 en P2/P3, C@1 en P3/P4, A@2 en P4), et AMB-QUALITY-1 : \"La ligne 109 ne redonne pas les poids de B@1 et C@1 en P3 et P4. Q3=3/4 n'est obtenu que si B@1 conserve le poids 1 et C@1 le poids 2 ; d'autres couples de poids donnent aussi 3/4 (par ex. B=3, C=8).\"",
+      "cahier_line": 109,
+      "portee": "La ligne 109 n'ecrit 'poids 1 chacun' que pour A@1/B@1 en P1, 'poids 2' pour C@1 a son introduction en P2, 'poids 1' pour A@2 en P3. La constance des poids d'une periode a l'autre est une hypothese, pas une valeur ecrite.",
+      "consequence_si_gele": "Sceller les poids de A fige une hypothese comme donnee de reference ; c'est exactement la valeur qu'un mutant de poids devrait pouvoir contester."
+    }
+  ],
+  "divergences_de_perimetre": [
+    {
+      "id": "DIV-4",
+      "fixture": "F-POWER",
+      "A": "\"§F n'enonce dans cette section ni valeur de puissance ni erreur standard.\" (non_specifie)",
+      "B": "`puissance` = 0.5 et `erreur_standard_monte_carlo` = 0.25, attribuees a `cahier_line: 463` (§H, cas T35.A1), avec AMB-POWER-6 qui reconnait que leur source est §H et non §F.",
+      "portee": "Les deux transcriptions sont d'accord sur le fait : ces nombres ne sont pas en §F. Elles divergent sur ce qu'une fixture du §F a le droit de porter."
+    },
+    {
+      "id": "DIV-5",
+      "fixture": "F-MONEY",
+      "A": "Absente. \"§F n'enonce aucun agregat par trajectoire ou par execution pour F-MONEY (ni 2720 ni 16320 n'y figurent).\"",
+      "B": "`valeur_de_corruption_temoin` = 341 (cahier_line 165), plus 2720 et 16320 en `derives_non_cahier` (lignes 491/493).",
+      "portee": "Meme desaccord de perimetre : B importe des valeurs de §H dans la fixture, A les exclut."
+    },
+    {
+      "id": "DIV-6",
+      "fixture": "F-CLUSTERS",
+      "A": "`lignes_totales` = 11 inscrit comme DONNEE, `cahier_line: 115`.",
+      "B": "11 inscrit en `derives_non_cahier` (\"10 + 1 = 11\"), corrobore par le texte 'onze lignes' de la ligne 115.",
+      "portee": "Accord sur le nombre, desaccord sur son statut (donnee transcrite vs valeur derivee)."
+    }
+  ],
+  "ambiguites_non_vides": {
+    "A": {
+      "fixtures_avec_ambiguites": ["F-QUALITY"],
+      "total": 1,
+      "detail": "test negatif de Q (ligne 109) : ni identifiant, ni version, ni poids, ni periode de revelation, ni echeance."
+    },
+    "B": {
+      "fixtures_avec_ambiguites": ["F-MONEY","F-BUDGET","F-QUALITY","F-COST-RATIO","F-CLUSTERS","F-BOOTSTRAP","F-RESERVATION","F-FAILURE","F-POWER","F-REGRESSION"],
+      "total": 47,
+      "detail": "B declare 47 points non tranches, dont AMB-QUALITY-2 qui recouvre exactement l'unique ambiguite de A."
+    },
+    "regle_appliquee": "Le mandat de scellement arrete l'etage sur toute `ambiguites` non vide, independamment des divergences de valeur."
+  },
+  "ce_qui_n_a_pas_ete_fait": [
+    "acceptance/reference/** n'a pas ete cree : aucune valeur n'a ete arbitree.",
+    "docs/FROZEN_ROOTS.json n'a pas ete ecrit : rien n'est gele.",
+    "Aucun commit dans la zone REFERENCE sur la branche source."
+  ],
+  "pour_debloquer": [
+    "DIV-1 : trancher si l'unite des couts de F-FAILURE est ecrite en §F (elle ne l'est pas a la ligne 121) ou doit rester non specifiee.",
+    "DIV-2 : trancher si 'en produit une' (ligne 129) est un attendu chiffre de la fixture ou un enonce qualitatif.",
+    "DIV-3 : trancher si les poids d'exigence sont constants d'une periode a l'autre, ou si la fixture doit porter uniquement les poids reecrits ligne 109.",
+    "DIV-4 a DIV-6 : fixer le perimetre d'une fixture §F (valeurs de §F seules, ou valeurs de §F plus celles que §H exige d'elles).",
+    "Ambiguites : chaque point non tranche demande soit une valeur du cahier, soit un SPEC_CONFLICT ouvert avant le gel."
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "A",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      115
+    ]
+  },
+  "verbatim": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "donnees": {
+    "projets": [
+      {
+        "id": "P1",
+        "cout_A": {
+          "valeur": 10,
+          "cahier_line": 115
+        },
+        "cout_B": {
+          "valeur": 20,
+          "cahier_line": 115
+        },
+        "repetitions": {
+          "valeur": 10,
+          "cahier_line": 115
+        },
+        "repetitions_identiques": {
+          "valeur": true,
+          "cahier_line": 115
+        }
+      },
+      {
+        "id": "P2",
+        "cout_A": {
+          "valeur": 90,
+          "cahier_line": 115
+        },
+        "cout_B": {
+          "valeur": 100,
+          "cahier_line": 115
+        },
+        "repetitions": {
+          "valeur": 1,
+          "cahier_line": 115
+        }
+      }
+    ],
+    "moyenne_interprojets_A": {
+      "valeur": 50,
+      "cahier_line": 115
+    },
+    "moyenne_interprojets_B": {
+      "valeur": 60,
+      "cahier_line": 115
+    },
+    "lignes_totales": {
+      "valeur": 11,
+      "cahier_line": 115
+    }
+  },
+  "regles": [
+    {
+      "enonce": "Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation.",
+      "statut": "INCORRECT",
+      "cahier_line": 115
+    },
+    {
+      "enonce": "Dupliquer toutes les répétitions de P1 laisse l'estimation ponctuelle inchangée.",
+      "cahier_line": 115
+    }
+  ],
+  "non_specifie": [
+    "§F ne donne pas la valeur de la moyenne naive sur onze lignes ; il se borne a la declarer non substituable."
+  ],
+  "ambiguites": []
+}

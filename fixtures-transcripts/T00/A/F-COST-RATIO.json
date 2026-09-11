@@ -1,0 +1,78 @@
+{
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "A",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      113
+    ]
+  },
+  "verbatim": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "donnees": {
+    "nombre_de_projets": {
+      "valeur": 2,
+      "cahier_line": 113
+    },
+    "poids_des_projets": {
+      "valeur": "égal",
+      "cahier_line": 113
+    },
+    "couts_A": {
+      "valeur": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "couts_B": {
+      "valeur": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "litteral_cahier": "5/6",
+      "rationnel": {
+        "num": 5,
+        "den": 6
+      },
+      "cahier_line": 113,
+      "decimal_exact": null,
+      "note": "developpement decimal infini"
+    }
+  },
+  "contre_valeurs": [
+    {
+      "enonce": "La moyenne des ratios serait 0.7 et constitue un résultat incorrect pour cette métrique.",
+      "litteral_cahier": "0.7",
+      "rationnel": {
+        "num": 7,
+        "den": 10
+      },
+      "statut": "INCORRECT",
+      "cahier_line": 113
+    }
+  ],
+  "non_specifie": [
+    "§F ne nomme pas les deux projets dans cette fixture ; il les designe par la position dans les listes de couts."
+  ],
+  "ambiguites": []
+}

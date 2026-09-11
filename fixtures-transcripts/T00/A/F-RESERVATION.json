@@ -1,0 +1,234 @@
+{
+  "fixture": "F-RESERVATION",
+  "transcripteur": "A",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      119,
+      123,
+      125
+    ]
+  },
+  "verbatim": {
+    "119": "`F-RESERVATION`. Horloge initiale `2030-01-01T00:00:00Z`. Acteurs A, B et C ; locataire initial `legacy`. Créneau S1 de capacité 1 débutant `2030-01-03T12:00:00Z`. P1 : réservation de A acceptée, rejeu de sa clé idempotente sans doublon, demande concurrente de B rejetée sans surbooking. P2 : B puis C en attente ; annulation de A ; B devient confirmé, C reste premier en attente. P3 : règle d’annulation au moins 24 heures avant le début, frontière incluse. Sur deux clones du même état, B peut annuler exactement le `2030-01-02T12:00:00Z`, et reçoit un refus métier à `12:00:00.001Z`. P4 : données existantes migrées vers `legacy`, création d’un locataire `other` ; ses acteurs ne peuvent ni lire ni modifier les réservations `legacy`. Évaluer l’état métier exporté, pas un nom de table imposé.",
+    "123": "Dans F-RESERVATION, les probes de frontière P3 sont des clones jetables ; elles ne modifient pas l’état persistant principal. À l’entrée de P4, celui-ci conserve A annulé, B confirmé et C en attente. Sur le clone où B annule exactement à 24 h, C devient confirmé. FIFO est ordonné par séquence d’admission explicite, pas par égalité possible de timestamps. Le contrat intertenant de la fixture renvoie `NOT_FOUND` sans donnée métier divulguée.",
+    "125": "Horloges principales de F-RESERVATION : P1 commence le 1er janvier 2030 à 00:00 UTC, P2 à 01:00, P3 le 2 janvier à 11:00, P4 à 13:00. Les probes privées P3 utilisent leurs heures propres et sont jetées. Les instants synthétiques accélèrent ici les périodes ; les résultats ne les présentent pas comme quatre mois réels."
+  },
+  "donnees": {
+    "horloge_initiale": {
+      "valeur": "2030-01-01T00:00:00Z",
+      "cahier_line": 119
+    },
+    "acteurs": {
+      "valeur": [
+        "A",
+        "B",
+        "C"
+      ],
+      "cahier_line": 119
+    },
+    "locataire_initial": {
+      "valeur": "legacy",
+      "cahier_line": 119
+    },
+    "creneau": {
+      "id": {
+        "valeur": "S1",
+        "cahier_line": 119
+      },
+      "capacite": {
+        "valeur": 1,
+        "cahier_line": 119
+      },
+      "debut": {
+        "valeur": "2030-01-03T12:00:00Z",
+        "cahier_line": 119
+      }
+    },
+    "horloges_principales": {
+      "cahier_line": 125,
+      "P1": {
+        "valeur": "2030-01-01T00:00:00Z",
+        "cahier_line": 125,
+        "litteral_cahier": "le 1er janvier 2030 à 00:00 UTC"
+      },
+      "P2": {
+        "valeur": "2030-01-01T01:00:00Z",
+        "cahier_line": 125,
+        "litteral_cahier": "à 01:00",
+        "lecture": "date omise : ellipse sur le 1er janvier 2030 enonce pour P1"
+      },
+      "P3": {
+        "valeur": "2030-01-02T11:00:00Z",
+        "cahier_line": 125,
+        "litteral_cahier": "le 2 janvier à 11:00"
+      },
+      "P4": {
+        "valeur": "2030-01-02T13:00:00Z",
+        "cahier_line": 125,
+        "litteral_cahier": "à 13:00",
+        "lecture": "date omise : ellipse sur le 2 janvier enonce pour P3, comme P2 herite du 1er janvier de P1"
+      }
+    },
+    "phases": [
+      {
+        "id": "P1",
+        "cahier_line": 119,
+        "faits": [
+          {
+            "enonce": "réservation de A acceptée",
+            "acteur": "A",
+            "resultat": "acceptée"
+          },
+          {
+            "enonce": "rejeu de sa clé idempotente sans doublon",
+            "acteur": "A",
+            "resultat": "aucun doublon"
+          },
+          {
+            "enonce": "demande concurrente de B rejetée sans surbooking",
+            "acteur": "B",
+            "resultat": "rejetée",
+            "invariant": "aucun surbooking"
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "cahier_line": 119,
+        "faits": [
+          {
+            "enonce": "B puis C en attente",
+            "file_attente_ordre": [
+              "B",
+              "C"
+            ]
+          },
+          {
+            "enonce": "annulation de A",
+            "acteur": "A",
+            "resultat": "annulée"
+          },
+          {
+            "enonce": "B devient confirmé",
+            "acteur": "B",
+            "etat": "confirmé"
+          },
+          {
+            "enonce": "C reste premier en attente",
+            "acteur": "C",
+            "etat": "en attente",
+            "rang": 1
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "cahier_line": 119,
+        "regle": {
+          "enonce": "règle d'annulation au moins 24 heures avant le début, frontière incluse",
+          "delai_heures": 24,
+          "frontiere_incluse": true,
+          "cahier_line": 119
+        },
+        "probes": [
+          {
+            "id": "probe-frontiere-exacte",
+            "support": "clone jetable",
+            "acteur": "B",
+            "action": "annuler",
+            "instant": "2030-01-02T12:00:00Z",
+            "resultat": "permise",
+            "cahier_line": 119,
+            "effet_sur_le_clone": {
+              "enonce": "C devient confirmé",
+              "acteur": "C",
+              "etat": "confirmé",
+              "cahier_line": 123
+            }
+          },
+          {
+            "id": "probe-frontiere-plus-1ms",
+            "support": "clone jetable",
+            "acteur": "B",
+            "action": "annuler",
+            "instant": "2030-01-02T12:00:00.001Z",
+            "litteral_cahier": "12:00:00.001Z",
+            "resultat": "refus métier",
+            "cahier_line": 119
+          }
+        ],
+        "invariants": [
+          {
+            "enonce": "les probes de frontière P3 sont des clones jetables ; elles ne modifient pas l'état persistant principal",
+            "cahier_line": 123
+          },
+          {
+            "enonce": "Les probes privées P3 utilisent leurs heures propres et sont jetées.",
+            "cahier_line": 125
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "cahier_line": 119,
+        "faits": [
+          {
+            "enonce": "données existantes migrées vers legacy",
+            "locataire": "legacy"
+          },
+          {
+            "enonce": "création d'un locataire other",
+            "locataire": "other"
+          },
+          {
+            "enonce": "ses acteurs ne peuvent ni lire ni modifier les réservations legacy",
+            "interdits": [
+              "lire",
+              "modifier"
+            ]
+          }
+        ],
+        "etat_persistant_a_l_entree": {
+          "cahier_line": 123,
+          "A": "annulé",
+          "B": "confirmé",
+          "C": "en attente",
+          "litteral_cahier": "celui-ci conserve A annulé, B confirmé et C en attente"
+        }
+      }
+    ]
+  },
+  "regles": [
+    {
+      "enonce": "Évaluer l'état métier exporté, pas un nom de table imposé.",
+      "cahier_line": 119
+    },
+    {
+      "enonce": "FIFO est ordonné par séquence d'admission explicite, pas par égalité possible de timestamps.",
+      "cahier_line": 123
+    },
+    {
+      "enonce": "Le contrat intertenant de la fixture renvoie `NOT_FOUND` sans donnée métier divulguée.",
+      "code": "NOT_FOUND",
+      "cahier_line": 123
+    },
+    {
+      "enonce": "Les instants synthétiques accélèrent ici les périodes ; les résultats ne les présentent pas comme quatre mois réels.",
+      "cahier_line": 125
+    }
+  ],
+  "non_specifie": [
+    "§F ne donne pas la valeur litterale de la cle idempotente de A (ligne 119).",
+    "§F ne date pas chaque operation a l'interieur d'une phase : seules les horloges de debut de phase (ligne 125) et les deux instants de probe P3 (ligne 119) sont fixes.",
+    "§F ne nomme pas les identifiants de reservation."
+  ],
+  "ambiguites": []
+}

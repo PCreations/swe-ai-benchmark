@@ -1,0 +1,159 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "verification": "chaque champ cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
+  "source_lines": [
+    117
+  ],
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "exige": "F-BOOTSTRAP donne les quatre ratios et l'intervalle [1/2,9/10]"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "exige": "les deux bras suivent exactement les memes indices parents"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "exige": "multiplier tous les couts par 7 ne change ni ratio ni intervalle"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "exige": "A=B donne tous les ratios egaux a 1"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "exige": "les bandes ponctuelles ne sont jamais etiquetees simultanees"
+    }
+  ],
+  "valeurs": {
+    "base": {
+      "v": "les deux projets precedents (F-CLUSTERS : P1 A=10/B=20, P2 A=90/B=100)",
+      "cahier_line": 117
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "v": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117
+    },
+    "ratios_cout_A_sur_B": {
+      "v": [
+        "1/2",
+        "5/6",
+        "5/6",
+        "9/10"
+      ],
+      "cahier_line": 117
+    },
+    "convention_de_quantile": {
+      "v": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "intervalle_2p5_97p5": {
+      "v": [
+        "1/2",
+        "9/10"
+      ],
+      "cahier_line": 117
+    },
+    "portee_declaree": {
+      "v": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+      "cahier_line": 117
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Le bootstrap principal reechantillonne les moyennes par parent ; une variante hierarchique devient une methode distincte declaree.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Algorithme de tirage et convention de quantile archives ; une sortie deterministe n'implique pas une couverture frequentiste garantie.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Les graines sont derivees par identifiants et flux (scenario, workload, assignment, bootstrap).",
+      "cahier_line": 82
+    },
+    {
+      "regle": "Une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets.",
+      "cahier_line": 443
+    }
+  ],
+  "derives_non_cahier": [
+    {
+      "nom": "ratios_recalcules",
+      "calcul": "[P1,P1] 10/20=1/2 ; [P1,P2] 50/60=5/6 ; [P2,P1] 50/60=5/6 ; [P2,P2] 90/100=9/10",
+      "obtenu_par": "moyenne par bras du tirage, puis ratio des moyennes"
+    },
+    {
+      "nom": "intervalle_recalcule",
+      "calcul": "sur la liste triee [1/2, 5/6, 5/6, 9/10], les quantiles 2,5% et 97,5% tombent sur le minimum et le maximum : [1/2, 9/10]"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BOOTSTRAP-1",
+      "fixture": "F-BOOTSTRAP",
+      "point": "La 'convention de quantile empirique inverse' n'est pas ecrite sous forme d'indice (ceil(q*n), floor, interpolation exclue ?). Avec n=4 toutes les variantes usuelles donnent [1/2, 9/10], donc la fixture ne discrimine pas la convention qu'elle est censee archiver.",
+      "pourquoi_non_tranche": "Choisir une formule d'indice serait fixer un contrat que le cahier laisse ouvert.",
+      "cahier_line": 117
+    },
+    {
+      "id": "AMB-BOOTSTRAP-2",
+      "fixture": "F-BOOTSTRAP",
+      "point": "Le cahier ne dit pas si le tirage [P1,P1] utilise les dix repetitions de P1 (moyenne 10/20) une fois ou deux ; le resultat 1/2 est identique dans les deux lectures.",
+      "pourquoi_non_tranche": "La lecture choisie change le nombre de lignes reechantillonnees, donc la structure du manifeste de tirages.",
+      "cahier_line": 117
+    },
+    {
+      "id": "AMB-BOOTSTRAP-3",
+      "fixture": "F-BOOTSTRAP",
+      "point": "T33.A3 (couts x7) et T33.A4 (A=B) demandent des variantes de F-BOOTSTRAP dont le cahier ne donne pas les tableaux de couts resultants.",
+      "pourquoi_non_tranche": "Ces variantes sont derivables mais leurs valeurs ne sont pas ecrites en §F.",
+      "cahier_line": 443
+    },
+    {
+      "id": "AMB-BOOTSTRAP-4",
+      "fixture": "F-BOOTSTRAP",
+      "point": "Le niveau nominal de l'intervalle est donne comme 2,5%-97,5% (soit 95%), alors que T34 impose un niveau marginal corrige 1-0,05/(3J) pour la decision.",
+      "pourquoi_non_tranche": "Le cahier n'indique pas si l'intervalle de F-BOOTSTRAP est celui de la decision ou une bande non corrigee.",
+      "cahier_line": 451
+    }
+  ],
+  "verbatim": {
+    "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  }
+}

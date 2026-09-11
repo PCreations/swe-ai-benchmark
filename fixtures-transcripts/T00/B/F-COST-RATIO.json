@@ -1,0 +1,125 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "verification": "chaque champ cahier_line est verifiable par `sed -n '<n>p' docs/cahier.md`",
+  "source_lines": [
+    113
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6"
+    },
+    {
+      "cas": "T32 (fin)",
+      "cahier_line": 437,
+      "exige": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "exige": "F-COST-RATIO affiche 5/6 et les deux moyennes"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_projets": {
+      "v": 2,
+      "poids": "egal",
+      "cahier_line": 113
+    },
+    "couts_bras_A": {
+      "v": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "couts_bras_B": {
+      "v": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "moyenne_A": {
+      "v": 50,
+      "cahier_line": 113
+    },
+    "moyenne_B": {
+      "v": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "rationnel": "5/6",
+      "cahier_line": 113
+    },
+    "resultat_incorrect_temoin": {
+      "nom": "moyenne des ratios",
+      "v": 0.7,
+      "regle": "La moyenne des ratios serait 0.7 et constitue un resultat incorrect pour cette metrique.",
+      "cahier_line": 113
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants (invariant D11).",
+      "cahier_line": 73
+    },
+    {
+      "regle": "Les nombres exacts se verifient en entier ou rationnel ; tolerance maximale 1e-12.",
+      "cahier_line": 143
+    },
+    {
+      "regle": "Poids des scenarios appliques a l'interieur du parent avant poids entre parents (T32.A6).",
+      "cahier_line": 435
+    }
+  ],
+  "derives_non_cahier": [
+    {
+      "nom": "moyennes_recalculees",
+      "calcul": "A: (10+90)/2 = 50 ; B: (20+100)/2 = 60"
+    },
+    {
+      "nom": "ratio_recalcule",
+      "calcul": "50/60 = 5/6"
+    },
+    {
+      "nom": "moyenne_des_ratios_recalculee",
+      "calcul": "(10/20 + 90/100)/2 = (1/2 + 9/10)/2 = 7/10 = 0.7",
+      "corrobore_par": "la valeur 0.7 est ecrite ligne 113"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-COSTRATIO-1",
+      "fixture": "F-COST-RATIO",
+      "point": "L'appariement des couts est implicite : le cahier ecrit A=[10,90] et B=[20,100] sans nommer les deux projets ni dire que l'index 1 de A va avec l'index 1 de B.",
+      "pourquoi_non_tranche": "L'appariement par index est necessaire pour que la moyenne des ratios vaille 0.7, mais il n'est pas ecrit.",
+      "cahier_line": 113
+    },
+    {
+      "id": "AMB-COSTRATIO-2",
+      "fixture": "F-COST-RATIO",
+      "point": "Les deux projets portent les memes couts que P1/P2 de F-CLUSTERS (10/20 et 90/100) ; le cahier ne dit pas s'il s'agit des memes entites avec une repetition chacune, ou d'un jeu distinct.",
+      "pourquoi_non_tranche": "F-BOOTSTRAP dit 'sur les deux projets precedents' et se rattache a F-CLUSTERS ; la relation avec F-COST-RATIO n'est jamais enoncee.",
+      "cahier_line": 113
+    },
+    {
+      "id": "AMB-COSTRATIO-3",
+      "fixture": "F-COST-RATIO",
+      "point": "Aucun nombre de repetitions n'est donne pour F-COST-RATIO, alors que F-CLUSTERS en donne (dix et une).",
+      "pourquoi_non_tranche": "Sans ce nombre, l'agregation repetition -> projet n'est pas exercee par cette fixture.",
+      "cahier_line": 113
+    }
+  ],
+  "verbatim": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  }
+}

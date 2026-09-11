@@ -1,0 +1,358 @@
+{
+  "schema": "bench.fixture.transcription.index/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section_source": {
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_line": 101
+  },
+  "fixtures": [
+    "F-MONEY",
+    "F-BUDGET",
+    "F-QUALITY",
+    "F-COST-RATIO",
+    "F-CLUSTERS",
+    "F-BOOTSTRAP",
+    "F-RESERVATION",
+    "F-FAILURE",
+    "F-POWER",
+    "F-REGRESSION"
+  ],
+  "nombre": 10,
+  "methode": "parti des consommateurs (verification/cases.lock.json + §H du cahier), puis confrontation au texte de §F ; aucune implementation consultee",
+  "ambiguites_total": 47,
+  "ambiguites": [
+    {
+      "id": "AMB-MONEY-1",
+      "fixture": "F-MONEY",
+      "point": "La normalisation d'un fournisseur qui inclut le cache dans un total n'est illustree par aucun nombre : ni le total brut, ni les noms de champs fournisseur ne sont donnes.",
+      "pourquoi_non_tranche": "Inventer un total (par exemple 140) serait une valeur calculee par le transcripteur, pas une valeur du cahier.",
+      "cahier_line": 103
+    },
+    {
+      "id": "AMB-MONEY-2",
+      "fixture": "F-MONEY",
+      "point": "Le cahier impose l'encodage chaine-d'entier pour les MONTANTS (ligne 80) mais ne dit pas si les TARIFS par token (2, 1, 5) suivent le meme encodage ni s'ils peuvent etre fractionnaires.",
+      "pourquoi_non_tranche": "Le choix change l'empreinte canonique de la fixture.",
+      "cahier_line": 80
+    },
+    {
+      "id": "AMB-MONEY-3",
+      "fixture": "F-MONEY",
+      "point": "Le cahier ne nomme pas la devise de reference ni un taux ; 'micro-USD' est l'unite, la grille est declaree fictive.",
+      "pourquoi_non_tranche": "Aucune conversion ne doit etre introduite.",
+      "cahier_line": 103
+    },
+    {
+      "id": "AMB-BUDGET-1",
+      "fixture": "F-BUDGET",
+      "point": "Aucun code de refus n'est nomme : ni pour la seconde reservation concurrente de 600 (SC1), ni pour celle de 661 (SC3b). Le cahier ne nomme qu'UNBOUNDED_COST, et pour un autre cas (T16.A7).",
+      "pourquoi_non_tranche": "Choisir un code inventerait une partie du contrat d'erreur.",
+      "cahier_line": 295
+    },
+    {
+      "id": "AMB-BUDGET-2",
+      "fixture": "F-BUDGET",
+      "point": "SC1 dit que les deux reservations ne peuvent pas etre toutes deux acceptees, sans dire laquelle gagne ni si l'arbitrage est deterministe (premier arrive, ordre d'admission explicite, autre).",
+      "pourquoi_non_tranche": "F-RESERVATION impose une sequence d'admission explicite (ligne 123) mais rien ne l'etend a F-BUDGET.",
+      "cahier_line": 105
+    },
+    {
+      "id": "AMB-BUDGET-3",
+      "fixture": "F-BUDGET",
+      "point": "SC4 ne dit pas quel evenement reconcilie la reservation ambigue, ni vers quel montant elle se resout, ni quel etat d'appel (UNKNOWN ?) la porte.",
+      "pourquoi_non_tranche": "La sortie de l'etat ambigu determinerait available apres reconciliation, valeur absente du cahier.",
+      "cahier_line": 105
+    },
+    {
+      "id": "AMB-BUDGET-4",
+      "fixture": "F-BUDGET",
+      "point": "SC2 regle a 340 une reservation de 600 : le cahier ne dit pas si le solde de 260 est libere par le reglement lui-meme ou par une ecriture distincte.",
+      "pourquoi_non_tranche": "Seul l'etat final (340/0/660) est donne ; le chemin ne l'est pas.",
+      "cahier_line": 105
+    },
+    {
+      "id": "AMB-QUALITY-1",
+      "fixture": "F-QUALITY",
+      "point": "La ligne 109 ne redonne pas les poids de B@1 et C@1 en P3 et P4. Q3=3/4 n'est obtenu que si B@1 conserve le poids 1 et C@1 le poids 2 ; d'autres couples de poids donnent aussi 3/4 (par ex. B=3, C=8).",
+      "pourquoi_non_tranche": "La constance des poids d'une periode a l'autre n'est ecrite nulle part ; elle est seulement l'hypothese la plus simple.",
+      "cahier_line": 109
+    },
+    {
+      "id": "AMB-QUALITY-2",
+      "fixture": "F-QUALITY",
+      "point": "Le test negatif 'exigence revelee mais non encore due' (T04.A6) ne recoit ni id, ni version, ni poids, ni periode de revelation, ni echeance.",
+      "pourquoi_non_tranche": "Ces quatre valeurs sont necessaires pour ecrire le cas et aucune n'est dans le cahier.",
+      "cahier_line": 109
+    },
+    {
+      "id": "AMB-QUALITY-3",
+      "fixture": "F-QUALITY",
+      "point": "T08.A2 parle des 'quatre usages de F-QUALITY' sans dire de quelle periode : P1 et P2 offrent toutes deux 4 intentions.",
+      "pourquoi_non_tranche": "Le choix change la periode ou l'invariance d'offre est verifiee.",
+      "cahier_line": 223
+    },
+    {
+      "id": "AMB-QUALITY-4",
+      "fixture": "F-QUALITY",
+      "point": "Le contenu des intentions (acteurs, operations, cibles metier) n'est pas donne : seules les cardinalites [4,4,0,2] et [4,2,0,1] le sont.",
+      "pourquoi_non_tranche": "Inventer des intentions ferait de la fixture une specification de scenario.",
+      "cahier_line": 107
+    },
+    {
+      "id": "AMB-QUALITY-5",
+      "fixture": "F-QUALITY",
+      "point": "T04.A5 exige 'panne avec quatre usages donne R=0', configuration absente de R=[1,1/2,null,1/2] ; le cahier ne dit pas quelle periode est perturbee ni si c'est une variante jetable de F-QUALITY.",
+      "pourquoi_non_tranche": "Modifier une periode existante affaiblirait la fixture principale.",
+      "cahier_line": 191
+    },
+    {
+      "id": "AMB-QUALITY-6",
+      "fixture": "F-QUALITY",
+      "point": "B@1 est satisfaite en P1-P2 puis violee en P3 : sous la definition de G (ligne 189) cela ouvre une regression, mais le cahier ne donne ni G ni G_new pour F-QUALITY.",
+      "pourquoi_non_tranche": "Publier G=1 en P3 serait un resultat calcule par le transcripteur, alors que T04.A4 traite les regressions sur un autre jeu.",
+      "cahier_line": 189
+    },
+    {
+      "id": "AMB-QUALITY-7",
+      "fixture": "F-QUALITY",
+      "point": "P3 'remplace A@1 par A@2' ; le cahier ne dit pas si A@1 reste comptee au denominateur de P3 en tant qu'exigence retiree (F-REGRESSION dit seulement que son retrait ne produit pas de regression).",
+      "pourquoi_non_tranche": "Q3=3/4 est compatible avec l'exclusion de A@1 du denominateur ; l'inclusion donnerait un autre denominateur.",
+      "cahier_line": 109
+    },
+    {
+      "id": "AMB-COSTRATIO-1",
+      "fixture": "F-COST-RATIO",
+      "point": "L'appariement des couts est implicite : le cahier ecrit A=[10,90] et B=[20,100] sans nommer les deux projets ni dire que l'index 1 de A va avec l'index 1 de B.",
+      "pourquoi_non_tranche": "L'appariement par index est necessaire pour que la moyenne des ratios vaille 0.7, mais il n'est pas ecrit.",
+      "cahier_line": 113
+    },
+    {
+      "id": "AMB-COSTRATIO-2",
+      "fixture": "F-COST-RATIO",
+      "point": "Les deux projets portent les memes couts que P1/P2 de F-CLUSTERS (10/20 et 90/100) ; le cahier ne dit pas s'il s'agit des memes entites avec une repetition chacune, ou d'un jeu distinct.",
+      "pourquoi_non_tranche": "F-BOOTSTRAP dit 'sur les deux projets precedents' et se rattache a F-CLUSTERS ; la relation avec F-COST-RATIO n'est jamais enoncee.",
+      "cahier_line": 113
+    },
+    {
+      "id": "AMB-COSTRATIO-3",
+      "fixture": "F-COST-RATIO",
+      "point": "Aucun nombre de repetitions n'est donne pour F-COST-RATIO, alors que F-CLUSTERS en donne (dix et une).",
+      "pourquoi_non_tranche": "Sans ce nombre, l'agregation repetition -> projet n'est pas exercee par cette fixture.",
+      "cahier_line": 113
+    },
+    {
+      "id": "AMB-CLUSTERS-1",
+      "fixture": "F-CLUSTERS",
+      "point": "'Dupliquer toutes les repetitions de P1' ne precise pas le facteur (x2 -> 20 repetitions ?) ni si P2 est duplique aussi.",
+      "pourquoi_non_tranche": "Le facteur change le nombre de lignes du jeu de controle, donc l'empreinte de la fixture.",
+      "cahier_line": 115
+    },
+    {
+      "id": "AMB-CLUSTERS-2",
+      "fixture": "F-CLUSTERS",
+      "point": "Le cahier ne dit pas si les dix repetitions de P1 portent des identifiants distincts (repetition_id) ou sont dix copies indistinguables.",
+      "pourquoi_non_tranche": "T33.A5 demande l'invariance par permutation des lignes, ce qui suppose des lignes identifiables.",
+      "cahier_line": 115
+    },
+    {
+      "id": "AMB-CLUSTERS-3",
+      "fixture": "F-CLUSTERS",
+      "point": "Aucune valeur de V, U ou de reussite n'est donnee pour F-CLUSTERS ; seuls les couts le sont.",
+      "pourquoi_non_tranche": "La decision de T34 exige aussi V et U ; cette fixture ne les fournit pas.",
+      "cahier_line": 115
+    },
+    {
+      "id": "AMB-BOOTSTRAP-1",
+      "fixture": "F-BOOTSTRAP",
+      "point": "La 'convention de quantile empirique inverse' n'est pas ecrite sous forme d'indice (ceil(q*n), floor, interpolation exclue ?). Avec n=4 toutes les variantes usuelles donnent [1/2, 9/10], donc la fixture ne discrimine pas la convention qu'elle est censee archiver.",
+      "pourquoi_non_tranche": "Choisir une formule d'indice serait fixer un contrat que le cahier laisse ouvert.",
+      "cahier_line": 117
+    },
+    {
+      "id": "AMB-BOOTSTRAP-2",
+      "fixture": "F-BOOTSTRAP",
+      "point": "Le cahier ne dit pas si le tirage [P1,P1] utilise les dix repetitions de P1 (moyenne 10/20) une fois ou deux ; le resultat 1/2 est identique dans les deux lectures.",
+      "pourquoi_non_tranche": "La lecture choisie change le nombre de lignes reechantillonnees, donc la structure du manifeste de tirages.",
+      "cahier_line": 117
+    },
+    {
+      "id": "AMB-BOOTSTRAP-3",
+      "fixture": "F-BOOTSTRAP",
+      "point": "T33.A3 (couts x7) et T33.A4 (A=B) demandent des variantes de F-BOOTSTRAP dont le cahier ne donne pas les tableaux de couts resultants.",
+      "pourquoi_non_tranche": "Ces variantes sont derivables mais leurs valeurs ne sont pas ecrites en §F.",
+      "cahier_line": 443
+    },
+    {
+      "id": "AMB-BOOTSTRAP-4",
+      "fixture": "F-BOOTSTRAP",
+      "point": "Le niveau nominal de l'intervalle est donne comme 2,5%-97,5% (soit 95%), alors que T34 impose un niveau marginal corrige 1-0,05/(3J) pour la decision.",
+      "pourquoi_non_tranche": "Le cahier n'indique pas si l'intervalle de F-BOOTSTRAP est celui de la decision ou une bande non corrigee.",
+      "cahier_line": 451
+    },
+    {
+      "id": "AMB-RESERVATION-1",
+      "fixture": "F-RESERVATION",
+      "point": "T09.A3 exige que la migration P4 preserve 100 reservations, alors que §F ne decrit que trois acteurs (A, B, C) et un creneau S1 de capacite 1.",
+      "pourquoi_non_tranche": "Le cahier ne dit pas si ces 100 reservations font partie de F-RESERVATION ou d'un jeu propre a T09 ; les materialiser dans la fixture inventerait 97 lignes.",
+      "cahier_line": 233
+    },
+    {
+      "id": "AMB-RESERVATION-2",
+      "fixture": "F-RESERVATION",
+      "point": "Les codes de refus ne sont nommes que partiellement : NOT_FOUND pour l'intertenant (ligne 123). Le refus metier a 12:00:00.001Z, le refus de surbooking de B en P1 et le 'conflit explicite' de T07.A6 ne portent pas de code en §F.",
+      "pourquoi_non_tranche": "IDEMPOTENCY_CONFLICT n'est enonce que pour T05 (ligne 199) ; l'etendre a l'oracle de reservation serait une decision de contrat.",
+      "cahier_line": 119
+    },
+    {
+      "id": "AMB-RESERVATION-3",
+      "fixture": "F-RESERVATION",
+      "point": "La sequence d'admission explicite ordonnant B puis C n'a pas de valeurs (numeros de sequence), alors que la ligne 123 interdit de se fier aux timestamps.",
+      "pourquoi_non_tranche": "Sans numeros, le FIFO n'est pas materialisable ; les inventer fixerait un contrat absent.",
+      "cahier_line": 123
+    },
+    {
+      "id": "AMB-RESERVATION-4",
+      "fixture": "F-RESERVATION",
+      "point": "En P1 la demande de B est 'rejetee sans surbooking' ; en P2 'B puis C en attente'. Le cahier ne dit pas si l'entree en attente de B reutilise la demande rejetee de P1 ou est une nouvelle demande, ce qui determine son rang d'admission.",
+      "pourquoi_non_tranche": "Les deux lectures donnent B avant C, mais pas la meme histoire d'operations ni la meme cle idempotente.",
+      "cahier_line": 119
+    },
+    {
+      "id": "AMB-RESERVATION-5",
+      "fixture": "F-RESERVATION",
+      "point": "La valeur de la cle idempotente de A (rejouee en P1) n'est pas donnee, ni le format des cles.",
+      "pourquoi_non_tranche": "T07.A6 oppose 'meme cle, arguments differents' : la cle doit exister comme donnee de fixture.",
+      "cahier_line": 119
+    },
+    {
+      "id": "AMB-RESERVATION-6",
+      "fixture": "F-RESERVATION",
+      "point": "Le cahier ne dit pas si la regle des 24 h de P3 s'applique deja en P2 lors de l'annulation de A.",
+      "pourquoi_non_tranche": "P2 (2030-01-01T01:00:00Z) est de toute facon anterieur a la frontiere, donc les deux lectures donnent le meme etat ; mais la date d'entree en vigueur de la regle est un fait de scenario (T11.A2 exige qu'un remplacement de regle en P3 soit visible).",
+      "cahier_line": 119
+    },
+    {
+      "id": "AMB-RESERVATION-7",
+      "fixture": "F-RESERVATION",
+      "point": "L'etat de C sur le clone refuse (12:00:00.001Z) n'est pas enonce ; seul le clone autorise precise que C devient confirme.",
+      "pourquoi_non_tranche": "L'etat du clone refuse est deductible (rien ne change) mais non ecrit.",
+      "cahier_line": 123
+    },
+    {
+      "id": "AMB-FAILURE-1",
+      "fixture": "F-FAILURE",
+      "point": "L'etat d'arret apres P2 n'est pas nomme parmi BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED (ligne 97).",
+      "pourquoi_non_tranche": "Le choix change le champ de statut exporte par T31.",
+      "cahier_line": 121
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "fixture": "F-FAILURE",
+      "point": "Le nombre d'intentions offertes par periode et les poids des exigences ne sont pas donnes ; seuls Q=0 et R=0 le sont.",
+      "pourquoi_non_tranche": "T05.A6 exige des 'demandes non servies prevues par F-FAILURE' : leur cardinalite est absente du cahier.",
+      "cahier_line": 121
+    },
+    {
+      "id": "AMB-FAILURE-3",
+      "fixture": "F-FAILURE",
+      "point": "Les couts 0 de P3 et P4 ne sont pas qualifies : zero connu, ou absence de depense. T31.A4 exige qu'un cout UNKNOWN reste accompagne de bornes ou d'un statut inconnu.",
+      "pourquoi_non_tranche": "La ligne 121 dit seulement qu'aucune facture imaginaire n'y est ajoutee.",
+      "cahier_line": 121
+    },
+    {
+      "id": "AMB-FAILURE-4",
+      "fixture": "F-FAILURE",
+      "point": "Le cahier ne dit pas si F-FAILURE partage le scenario de F-QUALITY (meme K=4, memes exigences) ou constitue une trajectoire independante.",
+      "pourquoi_non_tranche": "Le partage determinerait les exigences presentes, donc le denominateur de Q=0.",
+      "cahier_line": 121
+    },
+    {
+      "id": "AMB-POWER-1",
+      "fixture": "F-POWER",
+      "point": "§F ne redonne pas la marge : les decisions [vrai,faux,faux,vrai] n'existent que si la marge vaut 0,02 pour V ET pour U, valeur donnee ligne 451 comme 'marges d'exemple'.",
+      "pourquoi_non_tranche": "Une marge d'exemple n'est pas une marge de fixture ; l'ecart entre -0,04 (refuse) et -0,01 (accepte) l'encadre entre 0,01 exclu et 0,04 inclus, sans la fixer.",
+      "cahier_line": 451
+    },
+    {
+      "id": "AMB-POWER-2",
+      "fixture": "F-POWER",
+      "point": "Le cahier ecrit 'les bornes' sans dire superieure ou inferieure ; la regle (ligne 451) utilise la borne SUPERIEURE du ratio et les bornes INFERIEURES de DeltaV/DeltaU.",
+      "pourquoi_non_tranche": "Avec des distributions ponctuelles les deux bornes coincident, donc la fixture ne tranche pas ; une implementation pourrait lire l'une pour l'autre sans etre detectee.",
+      "cahier_line": 127
+    },
+    {
+      "id": "AMB-POWER-3",
+      "fixture": "F-POWER",
+      "point": "Le nombre de contrastes J, donc le niveau marginal 1-0,05/(3J), n'est pas donne pour F-POWER.",
+      "pourquoi_non_tranche": "Sur des distributions ponctuelles le niveau ne change pas les bornes, mais il change l'etiquette publiee de l'intervalle.",
+      "cahier_line": 451
+    },
+    {
+      "id": "AMB-POWER-4",
+      "fixture": "F-POWER",
+      "point": "Ni le nombre de repetitions par parent, ni la graine, ni la liste de tirages ne sont donnes ; seul 'tirages parents exhaustifs' l'est, la ou F-BOOTSTRAP donne sa liste explicitement.",
+      "pourquoi_non_tranche": "Avec deux parents, l'enumeration exhaustive compte 4 tirages, mais le cahier ne l'ecrit pas pour F-POWER.",
+      "cahier_line": 127
+    },
+    {
+      "id": "AMB-POWER-5",
+      "fixture": "F-POWER",
+      "point": "'deux parents distincts P1/P2 portant les memes valeurs' reutilise les noms P1/P2 de F-CLUSTERS, qui portent des valeurs differentes (10/20 et 90/100).",
+      "pourquoi_non_tranche": "Le cahier n'indique aucune relation entre les deux jeux ; l'homonymie est un piege de transcription.",
+      "cahier_line": 127
+    },
+    {
+      "id": "AMB-POWER-6",
+      "fixture": "F-POWER",
+      "point": "La puissance 0,5 et l'erreur standard 0,25 ne figurent pas en §F mais dans le cas T35.A1 (ligne 463).",
+      "pourquoi_non_tranche": "Elles sont consignees ici parce qu'un consommateur les exige, mais leur source est §H, pas §F.",
+      "cahier_line": 463
+    },
+    {
+      "id": "AMB-REGRESSION-1",
+      "fixture": "F-REGRESSION",
+      "point": "Le nombre de periodes de F-REGRESSION n'est pas donne : seules P2, P3 et P4 sont citees. L'existence et le contenu de P1 sont absents.",
+      "pourquoi_non_tranche": "K=4 n'est enonce que pour F-FAILURE (ligne 121).",
+      "cahier_line": 129
+    },
+    {
+      "id": "AMB-REGRESSION-2",
+      "fixture": "F-REGRESSION",
+      "point": "La periode de revelation et l'echeance d'isolation@1 ne sont pas donnees : son statut en P1 et P2 est inconnu.",
+      "pourquoi_non_tranche": "G se calcule sur les exigences actives DUES (ligne 189) ; sans echeance, l'appartenance au denominateur n'est pas decidable.",
+      "cahier_line": 129
+    },
+    {
+      "id": "AMB-REGRESSION-3",
+      "fixture": "F-REGRESSION",
+      "point": "Le statut de cancel@2 en P3 et P4 (satisfaite ou non) n'est pas donne.",
+      "pourquoi_non_tranche": "Si cancel@2 etait violee en P4, une seconde regression existerait et le compte attendu changerait.",
+      "cahier_line": 129
+    },
+    {
+      "id": "AMB-REGRESSION-4",
+      "fixture": "F-REGRESSION",
+      "point": "Aucune valeur chiffree de G ou G_new n'est donnee pour F-REGRESSION ; le cahier dit seulement 'ne produit pas de regression' et 'en produit une'.",
+      "pourquoi_non_tranche": "Publier G=1 en P4 serait un calcul du transcripteur, pas une valeur du cahier.",
+      "cahier_line": 129
+    },
+    {
+      "id": "AMB-REGRESSION-5",
+      "fixture": "F-REGRESSION",
+      "point": "F-QUALITY presente en P3 le meme motif (A@1 remplacee par A@2, B@1 violee) que F-REGRESSION (cancel@1 remplacee par cancel@2) avec des identifiants differents ; le cahier ne dit pas si les deux fixtures decrivent la meme trajectoire.",
+      "pourquoi_non_tranche": "Les fusionner ou les separer change le nombre de trajectoires de reference.",
+      "cahier_line": 129
+    },
+    {
+      "id": "AMB-REGRESSION-6",
+      "fixture": "F-REGRESSION",
+      "point": "Les poids de cancel@1, cancel@2 et isolation@1 ne sont pas donnes, alors que Q les exige.",
+      "pourquoi_non_tranche": "F-REGRESSION ne publie pas de Q ; mais si elle partage la trajectoire de F-QUALITY, les poids deviennent necessaires.",
+      "cahier_line": 129
+    }
+  ]
+}

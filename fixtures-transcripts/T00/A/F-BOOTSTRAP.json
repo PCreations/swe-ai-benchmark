@@ -1,0 +1,103 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "A",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      117
+    ]
+  },
+  "verbatim": {
+    "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  },
+  "donnees": {
+    "projets_source": {
+      "reference": {
+        "valeur": "les deux projets précédents (F-CLUSTERS)",
+        "cahier_line": 117
+      },
+      "cahier_line_source_des_projets": 115
+    },
+    "reechantillonnages_forces": {
+      "valeur": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117
+    },
+    "ratios_cout_A_sur_B": {
+      "litteral_cahier": "[1/2,5/6,5/6,9/10]",
+      "rationnels": [
+        {
+          "num": 1,
+          "den": 2
+        },
+        {
+          "num": 5,
+          "den": 6
+        },
+        {
+          "num": 5,
+          "den": 6
+        },
+        {
+          "num": 9,
+          "den": 10
+        }
+      ],
+      "cahier_line": 117
+    },
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "intervalle": {
+      "niveaux": {
+        "valeur": [
+          "2,5 %",
+          "97,5 %"
+        ],
+        "cahier_line": 117
+      },
+      "litteral_cahier": "[1/2,9/10]",
+      "borne_inf": {
+        "num": 1,
+        "den": 2
+      },
+      "borne_sup": {
+        "num": 9,
+        "den": 10
+      },
+      "cahier_line": 117
+    }
+  },
+  "regles": [
+    {
+      "enonce": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+      "cahier_line": 117
+    }
+  ],
+  "non_specifie": [],
+  "ambiguites": []
+}

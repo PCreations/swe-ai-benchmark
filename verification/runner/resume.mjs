@@ -108,9 +108,31 @@ export function computeBoard() {
     } else if (s.state === 'NOT_PROVEN') {
       states.set(id, { ...s, state: 'READY' })
     }
+    // Ce qui reste STALE ici a ses dependances prouvees et ses capacites
+    // presentes : c'est ACTIONNABLE, et meme prioritaire — ses entrees ont
+    // change, la porte est a rejouer a HEAD. Voir `actionable()`.
   }
 
   return { head, branch, clean, ledger, srcPush, caps, states, reg }
+}
+
+/**
+ * Les taches sur lesquelles il y a QUELQUE CHOSE A FAIRE, dans l'ordre du
+ * registre.
+ *
+ * PÉRIMÉ EST ACTIONNABLE. Le confondre avec « rien a faire » a failli couter
+ * cher : `verification/runner` est une composante GLOBALE de l'input_digest,
+ * donc toucher au verificateur re-perime les 44 taches par construction. Si
+ * STALE ne comptait pas, le premier changement de runner faisait sortir
+ * `resume` en 11, la Routine horaire concluait « rien d'actionnable » et le
+ * pilote se taisait DEFINITIVEMENT — la panne exacte que la Routine existe
+ * pour empecher. Une tache perimee dont les dependances tiennent et dont les
+ * capacites sont presentes passe donc devant : sa preuve ne lie plus HEAD.
+ */
+export function actionable(board) {
+  return [...board.states.entries()]
+    .filter(([, s]) => s.state === 'READY' || s.state === 'STALE')
+    .map(([id]) => id)
 }
 
 export function render(board, { json = false } = {}) {
@@ -132,6 +154,7 @@ export function render(board, { json = false } = {}) {
   const stale = by('STALE')
   const contested = by('CONTESTED')
   const total = board.states.size
+  const todo = actionable(board)
 
   // Rien n'est durable tant que ce n'est pas pousse — c'est un blocage, pas un
   // avertissement : un conteneur ephemere emporte tout travail local.
@@ -141,7 +164,7 @@ export function render(board, { json = false } = {}) {
   let exit = EXIT.ACTIONABLE
   if (unpushedSrc || unpushedLedger) exit = EXIT.LEDGER_DIVERGENCE
   else if (proven.length === total) exit = EXIT.ALL_PROVEN
-  else if (ready.length === 0) exit = EXIT.NOTHING_ACTIONABLE
+  else if (todo.length === 0) exit = EXIT.NOTHING_ACTIONABLE
 
   if (json) {
     return {
@@ -159,10 +182,11 @@ export function render(board, { json = false } = {}) {
           blocked,
           stale,
           contested,
+          actionable: todo,
           capabilities: Object.fromEntries(
             Object.entries(board.caps?.capabilities ?? {}).map(([k, v]) => [k, v.present])
           ),
-          next: ready[0] ?? null,
+          next: todo[0] ?? null,
         },
         null,
         2
@@ -202,8 +226,8 @@ export function render(board, { json = false } = {}) {
   L.push('TABLEAU DES TACHES')
   row('[H] prouve', proven)
   row('R  pret', ready)
+  row('S! rejouer', stale)
   row('B  bloque', blocked)
-  row('S  perime', stale)
   row('X  conteste', contested)
   row('W  attend', waiting)
   L.push('')
@@ -216,10 +240,14 @@ export function render(board, { json = false } = {}) {
   } else if (contested.length) {
     L.push(`  ${contested.length} tache(s) CONTESTED : deux attestations en desaccord.`)
     contested.forEach((id) => L.push(`  -> bench contested ${id}`))
-  } else if (ready.length) {
-    const id = ready[0]
+  } else if (todo.length) {
+    const id = todo[0]
     const s = board.states.get(id)
     L.push(`  ${id} · ${s.task.title}`)
+    if (s.state === 'STALE') {
+      L.push(`     PERIMEE : ${s.why}`)
+      L.push(`     (une preuve ne « reste » jamais valide — elle est recalculee contre HEAD)`)
+    }
     L.push(`     cas requis : ${s.task.required_cases.length}   capacites : ${s.task.requires.join(', ') || 'aucune'}`)
     const att = attestability(id, board.reg.lock)
     if (att.attestable) {

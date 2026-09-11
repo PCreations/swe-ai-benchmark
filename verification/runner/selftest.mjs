@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os'
 import { runInCleanRoom, runInWorkingTree } from './cleanroom.mjs'
 import { repoRoot } from './git.mjs'
 import { decide, DEFAULT_TTL_S } from '../../tools/lease.mjs'
+import { render as renderResume, EXIT } from './resume.mjs'
 
 const R = repoRoot()
 const results = []
@@ -192,11 +193,70 @@ export function testPushIsTheLock() {
   }
 }
 
+/**
+ * S03 — PÉRIMÉ N'EST PAS « RIEN À FAIRE ».
+ *
+ * `verification/runner` est une composante GLOBALE de l'input_digest : toucher
+ * au vérificateur re-périme les 44 tâches, par construction et à dessein. Si
+ * STALE ne comptait pas comme actionnable, le premier changement de runner
+ * faisait sortir `resume` en 11, la Routine horaire lisait « rien
+ * d'actionnable », et le pilote se taisait DÉFINITIVEMENT — la panne même que
+ * la Routine existe pour empêcher, déclenchée par l'acte le plus banal du
+ * projet. Ce contrôle a été écrit APRÈS avoir observé le bug en vrai.
+ */
+function boardOf(entries) {
+  return {
+    head: '0'.repeat(40),
+    branch: 'selftest',
+    clean: true,
+    ledger: { name: 'selftest-ledger', exists: true, pushed: true, sha: 'deadbee' },
+    srcPush: { exists: true, pushed: true, ahead: 0 },
+    caps: { capabilities: {} },
+    reg: { tasks: { task_count: entries.length, required_case_count: 0 }, lock: {} },
+    states: new Map(
+      entries.map(([id, state]) => [
+        id,
+        { state, why: 'synthetique', capMissing: [], task: { id, title: id, required_cases: [], requires: [], depends_on: [] } },
+      ])
+    ),
+  }
+}
+
+export function testStaleIsActionable() {
+  const stale = JSON.parse(renderResume(boardOf([['T00', 'STALE'], ['T01', 'WAITING']]), { json: true }).text)
+  check(
+    'S03.1',
+    stale.exit === EXIT.ACTIONABLE && stale.next === 'T00',
+    `une tache PERIMEE est actionnable : exit=${stale.exit} next=${stale.next} (11 aurait fait taire la Routine pour toujours)`
+  )
+
+  const blocked = JSON.parse(renderResume(boardOf([['T00', 'BLOCKED'], ['T01', 'WAITING']]), { json: true }).text)
+  check(
+    'S03.2',
+    blocked.exit === EXIT.NOTHING_ACTIONABLE && blocked.next === null,
+    `11 reste reserve au vrai blocage : exit=${blocked.exit} next=${blocked.next}`
+  )
+
+  const done = JSON.parse(renderResume(boardOf([['T00', 'PROVEN']]), { json: true }).text)
+  check('S03.3', done.exit === EXIT.ALL_PROVEN, `tout prouve donne bien 3 (exit=${done.exit})`)
+
+  const unpushed = boardOf([['T00', 'STALE']])
+  unpushed.ledger.pushed = false
+  unpushed.ledger.ahead = 2
+  const div = JSON.parse(renderResume(unpushed, { json: true }).text)
+  check(
+    'S03.4',
+    div.exit === EXIT.LEDGER_DIVERGENCE,
+    `des preuves non poussees passent devant tout le reste (exit=${div.exit}) — un conteneur ephemere les emporte`
+  )
+}
+
 export function run() {
   testDistParasite()
   testDirtyCleanRoomRefused()
   testLeaseDecision()
   testPushIsTheLock()
+  testStaleIsActionable()
   const failed = results.filter((r) => !r.ok)
   return { results, failed, ok: failed.length === 0 }
 }

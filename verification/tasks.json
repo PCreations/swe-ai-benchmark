@@ -29,7 +29,7 @@
         "analysis",
         "packages/contracts"
       ],
-      "acceptance_entry": "analysis/tests/test_T00.py",
+      "acceptance_entry": "acceptance/T00.spec.ts",
       "required_cases": [
         "T00.A1",
         "T00.A2",

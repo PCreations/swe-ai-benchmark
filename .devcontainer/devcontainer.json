@@ -1,0 +1,54 @@
+{
+  "//": [
+    "CE FICHIER NE CONTIENT AUCUNE LOGIQUE.",
+    "Tout le provisionnement vit dans infra/bootstrap/*.sh, executes A L'IDENTIQUE",
+    "par postCreateCommand ici et par `pnpm bench bootstrap` sur un hote nu.",
+    "Cette identite est la seule raison pour laquelle un profil degrade reste",
+    "honnete : l'hote sans demon Docker ne fait pas tourner une seconde",
+    "implementation plus faible, il execute les memes scripts et obtient une",
+    "capacite moindre, que `bench doctor` nomme.",
+    "",
+    "PAS DE docker-compose, deliberement : compose exige un demon que cet hote",
+    "n'a pas, et un socle compose-only rendrait l'hote INUTILISABLE au lieu de",
+    "degrade. Les services sont geres par `bench svc up|down|status`."
+  ],
+  "name": "swe-ai-benchmark",
+  "build": { "dockerfile": "Dockerfile", "context": ".." },
+
+  "runArgs": [
+    "--privileged",
+    "--cgroupns=host",
+    "--security-opt", "seccomp=unconfined",
+    "--security-opt", "apparmor=unconfined",
+    "--tmpfs", "/run:exec,mode=755,size=512m"
+  ],
+
+  "mounts": [
+    "source=bench-home,target=/bench,type=volume",
+    "source=bench-ledger,target=/bench-ledger,type=volume",
+    "source=bench-pnpm-store,target=/home/vscode/.local/share/pnpm/store,type=volume"
+  ],
+
+  "containerEnv": {
+    "BENCH_HOME": "/bench",
+    "BENCH_LEDGER": "/bench-ledger",
+    "PNPM_HOME": "/home/vscode/.local/share/pnpm",
+    "PGHOST": "/bench/run/pg",
+    "TEMPORAL_ADDRESS": "127.0.0.1:7233",
+    "TEMPORAL_TEST_SERVER": "/bench/bin/temporal-test-server",
+    "S3_ENDPOINT": "http://127.0.0.1:9000",
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  },
+
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "workspaceFolder": "/workspaces/swe-ai-benchmark",
+
+  "onCreateCommand": "bash infra/bootstrap/00-apt-base.sh",
+  "postCreateCommand": "bash infra/bootstrap/run-all.sh --verify-pins",
+  "postStartCommand": "node tools/bench doctor >/dev/null 2>&1 || true",
+  "postAttachCommand": "node tools/bench resume || true",
+
+  "forwardPorts": [7233, 8233, 9000, 9001],
+  "otherPortsAttributes": { "onAutoForward": "ignore" }
+}

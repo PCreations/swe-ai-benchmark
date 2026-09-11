@@ -83,12 +83,16 @@ const probes = {
       )
     }
     const num = Number(r.out)
-    return num >= 180000
-      ? PRESENT(`server_version_num=${num}`)
-      : ABSENT(
-          `server_version_num=${num} < 180000 — le cahier §C exige PostgreSQL 18`,
-          'infra/bootstrap/20-postgres18.sh ; ne JAMAIS se rabattre sur le 16 deja installe'
-        )
+    // Borne HAUTE autant que basse : « >= 180000 » accepterait PostgreSQL 19 ou
+    // 20 en les presentant comme le 18 que le cahier §C epingle. Une version
+    // majeure ulterieure n'est pas la version qualifiee.
+    if (num >= 180000 && num < 190000) return PRESENT(`server_version_num=${num} (PostgreSQL 18)`)
+    return ABSENT(
+      num < 180000
+        ? `server_version_num=${num} < 180000 — le cahier §C exige PostgreSQL 18`
+        : `server_version_num=${num} >= 190000 — version majeure non qualifiee, le cahier epingle le 18`,
+      'infra/bootstrap/20-postgres18.sh ; ne JAMAIS se rabattre sur une autre majeure'
+    )
   },
 
   s3() {
@@ -190,6 +194,30 @@ const probes = {
         hogPy,
         'import sys\nb = []\nsys.stderr.write("HOG-START\\n"); sys.stderr.flush()\nwhile True:\n    b.append(bytearray(4 * 1024 * 1024))\n'
       )
+      // CONTROLE NEGATIF : sous la meme limite, un petit consommateur doit
+      // REUSSIR. Sans lui, une sonde qui tue tout (limite a zero, cgroup casse,
+      // python absent) se lirait comme « limite appliquee ».
+      const smallPy = `${R}/.bench/probe/small-${process.pid}.py`
+      writeFileSync(smallPy, 'b = bytearray(4 * 1024 * 1024)\nprint("SMALL-OK", len(b))\n')
+      const small = trySh(`bash -c 'echo $$ > ${dir}/cgroup.procs; exec python3 ${smallPy}' 2>&1`, {
+        timeout: 15000,
+      })
+      if (!/SMALL-OK/.test(small.out ?? ''))
+        return ABSENT(
+          `controle negatif echoue : un consommateur de 4 Mio meurt deja sous une limite de 32 Mio (${String(small.out).slice(0, 80)})`,
+          'la sonde tuerait tout — verifier la limite et le cgroup avant de conclure'
+        )
+
+      // APPARTENANCE : le processus mesure doit etre DANS le cgroup limite.
+      const member = trySh(
+        `bash -c 'echo $$ > ${dir}/cgroup.procs; grep -o "${name}" /proc/self/cgroup | head -1'`
+      )
+      if (!(member.out ?? '').includes(name))
+        return ABSENT(
+          `le processus n'appartient pas au cgroup ${name} (/proc/self/cgroup ne le nomme pas)`,
+          'verifier que cgroup.procs accepte l ecriture et que le driver est cgroupfs v1'
+        )
+
       const r = trySh(`bash -c 'echo $$ > ${dir}/cgroup.procs; exec python3 ${hogPy}' 2>&1`, {
         timeout: 20000,
       })
@@ -212,6 +240,7 @@ const probes = {
       try {
         rmSync(dir, { recursive: true, force: true })
         rmSync(`${R}/.bench/probe/hog-${process.pid}.py`, { force: true })
+        rmSync(`${R}/.bench/probe/small-${process.pid}.py`, { force: true })
       } catch {}
     }
   },

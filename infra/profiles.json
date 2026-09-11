@@ -1,0 +1,41 @@
+{
+  "$comment": [
+    "Profils d'execution isolee. CAPACITES, PAS ECHELLE : la validite d'une",
+    "attestation porte sur un ENSEMBLE de capacites re-sondees au boot courant,",
+    "pas sur un numero de profil. Les noms ci-dessous ne sont qu'une etiquette",
+    "lisible affichee par `bench resume`."
+  ],
+  "schema": "bench.profiles/1",
+  "runc": {
+    "cgroup_driver": "cgroupfs",
+    "cgroup_version": 1,
+    "why_pinned": [
+      "MESURE SUR CET HOTE : /sys/fs/cgroup/unified n'expose que « hugetlb ».",
+      "memory.max et pids.max N'Y EXISTENT PAS. Si cet epinglage saute, runc",
+      "passe au driver systemd/cgroup2, les limites deviennent des no-ops",
+      "SILENCIEUX, et T19.A5 (« depassement memoire termine avec raison",
+      "observable ») passe pour la mauvaise raison.",
+      "La sonde containers.cgroup-mem se defend en lancant un vrai consommateur",
+      "de 32 Mio et en lisant memory.failcnt AVANT `runc delete` — constater",
+      "qu'un fichier est writable ne prouve rien.",
+      "Aucun swap sur cet hote : memory.limit_in_bytes est donc un plafond dur,",
+      "sans echappatoire memsw."
+    ]
+  },
+  "profiles": {
+    "devcontainer": {
+      "label": "devcontainer privilegie",
+      "expects": ["containers.runc", "containers.userns", "containers.cgroup-mem", "containers.cgroup-pids", "net.netns-loopback", "net.veth-egress", "postgres18", "s3", "temporal", "temporal-timeskip"]
+    },
+    "bare-runc": {
+      "label": "hote nu, runc daemonless",
+      "expects": ["containers.runc", "containers.userns", "containers.cgroup-mem", "containers.cgroup-pids", "net.netns-loopback"],
+      "note": "Profil de cet hote. Aucun demon Docker ; les memes scripts infra/bootstrap/*.sh s'executent, la capacite obtenue est moindre et `bench doctor` la nomme."
+    },
+    "none": {
+      "label": "aucune isolation prouvable",
+      "expects": [],
+      "note": "Les taches d'isolation renvoient BLOCKED avec leur remede. Jamais un test affaibli pour obtenir du vert."
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "$comment": [
+    "Le cahier §C demande que « les images soient enregistrees avec leur digest ».",
+    "Sur une pile mixte image + binaires, l'equivalent honnete est ce fichier :",
+    "un digest par artefact, verifie a chaque bootstrap.",
+    "",
+    "TROIS NIVEAUX DE CONFIANCE, NOMMES PLUTOT QUE CONFONDUS :",
+    "",
+    "  vendor-digest   l'editeur publie une empreinte que l'on verifie.",
+    "                  C'est le seul niveau reellement fort.",
+    "  apt-version     la version exacte est epinglee et apt verifie les",
+    "                  signatures du depot. Fort pour l'integrite, faible pour",
+    "                  la reproductibilite exacte (un rebuild amont change le",
+    "                  binaire sans changer la version).",
+    "  tofu            Trust On First Use : ni l'un ni l'autre n'existe. Le",
+    "                  premier bootstrap TELECHARGE, CALCULE le sha256 et",
+    "                  l'inscrit ici ; tout bootstrap ulterieur REFUSE un",
+    "                  binaire dont l'empreinte a change.",
+    "",
+    "Un « tofu » n'est PAS un digest editeur et ne doit jamais etre presente",
+    "comme tel : il prouve que rien n'a change depuis la premiere machine, pas",
+    "que l'artefact est celui que l'editeur a publie. Verifie le 11/09/2026 :",
+    "ni Garage ni la CLI Temporal ne publient de somme de controle aux URL de",
+    "telechargement (404 sur .sha256 et .sha256sum)."
+  ],
+  "schema": "bench.toolchain/1",
+  "recorded_on": "2026-09-11",
+  "artifacts": {
+    "devcontainer-base": {
+      "trust": "vendor-digest",
+      "ref": "mcr.microsoft.com/devcontainers/base:noble",
+      "digest": null,
+      "pin_on_first_build": true,
+      "note": "Resolu et epingle au premier build du devcontainer ; cet hote n'a pas de demon Docker pour le faire."
+    },
+    "node": { "trust": "apt-version", "version": "22.22.2", "channel": "LTS", "verified_here": true },
+    "pnpm": { "trust": "apt-version", "version": "10.33.0", "via": "corepack", "verified_here": true },
+    "python": { "trust": "apt-version", "version": "3.12", "via": "uv", "verified_here": true },
+    "postgresql": {
+      "trust": "apt-version",
+      "version": "18.6-1.pgdg24.04+2",
+      "repo": "https://apt.postgresql.org/pub/repos/apt noble-pgdg main",
+      "verified_here": true,
+      "note": "Version presente dans l'index pgdg noble le 11/09/2026. NE JAMAIS se rabattre sur le PostgreSQL 16.13 deja installe sur cet hote : la sonde exige server_version_num >= 180000."
+    },
+    "runc": { "trust": "apt-version", "version": "1.3.4", "verified_here": true },
+    "iproute2": { "trust": "apt-version", "version": "6.1.0-1ubuntu6.2" },
+    "nftables": { "trust": "apt-version", "version": null },
+    "garage": {
+      "trust": "tofu",
+      "version": "v2.1.0",
+      "license": "Apache-2.0",
+      "url": "https://garagehq.deuxfleurs.fr/_releases/v2.1.0/x86_64-unknown-linux-musl/garage",
+      "sha256": null,
+      "url_reachable_on": "2026-09-11",
+      "note": "Retenu contre MinIO (AGPL-3.0) — ADR-003. Aucun sha256 publie a cette URL."
+    },
+    "temporal-cli": {
+      "trust": "tofu",
+      "version": null,
+      "url": "https://temporal.download/cli/archive/latest?platform=linux&arch=amd64",
+      "sha256": null,
+      "note": "L'URL 'latest' n'est pas reproductible : le premier bootstrap fige la version resolue ET son sha256 ici."
+    },
+    "temporal-test-server": {
+      "trust": "tofu",
+      "version": null,
+      "sha256": null,
+      "note": "PRE-TELECHARGE obligatoirement. Un telechargement paresseux depuis la suite de tests ferait passer T24.A2 pour la mauvaise raison et serait perdu au recyclage du conteneur."
+    }
+  }
+}

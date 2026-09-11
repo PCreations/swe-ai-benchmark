@@ -1,0 +1,35 @@
+{
+  "$comment": [
+    "Profil OCI de base du SandboxRunner.",
+    "",
+    "MESURE : `runc spec` par defaut n'emet NI uidMappings, NI user namespace,",
+    "NI bloc seccomp. Le root du conteneur EST alors le root de l'hote, et",
+    "cgroupsPath cree le cgroup A LA RACINE de la hierarchie hote. Un T19",
+    "atteste sur ce defaut serait un faux PASS confiant sur exactement les",
+    "taches dont l'objet est que l'isolation soit reelle.",
+    "",
+    "Les trois declarations ci-dessous sont donc obligatoires, et la sonde",
+    "containers.userns verifie qu'elles prennent effet."
+  ],
+  "schema": "bench.ocispec/1",
+  "required_declarations": {
+    "user_namespace": {
+      "namespaces": [{ "type": "user" }, { "type": "pid" }, { "type": "mount" }, { "type": "ipc" }, { "type": "uts" }, { "type": "network" }],
+      "uidMappings": [{ "containerID": 0, "hostID": 100000, "size": 65536 }],
+      "gidMappings": [{ "containerID": 0, "hostID": 100000, "size": 65536 }],
+      "why": "Sans mapping, le root du conteneur est le root de l'hote."
+    },
+    "seccomp": {
+      "defaultAction": "SCMP_ACT_ERRNO",
+      "why": "runc spec n'emet aucun bloc seccomp par defaut ; l'absence de filtre n'est pas un filtre permissif, c'est aucun filtre."
+    },
+    "cgroups": {
+      "cgroupsPath": "/bench/<trajectory_id>",
+      "why": "Un chemin relatif ferait creer le cgroup a la racine de la hierarchie hote, hors de tout confinement de la session."
+    },
+    "forbidden_mounts": {
+      "never": ["/var/run/docker.sock", "le depot de controle", "les cles fournisseur", "le socket de la passerelle dans le profil d'evaluation"],
+      "why": "Le profil d'evaluation (T20) se definit par OMISSION de ces montages, ce qui est auditable en relisant le config.json archive."
+    }
+  }
+}

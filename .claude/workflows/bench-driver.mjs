@@ -760,6 +760,42 @@ const results = await pipeline(
  * rouge, capacites du boot. Cet etage ne fait que la RAPPELER sur des taches que
  * le tour a perimees ; il ne peut pas en fabriquer le verdict.
  */
+const settlePrompt = `${BASE}
+
+ROLE : integrator. ETAGE SETTLE — le dernier du tour. TU N'ECRIS AUCUN CODE.
+
+Le travail du tour a pu PERIMER des taches deja prouvees : plusieurs taches
+partagent des source_paths, donc avancer l'une fait bouger les entrees de
+l'autre, dont la preuve est alors recalculee contre HEAD et tombe STALE. Une
+tache dont une dependance est STALE reste affichee « W attend » meme si sa
+propre attestation vient d'etre poussee. Ton etage ramene le tableau a son point
+fixe.
+
+BOUCLE, 5 ITERATIONS AU PLUS :
+  1. \`node tools/bench resume --json\`. Lis le champ \`stale\`.
+  2. S'il est vide : termine, ok=true, dis combien d'iterations il a fallu.
+  3. Sinon, pour CHAQUE tache de \`stale\`, dans l'ordre :
+     \`node tools/bench accept <Txx>\`.
+     - sortie 0 : l'attestation est refaite, continue.
+     - sortie non nulle : NE FORCE RIEN. Note le refus nomme tel quel et passe
+       a la suivante. Un refus ici est une information, pas un obstacle a
+       contourner : il veut dire que la tache demande du VRAI travail (code,
+       porte rouge, capacite absente), ce qui est l'affaire d'un prochain tour.
+  4. \`git push --atomic origin ${BRANCH} ${LEDGER}\` (4 reprises, 2s/4s/8s/16s).
+  5. Recommence.
+
+Si apres 5 iterations \`stale\` n'est toujours pas vide, rends ok=false avec
+l'etat \`SETTLE_NON_CONVERGENT\`, la liste des taches restantes ET le refus exact
+de chacune. Ne cherche pas a resoudre plus loin : une non-convergence est un fait
+a rapporter, pas a contourner.
+
+INTERDITS, comme partout : pas de --no-verify, aucune edition du registre ni des
+cartes, aucun cas retire ou affaibli, aucune ecriture hors zone. Tu n'appelles
+que \`bench resume\`, \`bench accept\` et \`git push\`.
+
+Rends : le nombre d'iterations, les taches re-attestees, celles qui ont refuse
+avec leur motif, et l'etat final de \`resume\` (nombre de [H] sur 44).`
+
 const settle = await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME })
 
 // L'issue rendue ici est un COMPTE RENDU, pas une preuve. La seule preuve est

@@ -41,7 +41,17 @@
     "`--frozen` sort en 0, `--locked` sort en 1. A6 porte donc DEUX mutants :",
     "T00.M6 mute l'artefact (le lockfile bouge), T00.M7 affaiblit la commande",
     "(le manifeste decale cesse d'etre refuse). Un seul des deux ne suffit pas :",
-    "jusqu'a T00.M7, la moitie Python d'A6 etait verte sans rien asserter."
+    "jusqu'a T00.M7, la moitie Python d'A6 etait verte sans rien asserter.",
+    "",
+    "QUATRE FORMES DE REFUS, DEUX MUTANTS (A4). Le cahier (L565) enumere ce que",
+    "le validateur refuse : \u00ab id inconnu, cycle, doublon ou dependance absente \u00bb.",
+    "T00.M4 ne couvre que la premiere \u2014 la resolution d'un identifiant. Les trois",
+    "autres sont structurelles et vivent ailleurs dans le programme : un",
+    "validateur peut parfaitement refuser T99 et laisser entrer un registre",
+    "cyclique. T00.M8 est leur contre-epreuve, et A4 les exerce sur trois",
+    "registres DERIVES du meme registre synthetique isole, de sorte que la seule",
+    "difference entre le registre accepte et le registre refuse soit la",
+    "corruption nommee."
   ],
   "schema": "bench.mutants/1",
   "task": "T00",
@@ -51,7 +61,7 @@
     "T00"
   ],
   "acceptance_entry": "acceptance/T00.spec.ts",
-  "mutant_count": 7,
+  "mutant_count": 8,
   "mutants": [
     {
       "id": "T00.M1",
@@ -175,6 +185,25 @@
         "T00.A3",
         "T00.A4",
         "T00.A5"
+      ]
+    },
+    {
+      "id": "T00.M8",
+      "kills_case": "T00.A4",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "La validation STRUCTURELLE du registre \u2014 le point qui refuse un graphe de dependances cyclique, deux cartes portant le meme id, ou une dependance qui ne designe aucune carte presente (cahier L565). Distinct de T00.M4, qui porte sur la resolution d'un identifiant demande.",
+      "mutation": "Rendre la validation structurelle permissive, sur une seule des trois formes ou sur les trois : ne plus chercher de circuit dans le graphe depends_on ; ou ne plus detecter deux cartes de meme id (la derniere ecrase simplement la premiere) ; ou ne plus verifier que chaque entree de depends_on designe une carte du registre. Le runner repond alors, sur le registre corrompu, le meme verdict que sur un registre sain \u2014 typiquement exit 2 / NOT_IMPLEMENTED \u2014 au lieu de REGISTRY_INVALID.",
+      "expected_effect": "T00.A4 devient rouge. Une seule des trois formes suffit.",
+      "observation_qui_echoue": "A4 fabrique trois corruptions par derivation du registre synthetique isole acceptance/fixtures/registries/synthetic-44-not-implemented.json \u2014 cycle T01->T02->T01 ; carte T02 dupliquee ; T01 dependant de T99, absent du registre \u2014 et exige pour les TROIS exit 2 ET reason = REGISTRY_INVALID, dans une seule egalite de tableau : la forme non detectee y apparait avec son verdict reel, et l'egalite tombe. Le cas porte en outre le CONTROLE inverse : le registre INTACT, passe par le meme mecanisme, ne doit pas repondre REGISTRY_INVALID \u2014 sans quoi un validateur qui declarerait tout registre invalide verdirait les trois refus sans rien prouver.",
+      "pourquoi_cette_perturbation": "Cas `refusal` : la porte \u00ab necessite \u00bb usuelle ne mord pas, un stub qui leve rendrait A4 vert sans rien prouver. Ce qui doit le tuer est l'implementation qui ACCEPTE. Et il faut un mutant distinct de T00.M4 parce que les deux refus ne partagent pas leur point de decision : \u00ab le registre de dependances fait autorite \u00bb (cahier L541) n'a de sens que si le graphe lui-meme est valide. Sans ce mutant, A4 pouvait rester vert sur un validateur qui ne connaissait que l'id inconnu \u2014 c'est-a-dire sur trois quarts de l'exigence de L565 non couverts.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A3",
+        "T00.A5",
+        "T00.A6"
       ]
     }
   ]

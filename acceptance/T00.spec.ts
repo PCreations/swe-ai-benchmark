@@ -17,7 +17,7 @@
  *   tache inconnue         -> code 2, reason UNKNOWN_TASK
  *   registre invalide      -> code 2, reason REGISTRY_INVALID
  *
- * DEUX REGLES STRUCTURANTES.
+ * TROIS REGLES STRUCTURANTES.
  *
  * 1. Le code de sortie ne suffit pas. Invariant 12 (cahier L74) : « ni test
  *    saute, ni rapport absent, ni simple code de sortie d'un sous-processus ne
@@ -30,6 +30,14 @@
  *    le defaut decisif signale par verification/cases.lock.json. Ils sont donc
  *    ecrits « en tenaille » — le refus attendu est assorti d'un CONTROLE qui
  *    echoue si le runner refuse tout indistinctement.
+ *
+ * 3. PROVENANCE DES LITTERAUX. Tout litteral compare dans une assertion porte
+ *    un commentaire `// cahier:L<n>` resolvable par
+ *    `sed -n '<n>p' docs/cahier.md`, ou renvoie a l'arbitrage ADR-005 quand le
+ *    cahier laisse une lacune (les jetons `reason` : le cahier fixe quatre
+ *    etats en L153 et trois codes en L133, jamais les noms). Aucun litteral
+ *    n'est issu d'une execution : figer ce qu'on a vu passer fermerait la
+ *    boucle que cette suite existe pour ouvrir.
  */
 
 // La chaine tourne en ESM reel (jest.config.mjs : useESM + extensionsToTreatAsEsm,
@@ -529,6 +537,12 @@ afterAll(() => {
 describe('T00 — depot initialise et verificateur minimal', () => {
   test('T00.A1 installe depuis les lockfiles et compile le module de contrat packages/contracts', async () => {
     // (a) l'installation figee des deux chaines doit reussir
+    // cahier:L155 — « T00.A1 installe a partir des lockfiles et compile un
+    // module de contrat » ; les DEUX chaines parce que cahier:L32 fixe « Jest
+    // pour TypeScript, Python 3.12 et pytest pour l'analyse » et que
+    // cahier:L151 livre workspace pnpm ET environnement Python verrouille.
+    // Le module vise est packages/contracts : ADR-005 point 3, seul chemin que
+    // cahier:L36-L59 associe aux « schemas de messages, identites, [...] ».
     expect({
       pnpm: frozen.pnpm.code,
       uv: frozen.uv.code,
@@ -649,6 +663,10 @@ describe('T00 — depot initialise et verificateur minimal', () => {
 
   test('T00.A2 un test vrai donne 0, sur les deux chaines, avec un rapport qui le prouve', () => {
     const passing = PROBES.filter((p) => p.truthy);
+    // cahier:L32 (« Jest pour TypeScript, Python 3.12 et pytest pour
+    // l'analyse ») et cahier:L135 (« acceptance/Txx.spec.ts OU
+    // analysis/tests/test_Txx.py ») : le contrat de sortie vaut pour les deux
+    // chaines. ADR-005 point 5 en tire la consequence pour A2/A3.
     expect(passing.map((p) => p.chain).sort()).toEqual(['jest', 'pytest']); // ADR-005 point 5
 
     // Les DEUX chaines sont OBSERVEES avant toute assertion de verdict. Une
@@ -708,6 +726,12 @@ describe('T00 — depot initialise et verificateur minimal', () => {
     });
 
     // Code de sortie ET contenu du rapport, pour chaque chaine (invariant 12).
+    // cahier:L133 — « code 0 si toutes ses assertions requises et ses
+    // dependances reussissent » ; cahier:L155 — « A2 un test vrai donne 0 ».
+    // Le jeton PASS vient d'ADR-005 point 1, qui projette les quatre etats de
+    // cahier:L153 sur les trois codes de cahier:L133.
+    // cahier:L74 — le code de sortie seul ne suffit pas : d'ou le rapport, les
+    // cas attendus, les cas executes, les statuts individuels et « aucun saute ».
     expect(observed).toEqual(
       passing.map((probe) => ({
         chaine: probe.chain,
@@ -724,6 +748,7 @@ describe('T00 — depot initialise et verificateur minimal', () => {
 
   test('T00.A3 la variante volontairement fausse donne 1 — le runner ne doit pas devenir permissif', () => {
     const failing = PROBES.filter((p) => !p.truthy);
+    // Memes sources qu'en A2 : cahier:L32, cahier:L135, ADR-005 point 5.
     expect(failing.map((p) => p.chain).sort()).toEqual(['jest', 'pytest']); // ADR-005 point 5
     expect(failing.filter((p) => p.cases.length === 0)).toEqual([]);
 
@@ -770,6 +795,10 @@ describe('T00 — depot initialise et verificateur minimal', () => {
       };
     });
 
+    // cahier:L133 — « code 1 si une assertion echoue » ; cahier:L155 — « A3 sa
+    // variante volontairement fausse donne 1 ». Le jeton ASSERTION_FAILED vient
+    // d'ADR-005 point 1 (etats de cahier:L153). cahier:L139 — « le verificateur
+    // refuse les tests sautes » : d'ou casFauxExecute et le statut individuel.
     expect(observed).toEqual(
       failing.map((probe) => ({
         chaine: probe.chain,
@@ -791,6 +820,9 @@ describe('T00 — depot initialise et verificateur minimal', () => {
 
     // REFUS : une implementation qui accepte un id inconnu meurt sur les deux
     // assertions suivantes (elle sortirait 0 / PASS).
+    // cahier:L155 — « A4 `T99` est refuse » ; l'id T99 est le sien, pas le
+    // notre. cahier:L133 donne le code : une tache inconnue n'a rien execute,
+    // donc ni 0 ni 1 — ADR-005 point 1 tranche 2 / UNKNOWN_TASK.
     expect({ exit: proc.code, reason }).toEqual({ exit: 2, reason: 'UNKNOWN_TASK' });
     expect(proc.code).not.toBe(0);
 
@@ -817,6 +849,81 @@ describe('T00 — depot initialise et verificateur minimal', () => {
     const capable = capabilityOfNonRefusal();
     expect({ controle: 'capacite-de-non-refus', exit: capable.code, reason: capable.reason })
       .toEqual({ controle: 'capacite-de-non-refus', exit: 0, reason: 'PASS' });
+
+    // ------------------------------------------------------------------
+    // SECOND VOLET — les TROIS AUTRES refus que le cahier nomme.
+    //
+    // cahier:L565 — « Le validateur refuse id inconnu, cycle, doublon ou
+    // dependance absente ». L'id inconnu, seul exerce ci-dessus, n'est que la
+    // premiere des quatre formes ; les trois autres sont structurelles. Un
+    // validateur qui ne verrait que l'id inconnu laisserait entrer un registre
+    // cyclique ou ampute, et « le registre de dependances fait autorite »
+    // (cahier:L541) cesserait d'etre vrai.
+    //
+    // Chaque corruption est DERIVEE du meme registre synthetique isole : la
+    // seule difference entre le registre accepte et le registre refuse est la
+    // corruption nommee. Aucune n'est lue d'un fichier fige : elle est visible
+    // ici, dans le cas qui l'exige.
+    const corruptions: Array<{ nom: string; fabrique: (cards: Json[]) => Json[] }> = [
+      {
+        // Cycle : T01 -> T02 -> T01. La table cahier:L567 est un ordre partiel
+        // sans circuit ; la refermer est precisement ce que L565 interdit.
+        nom: 'cycle',
+        fabrique: (cards) =>
+          cards.map((c) =>
+            c.id === 'T01'
+              ? { ...c, depends_on: ['T02'] }
+              : c.id === 'T02'
+                ? { ...c, depends_on: ['T01'] }
+                : c,
+          ),
+      },
+      {
+        // Doublon : une seconde carte portant un id deja present. cahier:L567
+        // enumere chaque tache une fois et une seule.
+        nom: 'doublon',
+        fabrique: (cards) => {
+          const t02 = cards.find((c) => c.id === 'T02');
+          if (t02 === undefined) throw new Error('fixture de registre sans carte T02');
+          return [...cards, { ...t02 }];
+        },
+      },
+      {
+        // Dependance absente : T01 depend de T99, qui n'est pas une tache. Le
+        // cahier fournit lui-meme cet id hors registre (cahier:L155) et sa
+        // table s'arrete a T43 (cahier:L567).
+        nom: 'dependance-absente',
+        fabrique: (cards) =>
+          cards.map((c) => (c.id === 'T01' ? { ...c, depends_on: ['T99'] } : c)),
+      },
+    ];
+
+    // Les trois corruptions sont OBSERVEES avant toute assertion : une
+    // assertion posee dans la boucle masquerait les suivantes, et le rapport
+    // d'echec ne dirait rien des formes non atteintes.
+    const structurel = corruptions.map((c) => {
+      const base = loadFixture(FIXTURE_NOT_IMPLEMENTED);
+      const cards = (base.tasks as Json[]).map((t) => ({ ...t }));
+      const corrompu = materialize({ ...base, tasks: c.fabrique(cards) }, `registry-a4-${c.nom}.json`);
+      const r = runVerify('T01', corrompu);
+      return { corruption: c.nom, exit: r.code, reason: reasonOf('T01', r) };
+    });
+
+    // cahier:L565 — « refuse » : jamais 0. cahier:L133 donne le code — un
+    // registre invalide n'a rien execute, donc ni 0 ni 1 ; ADR-005 point 1
+    // nomme l'etat REGISTRY_INVALID.
+    expect(structurel).toEqual(
+      corruptions.map((c) => ({ corruption: c.nom, exit: 2, reason: 'REGISTRY_INVALID' })),
+    );
+
+    // CONTROLE — un validateur qui declarerait TOUT registre invalide rendrait
+    // les trois refus ci-dessus verts sans rien prouver. Le registre INTACT,
+    // passe par le meme mecanisme (c'est l'invocation de controle ci-dessus),
+    // ne doit jamais repondre REGISTRY_INVALID.
+    expect({ registre: 'intact', reason: controlReason }).not.toEqual({
+      registre: 'intact',
+      reason: 'REGISTRY_INVALID',
+    });
   }, SUITE_TIMEOUT_MS);
 
   test('T00.A5 T01 non implementee dans un registre synthetique isole n est jamais declaree reussie', () => {
@@ -827,6 +934,11 @@ describe('T00 — depot initialise et verificateur minimal', () => {
 
     // REFUS : une implementation permissive (PASS a vide, faute de resultat
     // observe) meurt sur ces deux assertions.
+    // cahier:L155 — « A5 T01 marquee non implementee dans un registre
+    // synthetique isole n'est pas declaree reussie » ; cahier:L153 — « il
+    // produit une preuve seulement a partir d'un resultat de test observe ».
+    // Code 2 : cahier:L133 (rien n'a tourne) ; jeton NOT_IMPLEMENTED :
+    // ADR-005 point 1.
     expect({ exit: proc.code, reason }).toEqual({ exit: 2, reason: 'NOT_IMPLEMENTED' });
     expect(proc.code).not.toBe(0);
 
@@ -838,7 +950,8 @@ describe('T00 — depot initialise et verificateur minimal', () => {
       expect(green).toEqual([]); // aucune preuve sans resultat de test observe
     }
 
-    // REFUS, second volet — « editer ce champ en DONE ne valide rien » (L631).
+    // REFUS, second volet — cahier:L631 : « editer ce champ en DONE ne valide
+    // rien ».
     // Meme registre, T01 declaree DONE, toujours rien d'implemente.
     const declaredDone = materialize(loadFixture(FIXTURE_T01_DONE), 'registry-a5-done.json');
     const procDone = runVerify('T01', declaredDone);
@@ -863,6 +976,10 @@ describe('T00 — depot initialise et verificateur minimal', () => {
   }, SUITE_TIMEOUT_MS);
 
   test('T00.A6 les lockfiles restent inchanges apres installation figee', () => {
+    // cahier:L155 — « A6 le lockfile reste inchange apres installation figee ».
+    // Le PLURIEL vient de cahier:L157 (« empreintes des lockfiles ») et de
+    // cahier:L151 (workspace pnpm ET environnement Python verrouille) ; le
+    // sha256 de cahier:L82 (« les empreintes utilisent SHA-256 »).
     // Les deux chaines sont verrouillees (ADR-005 point 4).
     const tracked: readonly [string, string] = ['pnpm-lock.yaml', path.join('analysis', 'uv.lock')];
 

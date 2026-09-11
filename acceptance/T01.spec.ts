@@ -43,18 +43,42 @@
  * -------------------------------------------------------------------------
  * PROVENANCE DES LITTERAUX.
  *
- * Les seuls nombres compares ici viennent de la fixture maitresse F-MONEY du
- * cahier (l.103) et portent le commentaire `// cahier:L103`. Le contrat de
- * sortie (0 / PASS) vient de l.133 et d'ADR-005 point 1. Aucun litteral n'a
- * ete releve sur une execution.
+ * Tout nombre compare ici vient de l'une des deux sources admises, et d'aucune
+ * autre :
+ *   - la grille du cahier l.103, recalculee dans la suite (100 x 2 + 40 x 1 +
+ *     20 x 5 = 340 ; deux appels = 680), chaque terme portant `// cahier:L103` ;
+ *   - la fixture maitresse acceptance/reference/F-MONEY.json, LUE a son chemin
+ *     canonique dans la racine gelee et confrontee a la grille ci-dessus — A4
+ *     et A6 ferment la boucle des deux cotes.
+ * Les comptes de taches et de cas (44 taches ; le total des cas) ne sont pas
+ * ecrits en dur : 44 vient de la l.5, et le total est COMPTE dans docs/cahier.md
+ * puis confronte a ce que verification/tasks.json declare. Le contrat de sortie
+ * (0 / PASS) vient de l.133 et d'ADR-005 point 1. Aucun litteral n'a ete releve
+ * sur une execution.
  *
  * -------------------------------------------------------------------------
  * AVEUGLEMENT (ADR-001). Cette suite a ete ecrite depuis docs/specs/T01.md,
- * docs/cahier.md, verification/cases.lock.json et la surface publique deja
- * livree par T00 (`bench help`). Elle ne nomme aucun chemin de module de
+ * docs/cahier.md, verification/cases.lock.json, verification/tasks.json, la
+ * racine gelee acceptance/reference/** avec sa declaration de gel
+ * docs/FROZEN_ROOTS.json, et la surface publique deja livree par T00
+ * (`bench help`). Elle ne nomme aucun chemin de module de
  * verification/runner/**, et n'importe rien de l'implementation : tout passe
  * par la commande publique `pnpm verify:task <Txx>` et par le rapport
  * verification/results/<Txx>.json que le cahier (l.135) prescrit.
+ *
+ * -------------------------------------------------------------------------
+ * CE QUI A CHANGE DEPUIS LA PREMIERE ECRITURE DE CETTE SUITE (commit 4935061).
+ *
+ * 1. acceptance/reference/** N'EXISTAIT PAS. A6 cherchait « un fichier de la
+ *    racine contenant 340 ». La racine existe et est scellee : A6 lit desormais
+ *    F-MONEY a son chemin canonique, compare l'empreinte constatee a celle que
+ *    docs/FROZEN_ROOTS.json declare, et corrompt la VALEUR declaree au lieu de
+ *    substituer un motif texte. A4 confronte en outre le total de sa fixture de
+ *    sonde a celui que la fixture maitresse declare.
+ * 2. LE TABLEAU §J DE LA CARTE ETAIT TRONQUE a quatre lignes (commit 8d0e5ec l'a
+ *    porte a L567-L612, et lui a joint L541 et L543-L545). A3 y gagne son
+ *    controle de registre : sur quatre lignes, « le registre reference
+ *    reellement tous les cas du cahier » (l.167) n'etait pas decidable.
  *
  * Le cahier ne fige pas le NOM des champs du rapport (l.135 en fige le
  * CONTENU). Les lectures portent donc sur un ensemble borne et documente de
@@ -459,11 +483,47 @@ interface MoneyReference {
   original: Buffer;
 }
 
+const FROZEN_ROOTS = path.join(REPO, 'docs', 'FROZEN_ROOTS.json');
+const F_MONEY = path.join(REFERENCE_DIR, 'F-MONEY.json');
+
 /**
- * Localise la fixture maitresse F-MONEY dans acceptance/reference/**.
- * Le cahier (l.161) exige sa presence ; il n'en fixe ni le nom de fichier ni la
- * serialisation. La recherche porte donc sur le contenu, et echoue bruyamment.
+ * LA GRILLE DU CAHIER, RECALCULEE ICI — aucun de ces nombres n'a ete releve sur
+ * une execution, ni recopie depuis le fichier que ce test juge.
+ *
+ * cahier:L103 — « `F-MONEY`. Grille fictive : entree non cachee 2
+ * micro-USD/token ; entree cachee 1 ; sortie 5. Un appel de 100 tokens non
+ * caches, 40 caches et 20 de sortie vaut 340 micro-USD. Deux appels identiques
+ * valent 680. »
  */
+const MONEY = {
+  prix_entree_non_cachee: 2, // cahier:L103
+  prix_entree_cachee: 1, // cahier:L103
+  prix_sortie: 5, // cahier:L103
+  tokens_entree_non_caches: 100, // cahier:L103
+  tokens_entree_caches: 40, // cahier:L103
+  tokens_sortie: 20, // cahier:L103
+  nombre_d_appels_identiques: 2, // cahier:L103
+} as const;
+
+/** 100 x 2 + 40 x 1 + 20 x 5 = 340 micro-USD. cahier:L103 */
+const MONEY_UN_APPEL =
+  MONEY.tokens_entree_non_caches * MONEY.prix_entree_non_cachee +
+  MONEY.tokens_entree_caches * MONEY.prix_entree_cachee +
+  MONEY.tokens_sortie * MONEY.prix_sortie;
+
+/** Deux appels identiques : 680 micro-USD. cahier:L103 */
+const MONEY_DEUX_APPELS = MONEY.nombre_d_appels_identiques * MONEY_UN_APPEL;
+
+/**
+ * Chemins documentes PAR LA FIXTURE elle-meme (`valeurs.<groupe>.<champ>.valeur`).
+ * Ils ne sont pas devinables : ils sont lus dans acceptance/reference/F-MONEY.json,
+ * fichier de la racine GELEE (cahier:L139, docs/FROZEN_ROOTS.json).
+ */
+const CHEMIN_COUT_UN_APPEL = ['valeurs', 'appel_de_reference', 'cout_attendu', 'valeur'] as const;
+const CHEMIN_COUT_DEUX_APPELS = [
+  'valeurs', 'deux_appels_identiques', 'cout_attendu', 'valeur',
+] as const;
+
 function walk(dir: string): string[] {
   const out: string[] = [];
   if (!fs.existsSync(dir)) return out;
@@ -475,29 +535,158 @@ function walk(dir: string): string[] {
   return out;
 }
 
-function findMoneyReference(): { file: string; text: string } | string {
-  const files = walk(REFERENCE_DIR);
-  if (files.length === 0) {
-    return `ABSENT acceptance/reference/** est vide ou inexistant (livrable T01, cahier L161)`;
+/** Descend un chemin de cles ; rend `undefined` des qu'une etape manque. */
+function at(root: unknown, chemin: readonly string[]): unknown {
+  let cur: unknown = root;
+  for (const k of chemin) {
+    if (cur === null || typeof cur !== 'object') return undefined;
+    cur = (cur as Json)[k];
   }
-  const candidates: string[] = [];
-  for (const f of files) {
-    let text: string;
-    try {
-      text = fs.readFileSync(f, 'utf8');
-    } catch {
-      continue;
-    }
-    if (/F[-_ ]?MONEY/i.test(text) || /f[-_]?money/i.test(path.basename(f))) {
-      candidates.push(f);
-      if (/(^|[^0-9])340([^0-9]|$)/.test(text)) return { file: f, text };
+  return cur;
+}
+
+/**
+ * La fixture maitresse F-MONEY, lue A SON CHEMIN CANONIQUE.
+ *
+ * La version precedente de cette suite cherchait « un fichier de
+ * acceptance/reference contenant 340 » : la racine n'existait pas encore et le
+ * cahier n'en fixe pas le nom de fichier. Elle existe desormais, scellee par
+ * docs/FROZEN_ROOTS.json. La chercher par son contenu reviendrait a laisser le
+ * fichier juge choisir lui-meme s'il est le bon — une fixture corrompue au
+ * point de ne plus porter 340 deviendrait « introuvable » au lieu d'etre
+ * refusee. Echoue bruyamment en listant la racine reellement presente.
+ */
+function lireFMoney(): { file: string; text: string; objet: Json } | string {
+  if (!fs.existsSync(F_MONEY)) {
+    const presents = walk(REFERENCE_DIR).map((f) => path.relative(REPO, f));
+    return (
+      `ABSENT ${path.relative(REPO, F_MONEY)} (livrable T01, cahier L161) — ` +
+      `racine=[${presents.join(', ')}]`
+    );
+  }
+  const text = fs.readFileSync(F_MONEY, 'utf8');
+  let objet: Json;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (parsed === null || typeof parsed !== 'object') return `ILLISIBLE ${path.relative(REPO, F_MONEY)} : racine non objet`;
+    objet = parsed as Json;
+  } catch (e) {
+    return `ILLISIBLE ${path.relative(REPO, F_MONEY)} : ${String(e)}`;
+  }
+  return { file: F_MONEY, text, objet };
+}
+
+/**
+ * L'empreinte que docs/FROZEN_ROOTS.json declare pour un fichier de la racine
+ * gelee. cahier:L139 — « La racine des fixtures de reference est gelee apres
+ * T01 ; toute modification est visible dans le diff et invalide les preuves
+ * precedentes. » Rend un diagnostic (jamais une valeur plausible) si la
+ * declaration manque : une comparaison ne peut pas verdir par defaut.
+ */
+function empreinteGelee(relatif: string): string {
+  if (!fs.existsSync(FROZEN_ROOTS)) return 'DECLARATION-DE-GEL-ABSENTE';
+  const decl: unknown = JSON.parse(fs.readFileSync(FROZEN_ROOTS, 'utf8'));
+  const roots = at(decl, ['roots']);
+  if (!Array.isArray(roots)) return 'DECLARATION-DE-GEL-SANS-RACINE';
+  for (const r of roots) {
+    const fichiers = at(r, ['fichiers']);
+    if (!Array.isArray(fichiers)) continue;
+    for (const f of fichiers) {
+      if (at(f, ['chemin']) === relatif) {
+        const s = at(f, ['sha256']);
+        return typeof s === 'string' ? s : `EMPREINTE-NON-DECLAREE(${relatif})`;
+      }
     }
   }
-  return (
-    `INTROUVABLE F-MONEY portant 340 — candidats=[${candidates
-      .map((c) => path.relative(REPO, c))
-      .join(', ')}] fichiers=[${files.map((c) => path.relative(REPO, c)).join(', ')}]`
-  );
+  return `NON-GELE(${relatif})`;
+}
+
+/* ------------------------------------- le registre confronte au cahier (L167) */
+
+const CAHIER = path.join(REPO, 'docs', 'cahier.md');
+const TASKS_REGISTRY = path.join(REPO, 'verification', 'tasks.json');
+
+interface CarteDeTache {
+  id: string;
+  depends_on: string[];
+  required_cases: string[];
+}
+interface Registre {
+  required_case_count?: number;
+  tasks: CarteDeTache[];
+}
+
+function lireCahier(): string[] {
+  return fs.readFileSync(CAHIER, 'utf8').split('\n');
+}
+
+function lireRegistre(): Registre {
+  return JSON.parse(fs.readFileSync(TASKS_REGISTRY, 'utf8')) as Registre;
+}
+
+/** §H — une section par tache : `**Txx — titre**` jusqu'a l'en-tete suivante. */
+function sectionsDeTache(lines: string[]): Array<{ id: string; texte: string }> {
+  const debuts: Array<{ id: string; ligne: number }> = [];
+  lines.forEach((l, i) => {
+    const m = /^\*\*(T\d\d)\s+—/.exec(l);
+    if (m !== null) debuts.push({ id: m[1] as string, ligne: i });
+  });
+  return debuts.map((d, i) => {
+    const suivant = debuts[i + 1];
+    const fin = suivant === undefined ? lines.length : suivant.ligne;
+    return { id: d.id, texte: lines.slice(d.ligne, fin).join('\n') };
+  });
+}
+
+/**
+ * Les identifiants de cas que le CAHIER nomme, tache par tache. Il ecrit le
+ * premier en entier (`T01.A1`) puis abrege (`A2` ... `A6`) ; les deux formes
+ * sont toujours entre accents graves. Un identifiant pleinement qualifie est
+ * attribue a la tache qu'il nomme, jamais a la section qui le cite.
+ */
+function casNommesParLeCahier(lines: string[]): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const s of sectionsDeTache(lines)) {
+    const ids = new Set<string>();
+    for (const m of s.texte.matchAll(/`(T\d\d)\.(A\d+)`/g)) {
+      ids.add(`${m[1] as string}.${m[2] as string}`);
+    }
+    for (const m of s.texte.matchAll(/`(A\d+)`/g)) ids.add(`${s.id}.${m[1] as string}`);
+    out.set(s.id, [...ids].sort());
+  }
+  return out;
+}
+
+/**
+ * §J — le tableau des dependances directes (cahier:L567-L612, de-tronque par la
+ * carte de specification). `—` vaut aucune dependance ; « Toutes les taches
+ * TAA a TBB » est une plage inclusive, pas deux dependances.
+ */
+function dependancesDuCahier(lines: string[]): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const entete = lines.findIndex((l) => /^\|\s*Tâche\s*\|\s*Dépendances directes\s*\|$/.test(l));
+  if (entete < 0) return out;
+  for (let i = entete + 1; i < lines.length; i += 1) {
+    const l = lines[i] as string;
+    if (!l.startsWith('|')) break;
+    const m = /^\|\s*(T\d\d)\s*\|\s*(.*?)\s*\|$/.exec(l);
+    if (m === null) continue;
+    const cellule = m[2] as string;
+    const plage = /[Tt]outes les t[âa]ches\s+T(\d\d)\s+[àa]\s+T(\d\d)/.exec(cellule);
+    let deps: string[];
+    if (plage !== null) {
+      deps = [];
+      for (let n = Number(plage[1]); n <= Number(plage[2]); n += 1) {
+        deps.push(`T${String(n).padStart(2, '0')}`);
+      }
+    } else if (/^[—–-]?$/.test(cellule)) {
+      deps = [];
+    } else {
+      deps = cellule.match(/T\d\d/g) ?? [];
+    }
+    out.set(m[1] as string, deps);
+  }
+  return out;
 }
 
 /* ---------------------------------------------------------------- hygiene */
@@ -687,14 +876,85 @@ describe('T01 — le systeme de preuve n est pas contournable par accident', () 
       observes: autres.filter((id) => executes.includes(id)).length,
       attendus: autres.length,
     }).toEqual({ observes: autres.length, attendus: autres.length });
+
+    // ------------------------------------------------------------------
+    // CONTROLE — LA LISTE DES IDENTIFIANTS OBLIGATOIRES EST CELLE DU CAHIER.
+    //
+    // cahier:L167 — « Fin : les six variantes negatives sont detectees, le cas
+    // valide passe, et le registre reference REELLEMENT TOUS LES CAS DU
+    // CAHIER. » cahier:L541 — « Le registre de dependances fait autorite. »
+    //
+    // Sans ce controle, tout ce qui precede reste vrai et creux : refuser un
+    // rapport auquel manque un identifiant obligatoire ne protege rien si la
+    // liste des identifiants obligatoires peut etre amputee a la source. Le
+    // verrou de cas (verification/cases.lock.json) ne peut pas servir d'oracle
+    // ici — il est lui-meme un fichier du registre. L'oracle est docs/cahier.md,
+    // relu et reparse a chaque execution.
+    //
+    // Le tableau §J (cahier:L567-L612) a ete de-tronque par la carte de
+    // specification precisement pour que cet aval puisse le confronter en
+    // entier : sur quatre lignes, ni un cycle ni une dependance absente n'est
+    // decidable.
+    const lignesDuCahier = lireCahier();
+    const casDuCahier = casNommesParLeCahier(lignesDuCahier);
+    const depsDuCahier = dependancesDuCahier(lignesDuCahier);
+    const registre = lireRegistre();
+    const cartes = new Map(registre.tasks.map((t) => [t.id, t]));
+
+    const ecartsDeCas: string[] = [];
+    for (const [tache, ids] of casDuCahier) {
+      const carte = cartes.get(tache);
+      const declares = carte === undefined ? [] : [...carte.required_cases].sort();
+      if (JSON.stringify(declares) !== JSON.stringify(ids)) {
+        ecartsDeCas.push(`${tache} cahier=[${ids.join(',')}] registre=[${declares.join(',')}]`);
+      }
+    }
+    const ecartsDeDependances: string[] = [];
+    for (const [tache, deps] of depsDuCahier) {
+      const carte = cartes.get(tache);
+      const declarees = carte === undefined ? [] : carte.depends_on;
+      if (JSON.stringify(declarees) !== JSON.stringify(deps)) {
+        ecartsDeDependances.push(
+          `${tache} cahier=[${deps.join(',')}] registre=[${declarees.join(',')}]`,
+        );
+      }
+    }
+    const casComptesDansLeCahier = [...casDuCahier.values()].reduce((n, ids) => n + ids.length, 0);
+
+    expect({
+      tachesNommeesParLeCahier: casDuCahier.size,
+      lignesDuTableauJ: depsDuCahier.size,
+      cartesDuRegistre: registre.tasks.length,
+      // Membre GAUCHE lu dans verification/tasks.json, membre DROIT compte dans
+      // docs/cahier.md : l'egalite n'est pas une tautologie.
+      casDeclaresParLeRegistre: registre.required_case_count,
+      ecartsDeCas,
+      ecartsDeDependances,
+    }).toEqual({
+      tachesNommeesParLeCahier: 44, // cahier:L5 « Il comporte 44 taches, T00 a T43 »
+      lignesDuTableauJ: 44, // cahier:L5
+      cartesDuRegistre: 44, // cahier:L5
+      casDeclaresParLeRegistre: casComptesDansLeCahier,
+      ecartsDeCas: [],
+      ecartsDeDependances: [],
+    });
   }, SUITE_TIMEOUT_MS);
 
   test('T01.A4 une fixture modifiee apres execution invalide la preuve', () => {
     const required = caseIdsOf(PROBE_FIXTURE_TASK);
     fs.mkdirSync(PROBE_FIXTURE_DIR, { recursive: true });
     // cahier:L103 — F-MONEY : 100 non caches a 2, 40 caches a 1, 20 de sortie a 5.
-    const total = 100 * 2 + 40 * 1 + 20 * 5; // cahier:L103
-    expect(total).toBe(340); // cahier:L103
+    // Le total de la sonde est celui de F-MONEY, ferme des DEUX cotes : il est
+    // recalcule depuis la grille du cahier (l.103) ET confronte a la valeur que
+    // declare la fixture maitresse gelee acceptance/reference/F-MONEY.json. Aucun
+    // des deux cotes n'a ete releve sur une execution.
+    const total = MONEY_UN_APPEL; // cahier:L103
+    const referenceLue = lireFMoney();
+    expect({
+      recalculeDepuisLaGrille: total,
+      declareParLaFixtureDeReference:
+        typeof referenceLue === 'string' ? referenceLue : at(referenceLue.objet, CHEMIN_COUT_UN_APPEL),
+    }).toEqual({ recalculeDepuisLaGrille: 340, declareParLaFixtureDeReference: 340 }); // cahier:L103
     fs.writeFileSync(PROBE_FIXTURE, `${JSON.stringify({ total_micro_usd: total }, null, 2)}\n`, 'utf8');
     const empreinteInitiale = sha256File(PROBE_FIXTURE);
 
@@ -837,17 +1097,27 @@ describe('T01 — le systeme de preuve n est pas contournable par accident', () 
   test('T01.A6 la corruption de F-MONEY (341 au lieu de 340) est detectee par la verification des references', () => {
     const required = caseIdsOf(PROBE_REFERENCE);
 
-    // 1. La fixture maitresse F-MONEY existe et porte les valeurs du cahier.
-    const found = findMoneyReference();
-    expect(typeof found === 'string' ? found : 'trouvee').toBe('trouvee');
-    const money = found as { file: string; text: string };
+    // 1. LA FIXTURE MAITRESSE, LUE A SON CHEMIN CANONIQUE DANS LA RACINE GELEE.
+    const lu = lireFMoney();
+    expect(typeof lu === 'string' ? lu : 'lue').toBe('lue');
+    const money = lu as { file: string; text: string; objet: Json };
 
-    // cahier:L103 — 100 non caches a 2 + 40 caches a 1 + 20 de sortie a 5 = 340,
-    // et deux appels identiques valent 680.
-    const attendu = 100 * 2 + 40 * 1 + 20 * 5; // cahier:L103
-    expect(attendu).toBe(340); // cahier:L103
-    expect(new RegExp(`(^|[^0-9])${String(attendu)}([^0-9]|$)`).test(money.text)).toBe(true);
-    expect(new RegExp(`(^|[^0-9])${String(attendu * 2)}([^0-9]|$)`).test(money.text)).toBe(true); // cahier:L103 (680)
+    // 2. ELLE PORTE LES VALEURS DU CAHIER. Les deux nombres compares sont
+    //    RECALCULES depuis la grille de la l.103 (100 x 2 + 40 x 1 + 20 x 5), pas
+    //    releves sur le fichier ni sur une execution. Le troisieme terme lie la
+    //    fixture a son GEL : cahier:L139, « la racine des fixtures de reference
+    //    est gelee apres T01 ».
+    expect(MONEY_UN_APPEL).toBe(340); // cahier:L103
+    expect(MONEY_DEUX_APPELS).toBe(680); // cahier:L103
+    expect({
+      un_appel: at(money.objet, CHEMIN_COUT_UN_APPEL),
+      deux_appels: at(money.objet, CHEMIN_COUT_DEUX_APPELS),
+      sha256: sha256File(money.file),
+    }).toEqual({
+      un_appel: MONEY_UN_APPEL,
+      deux_appels: MONEY_DEUX_APPELS,
+      sha256: empreinteGelee(path.relative(REPO, money.file)),
+    });
 
     referenceBackup = { file: money.file, original: fs.readFileSync(money.file) };
 
@@ -861,17 +1131,39 @@ describe('T01 — le systeme de preuve n est pas contournable par accident', () 
     const sainVerdict = verdict(PROBE_REFERENCE, registry);
     const sainGreens = greenCases(PROBE_REFERENCE, required);
 
-    // JUMEAU VICIE — F-MONEY corrompue : 341 au lieu de 340. Le fichier reste
-    // du JSON bien forme, porte le meme nom, au meme endroit : seule la VALEUR
-    // attendue a change. Un controle qui ne verifierait que la presence et le
-    // nom des fixtures ne verrait rien.
-    const corrompu = money.text.replace(
-      new RegExp(`(^|[^0-9])${String(attendu)}([^0-9]|$)`),
-      (_m, a: string, b: string) => `${a}${String(attendu + 1)}${b}`, // cahier:L165 (341)
-    );
-    expect(corrompu).not.toBe(money.text);
+    // 3. LA CORRUPTION EST CHIRURGICALE. cahier:L165 — « la corruption de
+    //    F-MONEY, par exemple attendu 341 au lieu de 340 ». La suite le verifie
+    //    AVANT d'ecrire : 340 n'apparait qu'une fois dans le fichier, la
+    //    substitution ne deplace donc aucune autre valeur ; la taille en octets
+    //    ne bouge pas ; le JSON reste bien forme ; le cout des deux appels reste
+    //    intact. Le fichier garde son nom et son emplacement : un controle qui ne
+    //    verifierait que la presence et le nom des fixtures ne verrait rien.
+    const occurrences = money.text.split(String(MONEY_UN_APPEL)).length - 1;
+    const corrompu = money.text.replace(String(MONEY_UN_APPEL), String(MONEY_UN_APPEL + 1));
+    let objetCorrompu: unknown = null;
+    let jsonValide = true;
+    try {
+      objetCorrompu = JSON.parse(corrompu);
+    } catch {
+      jsonValide = false;
+    }
+    expect({
+      occurrencesDe340: occurrences,
+      memeTaille: Buffer.byteLength(corrompu) === Buffer.byteLength(money.text),
+      jsonValide,
+      coutUnAppel: at(objetCorrompu, CHEMIN_COUT_UN_APPEL),
+      coutDeuxAppels: at(objetCorrompu, CHEMIN_COUT_DEUX_APPELS),
+    }).toEqual({
+      occurrencesDe340: 1,
+      memeTaille: true,
+      jsonValide: true,
+      coutUnAppel: MONEY_UN_APPEL + 1, // cahier:L165 (341)
+      coutDeuxAppels: MONEY_DEUX_APPELS, // cahier:L103 (680) — inchange
+    });
     fs.writeFileSync(money.file, corrompu, 'utf8');
 
+    // JUMEAU VICIE — meme registre, meme suite, meme tache-sonde : seule la
+    // VALEUR attendue de la fixture maitresse a change.
     let vicieVerdict: Verdict;
     let vicieGreens: string[];
     try {
@@ -880,7 +1172,15 @@ describe('T01 — le systeme de preuve n est pas contournable par accident', () 
     } finally {
       restoreReference();
     }
-    expect(fs.readFileSync(money.file, 'utf8')).toBe(money.text); // la reference gelee est rendue intacte
+
+    // 4. LA RACINE GELEE EST RENDUE TELLE QUE HEAD LA PORTE. Octet pour octet,
+    //    et confirme par git : la suite ne laisse jamais derriere elle une
+    //    racine de reference modifiee, ce qui invaliderait toute attestation
+    //    ulterieure (cahier:L137, tout diff de source non committe l'interdit).
+    expect(fs.readFileSync(money.file, 'utf8')).toBe(money.text);
+    expect(
+      run('git', ['status', '--porcelain', '--', path.relative(REPO, REFERENCE_DIR)]).stdout.trim(),
+    ).toBe('');
 
     expect({
       sain: { exit: sainVerdict.exit, reason: sainVerdict.reason, verts: sainGreens.length },

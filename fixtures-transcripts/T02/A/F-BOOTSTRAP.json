@@ -1,0 +1,163 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T02",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_cahier_line": 101,
+    "paragraphes_cahier_line": [
+      117
+    ],
+    "methode": "transcription directe du texte de §F ; aucune valeur recalculee depuis une implementation, un cas d'acceptation ou un test"
+  },
+  "base": {
+    "valeur": "les deux projets precedents : P1 (A=10, B=20) et P2 (A=90, B=100)",
+    "cahier_line": 117,
+    "cahier_line_projets": 115
+  },
+  "liste_reechantillonnages_forcee": {
+    "valeur": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ],
+    "ordre": "conserve tel qu'enonce",
+    "cahier_line": 117
+  },
+  "ratios_cout_A_sur_B": {
+    "valeurs": [
+      {
+        "rationnel": "1/2",
+        "numerateur": 1,
+        "denominateur": 2,
+        "cahier_line": 117,
+        "decimal_exact": 0.5
+      },
+      {
+        "rationnel": "5/6",
+        "numerateur": 5,
+        "denominateur": 6,
+        "cahier_line": 117,
+        "decimal_exact": null,
+        "note_decimale": "developpement decimal infini : le cahier ne fixe aucune valeur decimale ; toute ecriture arrondie serait une fixture fausse"
+      },
+      {
+        "rationnel": "5/6",
+        "numerateur": 5,
+        "denominateur": 6,
+        "cahier_line": 117,
+        "decimal_exact": null,
+        "note_decimale": "developpement decimal infini : le cahier ne fixe aucune valeur decimale ; toute ecriture arrondie serait une fixture fausse"
+      },
+      {
+        "rationnel": "9/10",
+        "numerateur": 9,
+        "denominateur": 10,
+        "cahier_line": 117,
+        "decimal_exact": 0.9
+      }
+    ],
+    "cahier_line": 117,
+    "verification_arithmetique": [
+      {
+        "tirage": [
+          "P1",
+          "P1"
+        ],
+        "moyenne_A": 10,
+        "moyenne_B": 20,
+        "ratio": "1/2"
+      },
+      {
+        "tirage": [
+          "P1",
+          "P2"
+        ],
+        "moyenne_A": 50,
+        "moyenne_B": 60,
+        "ratio": "5/6"
+      },
+      {
+        "tirage": [
+          "P2",
+          "P1"
+        ],
+        "moyenne_A": 50,
+        "moyenne_B": 60,
+        "ratio": "5/6"
+      },
+      {
+        "tirage": [
+          "P2",
+          "P2"
+        ],
+        "moyenne_A": 90,
+        "moyenne_B": 100,
+        "ratio": "9/10"
+      }
+    ]
+  },
+  "intervalle": {
+    "convention": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "niveaux": {
+      "valeur": "2,5 % - 97,5 %",
+      "cahier_line": 117,
+      "bas": "2.5%",
+      "haut": "97.5%"
+    },
+    "borne_basse": {
+      "rationnel": "1/2",
+      "numerateur": 1,
+      "denominateur": 2,
+      "cahier_line": 117,
+      "decimal_exact": 0.5
+    },
+    "borne_haute": {
+      "rationnel": "9/10",
+      "numerateur": 9,
+      "denominateur": 10,
+      "cahier_line": 117,
+      "decimal_exact": 0.9
+    },
+    "ecriture_du_cahier": "[1/2,9/10]"
+  },
+  "portee": {
+    "valeur": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+    "cahier_line": 117
+  },
+  "ambiguites": [],
+  "notes_de_lecture": [
+    {
+      "sujet": "« les deux projets precedents »",
+      "constat": "Le renvoi peut viser F-CLUSTERS (ligne 115) ou F-COST-RATIO (ligne 113) : les deux portent les memes couples (10,20) et (90,100), donc les quatre ratios sont identiques dans les deux lectures. Le renvoi n'est pas une ambiguite de valeur."
+    },
+    {
+      "sujet": "bornes de l'intervalle",
+      "constat": "Liste triee : [1/2, 5/6, 5/6, 9/10]. La convention de quantile empirique inverse donne bien le minimum et le maximum sur quatre points ; le cahier enonce le resultat, il n'est pas deduit ici."
+    }
+  ],
+  "citations": {
+    "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  }
+}

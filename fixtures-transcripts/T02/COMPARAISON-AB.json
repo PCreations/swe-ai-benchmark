@@ -1,0 +1,195 @@
+{
+  "schema": "bench.fixtures-comparaison/1",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber (scellement)",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [101, 129]
+  },
+  "transcriptions_comparees": {
+    "A": {
+      "cadrage": "source d'abord — §F fixture par fixture, aucun cas d'acceptation lu",
+      "fichiers": 10
+    },
+    "B": {
+      "cadrage": "consommateurs d'abord — les cas d'acceptation qui citent la fixture sont lus avant §F",
+      "fichiers": 11,
+      "note": "B ajoute un INDEX.json recapitulatif ; il annonce 5 ambiguites dont 4 « bloquantes »"
+    }
+  },
+  "methode": [
+    "comparaison VALEUR PAR VALEUR, pas fichier par fichier : les schemas different (A serialise les rationnels en {numerateur,denominateur}, B en {fraction,num,den,decimal_exact} ; A se restreint au §F, B annote en plus des valeurs de §H en les portant avec leur cahier_line).",
+    "extraction mecanique de l'ensemble des scalaires de chaque fixture des deux cotes, puis diff des ensembles ; chaque ecart a ete ouvert et qualifie a la main.",
+    "puis confrontation de la transcription COMMUNE a la racine deja scellee acceptance/reference/** : 97 attendus du §F, chacun verifie present des TROIS cotes (A, B, scelle).",
+    "controles de SC-001 REEXECUTES ce tour, jamais repris d'un resume."
+  ],
+  "resultat": {
+    "divergences_de_valeur": 0,
+    "verdict": "CONCORDANTES",
+    "attendus_du_F_verifies": 97,
+    "attendus_en_defaut": 0
+  },
+  "controles_reexecutes": [
+    {
+      "controle": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+      "sortie": "0",
+      "conclusion": "SC-001 DIV-1 confirme : l'unite des couts de F-FAILURE reste NON SPECIFIEE. Ni A ni B n'inscrit d'unite ce tour (grep micro-USD -> false des deux cotes) ; la racine porte unite_des_couts = null."
+    },
+    {
+      "controle": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+      "sortie": "en produit une",
+      "conclusion": "SC-001 DIV-2 confirme : le nombre attendu de F-REGRESSION vaut 1, c'est une transcription. A ecrit regression=true pour isolation@1, B derive G=1 en P4 ; la racine porte regressions_attendues."
+    },
+    {
+      "controle": "poids de B@1 et C@1 en P3/P4, releves dans A, B et la racine",
+      "sortie": "A P3 : A@2 w1 | B@1 w1 | C@1 w2 — A P4 : A@2 w1 | C@1 w2 ; B identique ; racine identique",
+      "conclusion": "SC-001 DIV-3 (RESOLU) applique a l'identique des trois cotes : le poids est fixe a l'introduction. La racine conserve la reserve explicite que ce report vient de SC-001 et PAS de l'arithmetique."
+    },
+    {
+      "controle": "checkReferences() de verification/runner/references.mjs",
+      "sortie": "state=GELEE, head_oid=f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, files=10, worktree_diff=[], F-MONEY CONFORME (340, 680), problems=[]",
+      "conclusion": "la racine gelee est intacte et l'arbre de travail ne s'en ecarte pas."
+    }
+  ],
+  "ecarts_ouverts_et_qualifies": [
+    {
+      "fixture": "F-RESERVATION",
+      "ecart": "B inscrit reservations_preservees_par_la_migration = 100 dans donnees.P4 ; A ne l'inscrit pas",
+      "qualification": "PAS UNE DIVERGENCE DE VALEUR — le nombre 100 vient de T09.A3 (L233, §H), et B le porte avec cahier_line 233. Controle execute : aucune occurrence de « 100 reservations » entre les lignes 101 et 129 ; §F ne chiffre aucun volume. B qualifie lui-meme sa lecture d'ouverte et sa contrainte_du_cahier dit que L123 n'enonce que A annule, B confirme, C en attente. Les deux transcriptions s'accordent donc sur le fait que §F n'enonce aucun volume : la valeur MATERIALISEE est la meme des deux cotes (absente). La racine l'inscrit en non_fixe_par_le_cahier : « le nombre de reservations presentes avant la migration P4 : §F n'en cite aucun ».",
+      "cahier_line": 233
+    },
+    {
+      "fixture": "F-POWER",
+      "ecart": "B inscrit puissance = 0,5 et erreur_standard = 0,25 ; A ne les inscrit pas et note explicitement « §F n'enonce aucune valeur de puissance ni d'erreur standard »",
+      "qualification": "PAS UNE DIVERGENCE — L463 (T35.A1) est en §H, et B les porte avec cahier_line 463. Aucune valeur contraire cote A : A declare le perimetre, il ne conteste pas le nombre. La racine les liste en non_fixe_par_le_cahier pour la ligne 127.",
+      "cahier_line": 463
+    },
+    {
+      "fixture": "F-MONEY",
+      "ecart": "A et B inscrivent tous deux 2720, 16320, 48, 24 et 6 ; A dans un bloc derives_hors_section_F portant un avertissement, B dans golden_six_T38 avec cahier_line 491/493",
+      "qualification": "PAS UNE DIVERGENCE — memes nombres, memes sources (L491, L493, §H), et les deux transcriptions les isolent explicitement du §F. Aucun agregat n'est materialise dans la racine : §F n'en enonce aucun.",
+      "cahier_line": 493
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "ecart": "B chiffre la moyenne naive sur onze lignes (190/11 et 300/11) ; A inscrit valeur_numerique_du_contre_exemple = null",
+      "qualification": "PAS UNE DIVERGENCE — les deux disent la meme chose du cahier : B marque son calcul confirme_la_ligne = null, « non enoncee par le cahier » ; A refuse d'inventer. La racine porte « la valeur de la moyenne naive sur onze lignes : la ligne 115 se borne a la declarer non substituable ».",
+      "cahier_line": 115
+    },
+    {
+      "fixture": "F-BUDGET",
+      "ecart": "B derive {spent:340, reserved:600, available:60} pour le sous-cas a ; A n'inscrit que available=60",
+      "qualification": "PAS UNE DIVERGENCE — la ventilation est forcee par l'invariant spent+reserved+available=limit (L297) : 1000-340-60=600. Rien de contraire cote A. Aucune ventilation n'est materialisee dans la racine.",
+      "cahier_line": 297
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "ecart": "A ecrit poids = « egal » (chaine) ; B ecrit poids_egal = true (booleen)",
+      "qualification": "PAS UNE DIVERGENCE — meme fait, deux serialisations. La racine porte poids_des_projets = « egal ».",
+      "cahier_line": 113
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "ecart": "A ecrit regression = false pour le retrait de cancel@1 ; B ecrit aussi G = 0 en P3",
+      "qualification": "PAS UNE DIVERGENCE — booleen d'un cote, cardinal de l'autre, meme fait. Les deux portent une regression pour isolation@1.",
+      "cahier_line": 129
+    },
+    {
+      "fixture": "F-QUALITY, F-COST-RATIO, F-BOOTSTRAP",
+      "ecart": "serialisation des rationnels : A {numerateur, denominateur} ; B {fraction, num, den, decimal_exact}",
+      "qualification": "PAS UNE DIVERGENCE — memes rationnels. Les deux mettent decimal_exact a null pour 5/6 et 2/3 : aucune ecriture arrondie n'est introduite d'un cote ni de l'autre.",
+      "cahier_line": 143
+    }
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets": [
+        "F-QUALITY (DIV-3) : le poids est fixe a l'introduction — B@1 pese 1 et C@1 pese 2 en P3 et P4. A et B l'appliquent tous deux ce tour.",
+        "F-FAILURE (DIV-1) : l'unite des couts reste NON SPECIFIEE. Controle reexecute ce tour -> 0 occurrence de micro-USD en L121. Ni A ni B ne l'inscrit.",
+        "F-REGRESSION (DIV-2) : le nombre attendu vaut 1, transcrit de « en produit une » (L129). A et B concordent."
+      ]
+    }
+  ],
+  "ambiguites_reportees_non_bloquantes": [
+    {
+      "id": "AMB-BUDGET-1 (A) / ambiguite F-BUDGET (B, marquee bloquante par B)",
+      "releve_par": "A et B",
+      "fixture": "F-BUDGET",
+      "cahier_line": 105,
+      "question": "Qu'est-ce qui rend une reservation « ambigue », et comment les 600 du 3e sous-cas se repartissent-ils entre `reserved` et `spent` ?",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi_non_bloquante": "NI A NI B n'inscrit de ventilation post-reservation pour ce sous-cas : A ecrit l'etat de depart (spent 0, reserved 0) et available_maintenu 400 ; B ecrit spent_initial 0 et available_maintenu 400. Le champ conteste n'est materialise par aucun des deux, et la racine le porte deja en non_fixe_par_le_cahier (« la ventilation spent/reserved des sous-cas 3a et 4 »). A le dit lui-meme : bloque_materialisation_des_valeurs = false.",
+      "a_reporter_a": "T16"
+    },
+    {
+      "id": "AMB-QUALITY-1 (A) / ambiguite 2 de F-QUALITY (B, marquee bloquante par B)",
+      "releve_par": "A et B",
+      "fixture": "F-QUALITY",
+      "cahier_line": 109,
+      "question": "L'exigence du test negatif (« revelee mais non encore due ») n'a ni id, ni version, ni poids, ni date de revelation, ni echeance.",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi_non_bloquante": "A materialise justement en N'INVENTANT PAS : identite, poids, echeance et periode_d_ajout sont a null. B n'inscrit que l'enonce verbatim. Aucun des deux ne pose de valeur ; les deux notent que les quatre Q restent [1, 1/2, 3/4, 1] quelle que soit l'instanciation. La racine porte deja ces cinq parametres en non_fixe_par_le_cahier.",
+      "a_reporter_a": "T04 (cas A6)"
+    },
+    {
+      "id": "ambiguite 1 de F-QUALITY (B, marquee bloquante par B)",
+      "releve_par": "B",
+      "fixture": "F-QUALITY",
+      "cahier_line": 223,
+      "question": "T08.A2 parle des « quatre usages de F-QUALITY » alors que §F donne des cardinaux par periode : offertes [4,4,0,2], soit 10 intentions.",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi_non_bloquante": "porte sur un CAS D'ACCEPTATION (T08.A2, §H) et sur l'identite des intentions individuelles, que §F n'attribue pas et que NI A NI B n'inscrit : les deux n'ecrivent que les cardinaux, identiques. La racine porte « la nature des intentions derriere les cardinaux [4,4,0,2] et [4,2,0,1] » en non_fixe_par_le_cahier.",
+      "a_reporter_a": "T08"
+    },
+    {
+      "id": "ambiguite F-RESERVATION (B, marquee bloquante par B)",
+      "releve_par": "B",
+      "fixture": "F-RESERVATION",
+      "cahier_line": 233,
+      "question": "T09.A3 exige 100 reservations preservees par la migration P4, alors que §F ne decrit que trois acteurs et un creneau de capacite 1.",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi_non_bloquante": "c'est le seul point ou B inscrit un nombre que A n'inscrit pas, et il a ete examine a fond. Les DEUX lectures que B expose s'accordent sur ce que §F enonce : rien. Le volume ne se materialise donc pas depuis §F, ni sous l'une ni sous l'autre — la seconde lecture exigerait d'ailleurs de fabriquer 97 reservations que le cahier ne decrit nulle part, ce que le cadrage interdit. La valeur materialisee est identique des deux cotes (absente) et la racine l'inscrit en non_fixe_par_le_cahier. La question porte sur le jeu de donnees de T09, pas sur la fixture de reference.",
+      "a_reporter_a": "T09, T21"
+    },
+    {
+      "id": "AMB-POWER-1 (A) / ecart 0,02 (B)",
+      "releve_par": "A et B",
+      "fixture": "F-POWER",
+      "cahier_line": 127,
+      "question": "§F fixe les entrees, les bornes et le vecteur [vrai,faux,faux,vrai], mais pas le seuil de ratio ni la marge sur DeltaV/DeltaU qui les relient.",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi_non_bloquante": "A le declare lui-meme non bloquant pour les valeurs (bloque_materialisation_des_valeurs = false) ; B resout la regle en citant L451 (« Marges d'exemple 0,02 »), qui est en §H. Les deux inscrivent exactement les memes bornes et le meme vecteur. La racine liste la regle et la marge en non_fixe_par_le_cahier.",
+      "a_reporter_a": "T34, T35"
+    },
+    {
+      "id": "ambiguite F-BOOTSTRAP (B, non bloquante de son propre aveu)",
+      "releve_par": "A et B",
+      "fixture": "F-BOOTSTRAP",
+      "cahier_line": 117,
+      "question": "« les deux projets precedents » : F-COST-RATIO (L113) ou F-CLUSTERS (L115) ?",
+      "porte_sur_une_valeur_materialisee": false,
+      "pourquoi_non_bloquante": "les deux transcripteurs, independamment, ont constate que les deux lectures donnent les memes moyennes par parent (10/20 et 90/100), donc exactement les memes quatre ratios et le meme intervalle. B la marque bloquant = false ; A la qualifie « pas une ambiguite de valeur ».",
+      "a_reporter_a": "T33"
+    }
+  ],
+  "sur_le_test_de_blocage": {
+    "regle_appliquee": "une ambiguite n'arrete l'etage que si elle porte sur une valeur a MATERIALISER. Les 8 entrees relevees par A et B ont ete confrontees une a une a ce test.",
+    "resultat": "0 sur 8 porte sur une valeur materialisee. Les 4 que B declare « bloquantes » portent soit sur un cas d'acceptation de §H (T08.A2, T09.A3), soit sur un champ qu'AUCUNE des deux transcriptions n'inscrit (ventilation spent/reserved, identite de l'exigence du test negatif).",
+    "consequence": "aucun SPEC_CONFLICT nouveau n'est ouvert. Bloquer sur ces entrees aurait fige l'etage sans changer un seul octet de la racine."
+  },
+  "etat_de_la_racine": {
+    "constat": "la racine acceptance/reference/** portait deja, valeur pour valeur, la transcription COMMUNE de A et B pour T02 : 97 attendus du §F verifies presents des trois cotes, 0 en defaut.",
+    "consequence": "l'etage est IDEMPOTENT. Aucun octet de la zone REFERENCE n'a ete reecrit : reestampiller la provenance (T00 -> T02) aurait deplace le tree oid d'une racine GELEE, invalide les attestations et exige un SPEC_CONFLICT, pour zero changement de valeur. Le gel se constate, il ne se rejoue pas.",
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_du_gel": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "relecture": "git rev-parse HEAD:acceptance/reference",
+    "declaration": "docs/FROZEN_ROOTS.json — tree_oid identique, verifie ce tour par checkReferences() : state=GELEE, problems=[]",
+    "nombre_de_fixtures_scellees": 10
+  }
+}

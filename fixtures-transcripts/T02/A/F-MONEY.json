@@ -1,0 +1,139 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T02",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_cahier_line": 101,
+    "paragraphes_cahier_line": [
+      103
+    ],
+    "methode": "transcription directe du texte de §F ; aucune valeur recalculee depuis une implementation, un cas d'acceptation ou un test"
+  },
+  "grille_tarifaire": {
+    "unite": "micro-USD par token",
+    "entree_non_cachee": {
+      "valeur": 2,
+      "cahier_line": 103
+    },
+    "entree_cachee": {
+      "valeur": 1,
+      "cahier_line": 103
+    },
+    "sortie": {
+      "valeur": 5,
+      "cahier_line": 103
+    },
+    "qualificatif": {
+      "valeur": "grille fictive",
+      "cahier_line": 103
+    }
+  },
+  "appel_de_reference": {
+    "tokens": {
+      "entree_non_cachee": {
+        "valeur": 100,
+        "cahier_line": 103
+      },
+      "entree_cachee": {
+        "valeur": 40,
+        "cahier_line": 103
+      },
+      "sortie": {
+        "valeur": 20,
+        "cahier_line": 103
+      }
+    },
+    "cout_micro_usd": {
+      "valeur": 340,
+      "cahier_line": 103,
+      "entier": 340,
+      "chaine": "340"
+    },
+    "verification_arithmetique": {
+      "expression": "100*2 + 40*1 + 20*5",
+      "termes": [
+        200,
+        40,
+        100
+      ],
+      "total": 340,
+      "role": "controle de coherence du nombre enonce ligne 103 ; la valeur faisant foi reste celle du cahier"
+    }
+  },
+  "deux_appels_identiques": {
+    "nombre_appels": {
+      "valeur": 2,
+      "cahier_line": 103
+    },
+    "cout_micro_usd": {
+      "valeur": 680,
+      "cahier_line": 103,
+      "entier": 680,
+      "chaine": "680"
+    }
+  },
+  "regles": [
+    {
+      "valeur": "Les champs d'entree sont disjoints : entree non cachee et entree cachee ne se recouvrent pas.",
+      "cahier_line": 103,
+      "id": "champs_entree_disjoints"
+    },
+    {
+      "valeur": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+      "cahier_line": 103,
+      "id": "normalisation_adaptateur"
+    }
+  ],
+  "conventions_referencees_hors_section_F": [
+    {
+      "valeur": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD.",
+      "cahier_line": 80,
+      "id": "encodage_montants",
+      "portee": "§E, cite pour l'encodage des montants de cette fixture"
+    }
+  ],
+  "derives_hors_section_F": {
+    "avertissement": "Ces nombres ne sont PAS enonces dans §F. Ils sont recomposes depuis la grille F-MONEY (ligne 103) et la composition de la fixture de T38 (ligne 491). Ils sont consignes ici parce que le cadrage de l'etage les nomme comme nombres exacts.",
+    "composition_T38": {
+      "cahier_line": 491,
+      "projets": 1,
+      "periodes_par_scenario": 4,
+      "configurations_scriptees_conformes": 2,
+      "repetitions": 3,
+      "appels_F_MONEY_par_periode": 2,
+      "autres_tarifs": "explicitement zero dans cette fixture fictive"
+    },
+    "cout_par_trajectoire_micro_usd": {
+      "valeur": 2720,
+      "derivation": "4 periodes * 2 appels * 340 = 2720",
+      "cahier_line_composition": 491,
+      "cahier_line_grille": 103
+    },
+    "cout_total_micro_usd": {
+      "valeur": 16320,
+      "derivation": "2 configurations * 3 repetitions * 2720 = 6 * 2720 = 16320",
+      "cahier_line_composition": 491,
+      "cahier_line_grille": 103
+    },
+    "trajectoires": 6,
+    "appels_totaux": 48,
+    "periodes_totales": 24
+  },
+  "ambiguites": [],
+  "notes_de_lecture": [
+    {
+      "sujet": "portee des derives T38",
+      "constat": "2720 et 16320 appartiennent a la fixture de T38 (§H, ligne 491), pas a §F. Ils sont isoles dans `derives_hors_section_F` pour qu'aucun consommateur ne les confonde avec une valeur transcrite de §F."
+    }
+  ],
+  "citations": {
+    "103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+    "80": "Les JSON de domaine sont stricts : propriétés inconnues rejetées, enums explicites, timestamps UTC ISO 8601, nombres non finis interdits. Les montants sont des chaînes d’entiers non négatifs en micro-USD ; `1000000` vaut 1 USD. Les ajustements sont des écritures séparées signées, pas l’édition d’une facture déjà inscrite.",
+    "491": "Fixture : un projet, un scénario de quatre périodes, deux configurations scriptées conformes, trois répétitions, deux appels F-MONEY par période. Tous les autres tarifs valent explicitement zéro dans cette fixture fictive. Tous les parcours valides et exigences actives sont satisfaits."
+  }
+}

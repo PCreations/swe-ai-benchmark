@@ -1,0 +1,133 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    115
+  ],
+  "source_verbatim": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "texte": "F-CLUSTERS ne change pas après duplication des répétitions P1"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "texte": "permuter les lignes ou dupliquer des répétitions identiques ne change pas les résultats avec la même liste de tirages parents"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "texte": "une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l’inférence interprojets"
+    }
+  ],
+  "donnees": {
+    "projet_P1": {
+      "cout_A": {
+        "valeur": 10,
+        "cahier_line": 115
+      },
+      "cout_B": {
+        "valeur": 20,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "valeur": 10,
+        "cahier_line": 115
+      },
+      "repetitions_identiques": {
+        "valeur": true,
+        "cahier_line": 115
+      }
+    },
+    "projet_P2": {
+      "cout_A": {
+        "valeur": 90,
+        "cahier_line": 115
+      },
+      "cout_B": {
+        "valeur": 100,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "valeur": 1,
+        "cahier_line": 115
+      }
+    },
+    "moyenne_interprojets_A": {
+      "valeur": 50,
+      "cahier_line": 115
+    },
+    "moyenne_interprojets_B": {
+      "valeur": 60,
+      "cahier_line": 115
+    },
+    "interdit": {
+      "valeur": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "cahier_line": 115
+    },
+    "invariance_par_duplication": {
+      "valeur": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee",
+      "cahier_line": 115
+    }
+  },
+  "derives": [
+    {
+      "valeur": 11,
+      "calcul": "10 repetitions de P1 + 1 repetition de P2 = nombre de lignes",
+      "confirme_la_ligne": 115
+    },
+    {
+      "valeur": 50,
+      "calcul": "(10 + 90) / 2, moyenne des moyennes par projet",
+      "confirme_la_ligne": 115
+    },
+    {
+      "valeur": 60,
+      "calcul": "(20 + 100) / 2",
+      "confirme_la_ligne": 115
+    },
+    {
+      "valeur": {
+        "A": {
+          "fraction": "190/11",
+          "num": 190,
+          "den": 11,
+          "decimal_exact": null
+        },
+        "B": {
+          "fraction": "300/11",
+          "num": 300,
+          "den": 11,
+          "decimal_exact": null
+        }
+      },
+      "calcul": "moyenne naive sur 11 lignes = (10*10+90)/11 et (20*10+100)/11 — valeur du mutant a detecter, non enoncee par le cahier",
+      "confirme_la_ligne": null
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "Les repetitions et variantes ne sont pas de nouveaux projets independants",
+      "cahier_line": 73
+    },
+    {
+      "valeur": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets",
+      "cahier_line": 443
+    }
+  ],
+  "zones_non_specifiees": [
+    "Le cahier ne dit pas si les 10 repetitions de P1 portent une variance nulle par construction ; « dix repetitions identiques » (ligne 115) est lu comme dix lignes de valeurs strictement egales.",
+    "Le facteur de duplication du test d'invariance n'est pas chiffre (ligne 115)."
+  ],
+  "ambiguites": []
+}

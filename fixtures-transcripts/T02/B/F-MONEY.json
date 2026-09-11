@@ -1,0 +1,194 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    103
+  ],
+  "source_verbatim": {
+    "103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+    "491": "Fixture : un projet, un scénario de quatre périodes, deux configurations scriptées conformes, trois répétitions, deux appels F-MONEY par période. Tous les autres tarifs valent explicitement zéro dans cette fixture fictive. Tous les parcours valides et exigences actives sont satisfaits.",
+    "493": "Acceptation : `T38.A1` six trajectoires et 24 périodes ; `A2` 48 appels reçus et réglés ; `A3` 2720 micro-USD par trajectoire, 16320 au total ; `A4` Q=R=V=U=1 et G=0 ; `A5` un, deux et six workers donnent mêmes résultats métier, comptes et verdicts ; `A6` application indisponible forcée pendant un workload conserve toutes ses intentions et fait baisser R ; `A7` F-FAILURE produit un échec produit dans une exécution moteur terminée ; `A8` inférence interprojets refusée sur cette fixture à un seul parent, malgré six trajectoires."
+  },
+  "consommateurs": [
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "texte": "la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est détectée par la vérification des références"
+    },
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "texte": "F-MONEY donne 340"
+    },
+    {
+      "cas": "T16.A5",
+      "cahier_line": 295,
+      "texte": "un coût inconnu ne devient jamais zéro"
+    },
+    {
+      "cas": "T31.A2",
+      "cahier_line": 427,
+      "texte": "montants conservés exactement"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "texte": "48 appels reçus et réglés"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "texte": "2720 micro-USD par trajectoire, 16320 au total"
+    }
+  ],
+  "donnees": {
+    "unite": {
+      "valeur": "micro-USD",
+      "cahier_line": 80
+    },
+    "tarifs_micro_usd_par_token": {
+      "entree_non_cachee": {
+        "valeur": 2,
+        "cahier_line": 103
+      },
+      "entree_cachee": {
+        "valeur": 1,
+        "cahier_line": 103
+      },
+      "sortie": {
+        "valeur": 5,
+        "cahier_line": 103
+      }
+    },
+    "appel_de_reference": {
+      "tokens_entree_non_cachee": {
+        "valeur": 100,
+        "cahier_line": 103
+      },
+      "tokens_entree_cachee": {
+        "valeur": 40,
+        "cahier_line": 103
+      },
+      "tokens_sortie": {
+        "valeur": 20,
+        "cahier_line": 103
+      },
+      "cout_attendu": {
+        "valeur": 340,
+        "cahier_line": 103
+      }
+    },
+    "deux_appels_identiques": {
+      "cout_attendu": {
+        "valeur": 680,
+        "cahier_line": 103
+      }
+    },
+    "champs_entree_disjoints": {
+      "valeur": true,
+      "cahier_line": 103
+    },
+    "normalisation_adaptateur": {
+      "valeur": "si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation",
+      "cahier_line": 103
+    },
+    "corruption_de_reference_detectee": {
+      "valeur": "attendu 341 au lieu de 340",
+      "cahier_line": 165
+    },
+    "golden_six_T38": {
+      "appels_F_MONEY_par_periode": {
+        "valeur": 2,
+        "cahier_line": 491
+      },
+      "periodes_par_trajectoire": {
+        "valeur": 4,
+        "cahier_line": 491
+      },
+      "configurations": {
+        "valeur": 2,
+        "cahier_line": 491
+      },
+      "repetitions": {
+        "valeur": 3,
+        "cahier_line": 491
+      },
+      "trajectoires": {
+        "valeur": 6,
+        "cahier_line": 493
+      },
+      "periodes_totales": {
+        "valeur": 24,
+        "cahier_line": 493
+      },
+      "appels_totaux": {
+        "valeur": 48,
+        "cahier_line": 493
+      },
+      "cout_par_trajectoire": {
+        "valeur": 2720,
+        "cahier_line": 493
+      },
+      "cout_total": {
+        "valeur": 16320,
+        "cahier_line": 493
+      },
+      "autres_tarifs": {
+        "valeur": 0,
+        "cahier_line": 491
+      }
+    }
+  },
+  "derives": [
+    {
+      "valeur": 340,
+      "calcul": "100*2 + 40*1 + 20*5 = 200 + 40 + 100",
+      "confirme_la_ligne": 103
+    },
+    {
+      "valeur": 680,
+      "calcul": "2 * 340",
+      "confirme_la_ligne": 103
+    },
+    {
+      "valeur": 2720,
+      "calcul": "2 appels/periode * 4 periodes * 340",
+      "confirme_la_ligne": 493
+    },
+    {
+      "valeur": 16320,
+      "calcul": "6 trajectoires * 2720",
+      "confirme_la_ligne": 493
+    },
+    {
+      "valeur": 48,
+      "calcul": "6 trajectoires * 8 appels",
+      "confirme_la_ligne": 493
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD",
+      "cahier_line": 80
+    },
+    {
+      "valeur": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires",
+      "cahier_line": 71
+    },
+    {
+      "valeur": "un cout inconnu ne devient jamais zero",
+      "cahier_line": 295
+    }
+  ],
+  "zones_non_specifiees": [
+    "Le cahier ne fixe pas le nom du modele ni de l'adaptateur de la grille fictive : seuls les trois tarifs sont normatifs (ligne 103).",
+    "L'ordre des deux appels F-MONEY d'une periode golden-six n'est pas specifie (ligne 491) ; leur cout total 680 par periode ne depend pas de cet ordre."
+  ],
+  "ambiguites": []
+}

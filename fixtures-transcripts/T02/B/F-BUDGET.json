@@ -1,0 +1,193 @@
+{
+  "fixture": "F-BUDGET",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    105
+  ],
+  "source_verbatim": {
+    "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée.",
+    "297": "Commande : `pnpm verify:task T16`. Fin : invariants `spent + reserved + available = limit` dans les cas sans dépassement fournisseur, entiers exacts, et état explicite de dépassement si la facture finale excède exceptionnellement la borne. Un plafond absolu n’est promis que lorsque l’adaptateur possède une borne fiable ; sinon le mode strict bloque l’émission."
+  },
+  "consommateurs": [
+    {
+      "cas": "T16.A2",
+      "cahier_line": 295,
+      "texte": "F-BUDGET respecte tous ses montants sous transactions concurrentes"
+    },
+    {
+      "cas": "T16.A7",
+      "cahier_line": 295,
+      "texte": "une réservation dont le coût maximal est non borné est refusée en mode plafond strict avec `UNBOUNDED_COST`"
+    }
+  ],
+  "donnees": {
+    "limite": {
+      "valeur": 1000,
+      "cahier_line": 105
+    },
+    "concurrence": {
+      "montant_de_chaque_reservation": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "nombre_de_demandes": {
+        "valeur": 2,
+        "cahier_line": 105
+      },
+      "regle": {
+        "valeur": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
+        "cahier_line": 105
+      },
+      "acceptees_au_plus": {
+        "valeur": 1,
+        "cahier_line": 105
+      }
+    },
+    "etat_apres_reglement": {
+      "reglement_de_la_reservation_acceptee": {
+        "valeur": 340,
+        "cahier_line": 105
+      },
+      "spent": {
+        "valeur": 340,
+        "cahier_line": 105
+      },
+      "reserved": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "available": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_a_depuis_etat_apres_reglement": {
+      "independant": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "reservation_demandee": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 60,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_b_depuis_etat_apres_reglement": {
+      "independant": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "reservation_demandee": {
+        "valeur": 661,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": false,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    "sous_cas_c_budget_frais": {
+      "independant": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "spent_initial": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "reservation_ambigue": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "available_maintenu": {
+        "valeur": 400,
+        "cahier_line": 105
+      },
+      "condition": {
+        "valeur": "tant qu'elle n'est pas reconciliee",
+        "cahier_line": 105
+      }
+    }
+  },
+  "derives": [
+    {
+      "valeur": {
+        "spent": 340,
+        "reserved": 600,
+        "available": 60
+      },
+      "calcul": "sous-cas a : invariant spent + reserved + available = limit avec available=660-600=60",
+      "confirme_la_ligne": 297
+    },
+    {
+      "valeur": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "calcul": "sous-cas b : la demande de 661 > 660 est refusee, l'etat est inchange",
+      "confirme_la_ligne": 105
+    },
+    {
+      "valeur": 660,
+      "calcul": "1000 - 340",
+      "confirme_la_ligne": 105
+    },
+    {
+      "valeur": 400,
+      "calcul": "1000 - 600",
+      "confirme_la_ligne": 105
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "invariants spent + reserved + available = limit dans les cas sans depassement fournisseur, entiers exacts, et etat explicite de depassement si la facture finale excede exceptionnellement la borne",
+      "cahier_line": 297
+    },
+    {
+      "valeur": "Un appel fournisseur dont la reponse est perdue n'est pas relance aveuglement. Son etat reste ambigu tant qu'il n'est pas reconcilie",
+      "cahier_line": 69
+    },
+    {
+      "valeur": "une reservation dont le cout maximal est non borne est refusee en mode plafond strict avec UNBOUNDED_COST",
+      "cahier_line": 295
+    }
+  ],
+  "zones_non_specifiees": [
+    "Laquelle des deux demandes concurrentes de 600 est acceptee n'est pas designee (ligne 105) ; seule l'exclusion mutuelle est normative.",
+    "Le code d'erreur du refus de la reservation de 661 n'est pas nomme (ligne 105)."
+  ],
+  "ambiguites": [
+    {
+      "point": "Sous-cas c (budget frais, reservation ambigue de 600) : le cahier n'enonce que available=400. La repartition des 600 entre `reserved` et `spent` n'est pas ecrite.",
+      "lectures": [
+        "reserved=600 et spent=0 : une reservation non reconciliee n'est pas une depense reglee ; coherent avec « budget frais et zero depense ».",
+        "spent=600 et reserved=0 : une reservation d'issue ambigue est traitee comme potentiellement facturee (etat d'appel UNKNOWN, ligne 99)."
+      ],
+      "contrainte_du_cahier": "l'invariant spent + reserved + available = limit (ligne 297) impose seulement reserved + spent = 600.",
+      "cahier_lines": [
+        105,
+        99,
+        297
+      ],
+      "bloquant": true
+    }
+  ]
+}

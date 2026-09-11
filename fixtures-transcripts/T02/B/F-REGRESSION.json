@@ -1,0 +1,111 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    129
+  ],
+  "source_verbatim": {
+    "129": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions.",
+    "189": "Précision : G compte les régressions actuellement ouvertes, c’est-à-dire les exigences actives dues, autrefois satisfaites et actuellement violées. `G_new` compte celles qui étaient satisfaites à la période précédente comparable et deviennent violées. Une régression persistante contribue à G, sans redevenir nouvelle à chaque période."
+  },
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "cahier_line": 191,
+      "texte": "F-REGRESSION exclut `cancel@1` et compte `isolation@1`"
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "texte": "deux périodes consécutives cassées donnent G=1 aux deux et G_new=1 puis 0"
+    }
+  ],
+  "donnees": {
+    "exigence_remplacee": {
+      "valeur": {
+        "id": "cancel@1",
+        "satisfaite_en": "P2",
+        "remplacee_en": "P3",
+        "remplacant": "cancel@2",
+        "regression": false
+      },
+      "cahier_line": 129
+    },
+    "exigence_violee": {
+      "valeur": {
+        "id": "isolation@1",
+        "satisfaite_en": "P3",
+        "violee_en": "P4",
+        "regression": true
+      },
+      "cahier_line": 129
+    },
+    "regle_de_comptage": {
+      "valeur": "Compter par id/version active, pas par nombre d'assertions",
+      "cahier_line": 129
+    }
+  },
+  "derives": [
+    {
+      "valeur": {
+        "periode": "P4",
+        "G": 1,
+        "comptes": [
+          "isolation@1"
+        ],
+        "exclus": [
+          "cancel@1"
+        ]
+      },
+      "calcul": "G compte les exigences actives dues, autrefois satisfaites et actuellement violees : cancel@1 n'est plus active en P4 (remplacee en P3), isolation@1 l'est et est violee",
+      "confirme_la_ligne": 189
+    },
+    {
+      "valeur": {
+        "periode": "P4",
+        "G_new": 1
+      },
+      "calcul": "isolation@1 etait satisfaite a la periode precedente comparable (P3) et devient violee en P4",
+      "confirme_la_ligne": 189
+    },
+    {
+      "valeur": {
+        "periode": "P3",
+        "G": 0
+      },
+      "calcul": "le retrait de cancel@1 ne produit pas de regression et aucune autre exigence n'est declaree violee en P3 par cette fixture",
+      "confirme_la_ligne": 129
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "G compte les regressions actuellement ouvertes, c'est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees",
+      "cahier_line": 189
+    },
+    {
+      "valeur": "G_new compte celles qui etaient satisfaites a la periode precedente comparable et deviennent violees",
+      "cahier_line": 189
+    },
+    {
+      "valeur": "Une regression persistante contribue a G, sans redevenir nouvelle a chaque periode",
+      "cahier_line": 189
+    },
+    {
+      "valeur": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite",
+      "cahier_line": 72
+    }
+  ],
+  "zones_non_specifiees": [
+    "Le statut de cancel@1 en P1 et celui de cancel@2 en P3 et P4 ne sont pas enonces (ligne 129).",
+    "L'existence d'isolation@1 avant P3 n'est pas enoncee (ligne 129).",
+    "Les poids des exigences de F-REGRESSION ne sont pas donnes ; G se compte par id/version active, non par poids (ligne 129).",
+    "Le nombre de periodes de F-REGRESSION n'est pas enonce ; P2 a P4 sont citees."
+  ],
+  "ambiguites": []
+}

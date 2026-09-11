@@ -1,0 +1,99 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T02",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_cahier_line": 101,
+    "paragraphes_cahier_line": [
+      115
+    ],
+    "methode": "transcription directe du texte de §F ; aucune valeur recalculee depuis une implementation, un cas d'acceptation ou un test"
+  },
+  "projets": [
+    {
+      "id": "P1",
+      "A": {
+        "valeur": 10,
+        "cahier_line": 115
+      },
+      "B": {
+        "valeur": 20,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "valeur": 10,
+        "cahier_line": 115,
+        "qualificatif": "dix repetitions identiques"
+      }
+    },
+    {
+      "id": "P2",
+      "A": {
+        "valeur": 90,
+        "cahier_line": 115
+      },
+      "B": {
+        "valeur": 100,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "valeur": 1,
+        "cahier_line": 115,
+        "qualificatif": "une repetition"
+      }
+    }
+  ],
+  "moyennes_interprojets": {
+    "A": {
+      "valeur": 50,
+      "cahier_line": 115,
+      "ecriture_du_cahier": "encore 50"
+    },
+    "B": {
+      "valeur": 60,
+      "cahier_line": 115,
+      "ecriture_du_cahier": "encore 60"
+    },
+    "portee": {
+      "valeur": "agregation au niveau projet (grappe), pas au niveau ligne",
+      "cahier_line": 115
+    }
+  },
+  "interdits": [
+    {
+      "valeur": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation.",
+      "cahier_line": 115,
+      "id": "moyenne_naive_11_lignes",
+      "valeur_numerique_du_contre_exemple": null,
+      "note": "le cahier ne chiffre pas cette moyenne naive ; aucune valeur n'est inventee ici"
+    }
+  ],
+  "invariants": [
+    {
+      "valeur": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+      "cahier_line": 115,
+      "id": "invariance_par_duplication_P1"
+    }
+  ],
+  "lignes_totales": {
+    "valeur": 11,
+    "cahier_line": 115,
+    "derivation": "10 repetitions de P1 + 1 repetition de P2, enonce par le cahier sous la forme « onze lignes »"
+  },
+  "ambiguites": [],
+  "notes_de_lecture": [
+    {
+      "sujet": "coherence avec F-COST-RATIO",
+      "constat": "Les moyennes interprojets 50 et 60 sont celles de F-COST-RATIO (ligne 113) : au niveau grappe, P1 porte (A=10,B=20) et P2 (A=90,B=100) quel que soit le nombre de repetitions."
+    }
+  ],
+  "citations": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée.",
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    117
+  ],
+  "source_verbatim": {
+    "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  },
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "texte": "F-BOOTSTRAP donne les quatre ratios et l’intervalle [1/2,9/10]"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "texte": "les deux bras suivent exactement les mêmes indices parents"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "texte": "multiplier tous les coûts par 7 ne change ni ratio ni intervalle"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "texte": "A=B donne tous les ratios égaux à 1"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "texte": "permuter les lignes ou dupliquer des répétitions identiques ne change pas les résultats avec la même liste de tirages parents"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "texte": "une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l’inférence interprojets"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "texte": "les bandes ponctuelles ne sont jamais étiquetées simultanées"
+    }
+  ],
+  "donnees": {
+    "base": {
+      "valeur": "les deux projets precedents",
+      "cahier_line": 117
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117
+    },
+    "ratios_cout_A_sur_B": {
+      "valeur": [
+        {
+          "fraction": "1/2",
+          "num": 1,
+          "den": 2,
+          "decimal_exact": 0.5
+        },
+        {
+          "fraction": "5/6",
+          "num": 5,
+          "den": 6,
+          "decimal_exact": null
+        },
+        {
+          "fraction": "5/6",
+          "num": 5,
+          "den": 6,
+          "decimal_exact": null
+        },
+        {
+          "fraction": "9/10",
+          "num": 9,
+          "den": 10,
+          "decimal_exact": 0.9
+        }
+      ],
+      "cahier_line": 117
+    },
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "intervalle_2_5_a_97_5": {
+      "valeur": [
+        {
+          "fraction": "1/2",
+          "num": 1,
+          "den": 2,
+          "decimal_exact": 0.5
+        },
+        {
+          "fraction": "9/10",
+          "num": 9,
+          "den": 10,
+          "decimal_exact": 0.9
+        }
+      ],
+      "cahier_line": 117
+    },
+    "portee": {
+      "valeur": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets",
+      "cahier_line": 117
+    }
+  },
+  "derives": [
+    {
+      "valeur": {
+        "fraction": "1/2",
+        "num": 1,
+        "den": 2,
+        "decimal_exact": 0.5
+      },
+      "calcul": "[P1,P1] : A=(10+10)/2=10, B=(20+20)/2=20, ratio 10/20",
+      "confirme_la_ligne": 117
+    },
+    {
+      "valeur": {
+        "fraction": "5/6",
+        "num": 5,
+        "den": 6,
+        "decimal_exact": null
+      },
+      "calcul": "[P1,P2] : A=(10+90)/2=50, B=(20+100)/2=60, ratio 50/60",
+      "confirme_la_ligne": 117
+    },
+    {
+      "valeur": {
+        "fraction": "5/6",
+        "num": 5,
+        "den": 6,
+        "decimal_exact": null
+      },
+      "calcul": "[P2,P1] : meme multiensemble que [P1,P2], ratio 50/60 — les deux tirages restent deux lignes distinctes de la liste",
+      "confirme_la_ligne": 117
+    },
+    {
+      "valeur": {
+        "fraction": "9/10",
+        "num": 9,
+        "den": 10,
+        "decimal_exact": 0.9
+      },
+      "calcul": "[P2,P2] : A=90, B=100, ratio 90/100",
+      "confirme_la_ligne": 117
+    },
+    {
+      "valeur": [
+        {
+          "fraction": "1/2",
+          "num": 1,
+          "den": 2,
+          "decimal_exact": 0.5
+        },
+        {
+          "fraction": "9/10",
+          "num": 9,
+          "den": 10,
+          "decimal_exact": 0.9
+        }
+      ],
+      "calcul": "quantile empirique inverse sur la liste triee [1/2, 5/6, 5/6, 9/10] : 2,5 % tombe sur le minimum, 97,5 % sur le maximum",
+      "confirme_la_ligne": 117
+    },
+    {
+      "valeur": [
+        {
+          "fraction": "1/1",
+          "num": 1,
+          "den": 1,
+          "decimal_exact": 1
+        },
+        {
+          "fraction": "1/1",
+          "num": 1,
+          "den": 1,
+          "decimal_exact": 1
+        },
+        {
+          "fraction": "1/1",
+          "num": 1,
+          "den": 1,
+          "decimal_exact": 1
+        },
+        {
+          "fraction": "1/1",
+          "num": 1,
+          "den": 1,
+          "decimal_exact": 1
+        }
+      ],
+      "calcul": "T33.A4 : si les couts de A egalent ceux de B, les quatre ratios valent 1",
+      "confirme_la_ligne": 443
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "les deux bras suivent exactement les memes indices parents",
+      "cahier_line": 443
+    },
+    {
+      "valeur": "multiplier tous les couts par 7 ne change ni ratio ni intervalle",
+      "cahier_line": 443
+    },
+    {
+      "valeur": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "cahier_line": 443
+    },
+    {
+      "valeur": "les bandes ponctuelles ne sont jamais etiquetees simultanees",
+      "cahier_line": 443
+    },
+    {
+      "valeur": "Le bootstrap principal reechantillonne les moyennes par parent ; une variante hierarchique devient une methode distincte declaree",
+      "cahier_line": 445
+    }
+  ],
+  "zones_non_specifiees": [
+    "Le cahier ne donne pas de graine pour cette fixture : la liste de reechantillonnages est forcee, donc aucun tirage aleatoire n'intervient (ligne 117).",
+    "Aucun ordre de tri n'est impose a la liste des quatre ratios avant l'application du quantile (ligne 117)."
+  ],
+  "ambiguites": [
+    {
+      "point": "« les deux projets precedents » (ligne 117) peut designer les deux projets de F-COST-RATIO (ligne 113) ou les projets P1/P2 de F-CLUSTERS (ligne 115), qui different par le nombre de repetitions (1 contre 10 pour P1).",
+      "lectures": [
+        "F-CLUSTERS, fixture immediatement precedente, qui nomme explicitement P1 et P2 comme la liste de tirages.",
+        "F-COST-RATIO, qui introduit le couple de projets et le ratio 5/6 repris ici."
+      ],
+      "contrainte_du_cahier": "les deux lectures donnent les memes moyennes par parent (10/20 et 90/100) et donc exactement les quatre ratios [1/2,5/6,5/6,9/10] et l'intervalle [1/2,9/10] annonces : l'ambiguite ne touche que le nombre de repetitions par parent, pas les valeurs attendues.",
+      "cahier_lines": [
+        113,
+        115,
+        117
+      ],
+      "bloquant": false
+    }
+  ]
+}

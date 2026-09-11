@@ -1,0 +1,421 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T02",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_cahier_line": 101,
+    "paragraphes_cahier_line": [
+      127
+    ],
+    "methode": "transcription directe du texte de §F ; aucune valeur recalculee depuis une implementation, un cas d'acceptation ou un test"
+  },
+  "campagnes": {
+    "nombre": {
+      "valeur": 4,
+      "cahier_line": 127,
+      "qualificatif": "quatre petites campagnes statistiques"
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "cahier_line": 127,
+      "qualificatif": "deux parents distincts P1/P2 portant les memes valeurs"
+    }
+  },
+  "hypotheses": [
+    {
+      "valeur": "comptabilite resolue",
+      "cahier_line": 127,
+      "id": "comptabilite_resolue"
+    },
+    {
+      "valeur": "absence de violation critique",
+      "cahier_line": 127,
+      "id": "pas_de_violation_critique"
+    },
+    {
+      "valeur": "valeurs connues sur les deux bras",
+      "cahier_line": 127,
+      "id": "valeurs_connues"
+    }
+  ],
+  "tirages_parents": {
+    "valeur": "exhaustifs ; ils donnent des distributions ponctuelles",
+    "cahier_line": 127
+  },
+  "detail_par_campagne": [
+    {
+      "campagne": 1,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "qualificatif": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": {
+          "valeur": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "portee": "identique dans chaque parent et dans les quatre campagnes"
+      },
+      "bras_A": {
+        "cout": {
+          "valeur": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127,
+          "rationnel": "1/1"
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127,
+          "rationnel": "1/1"
+        },
+        "ecriture_du_cahier": "(cout,V,U)"
+      },
+      "bornes": {
+        "ratio": {
+          "basse": 0.8,
+          "haute": 0.8,
+          "rationnel": "4/5",
+          "ecriture_du_cahier": "0,8",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_V": {
+          "basse": 0.0,
+          "haute": 0.0,
+          "rationnel": "0",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_U": {
+          "basse": 0.0,
+          "haute": 0.0,
+          "rationnel": "0",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        }
+      },
+      "decision_T34": {
+        "valeur": true,
+        "litteral_cahier": "vrai",
+        "cahier_line": 127
+      }
+    },
+    {
+      "campagne": 2,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "qualificatif": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": {
+          "valeur": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "portee": "identique dans chaque parent et dans les quatre campagnes"
+      },
+      "bras_A": {
+        "cout": {
+          "valeur": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127,
+          "rationnel": "1/1"
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127,
+          "rationnel": "1/1"
+        },
+        "ecriture_du_cahier": "(cout,V,U)"
+      },
+      "bornes": {
+        "ratio": {
+          "basse": 1.0,
+          "haute": 1.0,
+          "rationnel": "1/1",
+          "ecriture_du_cahier": "1,0",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_V": {
+          "basse": 0.0,
+          "haute": 0.0,
+          "rationnel": "0",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_U": {
+          "basse": 0.0,
+          "haute": 0.0,
+          "rationnel": "0",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        }
+      },
+      "decision_T34": {
+        "valeur": false,
+        "litteral_cahier": "faux",
+        "cahier_line": 127
+      }
+    },
+    {
+      "campagne": 3,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "qualificatif": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": {
+          "valeur": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "portee": "identique dans chaque parent et dans les quatre campagnes"
+      },
+      "bras_A": {
+        "cout": {
+          "valeur": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 0.96,
+          "cahier_line": 127,
+          "rationnel": "24/25"
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127,
+          "rationnel": "1/1"
+        },
+        "ecriture_du_cahier": "(cout,V,U)"
+      },
+      "bornes": {
+        "ratio": {
+          "basse": 0.8,
+          "haute": 0.8,
+          "rationnel": "4/5",
+          "ecriture_du_cahier": "0,8",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_V": {
+          "basse": -0.04,
+          "haute": -0.04,
+          "rationnel": "-1/25",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_U": {
+          "basse": 0.0,
+          "haute": 0.0,
+          "rationnel": "0",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        }
+      },
+      "decision_T34": {
+        "valeur": false,
+        "litteral_cahier": "faux",
+        "cahier_line": 127
+      }
+    },
+    {
+      "campagne": 4,
+      "parents": {
+        "nombre": 2,
+        "ids": [
+          "P1",
+          "P2"
+        ],
+        "qualificatif": "deux parents distincts portant les memes valeurs",
+        "cahier_line": 127
+      },
+      "bras_B": {
+        "cout": {
+          "valeur": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "portee": "identique dans chaque parent et dans les quatre campagnes"
+      },
+      "bras_A": {
+        "cout": {
+          "valeur": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 0.99,
+          "cahier_line": 127,
+          "rationnel": "99/100"
+        },
+        "U": {
+          "valeur": 0.99,
+          "cahier_line": 127,
+          "rationnel": "99/100"
+        },
+        "ecriture_du_cahier": "(cout,V,U)"
+      },
+      "bornes": {
+        "ratio": {
+          "basse": 0.8,
+          "haute": 0.8,
+          "rationnel": "4/5",
+          "ecriture_du_cahier": "0,8",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_V": {
+          "basse": -0.01,
+          "haute": -0.01,
+          "rationnel": "-1/100",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        },
+        "delta_U": {
+          "basse": -0.01,
+          "haute": -0.01,
+          "rationnel": "-1/100",
+          "cahier_line": 127,
+          "nature": "distribution ponctuelle : borne basse = borne haute"
+        }
+      },
+      "decision_T34": {
+        "valeur": true,
+        "litteral_cahier": "vrai",
+        "cahier_line": 127
+      }
+    }
+  ],
+  "vecteurs": {
+    "bornes_ratio": {
+      "valeur": [
+        0.8,
+        1.0,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127,
+      "ecriture_du_cahier": "0,8 / 1 / 0,8 / 0,8"
+    },
+    "bornes_delta_V": {
+      "valeur": [
+        0.0,
+        0.0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "ecriture_du_cahier": "0 / 0 / −0,04 / −0,01"
+    },
+    "bornes_delta_U": {
+      "valeur": [
+        0.0,
+        0.0,
+        0.0,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "ecriture_du_cahier": "0 / 0 / 0 / −0,01"
+    },
+    "decisions_T34": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127,
+      "ecriture_du_cahier": "[vrai,faux,faux,vrai]"
+    }
+  },
+  "portee": {
+    "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+    "cahier_line": 127
+  },
+  "ambiguites": [
+    {
+      "id": "AMB-POWER-1",
+      "sujet": "seuils de decision non enonces en §F",
+      "constat": "§F fixe les entrees, les bornes et le vecteur de sortie [vrai,faux,faux,vrai], mais n'enonce nulle part le seuil de ratio de cout ni la tolerance sur DeltaV / DeltaU qui separent la campagne 2 (ratio 1, DeltaV=0) de la campagne 1 (ratio 0,8, DeltaV=0), et la campagne 3 (DeltaV=-0,04) de la campagne 4 (DeltaV=-0,01, DeltaU=-0,01). La regle qui produit le vecteur n'est donc pas derivable de §F seule.",
+      "bloque_materialisation_des_valeurs": false,
+      "bloque_materialisation_de_la_regle": true,
+      "cahier_line": 127
+    }
+  ],
+  "notes_de_lecture": [
+    {
+      "sujet": "« bornes » sur une distribution ponctuelle",
+      "constat": "Le cahier donne un seul nombre par campagne et justifie par « les tirages parents exhaustifs donnent des distributions ponctuelles ». L'intervalle est donc degenere : borne basse = borne haute = ce nombre. Lecture imposee par le « donc » du texte."
+    },
+    {
+      "sujet": "signe des deltas",
+      "constat": "DeltaV et DeltaU sont orientes A moins B : 0,96-1 = -0,04, 0,99-1 = -0,01. Le cahier ecrit les valeurs negatives avec le signe moins unicode (U+2212)."
+    },
+    {
+      "sujet": "ratio",
+      "constat": "Ratio = cout A / cout B : 80/100 = 0,8 pour les campagnes 1, 3 et 4 ; 100/100 = 1 pour la campagne 2. Coherent avec le vecteur enonce."
+    },
+    {
+      "sujet": "puissance et erreur standard",
+      "constat": "§F n'enonce aucune valeur de puissance ni d'erreur standard pour F-POWER. Aucune n'est inscrite ici."
+    }
+  ],
+  "citations": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  }
+}

@@ -1,0 +1,244 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    127
+  ],
+  "source_verbatim": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider.",
+    "451": "Règle : supériorité coût si borne supérieure du ratio <1 ; non-infériorité V/U si leurs bornes inférieures >−marge ; aucune violation critique interdite ; comptabilité résolue et données admissibles. Marges d’exemple 0,02. Pour J contrastes et trois critères inférentiels, la famille contient 3J intervalles ; niveau marginal `1−0,05/(3J)` avec correction de Bonferroni. L’absence de violation observée n’est pas un intervalle de sécurité universel."
+  },
+  "consommateurs": [
+    {
+      "cas": "T34.A1",
+      "cahier_line": 453,
+      "texte": "bornes ratio 0,8, ΔV=0, ΔU=0 et critiques absentes donnent supériorité sur fixture"
+    },
+    {
+      "cas": "T34.A2",
+      "cahier_line": 453,
+      "texte": "borne ratio=1 refuse"
+    },
+    {
+      "cas": "T34.A3",
+      "cahier_line": 453,
+      "texte": "borne ΔV=−0,02 refuse"
+    },
+    {
+      "cas": "T34.A4",
+      "cahier_line": 453,
+      "texte": "coût plus faible mais ΔU=−0,04 refuse"
+    },
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "texte": "F-POWER traversant le vrai pipeline d’analyse produit décisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25"
+    }
+  ],
+  "donnees": {
+    "campagnes": {
+      "valeur": 4,
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "cahier_line": 127
+    },
+    "noms_des_parents": {
+      "valeur": [
+        "P1",
+        "P2"
+      ],
+      "cahier_line": 127
+    },
+    "parents_portent_les_memes_valeurs": {
+      "valeur": true,
+      "cahier_line": 127
+    },
+    "bras_B": {
+      "cout": {
+        "valeur": 100,
+        "cahier_line": 127
+      },
+      "V": {
+        "valeur": 1,
+        "cahier_line": 127
+      },
+      "U": {
+        "valeur": 1,
+        "cahier_line": 127
+      }
+    },
+    "bras_A_par_campagne": {
+      "valeur": [
+        {
+          "campagne": 1,
+          "cout": 80,
+          "V": 1,
+          "U": 1
+        },
+        {
+          "campagne": 2,
+          "cout": 100,
+          "V": 1,
+          "U": 1
+        },
+        {
+          "campagne": 3,
+          "cout": 80,
+          "V": 0.96,
+          "U": 1
+        },
+        {
+          "campagne": 4,
+          "cout": 80,
+          "V": 0.99,
+          "U": 0.99
+        }
+      ],
+      "cahier_line": 127
+    },
+    "conditions": {
+      "valeur": "Comptabilite resolue, absence de violation critique, valeurs connues sur les deux bras",
+      "cahier_line": 127
+    },
+    "tirages_parents": {
+      "valeur": "Les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "cahier_line": 127
+    },
+    "bornes_de_ratio": {
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127
+    },
+    "bornes_delta_V": {
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "bornes_delta_U": {
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "decisions_attendues_T34": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127
+    },
+    "puissance": {
+      "valeur": 0.5,
+      "cahier_line": 463
+    },
+    "erreur_standard": {
+      "valeur": 0.25,
+      "cahier_line": 463
+    },
+    "portee": {
+      "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider",
+      "cahier_line": 127
+    }
+  },
+  "derives": [
+    {
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "calcul": "cout A / cout B : 80/100, 100/100, 80/100, 80/100 — distributions ponctuelles, donc bornes inferieure et superieure confondues",
+      "confirme_la_ligne": 127
+    },
+    {
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "calcul": "delta V = V_A - V_B : 1-1, 1-1, 0,96-1, 0,99-1",
+      "confirme_la_ligne": 127
+    },
+    {
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "calcul": "delta U = U_A - U_B : 1-1, 1-1, 1-1, 0,99-1",
+      "confirme_la_ligne": 127
+    },
+    {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "calcul": "regle T34 avec marge 0,02 : C1 ratio 0,8<1 et deltas > -0,02 -> vrai ; C2 ratio 1 non <1 -> faux ; C3 deltaV -0,04 non > -0,02 -> faux ; C4 ratio 0,8<1 et deltas -0,01 > -0,02 -> vrai",
+      "confirme_la_ligne": 451
+    },
+    {
+      "valeur": 0.5,
+      "calcul": "puissance = 2 decisions vraies / 4 campagnes",
+      "confirme_la_ligne": 463
+    },
+    {
+      "valeur": 0.25,
+      "calcul": "erreur standard Monte-Carlo = racine(p(1-p)/N) = racine(0,5*0,5/4) = racine(0,0625), meme formule qu au cas T35.A2",
+      "confirme_la_ligne": 463
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "Regle : superiorite cout si borne superieure du ratio <1 ; non-inferiorite V/U si leurs bornes inferieures > -marge ; aucune violation critique interdite ; comptabilite resolue et donnees admissibles",
+      "cahier_line": 451
+    },
+    {
+      "valeur": "Marges d'exemple 0,02",
+      "cahier_line": 451
+    },
+    {
+      "valeur": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J) avec correction de Bonferroni",
+      "cahier_line": 451
+    },
+    {
+      "valeur": "UNKNOWN ou grappe unique donne INCONCLUSIVE",
+      "cahier_line": 453
+    },
+    {
+      "valeur": "arret anticipe a la premiere significativite interdit dans ce plan a effectif fixe",
+      "cahier_line": 463
+    }
+  ],
+  "zones_non_specifiees": [
+    "Le nombre de repetitions par parent n'est pas donne (ligne 127) ; les parents « portent les memes valeurs », donc les moyennes par parent sont celles enoncees.",
+    "Le niveau marginal de Bonferroni applique a F-POWER n'est pas chiffre ; avec J=1 contraste par campagne il vaut 1-0,05/3 (ligne 451). Les distributions etant ponctuelles, les bornes ne dependent pas du niveau.",
+    "La marge de 0,02 n'est pas re-enoncee ligne 127 ; elle est pinnee par les decisions annoncees [vrai,faux,faux,vrai] confrontees aux bornes delta V -0,04 et -0,01 (lignes 127, 451)."
+  ],
+  "ambiguites": []
+}

@@ -1,0 +1,93 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T02",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_cahier_line": 101,
+    "paragraphes_cahier_line": [
+      121
+    ],
+    "methode": "transcription directe du texte de §F ; aucune valeur recalculee depuis une implementation, un cas d'acceptation ou un test"
+  },
+  "K": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "candidat": {
+    "valeur": "sans deploiement sur les quatre periodes",
+    "cahier_line": 121
+  },
+  "lignes_conservees": {
+    "valeur": 4,
+    "cahier_line": 121,
+    "ecriture_du_cahier": "conserve quatre lignes"
+  },
+  "par_periode": {
+    "Q": {
+      "valeur": 0,
+      "cahier_line": 121
+    },
+    "R": {
+      "valeur": 0,
+      "cahier_line": 121
+    },
+    "condition": {
+      "valeur": "si les exigences et usages y sont presents",
+      "cahier_line": 121
+    }
+  },
+  "couts": {
+    "valeurs": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "total": {
+      "valeur": 150,
+      "cahier_line": 121
+    },
+    "verification_arithmetique": "100+50+0+0 = 150"
+  },
+  "arret_de_calcul": {
+    "instant": {
+      "valeur": "apres P2",
+      "cahier_line": 121
+    },
+    "effets": [
+      {
+        "valeur": "ne supprime pas P3 et P4",
+        "cahier_line": 121,
+        "id": "P3_P4_conservees"
+      },
+      {
+        "valeur": "aucune facture imaginaire n'y est ajoutee",
+        "cahier_line": 121,
+        "id": "pas_de_facture_imaginaire"
+      }
+    ]
+  },
+  "ambiguites": [],
+  "notes_de_lecture": [
+    {
+      "sujet": "coherence avec les conventions de F-QUALITY",
+      "constat": "La ligne 111 impose R=0 (jamais null) pour une trajectoire indisponible face a des intentions prevues, et Q=null s'il n'y a aucun poids d'exigence active due. La condition « si les exigences et usages y sont presents » de la ligne 121 est exactement l'hypothese qui rend Q=0 et R=0 licites. Les deux paragraphes ne se contredisent pas."
+    },
+    {
+      "sujet": "couts nuls en P3 et P4",
+      "constat": "Les zeros de [100,50,0,0] sont des couts observes nuls, pas des lignes absentes : le cahier exige les quatre lignes."
+    }
+  ],
+  "citations": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée.",
+    "111": "Convention : R vaut `null` lorsqu’aucune intention admissible n’est proposée. U est la moyenne temporelle sur les périodes exposées, avec l’exposition publiée. Une campagne confirmatoire exige une exposition prédéfinie non nulle ; une trajectoire indisponible face à des intentions prévues a R=0, jamais `null`. Q est `null` si aucun poids d’exigence active due ; le préflight interdit ce cas dans une période confirmatoire mesurée. Les séries de simple préparation restent marquées hors mesure."
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "cadrage consommateurs-d-abord : cas d'acceptation citant la fixture, puis confrontation au texte de §F. Aucune implementation consultee.",
+  "definition_lines": [
+    113
+  ],
+  "source_verbatim": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "texte": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6"
+    },
+    {
+      "cas": "T32.A6",
+      "cahier_line": 435,
+      "texte": "poids des scénarios appliqués à l’intérieur du parent avant poids entre parents"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "texte": "F-COST-RATIO affiche 5/6 et les deux moyennes"
+    }
+  ],
+  "donnees": {
+    "projets": {
+      "valeur": 2,
+      "cahier_line": 113
+    },
+    "poids_egal": {
+      "valeur": true,
+      "cahier_line": 113
+    },
+    "couts_bras_A": {
+      "valeur": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "couts_bras_B": {
+      "valeur": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "valeur": {
+        "fraction": "5/6",
+        "num": 5,
+        "den": 6,
+        "decimal_exact": null
+      },
+      "cahier_line": 113
+    },
+    "piege_moyenne_des_ratios": {
+      "valeur": {
+        "valeur": {
+          "fraction": "7/10",
+          "num": 7,
+          "den": 10,
+          "decimal_exact": 0.7
+        },
+        "statut": "resultat incorrect pour cette metrique"
+      },
+      "cahier_line": 113
+    }
+  },
+  "derives": [
+    {
+      "valeur": 50,
+      "calcul": "(10 + 90) / 2",
+      "confirme_la_ligne": 113
+    },
+    {
+      "valeur": 60,
+      "calcul": "(20 + 100) / 2",
+      "confirme_la_ligne": 113
+    },
+    {
+      "valeur": {
+        "fraction": "5/6",
+        "num": 5,
+        "den": 6,
+        "decimal_exact": null
+      },
+      "calcul": "50 / 60",
+      "confirme_la_ligne": 113
+    },
+    {
+      "valeur": {
+        "fraction": "7/10",
+        "num": 7,
+        "den": 10,
+        "decimal_exact": 0.7
+      },
+      "calcul": "((10/20) + (90/100)) / 2 = (1/2 + 9/10)/2 = 0,7 — appariement par index confirme par la valeur 0,7 annoncee",
+      "confirme_la_ligne": 113
+    },
+    {
+      "valeur": {
+        "projet_1": {
+          "A": 10,
+          "B": 20
+        },
+        "projet_2": {
+          "A": 90,
+          "B": 100
+        }
+      },
+      "calcul": "appariement des deux tableaux par position : seul cet appariement redonne la moyenne des ratios 0,7 annoncee",
+      "confirme_la_ligne": 113
+    }
+  ],
+  "conventions": [
+    {
+      "valeur": "poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "cahier_line": 435
+    },
+    {
+      "valeur": "denominateur nul produit null / ZERO_DENOMINATOR, sans epsilon",
+      "cahier_line": 435
+    }
+  ],
+  "zones_non_specifiees": [
+    "Les deux projets ne sont pas nommes a la ligne 113 ; F-CLUSTERS les nomme P1 et P2 avec les memes couts par projet (ligne 115).",
+    "L'unite des couts n'est pas repetee ligne 113 ; les montants du moteur sont en micro-USD (ligne 80)."
+  ],
+  "ambiguites": []
+}

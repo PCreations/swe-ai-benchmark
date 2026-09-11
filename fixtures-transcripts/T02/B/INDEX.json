@@ -1,0 +1,24 @@
+{
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T02",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "§F, docs/cahier.md lignes 101-129",
+  "fixtures": [
+    "F-MONEY",
+    "F-BUDGET",
+    "F-QUALITY",
+    "F-COST-RATIO",
+    "F-CLUSTERS",
+    "F-BOOTSTRAP",
+    "F-RESERVATION",
+    "F-FAILURE",
+    "F-POWER",
+    "F-REGRESSION"
+  ],
+  "nombre_de_fixtures": 10,
+  "ambiguites_totales": 5,
+  "ambiguites_bloquantes": 4,
+  "note": "Valeurs issues du cahier uniquement. Chaque valeur porte son champ cahier_line, verifiable par sed -n '<n>p' docs/cahier.md. Les rationnels non finis en base 10 (2/3, 5/6, 9/10 ...) sont ecrits en fraction exacte, jamais en decimal arrondi."
+}

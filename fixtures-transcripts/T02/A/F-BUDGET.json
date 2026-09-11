@@ -1,0 +1,155 @@
+{
+  "fixture": "F-BUDGET",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T02",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_cahier_line": 101,
+    "paragraphes_cahier_line": [
+      105
+    ],
+    "methode": "transcription directe du texte de §F ; aucune valeur recalculee depuis une implementation, un cas d'acceptation ou un test"
+  },
+  "budget_total": {
+    "valeur": 1000,
+    "cahier_line": 105
+  },
+  "sous_cas": [
+    {
+      "id": "SC1_concurrence",
+      "ordre": 1,
+      "etat_initial": {
+        "budget": 1000,
+        "spent": 0,
+        "reserved": 0
+      },
+      "action": {
+        "valeur": "deux reservations concurrentes de 600",
+        "cahier_line": 105,
+        "montant_chacune": 600
+      },
+      "invariant": {
+        "valeur": "elles ne peuvent pas etre toutes deux acceptees",
+        "cahier_line": 105
+      }
+    },
+    {
+      "id": "SC2_apres_reglement",
+      "ordre": 2,
+      "action": {
+        "valeur": "reglement a 340 de la reservation acceptee",
+        "cahier_line": 105,
+        "montant": 340
+      },
+      "etat_attendu": {
+        "spent": {
+          "valeur": 340,
+          "cahier_line": 105
+        },
+        "reserved": {
+          "valeur": 0,
+          "cahier_line": 105
+        },
+        "available": {
+          "valeur": 660,
+          "cahier_line": 105
+        }
+      }
+    },
+    {
+      "id": "SC3_reservation_600_depuis_SC2",
+      "ordre": 3,
+      "etat_de_depart": "etat de SC2_apres_reglement",
+      "independance": {
+        "valeur": "teste separement de SC4 : les deux partent du meme etat et ne s'enchainent pas",
+        "cahier_line": 105
+      },
+      "montant": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": true,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 60,
+        "cahier_line": 105
+      }
+    },
+    {
+      "id": "SC4_reservation_661_depuis_SC2",
+      "ordre": 4,
+      "etat_de_depart": "etat de SC2_apres_reglement",
+      "independance": {
+        "valeur": "teste separement de SC3 : les deux partent du meme etat et ne s'enchainent pas",
+        "cahier_line": 105
+      },
+      "montant": {
+        "valeur": 661,
+        "cahier_line": 105
+      },
+      "admissible": {
+        "valeur": false,
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 660,
+        "cahier_line": 105
+      }
+    },
+    {
+      "id": "SC5_reservation_ambigue",
+      "ordre": 5,
+      "qualificatif": {
+        "valeur": "troisieme sous-cas independant, budget frais et zero depense",
+        "cahier_line": 105
+      },
+      "etat_de_depart": {
+        "budget": 1000,
+        "spent": 0,
+        "reserved": 0
+      },
+      "montant": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "available_maintenu": {
+        "valeur": 400,
+        "cahier_line": 105
+      },
+      "condition": {
+        "valeur": "tant qu'elle n'est pas reconciliee",
+        "cahier_line": 105
+      }
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BUDGET-1",
+      "sujet": "definition d'une « reservation ambigue »",
+      "constat": "§F (ligne 105) impose la consequence chiffree (available reste 400 tant que la reservation n'est pas reconciliee) mais ne definit nulle part dans §F ce qui rend une reservation « ambigue », ni l'etat d'appel correspondant.",
+      "candidat_non_retenu": "la ligne 99 (hors §F) liste un etat d'appel `UNKNOWN` ; le cahier n'etablit pas ce lien en §F, et je ne le tranche pas",
+      "bloque_materialisation_des_valeurs": false,
+      "bloque_materialisation_du_mecanisme": true,
+      "cahier_line": 105
+    }
+  ],
+  "notes_de_lecture": [
+    {
+      "sujet": "coherence arithmetique",
+      "constat": "1000-340=660 ; 660-600=60 ; 661>660 donc refus et available inchange a 660 ; 1000-600=400. Les quatre montants enonces sont mutuellement coherents ; aucun n'a ete recalcule a la place du cahier."
+    },
+    {
+      "sujet": "chainage",
+      "constat": "« Depuis cet etat, tester separement » rattache SC3 et SC4 a l'etat de SC2, pas l'un a l'autre. SC5 repart d'un budget frais."
+    }
+  ],
+  "citations": {
+    "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+  }
+}

@@ -70,6 +70,14 @@ const zoneOf = (file) => {
 
 const JUDGEMENT = new Set(['ACCEPTANCE', 'REFERENCE', 'MUTANT', 'GENERATOR'])
 
+// Zones d'IMPLEMENTATION au sens de la regle des deux cles. HARNESS en fait
+// partie, et ce n'est pas un detail : ADR-004 autorise l'implementeur de T00/T01
+// a ecrire HARNESS, puisque le livrable EST le verificateur. Sans cette ligne,
+// ce role pourrait ecrire le verificateur ET le test qui le juge dans un meme
+// commit — exactement le cas que la regle existe pour interdire, et exactement
+// celui ou le paradoxe d'amorcage rend la collusion la plus tentante.
+const IMPLEMENTATION = new Set(['IMPL', 'HARNESS'])
+
 if (!ownership.roles[role]) {
   console.error(`✗ rôle inconnu : ${role}`)
   console.error(`  rôles déclarés : ${Object.keys(ownership.roles).join(', ')}`)
@@ -111,10 +119,11 @@ if (outOfZone.length) {
 }
 
 const touchedJudgement = [...seen.keys()].filter((z) => JUDGEMENT.has(z))
-if (seen.has('IMPL') && touchedJudgement.length) {
+const touchedImpl = [...seen.keys()].filter((z) => IMPLEMENTATION.has(z))
+if (touchedImpl.length && touchedJudgement.length) {
   failed = true
   console.error('✗ PROOF_TAINTED — ce commit mêle implémentation et jugement :')
-  seen.get('IMPL').forEach((f) => console.error(`    ${f}  [IMPL]`))
+  touchedImpl.forEach((z) => seen.get(z).forEach((f) => console.error(`    ${f}  [${z}]`)))
   touchedJudgement.forEach((z) => seen.get(z).forEach((f) => console.error(`    ${f}  [${z}]`)))
   console.error('  Le code et le test qui le juge ne peuvent jamais entrer dans le même commit.')
   console.error('  Sépare-les en deux commits portant chacun leur Bench-Role.')

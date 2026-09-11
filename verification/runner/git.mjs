@@ -19,6 +19,10 @@ export function git(args, opts = {}) {
     cwd: opts.cwd ?? repoRoot(),
     stdio: ['ignore', 'pipe', opts.quiet === false ? 'inherit' : 'pipe'],
     maxBuffer: 64 * 1024 * 1024,
+    // `env` sert a poser GIT_INDEX_FILE : ecrire sur le ledger ne doit jamais
+    // passer par l'index du depot, ou une preparation en cours dans l'arbre de
+    // travail se retrouverait dans un commit de preuve (voir ledger.mjs).
+    ...(opts.env ? { env: opts.env } : {}),
   }).trimEnd()
 }
 

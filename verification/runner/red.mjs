@@ -21,7 +21,7 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { repoRoot, git, headSha, isClean } from './git.mjs'
 import { loadRegistry } from './registry.mjs'
 import { inputDigest } from './input-digest.mjs'
-import { ledgerRef } from './ledger.mjs'
+import { ledgerRef, appendToLedger } from './ledger.mjs'
 
 const R = repoRoot()
 
@@ -114,12 +114,24 @@ export function record(taskId, observed, adjudication, mutationProof) {
       'Un rouge par module introuvable ou suite non chargee n est PAS une preuve. ' +
       'Un vert a ce stade n est admis qu avec un mutant nomme qui le tue.',
   }
-  const ledger = process.env.BENCH_LEDGER ?? `${R}/.bench/ledger-wt`
-  const dir = `${ledger}/red/${taskId}`
-  mkdirSync(dir, { recursive: true })
-  const path = `${dir}/${doc.subject_commit}.json`
-  writeFileSync(path, JSON.stringify(doc, null, 2) + '\n')
-  return { path, doc }
+  // La porte rouge n'existe que si elle SURVIT a la session. Un fichier dans
+  // .bench/ est gitignore et part avec le conteneur : ce serait exactement le
+  // souvenir que §K interdit. L'enregistrement va donc sur la branche orpheline
+  // de ledger, par la plomberie — y committer ne change jamais le tree hash des
+  // sources, donc produire la preuve ne modifie pas le commit qu'elle certifie.
+  const path = `red/${taskId}/${doc.subject_commit}.json`
+  const content = JSON.stringify(doc, null, 2) + '\n'
+
+  // Copie locale, pour diagnostic seulement : elle ne fait jamais foi.
+  const scratch = `${R}/.bench/ledger-wt/red/${taskId}`
+  mkdirSync(scratch, { recursive: true })
+  writeFileSync(`${scratch}/${doc.subject_commit}.json`, content)
+
+  const commit = appendToLedger(
+    [{ path, content }],
+    `red(${taskId}): porte rouge enregistree sur ${doc.subject_commit.slice(0, 8)}`
+  )
+  return { path, doc, ledger: commit }
 }
 
 export { existsSync, readFileSync, git, ledgerRef }

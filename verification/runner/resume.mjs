@@ -228,7 +228,10 @@ export function render(board, { json = false } = {}) {
       L.push(`     NON ATTESTABLE : ${att.unclassified.length} cas sans mode de preuve etabli`)
       L.push(`     (fail-closed — classer avant d'attester, jamais deviner)`)
     }
-    L.push(`  -> pnpm bench task start ${id}`)
+    // Les deux temps de la preuve, dans l'ordre : on n'atteste que ce qu'on a
+    // d'abord vu ROUGE. `accept` refuse d'ailleurs toute tache sans porte rouge.
+    L.push(`  -> pnpm bench red ${id}        (porte rouge, avant toute implementation)`)
+    L.push(`  -> pnpm bench accept ${id}     (clean-room + attestation, une fois vert)`)
   } else if (proven.length === total) {
     L.push('  Les 44 taches sont prouvees a HEAD.')
   } else {

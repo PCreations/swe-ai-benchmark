@@ -9,7 +9,9 @@
 // recréé depuis origin par `bench bootstrap`. Ce qui n'est pas sur la ref
 // n'existe pas.
 // ─────────────────────────────────────────────────────────────────────────────
-import { git, gitOrNull, branchName, pushState } from './git.mjs'
+import { execFileSync } from 'node:child_process'
+import { rmSync } from 'node:fs'
+import { git, gitOrNull, branchName, pushState, repoRoot } from './git.mjs'
 
 export function ledgerRef() {
   return `${branchName()}-ledger`
@@ -71,6 +73,57 @@ export function attestationsByTask() {
   }
   for (const arr of map.values()) arr.sort((a, b) => a.order - b.order)
   return map
+}
+
+/**
+ * ÉCRIT sur la branche orpheline de ledger, SANS TOUCHER À L'ARBRE DE TRAVAIL.
+ *
+ * C'est la contrainte qui dicte l'implémentation : `git checkout <ledger>` puis
+ * commit changerait l'arbre de travail de l'agent au milieu d'une attestation,
+ * et un `git worktree add` sur le ledger laisserait un répertoire de plus à
+ * garder vierge. On passe donc par la plomberie, avec un INDEX DÉDIÉ
+ * (`GIT_INDEX_FILE`) : l'index du dépôt n'est jamais lu ni écrit, donc rien de
+ * ce qui est en cours de préparation dans l'arbre de travail ne peut se
+ * retrouver dans un commit de preuve.
+ *
+ * APPEND-ONLY. Le nouvel arbre part TOUJOURS de l'arbre du ledger courant
+ * (`read-tree`), jamais d'un index vide : une attestation n'efface jamais
+ * celles qui la précèdent. Le hook `pre-push` refuse de son côté toute
+ * réécriture non fast-forward de cette ref.
+ */
+export function appendToLedger(files, message) {
+  const name = ledgerRef()
+  const { ref, scope } = resolveLedger()
+  if (!ref) throw new Error(`ledger absent : ni refs/heads/${name} ni origin/${name}`)
+
+  const indexFile = `${repoRoot()}/.bench/ledger.index`
+  rmSync(indexFile, { force: true })
+  const env = { ...process.env, GIT_INDEX_FILE: indexFile }
+  const g = (args) => git(args, { env })
+
+  g(['read-tree', ref])
+  const written = []
+  for (const { path, content } of files) {
+    const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], {
+      cwd: repoRoot(),
+      input: content,
+      encoding: 'utf8',
+      env,
+    }).trim()
+    g(['update-index', '--add', '--cacheinfo', `100644,${blob},${path}`])
+    written.push(path)
+  }
+  const tree = g(['write-tree'])
+  const parent = g(['rev-parse', ref])
+  const commit = execFileSync('git', ['commit-tree', tree, '-p', parent, '-m', message], {
+    cwd: repoRoot(),
+    encoding: 'utf8',
+    env,
+  }).trim()
+  g(['update-ref', `refs/heads/${name}`, commit])
+  rmSync(indexFile, { force: true })
+
+  return { ref: name, commit, parent, files: written, was: scope }
 }
 
 /** Événements du ledger non encore poussés — rien n'est durable tant qu'ils restent. */

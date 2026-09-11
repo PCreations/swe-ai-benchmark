@@ -13,6 +13,7 @@ import { inputDigest } from '../verification/runner/input-digest.mjs'
 import { run as runSelftest } from '../verification/runner/selftest.mjs'
 import { observeSuite, adjudicate, record } from '../verification/runner/red.mjs'
 import { verifyTask, render as renderResult } from '../verification/runner/verify-task.mjs'
+import { accept, render as renderAccept } from '../verification/runner/accept.mjs'
 
 const [cmd = 'resume', ...rest] = process.argv.slice(2)
 const has = (f) => rest.includes(f)
@@ -24,12 +25,14 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
                          sorties : 0 travail restant · 2 registre invalide
                                    3 tout prouve   · 4 divergence / non pousse
                                    11 rien d'actionnable
-  verify:task <Txx>      controle ciblé d'une tache. Ecrit verification/results/<Txx>.json
-             [--json]    sorties (ADR-005) : 0 PASS · 1 ASSERTION_FAILED
-                                   2 NOT_IMPLEMENTED / UNKNOWN_TASK / REGISTRY_INVALID
+  verify:task <Txx>      EXECUTE l'entree d'acceptation de la tache (Jest ou
+             [--json]    pytest, selon l'extension) et adjuge ses cas requis.
+                         Ecrit verification/results/<Txx>.json
+                         sorties (ADR-005) : 0 PASS · 1 ASSERTION_FAILED
+                                   2 NOT_IMPLEMENTED / UNKNOWN_TASK /
+                                     REGISTRY_INVALID / BLOCKED
                          BENCH_REGISTRY=<fichier> detourne la lecture du registre.
-                         SQUELETTE : la verification n'est pas implementee ; toute
-                         tache connue sort en 2 / NOT_IMPLEMENTED.
+                         Ce rapport ne vaut PAS attestation : voir accept.
   doctor [--json]        EXECUTE chaque sonde de capacite et ecrit .bench/doctor.json
   registry lint          valide le registre : id inconnu, cycle, doublon,
                          dependance absente, status non fige, cas retires
@@ -38,6 +41,12 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
   red <Txx>              execute la suite et enregistre la PORTE ROUGE sur le ledger.
                          Refuse : suite non chargee, cas non observes, cas VERT
                          sans contre-epreuve par mutation (VACUOUS).
+  accept <Txx>           SEULE fabrique d'attestations. Re-execute la tache en
+         [--dry-run]     CLEAN-ROOM et ecrit l'attestation sur le ledger.
+         [--json]        Refuse : arbre sale, source non poussee, porte rouge
+                         absente, violation des deux cles, capacite absente,
+                         clean-room contamine, verdict autre que PASS.
+                         sorties : 0 atteste · 1 refuse
   help
 `
 
@@ -150,6 +159,19 @@ switch (cmd) {
     const { path } = record(id, observed, adj, proof)
     L.push('', `enregistre : ${path}`)
     out(L.join('\n'), 0)
+    break
+  }
+
+  case 'accept': {
+    const id = rest.find((a) => !a.startsWith('-'))
+    if (!id) out('usage: bench accept <Txx> [--dry-run] [--json]', 1)
+    // Une attestation ne s'appuie JAMAIS sur un registre de remplacement :
+    // ADR-005 §2 cantonne BENCH_REGISTRY a `verify:task`. On refuse tot et on
+    // le dit, plutot que de l'ignorer silencieusement.
+    if (process.env.BENCH_REGISTRY)
+      out('BENCH_REGISTRY est pose : une attestation ne peut pas venir d un registre de remplacement (ADR-005 §2).', 1)
+    const result = accept(id, { dryRun: has('--dry-run') })
+    out(json ? JSON.stringify(result, null, 2) : renderAccept(result), result.ok ? 0 : 1)
     break
   }
 

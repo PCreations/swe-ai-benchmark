@@ -32,7 +32,7 @@ function nonce(tag) {
  * Exécute `command` sur un checkout neuf de `rev`, et rend ce qui a été
  * réellement observé. N'interprète rien : l'adjudication appartient à l'appelant.
  */
-export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgnored = [] }) {
+export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgnored = [], prepare = [] }) {
   const id = nonce(tag)
   const dir = `${R}/.bench/scratch/${id}`
   const runDir = `${R}/.bench/run/${id}`
@@ -67,6 +67,39 @@ export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgn
       observed.verdict = 'DIRTY_CLEANROOM'
       observed.reason = `le checkout neuf n'est pas vierge : ${strayBefore.join(', ')}`
       return observed
+    }
+
+    // PREPARATION. Un checkout neuf n'a ni node_modules ni venv : la suite ne
+    // peut pas tourner sans une installation FIGEE prealable. Ces commandes
+    // sont enregistrees a part de la commande adjugee, pour que leur sortie ne
+    // se melange jamais au rapport machine que l'appelant va lire sur stdout —
+    // et pour qu'un echec d'installation soit nomme comme tel plutot que
+    // maquille en suite rouge.
+    observed.prepare = []
+    for (const step of prepare) {
+      let out = '',
+        err = '',
+        rc = 0
+      try {
+        out = execSync(step, {
+          cwd: dir,
+          encoding: 'utf8',
+          timeout: 30 * 60 * 1000,
+          maxBuffer: 64 * 1024 * 1024,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
+      } catch (e) {
+        rc = e.status ?? 1
+        out = String(e.stdout ?? '')
+        err = String(e.stderr ?? '')
+      }
+      observed.prepare.push({ command: step, exit_code: rc, tail: (out + err).trimEnd().split('\n').slice(-20).join('\n') })
+      if (rc !== 0) {
+        observed.verdict = 'PREPARE_FAILED'
+        observed.reason = `preparation du clean-room en echec (code ${rc}) : ${step}`
+        writeFileSync(`${runDir}/observed.json`, JSON.stringify(observed, null, 2))
+        return observed
+      }
     }
 
     let stdout = '',

@@ -1,0 +1,266 @@
+{
+  "schema": "bench.attestation/1",
+  "task": "T00",
+  "verdict": "PASS",
+  "commit": "0efd747669edc59a24a0586bd7138cdd7cc5b81a",
+  "branch": "claude/gallant-fermi-51jlsx",
+  "dirty": false,
+  "clean_room": true,
+  "input_digest": "e001817d77c7ce19b40d339f3a71f96045255cf7a87af83a098b2a07bd117246",
+  "capabilities_used": [
+    "node22",
+    "python312"
+  ],
+  "capabilities": {
+    "node22": {
+      "present": true,
+      "detail": "node 22.22.2"
+    },
+    "python312": {
+      "present": true,
+      "detail": "Python 3.12.3"
+    }
+  },
+  "cases": [
+    {
+      "id": "T00.A1",
+      "status": "PASS"
+    },
+    {
+      "id": "T00.A2",
+      "status": "PASS"
+    },
+    {
+      "id": "T00.A3",
+      "status": "PASS"
+    },
+    {
+      "id": "T00.A4",
+      "status": "PASS"
+    },
+    {
+      "id": "T00.A5",
+      "status": "PASS"
+    },
+    {
+      "id": "T00.A6",
+      "status": "PASS"
+    }
+  ],
+  "proof_kinds": {
+    "behaviour": 2,
+    "refusal": 3,
+    "artifact": 1
+  },
+  "red_gate": {
+    "path": "red/T00/b2fb9e6522b53e48230fd45fb0a60ab9f01ba1ee.json",
+    "subject_commit": "b2fb9e6522b53e48230fd45fb0a60ab9f01ba1ee",
+    "verdict": "RED_RECORDED"
+  },
+  "two_key": {
+    "range": "b2fb9e6522b53e48230fd45fb0a60ab9f01ba1ee..HEAD",
+    "commits": [
+      {
+        "sha": "bfd76687bdfa",
+        "role": "integrator",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "a39c1b43b4fe",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "501387181aef",
+        "role": "implementer",
+        "phase": null,
+        "files": 9,
+        "problems": []
+      },
+      {
+        "sha": "1383d2c969d2",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "8b5cc55e8b72",
+        "role": "integrator",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "e951520f2f11",
+        "role": "integrator",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "0efd747669ed",
+        "role": "integrator",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      }
+    ]
+  },
+  "clean_room_run": {
+    "nonce": "e509d4a01ec9",
+    "rev": "0efd747669edc59a24a0586bd7138cdd7cc5b81a",
+    "clean_room": true,
+    "pristine": true,
+    "stray_before": [],
+    "prepare": [
+      {
+        "command": "pnpm install --frozen-lockfile --reporter=silent",
+        "exit_code": 0
+      },
+      {
+        "command": "uv --project analysis sync --frozen",
+        "exit_code": 0
+      }
+    ],
+    "command": "node tools/bench verify:task T00 --json",
+    "exit_code": 0,
+    "stdout_sha256": "d32da130121660859ba1283aa8801d7d9dc44dfbb7610b63f916052d4b6ad1f5",
+    "run_dir": ".bench/run/e509d4a01ec9"
+  },
+  "report": {
+    "schema": "bench.result/1",
+    "task_id": "T00",
+    "reason": "PASS",
+    "exit_code": 0,
+    "commit": "0efd747669edc59a24a0586bd7138cdd7cc5b81a",
+    "branch": "HEAD",
+    "dirty": false,
+    "clean_room": false,
+    "registry": {
+      "kind": "repository",
+      "path": "verification/tasks.json",
+      "sha256": "fb5cf24cba7055b0dafdb2c1fcc42cb7f6236fc2c490172615c15e4b5a56c2a8",
+      "problems": []
+    },
+    "fixtures": {
+      "acceptance/reference": "(absent)"
+    },
+    "input_digest": "e001817d77c7ce19b40d339f3a71f96045255cf7a87af83a098b2a07bd117246",
+    "versions": {
+      "declared": {
+        "node": ">=22.22.2 <23",
+        "pnpm": "pnpm@10.33.0",
+        "typescript": "6.0.3",
+        "jest": "30.5.1",
+        "ts-jest": "29.4.12",
+        "python": "==3.12.*",
+        "pytest": "9.1.1"
+      },
+      "observed": {
+        "node": "22.22.2",
+        "v8": "12.4.254.21-node.39"
+      }
+    },
+    "lockfiles": {
+      "pnpm-lock.yaml": "3b7fd556b21190c3e1ac59f45ef5334a0acc296301d7765f2235a859650f23a0",
+      "analysis/uv.lock": "5bea4ea56815d13e72680ee4533010fbeeb7f8285728d42c9a33f2c5b17f3148"
+    },
+    "commands": [
+      {
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T00.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/e509d4a01ec9/.bench/run/d8b793f83c5c/jest.json\"",
+        "exit_code": 0
+      }
+    ],
+    "chain": "jest",
+    "acceptance_entry": "acceptance/T00.spec.ts",
+    "suite_loaded": true,
+    "suite_exit_code": 0,
+    "tests_observed": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "expected_cases": [
+      "T00.A1",
+      "T00.A2",
+      "T00.A3",
+      "T00.A4",
+      "T00.A5",
+      "T00.A6"
+    ],
+    "executed_cases": [
+      "T00.A1",
+      "T00.A2",
+      "T00.A3",
+      "T00.A4",
+      "T00.A5",
+      "T00.A6"
+    ],
+    "assertions_expected": 6,
+    "assertions_executed": 6,
+    "case_statuses": [
+      {
+        "id": "T00.A1",
+        "status": "PASS",
+        "observed": 1
+      },
+      {
+        "id": "T00.A2",
+        "status": "PASS",
+        "observed": 1
+      },
+      {
+        "id": "T00.A3",
+        "status": "PASS",
+        "observed": 1
+      },
+      {
+        "id": "T00.A4",
+        "status": "PASS",
+        "observed": 1
+      },
+      {
+        "id": "T00.A5",
+        "status": "PASS",
+        "observed": 1
+      },
+      {
+        "id": "T00.A6",
+        "status": "PASS",
+        "observed": 1
+      }
+    ],
+    "skipped_cases": [],
+    "missing_cases": [],
+    "proof_files": [
+      ".bench/run/d8b793f83c5c/jest.json"
+    ],
+    "requires": [
+      "node22",
+      "python312"
+    ],
+    "blocked_by": [],
+    "requires_live_credentials": false,
+    "depends_on": [],
+    "detail": [],
+    "limitations": [
+      "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+      "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+      "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+    ]
+  },
+  "depends_on": [],
+  "limitations": [
+    "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+    "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+    "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+  ],
+  "boot_id": "0e78e972-670f-41bc-97b8-ff236534d4d3",
+  "produced_at": "2026-09-11T15:00:29.630Z",
+  "duration_ms": 16235
+}

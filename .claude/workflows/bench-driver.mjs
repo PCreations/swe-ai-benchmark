@@ -69,6 +69,12 @@ const WORLD = {
     clean: { type: 'boolean' },
     proven: { type: 'array', items: { type: 'string' } },
     ready: { type: 'array', items: { type: 'string' } },
+    actionable: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        "champ `actionable` de `bench resume --json` : les taches sur lesquelles il y a QUELQUE CHOSE A FAIRE. C'est READY *plus* les PERIMEES dont les dependances tiennent. Recopie-le tel quel.",
+    },
     blocked: { type: 'array', items: { type: 'string' } },
     contested: { type: 'array', items: { type: 'string' } },
     capabilities_absent: { type: 'array', items: { type: 'string' } },
@@ -76,7 +82,7 @@ const WORLD = {
     halt: { type: 'string', description: "nom du refus fail-closed si l'iteration doit s'arreter, sinon chaine vide" },
     detail: { type: 'string' },
   },
-  required: ['resume_exit', 'head', 'proven', 'ready', 'blocked', 'unclassified_tasks', 'halt', 'detail'],
+  required: ['resume_exit', 'actionable', 'head', 'proven', 'ready', 'blocked', 'unclassified_tasks', 'halt', 'detail'],
 }
 
 const CLASSIFICATION = {
@@ -570,7 +576,14 @@ if (world.resume_exit === 3) {
   return { done: true, world }
 }
 
-log(`HEAD ${world.head.slice(0, 8)} · prouvees ${world.proven.length}/44 · pretes ${world.ready.length} · bloquees ${world.blocked.length}`)
+// ACTIONNABLE, PAS `ready`. Une tache PERIMEE n'est pas dans `ready` et c'est
+// pourtant l'action la plus urgente : ses entrees ont change, sa preuve ne lie
+// plus HEAD. Le meme piege avait fait sortir `bench resume` en 11 ; le corriger
+// dans resume sans corriger SON CONSOMMATEUR laissait la boucle s'arreter sur
+// NO_READY_TASK des qu'une entree GLOBALE bougeait — c'est-a-dire a chaque tour,
+// puisque chaque etage touche le registre ou le runner. Observe en vrai.
+const todo = world.actionable?.length ? world.actionable : world.ready
+log(`HEAD ${world.head.slice(0, 8)} · prouvees ${world.proven.length}/44 · actionnables ${todo.length} · bloquees ${world.blocked.length}`)
 if (world.capabilities_absent?.length) log(`capacites absentes apres bootstrap : ${world.capabilities_absent.join(', ')}`)
 
 // ── CLASSIFY. En UN passage, jamais tache par tache : cases.lock.json est une
@@ -611,7 +624,7 @@ if (world.unclassified_tasks.length) {
 // ── FRONTIERE. Le plan impose un cap de 2 : les fermetures doivent etre
 // DISJOINTES, pas seulement les source_paths, et les schemas partages sont
 // serialises chez l'integrateur.
-const frontier = world.ready.slice(0, MAX_CONCURRENT)
+const frontier = todo.slice(0, MAX_CONCURRENT)
 if (!frontier.length) {
   log(`Rien d'actionnable. Bloquees : ${world.blocked.join(', ') || 'aucune'}`)
   return { halted: 'NO_READY_TASK', blocked: world.blocked, capabilities_absent: world.capabilities_absent, world }

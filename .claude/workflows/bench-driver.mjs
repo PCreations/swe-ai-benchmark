@@ -215,6 +215,10 @@ ETAGE 0 — PREFLIGHT. Tu ne produis aucun code. Tu etablis l'etat reel.
    est constate : digest du cahier qui ne correspond plus, registre invalide,
    cases.lock plus etroit que les cartes, racine gelee modifiee, chemins
    revendiques par aucune zone, SPEC_CONFLICT ouvert, tache CONTESTED.
+   OU CHERCHER UN SPEC_CONFLICT : docs/spec-conflicts/*.md. Une entree portant
+   « statut : OUVERT » est un halt — une question de specification non tranchee
+   se propagerait a tous les etages en aval. Une entree « RESOLU » ne bloque
+   rien : elle fait autorite sur son sujet et les etages la consultent.
    Si le ledger n'est pas en avance rapide, ou si des refs ne sont pas poussees,
    corrige-le (push atomique des deux refs) et dis-le — ce n'est pas un halt.
 
@@ -377,6 +381,20 @@ Deux transcriptions independantes du §F t'attendent dans \`.bench/fixtures/A/\`
 et \`.bench/fixtures/B/\`, ecrites par deux agents a cadrages opposes qui ne se
 sont pas vus.
 
+0. LIS D'ABORD LES ARBITRAGES DEJA RENDUS : docs/spec-conflicts/*.md. Une
+   entree portant « statut : RESOLU » fait AUTORITE sur la divergence qu'elle
+   couvre — applique sa regle et ne rebloque pas dessus. Une entree « OUVERT »
+   bloque au contraire l'etage : la question n'est pas tranchee.
+   SC-001 tranche le poids des exigences : un poids est fixe a l'introduction de
+   l'exigence et ne change pas tant qu'elle est active. En F-QUALITY, B@1 pese
+   donc 1 et C@1 pese 2 en P3 et P4. SC-001 regle aussi, sans arbitrage, l'unite
+   des couts de F-FAILURE (non specifiee : « micro-USD » n'est PAS en ligne 121,
+   verifie par grep) et le nombre attendu de F-REGRESSION (1, ligne 129, « en
+   produit une »).
+   N'INVENTE PAS d'arbitrage toi-meme et n'en deduis pas d'une entree resolue
+   vers un autre sujet : tout ce qui n'est pas couvert par une entree RESOLU
+   arrete l'etage, comme ci-dessous.
+
 1. COMPARE-LES, valeur par valeur (pas fichier par fichier : la mise en forme
    peut differer legitimement, les VALEURS non). Toute divergence de valeur, et
    toute \`ambiguites\` non vide, ARRETE l'etage : rends ok=false, state
@@ -385,6 +403,12 @@ sont pas vus.
    ne choisis pas « la plus plausible » : deux lectures divergentes du §F, c'est
    precisement ce que la double transcription existe pour attraper, et le gel
    rendrait l'erreur permanente.
+   UNE AMBIGUITE N'EST BLOQUANTE QUE SI ELLE PORTE SUR UNE VALEUR QUE TU DOIS
+   ECRIRE. Une question consignee par un transcripteur qui ne change aucune
+   valeur materialisee (par ex. sur un cas d'acceptation, ou sur un champ que ni
+   A ni B n'inscrivent) se reporte : cite-la dans ton compte rendu et continue.
+   Bloquer sur une ambiguite sans effet ferait de la prudence un arret
+   permanent.
 
 2. SI ET SEULEMENT SI elles concordent : materialise \`acceptance/reference/**\`
    depuis la transcription commune. Un fichier par fixture, chaque valeur portant

@@ -1,0 +1,65 @@
+{
+  "schema": "bench.red/1",
+  "task": "T01",
+  "subject_commit": "49350617e0cf44d475168beae1392952f8c08107",
+  "dirty": true,
+  "input_digest": "17c5e38617c27b816bbbc58d4c213e153e47c993b5a59479cd0a98ada024832a",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T01.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T01.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M2",
+      "note": "Mutation EXECUTEE dans verification/runner/chains.mjs, runJest() : la normalisation du statut Jest a ete reduite a (failed -> FAIL, sinon PASS), ce qui est la variante 'normaliser pending vers passed en lisant le rapport de la chaine de test'. Observe : pnpm test acceptance/T01.spec.ts -t T01.A2 -> ROUGE (1 failed). Le diff attendu/recu montre saute.casSauteVert false->true, saute.pass false->true, saute.refuse true->false, tandis que le jumeau SAIN reste exit 0 / PASS / 6 verts (la mutation affaiblit, elle ne casse pas). Mutation restauree par git checkout ; git status ne montre plus verification/runner/chains.mjs."
+    },
+    {
+      "id": "T01.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M3",
+      "note": "Mutation EXECUTEE dans verification/runner/verify-task.mjs, adjudicate() : la condition de refus 'failed.length || skipped.length || missing.length' a perdu son terme missing.length, c'est-a-dire que la liste des cas requis du registre n'est plus confrontee aux identifiants observes. Observe : pnpm test acceptance/T01.spec.ts -t T01.A3 -> ROUGE (1 failed). Le diff montre manquant.refuse true->false et manquant.pass false->true, le jumeau SAIN restant exit 0 / PASS / 6 verts. Mutation restauree par git checkout."
+    },
+    {
+      "id": "T01.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T01.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T01.M5",
+      "note": "Mutation EXECUTEE dans verification/runner/verify-task.mjs, buildReport() : 'commit: headSha()' remplace par la constante '0000000000000000000000000000000000000000' — variante (b) du mutant, 'y inscrire une constante'. Observe : pnpm test acceptance/T01.spec.ts -t T01.A5 -> ROUGE (1 failed). Le diff montre sain.commitLieAHead true->false (le rapport ne suit plus HEAD) ; le second temps du cas, le rapport perime, restait refuse. Mutation restauree par git checkout."
+    },
+    {
+      "id": "T01.A6",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {
+    "T01.A2": {
+      "killed_by": "T01.M2",
+      "note": "Mutation EXECUTEE dans verification/runner/chains.mjs, runJest() : la normalisation du statut Jest a ete reduite a (failed -> FAIL, sinon PASS), ce qui est la variante 'normaliser pending vers passed en lisant le rapport de la chaine de test'. Observe : pnpm test acceptance/T01.spec.ts -t T01.A2 -> ROUGE (1 failed). Le diff attendu/recu montre saute.casSauteVert false->true, saute.pass false->true, saute.refuse true->false, tandis que le jumeau SAIN reste exit 0 / PASS / 6 verts (la mutation affaiblit, elle ne casse pas). Mutation restauree par git checkout ; git status ne montre plus verification/runner/chains.mjs."
+    },
+    "T01.A3": {
+      "killed_by": "T01.M3",
+      "note": "Mutation EXECUTEE dans verification/runner/verify-task.mjs, adjudicate() : la condition de refus 'failed.length || skipped.length || missing.length' a perdu son terme missing.length, c'est-a-dire que la liste des cas requis du registre n'est plus confrontee aux identifiants observes. Observe : pnpm test acceptance/T01.spec.ts -t T01.A3 -> ROUGE (1 failed). Le diff montre manquant.refuse true->false et manquant.pass false->true, le jumeau SAIN restant exit 0 / PASS / 6 verts. Mutation restauree par git checkout."
+    },
+    "T01.A5": {
+      "killed_by": "T01.M5",
+      "note": "Mutation EXECUTEE dans verification/runner/verify-task.mjs, buildReport() : 'commit: headSha()' remplace par la constante '0000000000000000000000000000000000000000' — variante (b) du mutant, 'y inscrire une constante'. Observe : pnpm test acceptance/T01.spec.ts -t T01.A5 -> ROUGE (1 failed). Le diff montre sain.commitLieAHead true->false (le rapport ne suit plus HEAD) ; le second temps du cas, le rapport perime, restait refuse. Mutation restauree par git checkout."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

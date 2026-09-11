@@ -1,0 +1,124 @@
+{
+  "schema": "bench.frozen-roots/1",
+  "$comment": [
+    "GEL DE LA RACINE DES FIXTURES DE REFERENCE — cahier §G l.139 : « La racine",
+    "des fixtures de reference est gelee apres T01 ; toute modification est visible",
+    "dans le diff et invalide les preuves precedentes. »",
+    "",
+    "L'AUTORITE EST L'OBJET GIT, PAS CE FICHIER. `verification/runner/references.mjs`",
+    "confronte l'arbre de travail a HEAD sur chaque racine : un agent qui reecrirait",
+    "l'empreinte ci-dessous dans le meme commit que l'alteration ne desarmerait rien,",
+    "la modification resterait dans le diff. Ce fichier fixe le PERIMETRE gele et",
+    "inscrit l'oid CONSTATE au scellement, pour que toute derive soit nommable par un",
+    "`git rev-parse <commit>:acceptance/reference` qui rend un autre oid.",
+    "",
+    "Son absence ne desarme pas le controle : references.mjs retombe sur la racine",
+    "que le cahier nomme (fail-closed), et une declaration ne peut qu'ELARGIR le",
+    "perimetre gele, jamais le reduire.",
+    "",
+    "CE FICHIER EST EN ZONE REFERENCE (verification/ownership.json). Le modifier",
+    "apres le gel exige un SPEC_CONFLICT ouvert : il invalide les 44 attestations."
+  ],
+  "roots": [
+    {
+      "path": "acceptance/reference",
+      "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+      "commit_du_gel": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+      "relecture": "git rev-parse cd239915d88f6ac07b4b4f45e1a565f8c04786e0:acceptance/reference",
+      "nombre_de_fixtures": 10,
+      "fichiers": [
+        {
+          "chemin": "acceptance/reference/F-BOOTSTRAP.json",
+          "blob_oid": "47f9b517bf0de45a4dee67cd63b52b58a1d438b9",
+          "sha256": "5e9d095233cca29edd2c8eb39a4f5f75c9e8f1e8de73216e456ba11691e46ca6",
+          "octets": 3003
+        },
+        {
+          "chemin": "acceptance/reference/F-BUDGET.json",
+          "blob_oid": "7c76b9a6e056740f520629c0a59dbcb0e2aafe80",
+          "sha256": "e6ad0a4d290fb21a491f13aa49f8bfa272bf590bbe35ce50581cc8d28d8e5b86",
+          "octets": 3939
+        },
+        {
+          "chemin": "acceptance/reference/F-CLUSTERS.json",
+          "blob_oid": "164882b05e2fdf60b339b70022c0e87901f21d04",
+          "sha256": "c108dc5176a02630c79d7ae4eb03868c31be7e0ec6b6e79073f5d4a0e7366b7c",
+          "octets": 2591
+        },
+        {
+          "chemin": "acceptance/reference/F-COST-RATIO.json",
+          "blob_oid": "d383d3ab3fa24733e3a62c4869489cb327f2094b",
+          "sha256": "e2f60aaa5b4a813b894f1df6bd534cbf533727d2e1e1c5acc175e7ce7ba4dcfe",
+          "octets": 2245
+        },
+        {
+          "chemin": "acceptance/reference/F-FAILURE.json",
+          "blob_oid": "2e43fcb9c3a5d6f062d9a5457a5adfe18965daee",
+          "sha256": "d7d641e6747a87bba323c22e167cd93dc51ae94168dba079ec8ebe5bb9a1b761",
+          "octets": 3466
+        },
+        {
+          "chemin": "acceptance/reference/F-MONEY.json",
+          "blob_oid": "7ca9d24ad7b8d2f3950bd49468e084fa9d18e2d2",
+          "sha256": "1e45f792dd7a9f25a25daeff672658425479a06f3bed7a114275f0f29ba6d8d8",
+          "octets": 2639
+        },
+        {
+          "chemin": "acceptance/reference/F-POWER.json",
+          "blob_oid": "724b16ebb9ea7f99536d8c77c89c1e52c50dfdc8",
+          "sha256": "ff2220c51564884399a97edae61cdae00ba98a1f22a89057e05db5c1a94a9f30",
+          "octets": 8353
+        },
+        {
+          "chemin": "acceptance/reference/F-QUALITY.json",
+          "blob_oid": "6a3a7969cd77d1290ea5fc26e115baf0111d52ef",
+          "sha256": "49b57f858208206d751be80404596b821cf37292a8b16c051363d81a3a27dff1",
+          "octets": 11220
+        },
+        {
+          "chemin": "acceptance/reference/F-REGRESSION.json",
+          "blob_oid": "bf6f53890ceb891e87d0c25ca130ee61269a349a",
+          "sha256": "a2c8a26b14e5c2924ab0b4ec810a7592d07323de3b347316780fd3273c523a73",
+          "octets": 2483
+        },
+        {
+          "chemin": "acceptance/reference/F-RESERVATION.json",
+          "blob_oid": "e620f73bcbc1ffb458f70be5bf06d9eca2945c2f",
+          "sha256": "bc4b6a017d0a2c0ff406cd391062a6f0e5e8505e3fc5cb6be87c7461ca4e3066",
+          "octets": 7980
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "tache": "T00",
+    "etage": "FIXTURES",
+    "role": "fixture-transcriber",
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "methode": "double transcription independante du §F (.bench/fixtures/A et /B, cadrages opposes), comparaison valeur par valeur, puis materialisation de la transcription COMMUNE",
+    "concordance_A_B": true,
+    "divergences_de_valeur": 0,
+    "arbitrages_appliques": [
+      {
+        "id": "SC-001",
+        "statut": "RESOLU",
+        "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+        "effets": [
+          "F-QUALITY : B@1 pese 1 et C@1 pese 2 en P3 et P4",
+          "F-FAILURE : l'unite des couts reste non specifiee",
+          "F-REGRESSION : le nombre attendu vaut 1"
+        ]
+      }
+    ],
+    "ambiguites_reportees": 5,
+    "ambiguites_bloquantes": 0,
+    "archive_des_transcriptions": "ledger claude/gallant-fermi-51jlsx-ledger, fixtures-transcripts/T00/",
+    "comment_l_oid_a_ete_obtenu": "`git rev-parse HEAD:acceptance/reference` APRES le commit de la racine (cd23991) ; ce fichier est ecrit dans un SECOND commit, qui ne touche pas la racine et ne deplace donc pas l'oid inscrit"
+  }
+}

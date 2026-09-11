@@ -1,0 +1,4 @@
+# Les journaux du ledger sont append-only et ecrits par des sessions qui peuvent
+# tourner en parallele. L'union-merge fusionne les lignes au lieu de produire un
+# conflit : aucune preuve n'est jamais ecrasee par une autre.
+**/*.jsonl merge=union

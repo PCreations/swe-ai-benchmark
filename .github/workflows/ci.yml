@@ -8,14 +8,24 @@
 # preuve de T00. Inventer un septième cas maison pour la couvrir rendrait T00
 # non comparable à sa propre spécification.
 #
-# Elle fait exactement trois choses, toutes entièrement connaissables en T00 :
+# Elle fait exactement cinq choses, toutes entièrement connaissables en T00 :
 #   1. installer À PARTIR DES VERROUS, et refuser si un verrou bouge ;
 #   2. compiler le paquet de contrats en mode strict ;
-#   3. valider le registre des 44 tâches.
+#   3. valider le registre des 44 tâches ;
+#   4. exécuter les démonstrations du socle (`bench selftest`) ;
+#   5. exécuter `verify:task T00`.
 #
-# Ce qu'elle ne fait PAS : exécuter `verify:task`. Le squelette sort en 2 sur
-# toute tâche connue — une CI qui l'appellerait serait rouge en permanence, donc
-# ignorée, donc inutile. Elle l'appellera quand la vérification existera.
+# LE POINT 5 EST NOUVEAU, et la raison de son absence a disparu : tant que le
+# vérificateur était un squelette, il sortait en 2 sur toute tâche connue, et
+# une CI qui l'appelait aurait été rouge en permanence — donc ignorée, donc
+# inutile. La vérification exécute désormais réellement les suites ; l'appeler
+# ici dit quelque chose.
+#
+# CE QUE LE POINT 5 N'EST PAS. Une CI verte n'atteste RIEN : elle tourne dans
+# l'arbre de travail du runner, pas dans le clean-room, et `bench accept` est la
+# seule fabrique d'attestations. C'est un garde-fou de régression, pas une
+# preuve — et le confondre avec une preuve serait exactement le raccourci que
+# tout le dispositif existe pour interdire.
 #
 # LIMITE CONNUE : les actions ci-dessous sont référencées par étiquette majeure,
 # pas par digest de commit. C'est le seul endroit du dépôt où une référence
@@ -92,3 +102,18 @@ jobs:
       # absente. Sortie 2 = registre invalide, et la CI doit rougir.
       - name: bench registry lint
         run: node tools/bench registry lint
+
+      # ── 4. LE SOCLE SE PROUVE LUI-MÊME ────────────────────────────────────
+      # S01 fabrique un `dist/` parasite et exige que l'arbre de travail et le
+      # clean-room DIVERGENT. Si ce contrôle cesse de passer, toute attestation
+      # produite ensuite repose sur une isolation qui n'isole plus.
+      - name: bench selftest
+        run: node tools/bench selftest
+
+      # ── 5. VÉRIFICATION DE T00 ────────────────────────────────────────────
+      # Les six cas requis sont exécutés pour de vrai, sur les deux chaînes.
+      # Sortie 0 = PASS ; 1 = assertion échouée ; 2 = non implémentée, tâche
+      # inconnue, registre invalide ou prérequis absent. La CI rougit sur tout
+      # ce qui n'est pas 0 — et ne transforme jamais ce vert en attestation.
+      - name: verify:task T00
+        run: node tools/bench verify:task T00

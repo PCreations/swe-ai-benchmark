@@ -11,7 +11,7 @@
 // rien. Elle est sûre sur un conteneur vieux de dix secondes.
 // ─────────────────────────────────────────────────────────────────────────────
 import { headSha, branchName, isClean, pushState, oidAt } from './git.mjs'
-import { loadRegistry } from './registry.mjs'
+import { loadRegistry, attestability } from './registry.mjs'
 import { inputDigest } from './input-digest.mjs'
 import { ledgerState, attestationsByTask } from './ledger.mjs'
 import { readEvidence, bootId } from './doctor.mjs'
@@ -221,6 +221,13 @@ export function render(board, { json = false } = {}) {
     const s = board.states.get(id)
     L.push(`  ${id} · ${s.task.title}`)
     L.push(`     cas requis : ${s.task.required_cases.length}   capacites : ${s.task.requires.join(', ') || 'aucune'}`)
+    const att = attestability(id, board.reg.lock)
+    if (att.attestable) {
+      L.push(`     modes de preuve : ${Object.entries(att.kinds).map(([k, n]) => `${k}×${n}`).join(', ')}`)
+    } else {
+      L.push(`     NON ATTESTABLE : ${att.unclassified.length} cas sans mode de preuve etabli`)
+      L.push(`     (fail-closed — classer avant d'attester, jamais deviner)`)
+    }
     L.push(`  -> pnpm bench task start ${id}`)
   } else if (proven.length === total) {
     L.push('  Les 44 taches sont prouvees a HEAD.')

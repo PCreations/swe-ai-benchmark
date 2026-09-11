@@ -11,7 +11,14 @@
     "blockable est false PARTOUT, deliberement. Une capacite absente produit un",
     "verdict BLOCKED au niveau de la TACHE (sortie 2), jamais un PASS partiel.",
     "PARTIAL n existe que si un cas est explicitement marque blockable ici — un",
-    "changement visible au diff, jamais une decision d execution."
+    "changement visible au diff, jamais une decision d execution.",
+    "",
+    "proof_kind : la porte « necessite » N'EST PAS universelle. Un cas 'refusal'",
+    "reste VERT sous un stub qui leve — faux PASS sur exactement le genre de cas",
+    "que la porte pretend proteger. Un cas 'artifact' n'appelle aucun export, donc",
+    "stuber n'y change rien. Chaque cas porte donc son mode de preuve et sa",
+    "perturbation ciblee. UNCLASSIFIED est FAIL-CLOSED : la tache ne peut pas etre",
+    "attestee tant qu'un de ses cas requis n'est pas classe."
   ],
   "schema": "bench.caseslock/1",
   "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
@@ -25,7 +32,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "casser la compilation du module de contrat : le cas doit devenir rouge"
     },
     {
       "id": "T00.A2",
@@ -35,7 +44,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire renvoyer un code non nul par le runner sur un test vrai"
     },
     {
       "id": "T00.A3",
@@ -45,7 +56,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "rendre le runner PERMISSIF (renvoyer 0 sur un test faux) : un stub qui leve rendrait ce cas vert a tort"
     },
     {
       "id": "T00.A4",
@@ -55,7 +68,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "faire accepter un id inconnu (T99) par le validateur"
     },
     {
       "id": "T00.A5",
@@ -65,7 +80,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "faire declarer reussie une tache NOT_IMPLEMENTED du registre synthetique"
     },
     {
       "id": "T00.A6",
@@ -75,7 +92,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "artifact",
+      "perturbation": "modifier le lockfile pendant l'installation figee : aucun export metier n'est en jeu, seule la mutation de l'artefact peut casser ce cas"
     },
     {
       "id": "T01.A1",
@@ -84,7 +103,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T01.A2",
@@ -93,7 +114,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T01.A3",
@@ -102,7 +125,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T01.A4",
@@ -111,7 +136,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T01.A5",
@@ -120,7 +147,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T01.A6",
@@ -129,7 +158,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T02.A1",
@@ -138,7 +169,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T02.A2",
@@ -147,7 +180,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T02.A3",
@@ -156,7 +191,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T02.A4",
@@ -165,7 +202,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T02.A5",
@@ -174,7 +213,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T02.A6",
@@ -183,7 +224,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T03.A1",
@@ -192,7 +235,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T03.A2",
@@ -201,7 +246,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T03.A3",
@@ -210,7 +257,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T03.A4",
@@ -219,7 +268,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T03.A5",
@@ -228,7 +279,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T03.A6",
@@ -237,7 +290,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T04.A1",
@@ -246,7 +301,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T04.A2",
@@ -255,7 +312,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T04.A3",
@@ -264,7 +323,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T04.A4",
@@ -273,7 +334,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T04.A5",
@@ -282,7 +345,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T04.A6",
@@ -291,7 +356,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T05.A1",
@@ -300,7 +367,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T05.A2",
@@ -309,7 +378,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T05.A3",
@@ -318,7 +389,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T05.A4",
@@ -327,7 +400,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T05.A5",
@@ -336,7 +411,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T05.A6",
@@ -345,7 +422,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T06.A1",
@@ -354,7 +433,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T06.A2",
@@ -363,7 +444,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T06.A3",
@@ -372,7 +455,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T06.A4",
@@ -381,7 +466,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T06.A5",
@@ -390,7 +477,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T06.A6",
@@ -399,7 +488,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A1",
@@ -408,7 +499,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A2",
@@ -417,7 +510,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A3",
@@ -426,7 +521,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A4",
@@ -435,7 +532,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A5",
@@ -444,7 +543,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A6",
@@ -453,7 +554,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T07.A7",
@@ -462,7 +565,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T08.A1",
@@ -471,7 +576,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T08.A2",
@@ -480,7 +587,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T08.A3",
@@ -489,7 +598,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T08.A4",
@@ -498,7 +609,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T08.A5",
@@ -507,7 +620,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T08.A6",
@@ -516,7 +631,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T09.A1",
@@ -528,7 +645,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T09.A2",
@@ -540,7 +659,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T09.A3",
@@ -552,7 +673,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T09.A4",
@@ -564,7 +687,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T09.A5",
@@ -576,7 +701,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T10.A1",
@@ -588,7 +715,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T10.A2",
@@ -600,7 +729,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T10.A3",
@@ -612,7 +743,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T10.A4",
@@ -624,7 +757,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T10.A5",
@@ -636,7 +771,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T10.A6",
@@ -648,7 +785,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T11.A1",
@@ -657,7 +796,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T11.A2",
@@ -666,7 +807,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T11.A3",
@@ -675,7 +818,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T11.A4",
@@ -684,7 +829,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T11.A5",
@@ -693,7 +840,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T11.A6",
@@ -702,7 +851,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T12.A1",
@@ -712,7 +863,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T12.A2",
@@ -722,7 +875,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T12.A3",
@@ -732,7 +887,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T12.A4",
@@ -742,7 +899,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T12.A5",
@@ -752,7 +911,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T12.A6",
@@ -762,7 +923,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T13.A1",
@@ -771,7 +934,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T13.A2",
@@ -780,7 +945,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T13.A3",
@@ -789,7 +956,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T13.A4",
@@ -798,7 +967,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T13.A5",
@@ -807,7 +978,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T13.A6",
@@ -816,7 +989,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T14.A1",
@@ -826,7 +1001,9 @@
         "node22",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T14.A2",
@@ -836,7 +1013,9 @@
         "node22",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T14.A3",
@@ -846,7 +1025,9 @@
         "node22",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T14.A4",
@@ -856,7 +1037,9 @@
         "node22",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T14.A5",
@@ -866,7 +1049,9 @@
         "node22",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T14.A6",
@@ -876,7 +1061,9 @@
         "node22",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A1",
@@ -889,7 +1076,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A2",
@@ -902,7 +1091,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A3",
@@ -915,7 +1106,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A4",
@@ -928,7 +1121,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A5",
@@ -941,7 +1136,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A6",
@@ -954,7 +1151,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T15.A7",
@@ -967,7 +1166,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A1",
@@ -977,7 +1178,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A2",
@@ -987,7 +1190,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A3",
@@ -997,7 +1202,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A4",
@@ -1007,7 +1214,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A5",
@@ -1017,7 +1226,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A6",
@@ -1027,7 +1238,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T16.A7",
@@ -1037,7 +1250,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A1",
@@ -1048,7 +1263,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A2",
@@ -1059,7 +1276,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A3",
@@ -1070,7 +1289,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A4",
@@ -1081,7 +1302,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A5",
@@ -1092,7 +1315,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A6",
@@ -1103,7 +1328,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T17.A7",
@@ -1114,7 +1341,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A1",
@@ -1126,7 +1355,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A2",
@@ -1138,7 +1369,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A3",
@@ -1150,7 +1383,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A4",
@@ -1162,7 +1397,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A5",
@@ -1174,7 +1411,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A6",
@@ -1186,7 +1425,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T18.A7",
@@ -1198,7 +1439,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T19.A1",
@@ -1217,7 +1460,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T19.A2",
@@ -1236,7 +1481,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T19.A3",
@@ -1255,7 +1502,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T19.A4",
@@ -1274,7 +1523,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T19.A5",
@@ -1293,7 +1544,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T19.A6",
@@ -1312,7 +1565,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A1",
@@ -1328,7 +1583,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A2",
@@ -1344,7 +1601,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A3",
@@ -1360,7 +1619,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A4",
@@ -1376,7 +1637,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A5",
@@ -1392,7 +1655,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A6",
@@ -1408,7 +1673,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T20.A7",
@@ -1424,7 +1691,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A1",
@@ -1437,7 +1706,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A2",
@@ -1450,7 +1721,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A3",
@@ -1463,7 +1736,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A4",
@@ -1476,7 +1751,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A5",
@@ -1489,7 +1766,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A6",
@@ -1502,7 +1781,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A7",
@@ -1515,7 +1796,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T21.A8",
@@ -1528,7 +1811,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T22.A1",
@@ -1537,7 +1822,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T22.A2",
@@ -1546,7 +1833,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T22.A3",
@@ -1555,7 +1844,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T22.A4",
@@ -1564,7 +1855,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T22.A5",
@@ -1573,7 +1866,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T22.A6",
@@ -1582,7 +1877,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T23.A1",
@@ -1596,7 +1893,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T23.A2",
@@ -1610,7 +1909,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T23.A3",
@@ -1624,7 +1925,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T23.A4",
@@ -1638,7 +1941,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T23.A5",
@@ -1652,7 +1957,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T23.A6",
@@ -1666,7 +1973,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T24.A1",
@@ -1682,7 +1991,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T24.A2",
@@ -1698,7 +2009,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T24.A3",
@@ -1714,7 +2027,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T24.A4",
@@ -1730,7 +2045,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T24.A5",
@@ -1746,7 +2063,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T25.A1",
@@ -1762,7 +2081,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T25.A2",
@@ -1778,7 +2099,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T25.A3",
@@ -1794,7 +2117,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T25.A4",
@@ -1810,7 +2135,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T25.A5",
@@ -1826,7 +2153,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T25.A6",
@@ -1842,7 +2171,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T26.A1",
@@ -1855,7 +2186,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T26.A2",
@@ -1868,7 +2201,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T26.A3",
@@ -1881,7 +2216,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T26.A4",
@@ -1894,7 +2231,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T26.A5",
@@ -1907,7 +2246,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T26.A6",
@@ -1920,7 +2261,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T27.A1",
@@ -1933,7 +2276,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T27.A2",
@@ -1946,7 +2291,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T27.A3",
@@ -1959,7 +2306,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T27.A4",
@@ -1972,7 +2321,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T27.A5",
@@ -1985,7 +2336,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T27.A6",
@@ -1998,7 +2351,9 @@
         "postgres18",
         "s3"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A1",
@@ -2011,7 +2366,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A2",
@@ -2024,7 +2381,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A3",
@@ -2037,7 +2396,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A4",
@@ -2050,7 +2411,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A5",
@@ -2063,7 +2426,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A6",
@@ -2076,7 +2441,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T28.A7",
@@ -2089,7 +2456,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T29.A1",
@@ -2102,7 +2471,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T29.A2",
@@ -2115,7 +2486,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T29.A3",
@@ -2128,7 +2501,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T29.A4",
@@ -2141,7 +2516,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T29.A5",
@@ -2154,7 +2531,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T29.A6",
@@ -2167,7 +2546,9 @@
         "node22",
         "postgres18"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T30.A1",
@@ -2176,7 +2557,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T30.A2",
@@ -2185,7 +2568,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T30.A3",
@@ -2194,7 +2579,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T30.A4",
@@ -2203,7 +2590,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T30.A5",
@@ -2212,7 +2601,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T30.A6",
@@ -2221,7 +2612,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A1",
@@ -2232,7 +2625,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A2",
@@ -2243,7 +2638,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A3",
@@ -2254,7 +2651,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A4",
@@ -2265,7 +2664,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A5",
@@ -2276,7 +2677,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A6",
@@ -2287,7 +2690,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T31.A7",
@@ -2298,7 +2703,9 @@
         "postgres18",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T32.A1",
@@ -2308,7 +2715,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T32.A2",
@@ -2318,7 +2727,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T32.A3",
@@ -2328,7 +2739,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T32.A4",
@@ -2338,7 +2751,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T32.A5",
@@ -2348,7 +2763,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T32.A6",
@@ -2358,7 +2775,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A1",
@@ -2368,7 +2787,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A2",
@@ -2378,7 +2799,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A3",
@@ -2388,7 +2811,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A4",
@@ -2398,7 +2823,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A5",
@@ -2408,7 +2835,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A6",
@@ -2418,7 +2847,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T33.A7",
@@ -2428,7 +2859,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A1",
@@ -2438,7 +2871,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A2",
@@ -2448,7 +2883,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A3",
@@ -2458,7 +2895,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A4",
@@ -2468,7 +2907,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A5",
@@ -2478,7 +2919,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A6",
@@ -2488,7 +2931,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T34.A7",
@@ -2498,7 +2943,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A1",
@@ -2508,7 +2955,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A2",
@@ -2518,7 +2967,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A3",
@@ -2528,7 +2979,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A4",
@@ -2538,7 +2991,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A5",
@@ -2548,7 +3003,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A6",
@@ -2558,7 +3015,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T35.A7",
@@ -2568,7 +3027,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T36.A1",
@@ -2578,7 +3039,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T36.A2",
@@ -2588,7 +3051,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T36.A3",
@@ -2598,7 +3063,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T36.A4",
@@ -2608,7 +3075,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T36.A5",
@@ -2618,7 +3087,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T36.A6",
@@ -2628,7 +3099,9 @@
         "node22",
         "python312"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A1",
@@ -2643,7 +3116,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A2",
@@ -2658,7 +3133,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A3",
@@ -2673,7 +3150,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A4",
@@ -2688,7 +3167,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A5",
@@ -2703,7 +3184,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A6",
@@ -2718,7 +3201,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T37.A7",
@@ -2733,7 +3218,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A1",
@@ -2749,7 +3236,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A2",
@@ -2765,7 +3254,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A3",
@@ -2781,7 +3272,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A4",
@@ -2797,7 +3290,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A5",
@@ -2813,7 +3308,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A6",
@@ -2829,7 +3326,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A7",
@@ -2845,7 +3344,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T38.A8",
@@ -2861,7 +3362,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T39.A1",
@@ -2876,7 +3379,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T39.A2",
@@ -2891,7 +3396,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T39.A3",
@@ -2906,7 +3413,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T39.A4",
@@ -2921,7 +3430,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T39.A5",
@@ -2936,7 +3447,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T39.A6",
@@ -2951,7 +3464,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T40.A1",
@@ -2963,7 +3478,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T40.A2",
@@ -2975,7 +3492,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T40.A3",
@@ -2987,7 +3506,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T40.A4",
@@ -2999,7 +3520,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T40.A5",
@@ -3011,7 +3534,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T40.A6",
@@ -3023,7 +3548,9 @@
         "temporal",
         "temporal-timeskip"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A1",
@@ -3038,7 +3565,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A2",
@@ -3053,7 +3582,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A3",
@@ -3068,7 +3599,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A4",
@@ -3083,7 +3616,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A5",
@@ -3098,7 +3633,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A6",
@@ -3113,7 +3650,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T41.A7",
@@ -3128,7 +3667,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T42.A1",
@@ -3143,7 +3684,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T42.A2",
@@ -3158,7 +3701,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T42.A3",
@@ -3173,7 +3718,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T42.A4",
@@ -3188,7 +3735,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T42.A5",
@@ -3203,7 +3752,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T42.A6",
@@ -3218,7 +3769,9 @@
         "s3",
         "temporal"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T43.A1",
@@ -3227,7 +3780,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T43.A2",
@@ -3236,7 +3791,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T43.A3",
@@ -3245,7 +3802,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T43.A4",
@@ -3254,7 +3813,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T43.A5",
@@ -3263,7 +3824,9 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     },
     {
       "id": "T43.A6",
@@ -3272,7 +3835,42 @@
       "requires": [
         "node22"
       ],
-      "blockable": false
+      "blockable": false,
+      "proof_kind": "UNCLASSIFIED",
+      "perturbation": null
     }
-  ]
+  ],
+  "proof_kinds": {
+    "behaviour": {
+      "desc": "Le cas exerce un export metier et observe son resultat.",
+      "necessity": "module-stub",
+      "why": "Stuber les exports doit le faire echouer : c'est la forme ou la regle universelle est valide."
+    },
+    "refusal": {
+      "desc": "Le cas affirme qu'une entree est REFUSEE (erreur, code de sortie non nul, exception).",
+      "necessity": "targeted-perturbation",
+      "why": "DEFAUT DECISIF : un stub qui leve rend ce cas VERT sans rien prouver. La perturbation correcte est inverse — rendre l'implementation PERMISSIVE et exiger que le cas devienne rouge."
+    },
+    "artifact": {
+      "desc": "Le cas affirme une propriete d'un fichier ou d'une configuration, sans appeler d'export metier.",
+      "necessity": "artifact-mutation",
+      "why": "Stuber des exports ne changerait rien : le cas n'en appelle aucun. La perturbation est de muter l'artefact lui-meme."
+    },
+    "absence": {
+      "desc": "Le cas affirme que quelque chose N'EST PAS present (sentinelle non divulguee, cle absente).",
+      "necessity": "make-present",
+      "why": "Un cas d'absence passe trivialement quand tout est casse. La perturbation est de rendre la chose presente et d'exiger le rouge."
+    },
+    "numeric": {
+      "desc": "Le cas reproduit une valeur exacte enoncee par le cahier.",
+      "necessity": "off-by-one",
+      "why": "La perturbation fausse la regle de calcul sans toucher la fixture : un test qui n'encode que la valeur litterale survit et se revele insuffisant."
+    },
+    "UNCLASSIFIED": {
+      "desc": "Mode de preuve pas encore etabli depuis le texte du cahier.",
+      "necessity": "none",
+      "why": "FAIL-CLOSED : une tache dont un cas requis est UNCLASSIFIED ne peut pas etre attestee. Deviner 273 classifications serait exactement le genre d'affirmation non fondee que ce socle existe pour empecher."
+    }
+  },
+  "classified_cases": 6
 }

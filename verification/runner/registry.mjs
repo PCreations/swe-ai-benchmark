@@ -91,6 +91,27 @@ export function loadRegistry() {
   return { problems, tasks, lock, byId, lockByTask }
 }
 
+/**
+ * Une tâche est ATTESTABLE seulement si chacun de ses cas requis porte un mode
+ * de preuve établi. FAIL-CLOSED : `UNCLASSIFIED` bloque l'attestation.
+ *
+ * Ce garde-fou existe parce que la porte « nécessité » N'EST PAS universelle.
+ * Mesuré sur T00 : 2 cas sur 6 seulement relèvent du stub de module ; 3 sont
+ * des cas de REFUS, qu'un stub qui lève rendrait verts à tort, et 1 est un cas
+ * d'ARTEFACT qu'aucun stub ne peut casser. Appliquer la règle universelle
+ * produirait donc un faux PASS sur 4 cas sur 6 des la premiere tache.
+ */
+export function attestability(taskId, lock) {
+  const mine = (lock.cases ?? []).filter((c) => c.task === taskId)
+  const unclassified = mine.filter((c) => !c.proof_kind || c.proof_kind === 'UNCLASSIFIED')
+  return {
+    attestable: unclassified.length === 0 && mine.length > 0,
+    total: mine.length,
+    unclassified: unclassified.map((c) => c.id),
+    kinds: mine.reduce((a, c) => ((a[c.proof_kind] = (a[c.proof_kind] ?? 0) + 1), a), {}),
+  }
+}
+
 /** Vocabulaire de capacités effectivement requis par le registre. */
 export function requiredCapabilities(byId) {
   const s = new Set()

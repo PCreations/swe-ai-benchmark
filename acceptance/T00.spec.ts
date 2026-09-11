@@ -419,6 +419,32 @@ function sha256(file: string): string {
   return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
+/**
+ * L'INSTALLATION FIGEE COTE PYTHON — UN SEUL POINT DE DEFINITION.
+ *
+ * `--frozen-lockfile` (pnpm) et `--frozen` (uv) sont de FAUX AMIS : meme mot,
+ * garantie opposee. Cote pnpm, le drapeau echoue si package.json a derive du
+ * lockfile. Cote uv, `--frozen` dit litteralement l'inverse — « n'examine meme
+ * pas pyproject.toml, installe le lock tel quel » — et n'affirme donc RIEN sur
+ * la coherence manifeste/lock. Mesure faite sur uv 0.8.17, en ajoutant a un
+ * manifeste une dependance directe absente du lock :
+ *
+ *   pnpm install --frozen-lockfile   manifeste decale -> exit 1
+ *   uv sync --frozen                 manifeste decale -> exit 0   <- le trou
+ *   uv sync --locked                 manifeste decale -> exit 1
+ *
+ * Le vrai equivalent de --frozen-lockfile est `--locked`. A6 l'exige, et son
+ * CONTROLE NEGATIF rejoue EXACTEMENT cette argv sur un arbre desynchronise :
+ * reverter ce tableau a ['sync', '--frozen'] rend ce controle vert a tort
+ * (exit 0 sur l'arbre decale) et fait donc tomber A6. C'est le mutant T00.M7.
+ *
+ * Une implementation equivalente est admise — `uv lock --check` avant
+ * `uv sync --frozen` — a condition de rester une seule argv partagee par le
+ * beforeAll et par le controle negatif, sans quoi le controle ne mesurerait
+ * plus la commande reellement employee par le depot.
+ */
+const UV_FROZEN_INSTALL: readonly string[] = ['sync', '--locked'];
+
 interface FrozenInstall {
   before: Record<string, string | null>;
   after: Record<string, string | null>;
@@ -478,7 +504,7 @@ beforeAll(() => {
     cwd: REPO,
     timeoutMs: 20 * 60 * 1000,
   });
-  const uvSync = run('uv', ['sync', '--frozen'], {
+  const uvSync = run('uv', [...UV_FROZEN_INSTALL], {
     cwd: path.join(REPO, 'analysis'),
     timeoutMs: 20 * 60 * 1000,
   });
@@ -846,8 +872,11 @@ describe('T00 — depot initialise et verificateur minimal', () => {
       expect(fs.statSync(abs).size).toBeGreaterThan(0);
     }
 
-    // L'installation figee doit reussir : un lockfile desynchronise fait echouer
-    // --frozen-lockfile / --frozen, et c'est deja une violation du cas.
+    // L'installation figee doit reussir sur l'arbre sain. C'est la moitie
+    // POSITIVE du cas ; a elle seule elle ne prouve rien sur le gel, puisqu'une
+    // commande qui n'ouvre jamais le manifeste la satisferait aussi. La moitie
+    // NEGATIVE — un manifeste decale doit faire echouer l'installation — est
+    // exigee plus bas, branche par branche.
     expect({
       pnpm: frozen.pnpm.code,
       uv: frozen.uv.code,
@@ -866,7 +895,104 @@ describe('T00 — depot initialise et verificateur minimal', () => {
     console.log(
       `[T00.A6] ${tracked[0]}=${String(frozen.after[tracked[0]]).slice(0, 16)}... ` +
         `${tracked[1]}=${String(frozen.after[tracked[1]]).slice(0, 16)}... ` +
-        `(inchangees apres pnpm install --frozen-lockfile + uv sync --frozen)`,
+        `(inchangees apres pnpm install --frozen-lockfile + uv ${UV_FROZEN_INSTALL.join(' ')})`,
+    );
+
+    // ----------------------------------------------------------------------
+    // CONTROLE NEGATIF — la chaine Python doit REFUSER un manifeste decale.
+    //
+    // « Le lockfile reste inchange apres installation figee » (cahier L155) se
+    // lit en deux temps : l'outil ne reecrit pas le lock, ET il refuse
+    // d'installer quand le manifeste ne correspond plus au lock. La premiere
+    // moitie seule est satisfaite par une commande qui n'ouvre jamais le
+    // manifeste — c'est exactement ce que fait `uv sync --frozen`, qui sort en
+    // 0 sur un arbre desynchronise (cf. UV_FROZEN_INSTALL). Une assertion qui
+    // passe aussi bien sur l'arbre sain que sur l'arbre decale ne prouve rien :
+    // on execute donc les DEUX branches et on exige des verdicts OPPOSES.
+    //
+    // Le bac a sable est synthetise ICI — manifeste minimal, lock genere par
+    // `uv lock` — pour ne dependre d'aucun fichier hors zone ACCEPTANCE et pour
+    // ne jamais toucher l'arbre du depot. La desynchronisation ajoute une
+    // dependance directe epinglee : `iniconfig==2.3.0`, distribution deja
+    // presente dans analysis/uv.lock, donc dans le cache uv apres
+    // l'installation figee du beforeAll.
+    const sandbox = path.join(TMP, 'uv-controle-negatif');
+    fs.mkdirSync(sandbox, { recursive: true });
+    const sandboxManifest = path.join(sandbox, 'pyproject.toml');
+    const sandboxLock = path.join(sandbox, 'uv.lock');
+
+    const manifestSync = [
+      '[project]',
+      'name = "bench-t00-a6-controle"',
+      'version = "0.0.0"',
+      'requires-python = "==3.12.*"',
+      'dependencies = []',
+      '',
+      '[tool.uv]',
+      'package = false',
+      '',
+    ].join('\n');
+    const manifestDrifted = manifestSync.replace(
+      'dependencies = []',
+      'dependencies = ["iniconfig==2.3.0"]',
+    );
+    // La desynchronisation doit avoir eu lieu, sinon les deux branches seraient
+    // la meme et le controle serait creux.
+    expect(manifestDrifted).not.toBe(manifestSync);
+
+    fs.writeFileSync(sandboxManifest, manifestSync, 'utf8');
+    const seed = run('uv', ['lock'], { cwd: sandbox, timeoutMs: 10 * 60 * 1000 });
+    expect({
+      etape: 'lock-de-reference',
+      exit: seed.code,
+      err: seed.code === 0 ? '' : tail(`${seed.stdout}\n${seed.stderr}`, 15),
+    }).toEqual({ etape: 'lock-de-reference', exit: 0, err: '' });
+    expect(fs.existsSync(sandboxLock) ? 'present' : 'LOCK-DE-REFERENCE-ABSENT').toBe('present');
+
+    // (i) BRANCHE SYNCHRONISEE — la MEME argv que l'installation figee du depot
+    //     doit reussir. Sans elle, le refus de la branche (ii) ne serait
+    //     imputable ni au decalage du manifeste ni a rien de prouvable : une
+    //     commande cassee, un uv absent ou un bac a sable invalide refuseraient
+    //     tout aussi bien.
+    const healthy = run('uv', [...UV_FROZEN_INSTALL], { cwd: sandbox, timeoutMs: 10 * 60 * 1000 });
+    expect({
+      branche: 'manifeste-synchronise',
+      exit: healthy.code,
+      err: healthy.code === 0 ? '' : tail(`${healthy.stdout}\n${healthy.stderr}`, 15),
+    }).toEqual({ branche: 'manifeste-synchronise', exit: 0, err: '' });
+
+    // (ii) BRANCHE DECALEE — meme arbre, meme lock, meme argv ; SEUL le
+    //      manifeste a bouge. L'installation doit echouer.
+    const sandboxLockBefore = sha256(sandboxLock);
+    fs.writeFileSync(sandboxManifest, manifestDrifted, 'utf8');
+    const drifted = run('uv', [...UV_FROZEN_INSTALL], { cwd: sandbox, timeoutMs: 10 * 60 * 1000 });
+    const driftedOut = `${drifted.stdout}\n${drifted.stderr}`;
+
+    // Le code de sortie seul ne suffit pas : une panne de resolution, un
+    // interpreteur manquant ou un uv absent sortiraient aussi en non-zero et
+    // verdiraient le cas pour la mauvaise raison. On exige donc que le refus
+    // NOMME sa cause — le lock qui ne correspond plus au manifeste.
+    const refuse = drifted.code !== 0;
+    const motif =
+      /lockfile/i.test(driftedOut) && /needs to be updated|out of date|--locked/i.test(driftedOut);
+    expect({
+      branche: 'manifeste-desynchronise',
+      refuse,
+      motif,
+      sortie: refuse && motif ? '' : `exit=${String(drifted.code)}\n${tail(driftedOut, 15)}`,
+    }).toEqual({ branche: 'manifeste-desynchronise', refuse: true, motif: true, sortie: '' });
+
+    // Un refus n'autorise pas davantage la reecriture du lock : le gel vaut
+    // aussi dans la branche qui echoue.
+    expect({ lockfile: 'bac-a-sable/uv.lock', sha256: sha256(sandboxLock) }).toEqual({
+      lockfile: 'bac-a-sable/uv.lock',
+      sha256: sandboxLockBefore,
+    });
+
+    console.log(
+      `[T00.A6] controle negatif uv ${UV_FROZEN_INSTALL.join(' ')} : ` +
+        `manifeste synchronise -> exit ${String(healthy.code)}, ` +
+        `manifeste desynchronise -> exit ${String(drifted.code)}`,
     );
 
     // Et la mutation doit etre detectable : l'empreinte depend bien du contenu.

@@ -1,0 +1,60 @@
+{
+  "schema": "bench.red/1",
+  "task": "T00",
+  "subject_commit": "b2fb9e6522b53e48230fd45fb0a60ab9f01ba1ee",
+  "dirty": true,
+  "input_digest": "47cfcec2124cb5897a25ab5a45e37714af3058f67985b2c2167c34e9aad437dd",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T00.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M1",
+      "note": "erreur de type dans packages/contracts : A1 rouge, A6 intact — mutation ciblee"
+    },
+    {
+      "id": "T00.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T00.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T00.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T00.A5",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T00.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M6",
+      "note": "manifeste desynchronise du verrou : pnpm install --frozen-lockfile sort 1. Tue aussi A1, qui affirme legitimement la meme propriete. Premiere tentative via uv sync --frozen INEFFICACE (exit 0 malgre la desynchronisation) — mutant sans effet, pas cas survivant."
+    }
+  ],
+  "mutation_proof": {
+    "T00.A1": {
+      "killed_by": "T00.M1",
+      "note": "erreur de type dans packages/contracts : A1 rouge, A6 intact — mutation ciblee"
+    },
+    "T00.A6": {
+      "killed_by": "T00.M6",
+      "note": "manifeste desynchronise du verrou : pnpm install --frozen-lockfile sort 1. Tue aussi A1, qui affirme legitimement la meme propriete. Premiere tentative via uv sync --frozen INEFFICACE (exit 0 malgre la desynchronisation) — mutant sans effet, pas cas survivant."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

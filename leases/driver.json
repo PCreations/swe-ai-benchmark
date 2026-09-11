@@ -1,11 +1,12 @@
 {
   "schema": "bench.lease/1",
-  "state": "HELD",
+  "state": "FREE",
   "owner": "vm-0e78e972-23ddd9d3",
   "ttl_s": 2700,
   "acquired_at": "2026-09-11T15:05:01.214Z",
   "heartbeat_at": "2026-09-11T15:11:47.608Z",
   "boot_id": "0e78e972-670f-41bc-97b8-ff236534d4d3",
   "stole_from": null,
-  "note": "Un bail silencieux depuis plus de ttl_s est volable : une session tuee par la limite de quota ne rend jamais son bail, et la reprise ne doit pas en dependre."
+  "note": "Un bail silencieux depuis plus de ttl_s est volable : une session tuee par la limite de quota ne rend jamais son bail, et la reprise ne doit pas en dependre.",
+  "released_at": "2026-09-11T15:17:39.878Z"
 }

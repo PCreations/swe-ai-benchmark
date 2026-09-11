@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T00",
+  "subject_commit": "eda0927b084805b2d6870d035e8d6e6937baa018",
+  "dirty": false,
+  "input_digest": "60e2e7c020e2642578fac128d7a0c27b7d7984fe5f5ecc75c5b566ab9afed6fe",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T00.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M1",
+      "note": "erreur de type ajoutee dans packages/contracts/src/identity.ts (const: number = string) : `pnpm exec tsc -p packages/contracts` sort non nul, diagnostics [error TS2322, error TS2322] -> A1 ROUGE ; A2 A3 A4 A5 A6 restent verts. Mutation restauree par git checkout."
+    },
+    {
+      "id": "T00.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M2",
+      "note": "EXIT_FOR_REASON[PASS] 0 -> 1 dans verification/runner/verify-task.mjs : sondes entierement vraies T30 (jest) et T22 (pytest) sortent en 1 avec reason PASS -> A2 ROUGE ; A4 et A5 tombent aussi, par leur controle de capacite (tue_aussi documente) ; A1 A3 A6 restent verts."
+    },
+    {
+      "id": "T00.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M3",
+      "note": "agregation rendue permissive dans adjudicate() (le compte d echecs n est plus regarde) : sondes volontairement fausses T43 (jest) et T13 (pytest) passent de exit 1 / ASSERTION_FAILED a exit 0 / PASS -> A3 ROUGE ; les cinq autres cas restent verts."
+    },
+    {
+      "id": "T00.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M4",
+      "note": "carte par defaut synthetisee pour tout id de forme Txx, plus PASS quand zero cas requis : T99 passe de exit 2 / UNKNOWN_TASK a exit 0 / PASS -> A4 ROUGE ; les cinq autres restent verts. Second volet EXECUTE aussi : T00.M8 (detection de cycle desactivee dans structuralProblems) fait passer registry-a4-cycle de REGISTRY_INVALID a NOT_IMPLEMENTED -> A4 ROUGE egalement, doublon et dependance-absente toujours refuses."
+    },
+    {
+      "id": "T00.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M5",
+      "note": "variante (a) : la branche rien-n-a-tourne de adjudicate() renvoie PASS au lieu de NOT_IMPLEMENTED : T01 du registre synthetique isole passe de exit 2 / NOT_IMPLEMENTED a exit 0 / PASS -> A5 ROUGE ; les cinq autres restent verts."
+    },
+    {
+      "id": "T00.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M6",
+      "note": "octet ajoute a analysis/uv.lock PENDANT l installation figee (script preinstall temporaire dans package.json) : empreinte avant 5bea4ea56815d13e, apres 97b11c9bafa01efd -> A6 ROUGE ; A1 A2 A3 A4 A5 restent verts, l installation figee sortant toujours 0. T00.M7 EXECUTE aussi : UV_FROZEN_INSTALL sync --locked -> sync --frozen rend le controle negatif exit 0 (Audited in 0.00ms) sur le manifeste desynchronise -> A6 ROUGE egalement. Lockfiles restaures a l identique (sha256 5bea4ea5... et 3b7fd556...)."
+    }
+  ],
+  "mutation_proof": {
+    "T00.A1": {
+      "killed_by": "T00.M1",
+      "note": "erreur de type ajoutee dans packages/contracts/src/identity.ts (const: number = string) : `pnpm exec tsc -p packages/contracts` sort non nul, diagnostics [error TS2322, error TS2322] -> A1 ROUGE ; A2 A3 A4 A5 A6 restent verts. Mutation restauree par git checkout."
+    },
+    "T00.A2": {
+      "killed_by": "T00.M2",
+      "note": "EXIT_FOR_REASON[PASS] 0 -> 1 dans verification/runner/verify-task.mjs : sondes entierement vraies T30 (jest) et T22 (pytest) sortent en 1 avec reason PASS -> A2 ROUGE ; A4 et A5 tombent aussi, par leur controle de capacite (tue_aussi documente) ; A1 A3 A6 restent verts."
+    },
+    "T00.A3": {
+      "killed_by": "T00.M3",
+      "note": "agregation rendue permissive dans adjudicate() (le compte d echecs n est plus regarde) : sondes volontairement fausses T43 (jest) et T13 (pytest) passent de exit 1 / ASSERTION_FAILED a exit 0 / PASS -> A3 ROUGE ; les cinq autres cas restent verts."
+    },
+    "T00.A4": {
+      "killed_by": "T00.M4",
+      "note": "carte par defaut synthetisee pour tout id de forme Txx, plus PASS quand zero cas requis : T99 passe de exit 2 / UNKNOWN_TASK a exit 0 / PASS -> A4 ROUGE ; les cinq autres restent verts. Second volet EXECUTE aussi : T00.M8 (detection de cycle desactivee dans structuralProblems) fait passer registry-a4-cycle de REGISTRY_INVALID a NOT_IMPLEMENTED -> A4 ROUGE egalement, doublon et dependance-absente toujours refuses."
+    },
+    "T00.A5": {
+      "killed_by": "T00.M5",
+      "note": "variante (a) : la branche rien-n-a-tourne de adjudicate() renvoie PASS au lieu de NOT_IMPLEMENTED : T01 du registre synthetique isole passe de exit 2 / NOT_IMPLEMENTED a exit 0 / PASS -> A5 ROUGE ; les cinq autres restent verts."
+    },
+    "T00.A6": {
+      "killed_by": "T00.M6",
+      "note": "octet ajoute a analysis/uv.lock PENDANT l installation figee (script preinstall temporaire dans package.json) : empreinte avant 5bea4ea56815d13e, apres 97b11c9bafa01efd -> A6 ROUGE ; A1 A2 A3 A4 A5 restent verts, l installation figee sortant toujours 0. T00.M7 EXECUTE aussi : UV_FROZEN_INSTALL sync --locked -> sync --frozen rend le controle negatif exit 0 (Audited in 0.00ms) sur le manifeste desynchronise -> A6 ROUGE egalement. Lockfiles restaures a l identique (sha256 5bea4ea5... et 3b7fd556...)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

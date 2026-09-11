@@ -13,6 +13,7 @@ import { runInCleanRoom, runInWorkingTree } from './cleanroom.mjs'
 import { repoRoot } from './git.mjs'
 import { decide, DEFAULT_TTL_S } from '../../tools/lease.mjs'
 import { render as renderResume, EXIT } from './resume.mjs'
+import { ledgerOrder } from './ledger.mjs'
 
 const R = repoRoot()
 const results = []
@@ -251,12 +252,70 @@ export function testStaleIsActionable() {
   )
 }
 
+/**
+ * S04 — « LA PLUS RÉCENTE » DOIT VOULOIR DIRE LA PLUS RÉCENTE.
+ *
+ * `PROVEN` se juge sur la DERNIÈRE attestation d'une tâche. Le rang venait de
+ * `rev-list --count <ref> -- <fichier>`, qui compte les commits touchant ce
+ * fichier : 1 pour toute attestation, puisqu'elles sont écrites une fois et
+ * jamais modifiées. Rangs tous égaux, tri stable, et l'ordre retombait sur
+ * l'alphabet de `ls-tree` — « la plus récente » signifiait « celle dont le sha
+ * se trie en dernier ». Observé en vrai : une re-attestation fraîche à HEAD
+ * restait supplantée par une ancienne, la tâche affichée STALE alors qu'elle
+ * était prouvée. Le sens inverse est pire : une vieille attestation PASS
+ * gardant une tâche PROVEN après une attestation plus récente.
+ *
+ * On reconstruit la situation : deux attestations dont l'ordre alphabétique est
+ * l'INVERSE de l'ordre chronologique.
+ */
+export function testLedgerRecency() {
+  const dir = mkdtempSync(`${tmpdir()}/bench-order-`)
+  const g = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim()
+  const ID = ['-c', 'user.email=selftest@bench', '-c', 'user.name=selftest']
+  try {
+    g(dir, 'init', '-b', 'ledger', 'repo')
+    const W = `${dir}/repo`
+    mkdirSync(`${W}/attestations/T00`, { recursive: true })
+    // zzz d'abord (ancienne), aaa ensuite (recente) : l'alphabet ment.
+    for (const name of ['zzz', 'aaa']) {
+      writeFileSync(`${W}/attestations/T00/${name}.json`, `{"n":"${name}"}\n`)
+      g(W, 'add', '-A')
+      g(W, ...ID, 'commit', '-m', name)
+    }
+    const old = ledgerOrder('ledger', 'attestations/T00/zzz.json', { cwd: W })
+    const recent = ledgerOrder('ledger', 'attestations/T00/aaa.json', { cwd: W })
+    check('S04.1', recent > old, `rang chronologique respecte : recente=${recent} > ancienne=${old}`)
+
+    // CONTRÔLE NÉGATIF : l'ancienne formule ne sait pas les distinguer.
+    const naive = (f) => g(W, 'rev-list', '--count', 'ledger', '--', f)
+    const a = naive('attestations/T00/zzz.json')
+    const b = naive('attestations/T00/aaa.json')
+    check(
+      'S04.2',
+      a === b && a === '1',
+      `l'ancienne formule rend ${a} et ${b} — indistinguables, donc le tri retombait sur l'alphabet`
+    )
+
+    const sorted = ['attestations/T00/aaa.json', 'attestations/T00/zzz.json']
+      .map((f) => ({ f, order: ledgerOrder('ledger', f, { cwd: W }) }))
+      .sort((x, y) => x.order - y.order || x.f.localeCompare(y.f))
+    check(
+      'S04.3',
+      sorted[sorted.length - 1].f.endsWith('aaa.json'),
+      'apres tri, la derniere est bien la plus recemment ecrite, pas la derniere de l alphabet'
+    )
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+}
+
 export function run() {
   testDistParasite()
   testDirtyCleanRoomRefused()
   testLeaseDecision()
   testPushIsTheLock()
   testStaleIsActionable()
+  testLedgerRecency()
   const failed = results.filter((r) => !r.ok)
   return { results, failed, ok: failed.length === 0 }
 }

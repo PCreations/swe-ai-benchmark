@@ -33,6 +33,25 @@ export function ledgerState() {
   return { name, ref, scope, ...push, sha: ref ? gitOrNull(['rev-parse', '--short', ref]) : null }
 }
 
+/**
+ * RANG D'UN FICHIER DANS L'HISTOIRE DU LEDGER — profondeur, depuis la racine,
+ * du commit le plus récent qui l'a touché.
+ *
+ * Le piège, tombé dedans puis observé en vrai : `rev-list --count <ref> -- <f>`
+ * compte les commits QUI TOUCHENT <f>, et vaut donc 1 pour tout fichier ajouté
+ * une seule fois — ce qui est le cas de TOUTES les attestations. Le tri
+ * devenait dégénéré, le tri stable rendait la main à l'ordre alphabétique de
+ * `ls-tree`, et « l'attestation la plus récente » signifiait en fait « celle
+ * dont le sha de commit se trie en dernier ». Une re-attestation pouvait donc
+ * être supplantée par une ancienne : faux STALE dans un sens, faux PROVEN dans
+ * l'autre, au cœur même de la dérivation de DONE.
+ */
+export function ledgerOrder(ref, path, opts = {}) {
+  const last = gitOrNull(['rev-list', '-1', ref, '--', path], opts)
+  if (!last) return 0
+  return Number(gitOrNull(['rev-list', '--count', last], opts) ?? '0')
+}
+
 /** Liste les fichiers d'un répertoire du ledger. */
 function lsLedger(ref, dir) {
   const out = gitOrNull(['ls-tree', '-r', '--name-only', ref, '--', dir])
@@ -67,11 +86,13 @@ export function attestationsByTask() {
     if (!m) continue
     const doc = readLedger(ref, f)
     if (!doc) continue
-    const order = gitOrNull(['rev-list', '--count', ref, '--', f]) ?? '0'
     if (!map.has(m[1])) map.set(m[1], [])
-    map.get(m[1]).push({ path: f, order: Number(order), doc })
+    map.get(m[1]).push({ path: f, order: ledgerOrder(ref, f), doc })
   }
-  for (const arr of map.values()) arr.sort((a, b) => a.order - b.order)
+  // Départage par chemin : deux attestations écrites dans le MÊME commit de
+  // ledger ont le même rang, et un ordre non déterministe ici rendrait `PROVEN`
+  // dépendant de l'implémentation de `ls-tree`.
+  for (const arr of map.values()) arr.sort((a, b) => a.order - b.order || a.path.localeCompare(b.path))
   return map
 }
 

@@ -1,0 +1,1426 @@
+{
+  "$comment": [
+    "REGISTRE SYNTHETIQUE ISOLE \u2014 fixture d acceptation de T00 (cas T00.A4 et T00.A5).",
+    "",
+    "Designe par la variable d environnement BENCH_REGISTRY (ADR-005 point 2).",
+    "Quand elle est posee, le registre reel n est jamais lu : les verdicts de",
+    "statut deviennent insensibles a l avancement du projet, ce que le cahier",
+    "exige explicitement \u2014 \u00ab reexecuter T00 apres T43 doit rester possible \u00bb",
+    "(cahier L155).",
+    "",
+    "POURQUOI depends_on EST VIDE PARTOUT.",
+    "Un registre de test dont T01 dependrait de T00 ne serait PAS independant de",
+    "l avancement reel : le verdict de T01 changerait selon que T00 est prouve ou",
+    "non, et le cas T00.A5 cesserait de tester ce qu il annonce. La table de",
+    "dependances de la section J est prescrite pour verification/tasks.json, pas",
+    "pour les registres de test. Elle est neanmoins conservee ci-dessous sous",
+    "$cahier_depends_on, afin qu un validateur qui l exigerait puisse etre",
+    "satisfait sans dupliquer la table dans le fichier de test.",
+    "",
+    "POURQUOI acceptance_entry POINTE VERS UN CHEMIN ABSENT.",
+    "Pointer vers acceptance/T01.spec.ts rendrait T00.A5 dependant de l existence",
+    "future du vrai test de T01 : apres T43 ce fichier existera et passera, et le",
+    "cas deviendrait vert pour la mauvaise raison. Le chemin est donc garanti",
+    "absent.",
+    "",
+    "required_cases reprend INTEGRALEMENT verification/cases.lock.json pour chaque",
+    "tache : une carte de registre doit rester un sur-ensemble du verrou de cas,",
+    "jamais une reduction (ACCEPTANCE_WEAKENED).",
+    "",
+    "VARIANTE : T01 est declaree DONE alors que rien n est implemente ni observe.",
+    "Utilisee par T00.A5 pour tuer l implementation permissive qui ferait",
+    "confiance au champ status \u2014 \u00ab le verificateur calcule sa propre decision a",
+    "partir des preuves ; editer ce champ en DONE ne valide rien \u00bb (cahier L631).",
+    "Un refus au niveau du registre (REGISTRY_INVALID) est une reponse acceptable",
+    "ici ; un PASS ne l est jamais."
+  ],
+  "schema": "bench.tasks/1",
+  "synthetic": true,
+  "task_count": 44,
+  "$cahier_depends_on": {
+    "T00": [],
+    "T01": [
+      "T00"
+    ],
+    "T02": [
+      "T01"
+    ],
+    "T03": [
+      "T02"
+    ],
+    "T04": [
+      "T02",
+      "T03"
+    ],
+    "T05": [
+      "T03",
+      "T04"
+    ],
+    "T06": [
+      "T03"
+    ],
+    "T07": [
+      "T02",
+      "T06"
+    ],
+    "T08": [
+      "T06",
+      "T07"
+    ],
+    "T09": [
+      "T07"
+    ],
+    "T10": [
+      "T07",
+      "T08",
+      "T09"
+    ],
+    "T11": [
+      "T04",
+      "T05",
+      "T06",
+      "T08",
+      "T10"
+    ],
+    "T12": [
+      "T03",
+      "T05"
+    ],
+    "T13": [
+      "T02",
+      "T03"
+    ],
+    "T14": [
+      "T13"
+    ],
+    "T15": [
+      "T09",
+      "T12",
+      "T13",
+      "T14"
+    ],
+    "T16": [
+      "T02",
+      "T12"
+    ],
+    "T17": [
+      "T12",
+      "T16"
+    ],
+    "T18": [
+      "T03",
+      "T06",
+      "T15",
+      "T17"
+    ],
+    "T19": [
+      "T14",
+      "T15",
+      "T17",
+      "T18"
+    ],
+    "T20": [
+      "T10",
+      "T15",
+      "T19"
+    ],
+    "T21": [
+      "T05",
+      "T09",
+      "T15",
+      "T20"
+    ],
+    "T22": [
+      "T04",
+      "T08",
+      "T20",
+      "T21"
+    ],
+    "T23": [
+      "T12",
+      "T15",
+      "T18",
+      "T19",
+      "T20",
+      "T21",
+      "T22"
+    ],
+    "T24": [
+      "T05",
+      "T23"
+    ],
+    "T25": [
+      "T17",
+      "T19",
+      "T23",
+      "T24"
+    ],
+    "T26": [
+      "T03",
+      "T17",
+      "T24",
+      "T25"
+    ],
+    "T27": [
+      "T15",
+      "T16",
+      "T24",
+      "T26"
+    ],
+    "T28": [
+      "T17",
+      "T18",
+      "T19",
+      "T25"
+    ],
+    "T29": [
+      "T06",
+      "T07",
+      "T10",
+      "T17",
+      "T28"
+    ],
+    "T30": [
+      "T03",
+      "T10"
+    ],
+    "T31": [
+      "T04",
+      "T12",
+      "T16"
+    ],
+    "T32": [
+      "T04",
+      "T31"
+    ],
+    "T33": [
+      "T02",
+      "T32"
+    ],
+    "T34": [
+      "T03",
+      "T32",
+      "T33"
+    ],
+    "T35": [
+      "T02",
+      "T32",
+      "T33",
+      "T34"
+    ],
+    "T36": [
+      "T31",
+      "T32",
+      "T33",
+      "T34"
+    ],
+    "T37": [
+      "T15",
+      "T17",
+      "T20",
+      "T23",
+      "T24",
+      "T25",
+      "T26",
+      "T31"
+    ],
+    "T38": [
+      "T23",
+      "T24",
+      "T26",
+      "T30",
+      "T31",
+      "T32",
+      "T33",
+      "T34",
+      "T36",
+      "T37"
+    ],
+    "T39": [
+      "T28",
+      "T29",
+      "T30",
+      "T35",
+      "T38"
+    ],
+    "T40": [
+      "T24",
+      "T25",
+      "T26",
+      "T31",
+      "T38"
+    ],
+    "T41": [
+      "T30",
+      "T36",
+      "T37",
+      "T38",
+      "T39",
+      "T40"
+    ],
+    "T42": [
+      "T00",
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T05",
+      "T06",
+      "T07",
+      "T08",
+      "T09",
+      "T10",
+      "T11",
+      "T12",
+      "T13",
+      "T14",
+      "T15",
+      "T16",
+      "T17",
+      "T18",
+      "T19",
+      "T20",
+      "T21",
+      "T22",
+      "T23",
+      "T24",
+      "T25",
+      "T26",
+      "T27",
+      "T28",
+      "T29",
+      "T30",
+      "T31",
+      "T32",
+      "T33",
+      "T34",
+      "T35",
+      "T36",
+      "T37",
+      "T38",
+      "T39",
+      "T40",
+      "T41"
+    ],
+    "T43": [
+      "T42"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "T00",
+      "title": "Tache synthetique T00 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T00.spec.ts",
+      "required_cases": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A3",
+        "T00.A4",
+        "T00.A5",
+        "T00.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T00"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T01",
+      "title": "Tache synthetique T01 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T01.spec.ts",
+      "required_cases": [
+        "T01.A1",
+        "T01.A2",
+        "T01.A3",
+        "T01.A4",
+        "T01.A5",
+        "T01.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T01"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "DONE"
+    },
+    {
+      "id": "T02",
+      "title": "Tache synthetique T02 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T02.spec.ts",
+      "required_cases": [
+        "T02.A1",
+        "T02.A2",
+        "T02.A3",
+        "T02.A4",
+        "T02.A5",
+        "T02.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T02"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T03",
+      "title": "Tache synthetique T03 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T03.spec.ts",
+      "required_cases": [
+        "T03.A1",
+        "T03.A2",
+        "T03.A3",
+        "T03.A4",
+        "T03.A5",
+        "T03.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T03"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T04",
+      "title": "Tache synthetique T04 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T04.spec.ts",
+      "required_cases": [
+        "T04.A1",
+        "T04.A2",
+        "T04.A3",
+        "T04.A4",
+        "T04.A5",
+        "T04.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T04"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T05",
+      "title": "Tache synthetique T05 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T05.spec.ts",
+      "required_cases": [
+        "T05.A1",
+        "T05.A2",
+        "T05.A3",
+        "T05.A4",
+        "T05.A5",
+        "T05.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T05"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T06",
+      "title": "Tache synthetique T06 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T06.spec.ts",
+      "required_cases": [
+        "T06.A1",
+        "T06.A2",
+        "T06.A3",
+        "T06.A4",
+        "T06.A5",
+        "T06.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T06"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T07",
+      "title": "Tache synthetique T07 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T07.spec.ts",
+      "required_cases": [
+        "T07.A1",
+        "T07.A2",
+        "T07.A3",
+        "T07.A4",
+        "T07.A5",
+        "T07.A6",
+        "T07.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T07"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T08",
+      "title": "Tache synthetique T08 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T08.spec.ts",
+      "required_cases": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A3",
+        "T08.A4",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T08"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T09",
+      "title": "Tache synthetique T09 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T09.spec.ts",
+      "required_cases": [
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A4",
+        "T09.A5"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T09"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T10",
+      "title": "Tache synthetique T10 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T10.spec.ts",
+      "required_cases": [
+        "T10.A1",
+        "T10.A2",
+        "T10.A3",
+        "T10.A4",
+        "T10.A5",
+        "T10.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T10"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T11",
+      "title": "Tache synthetique T11 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T11.spec.ts",
+      "required_cases": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T11"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T12",
+      "title": "Tache synthetique T12 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T12.spec.ts",
+      "required_cases": [
+        "T12.A1",
+        "T12.A2",
+        "T12.A3",
+        "T12.A4",
+        "T12.A5",
+        "T12.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T12"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T13",
+      "title": "Tache synthetique T13 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T13.spec.ts",
+      "required_cases": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5",
+        "T13.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T13"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T14",
+      "title": "Tache synthetique T14 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T14.spec.ts",
+      "required_cases": [
+        "T14.A1",
+        "T14.A2",
+        "T14.A3",
+        "T14.A4",
+        "T14.A5",
+        "T14.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T14"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T15",
+      "title": "Tache synthetique T15 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T15.spec.ts",
+      "required_cases": [
+        "T15.A1",
+        "T15.A2",
+        "T15.A3",
+        "T15.A4",
+        "T15.A5",
+        "T15.A6",
+        "T15.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T15"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T16",
+      "title": "Tache synthetique T16 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T16.spec.ts",
+      "required_cases": [
+        "T16.A1",
+        "T16.A2",
+        "T16.A3",
+        "T16.A4",
+        "T16.A5",
+        "T16.A6",
+        "T16.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T16"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T17",
+      "title": "Tache synthetique T17 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T17.spec.ts",
+      "required_cases": [
+        "T17.A1",
+        "T17.A2",
+        "T17.A3",
+        "T17.A4",
+        "T17.A5",
+        "T17.A6",
+        "T17.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T17"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T18",
+      "title": "Tache synthetique T18 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T18.spec.ts",
+      "required_cases": [
+        "T18.A1",
+        "T18.A2",
+        "T18.A3",
+        "T18.A4",
+        "T18.A5",
+        "T18.A6",
+        "T18.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T18"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T19",
+      "title": "Tache synthetique T19 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T19.spec.ts",
+      "required_cases": [
+        "T19.A1",
+        "T19.A2",
+        "T19.A3",
+        "T19.A4",
+        "T19.A5",
+        "T19.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T19"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T20",
+      "title": "Tache synthetique T20 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T20.spec.ts",
+      "required_cases": [
+        "T20.A1",
+        "T20.A2",
+        "T20.A3",
+        "T20.A4",
+        "T20.A5",
+        "T20.A6",
+        "T20.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T20"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T21",
+      "title": "Tache synthetique T21 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T21.spec.ts",
+      "required_cases": [
+        "T21.A1",
+        "T21.A2",
+        "T21.A3",
+        "T21.A4",
+        "T21.A5",
+        "T21.A6",
+        "T21.A7",
+        "T21.A8"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T21"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T22",
+      "title": "Tache synthetique T22 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T22.spec.ts",
+      "required_cases": [
+        "T22.A1",
+        "T22.A2",
+        "T22.A3",
+        "T22.A4",
+        "T22.A5",
+        "T22.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T22"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T23",
+      "title": "Tache synthetique T23 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T23.spec.ts",
+      "required_cases": [
+        "T23.A1",
+        "T23.A2",
+        "T23.A3",
+        "T23.A4",
+        "T23.A5",
+        "T23.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T23"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T24",
+      "title": "Tache synthetique T24 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T24.spec.ts",
+      "required_cases": [
+        "T24.A1",
+        "T24.A2",
+        "T24.A3",
+        "T24.A4",
+        "T24.A5"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T24"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T25",
+      "title": "Tache synthetique T25 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T25.spec.ts",
+      "required_cases": [
+        "T25.A1",
+        "T25.A2",
+        "T25.A3",
+        "T25.A4",
+        "T25.A5",
+        "T25.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T25"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T26",
+      "title": "Tache synthetique T26 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T26.spec.ts",
+      "required_cases": [
+        "T26.A1",
+        "T26.A2",
+        "T26.A3",
+        "T26.A4",
+        "T26.A5",
+        "T26.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T26"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T27",
+      "title": "Tache synthetique T27 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T27.spec.ts",
+      "required_cases": [
+        "T27.A1",
+        "T27.A2",
+        "T27.A3",
+        "T27.A4",
+        "T27.A5",
+        "T27.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T27"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T28",
+      "title": "Tache synthetique T28 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T28.spec.ts",
+      "required_cases": [
+        "T28.A1",
+        "T28.A2",
+        "T28.A3",
+        "T28.A4",
+        "T28.A5",
+        "T28.A6",
+        "T28.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T28"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T29",
+      "title": "Tache synthetique T29 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T29.spec.ts",
+      "required_cases": [
+        "T29.A1",
+        "T29.A2",
+        "T29.A3",
+        "T29.A4",
+        "T29.A5",
+        "T29.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T29"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T30",
+      "title": "Tache synthetique T30 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T30.spec.ts",
+      "required_cases": [
+        "T30.A1",
+        "T30.A2",
+        "T30.A3",
+        "T30.A4",
+        "T30.A5",
+        "T30.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T30"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T31",
+      "title": "Tache synthetique T31 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T31.spec.ts",
+      "required_cases": [
+        "T31.A1",
+        "T31.A2",
+        "T31.A3",
+        "T31.A4",
+        "T31.A5",
+        "T31.A6",
+        "T31.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T31"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T32",
+      "title": "Tache synthetique T32 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T32.spec.ts",
+      "required_cases": [
+        "T32.A1",
+        "T32.A2",
+        "T32.A3",
+        "T32.A4",
+        "T32.A5",
+        "T32.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T32"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T33",
+      "title": "Tache synthetique T33 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T33.spec.ts",
+      "required_cases": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A6",
+        "T33.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T33"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T34",
+      "title": "Tache synthetique T34 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T34.spec.ts",
+      "required_cases": [
+        "T34.A1",
+        "T34.A2",
+        "T34.A3",
+        "T34.A4",
+        "T34.A5",
+        "T34.A6",
+        "T34.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T34"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T35",
+      "title": "Tache synthetique T35 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T35.spec.ts",
+      "required_cases": [
+        "T35.A1",
+        "T35.A2",
+        "T35.A3",
+        "T35.A4",
+        "T35.A5",
+        "T35.A6",
+        "T35.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T35"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T36",
+      "title": "Tache synthetique T36 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T36.spec.ts",
+      "required_cases": [
+        "T36.A1",
+        "T36.A2",
+        "T36.A3",
+        "T36.A4",
+        "T36.A5",
+        "T36.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T36"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T37",
+      "title": "Tache synthetique T37 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T37.spec.ts",
+      "required_cases": [
+        "T37.A1",
+        "T37.A2",
+        "T37.A3",
+        "T37.A4",
+        "T37.A5",
+        "T37.A6",
+        "T37.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T37"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T38",
+      "title": "Tache synthetique T38 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T38.spec.ts",
+      "required_cases": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A4",
+        "T38.A5",
+        "T38.A6",
+        "T38.A7",
+        "T38.A8"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T38"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T39",
+      "title": "Tache synthetique T39 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T39.spec.ts",
+      "required_cases": [
+        "T39.A1",
+        "T39.A2",
+        "T39.A3",
+        "T39.A4",
+        "T39.A5",
+        "T39.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T39"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T40",
+      "title": "Tache synthetique T40 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T40.spec.ts",
+      "required_cases": [
+        "T40.A1",
+        "T40.A2",
+        "T40.A3",
+        "T40.A4",
+        "T40.A5",
+        "T40.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T40"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T41",
+      "title": "Tache synthetique T41 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T41.spec.ts",
+      "required_cases": [
+        "T41.A1",
+        "T41.A2",
+        "T41.A3",
+        "T41.A4",
+        "T41.A5",
+        "T41.A6",
+        "T41.A7"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T41"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T42",
+      "title": "Tache synthetique T42 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T42.spec.ts",
+      "required_cases": [
+        "T42.A1",
+        "T42.A2",
+        "T42.A3",
+        "T42.A4",
+        "T42.A5",
+        "T42.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T42"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T43",
+      "title": "Tache synthetique T43 (fixture d acceptation T00)",
+      "depends_on": [],
+      "source_paths": [
+        "acceptance/__synthetic_absent__"
+      ],
+      "acceptance_entry": "acceptance/__synthetic_absent__/T43.spec.ts",
+      "required_cases": [
+        "T43.A1",
+        "T43.A2",
+        "T43.A3",
+        "T43.A4",
+        "T43.A5",
+        "T43.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T43"
+      ],
+      "requires": [],
+      "requires_live_credentials": false,
+      "status": "NOT_IMPLEMENTED"
+    }
+  ]
+}

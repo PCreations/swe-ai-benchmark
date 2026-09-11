@@ -1,0 +1,151 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T00 \u2014 une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.lock.json.",
+    "",
+    "A quoi sert ce fichier. Un cas d'acceptation ne vaut que s'il existe une",
+    "modification de l'implementation qui le fait passer au rouge. Le cahier",
+    "(L139) refuse la preuve qui n'observe rien : \u00ab un programme qui ecrit",
+    "seulement passed=true, un test avec zero assertion [...] ne satisfait pas le",
+    "contrat \u00bb. Chaque mutant ci-dessous est cette contre-epreuve : appliquer la",
+    "mutation, relancer `pnpm verify:task T00`, exiger que le cas nomme par",
+    "kills_case devienne ROUGE. Un mutant qui laisse la suite verte denonce un",
+    "cas creux, pas une implementation correcte.",
+    "",
+    "LA PORTE \u00ab NECESSITE \u00bb N'EST PAS UNIVERSELLE. Stuber les exports d'un module",
+    "est la bonne perturbation pour un cas `behaviour` seulement. Pour un cas",
+    "`refusal`, un stub qui leve rend le cas VERT \u2014 faux PASS sur exactement le",
+    "genre de cas que la porte pretend proteger. La perturbation correcte est",
+    "alors INVERSE : rendre l'implementation PERMISSIVE. Pour un cas `artifact`,",
+    "aucun export n'est appele : seule la mutation de l'artefact mord.",
+    "",
+    "Les cibles sont decrites par leur ROLE et non par un chemin de fichier :",
+    "l'auteur des tests derive le contrat des cartes de specification et n'a pas",
+    "lu l'implementation du runner. Un mutant se pose sur le point du programme",
+    "qui remplit le role decrit.",
+    "",
+    "CONTROLE DE CAPACITE (A4 et A5). La porte RED a montre que ces deux cas",
+    "restaient VERTS alors que le runner n'etait pas implemente : repondre",
+    "invariablement code 2 refuse bien T99 et ne declare bien pas T01 reussie.",
+    "Un cas de refus est donc incomplet tant qu'il ne demontre pas l'existence",
+    "d'un non-refus. A4 et A5 exigent desormais, par le meme mecanisme de registre",
+    "isole, qu'une tache implementee et vraie obtienne code 0 / reason PASS.",
+    "Consequence assumee : le mutant T00.M2 tue A2, A4 et A5 a la fois."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T00",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T00"
+  ],
+  "acceptance_entry": "acceptance/T00.spec.ts",
+  "mutant_count": 6,
+  "mutants": [
+    {
+      "id": "T00.M1",
+      "kills_case": "T00.A1",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le module de contrat packages/contracts \u2014 sa source TypeScript et l'export qu'elle publie.",
+      "mutation": "Introduire dans une source de packages/contracts une erreur de type detectable en mode strict (par exemple affecter une valeur d'un type incompatible a une declaration exportee, ou referencer un symbole inexistant), de sorte que la compilation du paquet echoue. Variante equivalente pour la porte 'module-stub' : remplacer l'entree publiee du paquet par un module vide, sans aucun export.",
+      "expected_effect": "T00.A1 devient rouge.",
+      "observation_qui_echoue": "A1 compile reellement le paquet (script build du paquet, ou `tsc -p packages/contracts`) et exige exit 0 ET zero diagnostic `error TSxxxx`; puis il charge l'entree publiee et exige au moins un export. La variante 'erreur de type' tue la premiere assertion, la variante 'module vide' tue la seconde. A1 charge en outre le module par le specificateur du paquet, que jest.config.mjs mappe vers packages/contracts/src, et ECHOUE explicitement si le chargement s'est fait depuis dist/, build/ ou lib/ : un artefact compile perime \u2014 gitignore, invisible a `git status --porcelain` \u2014 ne peut donc pas temoigner a la place de la source mutee.",
+      "pourquoi_cette_perturbation": "A1 est un cas `behaviour` : il exerce un export metier et observe son resultat. C'est la forme ou la regle universelle du stub est valide, et verification/cases.lock.json prescrit exactement \u00ab casser la compilation du module de contrat : le cas doit devenir rouge \u00bb. Un cas A1 qui se contenterait de verifier l'existence du dossier packages/contracts survivrait a cette mutation \u2014 c'est precisement ce que le mutant interdit.",
+      "doit_rester_vert": [
+        "T00.A4",
+        "T00.A5",
+        "T00.A6"
+      ]
+    },
+    {
+      "id": "T00.M2",
+      "kills_case": "T00.A2",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le point du runner qui projette l'etat final d'une tache sur le code de sortie et sur le champ `reason` du rapport (ADR-005 point 1).",
+      "mutation": "Faire renvoyer un code non nul par le runner alors que tous les cas requis de la tache ont ete executes et sont verts \u2014 par exemple renvoyer 1 inconditionnellement, ou n'ecrire PASS dans `reason` que si zero cas a ete execute.",
+      "expected_effect": "T00.A2 devient rouge, sur les deux chaines.",
+      "observation_qui_echoue": "A2 fait tourner le runner sur deux taches-sonde entierement vraies \u2014 une chaine Jest, une chaine pytest (ADR-005 point 5) \u2014 et exige pour chacune : exit 0, rapport present, `reason` = PASS, cas attendus egaux aux cas requis de la sonde, cas executes contenant chacun d'eux, et statut individuel vert pour chacun, aucun saute. Ce mutant tue AUSSI A4 et A5 : leurs controles de capacite exigent qu'une tache reellement implementee et vraie obtienne code 0 / reason PASS par le meme mecanisme de registre isole. C'est voulu \u2014 un refus n'est un refus que s'il existe un non-refus.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit \u00ab faire renvoyer un code non nul par le runner sur un test vrai \u00bb. C'est la moitie positive du contrat de sortie : sans elle, un runner qui refuse tout (et rendrait A3, A4, A5 verts a bon compte) passerait la suite. A2 est le controle qui interdit l'implementation universellement refusante.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A6"
+      ],
+      "tue_aussi": [
+        "T00.A4",
+        "T00.A5"
+      ]
+    },
+    {
+      "id": "T00.M3",
+      "kills_case": "T00.A3",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le point du runner qui agrege les resultats individuels des cas en un verdict de tache.",
+      "mutation": "Rendre l'agregation permissive : ignorer le compte d'echecs remonte par la chaine de test et conclure PASS / exit 0 des lors que la chaine a produit un rapport \u2014 par exemple ne regarder que le nombre de cas executes, jamais leur statut; ou mapper un echec d'assertion sur le code 0.",
+      "expected_effect": "T00.A3 devient rouge, sur les deux chaines.",
+      "observation_qui_echoue": "A3 fait tourner le runner sur deux taches-sonde dont le PREMIER cas porte une assertion volontairement fausse (`expect(2 + 2).toBe(5)`, `assert 2 + 2 == 5`) et dont les autres cas sont vrais. Il exige exit 1, `reason` = ASSERTION_FAILED, la presence du cas faux parmi les cas EXECUTES (donc non saute) et un statut individuel d'echec pour lui. Sous la mutation, exit devient 0, `reason` devient PASS et le statut du cas faux devient vert : trois assertions tombent.",
+      "pourquoi_cette_perturbation": "A3 est un cas `refusal`, et c'est ici le defaut decisif : stuber un export ferait lever le runner, qui sortirait en non-zero \u2014 et A3 resterait VERT sans rien prouver. La seule perturbation informative est l'inverse, rendre l'implementation permissive. C'est aussi pourquoi A3 ne se contente pas du code de sortie : il exige le rapport et le statut individuel du cas faux, ce qu'un stub qui leve ne produit pas.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A6"
+      ]
+    },
+    {
+      "id": "T00.M4",
+      "kills_case": "T00.A4",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "La resolution d'un identifiant de tache dans le registre (le registre etant celui que designe BENCH_REGISTRY, ADR-005 point 2).",
+      "mutation": "Faire accepter un identifiant absent du registre : synthetiser une carte par defaut pour tout id de forme Txx, ou traiter l'absence comme une tache vide dont zero cas requis sont donc tous satisfaits \u2014 le runner repond alors exit 0 / reason PASS pour T99.",
+      "expected_effect": "T00.A4 devient rouge.",
+      "observation_qui_echoue": "A4 invoque le runner sur T99 avec le registre synthetique isole acceptance/fixtures/registries/synthetic-44-not-implemented.json et exige exit 2 ET reason = UNKNOWN_TASK; il exige aussi explicitement que le code ne soit pas 0 et que, si un rapport est ecrit pour T99, il ne liste aucun cas execute ni aucun statut vert. Une acceptation permissive produit exit 0 / PASS : les deux assertions principales tombent. Le cas porte en outre un CONTROLE DE CAPACITE : avec le meme mecanisme de registre synthetique isole, une tache implementee et vraie doit obtenir code 0 / reason PASS. Sans lui, un runner qui repond invariablement code 2 satisfait l'enonce du cas sans rien verifier \u2014 c'est, a l'echelle de la commande, le stub qui leve contre lequel ce mode de preuve met en garde.",
+      "pourquoi_cette_perturbation": "Cas `refusal` : un stub qui leve laisserait A4 vert. Ce qui doit le tuer, c'est l'implementation qui ACCEPTE l'inconnu. A4 porte en outre un CONTROLE symetrique \u2014 le meme registre interroge sur T01 ne doit pas repondre UNKNOWN_TASK \u2014 de sorte que l'implementation degeneree inverse, celle qui refuse tout indistinctement, ne puisse pas verdir le cas non plus.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A6"
+      ]
+    },
+    {
+      "id": "T00.M5",
+      "kills_case": "T00.A5",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le point du runner qui decide qu'une tache est prouvee \u2014 c'est-a-dire la condition sous laquelle il ecrit PASS sans avoir observe de resultat de test.",
+      "mutation": "Deux variantes, toutes deux permissives et toutes deux suffisantes : (a) conclure PASS a vide \u2014 aucun cas execute, donc aucun cas requis en echec, donc exit 0; (b) faire confiance au champ `status` de la carte de registre et conclure PASS des qu'il vaut DONE.",
+      "expected_effect": "T00.A5 devient rouge.",
+      "observation_qui_echoue": "A5 invoque le runner sur T01 avec un registre synthetique isole ou T01 est declaree NOT_IMPLEMENTED et ou son acceptance_entry pointe vers un chemin garanti absent : il exige exit 2, reason = NOT_IMPLEMENTED, et l'absence de tout statut vert dans le rapport. La variante (a) fait tomber ces assertions. Pour la variante (b), A5 rejoue le meme appel avec acceptance/fixtures/registries/synthetic-44-t01-declared-done.json, ou T01 est declaree DONE sans que rien ne soit implemente, et exige que le code reste non nul et que reason ne soit pas PASS. Le cas porte en outre un CONTROLE DE CAPACITE : avec le meme mecanisme de registre synthetique isole, une tache implementee et vraie doit obtenir code 0 / reason PASS. Sans lui, un runner qui repond invariablement code 2 satisfait l'enonce du cas sans rien verifier \u2014 c'est, a l'echelle de la commande, le stub qui leve contre lequel ce mode de preuve met en garde.",
+      "pourquoi_cette_perturbation": "Cas `refusal` : le stub qui leve le laisserait vert. La perturbation utile est l'implementation qui declare reussie une tache dont rien n'a tourne \u2014 exactement ce que le cahier interdit : \u00ab il produit une preuve seulement a partir d'un resultat de test observe \u00bb (L153) et \u00ab editer ce champ en DONE ne valide rien \u00bb (L631). Le registre est synthetique et sans dependances, pour que le verdict reste independant de l'avancement reel : reexecuter T00 apres T43 doit rester possible (L155). A5 porte le meme CONTROLE anti-refus-universel que A4 : le verdict rendu sur T01 doit differer de celui rendu sur un id absent.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A6"
+      ]
+    },
+    {
+      "id": "T00.M6",
+      "kills_case": "T00.A6",
+      "proof_kind": "artifact",
+      "necessity": "artifact-mutation",
+      "direction": "muter l'artefact",
+      "target": "Les lockfiles pnpm-lock.yaml et analysis/uv.lock, et les commandes d'installation figee qui les preservent.",
+      "mutation": "Faire muter le lockfile pendant l'installation figee : retirer le drapeau de gel (`pnpm install` sans --frozen-lockfile, `uv sync` sans --frozen) sur un arbre dont le manifeste a ete legerement decale, de sorte que l'outil reecrive le lockfile; ou, de facon equivalente et plus directe, ajouter un octet a analysis/uv.lock entre le calcul de l'empreinte avant et celui d'apres.",
+      "expected_effect": "T00.A6 devient rouge.",
+      "observation_qui_echoue": "A6 calcule le sha256 de pnpm-lock.yaml ET de analysis/uv.lock avant l'installation figee, execute `pnpm install --frozen-lockfile` puis `uv sync --frozen` en exigeant exit 0 pour les deux, recalcule les empreintes et exige l'egalite fichier par fichier. Toute reecriture change l'empreinte : l'egalite tombe. Si la mutation porte sur le manifeste au lieu du lockfile, c'est l'installation figee elle-meme qui sort en non-zero, et c'est encore A6 qui tombe.",
+      "pourquoi_cette_perturbation": "Cas `artifact` : A6 n'appelle aucun export metier, donc stuber un module ne changerait rien \u2014 le cas resterait vert et la porte de necessite usuelle ne prouverait rien. Seule la mutation de l'artefact mord. A6 embarque en outre un temoin : une copie du lockfile est modifiee d'un octet et son empreinte doit changer, ce qui interdit l'implementation degeneree ou la comparaison porterait sur une constante ou sur un fichier absent.",
+      "doit_rester_vert": [
+        "T00.A2",
+        "T00.A3",
+        "T00.A4",
+        "T00.A5"
+      ]
+    }
+  ]
+}

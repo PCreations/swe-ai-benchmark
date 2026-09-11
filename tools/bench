@@ -10,6 +10,7 @@ import { computeBoard, render, EXIT } from '../verification/runner/resume.mjs'
 import { runProbes, writeEvidence, readEvidence } from '../verification/runner/doctor.mjs'
 import { loadRegistry } from '../verification/runner/registry.mjs'
 import { inputDigest } from '../verification/runner/input-digest.mjs'
+import { run as runSelftest } from '../verification/runner/selftest.mjs'
 
 const [cmd = 'resume', ...rest] = process.argv.slice(2)
 const has = (f) => rest.includes(f)
@@ -25,6 +26,7 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
   registry lint          valide le registre : id inconnu, cycle, doublon,
                          dependance absente, status non fige, cas retires
   digest <Txx>           imprime l'input_digest d'une tache et ses composantes
+  selftest               le socle se prouve lui-meme : demonstrations executees
   help
 `
 
@@ -88,6 +90,16 @@ switch (cmd) {
     const t = reg.byId.get(id)
     if (!t) out(`tache inconnue : ${id}`, 2)
     out(`${id}  input_digest = ${inputDigest(t, 'HEAD')}`, 0)
+    break
+  }
+
+  case 'selftest': {
+    const { results, failed, ok } = runSelftest()
+    const L = ['SELFTEST — demonstrations executees, pas assertions sur papier', '']
+    for (const r of results) L.push(`  ${r.ok ? 'OK  ' : 'ECHEC'} ${r.id.padEnd(8)} ${r.detail}`)
+    L.push('')
+    L.push(ok ? `${results.length} controles passent.` : `${failed.length} controle(s) en echec.`)
+    out(L.join('\n'), ok ? 0 : 1)
     break
   }
 

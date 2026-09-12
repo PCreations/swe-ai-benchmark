@@ -1,0 +1,12 @@
+{
+  "name": "@bench/scenario",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Compilation des scenarios et controle de leur revelation (cahier §C, T06).",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "dependencies": { "@bench/contracts": "workspace:*" }
+}

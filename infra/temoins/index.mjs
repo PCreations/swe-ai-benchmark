@@ -184,10 +184,17 @@ export function startWitness(options) {
           reject(new ContratTemoinViole(`annonce de demarrage illisible : ${String(e.message)}`))
         })
       }
+      // Le handle NE PORTE AUCUN DRAPEAU DE CONFORMITE. `conforming` y ferait
+      // du demarrage d'une fixture FAUTIVE un REFUS aux yeux de tout appelant
+      // qui qualifie une reponse par ses drapeaux : demarrer `drop-one-row`
+      // doit REUSSIR — c'est ce que la fixture PRODUIT qui est fautif, pas son
+      // demarrage. La conformite se lit dans le catalogue, et nulle part ailleurs.
+      enfant.unref()
+      enfant.stdout.unref()
+      enfant.stderr.unref()
       fini(() =>
         resolve({
           witness: fixture.name,
-          conforming: fixture.conforming,
           version,
           baseUrl: annonce.baseUrl,
           digest: digestDeLaVersion(fixture, version),

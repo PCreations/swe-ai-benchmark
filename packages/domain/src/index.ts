@@ -11,10 +11,10 @@
 // (L183) n'est pas une promesse, c'est une impossibilité de typage.
 //
 // À ce commit le paquet porte T03 — validation structurée d'un manifeste de
-// campagne, et planificateur pur de ses cellules — et le SQUELETTE de T04 :
-// le rôle `computePeriodMetrics` est déclaré et lève `NotImplemented`, de
-// sorte que le rouge de `acceptance/T04.spec.ts` porte sur une mesure absente
-// et non sur un nom absent.
+// campagne, et planificateur pur de ses cellules — et T04 : les métriques de
+// période et leurs dénominateurs, `computePeriodMetrics`, fonction pure d'une
+// série de périodes vers Q, R, G, G_new par période et V, U, exposition et
+// réussite agrégée par intention pour la campagne (L185–L194).
 // ─────────────────────────────────────────────────────────────────────────────
 export { compileCampaignManifest } from './campaign.js'
 export type { CampaignCell, CampaignPlan, CompileOptions } from './campaign.js'

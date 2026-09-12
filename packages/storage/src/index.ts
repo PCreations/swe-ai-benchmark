@@ -20,8 +20,10 @@
 //   readPeriodResult(h, { idempotency_key })  relecture               (L261 A1)
 //   publishRetryLimit()                       la limite fixée         (L261 A6)
 //
-// PLUS AUCUN EXPORT NE LÈVE `NotImplemented` : le squelette a disparu avec
-// l'implémentation qu'il annonçait.
+// AUCUN DES SIX RÔLES DE T12 NE LÈVE `NotImplemented` : leur squelette a
+// disparu avec l'implémentation qu'il annonçait. Les six rôles d'ARTEFACTS
+// ajoutés plus bas (tâche T13, L265-L272) lèvent tous, eux : c'est leur étage
+// rouge, et src/artifacts.ts dit pourquoi.
 //
 // CE QUE CE PAQUET NE PRÉTEND PAS FAIRE. Une transaction garantit les effets
 // LOCAUX ; elle ne rend pas une requête fournisseur distante exactement unique
@@ -47,6 +49,26 @@ export { CentralStore, isCentralStore } from './store.js'
 
 export { STORAGE_REFUSAL_CODES, StorageRefusal, isStorageRefusal } from './errors.js'
 export type { StorageRefusalCode } from './errors.js'
+
+// ── T13 — stockage immuable d'artefacts (L265-L272). SQUELETTE : chacun de ces
+//    six rôles lève `NotImplemented`. Voir src/artifacts.ts pour la raison de
+//    chaque refus, et pourquoi aucun ne rend de valeur plausible.
+export {
+  openArtifactStore,
+  putArtifact,
+  getArtifact,
+  listArtifacts,
+  extractArchive,
+  artifactSizeLimit,
+} from './artifacts.js'
+export type {
+  ArtifactFault,
+  ArtifactManifest,
+  ArtifactStoreTarget,
+  ExtractArchiveReport,
+  ExtractArchiveRequest,
+  PutArtifactOptions,
+} from './artifacts.js'
 
 export type {
   PeriodRecord,

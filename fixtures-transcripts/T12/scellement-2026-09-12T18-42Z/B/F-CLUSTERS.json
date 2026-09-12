@@ -1,0 +1,70 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [115],
+    "relecture": "sed -n '115p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs (T32.A2, T33.A5, jeu de mutations l.437), puis confrontee a SF l.115. Aucune implementation consultee.",
+  "consommateurs": [
+    {
+      "cas": "T32.A2", "cahier_line": 435, "proof_kind": "numeric",
+      "exige": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "deduction": "la fixture doit porter DEUX etats — nominal (10 repetitions) et duplique (20 repetitions) — et l egalite de leurs estimations ponctuelles"
+    },
+    {
+      "cas": "T33.A5", "cahier_line": 443, "proof_kind": "behaviour",
+      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "deduction": "la grappe (le projet), pas la ligne, est l unite d agregation et de reechantillonnage"
+    },
+    {
+      "cas": "T32 (fin de tache)", "cahier_line": 437, "proof_kind": "mutation",
+      "exige": "jeu de mutations detectant le pooling des lignes",
+      "deduction": "la fixture doit rendre la moyenne naive sur onze lignes explicitement FAUSSE et distincte de 50/60"
+    }
+  ],
+  "valeurs": {
+    "projets": [
+      {"projet": "P1", "cout_A": 10, "cout_B": 20, "repetitions": 10, "note": "dix repetitions IDENTIQUES", "cahier_line": 115},
+      {"projet": "P2", "cout_A": 90, "cout_B": 100, "repetitions": 1, "cahier_line": 115}
+    ],
+    "nombre_de_lignes_total": {"valeur": 11, "calcul": "10 + 1", "cahier_line": 115},
+    "moyenne_interprojets_A": {"valeur": 50, "cahier_line": 115},
+    "moyenne_interprojets_B": {"valeur": 60, "cahier_line": 115},
+    "regle": {
+      "enonce": "une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "cahier_line": 115
+    },
+    "invariance_par_duplication": {
+      "enonce": "dupliquer toutes les repetitions de P1 laisse l estimation ponctuelle inchangee",
+      "etat_duplique": {"P1_repetitions": 20, "P2_repetitions": 1, "lignes_total": 21},
+      "moyennes_attendues": {"A": 50, "B": 60},
+      "cahier_line": 115
+    }
+  },
+  "verifications_arithmetiques": [
+    {"quoi": "moyenne par projet P1", "calcul": "dix repetitions identiques de A=10 => moyenne 10 ; B=20 => 20", "exact": true},
+    {"quoi": "moyenne interprojets A", "calcul": "(10 + 90)/2 = 50 (poids egal par projet)", "exact": true},
+    {"quoi": "moyenne interprojets B", "calcul": "(20 + 100)/2 = 60", "exact": true},
+    {"quoi": "moyenne naive sur 11 lignes pour A (FAUSSE)", "calcul": "(10*10 + 90)/11 = 190/11 = 17.272727...", "rationnel": "190/11", "statut": "valeur FAUSSE, cible de mutant"},
+    {"quoi": "moyenne naive sur 11 lignes pour B (FAUSSE)", "calcul": "(20*10 + 100)/11 = 300/11 = 27.272727...", "rationnel": "300/11", "statut": "valeur FAUSSE, cible de mutant"},
+    {"quoi": "ratio naif (FAUX)", "calcul": "(190/11)/(300/11) = 190/300 = 19/30 = 0.6333...", "rationnel": "19/30", "statut": "valeur FAUSSE ; distincte de 5/6"},
+    {"quoi": "apres duplication de P1 (20 repetitions)", "calcul": "moyenne P1 inchangee (10, 20) ; moyenne interprojets inchangee (50, 60)", "exact": true},
+    {"quoi": "moyenne naive apres duplication (FAUSSE, et EN PLUS instable)", "calcul": "A : (10*20 + 90)/21 = 290/21 = 13.8095... != 190/11", "statut": "montre que le pooling des lignes viole aussi l invariance de T32.A2"}
+  ],
+  "notes_de_portee": [
+    "F-CLUSTERS partage ses deux projets avec F-COST-RATIO (l.113) et sert de base a F-BOOTSTRAP (l.117) : les trois fixtures doivent porter les memes couples (10,20) et (90,100).",
+    "Les valeurs 190/11, 300/11 et 19/30 sont DERIVEES : le cahier ne les ecrit pas, il dit seulement que la moyenne naive ne doit pas remplacer l agregation."
+  ],
+  "derivations": [
+    {"quoi": "moyennes naives sur 11 lignes", "valeurs": {"A": "190/11", "B": "300/11", "ratio": "19/30"}, "normatif": false, "depuis": [115]},
+    {"quoi": "ratio interprojets de F-CLUSTERS", "valeur": "5/6", "normatif": false, "depuis": [113, 115], "note": "les moyennes sont << encore 50 et 60 >>, donc le ratio est encore 5/6 ; SF ne le reecrit pas ici"}
+  ],
+  "ambiguites": []
+}

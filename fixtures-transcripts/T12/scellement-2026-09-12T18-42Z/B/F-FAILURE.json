@@ -1,0 +1,242 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-FAILURE",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      121
+    ],
+    "relecture": "sed -n '121p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs (T05.A6, T11.A4, T31.A1, T38.A7), puis confrontee a SF l.121. Les conventions de non-effacement viennent de l.97 et de l invariant D.5 l.67. Aucune implementation consultee.",
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "proof_kind": "behaviour",
+      "exige": "sans deploiement, la cloture d une periode produit les demandes non servies prevues par F-FAILURE",
+      "deduction": "la fixture doit porter, pour chaque periode, des intentions OFFERTES non servies ; sinon R=0 serait indiscernable de R=null"
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "proof_kind": "numeric",
+      "exige": "F-FAILURE conserve quatre resultats",
+      "deduction": "K=4 lignes de PeriodResult meme sans deploiement et meme apres arret de calcul"
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "proof_kind": "numeric",
+      "exige": "F-FAILURE exporte quatre periodes et total 150",
+      "deduction": "la fixture doit porter les quatre couts ligne a ligne ET leur somme : un export qui filtrerait les survivants donnerait 2 lignes et 150, un export qui inventerait des factures donnerait plus de 150"
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "proof_kind": "behaviour",
+      "exige": "F-FAILURE produit un echec produit dans une execution moteur terminee",
+      "deduction": "l echec est un resultat METIER (attempt FAILED), pas un echec du moteur : la distinction de SB l.28 est portee par la fixture"
+    }
+  ],
+  "valeurs": {
+    "K": {
+      "valeur": 4,
+      "signification": "nombre de periodes",
+      "cahier_line": 121
+    },
+    "deploiement": {
+      "valeur": "aucun deploiement sur les quatre periodes",
+      "deployment_coverage": "NO_DEPLOYMENT",
+      "cahier_line": 121,
+      "enum_cahier_line": 97
+    },
+    "lignes_conservees": {
+      "valeur": 4,
+      "condition": "si les exigences et usages y sont presents",
+      "cahier_line": 121
+    },
+    "Q_par_periode": {
+      "valeurs": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "R_par_periode": {
+      "valeurs": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "note": "0 et non null : des usages sont presents (convention l.111)"
+    },
+    "couts_par_periode": {
+      "valeurs": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "chaines": [
+        "100",
+        "50",
+        "0",
+        "0"
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "chaine": "150",
+      "cahier_line": 121
+    },
+    "arret_de_calcul": {
+      "enonce": "un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n y est ajoutee",
+      "consequences": [
+        "P3 et P4 restent presentes dans l analyse avec Q=0 et R=0",
+        "les couts de P3 et P4 valent exactement 0, jamais une estimation"
+      ],
+      "cahier_line": 121,
+      "renvoi_enums": {
+        "cahier_line": 97,
+        "citation": "Les etats d arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n effacent pas la periode de l analyse."
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "un echec conserve ses depenses, ses intentions non servies et son backlog",
+      "cahier_line": 67,
+      "origine": "invariant D.5"
+    },
+    {
+      "regle": "une trajectoire indisponible face a des intentions prevues a R=0, jamais null",
+      "cahier_line": 111
+    },
+    {
+      "regle": "un defaut de prerequis produit BLOCKED, jamais PASS ; une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide",
+      "cahier_line": 28,
+      "section": "B"
+    },
+    {
+      "regle": "aucun filtre implicite de survivants et aucune valeur vide convertie en zero a l export",
+      "cahier_line": 429
+    }
+  ],
+  "verifications_arithmetiques": [
+    {
+      "quoi": "total des couts",
+      "calcul": "100 + 50 + 0 + 0 = 150",
+      "resultat": 150,
+      "exact": true
+    },
+    {
+      "quoi": "nombre de lignes exportees",
+      "calcul": "K = 4 lignes, aucune supprimee par l arret apres P2",
+      "resultat": 4,
+      "exact": true
+    },
+    {
+      "quoi": "piege du filtre de survivants",
+      "calcul": "si P3 et P4 etaient supprimees : 2 lignes, total toujours 150 — le total NE SUFFIT PAS a detecter le filtre, le COMPTE de lignes est une assertion distincte",
+      "statut": "impose deux assertions separees dans T31.A1"
+    },
+    {
+      "quoi": "piege de la facture imaginaire",
+      "calcul": "toute valeur non nulle en P3 ou P4 porterait le total au-dessus de 150",
+      "statut": "detecte par le total"
+    }
+  ],
+  "derivations": [
+    {
+      "quoi": "V",
+      "valeur": 0,
+      "calcul": "moyenne de Q = (0+0+0+0)/4 = 0",
+      "normatif": false,
+      "depuis": [
+        107,
+        121
+      ]
+    },
+    {
+      "quoi": "U",
+      "valeur": 0,
+      "calcul": "moyenne de R sur les periodes exposees = (0+0+0+0)/4 = 0",
+      "normatif": false,
+      "depuis": [
+        111,
+        121
+      ]
+    },
+    {
+      "quoi": "exposition",
+      "valeur": "4/4 = 1",
+      "normatif": false,
+      "depuis": [
+        111,
+        121
+      ],
+      "note": "les quatre periodes sont exposees puisque des usages y sont presents"
+    },
+    {
+      "quoi": "reussite agregee par intention",
+      "valeur": 0,
+      "normatif": false,
+      "depuis": [
+        121
+      ],
+      "note": "0 intention reussie sur un nombre d intentions offertes NON PUBLIE par le cahier"
+    }
+  ],
+  "notes_de_portee": [
+    "SF ne publie ni les exigences ni les comptes d intentions de F-FAILURE : il pose la CONDITION << si les exigences et usages y sont presents >> et en tire Q=0 et R=0.",
+    "L unite des couts n est pas ecrite en SF ; micro-USD est deduit de l.80.",
+    "T38.A7 place F-FAILURE dans une execution moteur TERMINEE : l echec produit ne doit pas etre confondu avec un echec du moteur (l.28)."
+  ],
+  "ambiguites": [
+    {
+      "id": "F-FAILURE.AMB1",
+      "point": "l arret de calcul apres P2 est-il la CAUSE des couts nuls en P3/P4, ou un sous-cas independant ?",
+      "cahier_line": 121,
+      "lectures": [
+        "un seul scenario : le candidat ne deploie jamais, le calcul s arrete apres P2, d ou les couts [100,50,0,0]",
+        "deux sous-cas : (a) le candidat sans deploiement, couts [100,50,0,0] ; (b) une variante avec arret apres P2, qui verifie que P3 et P4 subsistent"
+      ],
+      "impact": "AUCUN sur les valeurs assertees — les deux lectures donnent 4 lignes, Q=0, R=0, couts [100,50,0,0] et total 150. L ambiguite porte sur le NOMBRE de scenarios a materialiser.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-FAILURE.AMB2",
+      "point": "exigences actives dues et comptes d intentions par periode",
+      "cahier_line": 121,
+      "lectures": [
+        "libres, pourvu qu il y ait au moins une exigence active due de poids non nul (sinon Q serait null, l.111) et au moins une intention admissible (sinon R serait null)",
+        "identiques a ceux de F-QUALITY, F-FAILURE etant la trajectoire echouee du meme scenario a quatre periodes"
+      ],
+      "impact": "determine les denominateurs de Q et de R, et donc ce que T05.A6 peut asserter sur << les demandes non servies >>",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-FAILURE.AMB3",
+      "point": "etat d arret applicable apres P2",
+      "cahier_line": 121,
+      "lectures": [
+        "BUDGET_EXHAUSTED",
+        "RUNNER_BLOCKED",
+        "CANCELLED"
+      ],
+      "impact": "les trois sont enumeres a l.97 et n effacent aucune periode ; le cahier n en nomme aucun pour F-FAILURE, donc le statut de periode exporte n est pas determine",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

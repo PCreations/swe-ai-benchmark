@@ -1,0 +1,70 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      117
+    ],
+    "verification": [
+      "sed -n '117p' docs/cahier.md"
+    ]
+  },
+  "verbatim": {
+    "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  },
+  "donnees": {
+    "base": {
+      "cahier_line": 117,
+      "enonce": "les deux projets précédents",
+      "reference": "P1 (A=10, B=20) et P2 (A=90, B=100), cf. F-CLUSTERS ligne 115 et F-COST-RATIO ligne 113"
+    },
+    "reechantillonnages_forces": {
+      "cahier_line": 117,
+      "liste": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ]
+    },
+    "ratios_cout_A_sur_B": {
+      "cahier_line": 117,
+      "valeurs": [
+        "1/2",
+        "5/6",
+        "5/6",
+        "9/10"
+      ]
+    },
+    "intervalle": {
+      "cahier_line": 117,
+      "convention": "quantile empirique inverse",
+      "niveau": "2,5 % – 97,5 %",
+      "borne_basse": "1/2",
+      "borne_haute": "9/10"
+    },
+    "portee": {
+      "cahier_line": 117,
+      "enonce": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  },
+  "ambiguites": []
+}

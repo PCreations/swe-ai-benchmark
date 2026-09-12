@@ -1,0 +1,1333 @@
+{
+ "schema": "bench.fixtures.comparaison-ab/1",
+ "tache": "T12",
+ "etage": "FIXTURES",
+ "role": "fixture-transcriber",
+ "horodatage_utc": "2026-09-12T18:42:22+00:00",
+ "objet": "scellement — comparaison valeur par valeur des deux transcriptions independantes du §F, puis confrontation a la racine DEJA SCELLEE acceptance/reference/**",
+ "commit_source": "6c6bbe0257d1bea464cb49f692c670e445c9b330",
+ "cahier": {
+  "fichier": "docs/cahier.md",
+  "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F",
+  "lignes": [
+   101,
+   129
+  ]
+ },
+ "arbitrages_lus_avant_comparaison": [
+  {
+   "id": "SC-001",
+   "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+   "statut": "RESOLU",
+   "applique": true,
+   "effets": [
+    "DIV-3 / F-QUALITY : le poids d'une exigence est fixe a son introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4",
+    "DIV-1 / F-FAILURE : l'unite des couts reste NON SPECIFIEE",
+    "DIV-2 / F-REGRESSION : le nombre attendu vaut 1 (l.129 « en produit une »)"
+   ]
+  }
+ ],
+ "aucun_arbitrage_ouvert": "docs/spec-conflicts/ ne contient que SC-001, statut RESOLU — aucune entree OUVERT ne bloque cet etage",
+ "controles_textuels_re_executes": [
+  {
+   "commande": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+   "observe": 0,
+   "conclusion": "l'unite n'est pas ecrite ligne 121 — DIV-1 confirme ; B ne l'inscrit plus comme valeur, seulement comme note de portee deduite de l.80"
+  },
+  {
+   "commande": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+   "observe": "en produit une",
+   "conclusion": "le nombre 1 est une transcription, pas un calcul — DIV-2 confirme ; A et B portent tous deux 1"
+  }
+ ],
+ "comparaison_A_vs_B": {
+  "methode": "extraction par chemin JSON de chaque valeur du §F dans les deux transcriptions, normalisation (virgule decimale, rationnels, encodage des etats) puis egalite stricte",
+  "nombre_de_comparaisons": 99,
+  "divergences_de_valeur": 0,
+  "verdict": "CONCORDANTES",
+  "champs": [
+   {
+    "fixture": "F-MONEY",
+    "champ": "entree_non_cachee",
+    "A": 2,
+    "B": 2,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "entree_cachee",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "sortie",
+    "A": 5,
+    "B": 5,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "tokens_non_caches",
+    "A": 100,
+    "B": 100,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "tokens_caches",
+    "A": 40,
+    "B": 40,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "tokens_sortie",
+    "A": 20,
+    "B": 20,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "cout_appel",
+    "A": 340,
+    "B": 340,
+    "egal": true
+   },
+   {
+    "fixture": "F-MONEY",
+    "champ": "cout_deux_appels",
+    "A": 680,
+    "B": 680,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "limite",
+    "A": 1000,
+    "B": 1000,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "montant_concurrent",
+    "A": 600,
+    "B": 600,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "acceptations_max",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "reglement",
+    "A": 340,
+    "B": 340,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "etat_ref.spent",
+    "A": 340,
+    "B": 340,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "etat_ref.reserved",
+    "A": 0,
+    "B": 0,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "etat_ref.available",
+    "A": 660,
+    "B": 660,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "2a.montant",
+    "A": 600,
+    "B": 600,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "2a.available",
+    "A": 60,
+    "B": 60,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "2a.admissible",
+    "A": true,
+    "B": true,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "2b.montant",
+    "A": 661,
+    "B": 661,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "2b.available",
+    "A": 660,
+    "B": 660,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "2b.admissible",
+    "A": false,
+    "B": false,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "3.montant",
+    "A": 600,
+    "B": 600,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "3.available",
+    "A": 400,
+    "B": 400,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "3.spent",
+    "A": 0,
+    "B": 0,
+    "egal": true
+   },
+   {
+    "fixture": "F-BUDGET",
+    "champ": "3.limite",
+    "A": 1000,
+    "B": 1000,
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "Q",
+    "A": [
+     1,
+     "1/2",
+     "3/4",
+     1
+    ],
+    "B": [
+     1,
+     "1/2",
+     "3/4",
+     1
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "V",
+    "A": "13/16",
+    "B": "13/16",
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "V_decimal",
+    "A": 0.8125,
+    "B": 0.8125,
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "R",
+    "A": [
+     1,
+     "1/2",
+     null,
+     "1/2"
+    ],
+    "B": [
+     1,
+     "1/2",
+     null,
+     "1/2"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "offertes",
+    "A": [
+     4,
+     4,
+     0,
+     2
+    ],
+    "B": [
+     4,
+     4,
+     0,
+     2
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "reussies",
+    "A": [
+     4,
+     2,
+     0,
+     1
+    ],
+    "B": [
+     4,
+     2,
+     0,
+     1
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "U",
+    "A": "2/3",
+    "B": "2/3",
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "exposition",
+    "A": "3/4",
+    "B": "3/4",
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "ratio_intentions",
+    "A": "7/10",
+    "B": "7/10",
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "P1.exigences(id,poids,satisfaite)",
+    "A": [
+     "('A@1', 1, True)",
+     "('B@1', 1, True)"
+    ],
+    "B": [
+     "('A@1', 1, True)",
+     "('B@1', 1, True)"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "P2.exigences(id,poids,satisfaite)",
+    "A": [
+     "('A@1', 1, True)",
+     "('B@1', 1, True)",
+     "('C@1', 2, False)"
+    ],
+    "B": [
+     "('A@1', 1, True)",
+     "('B@1', 1, True)",
+     "('C@1', 2, False)"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "P3.exigences(id,poids,satisfaite)",
+    "A": [
+     "('A@2', 1, True)",
+     "('B@1', 1, False)",
+     "('C@1', 2, True)"
+    ],
+    "B": [
+     "('A@2', 1, True)",
+     "('B@1', 1, False)",
+     "('C@1', 2, True)"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-QUALITY",
+    "champ": "P4.exigences(id,poids,satisfaite)",
+    "A": [
+     "('A@2', 1, True)",
+     "('C@1', 2, True)"
+    ],
+    "B": [
+     "('A@2', 1, True)",
+     "('C@1', 2, True)"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-COST-RATIO",
+    "champ": "couts_A",
+    "A": [
+     10,
+     90
+    ],
+    "B": [
+     10,
+     90
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-COST-RATIO",
+    "champ": "couts_B",
+    "A": [
+     20,
+     100
+    ],
+    "B": [
+     20,
+     100
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-COST-RATIO",
+    "champ": "moyenne_A",
+    "A": 50,
+    "B": 50,
+    "egal": true
+   },
+   {
+    "fixture": "F-COST-RATIO",
+    "champ": "moyenne_B",
+    "A": 60,
+    "B": 60,
+    "egal": true
+   },
+   {
+    "fixture": "F-COST-RATIO",
+    "champ": "ratio",
+    "A": "5/6",
+    "B": "5/6",
+    "egal": true
+   },
+   {
+    "fixture": "F-COST-RATIO",
+    "champ": "valeur_fausse",
+    "A": 0.7,
+    "B": 0.7,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "P1.A",
+    "A": 10,
+    "B": 10,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "P1.B",
+    "A": 20,
+    "B": 20,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "P1.repetitions",
+    "A": 10,
+    "B": 10,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "P2.A",
+    "A": 90,
+    "B": 90,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "P2.B",
+    "A": 100,
+    "B": 100,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "P2.repetitions",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "moyenne_A",
+    "A": 50,
+    "B": 50,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "moyenne_B",
+    "A": 60,
+    "B": 60,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "dup.moyenne_A",
+    "A": 50,
+    "B": 50,
+    "egal": true
+   },
+   {
+    "fixture": "F-CLUSTERS",
+    "champ": "dup.moyenne_B",
+    "A": 60,
+    "B": 60,
+    "egal": true
+   },
+   {
+    "fixture": "F-BOOTSTRAP",
+    "champ": "liste",
+    "A": [
+     [
+      "P1",
+      "P1"
+     ],
+     [
+      "P1",
+      "P2"
+     ],
+     [
+      "P2",
+      "P1"
+     ],
+     [
+      "P2",
+      "P2"
+     ]
+    ],
+    "B": [
+     [
+      "P1",
+      "P1"
+     ],
+     [
+      "P1",
+      "P2"
+     ],
+     [
+      "P2",
+      "P1"
+     ],
+     [
+      "P2",
+      "P2"
+     ]
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-BOOTSTRAP",
+    "champ": "ratios",
+    "A": [
+     "1/2",
+     "5/6",
+     "5/6",
+     "9/10"
+    ],
+    "B": [
+     "1/2",
+     "5/6",
+     "5/6",
+     "9/10"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-BOOTSTRAP",
+    "champ": "borne_basse",
+    "A": "1/2",
+    "B": "1/2",
+    "egal": true
+   },
+   {
+    "fixture": "F-BOOTSTRAP",
+    "champ": "borne_haute",
+    "A": "9/10",
+    "B": "9/10",
+    "egal": true
+   },
+   {
+    "fixture": "F-FAILURE",
+    "champ": "K",
+    "A": 4,
+    "B": 4,
+    "egal": true
+   },
+   {
+    "fixture": "F-FAILURE",
+    "champ": "lignes",
+    "A": 4,
+    "B": 4,
+    "egal": true
+   },
+   {
+    "fixture": "F-FAILURE",
+    "champ": "Q",
+    "A": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "B": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-FAILURE",
+    "champ": "R",
+    "A": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "B": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-FAILURE",
+    "champ": "couts",
+    "A": [
+     100,
+     50,
+     0,
+     0
+    ],
+    "B": [
+     100,
+     50,
+     0,
+     0
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-FAILURE",
+    "champ": "total",
+    "A": 150,
+    "B": 150,
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "campagnes",
+    "A": 4,
+    "B": 4,
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "B.cout",
+    "A": 100,
+    "B": 100,
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "B.V",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "B.U",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "c1.A",
+    "A": [
+     80,
+     1,
+     1
+    ],
+    "B": [
+     80,
+     1,
+     1
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "c2.A",
+    "A": [
+     100,
+     1,
+     1
+    ],
+    "B": [
+     100,
+     1,
+     1
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "c3.A",
+    "A": [
+     80,
+     0.96,
+     1
+    ],
+    "B": [
+     80,
+     0.96,
+     1
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "c4.A",
+    "A": [
+     80,
+     0.99,
+     0.99
+    ],
+    "B": [
+     80,
+     0.99,
+     0.99
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "bornes_ratio",
+    "A": [
+     0.8,
+     1,
+     0.8,
+     0.8
+    ],
+    "B": [
+     0.8,
+     1,
+     0.8,
+     0.8
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "bornes_dV",
+    "A": [
+     0,
+     0,
+     -0.04,
+     -0.01
+    ],
+    "B": [
+     0,
+     0,
+     -0.04,
+     -0.01
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "bornes_dU",
+    "A": [
+     0,
+     0,
+     0,
+     -0.01
+    ],
+    "B": [
+     0,
+     0,
+     0,
+     -0.01
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-POWER",
+    "champ": "decisions",
+    "A": [
+     true,
+     false,
+     false,
+     true
+    ],
+    "B": [
+     true,
+     false,
+     false,
+     true
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "horloge_initiale",
+    "A": "2030-01-01T00:00:00Z",
+    "B": "2030-01-01T00:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "acteurs",
+    "A": [
+     "A",
+     "B",
+     "C"
+    ],
+    "B": [
+     "A",
+     "B",
+     "C"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "locataire",
+    "A": "legacy",
+    "B": "legacy",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "creneau.id",
+    "A": "S1",
+    "B": "S1",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "creneau.capacite",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "creneau.debut",
+    "A": "2030-01-03T12:00:00Z",
+    "B": "2030-01-03T12:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "horloge.P1",
+    "A": "2030-01-01T00:00:00Z",
+    "B": "2030-01-01T00:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "horloge.P2",
+    "A": "2030-01-01T01:00:00Z",
+    "B": "2030-01-01T01:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "horloge.P3",
+    "A": "2030-01-02T11:00:00Z",
+    "B": "2030-01-02T11:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "horloge.P4",
+    "A": "2030-01-02T13:00:00Z",
+    "B": "2030-01-02T13:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "P3.frontiere",
+    "A": [
+     "2030-01-02T12:00:00Z"
+    ],
+    "B": [
+     "2030-01-02T12:00:00Z"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "probe_permise.instant",
+    "A": "2030-01-02T12:00:00Z",
+    "B": "2030-01-02T12:00:00Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "probe_refusee.instant",
+    "A": "2030-01-02T12:00:00.001Z",
+    "B": "2030-01-02T12:00:00.001Z",
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "P4.etat_entree",
+    "A": [
+     "annule",
+     "confirme",
+     "en attente"
+    ],
+    "B": [
+     "annule",
+     "confirme",
+     "en attente"
+    ],
+    "egal": true
+   },
+   {
+    "fixture": "F-RESERVATION",
+    "champ": "NOT_FOUND",
+    "A": "NOT_FOUND",
+    "B": "NOT_FOUND",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "cancel.exigence",
+    "A": "cancel@1",
+    "B": "cancel@1",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "cancel.satisfaite_en",
+    "A": "P2",
+    "B": "P2",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "cancel.remplacee_en",
+    "A": "P3",
+    "B": "P3",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "cancel.remplacante",
+    "A": "cancel@2",
+    "B": "cancel@2",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "isolation.exigence",
+    "A": "isolation@1",
+    "B": "isolation@1",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "isolation.satisfaite_en",
+    "A": "P3",
+    "B": "P3",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "isolation.violee_en",
+    "A": "P4",
+    "B": "P4",
+    "egal": true
+   },
+   {
+    "fixture": "F-REGRESSION",
+    "champ": "nombre_regressions",
+    "A": 1,
+    "B": 1,
+    "egal": true
+   }
+  ]
+ },
+ "confrontation_a_la_racine_scellee": {
+  "objet": "la racine etait deja scellee et gelee ; elle n'a pas ete reecrite. Chaque valeur commune a ete confrontee au fichier scelle.",
+  "nombre_de_controles": 44,
+  "ecarts": 0,
+  "tree_oid_gele": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+  "tree_oid_declare_dans_FROZEN_ROOTS": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+  "identiques": true
+ },
+ "verificateur_de_references_execute": {
+  "commande": "node -e \"import('./verification/runner/references.mjs').then(m=>console.log(JSON.stringify(m.checkReferences())))\"",
+  "etat": "GELEE",
+  "head_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+  "fichiers": 10,
+  "diff_arbre_de_travail": [],
+  "problemes": []
+ },
+ "ambiguites": {
+  "total": 26,
+  "bloquantes": 0,
+  "regle": "une ambiguite ne bloque que si elle porte sur une valeur MATERIALISEE. Aucune des ambiguites ci-dessous ne porte sur une valeur inscrite dans acceptance/reference/** : elles portent soit sur des parametres que le §F ne fixe pas (et que la racine scellee enumere sous `non_fixe_par_le_cahier`), soit sur des cas d'acceptation hors du cadrage de cet etage.",
+  "entrees": [
+   {
+    "transcripteur": "A",
+    "fixture": "F-QUALITY",
+    "id": null,
+    "point": "Le test négatif ne nomme ni l’identifiant, ni la version, ni le poids, ni l’échéance de l’exigence « révélée mais non encore due ».",
+    "cahier_line": 109
+   },
+   {
+    "transcripteur": "A",
+    "fixture": "F-RESERVATION",
+    "id": null,
+    "point": "Le « refus métier » opposé à B à 2030-01-02T12:00:00.001Z n’est pas nommé (aucun code d’erreur donné en §F).",
+    "cahier_line": 119
+   },
+   {
+    "transcripteur": "A",
+    "fixture": "F-POWER",
+    "id": null,
+    "point": "La §F donne le vecteur de décisions [vrai,faux,faux,vrai] mais pas la règle qui le produit : ni la marge de non-infériorité sur ΔV/ΔU, ni la stricte inégalité exigée sur la borne supérieure du ratio.",
+    "cahier_line": 127
+   },
+   {
+    "transcripteur": "A",
+    "fixture": "F-POWER",
+    "id": null,
+    "point": "La §F ne donne ni la puissance ni l’erreur standard associées à F-POWER.",
+    "cahier_line": 127
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-BUDGET",
+    "id": "F-BUDGET.AMB1",
+    "point": "identite de la reservation acceptee parmi les deux demandes concurrentes de 600",
+    "cahier_line": 105
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-BUDGET",
+    "id": "F-BUDGET.AMB2",
+    "point": "definition d une reservation << ambigue >>",
+    "cahier_line": 105
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-BUDGET",
+    "id": "F-BUDGET.AMB3",
+    "point": "trace laissee par la reservation refusee de 661",
+    "cahier_line": 105
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-QUALITY",
+    "id": "F-QUALITY.AMB1",
+    "point": "contenu individuel des intentions comptees [4,4,0,2] / [4,2,0,1]",
+    "cahier_line": 107
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-QUALITY",
+    "id": "F-QUALITY.AMB2",
+    "point": "a quelle periode se rapportent << les quatre usages >> de T08.A2",
+    "cahier_line": 223
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-QUALITY",
+    "id": "F-QUALITY.AMB3",
+    "point": "identite de l exigence du test negatif (revelee mais non encore due)",
+    "cahier_line": 109
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-QUALITY",
+    "id": "F-QUALITY.AMB4",
+    "point": "statut de l exigence remplacee A@1 en P3 vis-a-vis du numerateur",
+    "cahier_line": 109
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-RESERVATION",
+    "id": "F-RESERVATION.AMB1",
+    "point": "code d erreur metier du refus d annulation tardive (12:00:00.001Z)",
+    "cahier_line": 119
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-RESERVATION",
+    "id": "F-RESERVATION.AMB2",
+    "point": "relation entre les 3 acteurs / 1 creneau de SF et les << 100 reservations >> que la migration P4 doit preserver (T09.A3, l.233)",
+    "cahier_line": 233
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-RESERVATION",
+    "id": "F-RESERVATION.AMB3",
+    "point": "statut de la demande de B rejetee en P1 vis-a-vis de son entree en file d attente en P2",
+    "cahier_line": 119
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-RESERVATION",
+    "id": "F-RESERVATION.AMB4",
+    "point": "valeur de la cle idempotente de A et valeurs des sequences d admission",
+    "cahier_line": 119
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-RESERVATION",
+    "id": "F-RESERVATION.AMB5",
+    "point": "instants metier des operations INDIVIDUELLES a l interieur de chaque periode",
+    "cahier_line": 125
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-RESERVATION",
+    "id": "F-RESERVATION.AMB6",
+    "point": "fin du creneau S1, taille maximale de la file d attente, et identite des acteurs du locataire other",
+    "cahier_line": 119
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-FAILURE",
+    "id": "F-FAILURE.AMB1",
+    "point": "l arret de calcul apres P2 est-il la CAUSE des couts nuls en P3/P4, ou un sous-cas independant ?",
+    "cahier_line": 121
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-FAILURE",
+    "id": "F-FAILURE.AMB2",
+    "point": "exigences actives dues et comptes d intentions par periode",
+    "cahier_line": 121
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-FAILURE",
+    "id": "F-FAILURE.AMB3",
+    "point": "etat d arret applicable apres P2",
+    "cahier_line": 121
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-POWER",
+    "id": "F-POWER.AMB1",
+    "point": "valeur de la marge de non-inferiorite employee par F-POWER",
+    "cahier_line": 127
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-POWER",
+    "id": "F-POWER.AMB2",
+    "point": "structure interne d un parent (nombre de trajectoires, repetitions, periodes) portant (cout, V, U)",
+    "cahier_line": 127
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-POWER",
+    "id": "F-POWER.AMB3",
+    "point": "definition de la << puissance >> comptee sur 4 campagnes",
+    "cahier_line": 463
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-REGRESSION",
+    "id": "F-REGRESSION.AMB1",
+    "point": "statut de satisfaction de cancel@2 en P3 et en P4",
+    "cahier_line": 129
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-REGRESSION",
+    "id": "F-REGRESSION.AMB2",
+    "point": "nombre de periodes de la fixture et existence de P1",
+    "cahier_line": 129
+   },
+   {
+    "transcripteur": "B",
+    "fixture": "F-REGRESSION",
+    "id": "F-REGRESSION.AMB3",
+    "point": "instant de revelation et echeance d isolation@1",
+    "cahier_line": 129
+   }
+  ]
+ },
+ "ecart_de_cadrage_A_vs_B_sans_divergence_de_valeur": [
+  {
+   "sujet": "F-POWER : puissance 0,5 et erreur standard 0,25",
+   "A": "non transcrites — hors §F (ligne 463, ligne d'acceptation)",
+   "B": "transcrites, explicitement attribuees a la ligne 463 et non au §F",
+   "traitement": "non materialisees : la racine scellee se limite au §F. Les deux transcriptions s'accordent sur la provenance ; aucune valeur n'est contredite."
+  },
+  {
+   "sujet": "F-MONEY : sentinelle de corruption 341",
+   "A": "non transcrite — hors §F (ligne 165)",
+   "B": "transcrite, attribuee a la ligne 165",
+   "traitement": "non materialisee dans la racine ; elle vit dans verification/runner/references.mjs, qui l'execute."
+  },
+  {
+   "sujet": "valeurs derivees non normatives (moyennes naives 190/11 et 300/11, G/G_new, denominateurs de Q, variantes x7)",
+   "A": "non transcrites, declarees non donnees par le cahier",
+   "B": "transcrites avec normatif=false",
+   "traitement": "non materialisees ; B les marque lui-meme non normatives."
+  }
+ ],
+ "transcriptions_archivees": {
+  "nombre_de_fichiers": 22,
+  "fichiers": {
+   "A/F-BOOTSTRAP.json": {
+    "sha256": "bb660086a41e38a28b7260726999f654090db4a5b07b1385117fcd67dbbee9d9",
+    "blob_oid": "e7fe647a86bbf0e04e0a02d5bd06d57ba9984a31",
+    "octets": 1868
+   },
+   "A/F-BUDGET.json": {
+    "sha256": "cf018d333f0d6862f646625ac1d7342573201d37aebbce2e6ac36bdad7b606d1",
+    "blob_oid": "3331961e8926d7cd2036a764d72f233054a64702",
+    "octets": 3288
+   },
+   "A/F-CLUSTERS.json": {
+    "sha256": "f669032cc233919f4078ec1665765cb3a13cbaefd4a8a46e1f86b2c577d81e39",
+    "blob_oid": "91c9b59dba5b31601b93217cfcee923d7e5a7976",
+    "octets": 1695
+   },
+   "A/F-COST-RATIO.json": {
+    "sha256": "9cd79991f30f20e8ead009837b7bcdcafcc482001cb7370f6573e3a09f21da60",
+    "blob_oid": "65c70c867d24b5656ade32bcd1dd7f781605d7a1",
+    "octets": 1404
+   },
+   "A/F-FAILURE.json": {
+    "sha256": "1a0bfb1a230b9077d672b610e534fd1ac2bf2f0b0ed37b5d9985307ecc9db348",
+    "blob_oid": "56e11d227bc3a7bf735bac4a231ee10b45b005bd",
+    "octets": 1887
+   },
+   "A/F-MONEY.json": {
+    "sha256": "e4b8660d1bf759fae5c27187a301386d778f2b48eff2bbba3dfbce2fbc61ce23",
+    "blob_oid": "7d0135710e3a4f2bde164eeb8c15293f5e4b6882",
+    "octets": 1778
+   },
+   "A/F-POWER.json": {
+    "sha256": "67f2684490ac5cbcbf02a06bafb4a32ad0b9afd281f6796cf5ef5a40a79f63db",
+    "blob_oid": "098b8decc12c9b2779114daa19705baddd4b6a6e",
+    "octets": 4732
+   },
+   "A/F-QUALITY.json": {
+    "sha256": "67cafdca4ba7f8f568e7ffd60ea6f6e45318bc1ea05594f956233513c6254226",
+    "blob_oid": "d726bb05bc1b1ac7e9117c7cbeb6dd81494d1b33",
+    "octets": 7295
+   },
+   "A/F-REGRESSION.json": {
+    "sha256": "a64cfe27ddb2f4464cfb2c78f57ceb5753b814111003b7b45dfd9e1926190206",
+    "blob_oid": "3baa57f0a081187cf9cd6de8ec233218f5221d21",
+    "octets": 1519
+   },
+   "A/F-RESERVATION.json": {
+    "sha256": "00c1ef0545e50021b62b44e27f849893dd915d2ed8b2009eabc729ae2383d222",
+    "blob_oid": "14c20db7982658003320d35492d66d66109d9119",
+    "octets": 6737
+   },
+   "A/INDEX.json": {
+    "sha256": "b2209296702bee62613fcf3a2cd73b17485823b41ea16436d72fd78836e7b87a",
+    "blob_oid": "7278f1a573be79d5dbbe8750a9226d561a715710",
+    "octets": 4773
+   },
+   "B/F-BOOTSTRAP.json": {
+    "sha256": "c165b0585312bec86772c9cdf5acd3f67b48887793e86564db25739a469ed728",
+    "blob_oid": "dd81b4985db5d0635e31e773cf3447f835aa5e1f",
+    "octets": 5810
+   },
+   "B/F-BUDGET.json": {
+    "sha256": "e2ec894777ab5a9e19c450a851212714510e0cf55f9e88b21a2750d0e07c6a05",
+    "blob_oid": "fc5ded7a88454cc202d070aff5100a043395b226",
+    "octets": 8162
+   },
+   "B/F-CLUSTERS.json": {
+    "sha256": "22859e6eaa0dd17ebb092b9200c39735b29acde589fa670c33f3b899a9f06200",
+    "blob_oid": "5d97421a3c1019d8f633cc9a6cea44f73b600268",
+    "octets": 4464
+   },
+   "B/F-COST-RATIO.json": {
+    "sha256": "9918f3ff8c4ea71f712386ac6956504ceafd0a190631d8a7230236c10bac732d",
+    "blob_oid": "376d04d10ad10517e8d5d5984db839a3f8b8c2bb",
+    "octets": 3658
+   },
+   "B/F-FAILURE.json": {
+    "sha256": "d75cbaef80ace95ef388b261753e65e4cafed2b3afb67d8a088b0bc3bdc0f498",
+    "blob_oid": "acc56a304df1e85c50999626d544d6da4bc09398",
+    "octets": 8235
+   },
+   "B/F-MONEY.json": {
+    "sha256": "78a3154fb82cc3b3481d9dc4849545c65d07d3922786600d179d12a8be0e70a6",
+    "blob_oid": "5dedd3ac0f0f19f951e047ee9af81c6a30d5917b",
+    "octets": 5225
+   },
+   "B/F-POWER.json": {
+    "sha256": "22910b2f1867a6dc96c94eff70a4bc7d36c44f64465a8699049df90785b8c5be",
+    "blob_oid": "6b38c7579444fc61d1d0969a59b8bf08c964a501",
+    "octets": 9567
+   },
+   "B/F-QUALITY.json": {
+    "sha256": "1178badfea260d170eb550b89a5c663e5dcb663740f2a6d8ca02a6b49da460ef",
+    "blob_oid": "1410a245ebf92b38d05f60d78237c38fde31a8a9",
+    "octets": 13003
+   },
+   "B/F-REGRESSION.json": {
+    "sha256": "c6eeddaf0f770d4af821e93113e70104737d165fbc737ad70a68cf2d78cc57ec",
+    "blob_oid": "6ec037870352b30579cd5c59a594addbffe608cc",
+    "octets": 5994
+   },
+   "B/F-RESERVATION.json": {
+    "sha256": "f6773980695caa52409dfa607e1ac168e0baddd5723a35698a02de7c2359d58c",
+    "blob_oid": "38e2315559bb677c2d4c32e637a7950cc89e130e",
+    "octets": 17284
+   },
+   "B/INDEX.json": {
+    "sha256": "0f99e482b7b456170f478f00c7cec0342418a5f9b0ffa78d90b1212a451c984a",
+    "blob_oid": "1ec8fff8c6f5fbcc0d2433c4ec9a665ff9284dc2",
+    "octets": 5917
+   }
+  },
+  "note_de_deduplication": "ces 22 blobs sont byte-a-byte identiques a ceux deja archives sous fixtures-transcripts/T13/ par le commit de ledger b7b2781 ; git les partage, l'archive T12 est neanmoins autoportante"
+ },
+ "conclusion": "A et B CONCORDENT sur les 99 valeurs du §F. La racine acceptance/reference/** etait deja la materialisation de cette transcription commune (44 controles, 0 ecart) et reste GELEE au tree f8d7adb6f569916b5176d0ebefe13f7aa10bdc91. Aucun fichier de la zone REFERENCE n'a ete reecrit : le faire aurait deplace l'oid gele et invalide les 44 attestations sans SPEC_CONFLICT ouvert."
+}

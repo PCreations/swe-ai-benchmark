@@ -1,0 +1,133 @@
+{
+  "role": "fixture-transcriber-A",
+  "tache": "T12",
+  "etage": "FIXTURES",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "nombre_fixtures": 10,
+  "fixtures": [
+    {
+      "nom": "F-MONEY",
+      "cahier_lines": [
+        103
+      ]
+    },
+    {
+      "nom": "F-BUDGET",
+      "cahier_lines": [
+        105
+      ]
+    },
+    {
+      "nom": "F-QUALITY",
+      "cahier_lines": [
+        107,
+        109,
+        111
+      ]
+    },
+    {
+      "nom": "F-COST-RATIO",
+      "cahier_lines": [
+        113
+      ]
+    },
+    {
+      "nom": "F-CLUSTERS",
+      "cahier_lines": [
+        115
+      ]
+    },
+    {
+      "nom": "F-BOOTSTRAP",
+      "cahier_lines": [
+        117
+      ]
+    },
+    {
+      "nom": "F-RESERVATION",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ]
+    },
+    {
+      "nom": "F-FAILURE",
+      "cahier_lines": [
+        121
+      ]
+    },
+    {
+      "nom": "F-POWER",
+      "cahier_lines": [
+        127
+      ]
+    },
+    {
+      "nom": "F-REGRESSION",
+      "cahier_lines": [
+        129
+      ]
+    }
+  ],
+  "exhaustivite": {
+    "methode": "grep -n 'F-[A-Z]' docs/cahier.md",
+    "constat": "dix noms `F-*` dans tout le cahier, tous définis entre les lignes 103 et 129 ; §F court de 101 à 129 (§G commence à 131). Les lignes de contenu de §F sont 103,105,107,109,111,113,115,117,119,121,123,125,127,129 — toutes transcrites.",
+    "lignes_de_soutien": {
+      "F-QUALITY": [
+        109,
+        111
+      ],
+      "F-RESERVATION": [
+        123,
+        125
+      ]
+    }
+  },
+  "hors_perimetre": [
+    "La fixture de bout en bout décrite ligne 491 (un projet, un scénario de quatre périodes, deux configurations, trois répétitions, deux appels F-MONEY par période) n'a pas de nom `F-*` et n'appartient pas à §F mais à §H (T38). Ses totaux 2720 et 16320 micro-USD ne figurent qu'en ligne 493, qui est une ligne d'acceptation, explicitement hors du cadrage de cet étage. Non transcrite.",
+    "La tolérance flottante maximale 1e-12 pour les fixtures arithmétiques ci-dessus est énoncée ligne 143 (§G), hors §F. Non transcrite dans les fichiers de fixtures."
+  ],
+  "ambiguites_globales": [
+    {
+      "fixture": "F-QUALITY",
+      "cahier_line": 109,
+      "point": "Le test négatif ne nomme ni l’identifiant, ni la version, ni le poids, ni l’échéance de l’exigence « révélée mais non encore due ».",
+      "consequence": "Le scénario concret n’est pas reconstituable à l’identique ; seule l’assertion « son poids n’entre pas dans Q » est pinnée par le cahier.",
+      "bloquant": false,
+      "justification_non_bloquant": "La valeur attendue (Q inchangé) est invariante par rapport au choix de ces paramètres."
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "cahier_line": 119,
+      "point": "Le « refus métier » opposé à B à 2030-01-02T12:00:00.001Z n’est pas nommé (aucun code d’erreur donné en §F).",
+      "consequence": "La fixture pinne le fait du refus et son instant, pas son identifiant de code.",
+      "bloquant": false,
+      "justification_non_bloquant": "Le cahier n’exige en §F que la nature métier (et non technique) du refus ; seul le code reste libre."
+    },
+    {
+      "fixture": "F-POWER",
+      "cahier_line": 127,
+      "point": "La §F donne le vecteur de décisions [vrai,faux,faux,vrai] mais pas la règle qui le produit : ni la marge de non-infériorité sur ΔV/ΔU, ni la stricte inégalité exigée sur la borne supérieure du ratio.",
+      "consequence": "Les décisions sont pinnées comme valeurs de fixture, mais ne sont pas dérivables de la seule §F.",
+      "bloquant": false,
+      "justification_non_bloquant": "Le vecteur est énoncé littéralement en §F ; il n’y a rien à trancher pour transcrire la fixture. La règle correspondante est énoncée hors §F (ligne 451 : borne supérieure du ratio < 1, non-infériorité si bornes inférieures > −marge, « Marges d’exemple 0,02 ») et reproduit ce vecteur ; mais 0,02 y est donné comme exemple, donc la marge de F-POWER n’est figée nulle part."
+    },
+    {
+      "fixture": "F-POWER",
+      "cahier_line": 127,
+      "point": "La §F ne donne ni la puissance ni l’erreur standard associées à F-POWER.",
+      "consequence": "Ces deux nombres ne sont pas transcrits ici : ils n’apparaissent que dans une ligne d’acceptation, hors du cadrage de cet étage.",
+      "bloquant": false
+    }
+  ]
+}

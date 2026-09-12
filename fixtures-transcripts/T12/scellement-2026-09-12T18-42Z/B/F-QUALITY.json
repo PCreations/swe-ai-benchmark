@@ -1,0 +1,245 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-QUALITY",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [107, 109, 111],
+    "relecture": "sed -n '107p;109p;111p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs (T04.A1/A2/A5/A6, T08.A2, T32.A3, T36.A1), puis confrontee a SF l.107 (resultats), l.109 (entrees exactes de Q) et l.111 (conventions). Aucune implementation consultee.",
+  "consommateurs": [
+    {
+      "cas": "T04.A1", "cahier_line": 191, "proof_kind": "numeric",
+      "exige": "F-QUALITY donne exactement les resultats annonces",
+      "deduction": "la fixture doit porter les ENTREES (exigences, poids, satisfaction, intentions offertes/reussies) ET les SORTIES (Q, R, V, U, exposition, ratio par intention) ; sinon << exactement les resultats annonces >> n est pas verifiable sans recalcul par l implementation"
+    },
+    {
+      "cas": "T04.A2", "cahier_line": 191, "proof_kind": "behaviour",
+      "exige": "dupliquer les assertions d une exigence ne change pas Q",
+      "deduction": "Q se pondere par exigence (poids), jamais par nombre d assertions ; invariant D.10 l.72"
+    },
+    {
+      "cas": "T04.A5", "cahier_line": 191, "proof_kind": "numeric",
+      "exige": "zero usage donne R=null, panne avec quatre usages donne R=0",
+      "deduction": "P3 (0 intention offerte) porte R=null ; la convention R=0 en cas d indisponibilite est distincte et doit figurer dans la fixture"
+    },
+    {
+      "cas": "T04.A6", "cahier_line": 191, "proof_kind": "absence",
+      "exige": "exigence non encore due absente du denominateur",
+      "deduction": "la fixture doit porter un test negatif : une exigence revelee mais non encore due, dont le poids n entre pas dans Q"
+    },
+    {
+      "cas": "T08.A2", "cahier_line": 223, "proof_kind": "behaviour",
+      "exige": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n a cree aucune donnee",
+      "deduction": "le nombre d intentions OFFERTES ne depend pas de l etat du candidat ; seules les intentions REUSSIES en dependent"
+    },
+    {
+      "cas": "T32.A3", "cahier_line": 435, "proof_kind": "numeric",
+      "exige": "F-QUALITY conserve V=13/16, U=2/3 et ratio intentions 7/10 comme colonnes distinctes",
+      "deduction": "les trois nombres sont trois COLONNES, jamais une seule ; l exposition 3/4 est publiee a cote de U"
+    },
+    {
+      "cas": "T36.A1", "cahier_line": 473, "proof_kind": "numeric",
+      "exige": "F-QUALITY affiche 0,8125 et 2/3 avec arrondi annonce, sans remplacer U par 0,7",
+      "deduction": "0,7 (ratio agrege par intention) est la valeur-piege nommee par le cahier : elle ne doit jamais occuper la colonne U"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_periodes": {"valeur": 4, "cahier_line": 107, "note": "quatre periodes de MEME DUREE"},
+    "Q_par_periode": {
+      "valeurs": ["1", "1/2", "3/4", "1"],
+      "decimales_exactes": [1, 0.5, 0.75, 1],
+      "cahier_line": 107
+    },
+    "V": {
+      "rationnel": "13/16",
+      "decimal_exact": 0.8125,
+      "definition": "moyenne temporelle de Q sur les quatre periodes de meme duree",
+      "cahier_line": 107,
+      "citation": "Quatre periodes de meme duree avec Q=[1, 1/2, 3/4, 1] donnent V=13/16=0.8125."
+    },
+    "R_par_periode": {
+      "valeurs": ["1", "1/2", null, "1/2"],
+      "cahier_line": 107,
+      "note": "P3 vaut null, pas 0 : aucune intention admissible n y est proposee"
+    },
+    "intentions_offertes": {"valeurs": [4, 4, 0, 2], "cahier_line": 107},
+    "intentions_reussies": {"valeurs": [4, 2, 0, 1], "cahier_line": 107},
+    "U": {
+      "rationnel": "2/3",
+      "decimal_exact": null,
+      "definition": "moyenne temporelle de R sur les periodes EXPOSEES (R non null)",
+      "cahier_line": 107,
+      "definition_cahier_line": 111,
+      "note": "pas de representation decimale finie ; a publier en rationnel ou avec arrondi annonce (T36.A1, l.473)"
+    },
+    "exposition": {
+      "rationnel": "3/4",
+      "decimal_exact": 0.75,
+      "definition": "part des periodes exposees (R non null) sur le total des periodes",
+      "cahier_line": 107,
+      "obligation": "publiee a cote de U (l.111)"
+    },
+    "reussite_agregee_par_intention": {
+      "rationnel": "7/10",
+      "decimal_exact": 0.7,
+      "definition": "somme des intentions reussies / somme des intentions offertes",
+      "cahier_line": 107,
+      "role": "valeur-piege : ne remplace JAMAIS U (l.473)"
+    },
+    "trois_nombres_distincts": {
+      "regle": "U=2/3, exposition=3/4 et reussite agregee=7/10 sont differents et doivent rester identifies",
+      "cahier_line": 107
+    },
+    "entrees_exactes_de_Q": {
+      "cahier_line": 109,
+      "citation": "P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violee et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites.",
+      "toutes_dues": "Toutes les exigences citees sont dues a la periode concernee",
+      "periodes": [
+        {
+          "period_index": 1,
+          "exigences_actives_dues": [
+            {"id": "A", "version": 1, "ref": "A@1", "poids": 1, "satisfaite": true},
+            {"id": "B", "version": 1, "ref": "B@1", "poids": 1, "satisfaite": true}
+          ],
+          "Q": "1",
+          "calcul": "(1*1 + 1*1) / (1 + 1) = 2/2 = 1"
+        },
+        {
+          "period_index": 2,
+          "evenement": "ajout de C@1 de poids 2, non satisfaite ; A@1 et B@1 restent satisfaites",
+          "exigences_actives_dues": [
+            {"id": "A", "version": 1, "ref": "A@1", "poids": 1, "satisfaite": true},
+            {"id": "B", "version": 1, "ref": "B@1", "poids": 1, "satisfaite": true},
+            {"id": "C", "version": 1, "ref": "C@1", "poids": 2, "satisfaite": false}
+          ],
+          "Q": "1/2",
+          "calcul": "(1 + 1 + 0) / (1 + 1 + 2) = 2/4 = 1/2"
+        },
+        {
+          "period_index": 3,
+          "evenement": "A@1 remplacee par A@2 de poids 1 satisfaite ; B@1 violee ; C@1 satisfaite",
+          "exigences_actives_dues": [
+            {"id": "A", "version": 2, "ref": "A@2", "poids": 1, "satisfaite": true, "remplace": "A@1"},
+            {"id": "B", "version": 1, "ref": "B@1", "poids": 1, "satisfaite": false},
+            {"id": "C", "version": 1, "ref": "C@1", "poids": 2, "satisfaite": true}
+          ],
+          "exigences_retirees": ["A@1"],
+          "Q": "3/4",
+          "calcul": "(1 + 0 + 2) / (1 + 1 + 2) = 3/4"
+        },
+        {
+          "period_index": 4,
+          "evenement": "retrait de B ; A@2 et C@1 restent satisfaites",
+          "exigences_actives_dues": [
+            {"id": "A", "version": 2, "ref": "A@2", "poids": 1, "satisfaite": true},
+            {"id": "C", "version": 1, "ref": "C@1", "poids": 2, "satisfaite": true}
+          ],
+          "exigences_retirees": ["B@1"],
+          "Q": "1",
+          "calcul": "(1 + 2) / (1 + 2) = 3/3 = 1"
+        }
+      ]
+    },
+    "test_negatif_exigence_non_due": {
+      "cahier_line": 109,
+      "citation": "Le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance.",
+      "regle": "revelee mais non encore due => absente du denominateur ET du numerateur de Q",
+      "consommateur": "T04.A6 (l.191, absence)",
+      "attendu": "Q inchange par rapport a la periode sans cette exigence"
+    }
+  },
+  "conventions": [
+    {"regle": "R vaut null lorsqu aucune intention admissible n est proposee", "cahier_line": 111},
+    {"regle": "U est la moyenne temporelle sur les periodes exposees, avec l exposition publiee", "cahier_line": 111},
+    {"regle": "une campagne confirmatoire exige une exposition predefinie non nulle", "cahier_line": 111},
+    {"regle": "une trajectoire indisponible face a des intentions prevues a R=0, jamais null", "cahier_line": 111},
+    {"regle": "Q est null si aucun poids d exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree", "cahier_line": 111},
+    {"regle": "les series de simple preparation restent marquees hors mesure", "cahier_line": 111},
+    {"regle": "le nombre d assertions ou de tests ne determine pas le poids d une fonctionnalite", "cahier_line": 72}
+  ],
+  "verifications_arithmetiques": [
+    {"quoi": "V", "calcul": "(1 + 1/2 + 3/4 + 1)/4 = (16+8+12+16)/16/4 = (52/16)/4 = 52/64 = 13/16", "resultat": "13/16 = 0.8125", "exact": true},
+    {"quoi": "R P1", "calcul": "4/4 = 1", "exact": true},
+    {"quoi": "R P2", "calcul": "2/4 = 1/2", "exact": true},
+    {"quoi": "R P3", "calcul": "0 intention offerte => null (convention l.111), PAS 0/0", "exact": true},
+    {"quoi": "R P4", "calcul": "1/2", "exact": true},
+    {"quoi": "U", "calcul": "(1 + 1/2 + 1/2)/3 = 2/3", "resultat": "2/3", "exact": true},
+    {"quoi": "exposition", "calcul": "3 periodes exposees / 4 periodes = 3/4", "exact": true},
+    {"quoi": "reussite agregee par intention", "calcul": "(4+2+0+1)/(4+4+0+2) = 7/10", "exact": true},
+    {"quoi": "distinction des trois nombres", "calcul": "2/3 = 0.6666... ; 3/4 = 0.75 ; 7/10 = 0.7 — trois valeurs distinctes", "exact": true},
+    {"quoi": "piege de la moyenne naive de R sur 4 periodes", "calcul": "(1 + 1/2 + 0 + 1/2)/4 = 1/2 si null etait lu comme 0", "resultat": "1/2", "statut": "valeur FAUSSE ; montre que null n est pas 0"}
+  ],
+  "derivations": [
+    {
+      "quoi": "G et G_new impliques par B@1 (satisfaite P1 et P2, violee P3, retiree P4)",
+      "valeurs": {"P1": {"G": 0, "G_new": 0}, "P2": {"G": 0, "G_new": 0}, "P3": {"G": 1, "G_new": 1}, "P4": {"G": 0, "G_new": 0}},
+      "normatif": false,
+      "depuis": [109, 189],
+      "note": "SF ne publie AUCUN G pour F-QUALITY. Derive de la definition de T04 (l.189) : G compte les exigences actives dues autrefois satisfaites et actuellement violees ; en P4 B n est plus active donc ne compte plus. A ne pas traiter comme une valeur de fixture."
+    },
+    {
+      "quoi": "denominateur de Q par periode",
+      "valeurs": [2, 4, 4, 3],
+      "normatif": false,
+      "depuis": [109]
+    }
+  ],
+  "notes_de_portee": [
+    "Les periodes sont de MEME DUREE : la moyenne temporelle se reduit ici a une moyenne simple. Le cahier ne donne pas la ponderation temporelle du cas general.",
+    "Tolerance : 13/16, 2/3, 3/4 et 7/10 se verifient en rationnel ; si un flottant est employe, tolerance maximale 1e-12 (l.143)."
+  ],
+  "ambiguites": [
+    {
+      "id": "F-QUALITY.AMB1",
+      "point": "contenu individuel des intentions comptees [4,4,0,2] / [4,2,0,1]",
+      "cahier_line": 107,
+      "lectures": [
+        "seuls les COMPTES sont normatifs ; les intentions individuelles (id, acteur, operation, cible) sont libres",
+        "les intentions sont celles du pack de reservation (F-RESERVATION), la fixture les reutilisant implicitement"
+      ],
+      "impact": "T08.A2 (l.223) parle des << quatre usages de F-QUALITY >> : sans identite d intention, ce cas ne peut asserter que le compte, pas la stabilite des usages eux-memes",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-QUALITY.AMB2",
+      "point": "a quelle periode se rapportent << les quatre usages >> de T08.A2",
+      "cahier_line": 223,
+      "lectures": [
+        "P1, seule periode ou les 4 offertes sont aussi 4 reussies",
+        "P2, ou 4 sont offertes et 2 seulement reussies — lecture qui colle mieux a << si le candidat n a cree aucune donnee >>",
+        "les deux, la propriete portant sur toute periode dont l offre vaut 4"
+      ],
+      "impact": "determine l attendu exact de T08.A2 (4 offertes et combien de reussies)",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-QUALITY.AMB3",
+      "point": "identite de l exigence du test negatif (revelee mais non encore due)",
+      "cahier_line": 109,
+      "lectures": [
+        "une exigence nouvelle D@1 de poids quelconque, revelee en P2 et due en P5 — hors des quatre periodes",
+        "une version future d une exigence existante (par ex. C@2) revelee mais non due"
+      ],
+      "impact": "son poids et sa periode de revelation ne sont pas donnes ; seule l INVARIANCE de Q est normative",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-QUALITY.AMB4",
+      "point": "statut de l exigence remplacee A@1 en P3 vis-a-vis du numerateur",
+      "cahier_line": 109,
+      "lectures": [
+        "A@1 est retiree du calcul des l instant du remplacement : seule A@2 compte en P3 (lecture retenue par le calcul Q=3/4 du cahier)",
+        "A@1 reste comptee jusqu a la fin de P3"
+      ],
+      "impact": "AUCUN sur la valeur publiee : seule la premiere lecture donne Q(P3)=3/4 avec un denominateur de 4. L ambiguite ne porte donc que sur la formulation de la regle, pas sur le nombre.",
+      "je_ne_tranche_pas": true,
+      "severite": "faible"
+    }
+  ]
+}

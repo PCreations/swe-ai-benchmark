@@ -1,0 +1,78 @@
+{
+  "fixture": "F-FAILURE",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      121
+    ],
+    "verification": [
+      "sed -n '121p' docs/cahier.md"
+    ]
+  },
+  "verbatim": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "donnees": {
+    "K": {
+      "cahier_line": 121,
+      "valeur": 4
+    },
+    "scenario": {
+      "cahier_line": 121,
+      "enonce": "un candidat sans déploiement sur les quatre périodes"
+    },
+    "lignes_conservees": {
+      "cahier_line": 121,
+      "nombre": 4
+    },
+    "Q_par_periode": {
+      "cahier_line": 121,
+      "valeurs": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les exigences y sont présentes"
+    },
+    "R_par_periode": {
+      "cahier_line": 121,
+      "valeurs": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les usages y sont présents"
+    },
+    "couts_par_periode": {
+      "cahier_line": 121,
+      "valeurs": [
+        100,
+        50,
+        0,
+        0
+      ]
+    },
+    "cout_total": {
+      "cahier_line": 121,
+      "valeur": 150
+    },
+    "arret_de_calcul": {
+      "cahier_line": 121,
+      "enonce": "Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée.",
+      "P3_P4_conservees": true,
+      "couts_P3_P4": [
+        0,
+        0
+      ]
+    }
+  },
+  "ambiguites": []
+}

@@ -1,0 +1,140 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-POWER",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [127],
+    "relecture": "sed -n '127p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs (T34.A1-A7 l.453, T35.A1 l.463), puis confrontee a SF l.127. La regle de decision est celle de l.451. Aucune implementation consultee.",
+  "consommateurs": [
+    {
+      "cas": "T34.A1", "cahier_line": 453, "proof_kind": "behaviour",
+      "exige": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture",
+      "deduction": "correspond exactement a la campagne 1 de F-POWER"
+    },
+    {"cas": "T34.A2", "cahier_line": 453, "proof_kind": "refusal", "exige": "borne ratio=1 refuse", "deduction": "correspond a la campagne 2"},
+    {"cas": "T34.A3", "cahier_line": 453, "proof_kind": "refusal", "exige": "borne DeltaV=-0,02 refuse", "deduction": "pince la STRICTITE de la comparaison (>-marge, non >=) ET la marge 0,02 pour ce cas"},
+    {"cas": "T34.A4", "cahier_line": 453, "proof_kind": "refusal", "exige": "cout plus faible mais DeltaU=-0,04 refuse", "deduction": "le critere U refuse seul, meme avec un ratio favorable"},
+    {"cas": "T34.A6", "cahier_line": 453, "proof_kind": "numeric", "exige": "J=2 donne six intervalles et niveau marginal 1-0,05/6", "deduction": "famille = 3J intervalles ; pour F-POWER J=1 donc 3 intervalles et niveau 1-0,05/3"},
+    {
+      "cas": "T35.A1", "cahier_line": 463, "proof_kind": "numeric",
+      "exige": "F-POWER traversant le vrai pipeline d analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "deduction": "la fixture doit porter les QUATRE campagnes, leurs bornes, le vecteur de decisions, la puissance et l erreur standard Monte-Carlo"
+    },
+    {"cas": "T35.A2", "cahier_line": 463, "proof_kind": "numeric", "exige": "1800 succes sur 2000 donnent 0,9 et sqrt(0,09/2000)", "deduction": "fixe la formule d erreur standard employee : sqrt(p(1-p)/N)"}
+  ],
+  "valeurs": {
+    "nombre_de_campagnes": {"valeur": 4, "cahier_line": 127},
+    "parents_par_campagne": {
+      "valeur": 2,
+      "identifiants": ["P1", "P2"],
+      "propriete": "deux parents DISTINCTS portant les MEMES valeurs",
+      "cahier_line": 127
+    },
+    "bras_B_dans_chaque_parent": {"cout": 100, "V": 1, "U": 1, "cahier_line": 127},
+    "campagnes": [
+      {"campagne": 1, "bras_A": {"cout": 80, "V": 1, "U": 1}, "borne_ratio": 0.8, "borne_delta_V": 0, "borne_delta_U": 0, "decision_T34": true, "cahier_line": 127},
+      {"campagne": 2, "bras_A": {"cout": 100, "V": 1, "U": 1}, "borne_ratio": 1, "borne_delta_V": 0, "borne_delta_U": 0, "decision_T34": false, "cahier_line": 127},
+      {"campagne": 3, "bras_A": {"cout": 80, "V": 0.96, "U": 1}, "borne_ratio": 0.8, "borne_delta_V": -0.04, "borne_delta_U": 0, "decision_T34": false, "cahier_line": 127},
+      {"campagne": 4, "bras_A": {"cout": 80, "V": 0.99, "U": 0.99}, "borne_ratio": 0.8, "borne_delta_V": -0.01, "borne_delta_U": -0.01, "decision_T34": true, "cahier_line": 127}
+    ],
+    "vecteur_de_decisions_T34": {"valeur": [true, false, false, true], "cahier_line": 127},
+    "conditions_communes": {
+      "comptabilite": "resolue",
+      "violations_critiques": "absentes",
+      "valeurs_connues_sur_les_deux_bras": true,
+      "cahier_line": 127
+    },
+    "nature_des_distributions": {
+      "enonce": "les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "consequence": "borne superieure = borne inferieure = valeur ponctuelle, pour le ratio comme pour DeltaV et DeltaU",
+      "cahier_line": 127
+    },
+    "puissance": {"valeur": 0.5, "rationnel": "2/4", "cahier_line": 463},
+    "erreur_standard_monte_carlo": {"valeur": 0.25, "cahier_line": 463},
+    "portee_declaree": {
+      "enonce": "cette fixture traverse agregation, bootstrap et decision, sans supposer qu une estimation ponctuelle generale suffit a decider",
+      "cahier_line": 127
+    }
+  },
+  "regle_de_decision_appliquee": {
+    "cahier_line": 451,
+    "criteres": [
+      "superiorite cout si borne SUPERIEURE du ratio < 1",
+      "non-inferiorite V et U si leurs bornes INFERIEURES > -marge",
+      "aucune violation critique",
+      "comptabilite resolue et donnees admissibles"
+    ],
+    "marge_exemple": 0.02,
+    "famille": "3J intervalles pour J contrastes ; niveau marginal 1 - 0,05/(3J) avec correction de Bonferroni",
+    "pour_F_POWER": {"J": 1, "intervalles": 3, "niveau_marginal": "1 - 0,05/3", "statut": "DERIVE de l.451, non ecrit en SF"}
+  },
+  "verifications_arithmetiques": [
+    {"quoi": "ratio campagne 1", "calcul": "80/100 = 0,8", "exact": true},
+    {"quoi": "ratio campagne 2", "calcul": "100/100 = 1", "exact": true},
+    {"quoi": "ratio campagnes 3 et 4", "calcul": "80/100 = 0,8", "exact": true},
+    {"quoi": "DeltaV campagne 3", "calcul": "0,96 - 1 = -0,04", "exact": true},
+    {"quoi": "DeltaV campagne 4", "calcul": "0,99 - 1 = -0,01", "exact": true},
+    {"quoi": "DeltaU campagne 4", "calcul": "0,99 - 1 = -0,01", "exact": true},
+    {"quoi": "decision campagne 1", "calcul": "0,8 < 1 VRAI ; 0 > -0,02 VRAI ; 0 > -0,02 VRAI => VRAI", "exact": true},
+    {"quoi": "decision campagne 2", "calcul": "1 < 1 FAUX => FAUX (le critere cout suffit a refuser)", "exact": true},
+    {"quoi": "decision campagne 3", "calcul": "0,8 < 1 VRAI ; -0,04 > -0,02 FAUX => FAUX", "exact": true},
+    {"quoi": "decision campagne 4", "calcul": "0,8 < 1 VRAI ; -0,01 > -0,02 VRAI ; -0,01 > -0,02 VRAI => VRAI", "exact": true},
+    {"quoi": "puissance", "calcul": "2 decisions vraies / 4 campagnes = 0,5", "resultat": 0.5, "exact": true},
+    {"quoi": "erreur standard Monte-Carlo", "calcul": "sqrt(p(1-p)/N) = sqrt(0,5*0,5/4) = sqrt(0,0625) = 0,25", "resultat": 0.25, "exact": true},
+    {"quoi": "controle de la formule d erreur standard (T35.A2)", "calcul": "1800/2000 = 0,9 ; sqrt(0,9*0,1/2000) = sqrt(0,09/2000)", "statut": "CONCORDANT : meme formule sqrt(p(1-p)/N)"},
+    {"quoi": "degenerescence des distributions", "calcul": "2 parents portant les memes valeurs, 4 tirages exhaustifs [P1,P1] [P1,P2] [P2,P1] [P2,P2] : les 4 moyennes reechantillonnees sont identiques", "resultat": "distribution ponctuelle, intervalle reduit a un point", "exact": true},
+    {"quoi": "intervalle de marges compatible avec le vecteur attendu", "calcul": "campagne 3 FAUSSE exige marge <= 0,04 ; campagne 4 VRAIE exige marge > 0,01", "resultat": "0,01 < marge <= 0,04 ; 0,02 y appartient", "statut": "DERIVE"}
+  ],
+  "notes_de_portee": [
+    "SF ne publie pas le nombre de trajectoires ni de repetitions a l interieur de chaque parent ; seuls les couples (cout, V, U) par bras sont donnes.",
+    "La puissance 0,5 et l erreur standard 0,25 sont enoncees par T35.A1 (l.463), pas par SF l.127 : ce sont des valeurs de CONSOMMATEUR, coherentes avec le vecteur de decisions de SF.",
+    "Tolerance flottante maximale 1e-12 (l.143) ; 0,96, 0,99, -0,04 et -0,01 ne sont pas representables exactement en binaire et doivent etre compares avec cette tolerance ou en rationnel."
+  ],
+  "derivations": [
+    {"quoi": "nombre d intervalles et niveau marginal pour F-POWER", "valeur": {"J": 1, "intervalles": 3, "niveau": "1 - 0,05/3"}, "normatif": false, "depuis": [451]},
+    {"quoi": "criteres refusants par campagne", "valeur": {"2": ["cout"], "3": ["V"]}, "normatif": false, "depuis": [127, 451]}
+  ],
+  "ambiguites": [
+    {
+      "id": "F-POWER.AMB1",
+      "point": "valeur de la marge de non-inferiorite employee par F-POWER",
+      "cahier_line": 127,
+      "lectures": [
+        "0,02, la << marge d exemple >> de l.451, que T34.A3 (l.453) utilise effectivement",
+        "une marge propre a la fixture, non publiee : le vecteur [vrai,faux,faux,vrai] ne contraint la marge qu a 0,01 < marge <= 0,04"
+      ],
+      "impact": "toute marge de l intervalle (0,01 ; 0,04] produit le meme vecteur ; mais un test qui asserte 0,02 comme PARAMETRE de F-POWER ecrit une valeur que SF ne donne pas",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-POWER.AMB2",
+      "point": "structure interne d un parent (nombre de trajectoires, repetitions, periodes) portant (cout, V, U)",
+      "cahier_line": 127,
+      "lectures": [
+        "chaque parent porte directement un couple agrege par bras, sans structure sous-jacente a materialiser",
+        "chaque parent doit etre une campagne complete dont l agregation redonne (cout, V, U) — lecture imposee par << traversant le VRAI pipeline d analyse >> (T35.A1, l.463)"
+      ],
+      "impact": "determine si F-POWER est materialisable comme table d agregats ou doit etre deplie en trajectoires ; T35.A1 exige le vrai pipeline, ce qui pousse vers la seconde lecture sans que SF l ecrive",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-POWER.AMB3",
+      "point": "definition de la << puissance >> comptee sur 4 campagnes",
+      "cahier_line": 463,
+      "lectures": [
+        "proportion de campagnes dont la decision est VRAIE (2/4 = 0,5), lecture qui redonne exactement 0,5 et se = 0,25",
+        "une puissance au sens frequentiste estimee par simulation, dont les 4 campagnes ne seraient qu un echantillon"
+      ],
+      "impact": "la premiere lecture est la seule qui redonne les deux nombres publies ; la seconde changerait N dans sqrt(p(1-p)/N)",
+      "je_ne_tranche_pas": true,
+      "severite": "faible"
+    }
+  ]
+}

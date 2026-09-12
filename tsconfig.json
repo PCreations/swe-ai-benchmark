@@ -14,6 +14,7 @@
     { "path": "./packages/contracts" },
     { "path": "./packages/domain" },
     { "path": "./packages/oracle" },
-    { "path": "./packages/scenario" }
+    { "path": "./packages/scenario" },
+    { "path": "./packages/workload" }
   ]
 }

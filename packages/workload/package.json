@@ -1,0 +1,12 @@
+{
+  "name": "@bench/workload",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generation et execution des intentions d'usage : modele d'intention, plan seede, resolution d'identifiants externes, horloge metier isolee (cahier L219-L226, tache T08).",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "dependencies": { "@bench/contracts": "workspace:*" }
+}

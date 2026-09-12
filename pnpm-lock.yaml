@@ -44,6 +44,12 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
+  packages/workload:
+    dependencies:
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
 packages:
 
   '@babel/code-frame@7.29.7':

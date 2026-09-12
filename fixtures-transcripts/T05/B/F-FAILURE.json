@@ -1,0 +1,261 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "fixture": "F-FAILURE",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F — Fixtures maitresses a materialiser sans recalcul depuis l implementation (l.101-130)",
+  "methode": "Transcription partant des CONSOMMATEURS (verification/cases.lock.json et §H), confrontee au texte de §F. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par `sed -n '<n>p' docs/cahier.md`.",
+  "resume": "Candidat sans deploiement sur K=4 periodes : quatre lignes conservees, couts exacts, aucune facture imaginaire.",
+  "sections_source": [
+    {
+      "cahier_line": 121,
+      "verbatim": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "exigence": "sans deploiement, la cloture d'une periode produit les demandes non servies prevues par F-FAILURE",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "exigence": "F-FAILURE conserve quatre resultats",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "exigence": "F-FAILURE exporte quatre periodes et total 150",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T31.A2",
+      "cahier_line": 427,
+      "exigence": "montants conserves exactement",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "exigence": "F-FAILURE produit un echec PRODUIT dans une execution moteur TERMINEE",
+      "proof_kind": "behaviour"
+    }
+  ],
+  "valeurs": {
+    "K": {
+      "entier": 4,
+      "cahier_line": 121
+    },
+    "deploiement": {
+      "valeur": "aucun deploiement sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "entier": 4,
+      "cahier_line": 121
+    },
+    "Q_par_periode": [
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      }
+    ],
+    "R_par_periode": [
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 121,
+        "decimal_enonce": null
+      }
+    ],
+    "condition_de_Q0_R0": {
+      "valeur": "si les exigences et usages y sont presents",
+      "cahier_line": 121
+    },
+    "couts_par_periode": [
+      {
+        "entier": 100,
+        "cahier_line": 121
+      },
+      {
+        "entier": 50,
+        "cahier_line": 121
+      },
+      {
+        "entier": 0,
+        "cahier_line": 121
+      },
+      {
+        "entier": 0,
+        "cahier_line": 121
+      }
+    ],
+    "cout_total": {
+      "entier": 150,
+      "cahier_line": 121
+    },
+    "cout_total_verification": "100 + 50 + 0 + 0 = 150",
+    "arret_de_calcul": {
+      "enonce": {
+        "valeur": "Un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n'y est ajoutee.",
+        "cahier_line": 121
+      },
+      "periodes_supprimees": {
+        "entier": 0,
+        "cahier_line": 121
+      },
+      "factures_ajoutees_en_P3_P4": {
+        "entier": 0,
+        "cahier_line": 121
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Un echec conserve ses depenses, ses intentions non servies et son backlog (invariant D.5).",
+      "cahier_line": 66
+    },
+    {
+      "regle": "Les etats d'arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n'effacent pas la periode de l'analyse.",
+      "cahier_line": 89
+    },
+    {
+      "regle": "Aucun filtre implicite de survivants et aucune valeur vide convertie en zero a l'export.",
+      "cahier_line": 429
+    },
+    {
+      "regle": "Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide ; ne pas confondre les deux niveaux.",
+      "cahier_line": 28
+    },
+    {
+      "regle": "deployment_coverage vaut NO_DEPLOYMENT, PARTIAL ou ACCEPTED ; ces champs ne remplacent pas Q et R.",
+      "cahier_line": 89
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-FAILURE-1",
+      "question": "Q=0 et R=0 sont conditionnes a « si les exigences et usages y sont presents ». Le cahier ne dit pas si exigences et usages sont presents en P3 et P4 APRES l'arret de calcul.",
+      "lignes": [
+        121,
+        111
+      ],
+      "lectures_possibles": [
+        "Ils sont presents aux quatre periodes : Q=[0,0,0,0] et R=[0,0,0,0].",
+        "Apres l'arret, P3/P4 n'ont plus d'usage admissible : R y vaudrait `null` par la convention de l.111, et Q `null` si aucun poids actif du."
+      ],
+      "impact": "T31.A1 exige quatre periodes exportees et total 150, sans fixer Q/R de P3-P4. Les deux lectures produisent le meme total de couts mais des colonnes Q/R differentes.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "question": "Lequel des trois etats d'arret de calcul (BUDGET_EXHAUSTED, RUNNER_BLOCKED, CANCELLED) s'applique apres P2 ?",
+      "lignes": [
+        121,
+        89,
+        199
+      ],
+      "lectures_possibles": [
+        "BUDGET_EXHAUSTED, par coherence avec T05.A5 (l.199) et avec des couts nuls en P3/P4.",
+        "L'etat n'est pas fixe par la fixture ; seule la non-suppression de P3/P4 l'est."
+      ],
+      "impact": "T38.A7 exige un echec PRODUIT dans une execution moteur TERMINEE ; l'etat d'arret conditionne le statut de la trajectoire.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-FAILURE-3",
+      "question": "V et U de F-FAILURE ne sont pas enonces.",
+      "lignes": [
+        121,
+        107,
+        111
+      ],
+      "lectures_possibles": [
+        "V=0 et U=0 par application des definitions de F-QUALITY aux series Q=[0,0,0,0] et R=[0,0,0,0].",
+        "Non definis, la fixture ne portant que Q, R et les couts."
+      ],
+      "impact": "Non transcrits ici : les valeurs viennent du cahier, jamais d'un calcul. Consigne pour que le scellement decide.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-FAILURE-4",
+      "question": "Le nombre et l'identite des « demandes non servies » attendues a la cloture (T05.A6) ne sont pas donnes par §F.",
+      "lignes": [
+        121,
+        199
+      ],
+      "lectures_possibles": [
+        "Les usages presents aux periodes, tous non servis faute de deploiement.",
+        "Un compte precis attendu, non ecrit."
+      ],
+      "impact": "T05.A6 est classe 'behaviour' avec un stub qui doit LEVER ; un compte exact renforcerait le cas.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-FAILURE-5",
+      "question": "L'unite des couts [100,50,0,0] n'est pas enoncee en §F.",
+      "lignes": [
+        121,
+        79
+      ],
+      "lectures_possibles": [
+        "micro-USD par le contrat de §E.",
+        "Unite abstraite."
+      ],
+      "impact": "T31.A1 exige un total de 150 a l'export, ou « l'export porte versions, hashes et UNITES » (l.429).",
+      "non_tranche": true
+    }
+  ]
+}

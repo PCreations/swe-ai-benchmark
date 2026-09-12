@@ -1,0 +1,92 @@
+{
+  "ambiguites": [],
+  "etage": "FIXTURES",
+  "fixture": "F-CLUSTERS",
+  "methode": "transcription depuis la source (docs/cahier.md section F) ; aucune valeur calculee par une implementation, aucun cas d'acceptation ni test consulte",
+  "notes": [
+    "onze lignes = 10 repetitions de P1 + 1 repetition de P2 ; le cahier ne donne PAS la valeur de la moyenne naive, seulement son interdiction. Aucune valeur naive n'est materialisee ici.",
+    "Les moyennes interprojets sont 'encore' 50 et 60, c'est-a-dire les memes qu'en F-COST-RATIO (ligne 113) : le poids d'un projet ne depend pas de son nombre de repetitions."
+  ],
+  "projets": {
+    "P1": {
+      "A": {
+        "cahier_line": 115,
+        "citation": "Projet P1 : A=10",
+        "valeur": 10
+      },
+      "B": {
+        "cahier_line": 115,
+        "citation": "B=20",
+        "valeur": 20
+      },
+      "repetitions": {
+        "cahier_line": 115,
+        "citation": "sur dix répétitions identiques",
+        "valeur": 10
+      },
+      "repetitions_identiques": true
+    },
+    "P2": {
+      "A": {
+        "cahier_line": 115,
+        "citation": "Projet P2 : A=90",
+        "valeur": 90
+      },
+      "B": {
+        "cahier_line": 115,
+        "citation": "B=100",
+        "valeur": 100
+      },
+      "repetitions": {
+        "cahier_line": 115,
+        "citation": "sur une répétition",
+        "valeur": 1
+      }
+    }
+  },
+  "regles": [
+    {
+      "cahier_line": 115,
+      "citation": "Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation",
+      "valeur": "Une moyenne naive sur les onze lignes ne doit pas remplacer l'agregation interprojets."
+    },
+    {
+      "cahier_line": 115,
+      "citation": "Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée",
+      "valeur": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee."
+    }
+  ],
+  "resultats": {
+    "moyenne_interprojets_A": {
+      "cahier_line": 115,
+      "citation": "Moyennes interprojets encore 50",
+      "valeur": 50
+    },
+    "moyenne_interprojets_B": {
+      "cahier_line": 115,
+      "citation": "et 60",
+      "valeur": 60
+    }
+  },
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "lignes": [
+      115
+    ],
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "transcripteur": "A",
+  "verbatim": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "K": {
+    "cahier_line": 121,
+    "citation": "À K=4",
+    "valeur": 4
+  },
+  "Q_par_periode": {
+    "cahier_line": 121,
+    "citation": "quatre lignes avec Q=0",
+    "valeur": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "R_par_periode": {
+    "cahier_line": 121,
+    "citation": "Q=0 et R=0",
+    "valeur": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "ambiguites": [
+    {
+      "cahier_line": 121,
+      "constat": "Q=0 et R=0 sont conditionnes a la presence d'exigences et d'usages ('si les exigences et usages y sont presents'), mais le cahier ne donne pas dans cette fixture le jeu concret d'exigences (ids, versions, poids, echeances) ni le nombre d'usages par periode. Il n'est pas dit non plus si ce jeu est celui de F-QUALITY.",
+      "non_tranche": "Aucun jeu d'exigences ni volume d'intentions n'est invente. Seuls K=4, Q=0, R=0, les couts et le total sont materialises.",
+      "point": "Jeu concret d'exigences et d'usages"
+    }
+  ],
+  "candidat": {
+    "cahier_line": 121,
+    "citation": "un candidat sans déploiement sur les quatre périodes",
+    "valeur": "sans deploiement sur les quatre periodes"
+  },
+  "condition_Q_R": {
+    "cahier_line": 121,
+    "citation": "si les exigences et usages y sont présents",
+    "valeur": "si les exigences et usages y sont presents"
+  },
+  "controle_arithmetique": {
+    "but": "coherence interne du total ENONCE",
+    "concorde": true,
+    "detail": "100 + 50 + 0 + 0 = 150"
+  },
+  "cout_total": {
+    "cahier_line": 121,
+    "citation": "totalisent 150",
+    "valeur": 150
+  },
+  "couts": {
+    "cahier_line": 121,
+    "citation": "Ses coûts `[100,50,0,0]`",
+    "valeur": [
+      100,
+      50,
+      0,
+      0
+    ]
+  },
+  "etage": "FIXTURES",
+  "fixture": "F-FAILURE",
+  "lignes_conservees": {
+    "cahier_line": 121,
+    "citation": "conserve quatre lignes",
+    "valeur": 4
+  },
+  "methode": "transcription depuis la source (docs/cahier.md section F) ; aucune valeur calculee par une implementation, aucun cas d'acceptation ni test consulte",
+  "notes": [
+    "R=0 et non null ici : coherent avec la convention de la ligne 111 ('une trajectoire indisponible face a des intentions prevues a R=0, jamais null').",
+    "Les couts de P3 et P4 valent exactement 0, ce qui est different d'un cout absent ou inconnu."
+  ],
+  "regles": [
+    {
+      "cahier_line": 121,
+      "citation": "Un arrêt de calcul après P2 ne supprime pas P3 et P4",
+      "valeur": "Un arret de calcul apres P2 ne supprime pas P3 et P4."
+    },
+    {
+      "cahier_line": 121,
+      "citation": "aucune facture imaginaire n’y est ajoutée",
+      "valeur": "Aucune facture imaginaire n'est ajoutee a P3 et P4."
+    }
+  ],
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "lignes": [
+      121
+    ],
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "transcripteur": "A",
+  "verbatim": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  }
+}

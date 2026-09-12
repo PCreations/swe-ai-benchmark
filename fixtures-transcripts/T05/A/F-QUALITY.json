@@ -1,0 +1,332 @@
+{
+  "ambiguites": [
+    {
+      "cahier_line": 109,
+      "constat": "Le cahier enonce la regle (le poids n'entre pas dans Q avant l'echeance) mais ne donne ni identifiant, ni version, ni poids, ni periode de revelation, ni echeance pour cette exigence.",
+      "non_tranche": "Aucun id/poids/periode n'est invente. Seule la regle est materialisee.",
+      "point": "Test negatif de Q : exigence revelee mais non encore due"
+    }
+  ],
+  "controle_arithmetique": {
+    "but": "coherence interne des valeurs ENONCEES par le cahier (les valeurs restent celles du cahier)",
+    "concorde": true,
+    "detail": "V = (1 + 1/2 + 3/4 + 1)/4 = (13/4)/4 = 13/16 = 0.8125. U = moyenne des R non nuls = (1 + 1/2 + 1/2)/3 = 2/3. exposition = 3 periodes exposees / 4 periodes = 3/4. reussite agregee par intention = (4+2+0+1)/(4+4+0+2) = 7/10. Q par periode depuis les entrees exactes : P1 2/2=1 ; P2 (1+1)/(1+1+2)=1/2 ; P3 (1+2)/(1+1+2)=3/4 ; P4 (1+2)/(1+2)=1."
+  },
+  "conventions": [
+    {
+      "cahier_line": 111,
+      "citation": "R vaut `null` lorsqu’aucune intention admissible n’est proposée",
+      "valeur": "R vaut null lorsqu'aucune intention admissible n'est proposee."
+    },
+    {
+      "cahier_line": 111,
+      "citation": "U est la moyenne temporelle sur les périodes exposées, avec l’exposition publiée",
+      "valeur": "U est la moyenne temporelle sur les periodes exposees, avec l'exposition publiee."
+    },
+    {
+      "cahier_line": 111,
+      "citation": "Une campagne confirmatoire exige une exposition prédéfinie non nulle",
+      "valeur": "Une campagne confirmatoire exige une exposition predefinie non nulle."
+    },
+    {
+      "cahier_line": 111,
+      "citation": "une trajectoire indisponible face à des intentions prévues a R=0, jamais `null`",
+      "valeur": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null."
+    },
+    {
+      "cahier_line": 111,
+      "citation": "Q est `null` si aucun poids d’exigence active due",
+      "valeur": "Q est null si aucun poids d'exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree."
+    },
+    {
+      "cahier_line": 111,
+      "citation": "Les séries de simple préparation restent marquées hors mesure",
+      "valeur": "Les series de simple preparation restent marquees hors mesure."
+    }
+  ],
+  "entrees_exactes_de_Q": {
+    "P1": {
+      "Q_attendu": "1",
+      "exigences": [
+        {
+          "id": "A@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "B@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        }
+      ],
+      "source": {
+        "cahier_line": 109,
+        "citation": "P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits"
+      }
+    },
+    "P2": {
+      "Q_attendu": "1/2",
+      "exigences": [
+        {
+          "id": "A@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "B@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "C@1",
+          "poids": 2,
+          "statut": "non satisfaite"
+        }
+      ],
+      "source": {
+        "cahier_line": 109,
+        "citation": "P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites"
+      }
+    },
+    "P3": {
+      "Q_attendu": "3/4",
+      "exigences": [
+        {
+          "id": "A@2",
+          "poids": 1,
+          "remplace": "A@1",
+          "statut": "satisfaite"
+        },
+        {
+          "id": "B@1",
+          "poids": 1,
+          "statut": "violee"
+        },
+        {
+          "id": "C@1",
+          "poids": 2,
+          "statut": "satisfaite"
+        }
+      ],
+      "source": {
+        "cahier_line": 109,
+        "citation": "P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violée et C@1 satisfaite"
+      }
+    },
+    "P4": {
+      "Q_attendu": "1",
+      "exigences": [
+        {
+          "id": "A@2",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "C@1",
+          "poids": 2,
+          "statut": "satisfaite"
+        }
+      ],
+      "retirees": [
+        "B@1"
+      ],
+      "source": {
+        "cahier_line": 109,
+        "citation": "P4 retire B, A@2 et C@1 restent satisfaites"
+      }
+    },
+    "echeance": {
+      "cahier_line": 109,
+      "citation": "Toutes les exigences citées sont dues à la période concernée",
+      "valeur": "Toutes les exigences citees sont dues a la periode concernee."
+    },
+    "test_negatif": {
+      "cahier_line": 109,
+      "citation": "son poids ne doit pas entrer dans Q avant son échéance",
+      "valeur": "Une exigence revelee mais non encore due est ajoutee ; son poids ne doit pas entrer dans Q avant son echeance."
+    }
+  },
+  "etage": "FIXTURES",
+  "fixture": "F-QUALITY",
+  "meme_duree": {
+    "cahier_line": 107,
+    "citation": "de même durée",
+    "valeur": true
+  },
+  "methode": "transcription depuis la source (docs/cahier.md section F) ; aucune valeur calculee par une implementation, aucun cas d'acceptation ni test consulte",
+  "notes": [
+    "P3 a R=null et 0 intention offerte : coherent avec la convention 'R vaut null lorsqu'aucune intention admissible n'est proposee' (ligne 111).",
+    "2/3, 5/6 et autres fractions non decimales ne doivent pas etre arrondies : la fraction est la valeur."
+  ],
+  "periodes": {
+    "cahier_line": 107,
+    "citation": "Quatre périodes de même durée",
+    "valeur": 4
+  },
+  "regle_de_distinction": {
+    "cahier_line": 107,
+    "citation": "Ces trois derniers nombres sont différents et doivent rester identifiés",
+    "valeur": "U, exposition et reussite agregee par intention sont TROIS nombres differents et doivent rester identifies separement."
+  },
+  "resultats": {
+    "U": {
+      "cahier_line": 107,
+      "citation": "`U=2/3`",
+      "decimal_ecrit_dans_le_cahier": null,
+      "denominateur": 3,
+      "fraction_exacte": "2/3",
+      "numerateur": 2
+    },
+    "V": {
+      "cahier_line": 107,
+      "citation": "`V=13/16=0.8125`",
+      "decimal_ecrit_dans_le_cahier": 0.8125,
+      "denominateur": 16,
+      "fraction_exacte": "13/16",
+      "numerateur": 13
+    },
+    "exposition": {
+      "cahier_line": 107,
+      "citation": "exposition `3/4`",
+      "decimal_ecrit_dans_le_cahier": null,
+      "denominateur": 4,
+      "fraction_exacte": "3/4",
+      "numerateur": 3
+    },
+    "reussite_agregee_par_intention": {
+      "cahier_line": 107,
+      "citation": "réussite agrégée par intention `7/10`",
+      "decimal_ecrit_dans_le_cahier": null,
+      "denominateur": 10,
+      "fraction_exacte": "7/10",
+      "numerateur": 7
+    }
+  },
+  "role": "fixture-transcriber",
+  "series": {
+    "Q": {
+      "brut": {
+        "cahier_line": 107,
+        "citation": "`Q=[1, 1/2, 3/4, 1]`",
+        "valeur": "[1, 1/2, 3/4, 1]"
+      },
+      "valeurs": [
+        {
+          "cahier_line": 107,
+          "citation": "`Q=[1, 1/2, 3/4, 1]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 1,
+          "fraction_exacte": "1",
+          "numerateur": 1
+        },
+        {
+          "cahier_line": 107,
+          "citation": "`Q=[1, 1/2, 3/4, 1]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 2,
+          "fraction_exacte": "1/2",
+          "numerateur": 1
+        },
+        {
+          "cahier_line": 107,
+          "citation": "`Q=[1, 1/2, 3/4, 1]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 4,
+          "fraction_exacte": "3/4",
+          "numerateur": 3
+        },
+        {
+          "cahier_line": 107,
+          "citation": "`Q=[1, 1/2, 3/4, 1]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 1,
+          "fraction_exacte": "1",
+          "numerateur": 1
+        }
+      ]
+    },
+    "R": {
+      "brut": {
+        "cahier_line": 107,
+        "citation": "`R=[1, 1/2, null, 1/2]`",
+        "valeur": "[1, 1/2, null, 1/2]"
+      },
+      "null_en_P3": {
+        "cahier_line": 107,
+        "citation": "null",
+        "valeur": true
+      },
+      "valeurs": [
+        {
+          "cahier_line": 107,
+          "citation": "`R=[1, 1/2, null, 1/2]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 1,
+          "fraction_exacte": "1",
+          "numerateur": 1
+        },
+        {
+          "cahier_line": 107,
+          "citation": "`R=[1, 1/2, null, 1/2]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 2,
+          "fraction_exacte": "1/2",
+          "numerateur": 1
+        },
+        null,
+        {
+          "cahier_line": 107,
+          "citation": "`R=[1, 1/2, null, 1/2]`",
+          "decimal_ecrit_dans_le_cahier": null,
+          "denominateur": 2,
+          "fraction_exacte": "1/2",
+          "numerateur": 1
+        }
+      ]
+    },
+    "intentions_offertes": {
+      "cahier_line": 107,
+      "citation": "intentions offertes `[4,4,0,2]`",
+      "valeur": [
+        4,
+        4,
+        0,
+        2
+      ]
+    },
+    "intentions_reussies": {
+      "cahier_line": 107,
+      "citation": "réussies `[4,2,0,1]`",
+      "valeur": [
+        4,
+        2,
+        0,
+        1
+      ]
+    }
+  },
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "lignes": [
+      107,
+      109,
+      111
+    ],
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "transcripteur": "A",
+  "verbatim": {
+    "107": "`F-QUALITY`. Quatre périodes de même durée avec `Q=[1, 1/2, 3/4, 1]` donnent `V=13/16=0.8125`. `R=[1, 1/2, null, 1/2]`, intentions offertes `[4,4,0,2]` et réussies `[4,2,0,1]` donnent `U=2/3`, exposition `3/4` et réussite agrégée par intention `7/10`. Ces trois derniers nombres sont différents et doivent rester identifiés.",
+    "109": "Entrées exactes de Q : P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violée et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites. Toutes les exigences citées sont dues à la période concernée. Le test négatif ajoute une exigence révélée mais non encore due : son poids ne doit pas entrer dans Q avant son échéance.",
+    "111": "Convention : R vaut `null` lorsqu’aucune intention admissible n’est proposée. U est la moyenne temporelle sur les périodes exposées, avec l’exposition publiée. Une campagne confirmatoire exige une exposition prédéfinie non nulle ; une trajectoire indisponible face à des intentions prévues a R=0, jamais `null`. Q est `null` si aucun poids d’exigence active due ; le préflight interdit ce cas dans une période confirmatoire mesurée. Les séries de simple préparation restent marquées hors mesure."
+  }
+}

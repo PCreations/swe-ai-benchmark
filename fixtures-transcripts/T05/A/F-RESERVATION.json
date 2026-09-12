@@ -1,0 +1,250 @@
+{
+  "acteurs": {
+    "cahier_line": 119,
+    "citation": "Acteurs A, B et C",
+    "valeur": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  "ambiguites": [],
+  "controle_arithmetique": {
+    "but": "coherence des horloges ENONCEES",
+    "concorde": true,
+    "detail": "Debut du creneau S1 = 2030-01-03T12:00:00Z. Frontiere des 24 h = 2030-01-02T12:00:00Z, exactement l'instant ou B peut encore annuler (frontiere incluse). 1 milliseconde plus tard, 2030-01-02T12:00:00.001Z, le refus metier s'applique."
+  },
+  "creneau": {
+    "capacite": {
+      "cahier_line": 119,
+      "citation": "Créneau S1 de capacité 1",
+      "valeur": 1
+    },
+    "debut": {
+      "cahier_line": 119,
+      "citation": "débutant `2030-01-03T12:00:00Z`",
+      "valeur": "2030-01-03T12:00:00Z"
+    },
+    "id": {
+      "cahier_line": 119,
+      "citation": "Créneau S1",
+      "valeur": "S1"
+    }
+  },
+  "etage": "FIXTURES",
+  "fixture": "F-RESERVATION",
+  "horloge_initiale": {
+    "cahier_line": 119,
+    "citation": "Horloge initiale `2030-01-01T00:00:00Z`",
+    "valeur": "2030-01-01T00:00:00Z"
+  },
+  "horloges_principales": {
+    "P1": {
+      "cahier_line": 125,
+      "citation": "P1 commence le 1er janvier 2030 à 00:00 UTC",
+      "valeur": "2030-01-01T00:00:00Z"
+    },
+    "P2": {
+      "cahier_line": 125,
+      "citation": "P2 à 01:00",
+      "valeur": "2030-01-01T01:00:00Z"
+    },
+    "P3": {
+      "cahier_line": 125,
+      "citation": "P3 le 2 janvier à 11:00",
+      "valeur": "2030-01-02T11:00:00Z"
+    },
+    "P4": {
+      "cahier_line": 125,
+      "citation": "P4 à 13:00",
+      "valeur": "2030-01-02T13:00:00Z"
+    },
+    "avertissement": {
+      "cahier_line": 125,
+      "citation": "les résultats ne les présentent pas comme quatre mois réels",
+      "valeur": "Les instants synthetiques accelerent les periodes ; les resultats ne les presentent pas comme quatre mois reels."
+    },
+    "note_dates": "Les dates de P2 et P4 sont portees par l'enumeration : P2 herite du 1er janvier donne pour P1, P4 herite du 2 janvier donne pour P3. Le cahier ne repete pas la date.",
+    "probes_P3": {
+      "cahier_line": 125,
+      "citation": "Les probes privées P3 utilisent leurs heures propres et sont jetées",
+      "valeur": "Les probes privees P3 utilisent leurs heures propres et sont jetees."
+    }
+  },
+  "locataire_initial": {
+    "cahier_line": 119,
+    "citation": "locataire initial `legacy`",
+    "valeur": "legacy"
+  },
+  "methode": "transcription depuis la source (docs/cahier.md section F) ; aucune valeur calculee par une implementation, aucun cas d'acceptation ni test consulte",
+  "notes": [
+    "Les horloges principales (ligne 125) et les instants des probes P3 (ligne 119) sont deux jeux distincts : les probes ont 'leurs heures propres'.",
+    "Le cahier ne precise pas le nombre de reservations existantes migrees vers legacy en P4."
+  ],
+  "phases": {
+    "P1": {
+      "attendus": [
+        {
+          "cahier_line": 119,
+          "citation": "réservation de A acceptée",
+          "valeur": "reservation de A acceptee"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "rejeu de sa clé idempotente sans doublon",
+          "valeur": "rejeu de la cle idempotente de A : aucun doublon"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "demande concurrente de B rejetée sans surbooking",
+          "valeur": "demande concurrente de B rejetee, sans surbooking"
+        }
+      ],
+      "horloge": "2030-01-01T00:00:00Z"
+    },
+    "P2": {
+      "attendus": [
+        {
+          "cahier_line": 119,
+          "citation": "B puis C en attente",
+          "valeur": "B puis C en attente (dans cet ordre)"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "annulation de A",
+          "valeur": "annulation de A"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "B devient confirmé",
+          "valeur": "B devient confirme"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "C reste premier en attente",
+          "valeur": "C reste premier en attente"
+        }
+      ],
+      "horloge": "2030-01-01T01:00:00Z"
+    },
+    "P3": {
+      "clones": {
+        "cahier_line": 119,
+        "citation": "Sur deux clones du même état",
+        "valeur": "deux clones du meme etat"
+      },
+      "horloge": "2030-01-02T11:00:00Z",
+      "jetables": {
+        "cahier_line": 123,
+        "citation": "les probes de frontière P3 sont des clones jetables",
+        "valeur": "Les probes de frontiere P3 sont des clones jetables ; elles ne modifient pas l'etat persistant principal."
+      },
+      "probes": [
+        {
+          "attendu": "annulation de B acceptee",
+          "consequence": {
+            "cahier_line": 123,
+            "citation": "Sur le clone où B annule exactement à 24 h, C devient confirmé",
+            "valeur": "sur ce clone, C devient confirme"
+          },
+          "id": "clone-frontiere-incluse",
+          "instant": {
+            "cahier_line": 119,
+            "citation": "B peut annuler exactement le `2030-01-02T12:00:00Z`",
+            "valeur": "2030-01-02T12:00:00Z"
+          }
+        },
+        {
+          "attendu": {
+            "cahier_line": 119,
+            "citation": "reçoit un refus métier",
+            "valeur": "refus metier"
+          },
+          "id": "clone-frontiere-depassee",
+          "instant": {
+            "cahier_line": 119,
+            "citation": "à `12:00:00.001Z`",
+            "valeur": "2030-01-02T12:00:00.001Z"
+          },
+          "note_date": "Le cahier ecrit '12:00:00.001Z' sans repeter la date ; elle est celle de l'instant precedent de la meme phrase, 2030-01-02."
+        }
+      ],
+      "regle": {
+        "cahier_line": 119,
+        "citation": "règle d’annulation au moins 24 heures avant le début, frontière incluse",
+        "valeur": "annulation permise au moins 24 heures avant le debut, frontiere INCLUSE"
+      }
+    },
+    "P4": {
+      "attendus": [
+        {
+          "cahier_line": 119,
+          "citation": "données existantes migrées vers `legacy`",
+          "valeur": "donnees existantes migrees vers le locataire legacy"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "création d’un locataire `other`",
+          "valeur": "creation d'un locataire other"
+        },
+        {
+          "cahier_line": 119,
+          "citation": "ses acteurs ne peuvent ni lire ni modifier les réservations `legacy`",
+          "valeur": "les acteurs de other ne peuvent NI lire NI modifier les reservations legacy"
+        },
+        {
+          "cahier_line": 123,
+          "citation": "renvoie `NOT_FOUND` sans donnée métier divulguée",
+          "valeur": "le contrat intertenant renvoie NOT_FOUND, sans donnee metier divulguee"
+        }
+      ],
+      "etat_principal_a_l_entree": {
+        "cahier_line": 123,
+        "citation": "celui-ci conserve A annulé, B confirmé et C en attente",
+        "valeur": {
+          "A": "annule",
+          "B": "confirme",
+          "C": "en attente"
+        }
+      },
+      "horloge": "2030-01-02T13:00:00Z"
+    }
+  },
+  "regles": [
+    {
+      "cahier_line": 123,
+      "citation": "FIFO est ordonné par séquence d’admission explicite, pas par égalité possible de timestamps",
+      "valeur": "FIFO est ordonne par sequence d'admission explicite, pas par egalite possible de timestamps."
+    },
+    {
+      "cahier_line": 119,
+      "citation": "Évaluer l’état métier exporté, pas un nom de table imposé",
+      "valeur": "Evaluer l'etat metier EXPORTE, pas un nom de table impose."
+    }
+  ],
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "lignes": [
+      119,
+      123,
+      125
+    ],
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "transcripteur": "A",
+  "verbatim": {
+    "119": "`F-RESERVATION`. Horloge initiale `2030-01-01T00:00:00Z`. Acteurs A, B et C ; locataire initial `legacy`. Créneau S1 de capacité 1 débutant `2030-01-03T12:00:00Z`. P1 : réservation de A acceptée, rejeu de sa clé idempotente sans doublon, demande concurrente de B rejetée sans surbooking. P2 : B puis C en attente ; annulation de A ; B devient confirmé, C reste premier en attente. P3 : règle d’annulation au moins 24 heures avant le début, frontière incluse. Sur deux clones du même état, B peut annuler exactement le `2030-01-02T12:00:00Z`, et reçoit un refus métier à `12:00:00.001Z`. P4 : données existantes migrées vers `legacy`, création d’un locataire `other` ; ses acteurs ne peuvent ni lire ni modifier les réservations `legacy`. Évaluer l’état métier exporté, pas un nom de table imposé.",
+    "123": "Dans F-RESERVATION, les probes de frontière P3 sont des clones jetables ; elles ne modifient pas l’état persistant principal. À l’entrée de P4, celui-ci conserve A annulé, B confirmé et C en attente. Sur le clone où B annule exactement à 24 h, C devient confirmé. FIFO est ordonné par séquence d’admission explicite, pas par égalité possible de timestamps. Le contrat intertenant de la fixture renvoie `NOT_FOUND` sans donnée métier divulguée.",
+    "125": "Horloges principales de F-RESERVATION : P1 commence le 1er janvier 2030 à 00:00 UTC, P2 à 01:00, P3 le 2 janvier à 11:00, P4 à 13:00. Les probes privées P3 utilisent leurs heures propres et sont jetées. Les instants synthétiques accélèrent ici les périodes ; les résultats ne les présentent pas comme quatre mois réels."
+  }
+}

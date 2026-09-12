@@ -1,0 +1,493 @@
+{
+  "schema": "bench.fixture.comparaison/2",
+  "tache": "T05",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "verdict": "FIXTURES_CONCORDANTES",
+  "scelle": true,
+  "scellement": {
+    "ecrit_a_cet_etage": false,
+    "racine": "acceptance/reference",
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_du_scellement": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "commit_du_gel": "83bfefd7f2f0beaecf1364b38fe105464a3375ab",
+    "pourquoi_aucune_ecriture": "la racine etait deja gelee et porte exactement la transcription commune de A et B ; la reecrire aurait deplace le tree oid et invalide les attestations, sans divergence a corriger. Le gel est CONFIRME par une double transcription supplementaire, pas reconduit de confiance."
+  },
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "methode": "comparaison VALEUR PAR VALEUR, pas fichier par fichier : A encode les rationnels {num,den} et cite le cahier en prose, B encode des chaines « 5/6 » plus un decimal et part des consommateurs. Trois controles mecaniques ont ete executes : (1) diff des multi-ensembles de nombres A contre B, fixture par fixture ; (2) recherche des nombres et instants de la racine absents des DEUX transcriptions ; (3) table explicite de 92 valeurs materielles du §F verifiee simultanement dans la racine scellee, dans A et dans B.",
+  "nombre_de_fixtures": 10,
+  "nombre_scelle": 10,
+  "divergences_de_valeur": [],
+  "ecarts_d_encodage_expliques": [
+    {
+      "fixture": "F-CLUSTERS",
+      "champ": "lignes_totales",
+      "A": "« onze lignes » (en toutes lettres, citation de la l.115)",
+      "B": "11 (entier)",
+      "racine": "11",
+      "verdict": "meme valeur ; le cahier ecrit « onze »"
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "champ": "moyenne des ratios",
+      "A": "0.7 (decimal, comme la l.113)",
+      "B": "7/10 + decimal 0.7",
+      "racine": "rationnel 7/10 et decimal_exact 0.7",
+      "verdict": "meme valeur"
+    },
+    {
+      "fixture": "F-POWER",
+      "champ": "bornes",
+      "A": "inf et sup, egales (distributions ponctuelles)",
+      "B": "valeur unique par campagne",
+      "racine": "valeur unique, avec la justification du cahier",
+      "verdict": "meme valeur ; A explicite ce que le cahier justifie"
+    },
+    {
+      "fixture": "F-BUDGET",
+      "champ": "nombre de demandes concurrentes",
+      "A": "« deux reservations concurrentes de 600 » (prose)",
+      "B": "acceptees_max=1 + enonce",
+      "racine": "nombre_de_demandes_concurrentes=2, acceptees_au_plus=1",
+      "verdict": "meme valeur"
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "champ": "delai d’annulation",
+      "A": "« au moins 24 heures » (prose)",
+      "B": "« 24 h » (prose)",
+      "racine": "delai_heures=24",
+      "verdict": "meme valeur, ecrite l.119"
+    }
+  ],
+  "couverture_hors_F_signalee_par_les_deux": [
+    {
+      "sujet": "golden-six (2720, 16320, 48, 24, 6)",
+      "lignes": [
+        491,
+        493
+      ],
+      "A": "signale en hors_perimetre_signale, non materialise",
+      "B": "reporte en derives_enonces_par_les_consommateurs, non materialise",
+      "racine": "absent : §F n'enumere que 10 fixtures, et `grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md | sort -u` en rend exactement 10"
+    },
+    {
+      "sujet": "puissance 0,5 et erreur standard 0,25 de F-POWER",
+      "lignes": [
+        463
+      ],
+      "A": "non ecrit",
+      "B": "reporte comme enonce par T35.A1, hors §F",
+      "racine": "absent : non_fixe_par_le_cahier dit « la ligne 127 n'en enonce aucune »"
+    }
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets": [
+        "F-QUALITY : le poids est fixe a l’introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4. Les DEUX transcriptions l’appliquent a cet etage (la divergence DIV-3 est eteinte).",
+        "F-FAILURE : unite des couts NON SPECIFIEE (DIV-1). B ne l’attribue plus a la l.121.",
+        "F-REGRESSION : nombre attendu = 1 (DIV-2). B l’ecrit desormais."
+      ]
+    }
+  ],
+  "ambiguites": {
+    "total": 42,
+    "par_transcripteur": {
+      "A": 4,
+      "B": 38
+    },
+    "bloquantes": 0,
+    "critere": "une ambiguite bloque si et seulement si elle porte sur une VALEUR MATERIALISEE dans acceptance/reference. Aucune des relevees ne le fait : chacune vise un parametre que ni A, ni B, ni la racine n'inscrivent, ou une lecture qui laisse la valeur inscrite inchangee.",
+    "detail": [
+      {
+        "fixture": "F-MONEY",
+        "releve_par": "B",
+        "id": "AMB-MONEY-1",
+        "sujet": "Perimetre : 2720 / 16320 / 48 appartiennent-ils a F-MONEY ou a une fixture golden-six distincte ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "perimetre golden-six : 2720/16320/48 sont en §H (l.491,493), pas en §F. A et B le constatent tous deux ; la racine ne les porte pas et n'a que 10 fixtures, conformement aux 10 noms F-* du cahier."
+      },
+      {
+        "fixture": "F-MONEY",
+        "releve_par": "B",
+        "id": "AMB-MONEY-2",
+        "sujet": "Le cahier n'enonce pas de nombre de tokens pour les appels de golden-six ; il donne seulement le cout par trajectoire (2720).",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "tokens des appels golden-six : hors §F, aucune valeur materialisee."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "releve_par": "A",
+        "id": "A-F-BUDGET-1",
+        "sujet": "SC3 : decomposition de l'etat pendant la reservation ambigue",
+        "bloquante": false,
+        "pourquoi_non_bloquante": "la valeur visee n'est pas materialisee dans la racine ; A l'inscrit lui-meme comme non tranchee (Seul available=400 est materialise comme valeur assertable. spent/reserved de SC3 sont laisses indetermines.)"
+      },
+      {
+        "fixture": "F-BUDGET",
+        "releve_par": "A",
+        "id": "A-F-BUDGET-2",
+        "sujet": "Definition de 'reservation ambigue'",
+        "bloquante": false,
+        "pourquoi_non_bloquante": "la valeur visee n'est pas materialisee dans la racine ; A l'inscrit lui-meme comme non tranchee (Aucune correspondance vers un enum n'est inscrite dans la fixture.)"
+      },
+      {
+        "fixture": "F-BUDGET",
+        "releve_par": "B",
+        "id": "AMB-BUDGET-1",
+        "sujet": "Dans le sous-cas 3, ou sont comptabilises les 600 ambigus ? Le cahier n'enonce QUE available=400.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "ventilation spent/reserved du sous-cas ambigu : non materialisee (racine, non_fixe_par_le_cahier) ; seul available=400 l'est, et A comme B l'ecrivent."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "releve_par": "B",
+        "id": "AMB-BUDGET-2",
+        "sujet": "Quel est le montant initialement reserve par la reservation acceptee, avant son reglement a 340 ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "montant reserve avant reglement : non materialise ; seul l'etat apres reglement l'est."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "releve_par": "B",
+        "id": "AMB-BUDGET-3",
+        "sujet": "Aucun code d'erreur n'est nomme pour le refus de 661 ni pour la perdante des deux reservations concurrentes de 600.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "code de refus de 661 : non materialise (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "releve_par": "B",
+        "id": "AMB-BUDGET-4",
+        "sujet": "L'unite de 1000/600/340/661 n'est pas ecrite en §F.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "unite des montants : non materialisee (racine, non_fixe_par_le_cahier) ; B l'attribue lui-meme hors §F."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "releve_par": "A",
+        "id": "A-F-QUALITY-1",
+        "sujet": "Test negatif de Q : exigence revelee mais non encore due",
+        "bloquante": false,
+        "pourquoi_non_bloquante": "la valeur visee n'est pas materialisee dans la racine ; A l'inscrit lui-meme comme non tranchee (Aucun id/poids/periode n'est invente. Seule la regle est materialisee.)"
+      },
+      {
+        "fixture": "F-QUALITY",
+        "releve_par": "B",
+        "id": "AMB-QUALITY-1",
+        "sujet": "T08.A2 parle des « quatre usages de F-QUALITY » ; §F ne donne que des COMPTES d'intentions ([4,4,0,2]), jamais l'identite de ces usages.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "identite des quatre usages : non materialisee ; seuls les cardinaux [4,4,0,2] le sont, identiques chez A et B."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "releve_par": "B",
+        "id": "AMB-QUALITY-2",
+        "sujet": "Le test negatif d'echeance (l.109) ne nomme ni l'id, ni la version, ni le poids, ni l'echeance de l'exigence revelee non encore due.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "parametres de l'exigence du test negatif : materialises a null dans la racine, explicitement « non fixe par le cahier ». Relevee aussi par A."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "releve_par": "B",
+        "id": "AMB-QUALITY-3",
+        "sujet": "T04.A5 exige « panne avec quatre usages donne R=0 » ; F-QUALITY n'a aucune periode a R=0 (P3 a 0 usage et R=null).",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "variante R=0 : appartient au cas T04.A5, pas a §F ; aucune cinquieme periode materialisee."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "releve_par": "B",
+        "id": "AMB-QUALITY-4",
+        "sujet": "L'exposition 3/4 est-elle une fraction de PERIODES exposees ou une fraction de DUREE exposee ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "exposition en periodes ou en duree : les quatre periodes sont de meme duree, la valeur materialisee 3/4 est la meme sous les deux lectures."
+      },
+      {
+        "fixture": "F-COST-RATIO",
+        "releve_par": "B",
+        "id": "AMB-COSTRATIO-1",
+        "sujet": "L'unite des couts 10/90/20/100 n'est pas enoncee.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "unite des couts : non materialisee (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-COST-RATIO",
+        "releve_par": "B",
+        "id": "AMB-COSTRATIO-2",
+        "sujet": "Le cahier n'enonce pas de decimale pour 5/6 ; T36.A2 exige un affichage « avec arrondi annonce » sans dire lequel.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "arrondi d'affichage de 5/6 : la racine porte le rationnel et decimal_exact=null ; aucun arrondi materialise."
+      },
+      {
+        "fixture": "F-COST-RATIO",
+        "releve_par": "B",
+        "id": "AMB-COSTRATIO-3",
+        "sujet": "Chaque projet porte-t-il une seule repetition ici, ou [10,90] designe-t-il deux repetitions d'un meme projet ?",
+        "bloquante": false,
+        "statut_chez_B": "consignee resolue par B",
+        "pourquoi_non_bloquante": "consignee RESOLUE par B lui-meme (corroboree par l.115) ; A ecrit la meme lecture."
+      },
+      {
+        "fixture": "F-CLUSTERS",
+        "releve_par": "B",
+        "id": "AMB-CLUSTERS-1",
+        "sujet": "L'invariance par duplication est enoncee pour l'ESTIMATION PONCTUELLE seulement ; rien n'est dit de l'intervalle.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "invariance de l'intervalle : non materialisee ; la racine ne porte que l'estimation ponctuelle, comme la l.115."
+      },
+      {
+        "fixture": "F-CLUSTERS",
+        "releve_par": "B",
+        "id": "AMB-CLUSTERS-2",
+        "sujet": "La valeur du pooling naif (le resultat explicitement incorrect) n'est pas donnee, contrairement a F-COST-RATIO ou 0,7 est ecrit.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "valeur du pooling naif : non materialisee (racine, non_fixe_par_le_cahier) ; le cahier ne la donne pas."
+      },
+      {
+        "fixture": "F-BOOTSTRAP",
+        "releve_par": "B",
+        "id": "AMB-BOOTSTRAP-1",
+        "sujet": "La convention « quantile empirique inverse » est NOMMEE mais sa formule d'indice n'est pas ecrite.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "formule d'indice du quantile : non materialisee ; la racine porte le nom de la convention et les bornes enoncees."
+      },
+      {
+        "fixture": "F-BOOTSTRAP",
+        "releve_par": "B",
+        "id": "AMB-BOOTSTRAP-2",
+        "sujet": "« Sur les deux projets precedents » : ceux de F-COST-RATIO (1 repetition chacun) ou ceux de F-CLUSTERS (10 et 1 repetitions) ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "origine des deux projets : A et B nomment tous deux P1/P2 de la l.115, et les quatre ratios sont inchanges sous les deux lectures."
+      },
+      {
+        "fixture": "F-BOOTSTRAP",
+        "releve_par": "B",
+        "id": "AMB-BOOTSTRAP-3",
+        "sujet": "T33.A3 (x7) et T33.A4 (A=B) sont des fixtures DERIVEES dont §F ne donne pas les valeurs attendues.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "variantes x7 et A=B : appartiennent a T33, pas a §F ; non materialisees."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "releve_par": "B",
+        "id": "AMB-RESERVATION-1",
+        "sujet": "T09.A3 exige que la migration P4 preserve 100 RESERVATIONS ; §F ne decrit qu'un creneau S1 de capacite 1 et trois acteurs A/B/C.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "100 reservations : chiffre de T09/T21, hors §F ; aucun volume materialise (racine, ambiguites_reportees)."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "releve_par": "B",
+        "id": "AMB-RESERVATION-2",
+        "sujet": "En P1 la demande de B est REJETEE ; en P2 B est EN ATTENTE. Le cahier n'explique pas ce qui differencie les deux traitements de la meme demande.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "traitement de B en P1 contre P2 : la racine transcrit les deux faits tels quels (« rejetee » en P1, « B puis C en attente » en P2) sans materialiser l'etat de file entre les deux. A et B transcrivent identiquement."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "releve_par": "B",
+        "id": "AMB-RESERVATION-3",
+        "sujet": "Aucun code metier n'est nomme pour le refus d'annulation hors frontiere (l.119 dit seulement « refus metier ») ni pour le conflit d'idempotence de T07.A6.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "codes de refus autres que NOT_FOUND : non materialises ; seul NOT_FOUND est enonce par la l.123 et il est materialise."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "releve_par": "B",
+        "id": "AMB-RESERVATION-4",
+        "sujet": "Les cles idempotentes, les identifiants de reservation et la sequence d'admission explicite ne sont pas nommes.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "cles idempotentes et identifiants : non materialises (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "releve_par": "B",
+        "id": "AMB-RESERVATION-5",
+        "sujet": "Le locataire `other` possede-t-il ses propres reservations, et sur quel creneau ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "donnees propres de `other` : non materialisees."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "releve_par": "B",
+        "id": "AMB-RESERVATION-6",
+        "sujet": "A l'horloge P4 (2030-01-02T13:00:00Z) la frontiere des 24 h est deja franchie ; l'etat principal n'y subit donc aucune annulation, mais le cahier ne dit pas si une tentative y est evaluee.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "tentative d'annulation en P4 : non materialisee ; la racine ne fige que l'etat d'entree de P4, comme la l.123."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "releve_par": "A",
+        "id": "A-F-FAILURE-1",
+        "sujet": "Jeu concret d'exigences et d'usages",
+        "bloquante": false,
+        "pourquoi_non_bloquante": "la valeur visee n'est pas materialisee dans la racine ; A l'inscrit lui-meme comme non tranchee (Aucun jeu d'exigences ni volume d'intentions n'est invente. Seuls K=4, Q=0, R=0, les couts et le total sont materialises.)"
+      },
+      {
+        "fixture": "F-FAILURE",
+        "releve_par": "B",
+        "id": "AMB-FAILURE-1",
+        "sujet": "Q=0 et R=0 sont conditionnes a « si les exigences et usages y sont presents ». Le cahier ne dit pas si exigences et usages sont presents en P3 et P4 APRES l'arret de calcul.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "presence des exigences et usages en P3/P4 : la l.121 conditionne elle-meme Q=0 et R=0 (« si les exigences et usages y sont presents ») ; A et B materialisent la MEME serie conditionnee, et la racine porte la condition avec la serie."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "releve_par": "B",
+        "id": "AMB-FAILURE-2",
+        "sujet": "Lequel des trois etats d'arret de calcul (BUDGET_EXHAUSTED, RUNNER_BLOCKED, CANCELLED) s'applique apres P2 ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "etat d'arret apres P2 : non materialise (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "releve_par": "B",
+        "id": "AMB-FAILURE-3",
+        "sujet": "V et U de F-FAILURE ne sont pas enonces.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "V et U de F-FAILURE : non materialises ; ni A ni B ne les ecrivent, le cahier ne les enonce pas."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "releve_par": "B",
+        "id": "AMB-FAILURE-4",
+        "sujet": "Le nombre et l'identite des « demandes non servies » attendues a la cloture (T05.A6) ne sont pas donnes par §F.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "nombre de demandes non servies : appartient a T05.A6, hors §F ; non materialise."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "releve_par": "B",
+        "id": "AMB-FAILURE-5",
+        "sujet": "L'unite des couts [100,50,0,0] n'est pas enoncee en §F.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "unite des couts : tranchee sans arbitrage par SC-001 (DIV-1) ; la racine porte unite_des_couts=null, controle re-execute."
+      },
+      {
+        "fixture": "F-POWER",
+        "releve_par": "B",
+        "id": "AMB-POWER-1",
+        "sujet": "La marge utilisee par F-POWER n'est pas enoncee en §F ; 0,02 n'est donne qu'a titre d'EXEMPLE en T34 (l.437).",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "marge de decision : appartient a §H (l.437, « marges d'exemple ») ; non materialisee (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-POWER",
+        "releve_par": "B",
+        "id": "AMB-POWER-2",
+        "sujet": "Le nombre J de contrastes de F-POWER, donc la taille de famille 3J et le niveau marginal, ne sont pas enonces.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "nombre J de contrastes : non materialise ; sans effet sur des distributions ponctuelles."
+      },
+      {
+        "fixture": "F-POWER",
+        "releve_par": "B",
+        "id": "AMB-POWER-3",
+        "sujet": "Le nombre de repetitions par parent, le nombre de periodes et l'unite des couts (80/100) ne sont pas enonces.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "repetitions, periodes et unite : non materialisees (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-POWER",
+        "releve_par": "B",
+        "id": "AMB-POWER-4",
+        "sujet": "Les bornes sont donnees comme des nombres uniques (0,8 / 1 / 0,8 / 0,8) sans dire s'il s'agit des bornes superieures, inferieures, ou des deux (distribution ponctuelle).",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "bornes inferieure/superieure : le cahier justifie lui-meme la valeur unique (« distributions ponctuelles ») ; la racine porte la valeur enoncee et cette justification. A lit inf=sup, ce qui est la premiere lecture de B."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "releve_par": "B",
+        "id": "AMB-REGRESSION-1",
+        "sujet": "Le cahier ne donne AUCUNE serie G / G_new pour F-REGRESSION : seulement deux faits qualitatifs (cancel@1 exclu, isolation@1 compte).",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "series G/G_new : non materialisees ; la racine porte les deux verdicts et le compte 1, tous enonces."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "releve_par": "B",
+        "id": "AMB-REGRESSION-2",
+        "sujet": "L'etat de `cancel@2` en P3 et P4 n'est pas enonce.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "etat de cancel@2 : non materialise (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "releve_par": "B",
+        "id": "AMB-REGRESSION-3",
+        "sujet": "isolation@1 est-elle presente et satisfaite avant P3 (P1, P2) ?",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "presence d'isolation@1 avant P3 : non materialisee."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "releve_par": "B",
+        "id": "AMB-REGRESSION-4",
+        "sujet": "Le nombre de periodes de F-REGRESSION n'est pas enonce ; P2, P3 et P4 sont cites, P1 ne l'est pas.",
+        "bloquante": false,
+        "statut_chez_B": "non tranchee",
+        "pourquoi_non_bloquante": "nombre de periodes de F-REGRESSION : non materialise (racine, non_fixe_par_le_cahier)."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "releve_par": "B",
+        "id": "AMB-REGRESSION-5",
+        "sujet": "Les poids de cancel@1/cancel@2/isolation@1 ne sont pas donnes.",
+        "bloquante": false,
+        "statut_chez_B": "consignee resolue par B",
+        "pourquoi_non_bloquante": "consignee RESOLUE par B lui-meme : la l.129 compte par id/version, pas par poids."
+      }
+    ]
+  },
+  "transcriptions_archivees": {
+    "A": "fixtures-transcripts/T05/A/",
+    "B": "fixtures-transcripts/T05/B/"
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "ambiguites": [],
+  "base": {
+    "cahier_line": 117,
+    "reference_line": 115,
+    "valeur": "les deux projets precedents (P1 et P2 de F-CLUSTERS)"
+  },
+  "enonce": "Reechantillonnage force sur les deux projets de F-CLUSTERS ; quatre ratios et intervalle empirique.",
+  "etage": "FIXTURES",
+  "fixture": "F-BOOTSTRAP",
+  "intervalle": {
+    "borne_basse": {
+      "cahier_line": 117,
+      "valeur": {
+        "decimal": 0.5,
+        "decimal_fini": true,
+        "denominateur": 2,
+        "exact": "1/2",
+        "numerateur": 1
+      }
+    },
+    "borne_haute": {
+      "cahier_line": 117,
+      "valeur": {
+        "decimal": 0.9,
+        "decimal_fini": true,
+        "denominateur": 10,
+        "exact": "9/10",
+        "numerateur": 9
+      }
+    },
+    "convention": {
+      "cahier_line": 117,
+      "valeur": "quantile empirique inverse"
+    },
+    "litteral_cahier": {
+      "cahier_line": 117,
+      "valeur": "l'intervalle 2,5 %-97,5 % de cette liste est `[1/2,9/10]`"
+    },
+    "niveaux": {
+      "cahier_line": 117,
+      "valeur": [
+        "2,5 %",
+        "97,5 %"
+      ]
+    }
+  },
+  "lignes_source": {
+    "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  },
+  "liste_de_reechantillonnages_forcee": {
+    "cahier_line": 117,
+    "litteral_cahier": "`[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`",
+    "ordre": "l'ordre de la liste est celui du cahier et est conserve",
+    "valeur": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ]
+  },
+  "non_specifie_dans_F": [
+    {
+      "cahier_line": 117,
+      "point": "La definition operatoire du « quantile empirique inverse » n'est pas ecrite ; seul son resultat sur cette liste de quatre est donne."
+    },
+    {
+      "cahier_line": 117,
+      "point": "Le nombre de reechantillonnages n'est pas un parametre ici : la liste est forcee a quatre tirages."
+    }
+  ],
+  "portee": {
+    "cahier_line": 117,
+    "valeur": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  },
+  "provenance": "SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "ratios_cout_A_sur_B": {
+    "cahier_line": 117,
+    "correspondance": [
+      "[P1,P1]",
+      "[P1,P2]",
+      "[P2,P1]",
+      "[P2,P2]"
+    ],
+    "litteral_cahier": "`[1/2,5/6,5/6,9/10]`",
+    "valeur": [
+      {
+        "decimal": 0.5,
+        "decimal_fini": true,
+        "denominateur": 2,
+        "exact": "1/2",
+        "numerateur": 1
+      },
+      {
+        "decimal": null,
+        "decimal_fini": false,
+        "denominateur": 6,
+        "exact": "5/6",
+        "note": "developpement decimal non fini : toute ecriture decimale serait un arrondi, donc une fixture fausse",
+        "numerateur": 5
+      },
+      {
+        "decimal": null,
+        "decimal_fini": false,
+        "denominateur": 6,
+        "exact": "5/6",
+        "note": "developpement decimal non fini : toute ecriture decimale serait un arrondi, donc une fixture fausse",
+        "numerateur": 5
+      },
+      {
+        "decimal": 0.9,
+        "decimal_fini": true,
+        "denominateur": 10,
+        "exact": "9/10",
+        "numerateur": 9
+      }
+    ]
+  },
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription/1",
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "fixture_lignes": [
+      117
+    ],
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "transcripteur": "A"
+}

@@ -1,0 +1,246 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-FAILURE",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 121,
+      "verbatim": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "proof_kind": "behaviour",
+      "attend": "sans deploiement, la cloture d une periode produit les demandes non servies prevues par F-FAILURE",
+      "exige_de_la_fixture": "le NOMBRE d intentions offertes par periode",
+      "voir_ambiguite": "F-FAILURE.1"
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "proof_kind": "numeric",
+      "attend": "F-FAILURE conserve quatre resultats"
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "proof_kind": "numeric",
+      "attend": "F-FAILURE exporte quatre periodes et total 150"
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "proof_kind": "behaviour",
+      "attend": "F-FAILURE produit un echec produit dans une execution moteur terminee"
+    }
+  ],
+  "valeurs": {
+    "K": {
+      "valeur": 4,
+      "signification": "nombre de periodes",
+      "cahier_line": 121
+    },
+    "deploiement": {
+      "valeur": "aucun sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les exigences y sont presentes",
+      "cahier_line": 121
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les usages y sont presents",
+      "cahier_line": 121
+    },
+    "couts_par_periode": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "cahier_line": 121
+    },
+    "arret_de_calcul": {
+      "regle": "un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n y est ajoutee",
+      "cahier_line": 121
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null.",
+      "cahier_line": 111,
+      "portee": "c est ce qui distingue F-FAILURE (R=0) de la P3 de F-QUALITY (R=null)"
+    },
+    {
+      "regle": "Un echec conserve ses depenses, ses intentions non servies et son backlog.",
+      "cahier_line": 67,
+      "invariant": "D.5"
+    },
+    {
+      "regle": "Les etats d arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n effacent pas la periode de l analyse.",
+      "cahier_line": 97
+    },
+    {
+      "regle": "deployment_coverage vaut NO_DEPLOYMENT, PARTIAL ou ACCEPTED",
+      "cahier_line": 97,
+      "valeur_ici": "NO_DEPLOYMENT"
+    },
+    {
+      "regle": "Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide.",
+      "cahier_line": 28
+    },
+    {
+      "regle": "aucun filtre implicite de survivants et aucune valeur vide convertie en zero",
+      "cahier_line": 429
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "total des couts",
+      "valeur": "100 + 50 + 0 + 0 = 150",
+      "source_de_la_derivation": {
+        "cahier_line": 121
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "V sur cette fixture",
+      "valeur": "moyenne de [0,0,0,0] = 0",
+      "source_de_la_derivation": {
+        "cahier_line": 107,
+        "regle": "V est la moyenne temporelle de Q ; le cahier ne l ecrit pas pour F-FAILURE"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "U sur cette fixture",
+      "valeur": "moyenne de [0,0,0,0] sur les periodes exposees = 0 ; exposition = 1 (aucune periode n a R=null)",
+      "source_de_la_derivation": {
+        "cahier_line": 111
+      },
+      "normatif": false,
+      "reserve": "vrai seulement si les quatre periodes offrent des intentions — voir F-FAILURE.1"
+    },
+    {
+      "quoi": "coherence entre couts nuls en P3/P4 et arret apres P2",
+      "valeur": "les couts [100,50,0,0] sont compatibles avec un arret de calcul apres P2 : les periodes subsistent, sans facture ajoutee",
+      "source_de_la_derivation": {
+        "cahier_line": 121
+      },
+      "normatif": false,
+      "voir_ambiguite": "F-FAILURE.3"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-FAILURE.1",
+      "severite": "bloquante",
+      "question": "Le cahier conditionne Q=0 et R=0 a ce que « les exigences et usages y sont presents », sans dire LESQUELS : ni identifiants/poids d exigences, ni nombre d intentions offertes par periode.",
+      "lignes": [
+        121,
+        199
+      ],
+      "consommateur": "T05.A6",
+      "consequence": "T05.A6 exige « les demandes non servies PREVUES par F-FAILURE » : ce nombre n existe pas dans le cahier. Materialiser exige de l inventer, et il deviendrait assertable.",
+      "note": "le transcripteur ne tranche pas"
+    },
+    {
+      "id": "F-FAILURE.2",
+      "severite": "faible",
+      "question": "L unite des couts [100,50,0,0] n est pas donnee ; le total 150 est repris tel quel par T31.A1 (ligne 427) qui parle de montants.",
+      "lignes": [
+        121,
+        427
+      ],
+      "consequence": "vraisemblablement micro-USD par coherence avec la ligne 80, mais non ecrit"
+    },
+    {
+      "id": "F-FAILURE.3",
+      "severite": "faible",
+      "question": "« Un arret de calcul apres P2 » est-il le MEME scenario que celui portant [100,50,0,0], ou un sous-cas supplementaire ?",
+      "lignes": [
+        121
+      ],
+      "lectures": [
+        {
+          "forme": "un seul scenario",
+          "appui": "les couts nuls en P3/P4 s expliquent par l arret apres P2"
+        },
+        {
+          "forme": "deux scenarios",
+          "appui": "la phrase est introduite separement, apres l enonce du total 150"
+        }
+      ],
+      "consequence": "les quatre lignes et le total 150 tiennent dans les deux lectures"
+    },
+    {
+      "id": "F-FAILURE.4",
+      "severite": "faible",
+      "question": "L etat d arret exact n est pas nomme parmi BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED (ligne 97).",
+      "lignes": [
+        97,
+        121
+      ],
+      "consequence": "aucune sur les quatre lignes ni sur le total"
+    },
+    {
+      "id": "F-FAILURE.5",
+      "severite": "faible",
+      "question": "G (regressions ouvertes) n est pas donne pour F-FAILURE, alors que les exigences y sont violees en permanence.",
+      "lignes": [
+        121,
+        189
+      ],
+      "consequence": "G depend de l existence d une periode anterieure ou l exigence etait satisfaite (ligne 189) ; ici aucune ne l a jamais ete, donc rien n est deductible sans plus"
+    }
+  ]
+}

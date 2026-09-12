@@ -1,0 +1,290 @@
+{
+  "schema": "bench.fixture-transcript-comparison/1",
+  "etage": "FIXTURES",
+  "tache": "T08",
+  "role": "fixture-transcriber",
+  "objet": "Comparaison valeur par valeur des deux transcriptions independantes du §F, et confrontation a la racine acceptance/reference deja gelee.",
+  "cahier": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "controle": "sha256sum docs/cahier.md == docs/CAHIER_SHA256, reexecute a cet etage"
+  },
+  "transcriptions_comparees": {
+    "A": {
+      "origine": ".bench/fixtures/A",
+      "auto_declaree_tache": "T08",
+      "cadrage": "texte-d-abord : §F seule ; « SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes »",
+      "fixtures": 10,
+      "ambiguites_declarees": 8,
+      "controle_d_integrite": "les 10 empreintes sha256 auto-declarees dans A/INDEX.json ont ete recalculees : 10/10 conformes"
+    },
+    "B": {
+      "origine": ".bench/fixtures/B",
+      "auto_declaree_tache": "T08",
+      "cadrage": "consommateurs-d-abord : part des cas d'acceptation qui citent la fixture (§H), puis confronte au texte de §F ; perimetre F-* etabli par balayage du document",
+      "fixtures": 10,
+      "ambiguites_declarees": 36,
+      "note": "B declare 6 de ses 36 ambiguites « bloquantes » ; voir adjudication"
+    }
+  },
+  "stabilite": {
+    "pourquoi": "comparer un etat qui bouge ne prouverait rien ; un etage anterieur (T07) avait observe des reecritures en cours d'analyse",
+    "observe": "derniere ecriture des 22 fichiers a 08:04:43 UTC ; comparaison et archivage conduits a partir de 08:12 UTC, soit plus de 8 minutes sans ecriture",
+    "empreintes_sha256_archivees": {
+      "A/F-BOOTSTRAP.json": "4463ca8e5b4c0f9c503a896b4b96a3092c5a24fc2a6f04b5525e48d4a0bf2fa5",
+      "A/F-BUDGET.json": "5e873dda1e2405bd4f947539c7ef95d7a0ce424490eadead58266da76c8d2f4b",
+      "A/F-CLUSTERS.json": "7b1c123434af3b4c9d461e55f1f842faca82afe5d0b2b1712028f859b2bfadaa",
+      "A/F-COST-RATIO.json": "772d3b74953cd2b300715b35fed90c9071dbf993fd7c41a676361f8a370633c2",
+      "A/F-FAILURE.json": "17a944ab3a3bc068e791b538b4715978828efae29c475743307aa7a1bd2b7b21",
+      "A/F-MONEY.json": "a6e079a228fa38885a7d9fa5c1de50f89f26126987851fed2dbb346b27d241f9",
+      "A/F-POWER.json": "97aa864314e4319f82de2df0111da3efdb9a1b439d0937dee148f89954155996",
+      "A/F-QUALITY.json": "9c807c19c5d0be3d7fb221acf8c1a5dee4487e56e201f3e64066bc0f94b02120",
+      "A/F-REGRESSION.json": "dc4da56afb5d9bfcee99e74ee067c430bfa37707d9ad1b8661ba9ca826970678",
+      "A/F-RESERVATION.json": "409755aa51c17fbeb4dac1de88e313eb429170d343fdaea96c6f93c35baabcd7",
+      "A/INDEX.json": "11cf4d81d602af74c4a54c1a6660ab4130cca94cfd990b0c0f87ea4f14da8cda",
+      "B/F-BOOTSTRAP.json": "1f9cd26a6d3f746be586ddd66e02057c59cb59b7be7a51e3ab95c56971c988cb",
+      "B/F-BUDGET.json": "aca6db37742cf5d6a1df0216a1e265ed3c208079b6b34a471fc27103d3da32c7",
+      "B/F-CLUSTERS.json": "68c95324174b0ba63d3c955a6174d77e9b83cb46463f7c44e1cc31a4ac7bf366",
+      "B/F-COST-RATIO.json": "257cbc16eba6cfbf69ec1761db58208654449a81d548e0a2520d4f42b056712c",
+      "B/F-FAILURE.json": "fd0abf941cf2e8e1f40f2797a1947dc8cd67ac8c7fdea5850d4de76a37a37244",
+      "B/F-MONEY.json": "2973ebf96de799b29e6e86188e1388d00632a02dfc0c4fc2998dba13dd827582",
+      "B/F-POWER.json": "56dffa1a6cecd3ff71b35bee591677213b1ef6b44ca707d64f62744cb5bc6c7c",
+      "B/F-QUALITY.json": "f0b6ddcddadc6c9ee0f8fb8f8ffcd4ad89854f561f952189924ed35ad289b9dd",
+      "B/F-REGRESSION.json": "c693dfd23e51deeb3ea8cfe9e271438cd918f1f6994bf3c76a1988234d817e4f",
+      "B/F-RESERVATION.json": "9dc19f171548cfe1f6a5626d5e0c1fc4f856b0cc890a3ba9fd5af62ae27ea50e",
+      "B/INDEX.json": "5557a37aa75f6c44a49ad49ca1d9336d8e27b0b924e059421f2c600b5a0b5f08"
+    }
+  },
+  "resultat": "CONCORDANTES",
+  "divergences_de_valeur": 0,
+  "methode_de_comparaison": {
+    "principe": "comparaison par VALEUR, pas par fichier : A encode les rationnels en {numerateur,denominateur,exact,decimal}, B en {exact,decimal} ; un diff textuel n'aurait rien prouve",
+    "controles_executes": [
+      {
+        "objet": "76 faits canoniques du §F confrontes dans TROIS sources : A, B et acceptance/reference",
+        "commande": "normalisation en Fraction (rationnels, decimaux, virgule francaise, signe moins unicode) + instants ISO + identifiants id@version, puis appartenance aux trois sacs de scalaires ; pointeurs de ligne exclus",
+        "resultat": "76/76 presents dans les trois sources ; 0 manquant"
+      },
+      {
+        "objet": "difference symetrique des multiensembles de scalaires, fixture par fixture",
+        "commande": "A\\B et B\\A sur les tokens num:/ts:/id:",
+        "resultat": "aucune paire de valeurs contradictoires ; les ecarts residuels sont des citations de lignes hors §F et du bruit d'extraction, examines ci-dessous"
+      },
+      {
+        "objet": "gel de la racine",
+        "commande": "checkReferences() de verification/runner/references.mjs",
+        "resultat": "state=GELEE, files=10, worktree_diff=[], problems=0"
+      },
+      {
+        "objet": "integrite du gel, fichier par fichier",
+        "commande": "recalcul des 10 sha256, des 10 blob oids (git hash-object) et des tailles declarees dans docs/FROZEN_ROOTS.json",
+        "resultat": "10/10 conformes"
+      },
+      {
+        "objet": "tree oid de la racine",
+        "commande": "git rev-parse HEAD:acceptance/reference ; git write-tree --prefix=acceptance/reference ; champ tree_oid de FROZEN_ROOTS",
+        "resultat": "les trois valent f8d7adb6f569916b5176d0ebefe13f7aa10bdc91"
+      },
+      {
+        "objet": "SC-001 / DIV-1, unite des couts de F-FAILURE",
+        "commande": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+        "resultat": "0",
+        "conclusion": "la chaine n'est pas en l.121 (elle est en 80, 103, 493, 495). L'unite reste NON SPECIFIEE. B ne l'attribue plus a la l.121 : il l'inscrit desormais comme ambiguite faible « vraisemblablement micro-USD, mais non ecrit ». La divergence DIV-1 n'existe plus."
+      },
+      {
+        "objet": "SC-001 / DIV-2, nombre attendu de F-REGRESSION",
+        "commande": "sed -n '129p' docs/cahier.md",
+        "resultat": "« Une exigence `isolation@1` satisfaite en P3 puis violee en P4 en produit une. »",
+        "conclusion": "1 est une transcription, pas un calcul. La racine porte 1."
+      },
+      {
+        "objet": "SC-001 / DIV-3, poids de B@1 et C@1 en P3 et P4 de F-QUALITY",
+        "commande": "lecture des poids inscrits par A et par B",
+        "resultat": "A et B inscrivent tous deux B@1 poids 1 et C@1 poids 2 en P3 ; A@2 poids 1 et C@1 poids 2 en P4",
+        "conclusion": "la divergence qui avait refuse un scellement anterieur n'existe plus. La racine porte ces poids en les rattachant explicitement a SC-001 (regle_de_poids, cahier_line null), PAS a une deduction arithmetique : le fichier dit lui-meme que d'autres poids reproduiraient les memes Q."
+      }
+    ]
+  },
+  "ecarts_residuels_examines_un_a_un": [
+    {
+      "fixture": "F-MONEY",
+      "ecart": "A porte 2720 et 16320 ; B porte en plus 48, 140, 341",
+      "verdict": "HORS §F et les deux transcripteurs le disent. A les range sous `references_cahier_hors_F` avec l'avertissement « ces nombres appartiennent a la fixture golden-six de T38, pas a F-MONEY ». B les range sous `derive` avec `notes_de_perimetre` disant la meme chose. 341 est la corruption que T01.A6 doit DETECTER, citee comme telle, pas une valeur concurrente. La racine ne scelle aucun de ces nombres."
+    },
+    {
+      "fixture": "F-POWER",
+      "ecart": "B porte puissance 0,5 et erreur standard 0,25 ; A ne les porte pas",
+      "verdict": "HORS §F. Attribution verifiee : `sed -n '463p'` contient bien « puissance 0,5 et erreur standard 0,25 » — mais la l.463 est la §H (T35.A1), pas la §F. A le dit autrement (AMB-POWER-1 : « la regle de decision et ses seuils ne sont pas enonces en §F »). La racine : non_fixe, « la puissance et son erreur standard : la ligne 127 n'en enonce aucune »."
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "ecart": "B calcule 190/11 et 300/11 (moyenne poolee naive) ; A ne les chiffre pas",
+      "verdict": "PAS UNE VALEUR DU CAHIER, et B l'ecrit : « le cahier interdit ce calcul sans en donner les nombres ; ils ne sont ici qu'un repere de mutation », normatif=false. A dit la meme chose en prose. La racine ne les scelle pas."
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "ecart": "B porte 100 (les « 100 reservations » de T09.A3 et T21.A1, l.233 et l.341)",
+      "verdict": "HORS §F. La racine le recense deja en non_fixe : « aucun volume n'est materialise ici : §F n'en enonce pas. Le chiffre 100 appartient au jeu de donnees des taches T09/T21. » A signale le meme trou (AMB-RESERVATION-2)."
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "ecart": "B porte A@1, B@1, C@1, A@2",
+      "verdict": "CITATION : ils apparaissent dans son ambiguite F-REGRESSION.3, qui demande si F-REGRESSION partage les periodes de F-QUALITY. Aucune valeur de F-REGRESSION n'en depend."
+    },
+    {
+      "fixture": "toutes",
+      "ecart": "tokens 256, 8601, 105, 113, 115, 119, 123, 125, 189, 199, 215, 233, 295, 297, 341, 427, 437, 445, 451, 461, 463, 491 et les negatifs -1, -2, -600, -661",
+      "verdict": "BRUIT D'EXTRACTION : « sha256 » donne 256, « ISO 8601 » donne 8601, les identifiants de sous-cas (« SC3b-reservation-661-refusee », « AMB-POWER-2 ») donnent des negatifs, et le reste sont des pointeurs de ligne cites en prose. Aucun n'est une valeur assertee."
+    }
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "regle": "le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active",
+      "effets_constates": [
+        "F-QUALITY (DIV-3) : A et B ecrivent tous deux B@1 poids 1 et C@1 poids 2 en P3 et P4 ; la racine aussi, en citant SC-001 comme source et non le cahier",
+        "F-FAILURE (DIV-1) : unite des couts non specifiee ; le grep sur la l.121 a ete reexecute, 0 occurrence",
+        "F-REGRESSION (DIV-2) : nombre attendu = 1, transcription de « en produit une »"
+      ],
+      "entrees_spec_conflict_ouvertes": 0,
+      "note": "aucun arbitrage n'a ete invente a cet etage ; aucune entree resolue n'a ete etendue par analogie a un autre sujet. docs/spec-conflicts/ ne contient que SC-001, statut RESOLU : aucune entree OUVERT ne bloque l'etage."
+    }
+  ],
+  "ambiguites": {
+    "total_releve": 44,
+    "par_transcripteur": {
+      "A": 8,
+      "B": 36
+    },
+    "declarees_bloquantes_par_B": 6,
+    "bloquantes_apres_adjudication": 0,
+    "regle_appliquee": "une ambiguite ne bloque que si elle porte sur une valeur effectivement materialisee dans acceptance/reference. Une question portant sur un cas d'acceptation, ou sur un champ qu'aucune des deux transcriptions n'inscrit, se reporte : bloquer sur une ambiguite sans effet ferait de la prudence un arret permanent.",
+    "adjugees_une_a_une": [
+      {
+        "id": "F-BUDGET.2",
+        "transcripteur": "B",
+        "fixture": "F-BUDGET",
+        "severite_declaree": "bloquante",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "la ventilation des 600 entre spent et reserved pendant qu'une reservation ambigue n'est pas reconciliee ; la l.105 n'enonce que available=400",
+        "pourquoi": "ni A, ni B, ni la racine ne materialisent la ventilation. La racine l'inscrit en non_fixe_par_le_cahier : « la ventilation spent/reserved des sous-cas 3a et 4 : la ligne 105 n'y enonce que `available` ». Seuls budget=1000, depense_initiale=0, montant_reserve_ambigu=600 et available=400 sont sceles, tous ecrits l.105."
+      },
+      {
+        "id": "F-QUALITY.1",
+        "transcripteur": "B",
+        "fixture": "F-QUALITY",
+        "severite_declaree": "bloquante",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "le test negatif de la l.109 n'a ni identifiant, ni version, ni poids, ni periode de revelation, ni echeance",
+        "pourquoi": "porte sur un cas d'acceptation (T04.A6). A inscrit les cinq parametres a null, B n'en inscrit aucun, la racine les scelle a null avec la mention « non fixe par le cahier ». Seul l'invariant (« son poids ne doit pas entrer dans Q avant son echeance ») est scelle. Aucune valeur enoncee n'en depend : les deux transcripteurs ecrivent que Q et V sont inchanges."
+      },
+      {
+        "id": "F-RESERVATION.1",
+        "transcripteur": "B",
+        "fixture": "F-RESERVATION",
+        "severite_declaree": "bloquante",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "T09.A3 (l.233) et T21.A1 (l.341) exigent 100 reservations preservees par la migration P4, que la §F ne decrit nulle part",
+        "pourquoi": "porte sur des cas d'acceptation situes hors §F. Aucun volume n'est materialise par A, par B ni par la racine, qui l'inscrit en non_fixe. A signale le meme trou (AMB-RESERVATION-2). Fabriquer ces 100 reservations ici les rendrait assertables sans source : c'est precisement ce que le report evite."
+      },
+      {
+        "id": "F-RESERVATION.2",
+        "transcripteur": "B",
+        "fixture": "F-RESERVATION",
+        "severite_declaree": "bloquante",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "le rejet de la demande de B en P1 place-t-il deja B en file d'attente, ou B redemande-t-il en P2 ?",
+        "pourquoi": "les deux transcripteurs ecrivent que la question est sans effet sur l'etat : B « sans effet sur l'etat final (A annule, B confirme, C en attente) », A « aucun [impact] sur l'ordre resultant (« B puis C » est ecrit) ». La seule valeur scelee est l'ordre de file [B, C], ecrit l.119. La sequence d'admission explicite n'est inscrite par aucune des deux transcriptions ; la racine la porte en non_fixe."
+      },
+      {
+        "id": "F-FAILURE.1",
+        "transcripteur": "B",
+        "fixture": "F-FAILURE",
+        "severite_declaree": "bloquante",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "quelles exigences et quels usages sont « presents » ? ni identifiants, ni poids, ni nombre d'intentions par periode",
+        "pourquoi": "porte sur un cas d'acceptation (T05.A6). Aucun jeu d'exigences ni volume d'intentions n'est materialise par A, par B ni par la racine, qui l'inscrit en non_fixe. Q=0 et R=0 sont sceles tels qu'ecrits l.121, avec leur condition litterale « si les exigences et usages y sont presents »."
+      },
+      {
+        "id": "F-POWER.1",
+        "transcripteur": "B",
+        "fixture": "F-POWER",
+        "severite_declaree": "bloquante",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "F-POWER n'enonce aucune marge de non-inferiorite ; la seule valeur nommee, 0,02, est qualifiee de « marges d'exemple » (l.451, hors §F)",
+        "pourquoi": "aucune marge n'est materialisee par A, par B ni par la racine, qui l'inscrit en non_fixe : « la regle de decision et la marge qui transforment les bornes en [vrai,faux,faux,vrai] : elles appartiennent au §H, pas a la ligne 127 ». A dit la meme chose (AMB-POWER-1). Les entrees et les sorties enoncees l.127 sont scelees ; le critere ne l'est pas."
+      },
+      {
+        "id": "AMB-QUALITY-2",
+        "transcripteur": "A",
+        "fixture": "F-QUALITY",
+        "severite_declaree": "non chiffree",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "« exposition 3/4 » est-elle la part observee de periodes a R non nul, ou une exposition predefinie publiee ?",
+        "pourquoi": "A ecrit lui-meme que les deux lectures donnent 3/4 sur cette fixture. La valeur scelee est 3/4, ecrite l.107."
+      },
+      {
+        "id": "AMB-POWER-2",
+        "transcripteur": "A",
+        "fixture": "F-POWER",
+        "severite_declaree": "non chiffree",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "« les bornes » : une seule valeur par campagne est donnee alors qu'une borne suppose un couple",
+        "pourquoi": "les tirages parents etant exhaustifs et les deux parents portant les memes valeurs, la distribution est ponctuelle et inf=sup — B le derive explicitement. Les nombres 0,8 / 1 / -0,04 / -0,01 sont identiques des deux cotes ; seule la forme de l'objet differe."
+      },
+      {
+        "id": "AMB-FAILURE-1",
+        "transcripteur": "A",
+        "fixture": "F-FAILURE",
+        "severite_declaree": "non chiffree",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "les couts [100,50,0,0] sont-ils le cas nominal ou le sous-cas « arret apres P2 » ? le nombre de sous-cas n'est pas tranche",
+        "pourquoi": "A ecrit que « les valeurs 100/50/0/0 et 150 sont ecrites et ne changent pas ». B recense la meme question en faible (F-FAILURE.3) avec la meme conclusion : « les quatre lignes et le total 150 tiennent dans les deux lectures »."
+      },
+      {
+        "id": "AMB-REGRESSION-1",
+        "transcripteur": "A",
+        "fixture": "F-REGRESSION",
+        "severite_declaree": "non chiffree",
+        "verdict": "NON BLOQUANTE, reportee",
+        "question": "aucune valeur numerique de G ni de G_new n'est donnee en §F",
+        "pourquoi": "couvert par SC-001 (DIV-2) pour le nombre de regressions, qui vaut 1. G et G_new sont definis l.189, hors §F ; B les derive en normatif=false. La racine scelle 1 regression, pas un compteur G."
+      },
+      {
+        "id": "AMB-RESERVATION-1 / autres faibles",
+        "transcripteur": "A et B",
+        "fixture": "toutes",
+        "severite_declaree": "faible",
+        "verdict": "NON BLOQUANTES, reportees",
+        "pourquoi": "les 33 ambiguites restantes (unites non redites, codes d'erreur non nommes, cle idempotente litterale, facteur de duplication, convention d'interpolation du quantile, graine et repetitions, etat d'arret, duree des periodes) portent toutes sur des champs qu'aucune des deux transcriptions n'inscrit et que la racine recense deja en non_fixe_par_le_cahier."
+      }
+    ]
+  },
+  "racine_de_reference": {
+    "chemin": "acceptance/reference",
+    "etat": "DEJA GELEE au scellement T00 (commit cd23991), verifiee intacte a cet etage",
+    "tree_oid_HEAD": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "tree_oid_worktree": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "tree_oid_declare_dans_FROZEN_ROOTS": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "identiques": true,
+    "fixtures": 10,
+    "checkReferences": {
+      "state": "GELEE",
+      "files": 10,
+      "worktree_diff": [],
+      "problems": 0
+    },
+    "integrite_fichier_par_fichier": "10/10 sha256, blob oids et tailles conformes a docs/FROZEN_ROOTS.json",
+    "ecriture_effectuee_par_cet_etage": "AUCUNE",
+    "pourquoi": "les 76 faits canoniques du §F sont identiques dans A, dans B et dans la racine, et les 6 ambiguites que B declare bloquantes portent toutes sur des champs que la racine recense deja en non_fixe_par_le_cahier. Reecrire la racine aurait deplace le tree oid, invalide les 44 attestations et exige un SPEC_CONFLICT, sans aucune divergence a corriger. CLAUDE.md et verification/ownership.json (note « frozen ») l'interdisent. Le gel est ici CONFIRME par une troisieme double transcription independante, pas simplement reconduit."
+  },
+  "conclusion": "FIXTURES_CONCORDANTES — 10 fixtures, 0 divergence de valeur, 44 ambiguites relevees dont 0 bloquante apres adjudication, racine gelee inchangee et conforme (tree oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91)."
+}

@@ -1,0 +1,438 @@
+{
+  "V": {
+    "cahier_line": 107,
+    "commentaire": "valeur exacte ; 0.8125 est un decimal fini, donc exact",
+    "litteral_cahier": "V=13/16=0.8125",
+    "valeur": {
+      "decimal": 0.8125,
+      "decimal_fini": true,
+      "denominateur": 16,
+      "exact": "13/16",
+      "numerateur": 13
+    }
+  },
+  "ambiguites": [
+    {
+      "cahier_line": 109,
+      "id": "AMB-QUALITY-1",
+      "impact_sur_valeurs": "aucun sur Q=[1,1/2,3/4,1] ni sur V ; bloquant pour materialiser le cas negatif lui-meme",
+      "point": "Le « test negatif » de la ligne 109 n'a ni identifiant, ni version, ni poids, ni periode de revelation, ni echeance. Seule sa consequence est enoncee (son poids n'entre pas dans Q avant echeance). La fixture ne peut donc pas etre materialisee en valeurs sans trancher."
+    },
+    {
+      "cahier_line": 111,
+      "id": "AMB-QUALITY-2",
+      "impact_sur_valeurs": "aucun pour cette fixture : les deux lectures donnent 3/4 ici (une seule periode a R=null sur quatre)",
+      "point": "« exposition 3/4 » n'est pas defini comme la part observee de periodes a R non nul ou comme une exposition predefinie publiee ; la ligne 111 mentionne les deux notions (« periodes exposees » et « exposition predefinie non nulle ») sans dire laquelle produit le 3/4 de cette fixture."
+    }
+  ],
+  "conventions": [
+    {
+      "cahier_line": 111,
+      "valeur": "R vaut null lorsqu'aucune intention admissible n'est proposee."
+    },
+    {
+      "cahier_line": 111,
+      "valeur": "U est la moyenne temporelle sur les periodes exposees, avec l'exposition publiee."
+    },
+    {
+      "cahier_line": 111,
+      "valeur": "Une campagne confirmatoire exige une exposition predefinie non nulle."
+    },
+    {
+      "cahier_line": 111,
+      "valeur": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null."
+    },
+    {
+      "cahier_line": 111,
+      "valeur": "Q est null si aucun poids d'exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree."
+    },
+    {
+      "cahier_line": 111,
+      "valeur": "Les series de simple preparation restent marquees hors mesure."
+    }
+  ],
+  "enonce": "Quatre periodes de meme duree ; Q/V, R/U, exposition et reussite agregee par intention.",
+  "entrees_exactes_de_Q": {
+    "cahier_line": 109,
+    "periodes": [
+      {
+        "cahier_line": 109,
+        "exigences": [
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "A@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            }
+          },
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "B@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            }
+          }
+        ],
+        "periode": "P1"
+      },
+      {
+        "cahier_line": 109,
+        "changement": {
+          "cahier_line": 109,
+          "valeur": "ajoute C@1 de poids 2, non satisfaite ; A et B restent satisfaites"
+        },
+        "exigences": [
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "A@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            }
+          },
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "B@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            }
+          },
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "non satisfaite"
+            },
+            "id": "C@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 2
+            }
+          }
+        ],
+        "periode": "P2"
+      },
+      {
+        "cahier_line": 109,
+        "changement": {
+          "cahier_line": 109,
+          "valeur": "remplace A@1 par A@2 de poids 1 satisfaite ; B@1 est violee ; C@1 satisfaite"
+        },
+        "exigences": [
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "A@2",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            },
+            "remplace": {
+              "cahier_line": 109,
+              "valeur": "A@1"
+            }
+          },
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "violee"
+            },
+            "id": "B@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            }
+          },
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "C@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 2
+            }
+          }
+        ],
+        "periode": "P3"
+      },
+      {
+        "cahier_line": 109,
+        "changement": {
+          "cahier_line": 109,
+          "valeur": "retire B ; A@2 et C@1 restent satisfaites"
+        },
+        "exigences": [
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "A@2",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 1
+            }
+          },
+          {
+            "etat": {
+              "cahier_line": 109,
+              "valeur": "satisfaite"
+            },
+            "id": "C@1",
+            "poids": {
+              "cahier_line": 109,
+              "valeur": 2
+            }
+          }
+        ],
+        "periode": "P4"
+      }
+    ],
+    "test_negatif": {
+      "cahier_line": 109,
+      "echeance": null,
+      "enonce": {
+        "cahier_line": 109,
+        "valeur": "Le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance."
+      },
+      "identite_de_l_exigence": null,
+      "periode_de_revelation": null,
+      "poids": null
+    },
+    "toutes_dues": {
+      "cahier_line": 109,
+      "valeur": "Toutes les exigences citees sont dues a la periode concernee."
+    }
+  },
+  "etage": "FIXTURES",
+  "fixture": "F-QUALITY",
+  "intentions_offertes": {
+    "cahier_line": 107,
+    "par_periode": [
+      "P1",
+      "P2",
+      "P3",
+      "P4"
+    ],
+    "valeur": [
+      4,
+      4,
+      0,
+      2
+    ]
+  },
+  "intentions_reussies": {
+    "cahier_line": 107,
+    "par_periode": [
+      "P1",
+      "P2",
+      "P3",
+      "P4"
+    ],
+    "valeur": [
+      4,
+      2,
+      0,
+      1
+    ]
+  },
+  "lignes_source": {
+    "107": "`F-QUALITY`. Quatre périodes de même durée avec `Q=[1, 1/2, 3/4, 1]` donnent `V=13/16=0.8125`. `R=[1, 1/2, null, 1/2]`, intentions offertes `[4,4,0,2]` et réussies `[4,2,0,1]` donnent `U=2/3`, exposition `3/4` et réussite agrégée par intention `7/10`. Ces trois derniers nombres sont différents et doivent rester identifiés.",
+    "109": "Entrées exactes de Q : P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violée et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites. Toutes les exigences citées sont dues à la période concernée. Le test négatif ajoute une exigence révélée mais non encore due : son poids ne doit pas entrer dans Q avant son échéance.",
+    "111": "Convention : R vaut `null` lorsqu’aucune intention admissible n’est proposée. U est la moyenne temporelle sur les périodes exposées, avec l’exposition publiée. Une campagne confirmatoire exige une exposition prédéfinie non nulle ; une trajectoire indisponible face à des intentions prévues a R=0, jamais `null`. Q est `null` si aucun poids d’exigence active due ; le préflight interdit ce cas dans une période confirmatoire mesurée. Les séries de simple préparation restent marquées hors mesure."
+  },
+  "nombre_de_periodes": {
+    "cahier_line": 107,
+    "valeur": 4
+  },
+  "non_specifie_dans_F": [
+    {
+      "cahier_line": 107,
+      "point": "Les formules de Q, V, U ne sont pas ecrites en §F ; seules les valeurs resultantes et les entrees le sont."
+    },
+    {
+      "cahier_line": 107,
+      "point": "La duree commune des quatre periodes n'est pas chiffree ; seule l'egalite des durees est enoncee."
+    }
+  ],
+  "periodes_de_meme_duree": {
+    "cahier_line": 107,
+    "valeur": true
+  },
+  "provenance": "SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription/1",
+  "serie_Q": {
+    "litteral_cahier": {
+      "cahier_line": 107,
+      "valeur": "Q=[1, 1/2, 3/4, 1]"
+    },
+    "valeurs": [
+      {
+        "cahier_line": 107,
+        "periode": "P1",
+        "valeur": {
+          "decimal": 1.0,
+          "decimal_fini": true,
+          "denominateur": 1,
+          "exact": "1/1",
+          "numerateur": 1
+        }
+      },
+      {
+        "cahier_line": 107,
+        "periode": "P2",
+        "valeur": {
+          "decimal": 0.5,
+          "decimal_fini": true,
+          "denominateur": 2,
+          "exact": "1/2",
+          "numerateur": 1
+        }
+      },
+      {
+        "cahier_line": 107,
+        "periode": "P3",
+        "valeur": {
+          "decimal": 0.75,
+          "decimal_fini": true,
+          "denominateur": 4,
+          "exact": "3/4",
+          "numerateur": 3
+        }
+      },
+      {
+        "cahier_line": 107,
+        "periode": "P4",
+        "valeur": {
+          "decimal": 1.0,
+          "decimal_fini": true,
+          "denominateur": 1,
+          "exact": "1/1",
+          "numerateur": 1
+        }
+      }
+    ]
+  },
+  "serie_R": {
+    "litteral_cahier": {
+      "cahier_line": 107,
+      "valeur": "R=[1, 1/2, null, 1/2]"
+    },
+    "valeurs": [
+      {
+        "cahier_line": 107,
+        "periode": "P1",
+        "valeur": {
+          "decimal": 1.0,
+          "decimal_fini": true,
+          "denominateur": 1,
+          "exact": "1/1",
+          "numerateur": 1
+        }
+      },
+      {
+        "cahier_line": 107,
+        "periode": "P2",
+        "valeur": {
+          "decimal": 0.5,
+          "decimal_fini": true,
+          "denominateur": 2,
+          "exact": "1/2",
+          "numerateur": 1
+        }
+      },
+      {
+        "cahier_line": 107,
+        "commentaire": "null : aucune intention admissible proposee en P3",
+        "periode": "P3",
+        "valeur": null
+      },
+      {
+        "cahier_line": 107,
+        "periode": "P4",
+        "valeur": {
+          "decimal": 0.5,
+          "decimal_fini": true,
+          "denominateur": 2,
+          "exact": "1/2",
+          "numerateur": 1
+        }
+      }
+    ]
+  },
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "fixture_lignes": [
+      107,
+      109,
+      111
+    ],
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "transcripteur": "A",
+  "trois_nombres_distincts_a_garder_identifies": {
+    "U": {
+      "cahier_line": 107,
+      "definition_cahier": "moyenne temporelle sur les periodes exposees",
+      "definition_line": 111,
+      "valeur": {
+        "decimal": null,
+        "decimal_fini": false,
+        "denominateur": 3,
+        "exact": "2/3",
+        "note": "developpement decimal non fini : toute ecriture decimale serait un arrondi, donc une fixture fausse",
+        "numerateur": 2
+      }
+    },
+    "avertissement": {
+      "cahier_line": 107,
+      "valeur": "Ces trois nombres sont differents et doivent rester identifies."
+    },
+    "exposition": {
+      "cahier_line": 107,
+      "valeur": {
+        "decimal": 0.75,
+        "decimal_fini": true,
+        "denominateur": 4,
+        "exact": "3/4",
+        "numerateur": 3
+      }
+    },
+    "reussite_agregee_par_intention": {
+      "cahier_line": 107,
+      "valeur": {
+        "decimal": 0.7,
+        "decimal_fini": true,
+        "denominateur": 10,
+        "exact": "7/10",
+        "numerateur": 7
+      }
+    }
+  }
+}

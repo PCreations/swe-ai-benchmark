@@ -1,0 +1,166 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-REGRESSION",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 129,
+      "verbatim": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "cahier_line": 191,
+      "proof_kind": "behaviour",
+      "attend": "F-REGRESSION exclut cancel@1 et compte isolation@1"
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "proof_kind": "numeric",
+      "attend": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0"
+    },
+    {
+      "cas": "T21.A4",
+      "cahier_line": 341,
+      "proof_kind": "behaviour",
+      "attend": "exigence remplacee n empeche pas la livraison"
+    }
+  ],
+  "valeurs": {
+    "cas_non_regression": {
+      "exigence": "cancel@1",
+      "satisfaite_en": "P2",
+      "remplacee_en": "P3",
+      "remplacante": "cancel@2",
+      "consequence": "le retrait de cancel@1 ne produit pas de regression",
+      "cahier_line": 129
+    },
+    "cas_regression": {
+      "exigence": "isolation@1",
+      "satisfaite_en": "P3",
+      "violee_en": "P4",
+      "consequence": "produit une regression",
+      "cahier_line": 129
+    },
+    "regle_de_comptage": {
+      "valeur": "compter par id/version active, pas par nombre d assertions",
+      "cahier_line": 129
+    }
+  },
+  "conventions": [
+    {
+      "regle": "G compte les regressions actuellement ouvertes, c est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "G_new compte celles qui etaient satisfaites a la periode precedente comparable et deviennent violees.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "Une regression persistante contribue a G, sans redevenir nouvelle a chaque periode.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "Le nombre d assertions ou de tests ne determine pas le poids d une fonctionnalite.",
+      "cahier_line": 72,
+      "invariant": "D.10"
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "G et G_new en P4",
+      "valeur": "isolation@1 etait satisfaite en P3 et est violee en P4 : G=1 et G_new=1 en P4",
+      "source_de_la_derivation": {
+        "cahier_line": 189
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "contribution de cancel@1",
+      "valeur": "0 : cancel@1 n est plus une exigence ACTIVE en P3 (remplacee par cancel@2), donc elle sort du denominateur de G au lieu d y compter comme violee",
+      "source_de_la_derivation": {
+        "cahier_line": 129,
+        "regle": "« compter par id/version active »"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "lien avec T04.A4",
+      "valeur": "si isolation@1 restait violee en P5, elle donnerait G=1 et G_new=0 — c est la forme generale que T04.A4 exerce sur deux periodes consecutives",
+      "source_de_la_derivation": {
+        "cahier_line": 189
+      },
+      "normatif": false,
+      "remarque": "le cahier n etend pas explicitement F-REGRESSION a une cinquieme periode"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-REGRESSION.1",
+      "severite": "faible",
+      "question": "L etat de cancel@1 en P1 n est pas donne (revelee ? due ? absente ?) — seul « satisfaite en P2 » l est.",
+      "lignes": [
+        129
+      ],
+      "consequence": "aucune sur l absence de regression, qui se joue en P3"
+    },
+    {
+      "id": "F-REGRESSION.2",
+      "severite": "faible",
+      "question": "Le cahier ne dit pas si cancel@2 est satisfaite ou violee en P3/P4.",
+      "lignes": [
+        129
+      ],
+      "consequence": "aucune sur le cas assere (le retrait de cancel@1 ne produit pas de regression) ; mais une cancel@2 violee ajouterait une regression que le cas ne mentionne pas"
+    },
+    {
+      "id": "F-REGRESSION.3",
+      "severite": "faible",
+      "question": "F-REGRESSION partage-t-elle les memes quatre periodes que F-QUALITY, ou est-ce un scenario distinct ? Les identifiants d exigences different (A@1,B@1,C@1,A@2 vs cancel@1,cancel@2,isolation@1).",
+      "lignes": [
+        107,
+        109,
+        129
+      ],
+      "consequence": "les deux fixtures sont consommees par des cas distincts (T04.A1 vs T04.A3) et rien n exige de les fusionner ; consigne car les deux parlent de P1..P4"
+    },
+    {
+      "id": "F-REGRESSION.4",
+      "severite": "faible",
+      "question": "isolation@1 est-elle due des P1/P2, ou revelee en P3 ?",
+      "lignes": [
+        129,
+        189
+      ],
+      "consequence": "aucune sur la regression de P4, qui ne depend que de « satisfaite en P3 »"
+    }
+  ]
+}

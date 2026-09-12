@@ -1,0 +1,189 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-MONEY",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 103,
+      "verbatim": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "proof_kind": "refusal",
+      "attend": "la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est detectee par la verification des references",
+      "exige_de_la_fixture": "que 340 soit une valeur de reference figee et empreintee, distinguable de 341"
+    },
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "proof_kind": "numeric",
+      "attend": "F-MONEY donne 340",
+      "exige_de_la_fixture": "la grille tarifaire et l usage du seul appel"
+    },
+    {
+      "cas": "T31.A2",
+      "cahier_line": 427,
+      "proof_kind": "numeric",
+      "attend": "montants conserves exactement",
+      "exige_de_la_fixture": "entiers exacts, jamais de flottant monetaire"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "proof_kind": "behaviour",
+      "attend": "48 appels recus et regles",
+      "exige_de_la_fixture": "2 appels F-MONEY par periode x 4 periodes x 6 trajectoires"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "proof_kind": "numeric",
+      "attend": "2720 micro-USD par trajectoire, 16320 au total",
+      "exige_de_la_fixture": "que l appel unitaire vaille exactement 340"
+    }
+  ],
+  "valeurs": {
+    "grille_tarifaire": {
+      "unite": "micro-USD par token",
+      "entree_non_cachee": 2,
+      "entree_cachee": 1,
+      "sortie": 5,
+      "cahier_line": 103
+    },
+    "appel_de_reference": {
+      "tokens_entree_non_caches": 100,
+      "tokens_entree_caches": 40,
+      "tokens_sortie": 20,
+      "cout_micro_usd": 340,
+      "cahier_line": 103
+    },
+    "deux_appels_identiques": {
+      "cout_total_micro_usd": 680,
+      "cahier_line": 103,
+      "note": "deux depenses distinctes, pas une fusion — cf. T32/T16.A4 ligne 295 « deux recus distincts de meme montant restent deux depenses »"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les champs d entree sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+      "cahier_line": 103,
+      "consequence": "100 et 40 ne se recouvrent pas ; un total fournisseur de 140 tokens d entree doit etre re-scinde en 100/40 avant facturation"
+    },
+    {
+      "regle": "Les montants sont des chaines d entiers non negatifs en micro-USD ; 1000000 vaut 1 USD.",
+      "cahier_line": 80
+    },
+    {
+      "regle": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires.",
+      "cahier_line": 71,
+      "invariant": "D.9"
+    },
+    {
+      "regle": "Les nombres exacts se verifient en entier ou rationnel.",
+      "cahier_line": 143
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "decomposition du cout de l appel de reference",
+      "valeur": "100x2 + 40x1 + 20x5 = 200 + 40 + 100 = 340",
+      "source_de_la_derivation": {
+        "cahier_line": 103,
+        "regle": "la grille et l usage sont enonces a la meme ligne que le resultat 340 ; la decomposition n est pas ecrite mais est la seule compatible avec les deux"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "cout d une trajectoire golden-six",
+      "valeur": "8 appels x 340 = 2720 micro-USD",
+      "source_de_la_derivation": {
+        "cahier_line": 491,
+        "regle": "« deux appels F-MONEY par periode » sur un scenario de quatre periodes ; tous les autres tarifs valent explicitement zero"
+      },
+      "verifie_par": {
+        "cas": "T38.A3",
+        "cahier_line": 493
+      },
+      "normatif": true
+    },
+    {
+      "quoi": "cout total golden-six",
+      "valeur": "6 trajectoires x 2720 = 16320 micro-USD",
+      "source_de_la_derivation": {
+        "cahier_line": 491,
+        "regle": "deux configurations x trois repetitions = six trajectoires"
+      },
+      "verifie_par": {
+        "cas": "T38.A3",
+        "cahier_line": 493
+      },
+      "normatif": true
+    },
+    {
+      "quoi": "nombre d appels golden-six",
+      "valeur": "6 trajectoires x 4 periodes x 2 appels = 48",
+      "source_de_la_derivation": {
+        "cahier_line": 491
+      },
+      "verifie_par": {
+        "cas": "T38.A2",
+        "cahier_line": 493
+      },
+      "normatif": true
+    }
+  ],
+  "notes_de_perimetre": [
+    "2720 et 16320 n appartiennent PAS a F-MONEY : ils appartiennent a la fixture `golden-six` de T38 (ligne 491), qui consomme F-MONEY. Ils sont consignes ici comme derives verifiables, pas comme valeurs de F-MONEY.",
+    "`golden-six` n est pas prefixee F- et ne figure pas en §F ; elle n a donc pas de fichier propre dans cet etage. Le perimetre F-* du cahier est exactement : F-MONEY, F-BUDGET, F-QUALITY, F-COST-RATIO, F-CLUSTERS, F-BOOTSTRAP, F-RESERVATION, F-FAILURE, F-POWER, F-REGRESSION (10, verifie par balayage du document)."
+  ],
+  "ambiguites": [
+    {
+      "id": "F-MONEY.1",
+      "severite": "faible",
+      "question": "La grille tarifaire (2 / 1 / 5) est-elle representee comme un montant au sens de la ligne 80 (chaine d entier micro-USD) ou comme un taux numerique ?",
+      "lignes": [
+        80,
+        103
+      ],
+      "consequence": "aucune sur 340 ni 680 ; affecte seulement le type du champ de tarif dans le schema"
+    },
+    {
+      "id": "F-MONEY.2",
+      "severite": "faible",
+      "question": "Le cahier ne nomme pas d identifiant de modele, de fournisseur ni de version de grille pour cette grille fictive.",
+      "lignes": [
+        103
+      ],
+      "consequence": "aucune sur les montants ; une materialisation devra nommer la grille sans que le nom soit assertable"
+    }
+  ]
+}

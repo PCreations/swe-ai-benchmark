@@ -1,0 +1,164 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 113,
+      "verbatim": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "attend": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "proof_kind": "numeric",
+      "attend": "F-COST-RATIO affiche 5/6 et les deux moyennes"
+    },
+    {
+      "cas": "T32.A6",
+      "cahier_line": 435,
+      "proof_kind": "behaviour",
+      "attend": "poids des scenarios appliques a l interieur du parent avant poids entre parents",
+      "exige_de_la_fixture": "deux projets de poids EGAL"
+    }
+  ],
+  "valeurs": {
+    "projets": {
+      "nombre": 2,
+      "poids": "egal",
+      "cahier_line": 113
+    },
+    "couts_bras_A": {
+      "valeur": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "couts_bras_B": {
+      "valeur": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "exact": "5/6",
+      "cahier_line": 113
+    },
+    "resultat_incorrect_a_detecter": {
+      "quoi": "moyenne des ratios",
+      "valeur": 0.7,
+      "cahier_line": 113,
+      "note": "le cahier le qualifie explicitement de « resultat incorrect pour cette metrique » : c est la mutation que T32 doit detecter (ligne 437)"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "resultats rationnels des fixtures verifies et jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs",
+      "cahier_line": 437
+    },
+    {
+      "regle": "Les nombres exacts se verifient en entier ou rationnel.",
+      "cahier_line": 143
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "appariement des couts aux projets",
+      "valeur": "projet 1 : A=10, B=20 ; projet 2 : A=90, B=100",
+      "source_de_la_derivation": {
+        "cahier_line": 115,
+        "regle": "F-CLUSTERS reprend les memes deux projets en les nommant : « Projet P1 : A=10, B=20 ... Projet P2 : A=90, B=100 »"
+      },
+      "normatif": true
+    },
+    {
+      "quoi": "moyennes",
+      "valeur": "A=(10+90)/2=50 ; B=(20+100)/2=60",
+      "source_de_la_derivation": {
+        "cahier_line": 113
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "ratio principal",
+      "valeur": "50/60 = 5/6",
+      "source_de_la_derivation": {
+        "cahier_line": 113
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "moyenne des ratios (valeur fausse)",
+      "valeur": "(10/20 + 90/100)/2 = (1/2 + 9/10)/2 = 7/10 = 0.7",
+      "source_de_la_derivation": {
+        "cahier_line": 113
+      },
+      "normatif": false,
+      "avertissement": "0,7 apparait aussi dans F-QUALITY comme reussite agregee par intention ; ce sont deux nombres sans rapport"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-COST-RATIO.1",
+      "severite": "faible",
+      "question": "Le cahier ne dit pas si `[10,90]` est une liste de deux PROJETS (un cout par projet) ou de deux repetitions d un meme projet.",
+      "lignes": [
+        113,
+        115
+      ],
+      "consequence": "leve par la ligne 115 (F-CLUSTERS) qui nomme les deux projets avec les memes valeurs ; consigne car la ligne 113 seule ne le dit pas"
+    },
+    {
+      "id": "F-COST-RATIO.2",
+      "severite": "faible",
+      "question": "L unite des couts 10/90/20/100 n est pas donnee (micro-USD ou unite abstraite).",
+      "lignes": [
+        113
+      ],
+      "consequence": "aucune sur le ratio, qui est sans dimension ; affecte l affichage exige par T36.A2"
+    }
+  ]
+}

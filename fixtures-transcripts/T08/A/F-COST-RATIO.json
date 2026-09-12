@@ -1,0 +1,106 @@
+{
+  "ambiguites": [],
+  "couts": {
+    "A": {
+      "cahier_line": 113,
+      "par_projet": [
+        "projet 1",
+        "projet 2"
+      ],
+      "valeur": [
+        10,
+        90
+      ]
+    },
+    "B": {
+      "cahier_line": 113,
+      "par_projet": [
+        "projet 1",
+        "projet 2"
+      ],
+      "valeur": [
+        20,
+        100
+      ]
+    }
+  },
+  "enonce": "Deux projets de poids egal ; ratio des moyennes, et non moyenne des ratios.",
+  "etage": "FIXTURES",
+  "fixture": "F-COST-RATIO",
+  "lignes_source": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "moyennes": {
+    "A": {
+      "cahier_line": 113,
+      "valeur": 50
+    },
+    "B": {
+      "cahier_line": 113,
+      "valeur": 60
+    }
+  },
+  "non_specifie_dans_F": [
+    {
+      "cahier_line": 113,
+      "point": "L'unite des couts n'est pas redite ici (le reste du cahier facture en micro-USD)."
+    },
+    {
+      "cahier_line": 113,
+      "point": "« poids egal » n'est pas chiffre (poids 1 chacun implicite)."
+    }
+  ],
+  "poids_egal": {
+    "cahier_line": 113,
+    "valeur": true
+  },
+  "projets": {
+    "cahier_line": 113,
+    "commentaire": "« Deux projets de poids egal »",
+    "valeur": 2
+  },
+  "provenance": "SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "ratio_principal_A_sur_B": {
+    "cahier_line": 113,
+    "litteral_cahier": "ratio principal A/B=`5/6`",
+    "valeur": {
+      "decimal": null,
+      "decimal_fini": false,
+      "denominateur": 6,
+      "exact": "5/6",
+      "note": "developpement decimal non fini : toute ecriture decimale serait un arrondi, donc une fixture fausse",
+      "numerateur": 5
+    }
+  },
+  "resultat_incorrect_a_rejeter": {
+    "nom": {
+      "cahier_line": 113,
+      "valeur": "moyenne des ratios"
+    },
+    "statut": {
+      "cahier_line": 113,
+      "valeur": "resultat incorrect pour cette metrique"
+    },
+    "valeur": {
+      "cahier_line": 113,
+      "valeur": 0.7
+    }
+  },
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription/1",
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "fixture_lignes": [
+      113
+    ],
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "transcripteur": "A"
+}

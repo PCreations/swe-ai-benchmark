@@ -1,0 +1,190 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-FAILURE",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      121
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "attend": "sans deploiement, la cloture d'une periode produit les demandes non servies prevues par F-FAILURE",
+      "deduction": "la fixture doit porter, periode par periode, l'existence d'intentions OFFERTES non servies"
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "attend": "F-FAILURE conserve quatre resultats",
+      "deduction": "les quatre lignes sont l'assertion : une collecte qui s'arrete a K-1 doit rougir"
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "attend": "F-FAILURE exporte quatre periodes et total 150",
+      "deduction": "le total ET le nombre de lignes doivent etre deux champs : un filtre des periodes a cout 0 laisserait le total juste et le compte faux"
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "attend": "F-FAILURE produit un echec produit dans une execution moteur terminee",
+      "deduction": "distinction §B l.28 : echec du CANDIDAT, pas erreur du MOTEUR"
+    }
+  ],
+  "valeurs": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121,
+      "citation": "A K=4"
+    },
+    "unite_des_couts": {
+      "valeur": null,
+      "cahier_line": 121,
+      "note": "NON SPECIFIEE. Controle execute : `sed -n '121p' docs/cahier.md | grep -c 'micro-USD'` rend 0. La chaine n'apparait qu'a la l.103 (F-MONEY). Ne rien inscrire ici."
+    },
+    "deploiement": {
+      "valeur": "aucun sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121,
+      "citation": "conserve quatre lignes"
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "condition": {
+        "valeur": "si les exigences et usages y sont presents",
+        "cahier_line": 121
+      }
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "condition": {
+        "valeur": "si les exigences et usages y sont presents",
+        "cahier_line": 121
+      }
+    },
+    "couts_par_periode": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "cahier_line": 121,
+      "citation": "totalisent 150"
+    },
+    "arret_de_calcul": {
+      "cahier_line": 121,
+      "citation": "Un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n'y est ajoutee.",
+      "apres_periode": "P2",
+      "P3_P4_conservees": true,
+      "factures_ajoutees": 0
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Un echec conserve ses depenses, ses intentions non servies et son backlog.",
+      "cahier_line": 67,
+      "note": "invariant D.5"
+    },
+    {
+      "regle": "Les etats d'arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n'effacent pas la periode de l'analyse.",
+      "cahier_line": 97
+    },
+    {
+      "regle": "Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide. Ne pas confondre ces deux niveaux.",
+      "cahier_line": 28
+    },
+    {
+      "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null.",
+      "cahier_line": 111,
+      "note": "explique pourquoi R=0 et non null ici : les usages sont presents"
+    },
+    {
+      "regle": "aucun filtre implicite de survivants et aucune valeur vide convertie en zero",
+      "cahier_line": 429,
+      "source": "T31, condition de fin"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "100 + 50 + 0 + 0 = 150",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "4 lignes conservees = K = 4",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "R=0 (et non null) est coherent avec la convention l.111 des lors que des usages sont presents aux quatre periodes",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "V = moyenne des Q = 0 ; U = moyenne des R sur les periodes exposees = 0",
+      "resultat": "deduit, NON ENONCE par la l.121 — non inscrit comme valeur de fixture"
+    },
+    {
+      "controle": "piege nomme par T31.A1 : ecarter les periodes a cout 0 laisserait le total a 150 mais le compte a 2",
+      "resultat": "les deux champs sont bien separables"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-FAILURE-1",
+      "question": "Quelle unite pour [100, 50, 0, 0] et 150 ?",
+      "ce_que_le_cahier_dit": "rien a la l.121. Controle execute : grep 'micro-USD' sur la l.121 rend 0.",
+      "cahier_line": 121,
+      "bloquant": false,
+      "note_du_transcripteur": "point de vigilance connu : une transcription anterieure avait inscrit « micro-USD » en l'attribuant a cette ligne (divergence DIV-1, SC-001). L'unite reste NON SPECIFIEE."
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "question": "Quelles sont les exigences et les usages « presents » aux quatre periodes ?",
+      "ce_que_le_cahier_dit": "l.121 en fait une CONDITION (« si les exigences et usages y sont presents ») sans en donner le contenu, les poids ni les nombres d'intentions.",
+      "cahier_line": 121,
+      "bloquant": false,
+      "raison_non_bloquant": "les consommateurs (T11.A4, T31.A1) portent sur le nombre de lignes et le total ; T05.A6 porte sur l'existence des demandes non servies, pas sur leur cardinalite"
+    },
+    {
+      "id": "AMB-FAILURE-3",
+      "question": "Quel statut d'arret porte l'interruption « apres P2 » ?",
+      "ce_que_le_cahier_dit": "l.121 dit « un arret de calcul » ; la l.97 enumere BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED sans que la fixture en choisisse un.",
+      "cahier_line": 121,
+      "bloquant": false,
+      "raison_non_bloquant": "l'assertion porte sur la CONSERVATION de P3 et P4, identique pour les trois statuts"
+    },
+    {
+      "id": "AMB-FAILURE-4",
+      "question": "Les couts [100, 50, 0, 0] sont-ils compatibles avec un arret apres P2, ou decrivent-ils la trajectoire complete sans arret ?",
+      "ce_que_le_cahier_dit": "la l.121 enonce d'abord les quatre lignes et les couts, PUIS l'arret comme une remarque (« Un arret de calcul apres P2 ne supprime pas P3 et P4 »). Les deux lectures coincident numeriquement, puisque P3 et P4 coutent 0 et qu'« aucune facture imaginaire n'y est ajoutee ».",
+      "cahier_line": 121,
+      "bloquant": false,
+      "raison_non_bloquant": "coincidence verifiee : le total reste 150 et les lignes restent quatre dans les deux lectures"
+    }
+  ]
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "bench.fixture.comparaison/2",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "date": "2026-09-12",
+  "verdict": "FIXTURES_CONCORDANTES",
+  "scelle": false,
+  "pourquoi_scelle_false": "Le scellement ETAIT DEJA FAIT et GELE avant cette session : acceptance/reference materialise a cd23991, gel declare a 83bfefd, tree oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91. Cette session a RE-COMPARE deux transcriptions regenerees et les a confrontees a la racine gelee : aucune valeur ne differe, donc il n'y a rien a materialiser. Reecrire acceptance/reference aurait DEPLACE le tree oid gele et invalide les attestations, pour un contenu identique : c'est exactement ce que le gel interdit sans SPEC_CONFLICT.",
+  "rapport_au_scellement_precedent": {
+    "document": "fixtures-transcripts/T00/COMPARAISON-AB-SCELLEMENT.json",
+    "relation": "CONFIRME — ne remplace pas",
+    "note": "les transcriptions de .bench/fixtures ont ete regenerees le 2026-09-12 (mtimes 09:20-09:26) et different OCTET POUR OCTET de celles archivees sous fixtures-transcripts/T00/{A,B} ; la comparaison VALEUR PAR VALEUR ne rend aucun ecart. Les deux archives sont conservees : l'ancienne est la base du scellement, celle-ci est la base de la revalidation."
+  },
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "cahier_sha256_epingle_relu": "docs/CAHIER_SHA256 — concordant",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "arbitrages_lus": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "applique_par": "les deux transcriptions (A implicitement par propagation, B explicitement via poids_source.arbitrage=SC-001)",
+      "effets": [
+        "F-QUALITY : B@1 pese 1 et C@1 pese 2 en P3 et P4",
+        "F-FAILURE : unite des couts NON SPECIFIEE (grep 'micro-USD' sur l.121 -> 0)",
+        "F-REGRESSION : nombre attendu = 1 (l.129, « en produit une »)"
+      ]
+    }
+  ],
+  "autres_spec_conflicts_ouverts": [],
+  "nombre_de_fixtures": 10,
+  "divergences_de_valeur": [],
+  "methode": "comparaison VALEUR PAR VALEUR, pas fichier par fichier : A encode les rationnels en {numerateur,denominateur}, B en chaines « 5/6 » doublees d'un decimal. Normalisation des rationnels, puis diff mecanique des multi-ensembles de nombres par fixture (A vs B, puis A&B vs racine gelee) ; chaque ecart residuel a ete ouvert et explique.",
+  "controles_executes": [
+    {
+      "objet": "integrite du cahier",
+      "commande": "sha256sum docs/cahier.md ; cat docs/CAHIER_SHA256",
+      "resultat": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd des deux cotes",
+      "conclusion": "source non alteree"
+    },
+    {
+      "objet": "A vs B, tous champs numeriques",
+      "commande": "diff des multi-ensembles normalises par fixture",
+      "resultat": "0 divergence de valeur ; ecarts residuels = encodage (num/den de A), numeros de ligne de renvoi (B cite §D/§H), et valeurs hors §F que chaque cote etiquette comme telles",
+      "conclusion": "FIXTURES_CONCORDANTES"
+    },
+    {
+      "objet": "valeurs communes A&B vs racine gelee",
+      "commande": "couverture de (A inter B) par acceptance/reference/**",
+      "resultat": "couverture complete sauf 0/2720/16320 (F-MONEY, lignes 491 et 493) et l'index de clone 2 (F-RESERVATION)",
+      "conclusion": "2720/16320/0 sont des totaux de la golden-six (l.491-493) que A ET B etiquettent hors §F ; la racine gelee ne materialise que §F. L'index 2 est encode dans la racine par les cles nommees clone_1_frontiere_exacte / clone_2_frontiere_plus_1ms. Aucun ecart de valeur."
+    },
+    {
+      "objet": "etat du gel",
+      "commande": "node -e \"import('./verification/runner/references.mjs').then(m=>m.checkReferences())\"",
+      "resultat": "racine acceptance/reference GELEE, head_oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, 10 fichiers, worktree_diff [], F-MONEY CONFORME, problems []",
+      "conclusion": "la racine gelee est intacte et conforme"
+    },
+    {
+      "objet": "oid gele vs HEAD",
+      "commande": "git rev-parse HEAD:acceptance/reference",
+      "resultat": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, identique a docs/FROZEN_ROOTS.json",
+      "conclusion": "declaration et objet git concordent"
+    }
+  ],
+  "concordances_verifiees": {
+    "F-MONEY": "grille 2 / 1 / 5 micro-USD par token ; appel 100 non caches + 40 caches + 20 sortie -> 340 ; deux appels -> 680 ; champs d'entree disjoints",
+    "F-BUDGET": "budget 1000 ; deux demandes concurrentes de 600, une au plus acceptee ; reglement 340 -> spent 340 / reserved 0 / available 660 ; puis, separement, 600 admissible -> 60 et 661 refusee -> 660 ; sous-cas independant budget frais : 600 ambigu -> available 400",
+    "F-QUALITY": "Q=[1,1/2,3/4,1], V=13/16=0.8125 ; R=[1,1/2,null,1/2] ; offertes [4,4,0,2], reussies [4,2,0,1] ; U=2/3, exposition 3/4, reussite agregee par intention 7/10, trois nombres distincts ; poids A@1=1, B@1=1, C@1=2, A@2=1 (P3/P4 par SC-001)",
+    "F-COST-RATIO": "A [10,90], B [20,100] ; moyennes 50 et 60 ; ratio principal 5/6 ; 0,7 nomme INCORRECT",
+    "F-CLUSTERS": "P1 A=10 B=20 sur 10 repetitions identiques ; P2 A=90 B=100 sur 1 ; moyennes interprojets 50 et 60 ; onze lignes ; duplication sans effet sur l'estimation ponctuelle",
+    "F-BOOTSTRAP": "tirages forces [P1,P1] [P1,P2] [P2,P1] [P2,P2] ; ratios [1/2,5/6,5/6,9/10] ; intervalle 2,5-97,5 % = [1/2,9/10]",
+    "F-RESERVATION": "horloge initiale 2030-01-01T00:00:00Z ; S1 capacite 1 debutant 2030-01-03T12:00:00Z ; horloges P1 2030-01-01T00:00, P2 01:00, P3 2030-01-02T11:00, P4 13:00 ; frontiere 2030-01-02T12:00:00Z acceptee et 12:00:00.001Z refusee ; entree de P4 : A annule, B confirme, C en attente ; NOT_FOUND intertenant",
+    "F-FAILURE": "K=4 ; quatre lignes conservees ; Q=[0,0,0,0] ; R=[0,0,0,0] ; couts [100,50,0,0] -> 150 ; unite NON SPECIFIEE ; arret apres P2 ne supprime ni P3 ni P4, aucune facture ajoutee",
+    "F-POWER": "B=(100,1,1) dans chaque parent ; A=(80,1,1)/(100,1,1)/(80,0.96,1)/(80,0.99,0.99) ; bornes ratio 0,8/1/0,8/0,8 ; dV 0/0/-0,04/-0,01 ; dU 0/0/0/-0,01 ; T34 [vrai,faux,faux,vrai]",
+    "F-REGRESSION": "cancel@1 satisfaite en P2, remplacee en P3 par cancel@2, sans regression ; isolation@1 satisfaite en P3 puis violee en P4 -> 1 regression ; comptage par id/version active"
+  },
+  "ambiguites": {
+    "A": 7,
+    "B": 41,
+    "total": 48,
+    "bloquantes": 0,
+    "regle_appliquee": "une ambiguite n'arrete l'etage que si elle porte sur une VALEUR A ECRIRE. Les 48 relevees portent toutes sur des parametres qu'aucune des deux transcriptions n'inscrit et que la racine gelee n'inscrit pas : elles sont reportees, pas tranchees.",
+    "reportees": [
+      {
+        "id": "AMB-QUALITY-4 (A : « test negatif »)",
+        "fixture": "F-QUALITY",
+        "question": "id, version, poids et echeance de l'exigence revelee mais non encore due",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "la l.109 n'en fixe aucun ; la racine n'inscrit que l'invariant (le poids n'entre pas dans Q avant l'echeance) et laisse les parametres a null"
+      },
+      {
+        "id": "AMB-BUDGET-4",
+        "fixture": "F-BUDGET",
+        "question": "le 600 ambigu compte-t-il dans reserved ou dans spent ?",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "seul available=400 est enonce l.105 et seul available=400 est materialise"
+      },
+      {
+        "id": "AMB-FAILURE-2 / -3",
+        "fixture": "F-FAILURE",
+        "question": "contenu des exigences et usages presents ; statut d'arret apres P2",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "aucun cardinal d'intentions ni statut d'arret n'est materialise ; la condition est inscrite telle que l.121 l'enonce"
+      },
+      {
+        "id": "AMB-RESA-1 / -2 / -7",
+        "fixture": "F-RESERVATION",
+        "question": "fin du creneau S1, valeur litterale de la cle idempotente, code du refus metier",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "non enonces l.119 ; non materialises"
+      },
+      {
+        "id": "AMB-RESA-6",
+        "fixture": "F-RESERVATION",
+        "question": "les 100 reservations de la migration P4",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "valeur de la l.233 (T09.A3), hors §F ; B la reporte etiquetee comme attente de consommateur, A ne l'inscrit pas, la racine ne la materialise pas"
+      },
+      {
+        "id": "AMB-POWER-1 / -4",
+        "fixture": "F-POWER",
+        "question": "marge de non-inferiorite ; puissance 0,5 et erreur standard 0,25",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "enoncees l.453 et l.463, hors §F ; la racine ne materialise que les bornes et les decisions de la l.127"
+      },
+      {
+        "id": "AMB-REGRESSION-1",
+        "fixture": "F-REGRESSION",
+        "question": "« une » designe-t-il G, G_new, ou les deux ?",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "les deux lectures rendent 1 en P4 ; la racine inscrit le nombre 1, que la l.129 enonce litteralement"
+      },
+      {
+        "id": "AMB-REGRESSION-3",
+        "fixture": "F-REGRESSION",
+        "question": "poids de cancel@1, cancel@2, isolation@1",
+        "porte_sur_une_valeur_ecrite": false,
+        "pourquoi": "aucun poids n'est introduit l.129 ; aucun n'est materialise"
+      }
+    ]
+  },
+  "racine_gelee": {
+    "path": "acceptance/reference",
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_de_la_racine": "cd23991",
+    "commit_du_gel": "83bfefd",
+    "declaration": "docs/FROZEN_ROOTS.json",
+    "modifiee_par_cette_session": false,
+    "nombre_de_fixtures": 10
+  },
+  "archive": [
+    {
+      "source": ".bench/fixtures/A/F-BOOTSTRAP.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-BOOTSTRAP.json",
+      "sha256": "30d4a19b8dc670ef9fae2c48f9913d3a0e3f1451ceb2073d03bcd759749dcbbc",
+      "octets": 3276
+    },
+    {
+      "source": ".bench/fixtures/A/F-BUDGET.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-BUDGET.json",
+      "sha256": "4446215a93a735c87f3c9db30a0222c883fd63f2ec93a16283ea3e0940a4fc50",
+      "octets": 5141
+    },
+    {
+      "source": ".bench/fixtures/A/F-CLUSTERS.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-CLUSTERS.json",
+      "sha256": "3b31c53ce4b5f48eccbfc2586f3fcd3999404ab9764d5ec25cb36f6b11b5a67d",
+      "octets": 2386
+    },
+    {
+      "source": ".bench/fixtures/A/F-COST-RATIO.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-COST-RATIO.json",
+      "sha256": "b9fc9fa20f6cac211d3fe30719faf1be7f3c0aacff46382f44fa0cb7d2adaa3e",
+      "octets": 2574
+    },
+    {
+      "source": ".bench/fixtures/A/F-FAILURE.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-FAILURE.json",
+      "sha256": "22d9cd641892b14384d30cd407117420515aca4014ff2a602650f247b93c054b",
+      "octets": 3476
+    },
+    {
+      "source": ".bench/fixtures/A/F-MONEY.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-MONEY.json",
+      "sha256": "f6b981c636724944034d1b374734a47fbdadde1e47b54bc24590f982c233161a",
+      "octets": 3899
+    },
+    {
+      "source": ".bench/fixtures/A/F-POWER.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-POWER.json",
+      "sha256": "a1f5f2076985dabd6062737a3b8cdbcf66eb279915c96067f86353b727634a9e",
+      "octets": 5149
+    },
+    {
+      "source": ".bench/fixtures/A/F-QUALITY.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-QUALITY.json",
+      "sha256": "4618e9b22057199222ac39d2ee45b619c6663a0cb7b436edd143c99e5ae1634b",
+      "octets": 9397
+    },
+    {
+      "source": ".bench/fixtures/A/F-REGRESSION.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-REGRESSION.json",
+      "sha256": "bb9ad91cbb3b2c1d3112885c42627615e5656cff31576b6f3a4711b763bcbd6d",
+      "octets": 2789
+    },
+    {
+      "source": ".bench/fixtures/A/F-RESERVATION.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/F-RESERVATION.json",
+      "sha256": "803ad66aa94a239a45bc40ec64e7c8d67f92765b4f31ecffeab95c24d82362a7",
+      "octets": 9344
+    },
+    {
+      "source": ".bench/fixtures/A/INDEX.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/A/INDEX.json",
+      "sha256": "e714c7c99db563b63901170c27b7ab09139af6b4ef4f9bbb3ae82406d92bcaab",
+      "octets": 2347
+    },
+    {
+      "source": ".bench/fixtures/B/F-BOOTSTRAP.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-BOOTSTRAP.json",
+      "sha256": "e4d577119de5af8412e9ff74969d930235b497e1677ebc922789f6421b1d771f",
+      "octets": 5905
+    },
+    {
+      "source": ".bench/fixtures/B/F-BUDGET.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-BUDGET.json",
+      "sha256": "70f0981cff3f0278bb595337f86d6d15a252ecc4143adad3c2d42595f5b51586",
+      "octets": 6599
+    },
+    {
+      "source": ".bench/fixtures/B/F-CLUSTERS.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-CLUSTERS.json",
+      "sha256": "239edd7fe3cbcc600a22776342f50a79a87d437f2643152bb8343af898faeba6",
+      "octets": 5616
+    },
+    {
+      "source": ".bench/fixtures/B/F-COST-RATIO.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-COST-RATIO.json",
+      "sha256": "82bb38ff87a0ca0696a575ef03950c359ff41667ea1b3d2d57a4b0cb02d66858",
+      "octets": 4483
+    },
+    {
+      "source": ".bench/fixtures/B/F-FAILURE.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-FAILURE.json",
+      "sha256": "630beff7751fd5db74c38db07f1bca6f7313d05a0715199bf4b500be5d6d63d5",
+      "octets": 7097
+    },
+    {
+      "source": ".bench/fixtures/B/F-MONEY.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-MONEY.json",
+      "sha256": "428f68e2196d37284c083cbe243f4340e0f2af1035d9be62fd47921aba46b9d7",
+      "octets": 5871
+    },
+    {
+      "source": ".bench/fixtures/B/F-POWER.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-POWER.json",
+      "sha256": "e50db3764ef8c2c853bd1cdaecce78bbcf4cc8c9a65ed0d2fa73a0fa817f1f25",
+      "octets": 8976
+    },
+    {
+      "source": ".bench/fixtures/B/F-QUALITY.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-QUALITY.json",
+      "sha256": "8a35bd5d88804b0be2235d6eefa10f4923da0ecfca021269a87bed828a2e13f3",
+      "octets": 15323
+    },
+    {
+      "source": ".bench/fixtures/B/F-REGRESSION.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-REGRESSION.json",
+      "sha256": "fad96378c3f89f89c96cae8ddae7600d6b7e52a287214fc6fc1856c81da28fdd",
+      "octets": 7058
+    },
+    {
+      "source": ".bench/fixtures/B/F-RESERVATION.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/F-RESERVATION.json",
+      "sha256": "1f69cbcced25fad70dfe78eea617692118fdff1be0813be6f744838529868e02",
+      "octets": 13848
+    },
+    {
+      "source": ".bench/fixtures/B/INDEX.json",
+      "ledger": "fixtures-transcripts/T00/revalidation-2026-09-12/B/INDEX.json",
+      "sha256": "8feac0c9262445596942c220288b34638d5d616c053f65b5b07543f52d5a2ed3",
+      "octets": 11802
+    }
+  ]
+}

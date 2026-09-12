@@ -1,0 +1,410 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-RESERVATION",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      119,
+      123,
+      125
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T07.A1",
+      "cahier_line": 215,
+      "attend": "P1 n'a qu'une reservation confirmee et aucun doublon idempotent"
+    },
+    {
+      "cas": "T07.A2",
+      "cahier_line": 215,
+      "attend": "P2 promeut B avant C",
+      "deduction": "l'ordre d'admission en file doit etre une donnee EXPLICITE de la fixture (l.123 : « sequence d'admission explicite »), pas un timestamp"
+    },
+    {
+      "cas": "T07.A3",
+      "cahier_line": 215,
+      "attend": "annulation permise exactement a 24 h"
+    },
+    {
+      "cas": "T07.A4",
+      "cahier_line": 215,
+      "attend": "refus 1 ms apres la frontiere",
+      "deduction": "la fixture doit porter la milliseconde : une horloge a la seconde rendrait ce cas invisible"
+    },
+    {
+      "cas": "T07.A5",
+      "cahier_line": 215,
+      "attend": "acteur other ne voit aucune donnee legacy"
+    },
+    {
+      "cas": "T07.A6",
+      "cahier_line": 215,
+      "attend": "meme cle et arguments differents donnent un conflit explicite"
+    },
+    {
+      "cas": "T07.A7",
+      "cahier_line": 215,
+      "attend": "une annulation repetee ne promeut pas deux personnes"
+    },
+    {
+      "cas": "T08.A6",
+      "cahier_line": 223,
+      "attend": "controle de la frontiere 24 h sans attendre 24 heures physiques",
+      "deduction": "les instants sont des donnees, jamais l'horloge murale"
+    },
+    {
+      "cas": "T09.A1",
+      "cahier_line": 233,
+      "attend": "temoin conforme realise F-RESERVATION"
+    },
+    {
+      "cas": "T09.A2",
+      "cahier_line": 233,
+      "attend": "double reservation concurrente synchronisee par barriere ne depasse pas la capacite"
+    },
+    {
+      "cas": "T09.A3",
+      "cahier_line": 233,
+      "attend": "migration P4 preserve 100 reservations et les rattache a legacy"
+    },
+    {
+      "cas": "T09.A4",
+      "cahier_line": 233,
+      "attend": "temoin drop-one-row perd exactement une reservation et est distinguable de l'etat attendu"
+    },
+    {
+      "cas": "T11.A6",
+      "cahier_line": 251,
+      "attend": "la variante cross-tenant-read fait echouer le controle metier associe"
+    }
+  ],
+  "valeurs": {
+    "horloge_initiale": {
+      "valeur": "2030-01-01T00:00:00Z",
+      "cahier_line": 119
+    },
+    "acteurs": {
+      "valeur": [
+        "A",
+        "B",
+        "C"
+      ],
+      "cahier_line": 119
+    },
+    "locataire_initial": {
+      "valeur": "legacy",
+      "cahier_line": 119
+    },
+    "creneau": {
+      "id": "S1",
+      "capacite": {
+        "valeur": 1,
+        "cahier_line": 119
+      },
+      "debut": {
+        "valeur": "2030-01-03T12:00:00Z",
+        "cahier_line": 119
+      },
+      "fin": {
+        "valeur": null,
+        "cahier_line": 119,
+        "note": "non specifiee"
+      }
+    },
+    "horloges_de_periode": {
+      "cahier_line": 125,
+      "citation": "P1 commence le 1er janvier 2030 a 00:00 UTC, P2 a 01:00, P3 le 2 janvier a 11:00, P4 a 13:00.",
+      "P1": "2030-01-01T00:00:00Z",
+      "P2": "2030-01-01T01:00:00Z",
+      "P3": "2030-01-02T11:00:00Z",
+      "P4": "2030-01-02T13:00:00Z"
+    },
+    "periodes": [
+      {
+        "id": "P1",
+        "cahier_line": 119,
+        "citation": "reservation de A acceptee, rejeu de sa cle idempotente sans doublon, demande concurrente de B rejetee sans surbooking",
+        "evenements": [
+          {
+            "acteur": "A",
+            "operation": "reserver",
+            "creneau": "S1",
+            "resultat": "ACCEPTEE"
+          },
+          {
+            "acteur": "A",
+            "operation": "reserver",
+            "creneau": "S1",
+            "rejeu_cle_idempotente": true,
+            "resultat": "AUCUN DOUBLON"
+          },
+          {
+            "acteur": "B",
+            "operation": "reserver",
+            "creneau": "S1",
+            "concurrente": true,
+            "resultat": "REJETEE",
+            "sans_surbooking": true
+          }
+        ],
+        "etat_attendu": {
+          "confirmees": [
+            "A"
+          ],
+          "nombre_de_confirmees": 1,
+          "file_attente": [],
+          "surbooking": false
+        }
+      },
+      {
+        "id": "P2",
+        "cahier_line": 119,
+        "citation": "B puis C en attente ; annulation de A ; B devient confirme, C reste premier en attente",
+        "sequence_d_admission_en_file": {
+          "valeur": [
+            "B",
+            "C"
+          ],
+          "cahier_line": 123,
+          "note": "FIFO ordonne par sequence d'admission EXPLICITE, pas par egalite possible de timestamps"
+        },
+        "evenements": [
+          {
+            "acteur": "B",
+            "operation": "attendre",
+            "rang_admission": 1
+          },
+          {
+            "acteur": "C",
+            "operation": "attendre",
+            "rang_admission": 2
+          },
+          {
+            "acteur": "A",
+            "operation": "annuler",
+            "resultat": "ANNULEE"
+          },
+          {
+            "effet": "promotion",
+            "acteur": "B",
+            "resultat": "CONFIRME"
+          }
+        ],
+        "etat_attendu": {
+          "confirmees": [
+            "B"
+          ],
+          "file_attente": [
+            "C"
+          ],
+          "C_premier_en_attente": true
+        }
+      },
+      {
+        "id": "P3",
+        "cahier_line": 119,
+        "regle": {
+          "valeur": "annulation permise au moins 24 heures avant le debut, frontiere INCLUSE",
+          "cahier_line": 119
+        },
+        "frontiere_calculee": {
+          "valeur": "2030-01-02T12:00:00Z",
+          "cahier_line": 119,
+          "citation": "B peut annuler exactement le `2030-01-02T12:00:00Z`"
+        },
+        "probes": {
+          "nature": {
+            "valeur": "clones jetables, ne modifient pas l'etat persistant principal",
+            "cahier_line": 123
+          },
+          "horloges_propres": {
+            "valeur": true,
+            "cahier_line": 125,
+            "citation": "Les probes privees P3 utilisent leurs heures propres et sont jetees."
+          },
+          "clones": [
+            {
+              "id": "clone-frontiere-incluse",
+              "instant": "2030-01-02T12:00:00Z",
+              "acteur": "B",
+              "operation": "annuler",
+              "resultat": "PERMISE",
+              "cahier_line": 119,
+              "effet_attendu": {
+                "acteur": "C",
+                "devient": "CONFIRME",
+                "cahier_line": 123
+              }
+            },
+            {
+              "id": "clone-frontiere-depassee",
+              "instant": "2030-01-02T12:00:00.001Z",
+              "acteur": "B",
+              "operation": "annuler",
+              "resultat": "REFUS METIER",
+              "cahier_line": 119,
+              "citation": "recoit un refus metier a `12:00:00.001Z`"
+            }
+          ]
+        }
+      },
+      {
+        "id": "P4",
+        "cahier_line": 119,
+        "citation": "donnees existantes migrees vers `legacy`, creation d'un locataire `other` ; ses acteurs ne peuvent ni lire ni modifier les reservations `legacy`",
+        "etat_persistant_a_l_entree": {
+          "valeur": {
+            "A": "ANNULE",
+            "B": "CONFIRME",
+            "C": "EN_ATTENTE"
+          },
+          "cahier_line": 123,
+          "citation": "A l'entree de P4, celui-ci conserve A annule, B confirme et C en attente."
+        },
+        "locataires": {
+          "existant": "legacy",
+          "nouveau": "other",
+          "cahier_line": 119
+        },
+        "isolation": {
+          "lecture": "INTERDITE",
+          "modification": "INTERDITE",
+          "reponse_attendue": {
+            "valeur": "NOT_FOUND",
+            "cahier_line": 123,
+            "citation": "Le contrat intertenant de la fixture renvoie `NOT_FOUND` sans donnee metier divulguee."
+          }
+        },
+        "evaluation": {
+          "valeur": "evaluer l'etat metier exporte, pas un nom de table impose",
+          "cahier_line": 119
+        },
+        "migration_annoncee_par_le_consommateur": {
+          "reservations_preservees": {
+            "valeur": 100,
+            "cahier_line": 233,
+            "source": "T09.A3"
+          },
+          "rattachement": "legacy"
+        }
+      }
+    ]
+  },
+  "conventions": [
+    {
+      "regle": "FIFO est ordonne par sequence d'admission explicite, pas par egalite possible de timestamps.",
+      "cahier_line": 123
+    },
+    {
+      "regle": "Les probes de frontiere P3 sont des clones jetables ; elles ne modifient pas l'etat persistant principal.",
+      "cahier_line": 123
+    },
+    {
+      "regle": "Les instants synthetiques accelerent ici les periodes ; les resultats ne les presentent pas comme quatre mois reels.",
+      "cahier_line": 125
+    },
+    {
+      "regle": "Le candidat n'a pas les identifiants du stockage de recherche, de la base centrale ou de l'evaluateur.",
+      "cahier_line": 65,
+      "note": "invariant D.3"
+    },
+    {
+      "regle": "Les effets valides sont dedupliques par cle d'operation et empreinte d'entree.",
+      "cahier_line": 68,
+      "note": "invariant D.6, fonde le rejeu idempotent de P1"
+    },
+    {
+      "regle": "timestamps UTC ISO 8601",
+      "cahier_line": 80
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "debut S1 2030-01-03T12:00:00Z moins 24 h = 2030-01-02T12:00:00Z, l'instant permis enonce",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "12:00:00.001Z est 1 ms APRES la frontiere : la frontiere est incluse et la regle est « au moins 24 h avant »",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "capacite 1 : P1 confirme A seul, la demande concurrente de B est rejetee",
+      "resultat": "concorde, aucun surbooking"
+    },
+    {
+      "controle": "P2 : apres annulation de A, une seule promotion (B) ; C reste en file",
+      "resultat": "concorde avec la capacite 1"
+    },
+    {
+      "controle": "les probes P3 etant jetables, l'etat d'entree de P4 (A annule, B confirme, C en attente) est celui de la SORTIE de P2",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "horloge de P4 (2030-01-02T13:00:00Z) posterieure a la frontiere des 24 h (12:00:00Z)",
+      "resultat": "coherent : P4 ne porte pas d'annulation ; observe, non exige par le cahier"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-RESA-1",
+      "question": "Quelle est la fin (ou la duree) du creneau S1 ?",
+      "ce_que_le_cahier_dit": "seul le debut est donne (l.119).",
+      "cahier_line": 119,
+      "bloquant": false,
+      "raison_non_bloquant": "aucun cas d'acceptation cite la fin du creneau ; la regle des 24 h se calcule depuis le DEBUT"
+    },
+    {
+      "id": "AMB-RESA-2",
+      "question": "Quelle est la valeur litterale de la cle idempotente de A ?",
+      "ce_que_le_cahier_dit": "« rejeu de sa cle idempotente » (l.119), sans valeur.",
+      "cahier_line": 119,
+      "bloquant": false,
+      "raison_non_bloquant": "T07.A1 porte sur l'absence de doublon, T07.A6 sur le conflit a arguments differents : aucun n'exige une valeur particuliere"
+    },
+    {
+      "id": "AMB-RESA-3",
+      "question": "La regle des 24 h s'applique-t-elle aussi a l'annulation d'une entree EN ATTENTE, ou seulement a une reservation confirmee ?",
+      "ce_que_le_cahier_dit": "l.119 parle de « regle d'annulation » sans distinguer. Les deux probes portent sur B, qui est CONFIRME a ce moment.",
+      "cahier_line": 119,
+      "bloquant": false,
+      "raison_non_bloquant": "aucune probe n'annule une entree en attente"
+    },
+    {
+      "id": "AMB-RESA-4",
+      "question": "A quels instants precis, a l'interieur de P1 et P2, surviennent les operations ?",
+      "ce_que_le_cahier_dit": "seules les heures de DEBUT de periode sont donnees (l.125) ; l'ordre des evenements est enonce, leurs instants ne le sont pas.",
+      "cahier_line": 125,
+      "bloquant": false,
+      "raison_non_bloquant": "l.123 impose justement de ne pas ordonner par timestamp mais par sequence d'admission explicite"
+    },
+    {
+      "id": "AMB-RESA-5",
+      "question": "Quels acteurs porte le locataire `other`, et combien ?",
+      "ce_que_le_cahier_dit": "« ses acteurs » (l.119), sans nom ni nombre. A, B et C sont les acteurs de `legacy`.",
+      "cahier_line": 119,
+      "bloquant": false
+    },
+    {
+      "id": "AMB-RESA-6",
+      "question": "D'ou viennent les 100 reservations de la migration P4 (T09.A3) ?",
+      "ce_que_le_cahier_dit": "§F ne nomme que A, B et C sur S1. Le nombre 100 n'apparait qu'a la l.233, dans le cas T09.A3, sans description des donnees qui le composent.",
+      "cahier_line": 233,
+      "bloquant": false,
+      "raison_non_bloquant": "c'est une donnee du TEMOIN de T09, pas de la fixture §F ; elle est inscrite ici comme attente de consommateur, non comme valeur de F-RESERVATION"
+    },
+    {
+      "id": "AMB-RESA-7",
+      "question": "Le refus a 12:00:00.001Z est un « refus metier » : quel code ?",
+      "ce_que_le_cahier_dit": "l.119 dit « refus metier » sans nommer d'enum. La l.123 ne nomme `NOT_FOUND` que pour le contrat intertenant.",
+      "cahier_line": 119,
+      "bloquant": false,
+      "raison_non_bloquant": "le cas T07.A4 exige un refus, pas un identifiant particulier ; §B (l.24) impose seulement de distinguer erreur technique et resultat metier"
+    }
+  ]
+}

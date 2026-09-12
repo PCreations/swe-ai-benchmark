@@ -1,0 +1,168 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      115
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "attend": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "deduction": "la fixture doit porter l'etat AVANT et APRES duplication, et le meme estimateur ponctuel des deux cotes"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "attend": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "attend": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets",
+      "deduction": "la grappe est le PROJET : F-CLUSTERS en a deux"
+    }
+  ],
+  "valeurs": {
+    "unite": {
+      "valeur": null,
+      "cahier_line": 115,
+      "note": "NON SPECIFIEE a la l.115"
+    },
+    "projets": [
+      {
+        "id": "P1",
+        "repetitions": {
+          "valeur": 10,
+          "cahier_line": 115,
+          "citation": "sur dix repetitions identiques"
+        },
+        "cout_A": {
+          "valeur": 10,
+          "cahier_line": 115
+        },
+        "cout_B": {
+          "valeur": 20,
+          "cahier_line": 115
+        },
+        "repetitions_identiques": {
+          "valeur": true,
+          "cahier_line": 115
+        }
+      },
+      {
+        "id": "P2",
+        "repetitions": {
+          "valeur": 1,
+          "cahier_line": 115,
+          "citation": "sur une repetition"
+        },
+        "cout_A": {
+          "valeur": 90,
+          "cahier_line": 115
+        },
+        "cout_B": {
+          "valeur": 100,
+          "cahier_line": 115
+        }
+      }
+    ],
+    "lignes_totales": {
+      "valeur": 11,
+      "cahier_line": 115,
+      "citation": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation."
+    },
+    "moyenne_interprojets_A": {
+      "valeur": 50,
+      "cahier_line": 115,
+      "citation": "Moyennes interprojets encore 50 et 60"
+    },
+    "moyenne_interprojets_B": {
+      "valeur": 60,
+      "cahier_line": 115
+    },
+    "invariance_par_duplication": {
+      "valeur": true,
+      "cahier_line": 115,
+      "citation": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+      "etat_apres_duplication": {
+        "P1_repetitions": 20,
+        "P2_repetitions": 1,
+        "lignes_totales": 21,
+        "moyenne_A_attendue": 50,
+        "moyenne_B_attendue": 60
+      }
+    },
+    "piege_nomme": {
+      "valeur": "moyenne naive sur les onze lignes",
+      "cahier_line": 115,
+      "role": "regle incorrecte que le cas doit rougir"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "L'agregation se fait par projet (grappe), pas sur les lignes de repetition mises en commun.",
+      "cahier_line": 115
+    },
+    {
+      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants.",
+      "cahier_line": 73,
+      "note": "invariant D.11"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "moyenne par projet : P1 -> A=10, B=20 (dix repetitions identiques) ; P2 -> A=90, B=100",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "moyenne interprojets A = (10+90)/2 = 50 ; B = (20+100)/2 = 60",
+      "resultat": "concorde, identique a F-COST-RATIO"
+    },
+    {
+      "controle": "pooling naif A = (10*10 + 90)/11 = 190/11 = 17.27... != 50 : le piege est separable",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "pooling naif B = (20*10 + 100)/11 = 300/11 = 27.27... != 60",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "apres duplication de P1 : pooling naif A = (10*20 + 90)/21 = 290/21 = 13.81... , donc le pooling CHANGE alors que l'agregation par projet ne change pas",
+      "resultat": "concorde — c'est exactement le discriminant de T32.A2"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-CLUSTERS-1",
+      "question": "Quelle unite pour 10, 20, 90, 100 ?",
+      "ce_que_le_cahier_dit": "rien a la l.115.",
+      "cahier_line": 115,
+      "bloquant": false
+    },
+    {
+      "id": "AMB-CLUSTERS-2",
+      "question": "Que designe exactement « l'estimation ponctuelle » preservee par la duplication ?",
+      "ce_que_le_cahier_dit": "l.115 ne la nomme pas. Les candidats naturels sont les deux moyennes interprojets (50 et 60) et le ratio 5/6 de la l.113.",
+      "cahier_line": 115,
+      "bloquant": false,
+      "raison_non_bloquant": "les trois sont invariantes sous duplication d'un projet a repetitions identiques ; l'assertion tient quel que soit le choix"
+    },
+    {
+      "id": "AMB-CLUSTERS-3",
+      "question": "P1 et P2 de F-CLUSTERS sont-ils les memes objets que les « deux projets » de F-COST-RATIO ?",
+      "ce_que_le_cahier_dit": "l.115 reprend les memes couts et les memes moyennes, et l.117 dit « Sur les deux projets precedents ». L'identite est fortement suggeree, jamais enoncee comme telle.",
+      "cahier_line": 115,
+      "bloquant": false,
+      "raison_non_bloquant": "F-BOOTSTRAP (l.117) rend l'identite operante et ses quatre ratios la confirment numeriquement"
+    }
+  ]
+}

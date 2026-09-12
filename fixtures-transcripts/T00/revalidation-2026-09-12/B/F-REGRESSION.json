@@ -1,0 +1,190 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-REGRESSION",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      129
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "cahier_line": 191,
+      "attend": "F-REGRESSION exclut `cancel@1` et compte `isolation@1`",
+      "deduction": "deux verdicts opposes sur deux exigences : la fixture doit porter les deux trajectoires completes, pas un simple compteur"
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "attend": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+      "deduction": "cas VOISIN, mais avec ses propres donnees : F-REGRESSION ne porte pas deux periodes consecutives cassees"
+    },
+    {
+      "cas": "T11.A2",
+      "cahier_line": 251,
+      "attend": "remplacement de regle en P3 visible et ancienne regle retiree",
+      "deduction": "meme mecanisme de remplacement que cancel@1 -> cancel@2"
+    }
+  ],
+  "valeurs": {
+    "exigences": [
+      {
+        "id": "cancel",
+        "version": 1,
+        "cle": "cancel@1",
+        "satisfaite_en": {
+          "valeur": "P2",
+          "cahier_line": 129
+        },
+        "remplacee_en": {
+          "valeur": "P3",
+          "par": "cancel@2",
+          "cahier_line": 129
+        },
+        "produit_une_regression": {
+          "valeur": false,
+          "cahier_line": 129,
+          "citation": "le retrait de `cancel@1` ne produit pas de regression"
+        },
+        "poids": {
+          "valeur": null,
+          "cahier_line": 129,
+          "note": "non specifie"
+        }
+      },
+      {
+        "id": "cancel",
+        "version": 2,
+        "cle": "cancel@2",
+        "introduite_en": {
+          "valeur": "P3",
+          "cahier_line": 129
+        },
+        "role": "remplacante de cancel@1",
+        "poids": {
+          "valeur": null,
+          "cahier_line": 129,
+          "note": "non specifie"
+        }
+      },
+      {
+        "id": "isolation",
+        "version": 1,
+        "cle": "isolation@1",
+        "satisfaite_en": {
+          "valeur": "P3",
+          "cahier_line": 129
+        },
+        "violee_en": {
+          "valeur": "P4",
+          "cahier_line": 129
+        },
+        "produit_une_regression": {
+          "valeur": true,
+          "cahier_line": 129,
+          "citation": "Une exigence `isolation@1` satisfaite en P3 puis violee en P4 en produit une."
+        },
+        "poids": {
+          "valeur": null,
+          "cahier_line": 129,
+          "note": "non specifie"
+        }
+      }
+    ],
+    "nombre_de_regressions_attendu": {
+      "valeur": 1,
+      "cahier_line": 129,
+      "citation": "en produit une",
+      "note": "TRANSCRIPTION litterale, pas un calcul du transcripteur (divergence DIV-2 tranchee dans SC-001)"
+    },
+    "regle_de_comptage": {
+      "valeur": "compter par id/version active, pas par nombre d'assertions",
+      "cahier_line": 129
+    }
+  },
+  "conventions": [
+    {
+      "regle": "G compte les regressions actuellement ouvertes, c'est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "G_new compte celles qui etaient satisfaites a la periode precedente comparable et deviennent violees.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "Une regression persistante contribue a G, sans redevenir nouvelle a chaque periode.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite.",
+      "cahier_line": 72,
+      "note": "invariant D.10"
+    },
+    {
+      "regle": "Remplacer une exigence desactive la bonne version au bon instant.",
+      "cahier_line": 207,
+      "source": "T06.A6"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "cancel@1 : satisfaite en P2, retiree par remplacement en P3 -> elle n'est plus ACTIVE DUE en P3, donc hors du perimetre de G defini l.189",
+      "resultat": "coherent avec « ne produit pas de regression » (l.129)"
+    },
+    {
+      "controle": "isolation@1 : satisfaite en P3, violee en P4, toujours active due -> une regression ouverte en P4",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "total sur la fixture : 1 regression",
+      "resultat": "concorde avec la valeur enoncee"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-REGRESSION-1",
+      "question": "Le « une » de la l.129 designe-t-il G, G_new, ou les deux, et a quelle periode ?",
+      "ce_que_le_cahier_dit": "la l.129 dit « en produit une » sans nommer la metrique. La l.189 definit G et G_new ; sous cette definition, isolation@1 donne G(P4)=1 ET G_new(P4)=1, les deux valant 1 a la meme periode.",
+      "cahier_line": 129,
+      "bloquant": false,
+      "raison_non_bloquant": "les deux lectures rendent 1 en P4 : aucune valeur ne les distingue sur cette fixture. Attention toutefois : T04.A3 (l.191) parle de « compter isolation@1 » sans metrique non plus."
+    },
+    {
+      "id": "AMB-REGRESSION-2",
+      "question": "A quelle periode cancel@1 est-elle revelee/due pour la premiere fois ?",
+      "ce_que_le_cahier_dit": "seulement « satisfaite en P2 » (l.129). Ni P1 ni son echeance ne sont decrits.",
+      "cahier_line": 129,
+      "bloquant": false
+    },
+    {
+      "id": "AMB-REGRESSION-3",
+      "question": "Quels poids portent cancel@1, cancel@2 et isolation@1 ?",
+      "ce_que_le_cahier_dit": "aucun (l.129). Contrairement a F-QUALITY, aucun poids n'est introduit ici.",
+      "cahier_line": 129,
+      "bloquant": false,
+      "raison_non_bloquant": "G compte des exigences, pas des poids (l.189) ; cette fixture ne demande aucun Q"
+    },
+    {
+      "id": "AMB-REGRESSION-4",
+      "question": "cancel@2 est-elle satisfaite ou violee en P3/P4 ?",
+      "ce_que_le_cahier_dit": "rien (l.129). Seul le fait du remplacement est enonce.",
+      "cahier_line": 129,
+      "bloquant": false,
+      "raison_non_bloquant": "l'assertion porte sur le RETRAIT de cancel@1, qui ne doit pas compter comme regression, quel que soit l'etat de sa remplacante"
+    },
+    {
+      "id": "AMB-REGRESSION-5",
+      "question": "isolation@1 et cancel@1 appartiennent-elles a la meme trajectoire que F-QUALITY (A@1, B@1, C@1) ?",
+      "ce_que_le_cahier_dit": "les identifiants sont differents et aucune ligne ne les relie. F-QUALITY parle de A/B/C, F-REGRESSION de cancel/isolation ; les noms de F-REGRESSION font echo au domaine de F-RESERVATION (annulation, isolation intertenant) sans y renvoyer explicitement.",
+      "cahier_line": 129,
+      "bloquant": false,
+      "raison_non_bloquant": "aucun cas d'acceptation ne croise les deux fixtures"
+    }
+  ]
+}

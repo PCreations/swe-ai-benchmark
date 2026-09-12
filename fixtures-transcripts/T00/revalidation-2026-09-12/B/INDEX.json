@@ -1,0 +1,425 @@
+{
+  "schema": "bench.fixture-transcription-index/1",
+  "transcripteur": "B",
+  "etage": "FIXTURES",
+  "tache": "T00",
+  "role": "fixture-transcriber",
+  "cadrage": "consommateurs d'abord : pour chaque fixture, les cas d'acceptation qui la citent (verification/cases.lock.json et docs/cahier.md §H) determinent ce que la fixture doit contenir ; le texte de §F est ensuite confronte a cette attente. AUCUNE implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md"
+  },
+  "aucun_commit": true,
+  "note": "Cet etage n'ecrit rien dans le depot suivi. La materialisation en zone REFERENCE appartient a l'etage de scellement, et seulement si A et B concordent.",
+  "fixtures": [
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "lignes_source": [
+        117
+      ],
+      "consommateurs": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A7"
+      ],
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "lignes_source": [
+        105
+      ],
+      "consommateurs": [
+        "T16.A2",
+        "T16.A7"
+      ],
+      "ambiguites": 4,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "lignes_source": [
+        115
+      ],
+      "consommateurs": [
+        "T32.A2",
+        "T33.A5",
+        "T33.A6"
+      ],
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "lignes_source": [
+        113
+      ],
+      "consommateurs": [
+        "T32.A1",
+        "T36.A2",
+        "T32.A6"
+      ],
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "lignes_source": [
+        121
+      ],
+      "consommateurs": [
+        "T05.A6",
+        "T11.A4",
+        "T31.A1",
+        "T38.A7"
+      ],
+      "ambiguites": 4,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "lignes_source": [
+        103
+      ],
+      "consommateurs": [
+        "T01.A6",
+        "T16.A1",
+        "T38.A2",
+        "T38.A3"
+      ],
+      "ambiguites": 2,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "lignes_source": [
+        127
+      ],
+      "consommateurs": [
+        "T35.A1",
+        "T34.A1",
+        "T34.A2",
+        "T34.A4",
+        "T35.A5"
+      ],
+      "ambiguites": 4,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "lignes_source": [
+        107,
+        109,
+        111
+      ],
+      "consommateurs": [
+        "T04.A1",
+        "T04.A2",
+        "T04.A5",
+        "T04.A6",
+        "T08.A2",
+        "T32.A3",
+        "T36.A1"
+      ],
+      "ambiguites": 6,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "lignes_source": [
+        129
+      ],
+      "consommateurs": [
+        "T04.A3",
+        "T04.A4",
+        "T11.A2"
+      ],
+      "ambiguites": 5,
+      "ambiguites_bloquantes": 0
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "lignes_source": [
+        119,
+        123,
+        125
+      ],
+      "consommateurs": [
+        "T07.A1",
+        "T07.A2",
+        "T07.A3",
+        "T07.A4",
+        "T07.A5",
+        "T07.A6",
+        "T07.A7",
+        "T08.A6",
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A4",
+        "T11.A6"
+      ],
+      "ambiguites": 7,
+      "ambiguites_bloquantes": 0
+    }
+  ],
+  "ambiguites_par_fixture": {
+    "F-BOOTSTRAP": [
+      {
+        "id": "AMB-BOOTSTRAP-1",
+        "question": "Quelle est la FORMULE du « quantile empirique inverse » ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-BOOTSTRAP-2",
+        "question": "Un tirage `[P1,P2]` designe-t-il un tirage AVEC REMISE de deux parents parmi deux ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-BOOTSTRAP-3",
+        "question": "Les ratios sont-ils enonces dans l'ordre de la liste, ou deja tries ?",
+        "bloquant": false
+      }
+    ],
+    "F-BUDGET": [
+      {
+        "id": "AMB-BUDGET-1",
+        "question": "Quelle unite pour 1000, 600, 340, 661 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-BUDGET-2",
+        "question": "Laquelle des deux reservations concurrentes de 600 est acceptee ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-BUDGET-3",
+        "question": "Quel etat porte la « reservation ambigue » de B5 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-BUDGET-4",
+        "question": "En B5, le 600 ambigu compte-t-il dans `reserved` ou dans `spent` ?",
+        "bloquant": false
+      }
+    ],
+    "F-CLUSTERS": [
+      {
+        "id": "AMB-CLUSTERS-1",
+        "question": "Quelle unite pour 10, 20, 90, 100 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-CLUSTERS-2",
+        "question": "Que designe exactement « l'estimation ponctuelle » preservee par la duplication ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-CLUSTERS-3",
+        "question": "P1 et P2 de F-CLUSTERS sont-ils les memes objets que les « deux projets » de F-COST-RATIO ?",
+        "bloquant": false
+      }
+    ],
+    "F-COST-RATIO": [
+      {
+        "id": "AMB-COSTRATIO-1",
+        "question": "Quelle unite pour 10, 90, 20, 100 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-COSTRATIO-2",
+        "question": "« Poids egal » vaut-il 1, 1/2, ou une valeur non normalisee ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-COSTRATIO-3",
+        "question": "A et B sont-ils deux bras (configurations) compares a l'interieur de chaque projet ?",
+        "bloquant": false
+      }
+    ],
+    "F-FAILURE": [
+      {
+        "id": "AMB-FAILURE-1",
+        "question": "Quelle unite pour [100, 50, 0, 0] et 150 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-FAILURE-2",
+        "question": "Quelles sont les exigences et les usages « presents » aux quatre periodes ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-FAILURE-3",
+        "question": "Quel statut d'arret porte l'interruption « apres P2 » ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-FAILURE-4",
+        "question": "Les couts [100, 50, 0, 0] sont-ils compatibles avec un arret apres P2, ou decrivent-ils la trajectoire complete sans arret ?",
+        "bloquant": false
+      }
+    ],
+    "F-MONEY": [
+      {
+        "id": "AMB-MONEY-1",
+        "question": "Quelle est la formule de normalisation d'un fournisseur qui inclut le cache dans son total d'entree ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-MONEY-2",
+        "question": "L'invariant « deux appels identiques valent 680 » vaut-il pour DEUX ecritures comptables ou une ecriture agregee ?",
+        "bloquant": false
+      }
+    ],
+    "F-POWER": [
+      {
+        "id": "AMB-POWER-1",
+        "question": "Quelle marge de non-inferiorite s'applique a F-POWER ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-POWER-2",
+        "question": "Combien de contrastes J porte chaque campagne de F-POWER, donc quel niveau marginal de Bonferroni ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-POWER-3",
+        "question": "Combien de repetitions par parent, et quels couts par periode ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-POWER-4",
+        "question": "Puissance 0,5 et erreur standard 0,25 appartiennent-elles a F-POWER ou a T35 ?",
+        "bloquant": false
+      }
+    ],
+    "F-QUALITY": [
+      {
+        "id": "AMB-QUALITY-1",
+        "question": "Quel poids portent B@1 et C@1 en P3 et P4 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-QUALITY-2",
+        "question": "A quelle periode se rapportent « les quatre usages de F-QUALITY » de T08.A2 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-QUALITY-3",
+        "question": "Quelles sont les echeances des exigences A@1, B@1, C@1, A@2 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-QUALITY-4",
+        "question": "L'exigence revelee mais non encore due du test negatif a-t-elle un id, une version, un poids ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-QUALITY-5",
+        "question": "La « panne avec quatre usages donne R=0 » de T04.A5 est-elle une periode de F-QUALITY ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-QUALITY-6",
+        "question": "Comment P4 « retire B » : echeance passee, remplacement, ou retrait explicite ?",
+        "bloquant": false
+      }
+    ],
+    "F-REGRESSION": [
+      {
+        "id": "AMB-REGRESSION-1",
+        "question": "Le « une » de la l.129 designe-t-il G, G_new, ou les deux, et a quelle periode ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-REGRESSION-2",
+        "question": "A quelle periode cancel@1 est-elle revelee/due pour la premiere fois ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-REGRESSION-3",
+        "question": "Quels poids portent cancel@1, cancel@2 et isolation@1 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-REGRESSION-4",
+        "question": "cancel@2 est-elle satisfaite ou violee en P3/P4 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-REGRESSION-5",
+        "question": "isolation@1 et cancel@1 appartiennent-elles a la meme trajectoire que F-QUALITY (A@1, B@1, C@1) ?",
+        "bloquant": false
+      }
+    ],
+    "F-RESERVATION": [
+      {
+        "id": "AMB-RESA-1",
+        "question": "Quelle est la fin (ou la duree) du creneau S1 ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-RESA-2",
+        "question": "Quelle est la valeur litterale de la cle idempotente de A ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-RESA-3",
+        "question": "La regle des 24 h s'applique-t-elle aussi a l'annulation d'une entree EN ATTENTE, ou seulement a une reservation confirmee ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-RESA-4",
+        "question": "A quels instants precis, a l'interieur de P1 et P2, surviennent les operations ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-RESA-5",
+        "question": "Quels acteurs porte le locataire `other`, et combien ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-RESA-6",
+        "question": "D'ou viennent les 100 reservations de la migration P4 (T09.A3) ?",
+        "bloquant": false
+      },
+      {
+        "id": "AMB-RESA-7",
+        "question": "Le refus a 12:00:00.001Z est un « refus metier » : quel code ?",
+        "bloquant": false
+      }
+    ]
+  },
+  "ambiguites_bloquantes": [],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "statut": "RESOLU",
+      "porte": "F-QUALITY (poids propages en P3/P4), F-FAILURE (unite non specifiee), F-REGRESSION (nombre attendu = 1)"
+    }
+  ],
+  "controle_execute": "chaque champ `citation` a ete confronte a sa ligne `cahier_line` apres normalisation (accents, apostrophes, espaces) : 44 citations, 0 anomalie.",
+  "nombre_de_fixtures": 10,
+  "nombre_d_ambiguites": 41,
+  "nombre_d_ambiguites_bloquantes": 0
+}

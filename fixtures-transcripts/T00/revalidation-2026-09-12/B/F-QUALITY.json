@@ -1,0 +1,456 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-QUALITY",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      107,
+      109,
+      111
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T04.A1",
+      "cahier_line": 191,
+      "attend": "F-QUALITY donne exactement les resultats annonces",
+      "deduction": "il faut Q par periode ET V, sinon « exactement les resultats » est indefini"
+    },
+    {
+      "cas": "T04.A2",
+      "cahier_line": 191,
+      "attend": "dupliquer les assertions d'une exigence ne change pas Q",
+      "deduction": "le denominateur de Q est une somme de POIDS d'exigences, jamais un compte d'assertions (cf. l.72, invariant D.10)"
+    },
+    {
+      "cas": "T04.A5",
+      "cahier_line": 191,
+      "attend": "zero usage donne R=null, panne avec quatre usages donne R=0",
+      "deduction": "P3 (0 offerte, R=null) couvre la premiere moitie ; la panne a quatre usages n'est AUCUNE periode de F-QUALITY et vient de la convention l.111"
+    },
+    {
+      "cas": "T04.A6",
+      "cahier_line": 191,
+      "attend": "exigence non encore due absente du denominateur",
+      "deduction": "le test negatif de la l.109 doit etre porte par la fixture, avec son exigence revelee non due"
+    },
+    {
+      "cas": "T08.A2",
+      "cahier_line": 223,
+      "attend": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n'a cree aucune donnee",
+      "deduction": "les intentions OFFERTES sont independantes de l'etat applicatif ; seules les REUSSIES en dependent"
+    },
+    {
+      "cas": "T32.A3",
+      "cahier_line": 435,
+      "attend": "F-QUALITY conserve V=13/16, U=2/3 et ratio intentions 7/10 comme colonnes distinctes",
+      "deduction": "trois champs nommes distincts, plus l'exposition 3/4 : quatre nombres, pas un"
+    },
+    {
+      "cas": "T36.A1",
+      "cahier_line": 473,
+      "attend": "affiche 0,8125 et 2/3 avec arrondi annonce, sans remplacer U par 0,7",
+      "deduction": "0,7 (=7/10) est le piege explicite : il doit exister dans la fixture, nomme autrement que U"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_periodes": {
+      "valeur": 4,
+      "cahier_line": 107
+    },
+    "periodes_de_meme_duree": {
+      "valeur": true,
+      "cahier_line": 107,
+      "citation": "Quatre periodes de meme duree"
+    },
+    "Q_par_periode": {
+      "valeur": [
+        "1",
+        "1/2",
+        "3/4",
+        "1"
+      ],
+      "decimal": [
+        1,
+        0.5,
+        0.75,
+        1
+      ],
+      "cahier_line": 107
+    },
+    "V": {
+      "valeur": "13/16",
+      "decimal": 0.8125,
+      "cahier_line": 107,
+      "citation": "donnent `V=13/16=0.8125`"
+    },
+    "R_par_periode": {
+      "valeur": [
+        "1",
+        "1/2",
+        null,
+        "1/2"
+      ],
+      "decimal": [
+        1,
+        0.5,
+        null,
+        0.5
+      ],
+      "cahier_line": 107
+    },
+    "intentions_offertes": {
+      "valeur": [
+        4,
+        4,
+        0,
+        2
+      ],
+      "cahier_line": 107
+    },
+    "intentions_reussies": {
+      "valeur": [
+        4,
+        2,
+        0,
+        1
+      ],
+      "cahier_line": 107
+    },
+    "U": {
+      "valeur": "2/3",
+      "cahier_line": 107,
+      "definition": "moyenne temporelle des R sur les periodes exposees",
+      "definition_cahier_line": 111
+    },
+    "exposition": {
+      "valeur": "3/4",
+      "cahier_line": 107
+    },
+    "reussite_agregee_par_intention": {
+      "valeur": "7/10",
+      "decimal": 0.7,
+      "cahier_line": 107
+    },
+    "trois_nombres_distincts": {
+      "valeur": true,
+      "cahier_line": 107,
+      "citation": "Ces trois derniers nombres sont differents et doivent rester identifies.",
+      "porte_sur": [
+        "U",
+        "exposition",
+        "reussite_agregee_par_intention"
+      ]
+    },
+    "entrees_exactes_de_Q": {
+      "cahier_line": 109,
+      "citation": "P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violee et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites.",
+      "toutes_dues": {
+        "valeur": true,
+        "cahier_line": 109,
+        "citation": "Toutes les exigences citees sont dues a la periode concernee."
+      },
+      "periodes": [
+        {
+          "periode": "P1",
+          "exigences": [
+            {
+              "id": "A",
+              "version": 1,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": true
+              },
+              "satisfaite": true
+            },
+            {
+              "id": "B",
+              "version": 1,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": true
+              },
+              "satisfaite": true
+            }
+          ],
+          "Q": "1"
+        },
+        {
+          "periode": "P2",
+          "exigences": [
+            {
+              "id": "A",
+              "version": 1,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": false,
+                "propage": true,
+                "arbitrage": "SC-001"
+              },
+              "satisfaite": true
+            },
+            {
+              "id": "B",
+              "version": 1,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": false,
+                "propage": true,
+                "arbitrage": "SC-001"
+              },
+              "satisfaite": true
+            },
+            {
+              "id": "C",
+              "version": 1,
+              "poids": 2,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": true
+              },
+              "satisfaite": false
+            }
+          ],
+          "Q": "1/2"
+        },
+        {
+          "periode": "P3",
+          "exigences": [
+            {
+              "id": "A",
+              "version": 2,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": true
+              },
+              "satisfaite": true,
+              "remplace": "A@1"
+            },
+            {
+              "id": "B",
+              "version": 1,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": false,
+                "propage": true,
+                "arbitrage": "SC-001"
+              },
+              "satisfaite": false
+            },
+            {
+              "id": "C",
+              "version": 1,
+              "poids": 2,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": false,
+                "propage": true,
+                "arbitrage": "SC-001"
+              },
+              "satisfaite": true
+            }
+          ],
+          "Q": "3/4",
+          "retirees": [
+            "A@1"
+          ]
+        },
+        {
+          "periode": "P4",
+          "exigences": [
+            {
+              "id": "A",
+              "version": 2,
+              "poids": 1,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": false,
+                "propage": true,
+                "arbitrage": "SC-001"
+              },
+              "satisfaite": true
+            },
+            {
+              "id": "C",
+              "version": 1,
+              "poids": 2,
+              "poids_source": {
+                "cahier_line": 109,
+                "enonce": false,
+                "propage": true,
+                "arbitrage": "SC-001"
+              },
+              "satisfaite": true
+            }
+          ],
+          "Q": "1",
+          "retirees": [
+            "B@1"
+          ]
+        }
+      ]
+    },
+    "test_negatif_echeance": {
+      "cahier_line": 109,
+      "citation": "Le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance.",
+      "exigence": {
+        "id": null,
+        "version": null,
+        "poids": null,
+        "echeance": null,
+        "note": "aucun identifiant, poids ni echeance n'est donne par le cahier pour cette exigence"
+      },
+      "attendu": "Q inchange par rapport a la periode consideree ; le poids n'entre au denominateur qu'a partir de l'echeance"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "R vaut null lorsqu'aucune intention admissible n'est proposee.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "U est la moyenne temporelle sur les periodes exposees, avec l'exposition publiee.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Une campagne confirmatoire exige une exposition predefinie non nulle.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Q est null si aucun poids d'exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Les series de simple preparation restent marquees hors mesure.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite.",
+      "cahier_line": 72,
+      "note": "invariant D.10, fonde T04.A2"
+    },
+    {
+      "regle": "Le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active.",
+      "source": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "statut": "RESOLU",
+      "cahier_line": null,
+      "note": "REGLE HORS CAHIER : confirmee par le responsable du cahier le 2026-09-11, non enoncee par §F"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "Q1 = (1+1)/(1+1) = 1",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "Q2 = (1+1)/(1+1+2) = 2/4 = 1/2",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "Q3 = (A@2 1 + C@1 2)/(1+1+2) = 3/4",
+      "resultat": "concorde",
+      "depend_de": "SC-001"
+    },
+    {
+      "controle": "Q4 = (1+2)/(1+2) = 1",
+      "resultat": "concorde",
+      "depend_de": "SC-001"
+    },
+    {
+      "controle": "V = (1 + 1/2 + 3/4 + 1)/4 = (13/4)/4 = 13/16 = 0.8125",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "R1 = 4/4 = 1 ; R2 = 2/4 = 1/2 ; R3 = 0/0 -> null ; R4 = 1/2",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "U = (1 + 1/2 + 1/2)/3 = 2/3 (3 periodes exposees, P3 exclue)",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "exposition = 3 periodes exposees / 4 periodes = 3/4",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "reussite agregee = (4+2+0+1)/(4+4+0+2) = 7/10",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "pieges nommes : moyenner V sur 3 periodes donnerait 3/4 ; inclure P3 au denominateur de U donnerait 2/4 = 1/2 ; confondre U et le ratio d'intentions donnerait 7/10",
+      "resultat": "ecarts distincts, les trois nombres restent separables"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-QUALITY-1",
+      "question": "Quel poids portent B@1 et C@1 en P3 et P4 ?",
+      "ce_que_le_cahier_dit": "la l.109 n'enonce chaque poids qu'une fois, a l'introduction de l'exigence. Les poids de B@1 et C@1 en P3/P4 ne sont ecrits nulle part. L'arithmetique ne tranche pas : (B@1=3, C@1=8) reproduit aussi Q=[1,1/2,3/4,1], donc V, U et 7/10.",
+      "cahier_line": 109,
+      "statut": "RESOLU_HORS_CAHIER",
+      "arbitrage": {
+        "id": "SC-001",
+        "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+        "regle_retenue": "le poids est fixe a son introduction et ne change pas tant que l'exigence est active",
+        "effet": "B@1 pese 1 et C@1 pese 2 en P3 et P4"
+      },
+      "bloquant": false,
+      "note_du_transcripteur": "la transcription ci-dessus APPLIQUE l'arbitrage, et chaque poids non enonce est marque `poids_source.enonce=false, propage=true, arbitrage=SC-001`. Sans SC-001 ces quatre poids seraient des inventions."
+    },
+    {
+      "id": "AMB-QUALITY-2",
+      "question": "A quelle periode se rapportent « les quatre usages de F-QUALITY » de T08.A2 ?",
+      "ce_que_le_cahier_dit": "l.223 dit « les quatre usages », l.107 donne des intentions offertes [4,4,0,2] : P1 ET P2 en offrent quatre. La periode n'est pas nommee.",
+      "cahier_line": 223,
+      "bloquant": false,
+      "raison_non_bloquant": "l'assertion (« toujours proposes si le candidat n'a cree aucune donnee ») vaut identiquement pour P1 et P2"
+    },
+    {
+      "id": "AMB-QUALITY-3",
+      "question": "Quelles sont les echeances des exigences A@1, B@1, C@1, A@2 ?",
+      "ce_que_le_cahier_dit": "seulement qu'« elles sont dues a la periode concernee » (l.109). Aucune date ni indice d'echeance n'est donne, alors que le test negatif de la meme ligne repose sur une echeance.",
+      "cahier_line": 109,
+      "bloquant": false,
+      "raison_non_bloquant": "la duete est enoncee de maniere qualitative et suffit aux denominateurs ; seule l'exigence NON due a besoin d'une echeance, et elle est libre par construction"
+    },
+    {
+      "id": "AMB-QUALITY-4",
+      "question": "L'exigence revelee mais non encore due du test negatif a-t-elle un id, une version, un poids ?",
+      "ce_que_le_cahier_dit": "rien (l.109). Seule sa propriete est enoncee : son poids n'entre pas dans Q avant son echeance.",
+      "cahier_line": 109,
+      "bloquant": false,
+      "raison_non_bloquant": "T04.A6 porte sur l'ABSENCE du poids au denominateur, quelle que soit sa valeur"
+    },
+    {
+      "id": "AMB-QUALITY-5",
+      "question": "La « panne avec quatre usages donne R=0 » de T04.A5 est-elle une periode de F-QUALITY ?",
+      "ce_que_le_cahier_dit": "aucune periode de F-QUALITY n'a quatre intentions offertes et zero reussie : P1 a [4,4]. Le cas s'appuie sur la convention l.111 (« une trajectoire indisponible face a des intentions prevues a R=0, jamais null »), pas sur une ligne de la fixture.",
+      "cahier_line": 191,
+      "bloquant": false,
+      "raison_non_bloquant": "la convention suffit ; ne pas fabriquer une cinquieme periode dans F-QUALITY"
+    },
+    {
+      "id": "AMB-QUALITY-6",
+      "question": "Comment P4 « retire B » : echeance passee, remplacement, ou retrait explicite ?",
+      "ce_que_le_cahier_dit": "« P4 retire B » (l.109), sans mecanisme. En P3, B@1 est violee ; en P4 elle disparait du denominateur. Le cahier distingue ailleurs le remplacement (A@1 -> A@2) du retrait, sans definir le second.",
+      "cahier_line": 109,
+      "bloquant": false,
+      "raison_non_bloquant": "Q4 = (1+2)/(1+2) = 1 quel que soit le mecanisme, des lors que B n'est plus active due. Consequence a surveiller cote F-REGRESSION : un retrait ne doit pas compter comme regression ouverte."
+    }
+  ]
+}

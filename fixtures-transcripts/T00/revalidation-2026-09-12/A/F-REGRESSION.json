@@ -1,0 +1,93 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "derive_de": "cahier seul (aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes)",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      129
+    ]
+  },
+  "texte_source": [
+    {
+      "cahier_line": 129,
+      "texte": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+    }
+  ],
+  "scenarios": [
+    {
+      "exigence": "cancel@1",
+      "chronologie": [
+        {
+          "periode": "P2",
+          "etat": "satisfaite"
+        },
+        {
+          "periode": "P3",
+          "etat": "remplacee par cancel@2"
+        }
+      ],
+      "regression_attendue": false,
+      "enonce": "le retrait de cancel@1 ne produit pas de regression",
+      "cahier_line": 129
+    },
+    {
+      "exigence": "isolation@1",
+      "chronologie": [
+        {
+          "periode": "P3",
+          "etat": "satisfaite"
+        },
+        {
+          "periode": "P4",
+          "etat": "violee"
+        }
+      ],
+      "regression_attendue": true,
+      "nombre": 1,
+      "cahier_line": 129
+    }
+  ],
+  "resultats_attendus": {
+    "regressions_totales": {
+      "valeur": 1,
+      "detail": "isolation@1 en P4",
+      "cahier_line": 129
+    },
+    "regle_de_comptage": {
+      "enonce": "Compter par id/version active, pas par nombre d'assertions.",
+      "cahier_line": 129
+    }
+  },
+  "assertions": [
+    {
+      "id": "F-REGRESSION.1",
+      "enonce": "Le remplacement de cancel@1 par cancel@2 en P3 ne produit pas de regression.",
+      "cahier_line": 129
+    },
+    {
+      "id": "F-REGRESSION.2",
+      "enonce": "isolation@1 satisfaite en P3 puis violee en P4 produit exactement une regression.",
+      "cahier_line": 129
+    },
+    {
+      "id": "F-REGRESSION.3",
+      "enonce": "Le comptage se fait par id/version active, pas par nombre d'assertions.",
+      "cahier_line": 129
+    }
+  ],
+  "notes": [
+    "Le cahier ne precise pas en section F la periode d'introduction de cancel@2 au-dela de « remplacee en P3 » ni l'etat de cancel@2 apres P3 ; seule l'absence de regression liee au retrait de cancel@1 est exigee."
+  ],
+  "ambiguites": []
+}

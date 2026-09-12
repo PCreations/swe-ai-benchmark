@@ -1,0 +1,144 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      113
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "attend": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "deduction": "les deux moyennes ET le ratio doivent etre des champs distincts : un cas qui ne verifie que le ratio ne distingue pas 50/60 de 500/600"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "attend": "F-COST-RATIO affiche 5/6 et les deux moyennes"
+    },
+    {
+      "cas": "T32.A6",
+      "cahier_line": 435,
+      "attend": "poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "deduction": "explique pourquoi « poids egal » doit etre inscrit explicitement"
+    }
+  ],
+  "valeurs": {
+    "unite": {
+      "valeur": null,
+      "cahier_line": 113,
+      "note": "NON SPECIFIEE a la l.113 (verifie : grep 'micro-USD' sur cette ligne rend 0)"
+    },
+    "projets": {
+      "valeur": 2,
+      "poids": "egaux",
+      "cahier_line": 113,
+      "citation": "Deux projets de poids egal"
+    },
+    "couts": {
+      "bras_A": {
+        "valeur": [
+          10,
+          90
+        ],
+        "cahier_line": 113
+      },
+      "bras_B": {
+        "valeur": [
+          20,
+          100
+        ],
+        "cahier_line": 113
+      },
+      "indexation": {
+        "valeur": "par projet, dans l'ordre P1 puis P2",
+        "cahier_line": 115,
+        "note": "confirme par F-CLUSTERS : P1 a A=10/B=20, P2 a A=90/B=100"
+      }
+    },
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "valeur": "5/6",
+      "cahier_line": 113,
+      "citation": "ratio principal A/B=`5/6`"
+    },
+    "valeur_incorrecte_nommee": {
+      "valeur": "0.7",
+      "cahier_line": 113,
+      "citation": "La moyenne des ratios serait `0.7` et constitue un resultat incorrect pour cette metrique.",
+      "role": "contre-valeur exigee par le cas, pas une valeur de la fixture"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Le ratio principal est le RATIO DES MOYENNES, pas la moyenne des ratios.",
+      "cahier_line": 113
+    },
+    {
+      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants.",
+      "cahier_line": 73,
+      "note": "invariant D.11"
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "moyenne A = (10+90)/2 = 50",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "moyenne B = (20+100)/2 = 60",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "50/60 = 5/6",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "moyenne des ratios = (10/20 + 90/100)/2 = (0.5 + 0.9)/2 = 0.7",
+      "resultat": "concorde avec la valeur incorrecte nommee"
+    },
+    {
+      "controle": "5/6 = 0.8333... != 0.7 : les deux regles sont separables sur cette fixture",
+      "resultat": "concorde"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-COSTRATIO-1",
+      "question": "Quelle unite pour 10, 90, 20, 100 ?",
+      "ce_que_le_cahier_dit": "rien a la l.113.",
+      "cahier_line": 113,
+      "bloquant": false
+    },
+    {
+      "id": "AMB-COSTRATIO-2",
+      "question": "« Poids egal » vaut-il 1, 1/2, ou une valeur non normalisee ?",
+      "ce_que_le_cahier_dit": "seulement l'EGALITE des poids (l.113). Toute valeur commune donne les memes moyennes.",
+      "cahier_line": 113,
+      "bloquant": false,
+      "raison_non_bloquant": "l'egalite suffit a determiner 50, 60 et 5/6"
+    },
+    {
+      "id": "AMB-COSTRATIO-3",
+      "question": "A et B sont-ils deux bras (configurations) compares a l'interieur de chaque projet ?",
+      "ce_que_le_cahier_dit": "l.113 nomme A et B sans les qualifier ; F-BOOTSTRAP (l.117) parle de « ratio cout A/B » et T33.A2 (l.443) de « deux bras » suivant les memes indices parents. La qualification vient des consommateurs, pas de §F.",
+      "cahier_line": 113,
+      "bloquant": false
+    }
+  ]
+}

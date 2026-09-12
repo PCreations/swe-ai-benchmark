@@ -1,0 +1,108 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "derive_de": "cahier seul (aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes)",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      103
+    ]
+  },
+  "texte_source": [
+    {
+      "cahier_line": 103,
+      "texte": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  ],
+  "tarifs_micro_usd_par_token": {
+    "entree_non_cachee": {
+      "valeur": 2,
+      "cahier_line": 103
+    },
+    "entree_cachee": {
+      "valeur": 1,
+      "cahier_line": 103
+    },
+    "sortie": {
+      "valeur": 5,
+      "cahier_line": 103
+    }
+  },
+  "appel_de_reference": {
+    "tokens_entree_non_caches": {
+      "valeur": 100,
+      "cahier_line": 103
+    },
+    "tokens_entree_caches": {
+      "valeur": 40,
+      "cahier_line": 103
+    },
+    "tokens_sortie": {
+      "valeur": 20,
+      "cahier_line": 103
+    },
+    "cout_attendu_micro_usd": {
+      "valeur": 340,
+      "cahier_line": 103,
+      "exact": true
+    }
+  },
+  "assertions": [
+    {
+      "id": "F-MONEY.1",
+      "enonce": "Un appel de 100 tokens non caches, 40 caches et 20 de sortie vaut 340 micro-USD.",
+      "attendu": 340,
+      "unite": "micro-USD",
+      "cahier_line": 103
+    },
+    {
+      "id": "F-MONEY.2",
+      "enonce": "Deux appels identiques valent 680 micro-USD.",
+      "attendu": 680,
+      "unite": "micro-USD",
+      "cahier_line": 103
+    },
+    {
+      "id": "F-MONEY.3",
+      "enonce": "Les champs d'entree sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+      "attendu": "normalisation en amont de la facturation ; entree non cachee et entree cachee ne se recouvrent pas",
+      "cahier_line": 103
+    }
+  ],
+  "multiples_hors_section_F": {
+    "avertissement": "Ces totaux ne figurent PAS en section F. Ils sont la composition arithmetique exacte de 340 (ligne 103) par la fixture golden-six decrite ligne 491. Conserves ici parce que le cadrage de la tache les nomme comme valeurs exactes ; a ne pas confondre avec le contenu de F-MONEY lui-meme.",
+    "composition": {
+      "texte": "Fixture : un projet, un scénario de quatre périodes, deux configurations scriptées conformes, trois répétitions, deux appels F-MONEY par période. Tous les autres tarifs valent explicitement zéro dans cette fixture fictive. Tous les parcours valides et exigences actives sont satisfaits.",
+      "cahier_line": 491
+    },
+    "appels_par_periode": 2,
+    "periodes": 4,
+    "appels_par_trajectoire": 8,
+    "cout_par_trajectoire_micro_usd": 2720,
+    "trajectoires": {
+      "valeur": 6,
+      "origine": "deux configurations scriptees x trois repetitions (ligne 491)"
+    },
+    "cout_total_micro_usd": 16320,
+    "tous_autres_tarifs": {
+      "valeur": 0,
+      "cahier_line": 491,
+      "texte": "Tous les autres tarifs valent explicitement zero dans cette fixture fictive."
+    }
+  },
+  "notes": [
+    "340 = 100*2 + 40*1 + 20*5 ; l'egalite est verifiee, mais la valeur retenue est celle enoncee par le cahier ligne 103, pas un calcul d'implementation.",
+    "2720 = 8 * 340 et 16320 = 6 * 2720 ; exacts en entiers."
+  ],
+  "ambiguites": []
+}

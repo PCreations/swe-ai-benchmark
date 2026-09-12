@@ -1,0 +1,76 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "derive_de": "cahier seul (aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes)",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      115
+    ]
+  },
+  "texte_source": [
+    {
+      "cahier_line": 115,
+      "texte": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  ],
+  "projets": [
+    {
+      "projet": "P1",
+      "A": 10,
+      "B": 20,
+      "repetitions": 10,
+      "nature": "dix repetitions identiques",
+      "cahier_line": 115
+    },
+    {
+      "projet": "P2",
+      "A": 90,
+      "B": 100,
+      "repetitions": 1,
+      "cahier_line": 115
+    }
+  ],
+  "resultats_attendus": {
+    "moyenne_interprojets_A": {
+      "valeur": 50,
+      "cahier_line": 115
+    },
+    "moyenne_interprojets_B": {
+      "valeur": 60,
+      "cahier_line": 115
+    }
+  },
+  "assertions": [
+    {
+      "id": "F-CLUSTERS.1",
+      "enonce": "Les moyennes interprojets valent encore 50 et 60 (grappe = projet, pas ligne).",
+      "cahier_line": 115
+    },
+    {
+      "id": "F-CLUSTERS.2",
+      "enonce": "Une moyenne naive sur les onze lignes ne doit pas remplacer cette agregation.",
+      "cahier_line": 115
+    },
+    {
+      "id": "F-CLUSTERS.3",
+      "enonce": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+      "cahier_line": 115
+    }
+  ],
+  "notes": [
+    "Le cahier n'enonce AUCUNE valeur pour la moyenne naive sur onze lignes ; il la declare seulement interdite comme substitut. Aucune valeur n'est donc transcrite ici pour ce contre-exemple.",
+    "« Les deux projets precedents » de F-BOOTSTRAP (ligne 117) designent ces P1 et P2."
+  ],
+  "ambiguites": []
+}

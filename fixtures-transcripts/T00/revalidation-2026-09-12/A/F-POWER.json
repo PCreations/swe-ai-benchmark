@@ -1,0 +1,167 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "derive_de": "cahier seul (aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes)",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      127
+    ]
+  },
+  "texte_source": [
+    {
+      "cahier_line": 127,
+      "texte": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "structure": {
+    "campagnes": {
+      "valeur": 4,
+      "qualificatif": "petites campagnes statistiques",
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "noms": [
+        "P1",
+        "P2"
+      ],
+      "propriete": "deux parents distincts portant les memes valeurs",
+      "cahier_line": 127
+    },
+    "bras_B": {
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "portee": "dans chaque parent",
+      "cahier_line": 127
+    },
+    "conditions": [
+      "comptabilite resolue",
+      "absence de violation critique",
+      "valeurs connues sur les deux bras"
+    ]
+  },
+  "bras_A_par_campagne": [
+    {
+      "campagne": 1,
+      "cout": 80,
+      "V": 1,
+      "U": 1,
+      "cahier_line": 127
+    },
+    {
+      "campagne": 2,
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "cahier_line": 127
+    },
+    {
+      "campagne": 3,
+      "cout": 80,
+      "V": 0.96,
+      "U": 1,
+      "cahier_line": 127
+    },
+    {
+      "campagne": 4,
+      "cout": 80,
+      "V": 0.99,
+      "U": 0.99,
+      "cahier_line": 127
+    }
+  ],
+  "resultats_attendus": {
+    "regime_de_tirage": {
+      "enonce": "Les tirages parents exhaustifs donnent des distributions ponctuelles.",
+      "cahier_line": 127
+    },
+    "bornes_ratio": {
+      "valeurs": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127
+    },
+    "bornes_delta_V": {
+      "valeurs": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "bornes_delta_U": {
+      "valeurs": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "decisions_T34": {
+      "valeurs": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "enonce_cahier": "[vrai,faux,faux,vrai]",
+      "cahier_line": 127
+    }
+  },
+  "assertions": [
+    {
+      "id": "F-POWER.1",
+      "enonce": "Les bornes de ratio des quatre campagnes sont 0,8 / 1 / 0,8 / 0,8.",
+      "cahier_line": 127
+    },
+    {
+      "id": "F-POWER.2",
+      "enonce": "Les bornes de DeltaV sont 0 / 0 / -0,04 / -0,01.",
+      "cahier_line": 127
+    },
+    {
+      "id": "F-POWER.3",
+      "enonce": "Les bornes de DeltaU sont 0 / 0 / 0 / -0,01.",
+      "cahier_line": 127
+    },
+    {
+      "id": "F-POWER.4",
+      "enonce": "T34 doit produire [vrai, faux, faux, vrai].",
+      "cahier_line": 127
+    },
+    {
+      "id": "F-POWER.5",
+      "enonce": "La fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  ],
+  "notes": [
+    "Le cahier donne UNE valeur par campagne pour chaque « borne » et la justifie par « distributions ponctuelles » : l'intervalle est degenere, borne basse = borne haute = cette valeur.",
+    "Coherence verifiee : ratio cout A/B = 80/100, 100/100, 80/100, 80/100 ; DeltaV = V_A - V_B ; DeltaU = U_A - U_B, avec V_B=U_B=1.",
+    "Hors section F (ligne 451, enonce de regle et non cas d'acceptation) : « superiorite cout si borne superieure du ratio <1 ; non-inferiorite V/U si leurs bornes inferieures >-marge ; [...] Marges d'exemple 0,02. » Avec marge=0,02, les quatre verdicts enonces ligne 127 sont coherents (campagne 2 : ratio=1 non <1 ; campagne 3 : -0,04 non >-0,02)."
+  ],
+  "ambiguites": [
+    {
+      "point": "La section F n'enonce pas la marge de non-inferiorite qui produit [vrai,faux,faux,vrai] ; elle n'est donnee qu'ailleurs dans le cahier (ligne 451, « Marges d'exemple 0,02 »). La sortie attendue reste, elle, entierement enoncee en section F.",
+      "cahier_line": 127,
+      "severite": "non-bloquante"
+    }
+  ]
+}

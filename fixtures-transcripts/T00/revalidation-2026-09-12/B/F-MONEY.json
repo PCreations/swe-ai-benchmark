@@ -1,0 +1,172 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-MONEY",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      103
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "attend": "la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est detectee par la verification des references",
+      "deduction": "la fixture doit porter 340 comme valeur atomique comparable, pas seulement une grille a partir de laquelle 340 se recalcule"
+    },
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "attend": "F-MONEY donne 340",
+      "deduction": "la grille par token ET le total de l'appel doivent tous deux figurer, sinon le cas ne peut pas distinguer une erreur de grille d'une erreur de somme"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "attend": "48 appels recus et regles"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "attend": "2720 micro-USD par trajectoire, 16320 au total",
+      "deduction": "la fixture doit porter le tarif unitaire d'appel (340) que T38 multiplie ; les totaux T38 sont enonces par le cahier, non calcules ici"
+    }
+  ],
+  "valeurs": {
+    "unite": {
+      "valeur": "micro-USD",
+      "cahier_line": 103,
+      "citation": "entree non cachee 2 micro-USD/token"
+    },
+    "grille": {
+      "entree_non_cachee_par_token": {
+        "valeur": 2,
+        "cahier_line": 103
+      },
+      "entree_cachee_par_token": {
+        "valeur": 1,
+        "cahier_line": 103
+      },
+      "sortie_par_token": {
+        "valeur": 5,
+        "cahier_line": 103
+      }
+    },
+    "appel_de_reference": {
+      "tokens_entree_non_caches": {
+        "valeur": 100,
+        "cahier_line": 103
+      },
+      "tokens_entree_caches": {
+        "valeur": 40,
+        "cahier_line": 103
+      },
+      "tokens_sortie": {
+        "valeur": 20,
+        "cahier_line": 103
+      },
+      "cout_attendu": {
+        "valeur": 340,
+        "cahier_line": 103,
+        "citation": "Un appel de 100 tokens non caches, 40 caches et 20 de sortie vaut 340 micro-USD"
+      }
+    },
+    "deux_appels_identiques": {
+      "cout_attendu": {
+        "valeur": 680,
+        "cahier_line": 103,
+        "citation": "Deux appels identiques valent 680"
+      }
+    },
+    "disjonction_des_champs_d_entree": {
+      "valeur": true,
+      "cahier_line": 103,
+      "citation": "Les champs d'entree sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    },
+    "valeur_de_corruption_sentinelle": {
+      "valeur": 341,
+      "cahier_line": 165,
+      "role": "valeur fausse que T01.A6 exige de detecter ; elle n'est PAS une valeur de la fixture, elle est la contre-valeur nommee par le cahier"
+    },
+    "totaux_annonces_par_le_consommateur_T38": {
+      "appels_par_periode": {
+        "valeur": 2,
+        "cahier_line": 491
+      },
+      "autres_tarifs": {
+        "valeur": 0,
+        "cahier_line": 491,
+        "citation": "Tous les autres tarifs valent explicitement zero dans cette fixture fictive."
+      },
+      "appels_total": {
+        "valeur": 48,
+        "cahier_line": 493
+      },
+      "micro_usd_par_trajectoire": {
+        "valeur": 2720,
+        "cahier_line": 493
+      },
+      "micro_usd_total": {
+        "valeur": 16320,
+        "cahier_line": 493
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD.",
+      "cahier_line": 80
+    },
+    {
+      "regle": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires.",
+      "cahier_line": 71,
+      "note": "invariant D.9"
+    },
+    {
+      "regle": "Les ajustements sont des ecritures separees signees, pas l'edition d'une facture deja inscrite.",
+      "cahier_line": 80
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "100*2 + 40*1 + 20*5 = 340",
+      "resultat": "concorde",
+      "portee": "verification interne de la transcription ; la valeur retenue reste celle ENONCEE l.103, pas ce produit"
+    },
+    {
+      "controle": "2 * 340 = 680",
+      "resultat": "concorde"
+    },
+    {
+      "controle": "2 appels/periode * 4 periodes * 340 = 2720 par trajectoire",
+      "resultat": "concorde",
+      "note": "4 periodes : l.491"
+    },
+    {
+      "controle": "6 trajectoires * 2720 = 16320 ; 6 * 8 = 48 appels",
+      "resultat": "concorde"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-MONEY-1",
+      "question": "Quelle est la formule de normalisation d'un fournisseur qui inclut le cache dans son total d'entree ?",
+      "ce_que_le_cahier_dit": "« son adaptateur le normalise avant facturation » (l.103) — l'obligation est enoncee, l'operation ne l'est pas (soustraire les tokens caches du total, ou relire un champ separe).",
+      "cahier_line": 103,
+      "bloquant": false,
+      "raison_non_bloquant": "aucun cas d'acceptation cite un fournisseur de ce genre ; l'appel de reference donne les trois champs deja disjoints"
+    },
+    {
+      "id": "AMB-MONEY-2",
+      "question": "L'invariant « deux appels identiques valent 680 » vaut-il pour DEUX ecritures comptables ou une ecriture agregee ?",
+      "ce_que_le_cahier_dit": "l.103 donne le total, pas la cardinalite des ecritures. Le consommateur T16.A4 (l.295) exige separement que « deux recus distincts de meme montant restent deux depenses ».",
+      "cahier_line": 103,
+      "bloquant": false
+    }
+  ]
+}

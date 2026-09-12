@@ -1,0 +1,89 @@
+{
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T00",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "methode": "Transcription depuis la section F du cahier seule, fixture par fixture dans l'ordre du texte. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes pour etablir les valeurs.",
+  "convention_d_exactitude": {
+    "enonce": "Les nombres exacts se vérifient en entier ou rationnel. Les fonctions statistiques utilisant des flottants précisent leur tolérance, au maximum `1e-12` pour les fixtures arithmétiques ci-dessus. Une version et un algorithme pseudo-aléatoire figés sont requis pour les sorties simulées.",
+    "cahier_line": 143
+  },
+  "fixtures": [
+    {
+      "nom": "F-MONEY",
+      "cahier_lines": [
+        103
+      ]
+    },
+    {
+      "nom": "F-BUDGET",
+      "cahier_lines": [
+        105
+      ]
+    },
+    {
+      "nom": "F-QUALITY",
+      "cahier_lines": [
+        107,
+        109,
+        111
+      ]
+    },
+    {
+      "nom": "F-COST-RATIO",
+      "cahier_lines": [
+        113
+      ]
+    },
+    {
+      "nom": "F-CLUSTERS",
+      "cahier_lines": [
+        115
+      ]
+    },
+    {
+      "nom": "F-BOOTSTRAP",
+      "cahier_lines": [
+        117
+      ]
+    },
+    {
+      "nom": "F-RESERVATION",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ]
+    },
+    {
+      "nom": "F-FAILURE",
+      "cahier_lines": [
+        121
+      ]
+    },
+    {
+      "nom": "F-POWER",
+      "cahier_lines": [
+        127
+      ]
+    },
+    {
+      "nom": "F-REGRESSION",
+      "cahier_lines": [
+        129
+      ]
+    }
+  ],
+  "exhaustivite": "Recherche de `F-[A-Z]` sur tout le cahier : les seules definitions situees entre les lignes 101 et 129 (section F) sont ces dix fixtures. Les autres occurrences (lignes 165, 191, 199, 215, 223, 233, 251, 295, 427, 435, 443, 463, 473, 491, 493) sont des references depuis la section H (taches/acceptation), hors cadrage.",
+  "ambiguites_totales": 7
+}

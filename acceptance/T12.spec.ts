@@ -405,6 +405,14 @@ const CONFLIT_CANONIQUE = 'IDEMPOTENCY_CONFLICT'; // cahier:L199
 const MOTIF_CONFLIT_DE_CLE = /CONFLICT|CONFLIT|MISMATCH|DIVERGENCE|DUPLICATE|DOUBLON/i;
 const MOTIF_LIMITE_ATTEINTE = /CONFLICT|CONFLIT|RETRY|REPRISE|EXHAUST|EPUIS|LIMIT|BORNE|SERIAL/i;
 
+/**
+ * LE REFUS QUE POSTGRESQL LUI-MEME PRONONCE quand une seconde ligne de meme
+ * cle se presente : SQLSTATE 23505, `duplicate key value violates unique
+ * constraint`. Le motif accepte les trois formes — code, libelle anglais,
+ * libelle localise — parce que L263 demande une preuve SQL, pas une langue.
+ */
+const MOTIF_UNICITE_SQL = /23505|duplicate key|unique constraint|contrainte unique|valeur dupliqu/i;
+
 /** Ce qui n'est PAS un refus : un plantage. La distinction est decisive (A3, A6). */
 const MARQUEURS_DE_PLANTAGE =
   /TypeError|ReferenceError|RangeError|SyntaxError|is not a function|is not iterable|Cannot read (?:propert|of)|of undefined|of null|ECONNREFUSED|ECONNRESET|EPIPE|socket hang up|undefined is not/;
@@ -753,6 +761,95 @@ function indexUniquesSur(db: string, e: Emplacement): string[] {
   );
   if (!r.ok || r.out.length === 0) return [];
   return r.out.split('\n').map((s) => s.trim()).filter(Boolean);
+}
+
+interface IndexDeTete {
+  nom: string;
+  colonnesDeCle: number;
+  partiel: boolean;
+}
+
+/**
+ * ARBITRAGE PAR LA BASE (L263) — les index UNIQUES, VALIDES et TOTAUX dont la
+ * colonne donnee est la colonne de TETE, avec le nombre de colonnes de cle de
+ * chacun.
+ *
+ * POURQUOI CETTE SONDE EXISTE A COTE DE `indexUniquesSur`. Celle-la repond a la
+ * question d'A3 — « meme cle / autre empreinte est-il DECIDABLE ? » — et exige
+ * donc un index MONOCOLONNE sur la table du resultat. Celle-ci repond a la
+ * question d'A2, qui n'est pas la meme : « un seul resultat logique » porte sur
+ * TOUTES les tables ou la cle apparait, c'est-a-dire aussi sur les evenements
+ * et les entrees d'outbox, ou plusieurs lignes de meme cle sont legitimes (une
+ * par rang) mais ou un DOUBLON ne l'est pas. Un index unique dont la cle est la
+ * colonne de TETE est exactement ce qui interdit ce doublon.
+ *
+ * Un index PARTIEL (`indpred`) n'arbitre qu'un sous-ensemble des lignes : il
+ * est exclu, sans quoi la preuve dirait « unique, parfois ».
+ */
+function indexUniquesDeTete(db: string, e: Emplacement): IndexDeTete[] {
+  const r = psql(
+    db,
+    `SELECT ic.relname || '|' || i.indnkeyatts::text || '|' ||
+            CASE WHEN i.indpred IS NULL THEN 'total' ELSE 'partiel' END
+       FROM pg_index i
+       JOIN pg_class c ON c.oid = i.indrelid
+       JOIN pg_class ic ON ic.oid = i.indexrelid
+       JOIN pg_namespace ns ON ns.oid = c.relnamespace
+       JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = i.indkey[0]
+      WHERE i.indisunique
+        AND i.indisvalid
+        AND ns.nspname = ${lit(e.schema)}
+        AND c.relname = ${lit(e.table)}
+        AND a.attname = ${lit(e.colonne)}
+      ORDER BY 1`,
+  );
+  if (!r.ok || r.out.length === 0) return [];
+  const out: IndexDeTete[] = [];
+  for (const ligne of r.out.split('\n')) {
+    const p = ligne.trim().split('|');
+    if (p.length !== 3) continue;
+    out.push({ nom: p[0], colonnesDeCle: Number(p[1]), partiel: p[2] === 'partiel' });
+  }
+  return out;
+}
+
+/**
+ * LA SONDE ETRANGERE : une session `psql` que l'implementation ne coordonne
+ * PAS tente d'ecrire, dans la table du resultat, une SECONDE ligne portant une
+ * cle deja publiee. PostgreSQL doit la refuser lui-meme.
+ *
+ * La ligne presentee est la COPIE d'une autre ligne de la MEME table — celle
+ * d'une periode jumelle, retiree dans la meme transaction pour liberer sa
+ * place — dont SEULE la colonne de la cle est remplacee. Toutes les autres
+ * contraintes du schema restent donc satisfaites exactement comme elles
+ * l'etaient pour la jumelle : un refus ne peut venir que de l'unicite de la
+ * cle, et une acceptation dit que deux lignes de meme cle y coexistent.
+ *
+ * La colonne de la cle est la seule que la sonde nomme, et elle lui vient de
+ * `emplacementsDeLaCle` : aucun nom de table ni de colonne n'est suppose.
+ * Rien n'est committe — la transaction finit par ROLLBACK.
+ */
+function refusDUnSecondResultat(
+  db: string,
+  e: Emplacement,
+  jumeau: string,
+  cle: string,
+): Psql {
+  const t = `"${e.schema}"."${e.table}"`;
+  const c = `"${e.colonne}"`;
+  return psql(
+    db,
+    `BEGIN;
+     CREATE TEMP TABLE sonde_unicite AS SELECT * FROM ${t} WHERE ${c}::text = ${lit(jumeau)};
+     DELETE FROM ${t} WHERE ${c}::text = ${lit(jumeau)};
+     INSERT INTO ${t}
+       SELECT (jsonb_populate_record(
+                 NULL::${t},
+                 to_jsonb(x) || jsonb_build_object(${lit(e.colonne)}, ${lit(cle)})
+               )).*
+         FROM sonde_unicite x;
+     ROLLBACK;`,
+  );
 }
 
 /**
@@ -1662,6 +1759,118 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
               `${String(F_CONFIRMEES)} par table portant la cle et son empreinte ` +
               `(F-RESERVATION : creneau de capacite ${String(F_CAPACITE)})`,
       ).toBe('une-seule-ligne-logique'); // reference: F-RESERVATION confirmees
+
+      // ─────────────────────────────────────────────────────────────────
+      // CE QUI REND « UN SEUL » VRAI : L'ARBITRAGE PAR LA BASE (L263).
+      //
+      // Tout ce qui precede observe un RESULTAT : apres vingt publications, la
+      // base porte ce que porte une publication unique. Rien n'y distingue
+      // encore un magasin qui REFUSE un second resultat de meme cle d'un
+      // magasin qui l'accepterait mais dont l'appelant, ici, s'est trouve
+      // ordonne — les vingt publications passent toutes par la MEME instance
+      // du paquet, qui peut les serialiser elle-meme.
+      //
+      // Ce n'est pas une precaution theorique : la mesure a tranche le point.
+      // En retirant du schema central TOUTE unicite de la table du resultat —
+      // l'unicite de la cle d'idempotence, puis celle de la position — les
+      // vingt publications concurrentes continuaient de ne laisser qu'UNE
+      // ligne, et ce cas restait VERT. « Un seul resultat logique » etait donc
+      // observe, jamais exige de la base. C'est ce trou que la suite ferme
+      // ici, sans rien retirer de ce qui precede.
+      //
+      // L263 demande des « preuves SQL des contraintes uniqueS » — au pluriel,
+      // et T12 en porte plusieurs. Trois faces les etablissent : la SONDE
+      // ETRANGERE montre que la base APPLIQUE l'unicite a qui ne passe pas par
+      // le paquet, et le CATALOGUE montre qu'elle la DECLARE — sur la table du
+      // resultat, puis sur toutes celles qui portent la cle.
+
+      // LES TROIS FACES CI-DESSOUS partagent la meme localisation, faite sans
+      // supposer aucun nom : les colonnes qui portent EXACTEMENT la cle, et
+      // parmi leurs tables celles qui portent AUSSI l'empreinte — la ligne de
+      // resultat.
+      const emplacements = emplacementsDeLaCle(db, cle);
+      expect(
+        emplacements.length > 0
+          ? 'cle-localisee-en-base'
+          : `CLE-INTROUVABLE-EN-BASE ${cle} : aucune colonne textuelle du schema central ne ` +
+              `porte cette valeur apres vingt publications`,
+      ).toBe('cle-localisee-en-base'); // cahier:L263
+      const tablesDuResultatA2 = new Set(
+        emplacementsDeLaCle(db, env.input_digest).map((e) => `${e.schema}.${e.table}`),
+      );
+      const cibles = emplacements.filter((e) =>
+        tablesDuResultatA2.has(`${e.schema}.${e.table}`),
+      );
+      expect(
+        cibles.length > 0
+          ? 'table-du-resultat-localisee'
+          : `TABLE-DU-RESULTAT-INTROUVABLE : aucune table ne porte a la fois ${cle} et ` +
+              `${env.input_digest} (emplacements de la cle : ${rendu(emplacements)})`,
+      ).toBe('table-du-resultat-localisee'); // cahier:L68
+
+      // (i) FACE COMPORTEMENT — la face decisive, et celle qui correspond au
+      //     mode de preuve du cas. Une session ETRANGERE, un autre processus
+      //     que l'implementation ne coordonne pas, presente un SECOND resultat
+      //     portant la cle deja publiee : c'est le vingt-et-unieme ecrivain,
+      //     celui qui ne passe pas par le paquet. Si la base l'accepte, « un
+      //     seul resultat logique » n'etait la propriete de personne.
+      //     La ligne presentee est la copie d'une periode JUMELLE dont seule la
+      //     cle est remplacee, la jumelle etant retiree dans la meme
+      //     transaction : toute autre contrainte reste satisfaite exactement
+      //     comme elle l'etait pour elle, et le refus attendu ne peut donc
+      //     porter que sur l'unicite de la cle. Rien n'est committe.
+      const jumelle = `${RUN}-jumelle`; // ne contient pas la cle : les profils releves ci-dessus ne bougent pas
+      exigerAccepte(
+        await publier(h, enveloppe(jumelle, 2)),
+        'publication de la periode jumelle (temoin de la sonde etrangere)',
+      );
+      for (const e of cibles) {
+        const r = refusDUnSecondResultat(db, e, jumelle, cle);
+        expect(
+          !r.ok && MOTIF_UNICITE_SQL.test(r.out)
+            ? 'second-resultat-refuse-par-postgresql'
+            : r.ok
+              ? `SECOND-RESULTAT-ACCEPTE ${e.schema}.${e.table}(${e.colonne}) : une session ` +
+                `etrangere a pu ecrire une SECONDE ligne portant ${cle} — « un seul resultat ` +
+                `logique » n'est pas arbitre par la base, il a seulement ete observe`
+              : `REFUS-POUR-UNE-AUTRE-RAISON ${e.schema}.${e.table}(${e.colonne}) : ` +
+                `${court(r.out, 500)}`,
+        ).toBe('second-resultat-refuse-par-postgresql'); // cahier:L261, L263
+      }
+
+      // (ii) FACE CATALOGUE, sur la table du RESULTAT : PostgreSQL doit
+      //      DECLARER ce qu'il vient d'appliquer — un index unique TOTAL dont
+      //      la cle est l'UNIQUE colonne de cle. Un index unique COMPOSITE
+      //      `(cle, autre_chose)` autoriserait deux lignes de meme cle, donc
+      //      deux resultats logiques.
+      const resultatNonUniqueParCle = cibles.filter(
+        (e) => !indexUniquesDeTete(db, e).some((x) => !x.partiel && x.colonnesDeCle === 1),
+      );
+      expect(
+        resultatNonUniqueParCle.length === 0
+          ? 'un-seul-resultat-par-cle-arbitre-par-la-base'
+          : `RESULTAT-NON-UNIQUE-PAR-CLE ${rendu(resultatNonUniqueParCle)} — la table qui porte ` +
+              `le resultat ne declare aucun index unique TOTAL dont la cle soit l'UNIQUE colonne ` +
+              `de cle : deux lignes de meme cle y sont permises, donc deux resultats logiques`,
+      ).toBe('un-seul-resultat-par-cle-arbitre-par-la-base'); // cahier:L261
+
+      // (iii) FACE CATALOGUE, sur TOUTES les tables qui portent la cle — les
+      //       evenements et les entrees d'outbox comprises, dont ce cas compare
+      //       les comptes plus haut. Plusieurs lignes de meme cle y sont
+      //       legitimes (une par rang) ; un DOUBLON ne l'est pas. Ce qui
+      //       l'interdit est un index unique TOTAL dont la cle est la colonne
+      //       de TETE. Sans lui, l'egalite des profils relevee ci-dessus ne
+      //       serait vraie que de l'execution observee.
+      const nonArbitrees = emplacements.filter(
+        (e) => !indexUniquesDeTete(db, e).some((x) => !x.partiel),
+      );
+      expect(
+        nonArbitrees.length === 0
+          ? 'unicite-arbitree-par-la-base'
+          : `UNICITE-NON-ARBITREE-PAR-LA-BASE ${rendu(nonArbitrees)} — pg_index ne declare, ` +
+              `sur ces colonnes, aucun index unique TOTAL dont la cle soit la colonne de tete : ` +
+              `« un seul resultat logique » n'y tiendrait que si l'appelant s'ordonnait lui-meme`,
+      ).toBe('unicite-arbitree-par-la-base'); // cahier:L263
     },
     CASE_TIMEOUT_MS,
   );

@@ -98,7 +98,38 @@
     "(zone ACCEPTANCE) et chacune a fait rougir son cas en NOMMANT la valeur",
     "observee — 150, 340, 0, et une ligne dans `public.periods`. Une assertion qui",
     "survit a la falsification de son attendu n'observe rien ; celles-ci n'y",
-    "survivent pas."
+    "survivent pas.",
+    "",
+    "CE QUE LA PORTE DE MUTATION A TROUVE, ET CE QU'ELLE A CHANGE (HEAD 1c61fb86).",
+    "Onze mutants sur douze tuaient leur cas nomme. T12.M3 ne tuait pas le sien : A2",
+    "restait VERT, et c'est A3 qui tombait, sur sa preuve SQL. Deux lectures etaient",
+    "possibles — A2 aveugle, ou M3 mal declare — et une seule mesure les separe :",
+    "retirer de la table du resultat TOUTE unicite, et non le seul index de la cle.",
+    "Faite, cette mesure laisse A2 VERT : vingt publications concurrentes ne",
+    "laissaient qu'une ligne alors que plus aucune contrainte ne l'exigeait. Le cas",
+    "observait donc « un seul resultat logique » sans jamais l'exiger de la base, et",
+    "ne distinguait pas un magasin qui REFUSE un second resultat d'un magasin dont",
+    "l'appelant s'est trouve ordonne. C'est la definition d'un cas aveugle sur cet",
+    "axe, et c'est ce que la porte existe pour attraper.",
+    "",
+    "A2 GAGNE DONC TROIS ASSERTIONS, et n'en perd aucune : une SONDE ETRANGERE — une",
+    "session `psql` que l'implementation ne coordonne pas, qui presente un second",
+    "resultat portant la cle deja publiee et que PostgreSQL doit refuser lui-meme —",
+    "puis deux preuves de CATALOGUE (L263, « preuves SQL des contraintes uniqueS ») :",
+    "sur la table du resultat, un index unique TOTAL dont la cle est l'UNIQUE colonne",
+    "de cle ; sur toutes les tables portant la cle, evenements et outbox compris, un",
+    "index unique TOTAL dont la cle est la colonne de TETE. La premiere est la face",
+    "comportementale, conforme au mode de preuve du cas ; les deux autres couvrent ce",
+    "que la sonde ne peut pas atteindre, dont la moitie evenements/outbox de M3.",
+    "",
+    "CE QUE CE CYCLE A CORRIGE DANS CE FICHIER, PAR LA MESURE ET NON PAR LE",
+    "RAISONNEMENT : la forme appliquee de M3 (toute l'unicite de la table du",
+    "resultat, la moitie evenements/outbox n'etant pas applicable — elle casse la",
+    "clause ON CONFLICT de l'implementation et fait tomber les six cas en 42P10) ;",
+    "`tue_aussi` de M3, d'ou A6 sort parce qu'il reste vert ; et `doit_rester_vert`",
+    "de M5, d'ou A2 sort parce qu'un index unique manquant sur la cle rend vraies a",
+    "la fois l'indecidabilite de « meme cle » et la possibilite d'un second resultat.",
+    "Aucun mutant n'a ete retire, aucune assertion affaiblie, aucun cas requis touche."
   ],
   "schema": "bench.mutants/1",
   "task": "T12",
@@ -129,7 +160,7 @@
         "T12.A5",
         "T12.A6"
       ],
-      "mesure": "Applique a la sonde jetable (module reduit a `export {};`) : les SIX cas passent au rouge, tous sur `PAQUET-NON-CHARGEABLE paquet packages/storage : aucun specificateur n'a repondu`. Le rouge est un ECHEC D'ASSERTION, pas un `Test suite failed to run` : la suite se charge, les six tests sont observes, et red.mjs peut les adjuger."
+      "mesure": "Applique a la sonde jetable (module reduit a `export {};`) : les SIX cas passent au rouge, tous sur `PAQUET-NON-CHARGEABLE paquet packages/storage : aucun specificateur n'a repondu`. Le rouge est un ECHEC D'ASSERTION, pas un `Test suite failed to run` : la suite se charge, les six tests sont observes, et red.mjs peut les adjuger. RE-MESURE A HEAD 1c61fb86, suite renforcee : entree publiee reduite a `export {};` — les SIX cas ROUGES, 18 assertions, chacun sur « CONTRAT-NON-SATISFAIT roles=[applyMigrations, openStore, publishPeriodResult, readPeriodResult] … (0 exports de premier niveau observes dans @bench/storage) ». Echec d'ASSERTION, suite chargee."
     },
     {
       "id": "T12.M2",
@@ -150,7 +181,7 @@
         "T12.A5",
         "T12.A6"
       ],
-      "mesure": "Applique a la sonde jetable : les SIX cas passent au rouge. A1 tombe exactement sur le temoin independant — « ETAT-ABSENT-DE-POSTGRESQL t12_…-a1-p1 : profil={\"public.artifact_refs\":0, …, \"public.domain_events\":0, …, \"public.outbox\":0, \"public.periods\":0, …} — un etat servi depuis la memoire du processus ne satisfait pas « tests sur PostgreSQL reel » ». L'egalite avant/apres reconnexion, elle, etait encore VERTE : sans le recoupement psql, le cas aurait survecu."
+      "mesure": "Applique a la sonde jetable : les SIX cas passent au rouge. A1 tombe exactement sur le temoin independant — « ETAT-ABSENT-DE-POSTGRESQL t12_…-a1-p1 : profil={\"public.artifact_refs\":0, …, \"public.domain_events\":0, …, \"public.outbox\":0, \"public.periods\":0, …} — un etat servi depuis la memoire du processus ne satisfait pas « tests sur PostgreSQL reel » ». L'egalite avant/apres reconnexion, elle, etait encore VERTE : sans le recoupement psql, le cas aurait survecu. RE-MESURE A HEAD 1c61fb86, suite renforcee : `publishPeriodResult` range l'enveloppe dans une Map de module et n'ecrit plus rien en base, `readPeriodResult` lit cette Map — A1 ROUGE sur le temoin independant « ETAT-ABSENT-DE-POSTGRESQL t12_…-a1-p1 : profil={\"public.artifact_refs\":0, …, \"public.domain_events\":0, …, \"public.outbox\":0, \"public.periods\":0, …} », les cinq autres rouges comme annonce ; 69 assertions."
     },
     {
       "id": "T12.M3",
@@ -158,21 +189,21 @@
       "proof_kind": "behaviour",
       "necessity": "targeted-perturbation",
       "direction": "rendre PERMISSIF",
-      "target": "Les contraintes d'unicite du schema central : l'index unique sur la cle d'idempotence de la table du resultat, et la contrainte d'unicite des evenements et des entrees d'outbox.",
-      "mutation": "Retirer l'unicite sans rien changer d'autre : l'index unique de la cle devient un index ordinaire, la contrainte d'unicite des evenements/outbox disparait. Le code applicatif est inchange — il continue de verifier l'existence avant d'inserer, mais cette verification n'est plus arbitree par la base sous concurrence.",
+      "target": "Toute unicite que le schema central fait porter a la LIGNE DE RESULTAT : l'index unique sur la cle d'idempotence, et toute autre contrainte d'unicite de la meme table qui arbitrerait la meme ligne. Cible SECONDAIRE, non applicable telle quelle a l'implementation presente (voir `mesure`) : la contrainte d'unicite des evenements et des entrees d'outbox.",
+      "mutation": "Retirer l'unicite sans rien changer d'autre : l'index unique de la cle devient un index ORDINAIRE, et l'autre contrainte d'unicite de la table du resultat disparait — plus aucune contrainte de la base n'arbitre « une seule ligne de resultat ». Les cles etrangeres qui visaient la colonne de la cle tombent avec elle : une cle etrangere sans cible unique ferait echouer la migration, et le cas tomberait pour une raison sans rapport avec la multiplicite. Le code applicatif est inchange.",
       "expected_effect": "T12.A2 devient rouge.",
-      "observation_qui_echoue": "A2 publie VINGT fois (L261) la MEME enveloppe, liberees ensemble par une barriere (L141), et compare le PROFIL de la cle — le nombre de lignes portant la cle, table par table — a celui d'une publication UNIQUE de la meme enveloppe sur une base vierge. Il exige en outre que les vingt publications soient toutes acceptees. Sous la mutation, la fenetre entre la verification et l'insertion n'est plus fermee : plusieurs lignes de resultat coexistent, la verification suivante lit plusieurs empreintes et des publications se refusent entre elles.",
-      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit pour A2 : « retirer la contrainte d'unicite (ou la clause ON CONFLICT) de sorte que vingt publications concurrentes du meme resultat creent vingt lignes logiques ». C'est la moitie que le stub ne couvre pas : un module vide tue A2 par absence, cette mutation le tue par MULTIPLICITE, qui est la propriete que le cas enonce.",
+      "observation_qui_echoue": "A2 publie VINGT fois (L261) la MEME enveloppe, liberees ensemble par une barriere (L141), et compare le PROFIL de la cle a celui d'une publication UNIQUE sur une base vierge. La mesure a montre que cette comparaison SURVIT a la mutation : les vingt publications passent toutes par la MEME instance du paquet, qui peut les serialiser elle-meme, et ne laissent qu'une ligne meme quand plus aucune contrainte ne l'exige. A2 exige donc desormais que « un seul » soit ARBITRE PAR LA BASE : une session `psql` ETRANGERE, que l'implementation ne coordonne pas, presente un SECOND resultat portant la cle deja publiee — la copie d'une periode jumelle dont seule la cle est remplacee, la jumelle etant retiree dans la meme transaction pour que le refus attendu ne puisse porter que sur l'unicite de la cle. Sous la mutation PostgreSQL l'accepte : « SECOND-RESULTAT-ACCEPTE ». Les deux preuves de catalogue qui suivent (index unique TOTAL dont la cle est l'unique colonne de cle sur la table du resultat, puis colonne de TETE sur toutes les tables portant la cle) tomberaient de meme.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit pour A2 : « retirer la contrainte d'unicite (ou la clause ON CONFLICT) de sorte que vingt publications concurrentes du meme resultat creent vingt lignes logiques ». C'est la moitie que le stub ne couvre pas : un module vide tue A2 par absence, cette mutation le tue par MULTIPLICITE, qui est la propriete que le cas enonce. La prescription est CONDITIONNELLE — « de sorte que … creent vingt lignes » — et la mesure a montre que la forme restreinte (le seul index de la cle) ne la satisfait pas sur cette implementation : il faut retirer TOUTE unicite de la table du resultat pour que la base cesse d'arbitrer. Ce que la mesure a aussi montre, et qui a change le CAS et non le mutant : meme alors, les vingt publications ne laissaient qu'une ligne. « Un seul resultat logique » etait observe, jamais exige — c'est le cas qui etait aveugle a l'arbitrage, pas le mutant qui visait le mauvais cas.",
       "doit_rester_vert": [
         "T12.A1",
         "T12.A4",
-        "T12.A5"
-      ],
-      "tue_aussi": [
-        "T12.A3",
+        "T12.A5",
         "T12.A6"
       ],
-      "mesure": "Applique a la sonde jetable : A2, A3 et A6 rouges ; A1, A4 et A5 VERTS, comme annonce. A2 tombe sur « PUBLICATIONS-REFUSEES 3/20 : #17 LEVE Error(IDEMPOTENCY_CONFLICT) … » — trois des vingt publications concurrentes se refusent mutuellement parce que la table du resultat porte desormais plusieurs lignes de meme cle. A3 tombe sur sa preuve SQL (plus d'index unique), A6 sur l'egalite des profils sous course."
+      "tue_aussi": [
+        "T12.A3"
+      ],
+      "mesure": "MESURE A HEAD 1c61fb86, arbre propre, mutation reellement appliquee au schema central puis `node tools/bench verify:task T12` relance. Arbre sain de reference : 6/6 VERTS, 217 assertions avant renforcement, 223 apres (A2 : 25 -> 31).\n(1) FORME RESTREINTE — seul l'index unique de la cle retire : A2 restait VERT (25 assertions), A3 SEUL tombait, sur « AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE : colonnes de la ligne de resultat portant la cle [{\"schema\":\"public\",\"table\":\"periods\",\"colonne\":\"idempotency_key\"}] » ; 217 assertions, suite chargee, aucun echec de chargement. C'est le fait qui a ouvert ce cycle de porte.\n(2) FORME COMPLETE SUR LA TABLE DU RESULTAT — index unique de la cle ET autre unicite de la meme table retires : A2 restait VERT ENCORE (25 assertions). Vingt publications concurrentes ne laissaient toujours qu'UNE ligne alors que PLUS AUCUNE contrainte de la base ne l'exigeait. C'est cette mesure qui tranche entre les deux lectures possibles : le cas etait AVEUGLE a l'arbitrage, le mutant ne visait pas le mauvais cas.\n(3) MOITIE EVENEMENTS/OUTBOX, appliquee seule : les SIX cas tombent, tous sur « LEVE StorageRefusal(STORAGE_UNAVAILABLE) : PostgreSQL a refuse la publication (42P10) : there is no unique or exclusion constraint matching the ON CONFLICT specification » — 52 assertions. Sur cette implementation, retirer ces deux contraintes n'est pas une perturbation PERMISSIVE mais une CASSURE : plus aucune publication n'aboutit, et « casser ne compte pas comme tuer un cas ». La cible reste declaree, parce qu'elle est la propriete que la troisieme assertion d'A2 exige au catalogue ; la porte applique la forme (2).\nAPRES RENFORCEMENT D'A2, FORME (2) : A2 et A3 ROUGES, A1/A4/A5/A6 VERTS, 221 assertions. A2 tombe sur « SECOND-RESULTAT-ACCEPTE public.periods(idempotency_key) : une session etrangere a pu ecrire une SECONDE ligne portant t12_…-a2 — « un seul resultat logique » n'est pas arbitre par la base, il a seulement ete observe ». Arbre restaure (`git checkout --`, `git status --porcelain` ne montrant plus que les zones ACCEPTANCE et MUTANT) et suite relancee : 6/6 VERTS, 223 assertions, sortie 0.\nA6, declare `tue_aussi` jusqu'ici, reste VERT sous les formes (1) et (2) : sa boucle de reprise absorbe le conflit injecte sans dependre de l'unicite retiree. La declaration est corrigee par la mesure, pas par le raisonnement."
     },
     {
       "id": "T12.M4",
@@ -192,7 +223,7 @@
         "T12.A5",
         "T12.A6"
       ],
-      "mesure": "Applique a la sonde jetable : A3 SEUL passe au rouge, les cinq autres restent verts. Message observe : « ACCEPTE-A-TORT publication de t12_…-a3 avec une autre empreinte : {\"idempotency_key\":\"t12_…-a3\",\"input_digest\":\"8e8b2b46…\",\"attempts\":1,\"replayed\":true} »."
+      "mesure": "Applique a la sonde jetable : A3 SEUL passe au rouge, les cinq autres restent verts. Message observe : « ACCEPTE-A-TORT publication de t12_…-a3 avec une autre empreinte : {\"idempotency_key\":\"t12_…-a3\",\"input_digest\":\"8e8b2b46…\",\"attempts\":1,\"replayed\":true} ». RE-MESURE A HEAD 1c61fb86, suite renforcee : publication transformee en upsert — sur conflit, l'etat portant la cle est efface puis republie, sans qu'aucune erreur ne remonte. A3 SEUL ROUGE sur « ACCEPTE-A-TORT publication de t12_…-a3 avec une autre empreinte : {\"idempotency_key\":\"t12_…-a3\",\"input_digest\":\"aa9e05a4…\",\"attempts\":1,\"inserted\":true,\"events_written\":1} » ; A1, A2 (31 assertions), A4, A5 et A6 VERTS, 214 assertions. `doit_rester_vert` est donc verifie contre l'A2 renforce."
     },
     {
       "id": "T12.M5",
@@ -207,12 +238,14 @@
       "pourquoi_cette_perturbation": "Sans ce mutant, la moitie SQL d'A3 etait VERTE sans rien asserter — et la mesure l'a prouve, pas une supposition. Premiere version du cas : un index unique couvrant la colonne, dans n'importe quelle table, suffisait ; retirer l'unicite de la table du resultat laissait A3 vert parce que la table des evenements portait encore `UNIQUE (idempotency_key, seq)`. Or un index unique COMPOSITE autorise exactement ce que L261 interdit : deux lignes de meme cle. « Preuves SQL des contraintes uniques » (L263) ne parle pas de n'importe quelle contrainte : elle parle de celle qui rend « meme cle » decidable. Le mutant est du type `rendre PERMISSIF` et non `casser` : casser le schema ferait echouer les migrations, et le cas tomberait pour une raison sans rapport avec l'unicite.",
       "doit_rester_vert": [
         "T12.A1",
-        "T12.A2",
         "T12.A4",
         "T12.A5",
         "T12.A6"
       ],
-      "mesure": "Deux mesures successives sur la sonde jetable. AVANT renforcement du cas : les SIX cas restaient VERTS — le mutant ne tuait rien, ce qui denoncait le cas et non l'implementation. APRES renforcement (index unique MONOCOLONNE, sur la table portant cle ET empreinte) : A3 SEUL passe au rouge, sur « AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE : colonnes de la ligne de resultat portant la cle [{\"schema\":\"public\",\"table\":\"periods\",\"colonne\":\"idempotency_key\"}] — pg_index ne declare, sur aucune d'elles, d'index unique dont elle soit l'unique colonne de tete ». La sonde CONFORME, elle, reste verte sur les six cas."
+      "mesure": "Deux mesures successives sur la sonde jetable. AVANT renforcement du cas : les SIX cas restaient VERTS — le mutant ne tuait rien, ce qui denoncait le cas et non l'implementation. APRES renforcement (index unique MONOCOLONNE, sur la table portant cle ET empreinte) : A3 SEUL passe au rouge, sur « AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE : colonnes de la ligne de resultat portant la cle [{\"schema\":\"public\",\"table\":\"periods\",\"colonne\":\"idempotency_key\"}] — pg_index ne declare, sur aucune d'elles, d'index unique dont elle soit l'unique colonne de tete ». La sonde CONFORME, elle, reste verte sur les six cas. RE-MESURE A HEAD 1c61fb86, avec l'A2 renforce : sur cette implementation la mutation de M5 est exactement la forme (1) de T12.M3, et elle tue desormais A2 AUSSI — « SECOND-RESULTAT-ACCEPTE public.periods(idempotency_key) », 221 assertions, A1/A4/A5/A6 VERTS. Ce n'est pas une cible qui glisse : un index unique manquant sur la cle rend vraies A LA FOIS l'indecidabilite de « meme cle / autre empreinte » (A3, le cas que ce mutant nomme) et la possibilite d'un SECOND resultat logique de meme cle (A2). `doit_rester_vert` est corrige par la mesure : A2 passe en `tue_aussi`.",
+      "tue_aussi": [
+        "T12.A2"
+      ]
     },
     {
       "id": "T12.M6",

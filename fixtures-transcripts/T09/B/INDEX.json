@@ -1,0 +1,264 @@
+{
+  "$comment": [
+    "Index de la transcription B des fixtures maitresses §F.",
+    "Le perimetre F-* a ete etabli par balayage du cahier entier, pas par la liste",
+    "de la consigne : 10 identifiants F-*, aucun autre. La fixture `golden-six`",
+    "(ligne 491) est nommee mais n est pas prefixee F- et n appartient pas a la §F ;",
+    "elle consomme F-MONEY (2720 / 16320) et est consignee dans F-MONEY.derive.",
+    "",
+    "Aucun fichier du depot n a ete ecrit : cet etage ne produit aucun commit."
+  ],
+  "transcripteur": "B",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "perimetre": {
+    "methode": "grep -noE '`F-[^`]*`|F-[A-Z][A-Z-]+' docs/cahier.md | sort -u",
+    "fixtures_F": [
+      "F-MONEY",
+      "F-BUDGET",
+      "F-QUALITY",
+      "F-COST-RATIO",
+      "F-CLUSTERS",
+      "F-BOOTSTRAP",
+      "F-RESERVATION",
+      "F-FAILURE",
+      "F-POWER",
+      "F-REGRESSION"
+    ],
+    "nombre": 10,
+    "hors_perimetre": [
+      {
+        "nom": "golden-six",
+        "cahier_line": 491,
+        "raison": "fixture de T38, non prefixee F-, hors §F"
+      }
+    ]
+  },
+  "lignes_de_la_section_F": {
+    "entete": 101,
+    "F-MONEY": [
+      103
+    ],
+    "F-BUDGET": [
+      105
+    ],
+    "F-QUALITY": [
+      107,
+      109,
+      111
+    ],
+    "F-COST-RATIO": [
+      113
+    ],
+    "F-CLUSTERS": [
+      115
+    ],
+    "F-BOOTSTRAP": [
+      117
+    ],
+    "F-RESERVATION": [
+      119,
+      123,
+      125
+    ],
+    "F-FAILURE": [
+      121
+    ],
+    "F-POWER": [
+      127
+    ],
+    "F-REGRESSION": [
+      129
+    ]
+  },
+  "fichiers": [
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "consommateurs": [
+        "T01.A6",
+        "T16.A1",
+        "T31.A2",
+        "T38.A2",
+        "T38.A3"
+      ],
+      "ambiguites_bloquantes": [],
+      "ambiguites_faibles": [
+        "F-MONEY.1",
+        "F-MONEY.2"
+      ]
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "consommateurs": [
+        "T16.A2",
+        "T16.A5",
+        "T16.A7"
+      ],
+      "ambiguites_bloquantes": [
+        "F-BUDGET.2"
+      ],
+      "ambiguites_faibles": [
+        "F-BUDGET.1",
+        "F-BUDGET.3",
+        "F-BUDGET.4"
+      ]
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "consommateurs": [
+        "T04.A1",
+        "T04.A2",
+        "T04.A5",
+        "T04.A6",
+        "T08.A2",
+        "T32.A3",
+        "T36.A1"
+      ],
+      "ambiguites_bloquantes": [
+        "F-QUALITY.1"
+      ],
+      "ambiguites_faibles": [
+        "F-QUALITY.2",
+        "F-QUALITY.3",
+        "F-QUALITY.4"
+      ]
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "consommateurs": [
+        "T32.A1",
+        "T36.A2",
+        "T32.A6"
+      ],
+      "ambiguites_bloquantes": [],
+      "ambiguites_faibles": [
+        "F-COST-RATIO.1",
+        "F-COST-RATIO.2"
+      ]
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "consommateurs": [
+        "T32.A2",
+        "T33.A5",
+        "T33.A6",
+        "T38.A8"
+      ],
+      "ambiguites_bloquantes": [],
+      "ambiguites_faibles": [
+        "F-CLUSTERS.1",
+        "F-CLUSTERS.2"
+      ]
+    },
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "consommateurs": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A7"
+      ],
+      "ambiguites_bloquantes": [],
+      "ambiguites_faibles": [
+        "F-BOOTSTRAP.1",
+        "F-BOOTSTRAP.2",
+        "F-BOOTSTRAP.3"
+      ]
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "consommateurs": [
+        "T07.A1",
+        "T07.A2",
+        "T07.A3",
+        "T07.A4",
+        "T07.A5",
+        "T07.A6",
+        "T07.A7",
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T08.A6",
+        "T11.A6",
+        "T21.A1"
+      ],
+      "ambiguites_bloquantes": [
+        "F-RESERVATION.1",
+        "F-RESERVATION.2"
+      ],
+      "ambiguites_faibles": [
+        "F-RESERVATION.3",
+        "F-RESERVATION.4",
+        "F-RESERVATION.5",
+        "F-RESERVATION.6"
+      ]
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "consommateurs": [
+        "T05.A6",
+        "T11.A4",
+        "T31.A1",
+        "T38.A7"
+      ],
+      "ambiguites_bloquantes": [
+        "F-FAILURE.1"
+      ],
+      "ambiguites_faibles": [
+        "F-FAILURE.2",
+        "F-FAILURE.3",
+        "F-FAILURE.4",
+        "F-FAILURE.5"
+      ]
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "consommateurs": [
+        "T34.A1",
+        "T34.A2",
+        "T34.A4",
+        "T35.A1",
+        "T35.A5"
+      ],
+      "ambiguites_bloquantes": [
+        "F-POWER.1"
+      ],
+      "ambiguites_faibles": [
+        "F-POWER.2",
+        "F-POWER.3",
+        "F-POWER.4"
+      ]
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "consommateurs": [
+        "T04.A3",
+        "T04.A4",
+        "T21.A4"
+      ],
+      "ambiguites_bloquantes": [],
+      "ambiguites_faibles": [
+        "F-REGRESSION.1",
+        "F-REGRESSION.2",
+        "F-REGRESSION.3",
+        "F-REGRESSION.4"
+      ]
+    }
+  ],
+  "total_ambiguites_bloquantes": 6,
+  "total_ambiguites_faibles": 30
+}

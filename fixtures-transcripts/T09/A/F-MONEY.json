@@ -1,0 +1,130 @@
+{
+  "ambiguites": [],
+  "appel_de_reference": {
+    "cout_attendu": {
+      "cahier_line": 103,
+      "commentaire": "enonce par le cahier, non recalcule",
+      "unite": "micro-USD",
+      "valeur": 340
+    },
+    "tokens_entree_caches": {
+      "cahier_line": 103,
+      "unite": "tokens",
+      "valeur": 40
+    },
+    "tokens_entree_non_caches": {
+      "cahier_line": 103,
+      "unite": "tokens",
+      "valeur": 100
+    },
+    "tokens_sortie": {
+      "cahier_line": 103,
+      "unite": "tokens",
+      "valeur": 20
+    }
+  },
+  "deux_appels_identiques": {
+    "cout_attendu": {
+      "cahier_line": 103,
+      "commentaire": "deux appels identiques ne sont pas dedupliques a la facturation",
+      "unite": "micro-USD",
+      "valeur": 680
+    },
+    "nombre": {
+      "cahier_line": 103,
+      "valeur": 2
+    }
+  },
+  "enonce": "Grille tarifaire fictive et facturation d'un appel.",
+  "etage": "FIXTURES",
+  "fixture": "F-MONEY",
+  "grille": {
+    "entree_cachee": {
+      "cahier_line": 103,
+      "unite": "micro-USD/token",
+      "valeur": 1
+    },
+    "entree_non_cachee": {
+      "cahier_line": 103,
+      "unite": "micro-USD/token",
+      "valeur": 2
+    },
+    "fictive": {
+      "cahier_line": 103,
+      "commentaire": "« Grille fictive » — aucun tarif courant reel",
+      "valeur": true
+    },
+    "sortie": {
+      "cahier_line": 103,
+      "unite": "micro-USD/token",
+      "valeur": 5
+    },
+    "unite": "micro-USD par token"
+  },
+  "lignes_source": {
+    "103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+    "491": "Fixture : un projet, un scénario de quatre périodes, deux configurations scriptées conformes, trois répétitions, deux appels F-MONEY par période. Tous les autres tarifs valent explicitement zéro dans cette fixture fictive. Tous les parcours valides et exigences actives sont satisfaits.",
+    "493": "Acceptation : `T38.A1` six trajectoires et 24 périodes ; `A2` 48 appels reçus et réglés ; `A3` 2720 micro-USD par trajectoire, 16320 au total ; `A4` Q=R=V=U=1 et G=0 ; `A5` un, deux et six workers donnent mêmes résultats métier, comptes et verdicts ; `A6` application indisponible forcée pendant un workload conserve toutes ses intentions et fait baisser R ; `A7` F-FAILURE produit un échec produit dans une exécution moteur terminée ; `A8` inférence interprojets refusée sur cette fixture à un seul parent, malgré six trajectoires.",
+    "80": "Les JSON de domaine sont stricts : propriétés inconnues rejetées, enums explicites, timestamps UTC ISO 8601, nombres non finis interdits. Les montants sont des chaînes d’entiers non négatifs en micro-USD ; `1000000` vaut 1 USD. Les ajustements sont des écritures séparées signées, pas l’édition d’une facture déjà inscrite."
+  },
+  "non_specifie_dans_F": [
+    {
+      "cahier_line": 103,
+      "point": "L'arithmetique exacte de la normalisation (par ex. non_cachee = total - cachee) n'est pas ecrite ; elle decoule de la disjonction enoncee, mais aucun exemple chiffre n'est donne."
+    },
+    {
+      "cahier_line": 80,
+      "hors_section_F": true,
+      "point": "La serialisation des montants n'est pas redite ici ; §E l'impose ailleurs (chaines d'entiers non negatifs en micro-USD)."
+    }
+  ],
+  "provenance": "SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "references_cahier_hors_F": [
+    {
+      "avertissement": "Hors §F : ces nombres appartiennent a la fixture `golden-six` de T38, pas a F-MONEY. Reportes ici sans recalcul, a titre de reference croisee seulement.",
+      "contexte": {
+        "cahier_line": 491
+      },
+      "pourquoi": "Les seuls autres montants exacts du cahier derives de F-MONEY : la fixture golden-six de T38 utilise deux appels F-MONEY par periode.",
+      "valeurs": {
+        "micro_usd_par_trajectoire": {
+          "cahier_line": 493,
+          "unite": "micro-USD",
+          "valeur": 2720
+        },
+        "micro_usd_total": {
+          "cahier_line": 493,
+          "unite": "micro-USD",
+          "valeur": 16320
+        }
+      }
+    }
+  ],
+  "regles": [
+    {
+      "cahier_line": 103,
+      "valeur": "Les champs d'entree sont disjoints : entree non cachee et entree cachee ne se recouvrent pas."
+    },
+    {
+      "cahier_line": 103,
+      "valeur": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  ],
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription/1",
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "fixture_lignes": [
+      103
+    ],
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "transcripteur": "A"
+}

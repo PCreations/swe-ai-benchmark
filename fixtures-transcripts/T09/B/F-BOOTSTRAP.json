@@ -1,0 +1,211 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 117,
+      "verbatim": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "proof_kind": "numeric",
+      "attend": "F-BOOTSTRAP donne les quatre ratios et l intervalle [1/2,9/10]"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "attend": "les deux bras suivent exactement les memes indices parents"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "attend": "multiplier tous les couts par 7 ne change ni ratio ni intervalle"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "proof_kind": "numeric",
+      "attend": "A=B donne tous les ratios egaux a 1"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "attend": "les bandes ponctuelles ne sont jamais etiquetees simultanees"
+    }
+  ],
+  "valeurs": {
+    "projets_source": {
+      "reference": "les deux projets precedents",
+      "cahier_line": 117,
+      "voir_ambiguite": "F-BOOTSTRAP.1"
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117
+    },
+    "ratios_cout_A_sur_B": {
+      "valeur": [
+        {
+          "exact": "1/2"
+        },
+        {
+          "exact": "5/6"
+        },
+        {
+          "exact": "5/6"
+        },
+        {
+          "exact": "9/10"
+        }
+      ],
+      "ordre": "dans l ordre de la liste de reechantillonnages",
+      "cahier_line": 117
+    },
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117,
+      "livrable_line": 441
+    },
+    "intervalle_2_5_a_97_5": {
+      "borne_basse": {
+        "exact": "1/2"
+      },
+      "borne_haute": {
+        "exact": "9/10"
+      },
+      "cahier_line": 117
+    },
+    "portee_declaree": {
+      "regle": "cette fixture valide le calcul, pas une couverture suffisante avec deux projets",
+      "cahier_line": 117
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Le bootstrap principal reechantillonne les moyennes par parent ; une variante hierarchique devient une methode distincte declaree.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Une sortie deterministe n implique pas une couverture frequentiste garantie.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "algorithme de tirage et convention de quantile archives",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Les graines sont derivees par identifiants et flux (scenario, workload, assignment, bootstrap).",
+      "cahier_line": 82
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "ratio de chaque tirage",
+      "valeur": "[P1,P1] : A=10,B=20 -> 1/2 ; [P1,P2] : A=(10+90)/2=50, B=(20+100)/2=60 -> 5/6 ; [P2,P1] : identique -> 5/6 ; [P2,P2] : A=90,B=100 -> 9/10",
+      "source_de_la_derivation": {
+        "cahier_line": 117,
+        "regle": "reechantillonnage des moyennes par parent, ligne 445"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "intervalle par quantile empirique inverse",
+      "valeur": "sur la liste triee [1/2, 5/6, 5/6, 9/10] de taille 4, les quantiles 2,5% et 97,5% tombent sur le minimum et le maximum",
+      "source_de_la_derivation": {
+        "cahier_line": 117
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "invariance d echelle (T33.A3)",
+      "valeur": "multiplier A et B par 7 multiplie numerateur et denominateur : les quatre ratios et l intervalle sont inchanges",
+      "source_de_la_derivation": {
+        "cahier_line": 443
+      },
+      "normatif": false
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-BOOTSTRAP.1",
+      "severite": "faible",
+      "question": "« Sur les deux projets precedents » : F-CLUSTERS (ligne 115, avec 10 et 1 repetitions) ou F-COST-RATIO (ligne 113, un cout par projet) ?",
+      "lignes": [
+        113,
+        115,
+        117
+      ],
+      "consequence": "aucune sur les quatre ratios ni sur l intervalle : les moyennes par parent sont identiques dans les deux lectures. La lecture F-CLUSTERS est la seule qui porte des repetitions, donc la seule qui rend testable T33.A5 (« dupliquer des repetitions identiques »)."
+    },
+    {
+      "id": "F-BOOTSTRAP.2",
+      "severite": "faible",
+      "question": "Le cahier ne precise pas la convention d interpolation exacte du « quantile empirique inverse » (bornes incluses, rang arrondi).",
+      "lignes": [
+        117,
+        441,
+        445
+      ],
+      "consequence": "aucune sur cette fixture : a n=4, toute convention inverse renvoie min et max pour 2,5% et 97,5%. La ligne 445 exige neanmoins que la convention soit ARCHIVEE."
+    },
+    {
+      "id": "F-BOOTSTRAP.3",
+      "severite": "faible",
+      "question": "Le nombre nominal de reechantillonnages n est pas donne : ici la liste est FORCEE a 4 tirages (les 2^2 tirages exhaustifs de 2 parents).",
+      "lignes": [
+        117
+      ],
+      "consequence": "aucune — c est precisement ce que « forcer la liste » signifie ; consigne pour que la materialisation n introduise pas un B de bootstrap par defaut"
+    }
+  ]
+}

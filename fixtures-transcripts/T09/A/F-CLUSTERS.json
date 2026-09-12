@@ -1,0 +1,99 @@
+{
+  "ambiguites": [],
+  "enonce": "Grappes de repetitions inegales ; l'agregation interprojets ne se remplace pas par une moyenne naive sur les lignes.",
+  "etage": "FIXTURES",
+  "fixture": "F-CLUSTERS",
+  "lignes_source": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "moyennes_interprojets": {
+    "A": {
+      "cahier_line": 115,
+      "commentaire": "« encore 50 et 60 » — identiques a F-COST-RATIO",
+      "valeur": 50
+    },
+    "B": {
+      "cahier_line": 115,
+      "valeur": 60
+    }
+  },
+  "nombre_de_lignes_naif": {
+    "cahier_line": 115,
+    "commentaire": "onze lignes : 10 repetitions de P1 + 1 de P2 ; le cahier ne chiffre PAS la moyenne naive et cette fixture ne la calcule pas",
+    "valeur": 11
+  },
+  "non_specifie_dans_F": [
+    {
+      "cahier_line": 115,
+      "point": "La valeur de la moyenne naive sur onze lignes n'est pas donnee par le cahier ; elle n'est donc pas materialisee ici (une valeur calculee serait une fixture fausse)."
+    },
+    {
+      "cahier_line": 115,
+      "point": "Le facteur de duplication de « dupliquer toutes les repetitions de P1 » n'est pas chiffre."
+    }
+  ],
+  "projets": [
+    {
+      "A": {
+        "cahier_line": 115,
+        "valeur": 10
+      },
+      "B": {
+        "cahier_line": 115,
+        "valeur": 20
+      },
+      "cahier_line": 115,
+      "id": "P1",
+      "repetitions": {
+        "cahier_line": 115,
+        "commentaire": "dix repetitions identiques",
+        "valeur": 10
+      }
+    },
+    {
+      "A": {
+        "cahier_line": 115,
+        "valeur": 90
+      },
+      "B": {
+        "cahier_line": 115,
+        "valeur": 100
+      },
+      "cahier_line": 115,
+      "id": "P2",
+      "repetitions": {
+        "cahier_line": 115,
+        "commentaire": "une repetition",
+        "valeur": 1
+      }
+    }
+  ],
+  "provenance": "SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "regles": [
+    {
+      "cahier_line": 115,
+      "valeur": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation."
+    },
+    {
+      "cahier_line": 115,
+      "valeur": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee."
+    }
+  ],
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription/1",
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "fixture_lignes": [
+      115
+    ],
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "transcripteur": "A"
+}

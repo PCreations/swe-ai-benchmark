@@ -1,0 +1,318 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-POWER",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 127,
+      "verbatim": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T34.A1",
+      "cahier_line": 453,
+      "proof_kind": "numeric",
+      "attend": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture"
+    },
+    {
+      "cas": "T34.A2",
+      "cahier_line": 453,
+      "proof_kind": "refusal",
+      "attend": "borne ratio=1 refuse",
+      "correspond_a": "campagne 2"
+    },
+    {
+      "cas": "T34.A4",
+      "cahier_line": 453,
+      "proof_kind": "refusal",
+      "attend": "cout plus faible mais DeltaU=-0,04 refuse"
+    },
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "proof_kind": "numeric",
+      "attend": "F-POWER traversant le vrai pipeline d analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25"
+    },
+    {
+      "cas": "T35.A5",
+      "cahier_line": 463,
+      "proof_kind": "behaviour",
+      "attend": "meme entree/version/graine donne meme sortie"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_campagnes": {
+      "valeur": 4,
+      "qualificatif": "petites campagnes statistiques",
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "identifiants": [
+        "P1",
+        "P2"
+      ],
+      "regle": "deux parents distincts portant les memes valeurs",
+      "cahier_line": 127
+    },
+    "bras_B": {
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "portee": "dans chaque parent, dans les quatre campagnes",
+      "cahier_line": 127
+    },
+    "bras_A_par_campagne": [
+      {
+        "campagne": 1,
+        "cout": 80,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "cout": 80,
+        "V": 0.96,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99,
+        "cahier_line": 127
+      }
+    ],
+    "preconditions": {
+      "valeur": [
+        "comptabilite resolue",
+        "absence de violation critique",
+        "valeurs connues sur les deux bras"
+      ],
+      "cahier_line": 127
+    },
+    "tirages": {
+      "valeur": "tirages parents exhaustifs",
+      "consequence": "distributions ponctuelles",
+      "cahier_line": 127
+    },
+    "bornes_de_ratio": {
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127
+    },
+    "bornes_de_delta_V": {
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "bornes_de_delta_U": {
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "decisions_attendues": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "producteur": "T34",
+      "cahier_line": 127
+    },
+    "puissance": {
+      "valeur": 0.5,
+      "cahier_line": 463
+    },
+    "erreur_standard": {
+      "valeur": 0.25,
+      "cahier_line": 463
+    },
+    "portee_declaree": {
+      "regle": "cette fixture traverse agregation, bootstrap et decision, sans supposer qu une estimation ponctuelle generale suffit a decider",
+      "cahier_line": 127
+    }
+  },
+  "conventions": [
+    {
+      "regle": "superiorite cout si borne superieure du ratio <1 ; non-inferiorite V/U si leurs bornes inferieures >-marge ; aucune violation critique interdite ; comptabilite resolue et donnees admissibles",
+      "cahier_line": 451
+    },
+    {
+      "regle": "Marges d exemple 0,02.",
+      "cahier_line": 451,
+      "voir_ambiguite": "F-POWER.1"
+    },
+    {
+      "regle": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J) avec correction de Bonferroni.",
+      "cahier_line": 451
+    },
+    {
+      "regle": "La selection retourne le plus petit effectif de la grille dont la puissance estimee atteint la cible et dont l erreur standard respecte la limite, ou TARGET_NOT_REACHED.",
+      "cahier_line": 461
+    },
+    {
+      "regle": "arret anticipe a la premiere significativite interdit dans ce plan a effectif fixe",
+      "cahier_line": 463,
+      "cas": "T35.A6"
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "ratios par campagne",
+      "valeur": "80/100=0,8 ; 100/100=1 ; 80/100=0,8 ; 80/100=0,8",
+      "source_de_la_derivation": {
+        "cahier_line": 127,
+        "regle": "cout A / cout B ; les bornes enoncees confirment le sens A/B"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "DeltaV et DeltaU",
+      "valeur": "V_A - V_B et U_A - U_B : 1-1=0 ; 1-1=0 ; 0,96-1=-0,04 ; 0,99-1=-0,01 (V) et 0 ; 0 ; 0 ; 0,99-1=-0,01 (U)",
+      "source_de_la_derivation": {
+        "cahier_line": 127,
+        "regle": "le signe des bornes enoncees impose la convention A moins B"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "pourquoi les bornes sont des nombres uniques",
+      "valeur": "les deux parents portent les memes valeurs et les tirages sont exhaustifs : toute reechantillonnage donne la meme statistique, donc borne inferieure = borne superieure",
+      "source_de_la_derivation": {
+        "cahier_line": 127
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "application de la regle a chaque campagne",
+      "valeur": "c1 : 0,8<1 et 0>-0,02 et 0>-0,02 -> vrai ; c2 : 1 non <1 -> faux ; c3 : -0,04 non >-0,02 -> faux ; c4 : 0,8<1 et -0,01>-0,02 et -0,01>-0,02 -> vrai",
+      "source_de_la_derivation": {
+        "cahier_line": 451,
+        "regle": "regle de decision de T34, avec marge 0,02"
+      },
+      "concorde_avec": {
+        "cahier_line": 127,
+        "valeur": "[vrai,faux,faux,vrai]"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "puissance",
+      "valeur": "2 decisions vraies sur 4 campagnes = 0,5",
+      "source_de_la_derivation": {
+        "cahier_line": 463
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "erreur standard",
+      "valeur": "sqrt(0,5 x 0,5 / 4) = sqrt(0,0625) = 0,25",
+      "source_de_la_derivation": {
+        "cahier_line": 463,
+        "regle": "meme forme que T35.A2 : « 1800 succes sur 2000 donnent 0,9 et sqrt(0,09/2000) »"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "J et famille d intervalles",
+      "valeur": "un contraste A vs B par campagne : J=1, donc 3 intervalles et niveau marginal 1-0,05/3",
+      "source_de_la_derivation": {
+        "cahier_line": 451
+      },
+      "normatif": false,
+      "remarque": "sans effet ici : les distributions etant ponctuelles, tout niveau donne les memes bornes"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-POWER.1",
+      "severite": "bloquante",
+      "question": "F-POWER n enonce aucune marge de non-inferiorite. Les decisions [vrai,faux,faux,vrai] ne sont reproductibles que pour une marge dans l intervalle ]0,01 ; 0,04]. La seule valeur que le cahier nomme est 0,02, qualifiee de « marges d EXEMPLE » (ligne 451).",
+      "lignes": [
+        127,
+        451
+      ],
+      "consequence": "la fixture doit porter une marge pour etre executable ; retenir 0,02 revient a promouvoir un exemple en valeur normative, ce que le cahier n ecrit pas",
+      "note": "le transcripteur ne tranche pas"
+    },
+    {
+      "id": "F-POWER.2",
+      "severite": "faible",
+      "question": "La marge s applique-t-elle identiquement a V et a U, ou y a-t-il deux marges ?",
+      "lignes": [
+        451
+      ],
+      "consequence": "aucune sur les quatre decisions : les ecarts en jeu (-0,04, -0,01) tombent du meme cote pour toute marge commune de ]0,01 ; 0,04]"
+    },
+    {
+      "id": "F-POWER.3",
+      "severite": "faible",
+      "question": "Le cahier ne dit pas quel est le nombre de repetitions par parent ni la graine de ces campagnes, alors que T35 exige « graine » parmi ses parametres obligatoires (ligne 461).",
+      "lignes": [
+        127,
+        461
+      ],
+      "consequence": "aucune sur les bornes, les tirages etant exhaustifs et les valeurs identiques dans les deux parents"
+    },
+    {
+      "id": "F-POWER.4",
+      "severite": "faible",
+      "question": "Les couts 80 et 100 sont-ils des montants (ligne 80) ou des unites abstraites ? Le ratio est sans dimension.",
+      "lignes": [
+        80,
+        127
+      ],
+      "consequence": "aucune sur les ratios"
+    }
+  ]
+}

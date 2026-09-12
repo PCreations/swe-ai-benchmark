@@ -1,0 +1,127 @@
+{
+  "etage": "FIXTURES",
+  "ordre_du_cahier": [
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        103
+      ],
+      "fichier": "F-MONEY.json",
+      "fixture": "F-MONEY",
+      "non_specifie": 2,
+      "sha256": "a6e079a228fa38885a7d9fa5c1de50f89f26126987851fed2dbb346b27d241f9"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        105
+      ],
+      "fichier": "F-BUDGET.json",
+      "fixture": "F-BUDGET",
+      "non_specifie": 3,
+      "sha256": "5e873dda1e2405bd4f947539c7ef95d7a0ce424490eadead58266da76c8d2f4b"
+    },
+    {
+      "ambiguites": 2,
+      "cahier_lignes": [
+        107,
+        109,
+        111
+      ],
+      "fichier": "F-QUALITY.json",
+      "fixture": "F-QUALITY",
+      "non_specifie": 2,
+      "sha256": "9c807c19c5d0be3d7fb221acf8c1a5dee4487e56e201f3e64066bc0f94b02120"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        113
+      ],
+      "fichier": "F-COST-RATIO.json",
+      "fixture": "F-COST-RATIO",
+      "non_specifie": 2,
+      "sha256": "772d3b74953cd2b300715b35fed90c9071dbf993fd7c41a676361f8a370633c2"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        115
+      ],
+      "fichier": "F-CLUSTERS.json",
+      "fixture": "F-CLUSTERS",
+      "non_specifie": 2,
+      "sha256": "7b1c123434af3b4c9d461e55f1f842faca82afe5d0b2b1712028f859b2bfadaa"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        117
+      ],
+      "fichier": "F-BOOTSTRAP.json",
+      "fixture": "F-BOOTSTRAP",
+      "non_specifie": 2,
+      "sha256": "4463ca8e5b4c0f9c503a896b4b96a3092c5a24fc2a6f04b5525e48d4a0bf2fa5"
+    },
+    {
+      "ambiguites": 2,
+      "cahier_lignes": [
+        119,
+        123,
+        125
+      ],
+      "fichier": "F-RESERVATION.json",
+      "fixture": "F-RESERVATION",
+      "non_specifie": 3,
+      "sha256": "409755aa51c17fbeb4dac1de88e313eb429170d343fdaea96c6f93c35baabcd7"
+    },
+    {
+      "ambiguites": 1,
+      "cahier_lignes": [
+        121
+      ],
+      "fichier": "F-FAILURE.json",
+      "fixture": "F-FAILURE",
+      "non_specifie": 3,
+      "sha256": "17a944ab3a3bc068e791b538b4715978828efae29c475743307aa7a1bd2b7b21"
+    },
+    {
+      "ambiguites": 2,
+      "cahier_lignes": [
+        127
+      ],
+      "fichier": "F-POWER.json",
+      "fixture": "F-POWER",
+      "non_specifie": 3,
+      "sha256": "97aa864314e4319f82de2df0111da3efdb9a1b439d0937dee148f89954155996"
+    },
+    {
+      "ambiguites": 1,
+      "cahier_lignes": [
+        129
+      ],
+      "fichier": "F-REGRESSION.json",
+      "fixture": "F-REGRESSION",
+      "non_specifie": 3,
+      "sha256": "dc4da56afb5d9bfcee99e74ee067c430bfa37707d9ad1b8661ba9ca826970678"
+    }
+  ],
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription.index/1",
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "totaux": {
+    "ambiguites": 8,
+    "fixtures": 10
+  },
+  "transcripteur": "A"
+}

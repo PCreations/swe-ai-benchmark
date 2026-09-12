@@ -1,0 +1,335 @@
+{
+  "ambiguites": [
+    {
+      "cahier_line": 127,
+      "id": "AMB-POWER-1",
+      "impact_sur_valeurs": "aucun sur les entrees ni sur la sortie ecrite ; bloquant pour justifier la sortie depuis §F seule",
+      "point": "La regle de decision et ses seuils, qui font passer de (bornes ratio / deltaV / deltaU) a `[vrai,faux,faux,vrai]`, ne sont pas enonces en §F. La fixture donne les entrees et la sortie, pas le critere. Materialiser la decision exige donc une source hors §F (T34)."
+    },
+    {
+      "cahier_line": 127,
+      "id": "AMB-POWER-2",
+      "impact_sur_valeurs": "aucun sur les nombres 0,8 / 1 / -0,04 / -0,01 ; bloquant pour la forme de l'objet intervalle",
+      "point": "« les bornes » n'est pas explicite : une seule valeur est donnee par campagne alors qu'une borne suppose un couple. La lecture coherente avec « distributions ponctuelles » est un intervalle degenere [x,x], mais le cahier ne l'ecrit pas."
+    }
+  ],
+  "bras_B_dans_chaque_parent": {
+    "U": {
+      "cahier_line": 127,
+      "valeur": 1
+    },
+    "V": {
+      "cahier_line": 127,
+      "valeur": 1
+    },
+    "cout": {
+      "cahier_line": 127,
+      "valeur": 100
+    }
+  },
+  "campagnes": [
+    {
+      "borne_delta_U": {
+        "cahier_line": 127,
+        "valeur": 0
+      },
+      "borne_delta_V": {
+        "cahier_line": 127,
+        "valeur": 0
+      },
+      "borne_ratio": {
+        "cahier_line": 127,
+        "commentaire": "borne enoncee ; les tirages parents exhaustifs donnent une distribution ponctuelle",
+        "valeur": 0.8
+      },
+      "bras_A": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 80
+        }
+      },
+      "bras_B": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 100
+        }
+      },
+      "cahier_line": 127,
+      "campagne": 1,
+      "decision_T34": {
+        "cahier_line": 127,
+        "valeur": true
+      }
+    },
+    {
+      "borne_delta_U": {
+        "cahier_line": 127,
+        "valeur": 0
+      },
+      "borne_delta_V": {
+        "cahier_line": 127,
+        "valeur": 0
+      },
+      "borne_ratio": {
+        "cahier_line": 127,
+        "commentaire": "borne enoncee ; les tirages parents exhaustifs donnent une distribution ponctuelle",
+        "valeur": 1
+      },
+      "bras_A": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 100
+        }
+      },
+      "bras_B": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 100
+        }
+      },
+      "cahier_line": 127,
+      "campagne": 2,
+      "decision_T34": {
+        "cahier_line": 127,
+        "valeur": false
+      }
+    },
+    {
+      "borne_delta_U": {
+        "cahier_line": 127,
+        "valeur": 0
+      },
+      "borne_delta_V": {
+        "cahier_line": 127,
+        "valeur": -0.04
+      },
+      "borne_ratio": {
+        "cahier_line": 127,
+        "commentaire": "borne enoncee ; les tirages parents exhaustifs donnent une distribution ponctuelle",
+        "valeur": 0.8
+      },
+      "bras_A": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 0.96
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 80
+        }
+      },
+      "bras_B": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 100
+        }
+      },
+      "cahier_line": 127,
+      "campagne": 3,
+      "decision_T34": {
+        "cahier_line": 127,
+        "valeur": false
+      }
+    },
+    {
+      "borne_delta_U": {
+        "cahier_line": 127,
+        "valeur": -0.01
+      },
+      "borne_delta_V": {
+        "cahier_line": 127,
+        "valeur": -0.01
+      },
+      "borne_ratio": {
+        "cahier_line": 127,
+        "commentaire": "borne enoncee ; les tirages parents exhaustifs donnent une distribution ponctuelle",
+        "valeur": 0.8
+      },
+      "bras_A": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 0.99
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 0.99
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 80
+        }
+      },
+      "bras_B": {
+        "U": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "V": {
+          "cahier_line": 127,
+          "valeur": 1
+        },
+        "cout": {
+          "cahier_line": 127,
+          "valeur": 100
+        }
+      },
+      "cahier_line": 127,
+      "campagne": 4,
+      "decision_T34": {
+        "cahier_line": 127,
+        "valeur": true
+      }
+    }
+  ],
+  "conditions_communes": [
+    {
+      "cahier_line": 127,
+      "valeur": "Comptabilite resolue."
+    },
+    {
+      "cahier_line": 127,
+      "valeur": "Absence de violation critique."
+    },
+    {
+      "cahier_line": 127,
+      "valeur": "Valeurs connues sur les deux bras."
+    }
+  ],
+  "decisions_attendues": {
+    "cahier_line": 127,
+    "litteral_cahier": "T34 doit produire `[vrai,faux,faux,vrai]`",
+    "valeur": [
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "enonce": "Quatre petites campagnes statistiques a deux parents identiques ; bornes ponctuelles et decisions.",
+  "etage": "FIXTURES",
+  "fixture": "F-POWER",
+  "lignes_source": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "litteraux_cahier": {
+    "A_par_campagne": {
+      "cahier_line": 127,
+      "ordre": "(cout,V,U)",
+      "valeur": "`(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`"
+    },
+    "bornes_de_delta_U": {
+      "cahier_line": 127,
+      "valeur": "0 / 0 / 0 / -0,01"
+    },
+    "bornes_de_delta_V": {
+      "cahier_line": 127,
+      "valeur": "0 / 0 / -0,04 / -0,01"
+    },
+    "bornes_de_ratio": {
+      "cahier_line": 127,
+      "valeur": "0,8 / 1 / 0,8 / 0,8"
+    },
+    "decisions_T34": {
+      "cahier_line": 127,
+      "valeur": "[vrai,faux,faux,vrai]"
+    }
+  },
+  "nombre_de_campagnes": {
+    "cahier_line": 127,
+    "valeur": 4
+  },
+  "non_specifie_dans_F": [
+    {
+      "cahier_line": 127,
+      "point": "Le sens des deltas (A moins B) n'est pas ecrit ; il se lit dans les valeurs (V_A=0,96 et V_B=1 donnent -0,04)."
+    },
+    {
+      "cahier_line": 127,
+      "point": "La taille des campagnes (« petites ») n'est pas chiffree au-dela des deux parents."
+    },
+    {
+      "cahier_line": 127,
+      "point": "L'unite des couts n'est pas redite."
+    }
+  ],
+  "parents_par_campagne": {
+    "cahier_line": 127,
+    "commentaire": "deux parents distincts portant les memes valeurs",
+    "valeur": [
+      "P1",
+      "P2"
+    ]
+  },
+  "provenance": "SOURCE UNIQUEMENT : docs/cahier.md §F. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "regles": [
+    {
+      "cahier_line": 127,
+      "valeur": "Les tirages parents exhaustifs donnent des distributions ponctuelles."
+    },
+    {
+      "cahier_line": 127,
+      "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider."
+    }
+  ],
+  "role": "fixture-transcriber",
+  "schema": "bench.fixture.transcription/1",
+  "source": {
+    "document": "docs/cahier.md",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "fixture_lignes": [
+      127
+    ],
+    "section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+  },
+  "tache": "T08",
+  "transcripteur": "A"
+}

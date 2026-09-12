@@ -1,0 +1,157 @@
+{
+  "$comment": [
+    "Transcription INDEPENDANTE (transcripteur B) d une fixture maitresse de la §F du",
+    "cahier. Aucune implementation du depot n a ete consultee : les valeurs viennent du",
+    "texte du cahier, et chacune porte la ligne ou elle est enoncee.",
+    "",
+    "Toute citation est verifiable par : sed -n '<cahier_line>p' docs/cahier.md",
+    "",
+    "valeurs      : enonce EXPLICITEMENT par le cahier a la ligne citee. Normatif.",
+    "derive       : NON enonce tel quel, obtenu d une regle du cahier elle-meme citee",
+    "               dans source_de_la_derivation. Normatif seulement si cette regle l est.",
+    "conventions  : regles de lecture explicites du cahier qui font partie de la fixture",
+    "               (ex. « R vaut null lorsqu aucune intention admissible n est proposee »).",
+    "consommateurs: les cas d acceptation qui citent ou exercent cette fixture, avec la",
+    "               ligne §H ou ils sont enonces. Le cadrage part d eux.",
+    "ambiguites   : ce que le cahier ne tranche pas. severite=bloquante => materialiser",
+    "               exige de CHOISIR une valeur non ecrite ; l etage de scellement doit",
+    "               s arreter dessus. severite=faible => sans effet sur une valeur assertee.",
+    "               Le transcripteur ne tranche AUCUNE des deux."
+  ],
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache_bench": "T08",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": {
+    "cahier_line": 101,
+    "verbatim": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "source_primaire": [
+    {
+      "cahier_line": 115,
+      "verbatim": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "attend": "F-CLUSTERS ne change pas apres duplication des repetitions P1"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "attend": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "proof_kind": "refusal",
+      "attend": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l inference interprojets"
+    },
+    {
+      "cas": "T38.A8",
+      "cahier_line": 493,
+      "proof_kind": "refusal",
+      "attend": "inference interprojets refusee sur cette fixture a un seul parent, malgre six trajectoires"
+    }
+  ],
+  "valeurs": {
+    "P1": {
+      "cout_A": 10,
+      "cout_B": 20,
+      "repetitions": 10,
+      "qualificatif": "identiques",
+      "cahier_line": 115
+    },
+    "P2": {
+      "cout_A": 90,
+      "cout_B": 100,
+      "repetitions": 1,
+      "cahier_line": 115
+    },
+    "moyennes_interprojets": {
+      "A": 50,
+      "B": 60,
+      "cahier_line": 115
+    },
+    "invariance_par_duplication": {
+      "regle": "dupliquer toutes les repetitions de P1 laisse l estimation ponctuelle inchangee",
+      "cahier_line": 115
+    },
+    "piege_a_detecter": {
+      "regle": "une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "nombre_de_lignes": 11,
+      "cahier_line": 115
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants.",
+      "cahier_line": 73,
+      "invariant": "D.11"
+    },
+    {
+      "regle": "poids des scenarios appliques a l interieur du parent avant poids entre parents",
+      "cahier_line": 435,
+      "cas": "T32.A6"
+    },
+    {
+      "regle": "Le bootstrap principal reechantillonne les moyennes par parent.",
+      "cahier_line": 445
+    }
+  ],
+  "derive": [
+    {
+      "quoi": "nombre de lignes",
+      "valeur": "10 (P1) + 1 (P2) = 11",
+      "source_de_la_derivation": {
+        "cahier_line": 115
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "agregation en deux temps",
+      "valeur": "moyenne par projet puis moyenne entre projets : A=(10+90)/2=50, B=(20+100)/2=60",
+      "source_de_la_derivation": {
+        "cahier_line": 115,
+        "regle": "« Moyennes interprojets encore 50 et 60 » — identiques a F-COST-RATIO malgre le desequilibre 10 vs 1"
+      },
+      "normatif": false
+    },
+    {
+      "quoi": "forme du piege naif",
+      "valeur": "une moyenne poolee sur les 11 lignes donnerait A=190/11 et B=300/11, donc un ratio different de 5/6",
+      "source_de_la_derivation": {
+        "cahier_line": 115,
+        "regle": "le cahier interdit ce calcul sans en donner les nombres ; ils ne sont ici qu un repere de mutation"
+      },
+      "normatif": false
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-CLUSTERS.1",
+      "severite": "faible",
+      "question": "« Dupliquer toutes les repetitions de P1 » : le facteur de duplication n est pas donne (10 -> 20 ? 10 -> 11 ?).",
+      "lignes": [
+        115
+      ],
+      "consequence": "aucune sur l estimation ponctuelle, qui est invariante pour tout facteur ; affecte seulement la forme du cas T32.A2"
+    },
+    {
+      "id": "F-CLUSTERS.2",
+      "severite": "faible",
+      "question": "Le cahier dit que l estimation PONCTUELLE est inchangee, sans dire ce qu il advient de l incertitude (intervalle) apres duplication.",
+      "lignes": [
+        115,
+        443
+      ],
+      "consequence": "T33.A5 etend l invariance aux « resultats » a liste de tirages parents fixee ; hors de cette condition, le cahier ne promet rien"
+    }
+  ]
+}

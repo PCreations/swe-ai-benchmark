@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "campaign_id": "CMP-T03-BUDGET-ABSENT",
+  "execution_mode": "recorded",
+  "frozen": true,
+  "corpus": {
+    "corpus_id": "CRP-T03-MINIMAL",
+    "corpus_provenance": "synthetic",
+    "entries": [
+      {
+        "entry_id": "reservation-001",
+        "sha256": "94eca60d04c4e50cc49981b00f7959313dd1ff74d9dc790454c3fcb4c6acb08a"
+      },
+      {
+        "entry_id": "reservation-002",
+        "sha256": "e3027115427c212080e5fb9d29538df6f1ce997b2b92533b111d5ceec8dc0b04"
+      }
+    ],
+    "digest": "5ce1ab3e985cd765dcbf94fbda2bbdc6dd483c0634cdf575c21babd60326f6c0"
+  },
+  "projects": [
+    {
+      "parent_project_id": "PRJ-RESERVATION",
+      "scenarios": [
+        {
+          "scenario_id": "SCN-RESERVATION-BASE",
+          "corpus_provenance": "synthetic"
+        }
+      ]
+    }
+  ],
+  "configurations": [
+    {
+      "configuration_id": "CFG-A",
+      "agent": "scripted"
+    },
+    {
+      "configuration_id": "CFG-B",
+      "agent": "scripted"
+    }
+  ],
+  "repetitions": 3,
+  "periods": 4,
+  "seeds": {
+    "scenario": "S-T03",
+    "workload": "W-T03",
+    "assignment": "A-T03",
+    "bootstrap": "B-T03"
+  },
+  "policies": {
+    "lost_result": "new_logical_attempt",
+    "retry": "frozen"
+  },
+  "metrics": [
+    "Q",
+    "R",
+    "G"
+  ]
+}

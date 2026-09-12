@@ -1,0 +1,12 @@
+{
+  "name": "@bench/oracle",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Oracle metier independant de reservation : machine a etats, projection metier canonique, sans SQL ni HTTP (cahier L211-L218, tache T07).",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "dependencies": { "@bench/contracts": "workspace:*" }
+}

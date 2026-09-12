@@ -771,13 +771,22 @@ tache dont une dependance est STALE reste affichee « W attend » meme si sa
 propre attestation vient d'etre poussee. Ton etage ramene le tableau a son point
 fixe.
 
-BOUCLE, 44 ITERATIONS AU PLUS — une par tache, et ce plafond n'est PAS
-arbitraire : la cascade de dependances est strictement SEQUENTIELLE. A chaque
-instant une seule tache est STALE (la racine de la chaine) ; les suivantes sont
-WAITING derriere elle. Tu ne peux donc re-attester qu'UNE tache par iteration,
-et il en faut autant que de taches deja prouvees. Un plafond de 5 a fonctionne
-tant qu'il y en avait 4 ; il a echoue des la 11e (SETTLE_NON_CONVERGENT observe).
-Chaque \`accept\` coute ~14 s : 44 iterations restent bon marche.
+BOUCLE, 44 ITERATIONS AU PLUS, et ce plafond n'est pas un chiffre rond.
+
+Ce qu'il faut comprendre du rythme de convergence : tu ne vois comme STALE que
+les taches dont TOUTES les dependances sont deja prouvees. Les autres sont
+WAITING derriere elles. Une iteration regle donc un NIVEAU de profondeur du
+graphe — plusieurs taches soeurs se reglent ensemble — et il faut autant
+d'iterations que la chaine de dependances est PROFONDE, pas autant qu'il y a de
+taches. Mesure : une cascade T00->T01->T02->T03 a demande 4 iterations ; T05 et
+T07, soeurs, se sont reglees en une seule.
+
+44 est donc une borne large et sure : la profondeur ne peut pas exceder le
+nombre de taches. Un plafond de 5 a fonctionne tant que la chaine etait courte,
+puis a echoue (SETTLE_NON_CONVERGENT observe) — et il aurait echoue de plus en
+plus tot a mesure que le graphe s'approfondit. Chaque \`accept\` coute ~14 s,
+mesure sur les premieres attestations du ledger : boucler large est bon marche,
+s'arreter trop tot ne l'est pas.
   1. \`node tools/bench resume --json\`. Lis le champ \`stale\`.
   2. S'il est vide : termine, ok=true, dis combien d'iterations il a fallu.
   3. Sinon, pour CHAQUE tache de \`stale\`, dans l'ordre :

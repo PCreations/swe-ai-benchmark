@@ -1,0 +1,191 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      117
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "attend": "F-BOOTSTRAP donne les quatre ratios et l'intervalle [1/2,9/10]",
+      "deduction": "la fixture doit porter la liste ORDONNEE des quatre tirages et la liste ORDONNEE des quatre ratios : le test observe les deux, pas seulement l'intervalle"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "attend": "les deux bras suivent exactement les memes indices parents",
+      "deduction": "le bootstrap est apparie : chaque tirage fixe les parents une fois, et A comme B sont lus sur ces memes parents"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "attend": "multiplier tous les couts par 7 ne change ni ratio ni intervalle",
+      "deduction": "les ratios sont invariants d'echelle ; la fixture porte donc des rationnels, pas des montants"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "attend": "A=B donne tous les ratios egaux a 1",
+      "deduction": "sonde degeneree construite sur la meme liste de tirages"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "attend": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "deduction": "la liste de tirages est une ENTREE forcee de la fixture, pas un produit du generateur aleatoire"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "attend": "une seule grappe donne `INSUFFICIENT_CLUSTERS`",
+      "deduction": "F-BOOTSTRAP a deux parents : la fixture est au minimum admissible, et le cahier previent lui-meme que ce n'est pas une couverture suffisante"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "attend": "les bandes ponctuelles ne sont jamais etiquetees simultanees",
+      "deduction": "l'intervalle [1/2,9/10] est une bande ponctuelle, son etiquette doit le dire"
+    }
+  ],
+  "valeurs": {
+    "parents": {
+      "valeur": [
+        "P1",
+        "P2"
+      ],
+      "cahier_line": 117,
+      "citation": "Sur les deux projets precedents",
+      "note": "P1 : A=10, B=20 ; P2 : A=90, B=100 (ligne 115)"
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117,
+      "citation": "forcer la liste de reechantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`",
+      "note": "ordre conserve : c'est l'ordre d'enonce de la ligne 117"
+    },
+    "ratios_cout_A_sur_B": {
+      "valeur": [
+        "1/2",
+        "5/6",
+        "5/6",
+        "9/10"
+      ],
+      "cahier_line": 117,
+      "citation": "Les quatre ratios cout A/B sont `[1/2,5/6,5/6,9/10]`",
+      "note": "un ratio par tirage, dans le meme ordre"
+    },
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "intervalle_2_5_a_97_5": {
+      "valeur": [
+        "1/2",
+        "9/10"
+      ],
+      "cahier_line": 117,
+      "citation": "l'intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`"
+    },
+    "portee_declaree": {
+      "valeur": "valide le calcul, pas une couverture suffisante avec deux projets",
+      "cahier_line": 117,
+      "citation": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "La liste de tirages est FORCEE : elle est une entree de la fixture, jamais un tirage a reproduire par graine.",
+      "cahier_line": 117
+    },
+    {
+      "regle": "Le bootstrap principal reechantillonne les MOYENNES PAR PARENT ; une variante hierarchique est une methode distincte declaree.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Une sortie deterministe n'implique pas une couverture frequentiste garantie.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Algorithme de tirage et convention de quantile sont archives.",
+      "cahier_line": 445
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "[P1,P1] : moyenne A = 10, moyenne B = 20, ratio = 10/20 = 1/2",
+      "verdict": "conforme au 1er ratio de la ligne 117"
+    },
+    {
+      "controle": "[P1,P2] : moyenne A = (10+90)/2 = 50, moyenne B = (20+100)/2 = 60, ratio = 5/6",
+      "verdict": "conforme au 2e ratio de la ligne 117"
+    },
+    {
+      "controle": "[P2,P1] : memes moyennes que [P1,P2], ratio = 5/6",
+      "verdict": "conforme au 3e ratio ; confirme que le tirage est avec remise et ordonne, et que le ratio est insensible a l'ordre interne du tirage"
+    },
+    {
+      "controle": "[P2,P2] : moyenne A = 90, moyenne B = 100, ratio = 9/10",
+      "verdict": "conforme au 4e ratio de la ligne 117"
+    },
+    {
+      "controle": "liste triee [1/2, 5/6, 5/6, 9/10] ; min = 1/2, max = 9/10",
+      "verdict": "sur quatre valeurs, les bornes 2,5 % et 97,5 % tombent sur le minimum et le maximum, ce qui reproduit l'intervalle annonce ligne 117"
+    },
+    {
+      "controle": "chaque tirage fixe les parents une seule fois, A et B etant lus dessus",
+      "verdict": "coherent avec l'appariement exige par T33.A2 (ligne 443) : si les bras tiraient separement, [P1,P2] pour A et [P2,P1] pour B donneraient un ratio absent de la liste"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BOOTSTRAP-1",
+      "question": "Quelle est la formule exacte du « quantile empirique inverse » pour une liste de taille 4 ?",
+      "ce_que_le_cahier_dit": "la ligne 117 nomme la convention et enonce son RESULTAT sur cette liste ([1/2,9/10]), sans ecrire l'indexation. La ligne 445 dit que la convention est archivee, ce qui la situe hors §F.",
+      "cahier_line": 117,
+      "bloquant": false,
+      "raison_non_bloquant": "sur quatre valeurs, toute convention raisonnable de quantile inverse renvoie le minimum a 2,5 % et le maximum a 97,5 % ; la fixture epingle le resultat, et c'est lui que T33.A1 observe."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-2",
+      "question": "Le nombre de reechantillonnages est-il 4 par nature, ou 4 seulement parce que la liste est forcee ?",
+      "ce_que_le_cahier_dit": "la ligne 117 force une liste de quatre tirages, qui se trouve etre l'enumeration exhaustive des 2^2 tirages avec remise sur deux parents. Le cahier ne dit pas si l'exhaustivite est voulue ou incidente.",
+      "cahier_line": 117,
+      "bloquant": false,
+      "raison_non_bloquant": "la liste etant fournie explicitement, aucune valeur de la fixture ne depend de la reponse. La ligne 127 (F-POWER) parle en revanche de « tirages parents exhaustifs », ce qui suggere la meme construction."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-3",
+      "question": "L'intervalle [1/2,9/10] est-il une bande ponctuelle ou simultanee ?",
+      "ce_que_le_cahier_dit": "la ligne 117 ne l'etiquette pas. T33.A7 (ligne 443) exige que « les bandes ponctuelles ne soient jamais etiquetees simultanees », ce qui presuppose que l'etiquette existe quelque part.",
+      "cahier_line": 117,
+      "bloquant": false,
+      "raison_non_bloquant": "l'intervalle enonce porte sur un seul contraste (le ratio cout A/B) : il est ponctuel par construction, et aucune valeur numerique ne change avec l'etiquette."
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "schema": "bench.fixtures.transcription/1",
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T09",
+  "etage": "FIXTURES",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_atteste_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      127
+    ],
+    "verification": "sed -n '127p' docs/cahier.md"
+  },
+  "texte_source": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "nombre_de_campagnes": {
+    "valeur": 4,
+    "cahier_line": 127,
+    "note": "quatre petites campagnes statistiques"
+  },
+  "parents_par_campagne": {
+    "valeur": 2,
+    "cahier_line": 127,
+    "note": "deux parents distincts P1/P2 portant les memes valeurs"
+  },
+  "bras_B": {
+    "$note": "Identique dans chaque parent et dans les quatre campagnes.",
+    "cout": {
+      "valeur": 100,
+      "cahier_line": 127
+    },
+    "V": {
+      "valeur": 1,
+      "cahier_line": 127
+    },
+    "U": {
+      "valeur": 1,
+      "cahier_line": 127
+    }
+  },
+  "bras_A_par_campagne": [
+    {
+      "campagne": 1,
+      "cout": {
+        "valeur": 80,
+        "cahier_line": 127
+      },
+      "V": {
+        "exact": "1/1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 1
+      },
+      "U": {
+        "exact": "1/1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 1
+      }
+    },
+    {
+      "campagne": 2,
+      "cout": {
+        "valeur": 100,
+        "cahier_line": 127
+      },
+      "V": {
+        "exact": "1/1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 1
+      },
+      "U": {
+        "exact": "1/1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 1
+      }
+    },
+    {
+      "campagne": 3,
+      "cout": {
+        "valeur": 80,
+        "cahier_line": 127
+      },
+      "V": {
+        "exact": "24/25",
+        "num": 24,
+        "den": 25,
+        "cahier_line": 127,
+        "decimal": 0.96,
+        "note": "le cahier ecrit 0.96"
+      },
+      "U": {
+        "exact": "1/1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 1
+      }
+    },
+    {
+      "campagne": 4,
+      "cout": {
+        "valeur": 80,
+        "cahier_line": 127
+      },
+      "V": {
+        "exact": "99/100",
+        "num": 99,
+        "den": 100,
+        "cahier_line": 127,
+        "decimal": 0.99,
+        "note": "le cahier ecrit 0.99"
+      },
+      "U": {
+        "exact": "99/100",
+        "num": 99,
+        "den": 100,
+        "cahier_line": 127,
+        "decimal": 0.99,
+        "note": "le cahier ecrit 0.99"
+      }
+    }
+  ],
+  "hypotheses": [
+    {
+      "valeur": "comptabilite resolue",
+      "cahier_line": 127
+    },
+    {
+      "valeur": "absence de violation critique",
+      "cahier_line": 127
+    },
+    {
+      "valeur": "valeurs connues sur les deux bras",
+      "cahier_line": 127
+    }
+  ],
+  "tirages": {
+    "valeur": "tirages parents exhaustifs, donnant des distributions ponctuelles",
+    "cahier_line": 127
+  },
+  "bornes_ratio": {
+    "cahier_line": 127,
+    "$note": "Distributions ponctuelles : borne basse = borne haute pour chaque campagne.",
+    "valeurs": [
+      {
+        "exact": "4/5",
+        "num": 4,
+        "den": 5,
+        "cahier_line": 127,
+        "decimal": 0.8,
+        "note": "le cahier ecrit 0,8"
+      },
+      {
+        "exact": "1/1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 1
+      },
+      {
+        "exact": "4/5",
+        "num": 4,
+        "den": 5,
+        "cahier_line": 127,
+        "decimal": 0.8
+      },
+      {
+        "exact": "4/5",
+        "num": 4,
+        "den": 5,
+        "cahier_line": 127,
+        "decimal": 0.8
+      }
+    ]
+  },
+  "bornes_delta_V": {
+    "cahier_line": 127,
+    "valeurs": [
+      {
+        "exact": "0/1",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 0
+      },
+      {
+        "exact": "0/1",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 0
+      },
+      {
+        "exact": "-1/25",
+        "num": -1,
+        "den": 25,
+        "cahier_line": 127,
+        "decimal": -0.04,
+        "note": "le cahier ecrit -0,04"
+      },
+      {
+        "exact": "-1/100",
+        "num": -1,
+        "den": 100,
+        "cahier_line": 127,
+        "decimal": -0.01,
+        "note": "le cahier ecrit -0,01"
+      }
+    ]
+  },
+  "bornes_delta_U": {
+    "cahier_line": 127,
+    "valeurs": [
+      {
+        "exact": "0/1",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 0
+      },
+      {
+        "exact": "0/1",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 0
+      },
+      {
+        "exact": "0/1",
+        "num": 0,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal": 0
+      },
+      {
+        "exact": "-1/100",
+        "num": -1,
+        "den": 100,
+        "cahier_line": 127,
+        "decimal": -0.01,
+        "note": "le cahier ecrit -0,01"
+      }
+    ]
+  },
+  "decisions_attendues_T34": {
+    "valeur": [
+      true,
+      false,
+      false,
+      true
+    ],
+    "cahier_line": 127,
+    "note": "le cahier ecrit [vrai,faux,faux,vrai]"
+  },
+  "portee": {
+    "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu’une estimation ponctuelle generale suffit a decider.",
+    "cahier_line": 127
+  },
+  "ambiguites": [],
+  "remarques": [
+    "Coherence interne observee (controle) : cout A/cout B = 80/100 = 0,8 (campagnes 1, 3, 4) et 100/100 = 1 (campagne 2) ; deltaV = V(A)-V(B) = 0 / 0 / -0,04 / -0,01 ; deltaU = 0 / 0 / 0 / -0,01. Les deux parents portant les memes valeurs, les quatre tirages exhaustifs donnent la meme valeur : la distribution est ponctuelle et les bornes coincident.",
+    "Le seuil de decision qui produit [vrai,faux,faux,vrai] n’est pas enonce en §F ; la fixture fournit les bornes et le verdict attendu, pas la regle. Aucune regle n’a ete inventee ici.",
+    "Les decimales -0,04 et -0,01 ne sont pas exactement representables en binaire ; elles sont transcrites aussi en rationnels (-1/25, -1/100)."
+  ],
+  "non_specifie_par_le_cahier": [
+    "regle/seuil de decision de T34 (hors §F)",
+    "unite des couts de F-POWER"
+  ]
+}

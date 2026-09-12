@@ -1,0 +1,131 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      113
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "attend": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "deduction": "la fixture doit porter les deux moyennes ET le ratio comme trois valeurs distinctes : un test qui n'observe que le ratio ne distingue pas 50/60 de 5/6 obtenu autrement"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "attend": "F-COST-RATIO affiche 5/6 et les deux moyennes",
+      "deduction": "les deux moyennes sont des faits publiables, pas des intermediaires de calcul"
+    },
+    {
+      "cas": "T32 (fin de tache)",
+      "cahier_line": 437,
+      "attend": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs",
+      "deduction": "la fixture doit porter la valeur FAUSSE 0.7 (moyenne des ratios) comme piege nomme, sinon la mutation n'a pas de cible attendue"
+    },
+    {
+      "cas": "T32.A6",
+      "cahier_line": 435,
+      "attend": "poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "deduction": "« deux projets de poids egal » fixe le poids INTER-parents ; la fixture n'a qu'une ligne par projet, donc aucun poids intra-parent a exercer"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_projets": {
+      "valeur": 2,
+      "cahier_line": 113
+    },
+    "poids_entre_projets": {
+      "valeur": "egal",
+      "cahier_line": 113,
+      "citation": "Deux projets de poids egal"
+    },
+    "couts_A": {
+      "valeur": [
+        10,
+        90
+      ],
+      "cahier_line": 113,
+      "note": "indice 0 = projet P1, indice 1 = projet P2, par correspondance avec F-CLUSTERS (ligne 115) qui nomme P1 : A=10, B=20 et P2 : A=90, B=100"
+    },
+    "couts_B": {
+      "valeur": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113,
+      "citation": "Moyennes A=50 et B=60"
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "valeur": "5/6",
+      "decimal_exact": false,
+      "cahier_line": 113,
+      "citation": "ratio principal A/B=`5/6`",
+      "note": "rationnel exact ; 5/6 n'a pas d'ecriture decimale finie, il ne doit pas etre arrondi a 0.83"
+    },
+    "valeur_incorrecte_moyenne_des_ratios": {
+      "valeur": "0.7",
+      "cahier_line": 113,
+      "citation": "La moyenne des ratios serait `0.7` et constitue un resultat incorrect pour cette metrique",
+      "role": "piege nomme : c'est le resultat qu'une implementation fautive produit, et que les mutations de T32 doivent faire apparaitre"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Le ratio principal est le ratio DES MOYENNES, pas la moyenne des ratios.",
+      "cahier_line": 113
+    },
+    {
+      "regle": "0.7 n'est pas une valeur de la fixture a produire : c'est la valeur dont la production signale une faute.",
+      "cahier_line": 113
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "(10 + 90)/2 = 50",
+      "verdict": "conforme a la moyenne A annoncee ligne 113"
+    },
+    {
+      "controle": "(20 + 100)/2 = 60",
+      "verdict": "conforme a la moyenne B annoncee ligne 113"
+    },
+    {
+      "controle": "50/60 = 5/6",
+      "verdict": "conforme au ratio principal annonce ligne 113"
+    },
+    {
+      "controle": "(10/20 + 90/100)/2 = (0.5 + 0.9)/2 = 0.7",
+      "verdict": "reproduit exactement le piege nomme par la ligne 113, ce qui confirme la lecture des tableaux de couts"
+    },
+    {
+      "controle": "5/6 != 0.7",
+      "verdict": "les deux valeurs sont distinctes, l'assertion de T32.A1 est discriminante"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-COST-RATIO-1",
+      "question": "Quelle unite portent les couts [10,90] et [20,100] ?",
+      "ce_que_le_cahier_dit": "la ligne 113 n'enonce aucune unite. §E ligne 80 pose que « les montants sont des chaines d'entiers non negatifs en micro-USD », mais ne se refere pas a cette fixture.",
+      "cahier_line": 113,
+      "bloquant": false,
+      "raison_non_bloquant": "le ratio et les moyennes sont invariants d'echelle du cote de A/B ; T33.A3 (ligne 443) exige d'ailleurs explicitement que multiplier tous les couts par 7 ne change ni ratio ni intervalle."
+    }
+  ]
+}

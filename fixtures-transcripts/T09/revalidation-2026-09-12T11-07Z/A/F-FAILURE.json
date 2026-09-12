@@ -1,0 +1,88 @@
+{
+  "schema": "bench.fixtures.transcription/1",
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T09",
+  "etage": "FIXTURES",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_atteste_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      121
+    ],
+    "verification": "sed -n '121p' docs/cahier.md"
+  },
+  "texte_source": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "K": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "candidat": {
+    "valeur": "sans deploiement sur les quatre periodes",
+    "cahier_line": 121
+  },
+  "lignes_conservees": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "condition": {
+    "valeur": "si les exigences et usages y sont presents",
+    "cahier_line": 121
+  },
+  "Q_par_periode": {
+    "valeur": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cahier_line": 121
+  },
+  "R_par_periode": {
+    "valeur": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cahier_line": 121
+  },
+  "couts_par_periode": {
+    "valeur": [
+      100,
+      50,
+      0,
+      0
+    ],
+    "cahier_line": 121
+  },
+  "cout_total": {
+    "valeur": 150,
+    "cahier_line": 121
+  },
+  "arret_de_calcul": {
+    "apres": {
+      "valeur": "P2",
+      "cahier_line": 121
+    },
+    "effet": {
+      "valeur": "ne supprime pas P3 et P4",
+      "cahier_line": 121
+    },
+    "interdit": {
+      "valeur": "aucune facture imaginaire n’y est ajoutee",
+      "cahier_line": 121
+    }
+  },
+  "ambiguites": [],
+  "remarques": [
+    "Coherence interne observee (controle) : 100+50+0+0 = 150, valeur ecrite telle quelle ligne 121.",
+    "Q=0 et R=0 (et non null) parce que les exigences et les usages sont presents : la convention ligne 111 reserve null a l’absence d’intention admissible, respectivement d’exigence active due."
+  ]
+}

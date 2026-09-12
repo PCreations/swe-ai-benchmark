@@ -1,0 +1,136 @@
+{
+  "schema": "bench.fixtures.transcription.index/1",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T09",
+  "etage": "FIXTURES",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_atteste_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes_couvertes": [
+      101,
+      103,
+      105,
+      107,
+      109,
+      111,
+      113,
+      115,
+      117,
+      119,
+      121,
+      123,
+      125,
+      127,
+      129
+    ],
+    "ligne_section_suivante": 131
+  },
+  "methode": [
+    "Transcription depuis la seule section §F du cahier (lignes 101-129), fixture par fixture, dans l’ordre du document.",
+    "Aucun cas d’acceptation, aucune suite de tests, aucune implementation consultes.",
+    "Chaque valeur porte sa ligne source (cahier_line), verifiable par : sed -n '<n>p' docs/cahier.md",
+    "Les nombres sont transcrits en rationnels exacts quand le cahier les ecrit en fraction ; aucun arrondi."
+  ],
+  "fixtures": [
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "sha256": "5c8846175a114f8735da69ca2da2d554255246283fff8f0be0c8466b3b4f929c",
+      "lignes": [
+        103
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "sha256": "293a6541d158dd7d1034cd2d2d82b3c50fe79146171f0902f4fdeb0d7e0d78e7",
+      "lignes": [
+        105
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "sha256": "eedf9fc4d28eb40f9521ad879baffa52a901c8c9f735e7d973d708a46e9b7295",
+      "lignes": [
+        107,
+        109,
+        111
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "sha256": "ac4e1e769fc04ac1e73ac234d31affe4a32ba6bb1378ab2934d28be6cc3b3134",
+      "lignes": [
+        113
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "sha256": "a0f778b96321386a0c1429071eff1c27ad4a1edb8601af1d0dcb8f1be2284ad0",
+      "lignes": [
+        115
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "sha256": "d8407e724c223c5f0a457a5891038b024649868bf831a5f2184fdad61ea17d68",
+      "lignes": [
+        117
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "sha256": "a17c71714345d1358adbad21037f4c4ffe73a669683519d26d9021d7452a1b42",
+      "lignes": [
+        119,
+        123,
+        125
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "sha256": "368f577f82b40e5a3207b248e50da5ad8eed26f321fcd6eb16c533ead2ee4ba9",
+      "lignes": [
+        121
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "sha256": "a177b2bbd0bdfec093a12e9fedfd16ddbe654688ae6c424b1adbb83f7a2e5f8a",
+      "lignes": [
+        127
+      ],
+      "ambiguites": 0
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "sha256": "cdb390a9be160fc04e4933758acc3a759d0bc059441b4e46af7e6813e1a699f6",
+      "lignes": [
+        129
+      ],
+      "ambiguites": 0
+    }
+  ],
+  "total_fixtures": 10,
+  "ambiguites_bloquantes": 0
+}

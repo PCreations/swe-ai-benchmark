@@ -1,0 +1,199 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-FAILURE",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      121
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "attend": "sans deploiement, la cloture d'une periode produit les demandes non servies prevues par F-FAILURE",
+      "deduction": "l'absence de deploiement ne supprime pas les intentions : elles sont OFFERTES et NON SERVIES, ce qui est la condition pour que R=0 plutot que null"
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "attend": "F-FAILURE conserve quatre resultats",
+      "deduction": "les quatre lignes existent meme la ou rien ne s'est passe : pas de filtre de survivants"
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "attend": "F-FAILURE exporte quatre periodes et total 150",
+      "deduction": "le total est une valeur exportee, et les quatre lignes de couts en sont les termes ; P3 et P4 a 0 doivent apparaitre, pas etre absentes"
+    },
+    {
+      "cas": "T31 (fin de tache)",
+      "cahier_line": 429,
+      "attend": "aucun filtre implicite de survivants et aucune valeur vide convertie en zero",
+      "deduction": "les 0 de P3 et P4 sont des couts REELS nuls, a distinguer d'un cout inconnu ; le cahier dit qu'aucune facture imaginaire n'y est ajoutee"
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "attend": "F-FAILURE produit un echec produit dans une execution moteur terminee",
+      "deduction": "l'echec est un resultat metier `FAILED`, pas une erreur technique du moteur : les deux niveaux ne se confondent pas (ligne 28)"
+    },
+    {
+      "cas": "T36.A3",
+      "cahier_line": 473,
+      "attend": "une trajectoire echouee reste dans les courbes",
+      "deduction": "les quatre lignes de F-FAILURE doivent rester representables, y compris celles a zero"
+    }
+  ],
+  "valeurs": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121,
+      "citation": "A K=4",
+      "signification": "nombre de periodes"
+    },
+    "deploiement": {
+      "valeur": "aucun sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "nombre_de_lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121,
+      "citation": "conserve quatre lignes"
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "citation": "quatre lignes avec Q=0 et R=0",
+      "condition": "si les exigences et usages y sont presents"
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "condition": "si les exigences et usages y sont presents"
+    },
+    "couts_par_periode": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "citation": "Ses couts `[100,50,0,0]`"
+    },
+    "cout_total": {
+      "valeur": 150,
+      "cahier_line": 121,
+      "citation": "totalisent 150"
+    },
+    "unite_des_couts": {
+      "valeur": null,
+      "cahier_line": 121,
+      "enonce": false,
+      "note": "la ligne 121 ne porte AUCUNE unite. Controle execute : `sed -n '121p' docs/cahier.md | grep -c 'micro-USD'` -> 0 ; la chaine n'apparait qu'aux lignes 80, 103, 493 et 495.",
+      "convention_globale_applicable": {
+        "cahier_line": 80,
+        "citation": "Les montants sont des chaines d'entiers non negatifs en micro-USD",
+        "portee": "§E, non repetee en ligne 121"
+      }
+    },
+    "arret_apres_P2": {
+      "valeur": "P3 et P4 ne sont pas supprimees",
+      "cahier_line": 121,
+      "citation": "Un arret de calcul apres P2 ne supprime pas P3 et P4"
+    },
+    "factures_imaginaires": {
+      "valeur": "aucune n'est ajoutee a P3 ni P4",
+      "cahier_line": 121,
+      "citation": "aucune facture imaginaire n'y est ajoutee"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Q=0 et R=0 ne valent QUE si les exigences et usages sont presents a la periode. La condition est explicite dans la ligne.",
+      "cahier_line": 121
+    },
+    {
+      "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais `null` : c'est ce qui distingue F-FAILURE de la periode P3 de F-QUALITY.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Q est `null` si aucun poids d'exigence active due. F-FAILURE suppose donc des exigences dues et non satisfaites.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Un cout de 0 est un cout mesure nul, jamais une valeur vide convertie en zero.",
+      "cahier_line": 429
+    },
+    {
+      "regle": "Un defaut de prerequis produit BLOCKED, jamais PASS. Une vraie IA qui echoue produit un resultat candidat FAILED dans une execution du moteur eventuellement valide.",
+      "cahier_line": 28
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "100 + 50 + 0 + 0 = 150",
+      "verdict": "conforme au total annonce ligne 121 et a T31.A1 (ligne 427)"
+    },
+    {
+      "controle": "longueur du tableau de couts = 4 = K",
+      "verdict": "une ligne par periode, conforme a « conserve quatre lignes »"
+    },
+    {
+      "controle": "les couts de P3 et P4 valent 0 alors qu'un arret de calcul survient apres P2",
+      "verdict": "coherent : l'arret laisse les lignes en place sans y ajouter de facture, exactement ce qu'enonce la ligne 121"
+    },
+    {
+      "controle": "F-QUALITY P3 a 0 intention offerte et R=null ; F-FAILURE a des usages presents et R=0",
+      "verdict": "les deux fixtures exercent les deux branches opposees de la convention de la ligne 111, et ne peuvent pas etre satisfaites par la meme implementation fautive"
+    },
+    {
+      "controle": "grep -c 'micro-USD' sur la ligne 121",
+      "verdict": "0 (execute) : l'unite n'est pas portee par la ligne source de la fixture"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-FAILURE-1",
+      "question": "Quelle unite portent les couts [100,50,0,0] ?",
+      "ce_que_le_cahier_dit": "la ligne 121 n'enonce aucune unite (verifie par execution : la chaine `micro-USD` n'y apparait pas). §E ligne 80 pose en revanche que « les montants sont des chaines d'entiers non negatifs en micro-USD » pour tout le domaine.",
+      "cahier_line": 121,
+      "bloquant": false,
+      "raison_non_bloquant": "le total 150, seule valeur exigee par T31.A1, est le meme sous les deux lectures.",
+      "note_du_transcripteur": "SC-001 (divergence DIV-1) a deja tranche qu'ecrire `unite: micro-USD` EN L'ATTRIBUANT A LA LIGNE 121 n'est pas soutenu par la source. La presente transcription porte donc `unite_des_couts.valeur = null, enonce = false`, et cite separement la convention globale de la ligne 80 sans l'imputer a la ligne 121. Ce qui reste ouvert est seulement de savoir si ces couts sont des « montants » au sens de §E."
+    },
+    {
+      "id": "AMB-FAILURE-2",
+      "question": "Quelles exigences et quels usages sont presents a chaque periode de F-FAILURE ?",
+      "ce_que_le_cahier_dit": "la ligne 121 conditionne Q=0 et R=0 a « si les exigences et usages y sont presents », sans enumerer ni exigences, ni poids, ni nombre d'intentions offertes.",
+      "cahier_line": 121,
+      "bloquant": true,
+      "pourquoi_bloquant": "la fixture n'est pas materialisable sans choisir un jeu d'exigences dues et un nombre d'intentions offertes par periode. Sans exigence due, la ligne 111 impose Q=`null` et non Q=0 ; sans intention offerte, elle impose R=`null` et non R=0. Les valeurs annoncees dependent donc de donnees que le cahier ne fournit pas.",
+      "ce_qui_est_certain": "les couts [100,50,0,0], leur total 150 et le nombre de lignes 4 ne dependent pas de ce choix."
+    },
+    {
+      "id": "AMB-FAILURE-3",
+      "question": "Que valent V et U pour F-FAILURE ?",
+      "ce_que_le_cahier_dit": "la ligne 121 n'enonce ni V ni U. Les definitions des lignes 107 et 111 les rendraient calculables a partir de Q=[0,0,0,0] et R=[0,0,0,0], mais le cahier n'ecrit pas le resultat.",
+      "cahier_line": 121,
+      "bloquant": false,
+      "raison_non_bloquant": "aucun consommateur ne les affirme : T31.A1 porte sur les quatre periodes et le total 150, T11.A4 sur le nombre de resultats. Ecrire V et U ici serait un calcul du transcripteur, pas une transcription."
+    }
+  ]
+}

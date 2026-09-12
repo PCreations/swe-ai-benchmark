@@ -1,0 +1,267 @@
+{
+  "schema": "bench.fixture-transcription.comparaison/1",
+  "tache": "T09",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "horodatage_utc": "2026-09-12T11:07:15Z",
+  "commit_source_observe": "af17dce92ce0aef8d21917e3ec7b5377b504d388",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "concordance_verifiee": true,
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "verdict": "CONCORDANTES",
+  "divergences_de_valeur": 0,
+  "ambiguites_bloquantes_pour_le_scellement": 0,
+  "fixtures_scellees": 10,
+  "tree_oid_gele": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+  "pourquoi_cette_entree_existe_alors_que_T09_est_deja_archive": {
+    "observe": "fixtures-transcripts/T09/ portait deja une paire A/B. Les 22 fichiers presents sur disque au moment de cet etage en different TOUS (controle : git hash-object de chacun des 22 contre le blob archive -> 22/22 differents). Ils sont en revanche bit-a-bit identiques a fixtures-transcripts/T08/revalidation-2026-09-12T11-00Z/ (22/22 identiques).",
+    "consequence": "le verdict ci-dessous porte sur la paire presente sur disque, pas sur celle deja archivee sous T09/. L'archiver ici est ce qui rend la concordance verifiable sur les memes octets que ceux qui l'ont produite.",
+    "note_de_B_elle_meme": "l'INDEX de B consigne sa propre reprise : champ `tache` passe de T08 a T09, controles reexecutes, « contenu des dix fixtures : inchange »."
+  },
+  "arbitrages_lus_avant_comparaison": [
+    {
+      "id": "SC-001",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "statut": "RESOLU",
+      "regle": "Le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active.",
+      "entrees_ouvertes_dans_docs_spec_conflicts": 0,
+      "controles_re_executes": [
+        {
+          "commande": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+          "observe": "0",
+          "conclusion": "DIV-1 : la chaine n'est pas en l.121 (elle est en l.80, 103, 493, 495). L'unite des couts de F-FAILURE reste NON SPECIFIEE ; ni A, ni B, ni la racine ne l'inscrivent."
+        },
+        {
+          "commande": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+          "observe": "en produit une",
+          "conclusion": "DIV-2 : le nombre attendu de F-REGRESSION vaut 1, par transcription et non par calcul."
+        },
+        {
+          "commande": "lecture des poids materialises en P3/P4 dans A, B et la racine",
+          "observe": "P3 : A@2=1, B@1=1, C@1=2 ; P4 : A@2=1, C@1=2 — identiques dans les trois",
+          "conclusion": "DIV-3 : SC-001 est applique de la meme facon par A, par B et par la racine gelee."
+        }
+      ]
+    }
+  ],
+  "controles_executes": [
+    {
+      "n": 1,
+      "nom": "table de 108 valeurs du §F, verifiee simultanement dans A, dans B et dans la racine",
+      "methode": "table redigee a la main depuis sed -n '103,129p' docs/cahier.md, puis recherche STRUCTURELLE de chaque valeur dans les trois arbres JSON, apres exclusion des sous-arbres de prose (verbatim `texte_source`, `citation`, `remarques`, `controles_*`, `consommateurs`, `ambiguites`, `conventions`) : une valeur ne compte que si elle est MATERIALISEE, pas seulement citee. Les rationnels sont acceptes sous leurs trois ecritures ({num,den}, \"p/q\", decimale finie).",
+      "resultat": "106/108 presentes dans les trois. Les 2 restantes sont des ecarts d'ENCODAGE de polarite, enumeres ci-dessous ; 0 divergence de valeur."
+    },
+    {
+      "n": 2,
+      "nom": "series comparees comme series typees, pas comme motifs textuels",
+      "resultat": "Q=[1,1/2,3/4,1] ; R=[1,1/2,null,1/2] ; offertes [4,4,0,2] ; reussies [4,2,0,1] ; couts F-FAILURE [100,50,0,0] ; Q et R de F-FAILURE [0,0,0,0] ; couts F-COST-RATIO [10,90] et [20,100] ; liste forcee [[P1,P1],[P1,P2],[P2,P1],[P2,P2]] ; ratios [1/2,5/6,5/6,9/10] ; bornes ratio [0.8,1,0.8,0.8] ; bornes dV [0,0,-0.04,-0.01] ; bornes dU [0,0,0,-0.01] ; decisions [vrai,faux,faux,vrai] — identiques dans A, dans B et, pour celles qu'elle porte, dans la racine."
+    },
+    {
+      "n": 3,
+      "nom": "perimetre du §F",
+      "methode": "sed -n '101,129p' docs/cahier.md | grep -o 'F-[A-Z][A-Z-]*' | sort -u",
+      "resultat": "exactement 10 noms — 10 fixtures dans A, 10 dans B, 10 fichiers dans la racine gelee."
+    },
+    {
+      "n": 4,
+      "nom": "integrite du gel",
+      "methode": "git rev-parse HEAD:acceptance/reference ; sha256 et taille des 10 fichiers contre docs/FROZEN_ROOTS.json ; puis checkReferences() de verification/runner/references.mjs",
+      "resultat": "tree oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, identique a l'oid declare et a celui du commit du gel cd239915 ; 10 fichiers, 0 ecart de sha256 ni de taille ; checkReferences() -> state GELEE, files 10, worktree_diff [], F-MONEY CONFORME (340, 680), problems []."
+    },
+    {
+      "n": 5,
+      "nom": "sha256 du cahier contre docs/CAHIER_SHA256",
+      "resultat": "concordants : d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+    }
+  ],
+  "ecarts_examines_et_juges_non_divergents": [
+    {
+      "fixture": "F-BUDGET",
+      "champ": "issue de la course de deux reservations concurrentes de 600",
+      "cahier_line": 105,
+      "A": "reservations_acceptees.valeur = 1 (entier), avec la note « le cahier parle ensuite de la reservation acceptee au singulier »",
+      "B": "regle.valeur = \"au plus une acceptee\" (le mot), et la deduction du consommateur T16.A2 : « le sous-cas concurrent doit avoir exactement un gagnant »",
+      "racine": "acceptees_au_plus.valeur = 1",
+      "jugement": "NON DIVERGENT : meme nombre, 1. B l'ecrit en toutes lettres la ou A et la racine l'ecrivent en entier, et B le confirme en chiffres dans sa colonne consommateurs. C'est l'ecart le plus proche d'une divergence de tout l'etage ; il est nomme ici pour cette raison."
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "champ": "verdict positif de regression d'isolation@1",
+      "cahier_line": 129,
+      "A": "regression.valeur = true ET nombre_de_regressions.valeur = 1",
+      "B": "regressions_produites.valeur = 1 (le compte seul, sans booleen)",
+      "racine": "produit_une_regression.valeur = true ET regressions_attendues.valeur = 1",
+      "jugement": "NON DIVERGENT : B encode le verdict positif par son compte 1 au lieu d'un booleen. Les deux affirment une regression, et le meme nombre."
+    },
+    {
+      "fixture": "toutes",
+      "champ": "ecriture des rationnels",
+      "A": "{exact:\"p/q\", num, den, decimal}",
+      "B": "{valeur:\"p/q\"} ou decimale",
+      "racine": "{rationnel:{num,den}, decimal_exact}",
+      "jugement": "NON DIVERGENT : meme valeur, trois ecritures. Les trois refusent d'ecrire une decimale pour 5/6 et 2/3 (developpement infini : une decimale serait un arrondi, donc une fixture fausse)."
+    }
+  ],
+  "ambiguites": {
+    "A": 0,
+    "B": 29,
+    "declarees_bloquantes_par_B": 3,
+    "bloquantes_pour_cet_etage": 0,
+    "critere_applique": "Une ambiguite ne bloque que si elle porte sur une VALEUR QUE LE SCELLEMENT DOIT ECRIRE. B classe selon son propre critere, qui vise une materialisation encore a faire ; le critere de l'etage est de savoir si une valeur DEJA SCELLEE est mise en doute. Les trois ont ete confrontees au contenu de la racine, champ par champ.",
+    "les_trois_declarees_bloquantes_par_B": [
+      {
+        "id": "AMB-QUALITY-2",
+        "fixture": "F-QUALITY",
+        "cahier_line": 109,
+        "question": "identifiant, poids, periode de revelation et echeance de l'exigence « revelee mais non encore due » du test negatif",
+        "ce_que_la_racine_scelle": "les cinq champs (id, version, poids, periode_de_revelation, echeance) sont inscrits a null, assortis de « non fixe par le cahier » ; seul l'INVARIANT enonce l.109 est scelle.",
+        "bloquante_ici": false,
+        "pourquoi": "aucune des quatre valeurs n'est ecrite : la racine ne choisit rien. B le constate lui-meme : « quels que soient les champs choisis, le poids de cette exigence n'entre dans aucun des quatre Q ». La question vise T04.A6, un cas d'acceptation, pas une valeur de fixture."
+      },
+      {
+        "id": "AMB-FAILURE-2",
+        "fixture": "F-FAILURE",
+        "cahier_line": 121,
+        "question": "quelles exigences et quels usages sont presents a chaque periode, et combien d'intentions sont offertes",
+        "ce_que_la_racine_scelle": "Q=[0,0,0,0] et R=[0,0,0,0] ASSORTIES de leur condition verbatim « si les exigences et usages y sont presents » ; « le nombre d'exigences actives dues par periode et leurs poids » et « le nombre d'intentions offertes par periode » figurent tous deux dans non_fixe_par_le_cahier.",
+        "bloquante_ici": false,
+        "pourquoi": "la racine n'invente ni exigence, ni cardinal d'intentions : elle scelle la valeur conditionnee, exactement comme la ligne 121 l'ecrit. B le confirme : « les couts [100,50,0,0], leur total 150 et le nombre de lignes 4 ne dependent pas de ce choix »."
+      },
+      {
+        "id": "AMB-REGRESSION-1",
+        "fixture": "F-REGRESSION",
+        "cahier_line": 129,
+        "question": "cancel@2 est-elle satisfaite en P3 et P4 ? isolation@1 existe-t-elle en P1 et P2 ?",
+        "ce_que_la_racine_scelle": "rien de tout cela : « le statut de satisfaction de cancel@2 en P3 et P4 » et « l'existence et le contenu d'une periode P1 » sont tous deux listes dans non_fixe_par_le_cahier. Controle execute : grep '\"G' sur la racine -> aucun champ G ni G_new.",
+        "bloquante_ici": false,
+        "pourquoi": "c'est le point le plus instructif de l'etage. B DERIVE G_en_P4=1 et G_new_en_P4=1 en les marquant `enonce:false`, et montre lui-meme que ces deux valeurs dependraient du statut non ecrit de cancel@2 (« si elle etait violee en P4 apres avoir ete satisfaite en P3, G vaudrait 2 »). La racine ne scelle ni l'un ni l'autre : la seule lecture sous laquelle l'ambiguite serait bloquante est precisement celle que le scellement n'a pas faite. A ne les ecrit pas davantage."
+      }
+    ],
+    "reportees_sans_effet_sur_une_valeur_scellee": [
+      "AMB-MONEY-1/-2, AMB-BUDGET-1/-2/-3, AMB-QUALITY-1/-3/-4, AMB-COST-RATIO-1, AMB-CLUSTERS-1/-2, AMB-BOOTSTRAP-1/-2/-3, AMB-RESERVATION-1/-2/-3/-4, AMB-FAILURE-1/-3, AMB-POWER-1/-2/-3/-4, AMB-REGRESSION-2/-3 (B). A n'en consigne aucune ; elle inscrit a la place des listes `non_specifie_par_le_cahier` (F-BUDGET, F-CLUSTERS, F-RESERVATION, F-POWER), de meme portee.",
+      "Toutes visent soit un parametre que ni A, ni B, ni la racine n'inscrivent (unite des couts hors F-MONEY, code de refus, identite de la reservation gagnante, cle idempotente, numeros de sequence d'admission, repetitions par parent, marge de decision, niveau de Bonferroni, valeur de la moyenne naive sur onze lignes), soit un cas d'acceptation d'une autre tache, soit une lecture qui laisse la valeur inscrite inchangee."
+    ]
+  },
+  "valeurs_hors_§F_portees_par_B_seule_et_non_materialisees_dans_la_racine": [
+    {
+      "fixture": "F-MONEY",
+      "valeurs": "golden-six de T38 : 2 appels/periode, 4 periodes, 6 trajectoires, 48 appels, 2720 par trajectoire, 16320 au total",
+      "lignes": [
+        491,
+        493
+      ],
+      "statut": "B les rattache explicitement aux lignes 491/493, hors §F. A ne les ecrit pas. La racine ne les materialise pas."
+    },
+    {
+      "fixture": "F-POWER",
+      "valeurs": "puissance 0,5 et erreur standard Monte-Carlo 0,25",
+      "lignes": [
+        463
+      ],
+      "statut": "portees par B seule, depuis T35.A1 (§H). A ne les ecrit pas. La racine ne les materialise pas."
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "valeurs": "jeu de 100 reservations preservees par la migration P4",
+      "lignes": [
+        233
+      ],
+      "statut": "porte par B seule, depuis T09.A3, et signale par B comme non decrit par §F — avec l'avertissement qu'un materialisateur pourrait etre tente de gonfler la fixture a 100 reservations, « ce qui inventerait 97 lignes que le cahier n'ecrit pas ». La racine ne les materialise pas."
+    },
+    {
+      "fixture": "F-BUDGET",
+      "valeurs": "ventilation spent/reserved des sous-cas 2a, 2b et 3",
+      "lignes": [
+        105,
+        297
+      ],
+      "statut": "B la derive de l'invariant spent+reserved+available=limit de la l.297 (hors §F), en la marquant `enonce:false`. A ne l'ecrit pas. La racine ne la materialise pas et la nomme dans non_fixe_par_le_cahier."
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "valeurs": "G=1 et G_new=1 en P4",
+      "lignes": [
+        189
+      ],
+      "statut": "derivees par B, marquees `enonce:false`. A ne les ecrit pas. La racine ne les materialise pas — voir AMB-REGRESSION-1."
+    }
+  ],
+  "ecriture_en_zone_REFERENCE": {
+    "effectuee": false,
+    "motif": "REFUS RAISONNE, pas omission. La racine acceptance/reference porte DEJA exactement la transcription commune de A et de B — verifie valeur par valeur (106/108 materialisees dans les trois, 2 ecarts d'encodage de polarite, 0 divergence de valeur) et bit-a-bit par les 10 sha256 de docs/FROZEN_ROOTS.json. La reecrire aurait deplace le tree oid et invalide les attestations SANS aucune divergence a corriger. Editer acceptance/reference apres le gel sans SPEC_CONFLICT ouvert est interdit : CLAUDE.md, note « frozen » de verification/ownership.json, et $comment de docs/FROZEN_ROOTS.json.",
+    "consequence": "le gel est CONFIRME par une transcription supplementaire et independante — un B entierement reecrit depuis le precedent passage — et non reconduit de confiance."
+  },
+  "gel": {
+    "racine": "acceptance/reference",
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_du_gel": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "relecture": "git rev-parse cd239915d88f6ac07b4b4f45e1a565f8c04786e0:acceptance/reference",
+    "constate_a_HEAD": "af17dce92ce0aef8d21917e3ec7b5377b504d388",
+    "nombre_de_fixtures": 10,
+    "deplace_par_cet_etage": false
+  },
+  "empreintes": {
+    "F-MONEY": {
+      "A_sha256": "5c8846175a114f8735da69ca2da2d554255246283fff8f0be0c8466b3b4f929c",
+      "B_sha256": "89f6667cb7b92e3a02f755ec264d5c078f9ec1daf8970abb6ccdffc2375c0da4",
+      "reference_sha256": "1e45f792dd7a9f25a25daeff672658425479a06f3bed7a114275f0f29ba6d8d8"
+    },
+    "F-BUDGET": {
+      "A_sha256": "293a6541d158dd7d1034cd2d2d82b3c50fe79146171f0902f4fdeb0d7e0d78e7",
+      "B_sha256": "5ce4cee7c6b3cf4ab46f2617f269482584c0fb862d617f5047b98c07b40795fc",
+      "reference_sha256": "e6ad0a4d290fb21a491f13aa49f8bfa272bf590bbe35ce50581cc8d28d8e5b86"
+    },
+    "F-QUALITY": {
+      "A_sha256": "eedf9fc4d28eb40f9521ad879baffa52a901c8c9f735e7d973d708a46e9b7295",
+      "B_sha256": "50b26d6b7daf147878f079dd630258eac47fbb376a4f8335bc233ac0e97f385b",
+      "reference_sha256": "49b57f858208206d751be80404596b821cf37292a8b16c051363d81a3a27dff1"
+    },
+    "F-COST-RATIO": {
+      "A_sha256": "ac4e1e769fc04ac1e73ac234d31affe4a32ba6bb1378ab2934d28be6cc3b3134",
+      "B_sha256": "70f14afbb924472c5c1ee0c20684326944e7f4705e6bb5d09d287ebab7569bd9",
+      "reference_sha256": "e2f60aaa5b4a813b894f1df6bd534cbf533727d2e1e1c5acc175e7ce7ba4dcfe"
+    },
+    "F-CLUSTERS": {
+      "A_sha256": "a0f778b96321386a0c1429071eff1c27ad4a1edb8601af1d0dcb8f1be2284ad0",
+      "B_sha256": "8a7b8969a9dc6c1b5ca1cfc7634b90c4a960bc2b7cbf580eb5bc0cdab8a14106",
+      "reference_sha256": "c108dc5176a02630c79d7ae4eb03868c31be7e0ec6b6e79073f5d4a0e7366b7c"
+    },
+    "F-BOOTSTRAP": {
+      "A_sha256": "d8407e724c223c5f0a457a5891038b024649868bf831a5f2184fdad61ea17d68",
+      "B_sha256": "abd026c1a454c126d4e7c82161d377219933ff95f12327ebf015f3f33a0a0e47",
+      "reference_sha256": "5e9d095233cca29edd2c8eb39a4f5f75c9e8f1e8de73216e456ba11691e46ca6"
+    },
+    "F-RESERVATION": {
+      "A_sha256": "a17c71714345d1358adbad21037f4c4ffe73a669683519d26d9021d7452a1b42",
+      "B_sha256": "f933250affc1eb415bf02051f3aeb9504823773844266a220609bc0ad10c4ed6",
+      "reference_sha256": "bc4b6a017d0a2c0ff406cd391062a6f0e5e8505e3fc5cb6be87c7461ca4e3066"
+    },
+    "F-FAILURE": {
+      "A_sha256": "368f577f82b40e5a3207b248e50da5ad8eed26f321fcd6eb16c533ead2ee4ba9",
+      "B_sha256": "cd06eb90f234323ba1675d54c7349758c323452409c6e0367b3a07d08a4d2a58",
+      "reference_sha256": "d7d641e6747a87bba323c22e167cd93dc51ae94168dba079ec8ebe5bb9a1b761"
+    },
+    "F-POWER": {
+      "A_sha256": "a177b2bbd0bdfec093a12e9fedfd16ddbe654688ae6c424b1adbb83f7a2e5f8a",
+      "B_sha256": "13722d055ce5ba76b8ffc0000ef864f370cfcd2fa137bdb76366646707a39a89",
+      "reference_sha256": "ff2220c51564884399a97edae61cdae00ba98a1f22a89057e05db5c1a94a9f30"
+    },
+    "F-REGRESSION": {
+      "A_sha256": "cdb390a9be160fc04e4933758acc3a759d0bc059441b4e46af7e6813e1a699f6",
+      "B_sha256": "63fa7920eb1c8a8588da8dd9bc779a4444c5580a46a2d88d8fe60dd756d5c98e",
+      "reference_sha256": "a2c8a26b14e5c2924ab0b4ec810a7592d07323de3b347316780fd3273c523a73"
+    },
+    "INDEX": {
+      "A_sha256": "ca44fbbc7e926a885b419063af96bdc9fd546f80e5b7027dafe0dc4848a49bff",
+      "B_sha256": "9d5a237ce301225e5244d632506e47122391b304a0977ad3d1c66a3a26643dcc"
+    }
+  }
+}

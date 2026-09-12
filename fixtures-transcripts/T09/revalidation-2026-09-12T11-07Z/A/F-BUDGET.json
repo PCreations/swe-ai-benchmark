@@ -1,0 +1,131 @@
+{
+  "schema": "bench.fixtures.transcription/1",
+  "fixture": "F-BUDGET",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T09",
+  "etage": "FIXTURES",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_atteste_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      105
+    ],
+    "verification": "sed -n '105p' docs/cahier.md"
+  },
+  "texte_source": {
+    "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+  },
+  "budget_initial": {
+    "valeur": 1000,
+    "cahier_line": 105
+  },
+  "concurrence": {
+    "montant_par_reservation": {
+      "valeur": 600,
+      "cahier_line": 105
+    },
+    "nombre_de_reservations_concurrentes": {
+      "valeur": 2,
+      "cahier_line": 105
+    },
+    "invariant": {
+      "valeur": "les deux ne peuvent pas etre toutes deux acceptees",
+      "cahier_line": 105
+    },
+    "reservations_acceptees": {
+      "valeur": 1,
+      "cahier_line": 105,
+      "note": "le cahier parle ensuite de « la reservation acceptee » au singulier"
+    }
+  },
+  "etat_apres_reglement": {
+    "montant_du_reglement": {
+      "valeur": 340,
+      "cahier_line": 105
+    },
+    "spent": {
+      "valeur": 340,
+      "cahier_line": 105
+    },
+    "reserved": {
+      "valeur": 0,
+      "cahier_line": 105
+    },
+    "available": {
+      "valeur": 660,
+      "cahier_line": 105
+    }
+  },
+  "sous_cas_depuis_cet_etat": {
+    "$note": "Le cahier impose de les tester SEPAREMENT : ils ne se composent pas.",
+    "composables": {
+      "valeur": false,
+      "cahier_line": 105
+    },
+    "cas": [
+      {
+        "id": "reservation_600_admissible",
+        "montant": {
+          "valeur": 600,
+          "cahier_line": 105
+        },
+        "admissible": {
+          "valeur": true,
+          "cahier_line": 105
+        },
+        "available_apres": {
+          "valeur": 60,
+          "cahier_line": 105
+        }
+      },
+      {
+        "id": "reservation_661_refusee",
+        "montant": {
+          "valeur": 661,
+          "cahier_line": 105
+        },
+        "admissible": {
+          "valeur": false,
+          "cahier_line": 105
+        },
+        "available_apres": {
+          "valeur": 660,
+          "cahier_line": 105
+        }
+      }
+    ]
+  },
+  "sous_cas_independant_reservation_ambigue": {
+    "$note": "Troisieme sous-cas independant : budget frais et zero depense.",
+    "depense_initiale": {
+      "valeur": 0,
+      "cahier_line": 105
+    },
+    "montant_reservation_ambigue": {
+      "valeur": 600,
+      "cahier_line": 105
+    },
+    "available": {
+      "valeur": 400,
+      "cahier_line": 105
+    },
+    "condition": {
+      "valeur": "tant que la reservation n’est pas reconciliee",
+      "cahier_line": 105
+    }
+  },
+  "ambiguites": [],
+  "remarques": [
+    "Le montant du « budget frais » du troisieme sous-cas n’est pas repete ligne 105 ; il est coherent avec le budget 1000 de la meme fixture (1000 - 600 = 400). Aucune valeur n’a ete ajoutee de mon fait : seul available=400 est affirme.",
+    "Le cahier fixe available=400 dans le troisieme sous-cas mais n’enonce pas la repartition spent/reserved correspondante ; elle n’est donc pas transcrite.",
+    "Coherence interne observee (controle) : 1000 - 340 = 660, 660 - 600 = 60."
+  ],
+  "non_specifie_par_le_cahier": [
+    "repartition spent/reserved du troisieme sous-cas (seul available=400 est donne)",
+    "sort de la seconde reservation concurrente de 600 (rejet, mise en attente ou autre) : seule l’impossibilite des deux acceptations est enoncee"
+  ]
+}

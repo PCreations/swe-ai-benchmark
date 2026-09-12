@@ -1,0 +1,85 @@
+{
+  "schema": "bench.fixtures.transcription/1",
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T09",
+  "etage": "FIXTURES",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_atteste_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "lignes": [
+      115
+    ],
+    "verification": "sed -n '115p' docs/cahier.md"
+  },
+  "texte_source": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "projets": [
+    {
+      "id": "P1",
+      "A": {
+        "valeur": 10,
+        "cahier_line": 115
+      },
+      "B": {
+        "valeur": 20,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "valeur": 10,
+        "cahier_line": 115,
+        "note": "dix repetitions identiques"
+      }
+    },
+    {
+      "id": "P2",
+      "A": {
+        "valeur": 90,
+        "cahier_line": 115
+      },
+      "B": {
+        "valeur": 100,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "valeur": 1,
+        "cahier_line": 115,
+        "note": "une repetition"
+      }
+    }
+  ],
+  "moyennes_interprojets": {
+    "A": {
+      "valeur": 50,
+      "cahier_line": 115
+    },
+    "B": {
+      "valeur": 60,
+      "cahier_line": 115
+    }
+  },
+  "interdits": [
+    {
+      "valeur": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation interprojets.",
+      "cahier_line": 115
+    }
+  ],
+  "invariance": {
+    "valeur": "Dupliquer toutes les repetitions de P1 laisse l’estimation ponctuelle inchangee.",
+    "cahier_line": 115
+  },
+  "ambiguites": [],
+  "remarques": [
+    "Les moyennes 50 et 60 sont celles de F-COST-RATIO (« encore 50 et 60 ») : l’agregation se fait par projet, chaque projet pesant pareil, quel que soit son nombre de repetitions.",
+    "Le cahier ne chiffre pas la moyenne naive sur onze lignes ; aucune valeur n’est donc transcrite pour elle, seulement son interdiction.",
+    "Le ratio n’est pas repete ligne 115 ; il n’est pas affirme ici."
+  ],
+  "non_specifie_par_le_cahier": [
+    "valeur numerique de la moyenne naive sur onze lignes (seulement declaree inacceptable)"
+  ]
+}

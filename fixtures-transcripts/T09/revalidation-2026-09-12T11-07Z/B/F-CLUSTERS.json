@@ -1,0 +1,153 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      115
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "attend": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "deduction": "la fixture doit porter un nombre de repetitions DESEQUILIBRE (10 contre 1), sinon la duplication ne distingue pas l'agregation par grappe d'une moyenne sur lignes"
+    },
+    {
+      "cas": "T32 (fin de tache)",
+      "cahier_line": 437,
+      "attend": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs",
+      "deduction": "le pooling des onze lignes est la mutation ciblee par cette fixture ; elle doit donc etre observablement differente de l'agregation par projet"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "attend": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "deduction": "la meme propriete d'invariance est reexercee au niveau bootstrap ; F-CLUSTERS en est le support"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "attend": "une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l'inference interprojets",
+      "deduction": "F-CLUSTERS a exactement deux grappes, donc au-dessus du seuil de refus ; la fixture borne par le bas ce qui est admissible"
+    }
+  ],
+  "valeurs": {
+    "projets": {
+      "P1": {
+        "cout_A": {
+          "valeur": 10,
+          "cahier_line": 115
+        },
+        "cout_B": {
+          "valeur": 20,
+          "cahier_line": 115
+        },
+        "repetitions": {
+          "valeur": 10,
+          "cahier_line": 115,
+          "citation": "sur dix repetitions identiques"
+        },
+        "repetitions_identiques": {
+          "valeur": true,
+          "cahier_line": 115
+        }
+      },
+      "P2": {
+        "cout_A": {
+          "valeur": 90,
+          "cahier_line": 115
+        },
+        "cout_B": {
+          "valeur": 100,
+          "cahier_line": 115
+        },
+        "repetitions": {
+          "valeur": 1,
+          "cahier_line": 115,
+          "citation": "sur une repetition"
+        }
+      }
+    },
+    "moyenne_interprojets_A": {
+      "valeur": 50,
+      "cahier_line": 115,
+      "citation": "Moyennes interprojets encore 50 et 60"
+    },
+    "moyenne_interprojets_B": {
+      "valeur": 60,
+      "cahier_line": 115
+    },
+    "nombre_de_lignes_brutes": {
+      "valeur": 11,
+      "cahier_line": 115,
+      "citation": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "role": "10 repetitions de P1 + 1 de P2 ; c'est le denominateur FAUTIF, pas un resultat attendu"
+    },
+    "invariance_par_duplication": {
+      "valeur": "l'estimation ponctuelle est inchangee",
+      "cahier_line": 115,
+      "citation": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "L'agregation est a deux etages : moyenne intra-projet d'abord, puis moyenne entre projets a poids egal.",
+      "cahier_line": 115,
+      "appui": {
+        "cahier_line": 435,
+        "citation": "poids des scenarios appliques a l'interieur du parent avant poids entre parents"
+      }
+    },
+    {
+      "regle": "Le projet est la grappe. Une moyenne sur les onze lignes brutes est la faute nommee.",
+      "cahier_line": 115
+    },
+    {
+      "regle": "Le mot « encore » de la ligne 115 rattache ces moyennes a celles de F-COST-RATIO : ce sont les memes 50 et 60.",
+      "cahier_line": 115
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "moyenne intra-P1 de A = 10 (dix repetitions identiques), intra-P2 = 90 ; (10+90)/2 = 50",
+      "verdict": "conforme a la moyenne interprojets A de la ligne 115"
+    },
+    {
+      "controle": "moyenne intra-P1 de B = 20, intra-P2 = 100 ; (20+100)/2 = 60",
+      "verdict": "conforme a la moyenne interprojets B de la ligne 115"
+    },
+    {
+      "controle": "dupliquer les dix repetitions de P1 en vingt ne change ni la moyenne intra-P1 (repetitions identiques) ni le poids de P1 entre projets",
+      "verdict": "l'invariance annoncee ligne 115 est coherente avec l'agregation a deux etages"
+    },
+    {
+      "controle": "les couts de F-CLUSTERS et de F-COST-RATIO coincident (P1 : A=10/B=20, P2 : A=90/B=100)",
+      "verdict": "F-BOOTSTRAP peut parler des « deux projets precedents » sans ambiguite de donnees"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-CLUSTERS-1",
+      "question": "Quelle valeur prend la moyenne naive sur onze lignes ?",
+      "ce_que_le_cahier_dit": "la ligne 115 nomme la faute sans en donner le nombre. Ecrire ce nombre dans la fixture serait un calcul du transcripteur, pas une transcription.",
+      "cahier_line": 115,
+      "bloquant": false,
+      "raison_non_bloquant": "aucun cas consommateur n'affirme la valeur fautive : T32.A2 (ligne 435) affirme l'INVARIANCE du resultat correct, et la mutation de la ligne 437 est detectee par difference avec 50/60, sans cible chiffree."
+    },
+    {
+      "id": "AMB-CLUSTERS-2",
+      "question": "Le ratio A/B de F-CLUSTERS vaut-il 5/6 ?",
+      "ce_que_le_cahier_dit": "la ligne 115 n'enonce que les moyennes 50 et 60, pas leur ratio. La ligne 117 le fait indirectement : le tirage [P1,P2] de F-BOOTSTRAP donne 5/6.",
+      "cahier_line": 115,
+      "bloquant": false,
+      "raison_non_bloquant": "la valeur n'est pas requise par les consommateurs de F-CLUSTERS ; elle est portee par F-BOOTSTRAP, ou elle est enoncee."
+    }
+  ]
+}

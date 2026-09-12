@@ -50,7 +50,11 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
-  packages/storage: {}
+  packages/storage:
+    dependencies:
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
   packages/workload:
     dependencies:

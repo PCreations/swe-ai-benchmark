@@ -1,0 +1,406 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T13 — une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.lock.json.",
+    "",
+    "A quoi sert ce fichier. Un cas d'acceptation ne vaut que s'il existe une",
+    "modification de l'implementation qui le fait passer au rouge. Le cahier",
+    "(L139) refuse la preuve qui n'observe rien : « un programme qui ecrit",
+    "seulement passed=true, un test avec zero assertion [...] ne satisfait pas le",
+    "contrat ». Chaque mutant ci-dessous est cette contre-epreuve : appliquer la",
+    "mutation, relancer `pnpm verify:task T13`, exiger que le cas nomme par",
+    "kills_case devienne ROUGE. Un mutant qui laisse la suite verte denonce un",
+    "cas creux, pas une implementation correcte.",
+    "",
+    "LA PORTE « NECESSITE » N'EST PAS UNIVERSELLE. Stuber les exports est la",
+    "bonne perturbation pour un cas `behaviour` seulement (A1, A2). Pour les cas",
+    "`refusal` (A3, A4, A6), un stub qui leve rend le cas VERT : un programme mort",
+    "refuse tout, y compris ce qu'il devrait accepter. Pour le cas `absence` (A5),",
+    "c'est pire encore — une implementation qui n'ecrit JAMAIS rien satisfait",
+    "« l'ecriture interrompue n'est pas visible » sans rien prouver. La",
+    "perturbation correcte y est INVERSE : rendre l'implementation PERMISSIVE",
+    "(A3, A4, A6) ou rendre la chose PRESENTE (A5).",
+    "",
+    "Les cibles sont decrites par leur ROLE et non par un chemin de fichier :",
+    "l'auteur des tests derive le contrat de la carte de specification et n'a lu",
+    "ni `packages/storage`, le seul source_path que le registre declare pour T13,",
+    "ni son diff. Un mutant se pose sur le point du programme qui remplit le role",
+    "decrit.",
+    "",
+    "MESURE. Les onze mutants ont ete EXERCES, avant tout code de T13, sur une",
+    "sonde jetable NON COMMITTEE : un magasin d'artefacts minimal implemente",
+    "contre le seul contrat publie en tete de acceptance/T13.spec.ts (adaptateur",
+    "local sur une racine de repertoire, objets adresses par le SHA-256 de leurs",
+    "octets, ecriture temporaire puis renommage, verification d'empreinte avant",
+    "usage, extracteur tar validant toutes les entrees avant d'en ecrire une",
+    "seule). Sur cette sonde CONFORME les six cas sont VERTS en 0,58 s ; chaque",
+    "mutation a ensuite ete appliquee SEULE et la suite relancee. Le champ",
+    "`mesure` de chaque entree rapporte ce qui a ete OBSERVE, y compris les",
+    "tueries collaterales. La sonde vivait hors du depot et a ete supprimee : elle",
+    "releve de la zone IMPL, que le role test-author n'ecrit pas.",
+    "",
+    "CE QUE LA MESURE A APPRIS, ET QUI A CHANGE UN CAS (A2). Le cahier dit « un",
+    "octet change donne une autre reference ». Une premiere version d'A2 changeait",
+    "un octet AU MILIEU de la charge. Mesure : la perturbation que cases.lock.json",
+    "prescrit pour ce cas — hacher `bytes.subarray(0, len-1)`, c'est-a-dire",
+    "ignorer le DERNIER octet — laissait cette version VERTE, puisqu'un octet du",
+    "milieu reste dans la fenetre hachee. A2 exerce desormais TROIS variantes a un",
+    "octet pres — premier, milieu, DERNIER — plus une charge prolongee d'un octet.",
+    "T13.M3 est la contre-epreuve de ce renforcement : il ne tue A2 QUE par la",
+    "variante du dernier octet, et ne touche aucun autre cas.",
+    "",
+    "POURQUOI LE CAS D'ABSENCE PORTE UN CONTROLE POSITIF (A5). A5 affirme une",
+    "NON-PRESENCE. Une implementation inerte la satisferait. A5 ecrit donc la MEME",
+    "charge, SANS interruption, dans un magasin jumeau, et c'est cette ecriture",
+    "reussie qui DEFINIT par observation ce qu'est un objet final : la reference",
+    "publiee, la visibilite dans le listage, et les chemins que l'ecriture fait",
+    "apparaitre sur le disque. L'ecriture interrompue est ensuite sommee de ne",
+    "produire aucun des trois. C'est pourquoi T13.M1 (stub) tue A5 : non par",
+    "l'absence, qui reste vraie, mais par le temoin.",
+    "",
+    "POURQUOI A6 PORTE TROIS MUTANTS. « Refusee sans ecriture hors destination »",
+    "(L269) enonce deux proprietes et trois vecteurs, et la mesure a montre qu'ils",
+    "ne se recouvrent pas : T13.M9 retire le controle de confinement et `../escape`",
+    "s'ecrit HORS de la destination (mesure : hors-dest=[escape]) pendant que le",
+    "lien sortant reste refuse ; T13.M10 retire le seul controle des liens et c'est",
+    "le lien sortant qui ecrit hors destination (mesure : hors-dest=[charge])",
+    "pendant que `../escape` reste refuse. Un extracteur qui NORMALISE les chemins",
+    "sans regarder les liens est donc encore vulnerable, et l'inverse aussi.",
+    "T13.M11 est la troisieme moitie du contrat : un extracteur qui refuse TOUTE",
+    "archive satisferait les trois vecteurs sans rien prouver — c'est la lecon de",
+    "la porte rouge de T00 sur A4/A5, et le controle positif de l'archive benigne",
+    "est ce qui l'interdit.",
+    "",
+    "L'EMPREINTE PUBLIEE N'EST PAS DECORATIVE (M4). L271 exige des « empreintes",
+    "verifiees avant usage » : l'empreinte doit donc etre PUBLIEE pour etre",
+    "verifiable, et L82 fixe SHA-256. T13.M4 publie une empreinte qui n'est pas le",
+    "SHA-256 des octets et ne touche a rien d'autre : sans ce mutant, l'assertion",
+    "d'empreinte d'A1 pourrait etre satisfaite par n'importe quelle chaine stable."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T13",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T13"
+  ],
+  "acceptance_entry": "acceptance/T13.spec.ts",
+  "mutant_count": 11,
+  "contre_epreuve": {
+    "methode": "magasin d'artefacts synthetique conforme au contrat publie en tete de acceptance/T13.spec.ts, hors depot, chaque mutation appliquee seule",
+    "chaine": "node --experimental-vm-modules node_modules/jest/bin/jest.js (meme chaine que verification/runner/chains.mjs)",
+    "temoin_sain": "les six cas requis VERTS en 0,58 s",
+    "couverture": "A1: M1, M4 — A2: M2, M3 — A3: M5 — A4: M6 — A5: M7, M8 — A6: M9, M10, M11",
+    "note": "les valeurs de `mesure` sont les cas reellement observes rouges, pas les cas esperes"
+  },
+  "mutants": [
+    {
+      "id": "T13.M1",
+      "kills_case": "T13.A1",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export qui remplit le role `putArtifact` — l'ecriture d'un artefact et le calcul de la reference de contenu qu'elle rend.",
+      "mutation": "Stuber cet export : le remplacer par un module qui LEVE (par exemple `NOT_IMPLEMENTED`), ou publier l'entree du paquet sans lui. Le stub doit LEVER et non rendre une constante, conformement a la contrainte generale de la porte de necessite.",
+      "expected_effect": "T13.A1 devient rouge.",
+      "observation_qui_echoue": "A1 ECRIT reellement deux fois les memes octets et compare les references rendues ; il ne se contente pas de constater l'existence d'un export. Sous le stub, la premiere ecriture est refusee et l'assertion `REFUS-INATTENDU premiere ecriture` tombe avant toute comparaison.",
+      "pourquoi_cette_perturbation": "A1 est un cas `behaviour` : il exerce un export metier et observe son resultat. C'est la forme ou la regle universelle du stub est valide, et cases.lock.json prescrit exactement « stuber l'export ArtifactStore.put / le calcul de reference de contenu : le cas, qui doit reellement ecrire deux fois les memes octets et comparer les references rendues, doit passer au ROUGE ».",
+      "doit_rester_vert": [
+        "T13.A6"
+      ],
+      "tue_aussi": [
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A1",
+          "T13.A2",
+          "T13.A3",
+          "T13.A4",
+          "T13.A5"
+        ],
+        "assertion_qui_tombe": "REFUS-INATTENDU premiere ecriture [exception] : LEVE ArtifactError(NOT_IMPLEMENTED)",
+        "note": "l'ecriture est le tronc commun de cinq cas ; A6 (extraction) reste VERT, ce qui montre que le stub ne verdit ni n'eteint tout. La specificite d'A1 est prouvee par T13.M3 et T13.M4."
+      }
+    },
+    {
+      "id": "T13.M2",
+      "kills_case": "T13.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le calcul de l'empreinte de contenu — la fonction qui reduit les octets a l'empreinte dont derivent la reference publiee et l'adresse de l'objet.",
+      "mutation": "Hacher `bytes.subarray(0, bytes.length - 1)` au lieu de `bytes` : l'empreinte ignore le dernier octet.",
+      "expected_effect": "T13.A2 devient rouge.",
+      "observation_qui_echoue": "A2 exerce quatre charges qui ne different de la base que d'un octet ou d'une longueur : premier octet, octet du milieu, DERNIER octet, et charge prolongee d'un octet. La variante du dernier octet obtient, sous cette mutation, exactement la meme reference que la base : l'assertion `MEME-REFERENCE-POUR-DES-OCTETS-DIFFERENTS (dernier octet)` tombe. C'est la raison d'etre de cette variante : mesure faite, une version d'A2 qui n'aurait change qu'un octet du milieu serait restee VERTE.",
+      "pourquoi_cette_perturbation": "cases.lock.json prescrit cette perturbation mot pour mot. Elle n'est pas un `module-stub` bien que le cas soit `behaviour` : le stub d'A2 existe deja et c'est T13.M1 (mesure : A2 rouge sous M1). Ce qu'il reste a prouver ici est plus fin — que le cas observe TOUS les octets, et pas seulement ceux qu'une fenetre de hachage tronquee laisserait passer.",
+      "doit_rester_vert": [
+        "T13.A6"
+      ],
+      "tue_aussi": [
+        "T13.A1",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A1",
+          "T13.A2",
+          "T13.A3",
+          "T13.A4",
+          "T13.A5"
+        ],
+        "assertion_qui_tombe": "EMPREINTE-INCORRECTE : attendu le SHA-256 des octets ecrits, observe l'empreinte tronquee",
+        "note": "sur la sonde, une seule fonction sert l'empreinte PUBLIEE et la reference ; la mutation les fausse donc toutes les deux et tous les cas qui ecrivent tombent des la lecture du manifeste. T13.M3 isole la moitie qui concerne A2 seul."
+      }
+    },
+    {
+      "id": "T13.M3",
+      "kills_case": "T13.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La derivation de la REFERENCE de contenu seule — le point ou l'empreinte devient l'adresse publiee de l'objet — l'empreinte publiee dans le manifeste restant, elle, exacte.",
+      "mutation": "Faire deriver la reference (et l'adresse de stockage, pour que les lectures restent coherentes) d'une empreinte qui ignore le dernier octet, tout en publiant dans le manifeste le SHA-256 EXACT des octets. Aucune autre modification.",
+      "expected_effect": "T13.A2 devient rouge, et lui seul.",
+      "observation_qui_echoue": "Tout le reste du contrat tient : memes octets -> meme reference (A1), empreinte publiee exacte (A1), relecture exacte (A1, A2), corruption detectee (A3), objet absent refuse (A4), ecriture interrompue invisible (A5). Seule la variante « dernier octet » d'A2 obtient la reference de la base, et l'assertion `MEME-REFERENCE-POUR-DES-OCTETS-DIFFERENTS (dernier octet)` tombe.",
+      "pourquoi_cette_perturbation": "C'est la contre-epreuve du renforcement d'A2 decrit en tete de fichier : elle prouve que la variante du dernier octet n'est pas un ornement mais la seule qui morde sur une fenetre de hachage tronquee, et elle le prouve sans rien casser d'autre — ce que T13.M2, plus large, ne pouvait pas montrer.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5",
+        "T13.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A2"
+        ],
+        "assertion_qui_tombe": "MEME-REFERENCE-POUR-DES-OCTETS-DIFFERENTS (dernier octet)",
+        "note": "mutant le plus sharp du lot : un seul cas, une seule assertion, et c'est celle que la mesure a fait ajouter."
+      }
+    },
+    {
+      "id": "T13.M4",
+      "kills_case": "T13.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le champ d'empreinte du MANIFESTE DE CONTENU rendu par l'ecriture (L267) — la valeur que L271 veut « verifiee avant usage ».",
+      "mutation": "Publier dans le manifeste une empreinte qui n'est pas le SHA-256 des octets : par exemple MD5, ou le SHA-256 de la reference, ou une chaine stable quelconque. La reference, la taille et les lectures restent inchangees.",
+      "expected_effect": "T13.A1 devient rouge.",
+      "observation_qui_echoue": "A1 calcule LUI-MEME le SHA-256 des octets qu'il ecrit (L82) et exige que le manifeste le publie : l'assertion `EMPREINTE-INCORRECTE` nomme l'empreinte attendue et celle observee. Sans ce mutant, l'assertion d'empreinte serait satisfaite par n'importe quelle chaine stable, et « empreintes verifiees avant usage » resterait une affirmation.",
+      "pourquoi_cette_perturbation": "L82 fixe l'algorithme (« les empreintes utilisent SHA-256 ») et L271 en fait une condition de fin. Un cas qui ne verifierait que l'egalite de deux references survivrait a cette mutation — c'est precisement ce que le mutant interdit.",
+      "doit_rester_vert": [
+        "T13.A6"
+      ],
+      "tue_aussi": [
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A1",
+          "T13.A2",
+          "T13.A3",
+          "T13.A4",
+          "T13.A5"
+        ],
+        "assertion_qui_tombe": "EMPREINTE-INCORRECTE premiere ecriture : attendu le SHA-256 des octets ecrits, observe une empreinte MD5",
+        "note": "tous les cas qui ecrivent lisent le manifeste, donc tous tombent ; A6, qui n'ecrit aucun artefact, reste vert."
+      }
+    },
+    {
+      "id": "T13.M5",
+      "kills_case": "T13.A3",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le point de la lecture qui compare l'empreinte des octets relus a l'empreinte attendue, avant de les rendre.",
+      "mutation": "Supprimer cette verification : la lecture rend les octets trouves sur le disque sans les confronter a l'empreinte. Rien d'autre ne change ; aucune ecriture n'est touchee.",
+      "expected_effect": "T13.A3 devient rouge.",
+      "observation_qui_echoue": "A3 ecrit un artefact, LOCALISE le fichier que l'ecriture a cree (le plus gros des chemins apparus sous la racine), y retourne UN octet en preservant la longueur, puis relit par un magasin REOUVERT. Sous la mutation, la lecture rend les octets corrompus : l'assertion `ACCEPTE-A-TORT` tombe en nommant la taille et le SHA-256 de ce qui a ete rendu. La longueur preservee est ce qui interdit qu'un simple controle de taille tienne lieu de verification d'empreinte.",
+      "pourquoi_cette_perturbation": "A3 est un cas `refusal`, et c'est ici le defaut decisif : stuber un export ferait lever la lecture, et A3 resterait VERT sans rien prouver. cases.lock.json prescrit l'inverse — « rendre la lecture PERMISSIVE : supprimer la verification d'empreinte avant usage ». A3 porte en outre un CONTROLE POSITIF (la lecture AVANT corruption rend les octets exacts), sans lequel une implementation qui refuse toute lecture verdirait le cas.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A4",
+        "T13.A5",
+        "T13.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A3"
+        ],
+        "assertion_qui_tombe": "ACCEPTE-A-TORT lecture apres corruption d un octet : <565 octets sha256=c6ce83571c895bec…>",
+        "note": "un seul cas touche : la verification de lecture n'est exercee que la."
+      }
+    },
+    {
+      "id": "T13.M6",
+      "kills_case": "T13.A4",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le point de la lecture qui traite une reference dont l'objet n'existe pas sous la racine du magasin.",
+      "mutation": "Rendre l'adaptateur PERMISSIF : renvoyer un buffer vide (ou `null`) pour une reference absente, au lieu de lever `ARTIFACT_MISSING`.",
+      "expected_effect": "T13.A4 devient rouge.",
+      "observation_qui_echoue": "A4 interroge un magasin qui n'a JAMAIS recu l'objet avec une reference BIEN FORMEE — obtenue d'un magasin temoin qui, lui, la porte — puis un magasin dont les fichiers de l'objet ont ete supprimes du disque. Il exige dans les deux cas un refus NOMME `ARTIFACT_MISSING`, et exige separement qu'AUCUN octet ne soit rendu. Sous la mutation, `ACCEPTE-A-TORT … <0 octets sha256=e3b0c442…>` tombe : le buffer vide est explicitement refuse comme reponse.",
+      "pourquoi_cette_perturbation": "Cas `refusal` : un stub qui leve laisserait A4 vert. Ce qui doit le tuer est l'implementation qui ACCEPTE l'absent. A4 porte le CONTROLE symetrique — la meme reference, lue la ou l'objet EST, rend les octets — de sorte qu'une implementation qui refuse tout ne verdisse pas le cas non plus.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A6"
+      ],
+      "tue_aussi": [
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A4",
+          "T13.A5"
+        ],
+        "assertion_qui_tombe": "ACCEPTE-A-TORT lecture dans un magasin qui ne l a jamais recu : <0 octets sha256=e3b0c442…>",
+        "note": "A5 tombe aussi, et c'est voulu : son assertion d'invisibilite est un refus `ARTIFACT_MISSING` sur la reference que l'ecriture interrompue n'a pas publiee. Le buffer vide la rend acceptee."
+      }
+    },
+    {
+      "id": "T13.M7",
+      "kills_case": "T13.A5",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "rendre PRESENT",
+      "target": "Le schema d'ecriture de l'adaptateur local : ecriture dans un chemin temporaire, puis publication par renommage atomique vers le chemin final.",
+      "mutation": "Supprimer le schema : ecrire directement sur le chemin final, de sorte qu'une ecriture interrompue en cours laisse un objet listable et lisible comme objet final.",
+      "expected_effect": "T13.A5 devient rouge.",
+      "observation_qui_echoue": "A5 ecrit d'abord la MEME charge SANS interruption dans un magasin jumeau : cette ecriture reussie publie une reference, la rend visible au listage et fait apparaitre des chemins sous la racine. A5 exige ensuite, du magasin interrompu, qu'il ne produise AUCUN des trois — lecture refusee `ARTIFACT_MISSING`, zero occurrence au listage, aucun des chemins finaux present sur le disque. Sous la mutation, la lecture rend les 565 octets et `ACCEPTE-A-TORT` tombe.",
+      "pourquoi_cette_perturbation": "Cas `absence` : une implementation qui n'ecrit jamais rien satisferait l'enonce. La perturbation utile est donc de rendre la chose PRESENTE, exactement comme cases.lock.json le prescrit. Le controle positif du magasin jumeau est ce qui interdit l'implementation inerte : il exige qu'une ecriture REUSSIE, elle, soit bien visible.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A5"
+        ],
+        "assertion_qui_tombe": "ACCEPTE-A-TORT lecture apres une ecriture interrompue (refus [exception]) : <565 octets …>",
+        "note": "un seul cas touche ; les ecritures non interrompues restent correctes, donc A1 a A4 restent verts."
+      }
+    },
+    {
+      "id": "T13.M8",
+      "kills_case": "T13.A5",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "rendre PRESENT",
+      "target": "Le point qui decide de ce que le magasin publie comme objets FINAUX dans son listage.",
+      "mutation": "Rendre la visibilite permissive : faire lister aussi les ecritures non publiees (fichiers temporaires, objets en cours), de sorte qu'une ecriture interrompue apparaisse au listage bien qu'elle ne soit pas lisible.",
+      "expected_effect": "T13.A5 devient rouge.",
+      "observation_qui_echoue": "A5 exige zero occurrence de la reference au listage du magasin interrompu, apres avoir observe qu'une ecriture REUSSIE en produit exactement une. Sous la mutation, `OBJET-INTERROMPU-VISIBLE : … apparait 1 fois dans […]` tombe — et la lecture, elle, refuse toujours : c'est donc bien l'assertion de VISIBILITE, distincte de celle de lisibilite, qui est tuee.",
+      "pourquoi_cette_perturbation": "Sans ce mutant, l'assertion de listage d'A5 serait indistinguable d'un ornement : T13.M7 la tue en meme temps que les deux autres, ce qui ne prouve pas qu'elle observe quelque chose PAR ELLE-MEME. « N'est pas visible comme objet final » (L269) nomme la visibilite ; ce mutant est la contre-epreuve de ce mot.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A5"
+        ],
+        "assertion_qui_tombe": "OBJET-INTERROMPU-VISIBLE : la reference apparait 1 fois au listage apres une ecriture interrompue",
+        "note": "la lecture reste refusee sous cette mutation : seule l'assertion de visibilite tombe."
+      }
+    },
+    {
+      "id": "T13.M9",
+      "kills_case": "T13.A6",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le controle de CONFINEMENT de l'extracteur : la resolution du nom d'entree contre le repertoire de destination, qui refuse `../escape` et le chemin absolu (L271 : « un nom de fichier fourni par le candidat n'est jamais concatene directement a un chemin du stockage central »).",
+      "mutation": "Retirer ce controle : concatener le nom d'entree a la destination et ecrire. Le controle des liens, lui, reste en place.",
+      "expected_effect": "T13.A6 devient rouge.",
+      "observation_qui_echoue": "A6 extrait TROIS archives piegees distinctes, qu'il fabrique lui-meme en ustar octet par octet (un `tar -cf` du systeme retirerait le `../` et le `/` de tete, et l'archive n'attaquerait plus rien). Sous la mutation, l'archive `../escape` est ACCEPTEE : `ACCEPTE-A-TORT extraction de l archive piegee « ../escape »` tombe. Mesure independante du meme extracteur mute, hors de la suite : l'entree s'ecrit HORS de la destination (hors-dest=[escape]), et le vecteur du lien sortant, lui, reste refuse.",
+      "pourquoi_cette_perturbation": "Cas `refusal` : un stub qui leve laisserait A6 vert. Ce qui doit le tuer est l'extracteur qui ACCEPTE. Ce mutant et T13.M10 sont distincts parce que les deux controles sont independants : la mesure montre qu'un extracteur qui normalise les chemins sans regarder les liens laisse encore ecrire hors destination, et reciproquement.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A6"
+        ],
+        "assertion_qui_tombe": "ACCEPTE-A-TORT extraction de l archive piegee « ../escape » : {\"extracted\":1,…}",
+        "mesure_hors_suite": "v1 -> accepte, hors-dest=[escape] ; v3 -> refus (lien refuse), hors-dest=[]",
+        "note": "le vecteur du chemin absolu est couvert par le meme controle de confinement : resolu contre la destination, il tombe hors d'elle."
+      }
+    },
+    {
+      "id": "T13.M10",
+      "kills_case": "T13.A6",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le controle des LIENS de l'extracteur : le refus d'une entree de type lien symbolique (et de l'ecriture a travers un lien deja pose).",
+      "mutation": "Retirer ce seul controle, en gardant la normalisation des chemins : l'entree `lien-sortant -> <hors destination>` est creee, puis l'entree `lien-sortant/charge` — dont le nom reste TEXTUELLEMENT sous la destination — est ecrite a travers elle.",
+      "expected_effect": "T13.A6 devient rouge.",
+      "observation_qui_echoue": "A6 exerce ce vecteur comme une archive a part entiere. Sous la mutation, elle est ACCEPTEE : `ACCEPTE-A-TORT extraction de l archive piegee « lien-sortant -> .. »` tombe. Mesure independante hors de la suite : la charge s'ecrit HORS de la destination (hors-dest=[charge]) alors que `../escape`, lui, reste refuse.",
+      "pourquoi_cette_perturbation": "C'est la contre-epreuve de la non-redondance des trois vecteurs de L269. Une normalisation de chemin ne voit rien ici : `lien-sortant/charge` est un chemin parfaitement contenu. Sans ce mutant, un extracteur vulnerable aux liens passerait A6, et la suite aurait affirme une propriete qu'elle n'observe pas.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A6"
+        ],
+        "assertion_qui_tombe": "ACCEPTE-A-TORT extraction de l archive piegee « lien-sortant -> .. » : {\"extracted\":2,…}",
+        "mesure_hors_suite": "v3 -> accepte, hors-dest=[charge] ; v1 -> refus (traversee refusee), hors-dest=[]"
+      }
+    },
+    {
+      "id": "T13.M11",
+      "kills_case": "T13.A6",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "casser le CONTROLE POSITIF",
+      "target": "Le point de l'extracteur qui decide qu'une archive est acceptable — c'est-a-dire l'existence meme d'un NON-refus.",
+      "mutation": "Rendre l'extracteur universellement refusant : lever le refus de chemin pour TOUTE archive, y compris une archive parfaitement benigne (une entree ordinaire, sans `..`, sans chemin absolu, sans lien).",
+      "expected_effect": "T13.A6 devient rouge.",
+      "observation_qui_echoue": "A6 termine par un CONTROLE POSITIF : une archive benigne doit etre extraite, et le fichier doit apparaitre dans la destination avec les octets exacts. Sous la mutation, `REFUS-INATTENDU extraction d une archive BENIGNE` tombe.",
+      "pourquoi_cette_perturbation": "C'est la lecon que la porte rouge de T00 a fait payer sur T00.A4/A5 : un cas de refus est incomplet tant qu'il ne demontre pas l'existence d'un non-refus. Sans ce controle, `extractArchive = () => { throw }` satisferait les trois vecteurs d'attaque et A6 serait vert sur une implementation qui n'extrait rien.",
+      "doit_rester_vert": [
+        "T13.A1",
+        "T13.A2",
+        "T13.A3",
+        "T13.A4",
+        "T13.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T13.A6"
+        ],
+        "assertion_qui_tombe": "REFUS-INATTENDU extraction d une archive BENIGNE [exception]",
+        "note": "les trois vecteurs d'attaque restent verts sous cette mutation : c'est exactement le faux PASS que le controle positif interdit."
+      }
+    }
+  ]
+}

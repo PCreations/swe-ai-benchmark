@@ -68,7 +68,41 @@
     "`motif`, et non le code de sortie, qui tue A6 sous la mutation.",
     "A6 porte donc TROIS mutants :",
     "M6 (l'artefact bouge), M7 et M9 (la commande cesse de refuser, cote uv puis",
-    "cote pnpm)."
+    "cote pnpm).",
+    "",
+    "MODE STRICT (A1). La carte de specification a grandi : docs/specs/T00.md",
+    "rattache desormais a T00.A1 le bloc cahier:L30-L32, \u00ab TypeScript en mode",
+    "strict \u00bb. A1 exigeait \u00ab compile sans diagnostic \u00bb sans jamais observer que la",
+    "compilation etait stricte \u2014 or sous `strict: false` un parametre",
+    "implicitement `any` et `const s: string = null` passent tous les deux, et",
+    "\u00ab compile \u00bb ne veut plus rien dire. T00.M1 presupposait donc une propriete",
+    "que le cas n'observait pas : sa mutation nominale est \u00ab une erreur de type",
+    "DETECTABLE EN MODE STRICT \u00bb. T00.M10 est la contre-epreuve de ce presuppose.",
+    "MESURE, bac a sable heritant par `extends` de packages/contracts/tsconfig.json,",
+    "sonde = un parametre implicitement any + `const chaine: string = null` :",
+    "  configuration du depot telle quelle -> exit 2, codes TS7006 et TS2322",
+    "  `strict: false` seul                -> exit 2, code TS5052 (le compilateur",
+    "                                         refuse de desactiver strictNullChecks",
+    "                                         tant qu'exactOptionalPropertyTypes",
+    "                                         reste pose)",
+    "  `strict: false` + l'option qui en depend retiree -> exit 0, AUCUN code",
+    "C'est donc la presence conjointe de TS7006 et TS2322, et non le code de",
+    "sortie, qui tue A1 sous la mutation. La branche saine du bac a sable (un",
+    "fichier sans erreur, exit 0 exige) empeche un `extends` errone ou un tsc",
+    "absent de verdir le controle pour la mauvaise raison.",
+    "",
+    "LE REGISTRE REEL (A4). cahier:L155 impose aux cas de STATUT des registres",
+    "synthetiques \u2014 \u00ab reexecuter T00 apres T43 doit rester possible \u00bb. A4 en avait",
+    "tire qu'il ne devait JAMAIS toucher verification/tasks.json, et n'exercait",
+    "donc ses quatre refus que sur des fixtures. Un validateur strict adosse a un",
+    "registre mal transcrit passait : \u00ab le registre de dependances fait autorite \u00bb",
+    "(cahier:L541) restait sans objet. Ni les 44 identifiants ni la table de \u00a7J ne",
+    "dependent de l'avancement : les observer ne rompt pas la rejouabilite que",
+    "L155 protege. A4 interroge desormais le registre reel sur T99 \u2014 la seule",
+    "invocation qui distingue UNKNOWN_TASK de REGISTRY_INVALID sans executer la",
+    "suite d'une autre tache \u2014 et compare sa table de dependances aux OCTETS du",
+    "cahier (L567-L612), apres verification de l'empreinte du cahier contre",
+    "docs/CAHIER_SHA256. T00.M11 est sa contre-epreuve."
   ],
   "schema": "bench.mutants/1",
   "task": "T00",
@@ -78,7 +112,7 @@
     "T00"
   ],
   "acceptance_entry": "acceptance/T00.spec.ts",
-  "mutant_count": 9,
+  "mutant_count": 11,
   "mutants": [
     {
       "id": "T00.M1",
@@ -240,6 +274,44 @@
         "T00.A3",
         "T00.A4",
         "T00.A5"
+      ]
+    },
+    {
+      "id": "T00.M10",
+      "kills_case": "T00.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "La configuration TypeScript qui gouverne la compilation de packages/contracts \u2014 le point ou le mode strict exige par cahier L32 est active. Distinct de T00.M1, qui casse le CODE du paquet ; celui-ci ne touche pas une ligne de code et desarme le compilateur.",
+      "mutation": "Desactiver le mode strict de cette configuration : `strict: false`, en retirant au besoin l'option qui en depend (mesure ici : `exactOptionalPropertyTypes`, qui fait sortir tsc en TS5052 tant qu'elle reste posee sans strictNullChecks). Variante equivalente et plus discrete, qui garde la facade : conserver `strict: true` et neutraliser un seul membre de la famille \u2014 `strictNullChecks: false`, ou `noImplicitAny: false`. La mutation ne casse AUCUNE compilation : l'arbre du depot continue de compiler en 0, et c'est tout le probleme.",
+      "expected_effect": "T00.A1 devient rouge.",
+      "observation_qui_echoue": "A1 observe la strictite deux fois, et jamais en lisant lui-meme la configuration. (1) Il fait resoudre la chaine d'`extends` par le compilateur (`tsc -p <config> --showConfig`) et exige `strict: true` avec ni `strictNullChecks: false` ni `noImplicitAny: false` : la variante \u00ab facade \u00bb \u2014 strict conserve, un seul membre neutralise \u2014 tombe ici aussi. (2) Il synthetise un bac a sable jetable qui HERITE par `extends` de cette meme configuration et n'y surcharge que des options de FORME (emission, module, resolution, symboles inutilises), jamais une option de la famille strict ; il y compile deux sondes. Branche saine, un fichier sans erreur : exit 0 et zero diagnostic exiges \u2014 sans elle, un `extends` errone ou un tsc absent refuserait tout et verdirait la branche suivante pour la mauvaise raison. Branche stricte, memes options, seul le contenu de la sonde bouge : un parametre implicitement `any` et `const chaine: string = null`, deux constructions LEGALES hors mode strict ; A1 exige le refus ET la presence des deux codes TS7006 (noImplicitAny) et TS2322 (strictNullChecks). OBSERVE, mutation appliquee a la configuration reelle du depot puis `pnpm verify:task T00` : sortie 1, ASSERTION_FAILED, ROUGE T00.A1 (6 assertions atteintes au lieu de 12), les cinq autres cas verts \u2014 c'est l'egalite (1) qui tombe la premiere, jest arretant le cas des la premiere assertion fausse. La branche (2) a ete mesuree separement sur le meme bac a sable : configuration du depot -> exit 2 avec TS7006 et TS2322 ; `strict: false` + l'option dependante retiree -> exit 0 et AUCUN diagnostic. Elle est le filet de la strictite DECLAREE mais ineffective, que (1) ne peut pas voir.",
+      "pourquoi_cette_perturbation": "A1 est un cas `behaviour` et garde son mutant conforme a la porte generique (T00.M1, `module-stub`). Mais cette porte-la ne couvre pas le presuppose de sa propre mutation : \u00ab introduire une erreur de type DETECTABLE EN MODE STRICT \u00bb suppose le mode strict actif. Sous `strict: false`, la moitie des erreurs que T00.M1 nomme cessent d'etre des erreurs, et \u00ab compile sans diagnostic \u00bb devient une propriete presque vide \u2014 exactement le genre d'assertion que cahier:L139 refuse (\u00ab une preuve comporte des sorties effectivement observees \u00bb). La direction est `rendre PERMISSIF` et non `casser` : casser la configuration ferait echouer les deux branches du bac a sable, y compris la branche saine, et A1 tomberait pour une raison sans rapport avec la strictite. La mutation retire un REFUS, elle n'ajoute pas une panne.",
+      "doit_rester_vert": [
+        "T00.A2",
+        "T00.A3",
+        "T00.A4",
+        "T00.A5",
+        "T00.A6"
+      ]
+    },
+    {
+      "id": "T00.M11",
+      "kills_case": "T00.A4",
+      "proof_kind": "refusal",
+      "necessity": "artifact-mutation",
+      "direction": "muter l'artefact",
+      "target": "Le registre qui fait autorite, verification/tasks.json, en tant qu'ARTEFACT : sa fidelite a la table \u00a7J du cahier (L567-L612, bornee pour T42 par L525). Distinct de T00.M4 et T00.M8, qui mutent le VALIDATEUR ; celui-ci laisse le validateur intact et ment dans ce qu'il valide.",
+      "mutation": "Alterer une seule cellule de dependances du registre reel, en restant structurellement VALIDE : par exemple retirer `T04` de `depends_on` de T11, ou ajouter `T02` a celui de T13. Le graphe reste acyclique, sans doublon, et chaque dependance citee designe encore une carte presente \u2014 aucun des quatre refus de cahier:L565 ne mord. Seule la transcription est fausse.",
+      "expected_effect": "T00.A4 devient rouge.",
+      "observation_qui_echoue": "A4 lit les 44 lignes de la table \u00a7J dans les OCTETS de docs/cahier.md (L569-L612), apres avoir verifie l'empreinte sha256 du cahier contre docs/CAHIER_SHA256 \u2014 sans cette verification la comparaison serait circulaire, un cahier modifie ferait dire au test ce qu'on voudrait. La cellule \u00ab Toutes les taches T00 a T41 \u00bb de la ligne T42 n'est developpee que parce que cahier:L525 en donne les bornes, et A4 exige d'abord de retrouver ces bornes aux deux endroits. La table lue est ensuite comparee au registre en UNE seule egalite de tableau, de sorte que toutes les divergences apparaissent dans le diff au lieu que la premiere masque les 43 autres. La cellule alteree y apparait avec sa valeur reelle en face de la valeur du cahier. OBSERVE, mutation appliquee (T11 perd T04 dans verification/tasks.json) puis `pnpm verify:task T00` : sortie 1, ASSERTION_FAILED, ROUGE T00.A4, les cinq autres cas verts. Le registre mute reste structurellement valide \u2014 la reponse a T99 demeure UNKNOWN_TASK \u2014 donc seule l'egalite de transcription tombe, ce qui est exactement la propriete visee.",
+      "pourquoi_cette_perturbation": "A4 est un cas `refusal` et garde ses deux mutants conformes a la porte du mode (T00.M4 sur la resolution d'un id, T00.M8 sur la validation structurelle). Mais un refus ne vaut que par ce qu'il protege : cahier:L565 dit d'un seul souffle \u00ab A transcrire dans verification/tasks.json. Le validateur refuse id inconnu, cycle, doublon ou dependance absente \u00bb. Les quatre refus n'etaient exerces que sur des registres SYNTHETIQUES \u2014 a bon droit, cahier:L155 l'impose aux cas de statut \u2014 et le registre reel n'etait donc jamais observe. Un validateur irreprochable adosse a un registre faux satisfaisait A4. Aucun export n'est en jeu ici : la seule perturbation qui morde est la mutation de l'artefact, comme pour un cas `artifact`. ATTENTION \u2014 corrompre STRUCTURELLEMENT le registre reel (fermer un cycle, dupliquer une carte, pointer une dependance absente) n'est PAS une variante equivalente : le runner lit ce meme registre pour adjuger T00, repondrait REGISTRY_INVALID a l'invocation entiere, et les six cas tomberaient ensemble. On n'apprendrait alors rien sur A4 en particulier. La mutation doit rester structurellement valide et seulement infidele.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A3",
+        "T00.A5",
+        "T00.A6"
       ]
     }
   ]

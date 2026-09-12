@@ -31,6 +31,20 @@
  *    ecrits « en tenaille » — le refus attendu est assorti d'un CONTROLE qui
  *    echoue si le runner refuse tout indistinctement.
  *
+ * 2-bis. LES DEUX CAS QUI S'APPUYAIENT SUR UN NON-DIT. La carte de
+ *    specification docs/specs/T00.md a grandi (41 blocs) et rattache
+ *    desormais a T00.A1 le bloc cahier:L30-L32 — « TypeScript en mode
+ *    strict » — et a T00.A4/A5 les blocs §J (cahier:L563-L565, L567-L612) et
+ *    cahier:L523-L525. Deux proprietes etaient jusqu'ici SUPPOSEES :
+ *      - A1 exigeait « compile sans diagnostic » sans jamais observer que la
+ *        compilation etait stricte ; sous `strict: false` elle l'est
+ *        trivialement, et la mutation T00.M1 viserait une propriete absente ;
+ *      - A4 exercait quatre refus sur des registres SYNTHETIQUES sans jamais
+ *        observer le registre qui fait autorite : un validateur strict adosse
+ *        a un registre mal transcrit passait.
+ *    Les deux cas observent maintenant ces proprietes. Aucun cas requis n'a
+ *    ete retire, aucune assertion affaiblie : cette suite ne peut que croitre.
+ *
  * 3. PROVENANCE DES LITTERAUX. Tout litteral compare dans une assertion porte
  *    un commentaire `// cahier:L<n>` resolvable par
  *    `sed -n '<n>p' docs/cahier.md`, ou renvoie a l'arbitrage ADR-005 quand le
@@ -90,6 +104,11 @@ const FIXTURE_T01_DONE = path.join(REGISTRY_DIR, 'synthetic-44-t01-declared-done
 const CASES_LOCK = path.join(REPO, 'verification', 'cases.lock.json');
 const PNPM_LOCK = path.join(REPO, 'pnpm-lock.yaml');
 const UV_LOCK = path.join(REPO, 'analysis', 'uv.lock');
+/** Le registre REEL — cahier:L565 « A transcrire dans verification/tasks.json ». */
+const TASKS_JSON = path.join(REPO, 'verification', 'tasks.json');
+/** La source des litteraux. Son empreinte est verifiee avant toute lecture. */
+const CAHIER = path.join(REPO, 'docs', 'cahier.md');
+const CAHIER_SHA256 = path.join(REPO, 'docs', 'CAHIER_SHA256');
 
 type Json = Record<string, unknown>;
 
@@ -427,6 +446,50 @@ function sha256(file: string): string {
   return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
+/* ------------------------------------------------- litteraux : le cahier lui-meme */
+
+/**
+ * LA PROVENANCE DES LITTERAUX, POUSSEE JUSQU'AU BOUT.
+ *
+ * Un commentaire `// cahier:L<n>` rend un litteral resolvable a la main. Pour
+ * la table de dependances de §J — 44 lignes — le recopier serait a la fois
+ * illisible et fragile : une faute de frappe de l'auteur des tests deviendrait
+ * la reference. On lit donc les OCTETS du cahier a l'execution, apres avoir
+ * verifie son empreinte contre docs/CAHIER_SHA256 (cahier:L82 — « les
+ * empreintes utilisent SHA-256 »). Sans cette verification, un cahier modifie
+ * ferait dire au test ce qu'on voudrait : la comparaison serait circulaire.
+ *
+ * Les numeros de ligne sont ceux des commentaires `<!-- cahier:L… -->` de
+ * docs/specs/T00.md et se resolvent par `sed -n '<n>p' docs/cahier.md`.
+ */
+let cahierCache: string[] | null = null;
+
+function cahierLignes(): string[] {
+  if (cahierCache === null) {
+    expect(fs.existsSync(CAHIER) ? 'present' : `CAHIER-ABSENT ${CAHIER}`).toBe('present');
+    const attendu = fs.readFileSync(CAHIER_SHA256, 'utf8').trim().split(/\s+/)[0];
+    expect({ fichier: 'docs/cahier.md', sha256: sha256(CAHIER) }).toEqual({
+      fichier: 'docs/cahier.md',
+      sha256: attendu,
+    });
+    cahierCache = fs.readFileSync(CAHIER, 'utf8').split('\n');
+  }
+  return cahierCache;
+}
+
+/**
+ * La ligne `n` du cahier, 1-indexee comme `sed -n '<n>p'`.
+ *
+ * Aucune assertion ici : une ligne hors bornes rend la chaine vide, que les
+ * assertions de l'appelant refusent. Asserter a chaque appel gonflerait le
+ * compte d'assertions de plusieurs dizaines sans rien observer de plus —
+ * cahier:L74, invariant 10 : « le nombre d'assertions ne determine pas le
+ * poids d'une fonctionnalite ».
+ */
+function cahierL(n: number): string {
+  return cahierLignes()[n - 1] ?? '';
+}
+
 /**
  * L'INSTALLATION FIGEE COTE PYTHON — UN SEUL POINT DE DEFINITION.
  *
@@ -596,6 +659,174 @@ describe('T00 — depot initialise et verificateur minimal', () => {
     const diagnostics = `${compile.stdout}\n${compile.stderr}`.match(/error TS\d+/g) ?? [];
     expect({ exit: compile.code, diagnostics, out: compile.code === 0 ? '' : tail(compile.stdout, 20) })
       .toEqual({ exit: 0, diagnostics: [], out: '' });
+
+    // ----------------------------------------------------------------------
+    // (b-bis) LE MODE STRICT DOIT ETRE EFFECTIF, PAS SEULEMENT DECLARE.
+    //
+    // cahier:L32 — « Decisions de depart : TypeScript en mode strict, Node.js
+    // LTS [...] ». Compiler sans diagnostic ne prouve rien si la configuration
+    // a desactive les controles : sous `strict: false`, un parametre
+    // implicitement `any` et `const s: string = null` passent tous les deux.
+    // « Compile » se viderait alors de sa substance, et le mutant T00.M1
+    // (« introduire une erreur de type detectable en mode strict ») viserait
+    // une propriete que ce cas n'observait pas. Jusqu'ici la strictite etait
+    // SUPPOSEE ; cahier:L139 exige des sorties effectivement observees.
+    //
+    // Deux observations, et aucune ne consiste a lire la configuration :
+    //   (1) la configuration EFFECTIVE que le compilateur resout lui-meme pour
+    //       packages/contracts declare strict, sans desactiver ensuite un
+    //       membre de la famille ;
+    //   (2) un bac a sable jetable qui HERITE de cette meme configuration
+    //       refuse reellement deux constructions que seul le mode strict
+    //       refuse — et accepte un fichier sain, sans quoi un bac a sable
+    //       casse, un tsc absent ou un `extends` errone verdirait (2) tout
+    //       seul, pour la mauvaise raison.
+    const tsconfigCandidats = [
+      path.join(contractsDir, 'tsconfig.json'),
+      path.join(contractsDir, 'tsconfig.build.json'),
+      path.join(REPO, 'tsconfig.base.json'),
+      path.join(REPO, 'tsconfig.json'),
+    ];
+    const tsconfigGouvernant = tsconfigCandidats.find((f) => fs.existsSync(f));
+    // cahier:L151 livre « configuration TypeScript/Jest » : son absence est un
+    // livrable manquant, pas une raison de sauter le controle.
+    expect(
+      tsconfigGouvernant === undefined
+        ? `CONFIGURATION-TYPESCRIPT-INTROUVABLE [${tsconfigCandidats
+            .map((f) => path.relative(REPO, f))
+            .join(', ')}]`
+        : 'trouvee',
+    ).toBe('trouvee');
+    const tsconfigProjet = tsconfigGouvernant as string;
+
+    // (1) CONFIGURATION EFFECTIVE. `--showConfig` fait resoudre la chaine
+    //     d'`extends` par le compilateur lui-meme : c'est sa lecture, pas la
+    //     notre. On n'en retient que la famille `strict` — l'auteur des tests
+    //     n'a pas a connaitre le reste.
+    const shown = run('pnpm', ['exec', 'tsc', '-p', tsconfigProjet, '--showConfig']);
+    const brut = `${shown.stdout}`;
+    const debut = brut.indexOf('{');
+    const fin = brut.lastIndexOf('}');
+    let effectif: { compilerOptions?: Record<string, unknown> } | null = null;
+    if (debut >= 0 && fin > debut) {
+      try {
+        effectif = JSON.parse(brut.slice(debut, fin + 1)) as { compilerOptions?: Record<string, unknown> };
+      } catch {
+        effectif = null;
+      }
+    }
+    expect(
+      effectif === null
+        ? `CONFIG-EFFECTIVE-ILLISIBLE exit=${String(shown.code)} ${tail(shown.stderr, 5)}`
+        : 'lue',
+    ).toBe('lue');
+    const optionsEffectives = (effectif as { compilerOptions?: Record<string, unknown> })
+      .compilerOptions ?? {};
+    // Le litteral `true` vient de cahier:L32 (« TypeScript en mode strict »).
+    // Les deux autres cles ferment la porte derobee : `strict: true` suivi de
+    // `strictNullChecks: false` est une strictite de facade.
+    expect({
+      strict: optionsEffectives.strict,
+      strictNullChecks:
+        optionsEffectives.strictNullChecks === false ? 'DESACTIVE' : 'herite-de-strict',
+      noImplicitAny: optionsEffectives.noImplicitAny === false ? 'DESACTIVE' : 'herite-de-strict',
+    }).toEqual({
+      strict: true, // cahier:L32
+      strictNullChecks: 'herite-de-strict',
+      noImplicitAny: 'herite-de-strict',
+    });
+
+    // (2) REFUS REELLEMENT OBSERVE. Le bac a sable est ecrit ICI, hors de
+    //     l'arbre du depot : la suite ne touche jamais packages/contracts.
+    //     Il n'override que des options de FORME — emission, module,
+    //     resolution, hygiene des symboles inutilises — et AUCUNE option de la
+    //     famille `strict`, qui est exactement ce que ce controle mesure.
+    const strictBox = path.join(TMP, 'tsc-mode-strict');
+    fs.mkdirSync(strictBox, { recursive: true });
+    const boxConfig = path.join(strictBox, 'tsconfig.json');
+    const boxProbe = path.join(strictBox, 'sonde.ts');
+    fs.writeFileSync(
+      boxConfig,
+      `${JSON.stringify(
+        {
+          extends: tsconfigProjet,
+          compilerOptions: {
+            noEmit: true,
+            composite: false,
+            incremental: false,
+            declaration: false,
+            declarationMap: false,
+            sourceMap: false,
+            types: [],
+            rootDir: '.',
+            outDir: 'out',
+            module: 'esnext',
+            moduleResolution: 'bundler',
+            verbatimModuleSyntax: false,
+            noUnusedLocals: false,
+            noUnusedParameters: false,
+          },
+          files: ['sonde.ts'],
+          include: [],
+          exclude: [],
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+
+    /** Les codes de diagnostic sont ceux du compilateur nomme par cahier:L32. */
+    const codesTs = (r: RunResult): string[] =>
+      [...new Set((`${r.stdout}\n${r.stderr}`.match(/error TS\d+/g) ?? []).map((m) => m.slice(6)))].sort();
+
+    // (2.i) BRANCHE SAINE — sans elle, un bac a sable invalide refuserait tout
+    //       et (2.ii) serait vert pour la mauvaise raison.
+    fs.writeFileSync(boxProbe, 'export const sain: number = 1;\n', 'utf8');
+    const boxSain = run('pnpm', ['exec', 'tsc', '-p', boxConfig]);
+    expect({ branche: 'sonde-saine', exit: boxSain.code, codes: codesTs(boxSain) }).toEqual({
+      branche: 'sonde-saine',
+      exit: 0,
+      codes: [],
+    });
+
+    // (2.ii) BRANCHE STRICTE — memes options, meme heritage ; SEUL le contenu
+    //        de la sonde a bouge. Les deux constructions sont legales hors
+    //        mode strict et refusees sous mode strict. Exiger un exit non nul
+    //        ne suffirait pas : n'importe quelle panne en produirait un. On
+    //        exige les DEUX codes, chacun rattache a un membre de la famille.
+    fs.writeFileSync(
+      boxProbe,
+      [
+        '// TS7006 : parametre implicitement `any` — refuse par noImplicitAny.',
+        'export function identite(v) { return v; }',
+        '// TS2322 : `null` affecte a `string` — refuse par strictNullChecks.',
+        'export const chaine: string = null;',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+    const boxStrict = run('pnpm', ['exec', 'tsc', '-p', boxConfig]);
+    const codesObserves = codesTs(boxStrict);
+    expect({
+      branche: 'sonde-refusee-par-le-seul-mode-strict',
+      refuse: boxStrict.code !== 0,
+      TS7006: codesObserves.includes('TS7006'),
+      TS2322: codesObserves.includes('TS2322'),
+      codes: codesObserves.includes('TS7006') && codesObserves.includes('TS2322') ? [] : codesObserves,
+    }).toEqual({
+      branche: 'sonde-refusee-par-le-seul-mode-strict',
+      refuse: true,
+      TS7006: true,
+      TS2322: true,
+      codes: [],
+    });
+
+    console.log(
+      `[T00.A1] mode strict : config=${path.relative(REPO, tsconfigProjet)} ` +
+        `strict=${String(optionsEffectives.strict)} | sonde saine -> exit ${String(boxSain.code)}, ` +
+        `sonde stricte -> exit ${String(boxStrict.code)} codes=[${codesObserves.join(', ')}]`,
+    );
 
     // (c) LE MODULE CHARGE DOIT ETRE LA SOURCE, JAMAIS UN dist/ PERIME.
     //
@@ -954,6 +1185,130 @@ describe('T00 — depot initialise et verificateur minimal', () => {
       registre: 'intact',
       reason: 'REGISTRY_INVALID',
     });
+
+    // ------------------------------------------------------------------
+    // TROISIEME VOLET — LE REGISTRE QUI FAIT AUTORITE.
+    //
+    // Les deux volets precedents n'exercent que des registres SYNTHETIQUES, et
+    // c'est cahier:L155 qui l'impose pour les cas de STATUT (« reexecuter T00
+    // apres T43 doit rester possible »). Mais quatre refus prononces sur des
+    // fixtures ne disent rien du registre reel : un validateur strict adosse a
+    // un registre faux laisse « le registre de dependances fait autorite »
+    // (cahier:L541) sans objet. Ce volet-ci ne depend d'aucun avancement — ni
+    // les 44 identifiants ni la table de §J ne bougent quand une tache passe —
+    // donc il ne rompt pas la garantie de rejouabilite de L155.
+    //
+    // (a) LE REGISTRE REEL EST STRUCTURELLEMENT ACCEPTE, ET REFUSE POURTANT
+    //     T99. C'est la seule invocation capable de distinguer les deux refus :
+    //     sur un registre reel corrompu (cycle, doublon, dependance absente) la
+    //     reponse serait REGISTRY_INVALID, jamais UNKNOWN_TASK. On interroge
+    //     T99 — jamais une tache presente : demander T00 relancerait cette
+    //     suite (recursion), et demander une autre tache executerait sa suite.
+    const reel = runVerify('T99', TASKS_JSON);
+    expect({ registre: 'verification/tasks.json', exit: reel.code, reason: reasonOf('T99', reel) }).toEqual(
+      // cahier:L155 « T99 est refuse » ; cahier:L565 nomme les quatre refus du
+      // validateur, dont l'id inconnu ; ADR-005 point 1 nomme les jetons.
+      { registre: 'verification/tasks.json', exit: 2, reason: 'UNKNOWN_TASK' },
+    );
+
+    // (b) LE REGISTRE REEL EST LA TRANSCRIPTION DE §J.
+    //
+    // cahier:L565 — « A transcrire dans verification/tasks.json. Le validateur
+    // refuse id inconnu, cycle, doublon ou dependance absente ». Un registre
+    // valide mais mal transcrit satisfait le validateur et trahit le cahier :
+    // la table de §J (cahier:L567-L612) est comparee ligne a ligne, depuis les
+    // OCTETS du cahier, jamais depuis une copie retapee ici.
+    const LIGNE_ENTETE = 567;
+    const LIGNE_PREMIERE = 569; // L568 est le separateur « | --- | --- | »
+    const LIGNE_DERNIERE = 612;
+    expect({ ligne: LIGNE_ENTETE, entete: /D\S*pendances directes/.test(cahierL(LIGNE_ENTETE)) }).toEqual({
+      ligne: LIGNE_ENTETE,
+      entete: true,
+    });
+
+    // cahier:L525 — « Dependances : T00 a T41 ». Cette ligne est la seule autre
+    // mention de T00 du cahier ; elle borne la cellule « Toutes les taches T00
+    // a T41 » de la ligne T42, qu'on refuse d'interpreter sans elle.
+    const BORNES_T42 = /T00\s*.\s*T41/;
+    expect({ ligne: 525, bornes: BORNES_T42.test(cahierL(525)) }).toEqual({ ligne: 525, bornes: true });
+    const TOUTES_T00_A_T41 = Array.from({ length: 42 }, (_, i) => `T${String(i).padStart(2, '0')}`);
+
+    // Les 44 lignes sont LUES d'abord, assertees ensuite : une assertion posee
+    // dans la boucle masquerait les lignes suivantes, et le rapport d'echec ne
+    // dirait rien des divergences non atteintes. Meme discipline qu'au volet
+    // structurel ci-dessus.
+    const tableJ: Array<{ tache: string; depends_on: string[] }> = [];
+    const illisibles: string[] = [];
+    const plagesNonBornees: string[] = [];
+    for (let n = LIGNE_PREMIERE; n <= LIGNE_DERNIERE; n += 1) {
+      const m = /^\|\s*(T\d{2})\s*\|\s*(.+?)\s*\|$/.exec(cahierL(n));
+      if (m === null) {
+        illisibles.push(`L${n}`);
+        continue;
+      }
+      const cellule = m[2];
+      let deps: string[];
+      if (/^Toutes/.test(cellule)) {
+        // La cellule renvoie a une PLAGE, pas a une liste : elle n'est
+        // developpee que parce que cahier:L525 en donne les bornes.
+        if (!BORNES_T42.test(cellule)) plagesNonBornees.push(`L${n}`);
+        deps = TOUTES_T00_A_T41;
+      } else if (/^T\d{2}/.test(cellule)) {
+        deps = cellule.split(',').map((s) => s.trim());
+      } else if (/^[—–-]$/.test(cellule)) {
+        deps = []; // le tiret cadratin de la ligne T00 : aucune dependance
+      } else {
+        // Une cellule qu'on ne sait pas lire n'est pas une cellule vide : la
+        // traiter comme telle inventerait une absence de dependance.
+        illisibles.push(`L${n} cellule=${JSON.stringify(cellule)}`);
+        continue;
+      }
+      tableJ.push({ tache: m[1], depends_on: deps });
+    }
+    expect({ lignes_illisibles: illisibles, plages_non_bornees: plagesNonBornees }).toEqual({
+      lignes_illisibles: [],
+      plages_non_bornees: [],
+    });
+
+    // cahier:L5 — « Il comporte 44 taches, T00 a T43 » ; cahier:L151 — « le
+    // registre contient des maintenant les 44 identifiants ».
+    expect(tableJ.length).toBe(44);
+    expect(tableJ.map((r) => r.tache)).toEqual(
+      Array.from({ length: 44 }, (_, i) => `T${String(i).padStart(2, '0')}`),
+    );
+
+    const brutRegistre: unknown = JSON.parse(fs.readFileSync(TASKS_JSON, 'utf8'));
+    const cartes: Json[] = Array.isArray(brutRegistre)
+      ? (brutRegistre as Json[])
+      : ((brutRegistre as Json).tasks as Json[]);
+    expect(Array.isArray(cartes) ? 'liste-de-cartes' : 'REGISTRE-REEL-ILLISIBLE').toBe(
+      'liste-de-cartes',
+    );
+    const transcrit = new Map<string, string[]>();
+    const doublons: string[] = [];
+    for (const c of cartes) {
+      const id = String(c.id);
+      // Le doublon est l'un des quatre refus de cahier:L565 : il ne doit pas
+      // etre absorbe silencieusement par la Map.
+      if (transcrit.has(id)) doublons.push(id);
+      transcrit.set(id, (c.depends_on as string[] | undefined) ?? []);
+    }
+    expect({ registre: 'verification/tasks.json', doublons }).toEqual({
+      registre: 'verification/tasks.json',
+      doublons: [],
+    });
+
+    // Une SEULE egalite de tableau : chaque divergence apparait dans le diff,
+    // au lieu que la premiere masque les 43 autres.
+    expect(tableJ.map((r) => ({ tache: r.tache, depends_on: transcrit.get(r.tache) ?? null }))).toEqual(
+      tableJ,
+    );
+
+    console.log(
+      `[T00.A4] registre reel : T99 -> exit ${String(reel.code)} / ${String(reasonOf('T99', reel))} | ` +
+        `transcription de §J (cahier L${LIGNE_PREMIERE}-L${LIGNE_DERNIERE}) : ${tableJ.length} taches, ` +
+        `${tableJ.reduce((n, r) => n + r.depends_on.length, 0)} aretes verifiees`,
+    );
   }, SUITE_TIMEOUT_MS);
 
   test('T00.A5 T01 non implementee dans un registre synthetique isole n est jamais declaree reussie', () => {

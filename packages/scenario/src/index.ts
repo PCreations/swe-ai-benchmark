@@ -10,13 +10,50 @@
 // révélation REND ; un paquet qui ne sait pas ouvrir un fichier ni lancer un
 // processus ne peut pas contourner sa propre porte par un canal latéral.
 //
-// À ce commit le paquet est un SQUELETTE : les quatre exports existent et
-// lèvent `NotImplemented`. Voir `./pack.js` pour ce que ce choix protège.
+// LES QUATRE RÔLES, ET CE QUI LES SÉPARE. `compileScenarioPack` est la seule
+// entrée qui lit une source ; `revealPeriod`, `answerCustomerQuestion` et
+// `activeRequirements` ne lisent qu'un pack DÉJÀ compilé. Une porte ne peut donc
+// pas être contournée en resoumettant la source : il n'existe aucun chemin qui
+// rende du contenu sans passer par l'une des trois lectures gardées.
+//
+// Plus aucun export de ce paquet ne lève `NotImplemented` : T06 est écrite.
 // ─────────────────────────────────────────────────────────────────────────────
 export {
+  CUSTOMER_ANSWER_SCHEMA,
+  PERIOD_REVEAL_SCHEMA,
+  SCENARIO_PACK_SCHEMA,
   activeRequirements,
   answerCustomerQuestion,
   compileScenarioPack,
   revealPeriod,
 } from './pack.js'
-export type { ScenarioPack, ScenarioSource } from './pack.js'
+export type {
+  CompiledAnswer,
+  CompiledEvent,
+  CompiledRequirement,
+  CustomerAnswer,
+  PeriodReveal,
+  PrivatePeriod,
+  PublicPeriodEntry,
+  ScenarioPack,
+  ScenarioPackPrivate,
+  ScenarioPackPublic,
+} from './pack.js'
+
+export { SCENARIO_REJECTION_KINDS, ScenarioRejection, isScenarioRejection } from './errors.js'
+export type { ScenarioRejectionKind } from './errors.js'
+
+export {
+  REQUIREMENT_CRITICALITIES,
+  SCENARIO_SOURCE_SCHEMA,
+  readScenarioSource,
+} from './source.js'
+export type {
+  RequirementCriticality,
+  ScenarioSource,
+  SourceAnswer,
+  SourceEvent,
+  SourcePeriod,
+  SourceReference,
+  SourceRequirement,
+} from './source.js'

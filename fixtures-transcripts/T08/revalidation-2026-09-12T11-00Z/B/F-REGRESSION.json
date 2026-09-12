@@ -1,0 +1,188 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-REGRESSION",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      129
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "cahier_line": 191,
+      "attend": "F-REGRESSION exclut `cancel@1` et compte `isolation@1`",
+      "deduction": "la fixture doit porter les deux exigences et leur trajectoire de periodes, et rendre les deux verdicts opposes observables separement"
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "attend": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+      "deduction": "sonde de la persistance, batie sur le meme mecanisme ; §F ne lui fournit aucune donnee (voir AMB-REGRESSION-3)"
+    },
+    {
+      "cas": "T04.A2",
+      "cahier_line": 191,
+      "attend": "dupliquer les assertions d'une exigence ne change pas Q",
+      "deduction": "meme principe de comptage que « compter par id/version active, pas par nombre d'assertions » (ligne 129)"
+    },
+    {
+      "cas": "T06.A6",
+      "cahier_line": 207,
+      "attend": "remplacer une exigence desactive la bonne version au bon instant",
+      "deduction": "le remplacement de `cancel@1` par `cancel@2` en P3 est le cas de reference du versionnement d'exigence"
+    },
+    {
+      "cas": "T11.A2",
+      "cahier_line": 251,
+      "attend": "remplacement de regle en P3 visible et ancienne regle retiree",
+      "deduction": "la periode du remplacement (P3) est une donnee de la fixture, pas un detail"
+    }
+  ],
+  "valeurs": {
+    "exigence_remplacee": {
+      "id": {
+        "valeur": "cancel@1",
+        "cahier_line": 129
+      },
+      "satisfaite_en": {
+        "valeur": "P2",
+        "cahier_line": 129
+      },
+      "remplacee_en": {
+        "valeur": "P3",
+        "cahier_line": 129
+      },
+      "remplacee_par": {
+        "valeur": "cancel@2",
+        "cahier_line": 129
+      },
+      "regression_produite": {
+        "valeur": false,
+        "cahier_line": 129,
+        "citation": "le retrait de `cancel@1` ne produit pas de regression"
+      }
+    },
+    "exigence_regressee": {
+      "id": {
+        "valeur": "isolation@1",
+        "cahier_line": 129
+      },
+      "satisfaite_en": {
+        "valeur": "P3",
+        "cahier_line": 129
+      },
+      "violee_en": {
+        "valeur": "P4",
+        "cahier_line": 129
+      },
+      "regressions_produites": {
+        "valeur": 1,
+        "cahier_line": 129,
+        "citation": "Une exigence `isolation@1` satisfaite en P3 puis violee en P4 en produit une",
+        "note": "« en produit une » est une transcription, pas un calcul du transcripteur ; point tranche par SC-001, divergence DIV-2"
+      }
+    },
+    "regle_de_comptage": {
+      "valeur": "par id/version active, pas par nombre d'assertions",
+      "cahier_line": 129,
+      "citation": "Compter par id/version active, pas par nombre d'assertions"
+    },
+    "G_en_P4": {
+      "valeur": 1,
+      "enonce": false,
+      "deduit_de": {
+        "cahier_line": 129,
+        "regle": "la seule regression enoncee est celle d'`isolation@1`, et elle vaut 1"
+      },
+      "definition": {
+        "cahier_line": 189,
+        "citation": "G compte les regressions actuellement ouvertes, c'est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees"
+      }
+    },
+    "G_new_en_P4": {
+      "valeur": 1,
+      "enonce": false,
+      "deduit_de": {
+        "cahier_line": 189,
+        "regle": "`isolation@1` etait satisfaite a la periode precedente comparable (P3) et devient violee en P4"
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Le retrait d'une exigence remplacee par une version plus recente n'est pas une regression.",
+      "cahier_line": 129
+    },
+    {
+      "regle": "G compte les regressions actuellement OUVERTES : exigences actives dues, autrefois satisfaites, actuellement violees.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "G_new compte celles qui etaient satisfaites a la periode precedente comparable et deviennent violees.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "Une regression persistante contribue a G sans redevenir nouvelle a chaque periode.",
+      "cahier_line": 189
+    },
+    {
+      "regle": "Une exigence est une identite stable `id@version` : c'est cette identite qui est comptee.",
+      "cahier_line": 129
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "cancel@1 : satisfaite en P2, plus active en P3",
+      "verdict": "elle n'est plus une « exigence active due » au sens de la ligne 189, donc hors du denominateur de G : la ligne 129 et la ligne 189 concordent"
+    },
+    {
+      "controle": "isolation@1 : satisfaite en P3, violee en P4, toujours active",
+      "verdict": "elle remplit les trois conditions de G a la ligne 189 ; le compte 1 enonce a la ligne 129 est coherent"
+    },
+    {
+      "controle": "isolation@1 etait satisfaite en P3, periode immediatement precedente",
+      "verdict": "elle est aussi nouvelle au sens de G_new (ligne 189) en P4"
+    },
+    {
+      "controle": "`sed -n '129p' docs/cahier.md | grep -c 'en produit une'` -> 1",
+      "verdict": "execute : le nombre 1 est litteralement dans la source, ce n'est pas une deduction"
+    },
+    {
+      "controle": "le mecanisme de remplacement de F-REGRESSION (cancel@1 -> cancel@2 en P3) a la meme forme que celui de F-QUALITY (A@1 -> A@2 en P3)",
+      "verdict": "les deux fixtures exercent le meme versionnement, mais F-QUALITY l'observe par Q et F-REGRESSION par G : les sorties ne se recouvrent pas"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-REGRESSION-1",
+      "question": "`cancel@2` est-elle satisfaite en P3, et `isolation@1` est-elle presente en P1 et P2 ?",
+      "ce_que_le_cahier_dit": "la ligne 129 n'enonce que le remplacement de `cancel@1` par `cancel@2` en P3, et l'apparition de `isolation@1` comme satisfaite en P3. Les etats de `cancel@2` et l'existence anterieure de `isolation@1` ne sont ecrits nulle part.",
+      "cahier_line": 129,
+      "bloquant": true,
+      "pourquoi_bloquant": "materialiser les quatre periodes impose de trancher si `cancel@2` est satisfaite ou violee en P3 et P4. Si elle etait violee en P4 apres avoir ete satisfaite en P3, G en P4 vaudrait 2 et non 1, ce qui contredirait la ligne 129. La valeur annoncee depend donc d'une donnee absente.",
+      "ce_qui_est_certain": "le retrait de `cancel@1` ne compte pas, et `isolation@1` compte pour 1 : ces deux verdicts sont enonces et ne dependent d'aucun choix."
+    },
+    {
+      "id": "AMB-REGRESSION-2",
+      "question": "Que contient P1 ?",
+      "ce_que_le_cahier_dit": "la ligne 129 ne parle que de P2, P3 et P4. P1 n'est jamais mentionnee, alors que la fixture est decrite sur une trajectoire a quatre periodes par analogie avec les autres fixtures de §F.",
+      "cahier_line": 129,
+      "bloquant": false,
+      "raison_non_bloquant": "aucun verdict de F-REGRESSION ne porte sur P1 : les deux comptes enonces naissent en P3 et P4. Le cahier ne dit d'ailleurs pas que F-REGRESSION a quatre periodes — c'est une inference a ne pas faire."
+    },
+    {
+      "id": "AMB-REGRESSION-3",
+      "question": "Quelles donnees alimentent T04.A4 (« deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0 ») ?",
+      "ce_que_le_cahier_dit": "la ligne 191 enonce le cas, la ligne 189 en donne la regle (« une regression persistante contribue a G, sans redevenir nouvelle »), mais §F ne fournit aucune fixture ou une meme exigence est violee sur deux periodes consecutives : dans F-REGRESSION, `isolation@1` n'est violee qu'en P4.",
+      "cahier_line": 191,
+      "bloquant": false,
+      "raison_non_bloquant": "c'est une sonde a construire pour T04, pas une valeur de F-REGRESSION a inventer. La signaler evite qu'un materialisateur allonge F-REGRESSION d'une cinquieme periode pour la loger."
+    }
+  ]
+}

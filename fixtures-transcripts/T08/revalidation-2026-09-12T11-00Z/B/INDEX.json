@@ -1,0 +1,342 @@
+{
+  "schema": "bench.fixture-transcription-index/1",
+  "transcripteur": "B",
+  "etage": "FIXTURES",
+  "tache": "T09",
+  "role": "fixture-transcriber",
+  "cadrage": "consommateurs d'abord : pour chaque fixture, les cas d'acceptation qui la citent (verification/cases.lock.json et docs/cahier.md §H) determinent ce que la fixture doit contenir ; le texte de §F est ensuite confronte a cette attente. AUCUNE implementation consultee (ni packages/**, ni apps/**, ni analysis/src/**, ni acceptance/**).",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "concordance_verifiee": true,
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md"
+  },
+  "recensement_des_fixtures": {
+    "methode": "grep -noE 'F-[A-Z][A-Z-]*' docs/cahier.md | sort -u",
+    "resultat": "exactement dix fixtures F-*, identiques a la liste du cadrage ; aucune F-* supplementaire dans le cahier",
+    "fixtures_non_prefixees_reperees": [
+      {
+        "nom": "golden-six",
+        "cahier_line": 491,
+        "statut": "fixture de T38, pas une fixture maitresse de §F ; recensee comme CONSOMMATRICE de F-MONEY (deux appels par periode, 2720 et 16320)"
+      }
+    ]
+  },
+  "aucun_commit": true,
+  "note": "Cet etage n'ecrit rien dans le depot suivi. La materialisation en zone REFERENCE appartient a l'etage de scellement, et seulement si A et B concordent.",
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "statut": "RESOLU",
+      "regle": "Le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active.",
+      "applique_a": [
+        "F-QUALITY"
+      ],
+      "effet": "les poids non reenonces de B@1, C@1 et A@2 en P3/P4 sont propages et marques `poids_source.enonce=false, propage=true, arbitrage=SC-001`",
+      "incidences_hors_F_QUALITY": [
+        {
+          "divergence": "DIV-1",
+          "portee": "F-FAILURE",
+          "regle": "l'unite des couts n'est PAS portee par la ligne 121",
+          "applique": "`unite_des_couts.valeur = null, enonce = false` ; la convention globale de la ligne 80 est citee separement, sans etre imputee a la ligne 121"
+        },
+        {
+          "divergence": "DIV-2",
+          "portee": "F-REGRESSION",
+          "regle": "« en produit une » est une transcription, la valeur 1 est litterale",
+          "applique": "`regressions_produites.valeur = 1`, cahier_line 129"
+        }
+      ]
+    }
+  ],
+  "controles_executes": [
+    {
+      "controle": "sha256sum docs/cahier.md compare a docs/CAHIER_SHA256 et au champ cahier_sha256 de verification/cases.lock.json",
+      "resultat": "les trois concordent : d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd"
+    },
+    {
+      "controle": "recensement des fixtures : grep -n 'F-[A-Z-]*' docs/cahier.md, restreint a §F (lignes 101-129)",
+      "resultat": "exactement dix fixtures nommees, aux lignes 103, 105, 107, 113, 115, 117, 119, 121, 127, 129 ; aucune F-* supplementaire dans le cahier"
+    },
+    {
+      "controle": "chaque champ `citation` est recherche dans la ligne qu'il declare, apres normalisation NFD des accents, des guillemets typographiques, des tirets et des espaces insecables",
+      "resultat": "64 citations controlees, 0 non retrouvee"
+    },
+    {
+      "controle": "chaque `cahier_line` est verifie present dans les bornes du fichier (660 lignes)",
+      "resultat": "302 references, 0 hors bornes"
+    },
+    {
+      "controle": "chaque cas consommateur `Txx.Ay` est confronte a verification/cases.lock.json (existence, et egalite de la ligne declaree avec celle du lock)",
+      "resultat": "59 cas verifies, 0 desaccord"
+    },
+    {
+      "controle": "re-derivation arithmetique independante, en rationnels exacts (BigInt), de toute valeur annoncee par §F a partir des entrees annoncees par §F",
+      "resultat": "46 controles, 46 concordances, 0 ecart. Couvrent : 340 / 680 / 2720 / 16320 / 48 ; l'invariant spent+reserved+available=limit sur les quatre etats de F-BUDGET ; V=13/16=0.8125, les quatre Q depuis leurs poids, U=2/3, exposition 3/4, 7/10 et leur distinction ; 50 / 60 / 5/6 et le piege 0.7 ; l'invariance de F-CLUSTERS par duplication ; les quatre ratios de F-BOOTSTRAP et l'intervalle [1/2,9/10] ; la frontiere 2030-01-02T12:00:00Z comme debut de S1 moins 24 h ; le total 150 ; les bornes de F-POWER, les decisions [vrai,faux,faux,vrai] sous marge 0,02, la puissance 0,5 et se=0,25."
+    },
+    {
+      "controle": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD' (DIV-1, refait sans reprendre SC-001)",
+      "resultat": "0 ; grep -n 'micro-USD' docs/cahier.md ne rend que les lignes 80, 103, 493 et 495"
+    },
+    {
+      "controle": "sed -n '129p' docs/cahier.md | grep -c 'en produit une' (DIV-2, refait sans reprendre SC-001)",
+      "resultat": "1"
+    },
+    {
+      "controle": "position des horloges de periode de F-RESERVATION (l.125) par rapport a la frontiere des 24 h",
+      "resultat": "P3 a 2030-01-02T11:00:00Z est AVANT la frontiere, P4 a 2030-01-02T13:00:00Z est APRES : les deux sondes de P3 (12:00:00.000Z et 12:00:00.001Z) encadrent bien la frontiere et tombent entre les deux horloges de periode"
+    }
+  ],
+  "fixtures": [
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "lignes_source": [
+        117
+      ],
+      "consommateurs": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A6",
+        "T33.A7"
+      ],
+      "nombre_de_valeurs_referencees": 6,
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "lignes_source": [
+        105
+      ],
+      "consommateurs": [
+        "T16.A2",
+        "T16 (fin de tache)",
+        "T16.A5",
+        "T16.A7"
+      ],
+      "nombre_de_valeurs_referencees": 25,
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "lignes_source": [
+        115
+      ],
+      "consommateurs": [
+        "T32.A2",
+        "T32 (fin de tache)",
+        "T33.A5",
+        "T33.A6"
+      ],
+      "nombre_de_valeurs_referencees": 11,
+      "ambiguites": 2,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "lignes_source": [
+        113
+      ],
+      "consommateurs": [
+        "T32.A1",
+        "T36.A2",
+        "T32 (fin de tache)",
+        "T32.A6"
+      ],
+      "nombre_de_valeurs_referencees": 8,
+      "ambiguites": 1,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "lignes_source": [
+        121
+      ],
+      "consommateurs": [
+        "T05.A6",
+        "T11.A4",
+        "T31.A1",
+        "T31 (fin de tache)",
+        "T38.A7",
+        "T36.A3"
+      ],
+      "nombre_de_valeurs_referencees": 11,
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 1,
+      "ids_bloquants": [
+        "AMB-FAILURE-2"
+      ]
+    },
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "lignes_source": [
+        103
+      ],
+      "consommateurs": [
+        "T16.A1",
+        "T01.A6",
+        "T16.A5",
+        "T38.A2",
+        "T38.A3",
+        "T16 (fin de tache)"
+      ],
+      "nombre_de_valeurs_referencees": 17,
+      "ambiguites": 2,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "lignes_source": [
+        127
+      ],
+      "consommateurs": [
+        "T35.A1",
+        "T34.A1",
+        "T34.A2",
+        "T34.A4",
+        "T34.A7",
+        "T35.A5",
+        "T35.A6"
+      ],
+      "nombre_de_valeurs_referencees": 15,
+      "ambiguites": 4,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "lignes_source": [
+        107,
+        109,
+        111
+      ],
+      "consommateurs": [
+        "T04.A1",
+        "T04.A2",
+        "T04.A5",
+        "T04.A6",
+        "T08.A2",
+        "T32.A3",
+        "T36.A1"
+      ],
+      "nombre_de_valeurs_referencees": 24,
+      "ambiguites": 4,
+      "ambiguites_bloquantes": 1,
+      "ids_bloquants": [
+        "AMB-QUALITY-2"
+      ]
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "lignes_source": [
+        129
+      ],
+      "consommateurs": [
+        "T04.A3",
+        "T04.A4",
+        "T04.A2",
+        "T06.A6",
+        "T11.A2"
+      ],
+      "nombre_de_valeurs_referencees": 13,
+      "ambiguites": 3,
+      "ambiguites_bloquantes": 1,
+      "ids_bloquants": [
+        "AMB-REGRESSION-1"
+      ]
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "lignes_source": [
+        119,
+        123,
+        125
+      ],
+      "consommateurs": [
+        "T07.A1",
+        "T07.A2",
+        "T07.A3",
+        "T07.A4",
+        "T07.A5",
+        "T07.A6",
+        "T07.A7",
+        "T08.A6",
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A4",
+        "T09.A5",
+        "T11.A6"
+      ],
+      "nombre_de_valeurs_referencees": 30,
+      "ambiguites": 4,
+      "ambiguites_bloquantes": 0,
+      "ids_bloquants": []
+    }
+  ],
+  "nombre_de_fixtures": 10,
+  "nombre_d_ambiguites": 29,
+  "nombre_d_ambiguites_bloquantes": 3,
+  "ambiguites_bloquantes": [
+    {
+      "fixture": "F-FAILURE",
+      "ids": [
+        "AMB-FAILURE-2"
+      ]
+    },
+    {
+      "fixture": "F-QUALITY",
+      "ids": [
+        "AMB-QUALITY-2"
+      ]
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "ids": [
+        "AMB-REGRESSION-1"
+      ]
+    }
+  ],
+  "critere_de_blocage": "« bloquant » signifie : la fixture ne peut pas etre materialisee sans choisir une donnee qu'aucune ligne du cahier n'ecrit, ET une valeur annoncee depend de ce choix. Une lacune sans effet sur une valeur annoncee est consignee avec bloquant=false.",
+  "taches_invocatrices": {
+    "valeur": [
+      "T08",
+      "T09"
+    ],
+    "note": "OBSERVE : le champ `tache` de ce fichier portait T08 avant la reprise. Le cadrage de la reprise nomme l'etage FIXTURES tache T09. Le contenu transcrit est identique dans les deux cas : il est indexe par fixture §F, pas par tache. Les deux invocations sont consignees plutot qu'une seule reecrite silencieusement."
+  },
+  "reprise": {
+    "constat": "Les onze fichiers preexistaient dans .bench/fixtures/B/ au demarrage de cette reprise. Ils n'ont PAS ete tenus pour acquis : le §F a ete relu de bout en bout, les consommateurs re-extraits de verification/cases.lock.json, et les controles ci-dessus reexecutes.",
+    "modifications_apportees": [
+      "`tache` : T08 -> T09, et `taches_invocatrices` ajoute",
+      "`controles_executes` : remplace par les controles effectivement executes lors de cette reprise, avec leurs comptes mesures (302 references, 64 citations, 59 cas, 46 re-derivations), au lieu des comptes reportes de l'execution precedente"
+    ],
+    "contenu_des_dix_fixtures": "inchange : aucune valeur, convention ni ambiguite n'a diverge de la relecture independante"
+  }
+}

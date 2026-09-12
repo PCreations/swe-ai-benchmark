@@ -1,0 +1,289 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-POWER",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      127
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "attend": "F-POWER traversant le vrai pipeline d'analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "deduction": "la fixture doit porter les quatre campagnes ET les trois sorties : le vecteur de decisions, la puissance et l'erreur standard Monte-Carlo"
+    },
+    {
+      "cas": "T34.A1",
+      "cahier_line": 453,
+      "attend": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture",
+      "deduction": "c'est exactement la campagne 1 de F-POWER : la fixture alimente aussi les cas de T34"
+    },
+    {
+      "cas": "T34.A2",
+      "cahier_line": 453,
+      "attend": "borne ratio=1 refuse",
+      "deduction": "c'est la campagne 2"
+    },
+    {
+      "cas": "T34.A4",
+      "cahier_line": 453,
+      "attend": "cout plus faible mais DeltaU=-0,04 refuse",
+      "deduction": "parent de la campagne 3, dont le refus vient d'un ecart de qualite malgre un ratio favorable"
+    },
+    {
+      "cas": "T34.A7",
+      "cahier_line": 453,
+      "attend": "une violation critique bloque le qualificatif de livraison fiable",
+      "deduction": "F-POWER declare « absence de violation critique » : la fixture est le temoin POSITIF de ce critere, jamais son contre-exemple"
+    },
+    {
+      "cas": "T35.A5",
+      "cahier_line": 463,
+      "attend": "meme entree/version/graine donne meme sortie",
+      "deduction": "les tirages parents etant exhaustifs, la fixture n'a aucune part stochastique residuelle"
+    },
+    {
+      "cas": "T35.A6",
+      "cahier_line": 463,
+      "attend": "arret anticipe a la premiere significativite interdit dans ce plan a effectif fixe",
+      "deduction": "les quatre campagnes sont evaluees toutes les quatre ; la puissance 0,5 le suppose"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_campagnes": {
+      "valeur": 4,
+      "cahier_line": 127,
+      "citation": "Quatre petites campagnes statistiques"
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "cahier_line": 127,
+      "citation": "chacune avec deux parents distincts P1/P2 portant les memes valeurs",
+      "note": "ces P1/P2 ne sont PAS ceux de F-CLUSTERS (ligne 115) : ils portent d'autres valeurs. Voir AMB-POWER-3"
+    },
+    "bras_B": {
+      "cout": {
+        "valeur": 100,
+        "cahier_line": 127
+      },
+      "V": {
+        "valeur": 1,
+        "cahier_line": 127
+      },
+      "U": {
+        "valeur": 1,
+        "cahier_line": 127
+      },
+      "portee": "identique dans chaque parent et chaque campagne"
+    },
+    "bras_A_par_campagne": {
+      "valeur": [
+        {
+          "campagne": 1,
+          "cout": 80,
+          "V": 1,
+          "U": 1
+        },
+        {
+          "campagne": 2,
+          "cout": 100,
+          "V": 1,
+          "U": 1
+        },
+        {
+          "campagne": 3,
+          "cout": 80,
+          "V": 0.96,
+          "U": 1
+        },
+        {
+          "campagne": 4,
+          "cout": 80,
+          "V": 0.99,
+          "U": 0.99
+        }
+      ],
+      "cahier_line": 127,
+      "citation": "A a respectivement pour les quatre campagnes `(cout,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`"
+    },
+    "preconditions": {
+      "valeur": [
+        "comptabilite resolue",
+        "absence de violation critique",
+        "valeurs connues sur les deux bras"
+      ],
+      "cahier_line": 127
+    },
+    "tirages_parents": {
+      "valeur": "exhaustifs",
+      "cahier_line": 127,
+      "consequence": "distributions ponctuelles",
+      "consequence_cahier_line": 127
+    },
+    "bornes_de_ratio": {
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127,
+      "citation": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8"
+    },
+    "bornes_de_delta_V": {
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "citation": "celles de ΔV 0 / 0 / −0,04 / −0,01"
+    },
+    "bornes_de_delta_U": {
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "citation": "celles de ΔU 0 / 0 / 0 / −0,01"
+    },
+    "decisions_attendues": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127,
+      "citation": "T34 doit produire `[vrai,faux,faux,vrai]`"
+    },
+    "puissance": {
+      "valeur": 0.5,
+      "cahier_line": 463,
+      "origine": "T35.A1"
+    },
+    "erreur_standard_monte_carlo": {
+      "valeur": 0.25,
+      "cahier_line": 463,
+      "origine": "T35.A1"
+    },
+    "portee_declaree": {
+      "valeur": "traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider",
+      "cahier_line": 127
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Superiorite cout si borne SUPERIEURE du ratio < 1.",
+      "cahier_line": 451
+    },
+    {
+      "regle": "Non-inferiorite V/U si leurs bornes INFERIEURES > -marge.",
+      "cahier_line": 451
+    },
+    {
+      "regle": "Aucune violation critique interdite ; comptabilite resolue et donnees admissibles.",
+      "cahier_line": 451
+    },
+    {
+      "regle": "Marges d'exemple 0,02.",
+      "cahier_line": 451,
+      "note": "le cahier les qualifie d'« exemple » et ne les reattribue pas explicitement a F-POWER"
+    },
+    {
+      "regle": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J) avec correction de Bonferroni.",
+      "cahier_line": 451
+    },
+    {
+      "regle": "L'absence de violation observee n'est pas un intervalle de securite universel.",
+      "cahier_line": 451
+    },
+    {
+      "regle": "L'erreur standard Monte-Carlo suit sqrt(p(1-p)/N), forme confirmee par T35.A2 : « 1800 succes sur 2000 donnent 0,9 et sqrt(0,09/2000) ».",
+      "cahier_line": 463
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "campagne 1 : ratio 0,8 < 1 (superiorite cout) ; DeltaV 0 > -0,02 ; DeltaU 0 > -0,02",
+      "verdict": "decision VRAI, conforme au 1er element de [vrai,faux,faux,vrai]"
+    },
+    {
+      "controle": "campagne 2 : ratio 1, non strictement inferieur a 1",
+      "verdict": "decision FAUX sur le critere cout seul, conforme au 2e element, et conforme a T34.A2 (ligne 453)"
+    },
+    {
+      "controle": "campagne 3 : ratio 0,8 < 1 mais DeltaV -0,04 n'est pas > -0,02",
+      "verdict": "decision FAUX, conforme au 3e element : un ratio favorable ne rachete pas une perte de qualite"
+    },
+    {
+      "controle": "campagne 4 : ratio 0,8 < 1 ; DeltaV -0,01 > -0,02 ; DeltaU -0,01 > -0,02",
+      "verdict": "decision VRAI, conforme au 4e element"
+    },
+    {
+      "controle": "2 decisions vraies sur 4 campagnes = 0,5",
+      "verdict": "conforme a la puissance 0,5 de T35.A1 (ligne 463)"
+    },
+    {
+      "controle": "sqrt(0,5 * 0,5 / 4) = sqrt(0,0625) = 0,25",
+      "verdict": "conforme a l'erreur standard 0,25 de T35.A1, sous la forme confirmee par T35.A2"
+    },
+    {
+      "controle": "ratio A/B de la campagne 1 : 80/100 = 0,8 ; campagne 2 : 100/100 = 1",
+      "verdict": "les couts de la ligne 127 reproduisent les bornes de ratio de la meme ligne, les deux parents portant les memes valeurs"
+    },
+    {
+      "controle": "DeltaV campagne 3 : 0,96 - 1 = -0,04 ; campagne 4 : 0,99 - 1 = -0,01 ; DeltaU campagne 4 : 0,99 - 1 = -0,01",
+      "verdict": "les valeurs (V,U) de A et B reproduisent les bornes de Delta annoncees ligne 127 ; Delta est oriente A moins B"
+    },
+    {
+      "controle": "les deux parents d'une campagne portent les memes valeurs, donc les quatre tirages exhaustifs donnent tous la meme moyenne",
+      "verdict": "la distribution est ponctuelle, ce qu'enonce la ligne 127 ; borne inferieure et superieure coincident avec l'estimation"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-POWER-1",
+      "question": "La marge appliquee a F-POWER est-elle 0,02 ?",
+      "ce_que_le_cahier_dit": "la ligne 127 n'enonce aucune marge. La ligne 451 donne « Marges d'exemple 0,02 » — le mot « exemple » laisse ouvert que ce soit une illustration plutot que le parametre de la fixture.",
+      "cahier_line": 451,
+      "bloquant": false,
+      "raison_non_bloquant": "les decisions [vrai,faux,faux,vrai] tiennent pour toute marge m telle que 0,01 < m <= 0,04 (il faut que -0,04 echoue et que -0,01 passe). 0,02 est dans cet intervalle, donc la valeur enoncee reproduit les decisions annoncees.",
+      "note_du_transcripteur": "la marge est transcrite comme convention citee a la ligne 451, jamais comme valeur de F-POWER."
+    },
+    {
+      "id": "AMB-POWER-2",
+      "question": "Quel niveau marginal de Bonferroni s'applique aux campagnes de F-POWER ?",
+      "ce_que_le_cahier_dit": "la ligne 451 donne la formule 1-0,05/(3J) mais la ligne 127 n'enonce pas J pour ces campagnes.",
+      "cahier_line": 127,
+      "bloquant": false,
+      "raison_non_bloquant": "les tirages parents etant exhaustifs sur deux parents portant les memes valeurs, la distribution est ponctuelle : toute borne de quantile coincide avec l'estimation quel que soit le niveau. Aucune des bornes annoncees a la ligne 127 ne depend de J."
+    },
+    {
+      "id": "AMB-POWER-3",
+      "question": "Les parents P1/P2 de F-POWER sont-ils ceux de F-CLUSTERS ?",
+      "ce_que_le_cahier_dit": "la ligne 127 reutilise les noms P1 et P2 pour des parents « portant les memes valeurs », alors que la ligne 115 nomme P1 et P2 deux projets de valeurs DIFFERENTES (A=10/B=20 et A=90/B=100).",
+      "cahier_line": 127,
+      "bloquant": false,
+      "raison_non_bloquant": "les valeurs de F-POWER sont enoncees en propre a la ligne 127 (B=100, V=U=1 ; A selon la campagne) et ne laissent aucune place a celles de la ligne 115. La collision est nominale, pas numerique."
+    },
+    {
+      "id": "AMB-POWER-4",
+      "question": "Combien de repetitions chaque parent porte-t-il, et sur quelle grille d'effectifs la puissance 0,5 est-elle lue ?",
+      "ce_que_le_cahier_dit": "la ligne 127 ne donne ni repetitions, ni grille. La ligne 461 exige pourtant, comme parametres obligatoires du dimensionnement, une grille croissante du nombre de parents, un nombre de repetitions et un nombre de simulations.",
+      "cahier_line": 127,
+      "bloquant": false,
+      "raison_non_bloquant": "la puissance 0,5 et l'erreur 0,25 se lisent sur les QUATRE CAMPAGNES (2 decisions vraies sur 4, sqrt(0,25/4)=0,25), pas sur une grille d'effectifs : T35.A1 designe F-POWER, et T35.A7 fournit separement un exemple de grille avec ses propres chiffres."
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-MONEY",
+  "transcripteur": "B",
+  "cadrage": "consommateurs d'abord : cas d'acceptation citant la fixture (verification/cases.lock.json + §H), puis confrontation au texte de §F. Aucune implementation consultee.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "relecture": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes_source": [
+      103
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "attend": "F-MONEY donne 340",
+      "deduction": "la fixture doit porter la grille tarifaire ET le decompte de tokens d'un appel, pour que 340 soit le produit du calcul de facturation et non une constante posee"
+    },
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "attend": "la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est detectee par la verification des references",
+      "deduction": "340 doit exister comme valeur de reference atomique et comparable : c'est elle que la corruption deplace"
+    },
+    {
+      "cas": "T16.A5",
+      "cahier_line": 295,
+      "attend": "un cout inconnu ne devient jamais zero",
+      "deduction": "l'absence de decompte de tokens n'est pas un cout de 0 ; la fixture ne fournit aucun tarif implicite"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "attend": "48 appels recus et regles",
+      "deduction": "6 trajectoires x 4 periodes x 2 appels F-MONEY par periode (ligne 491) = 48 : la fixture doit etre instanciable par appel unitaire identique"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "attend": "2720 micro-USD par trajectoire, 16320 au total",
+      "deduction": "8 appels de 340 par trajectoire ; le cout unitaire doit etre exactement 340, entier, sans arrondi intermediaire"
+    },
+    {
+      "cas": "T16 (fin de tache)",
+      "cahier_line": 297,
+      "attend": "entiers exacts",
+      "deduction": "aucune valeur de la fixture n'est un flottant arrondi"
+    }
+  ],
+  "valeurs": {
+    "unite": {
+      "valeur": "micro-USD",
+      "cahier_line": 103,
+      "citation": "entree non cachee 2 micro-USD/token",
+      "appui_global": {
+        "cahier_line": 80,
+        "citation": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; `1000000` vaut 1 USD."
+      }
+    },
+    "tarifs_par_token": {
+      "entree_non_cachee": {
+        "valeur": 2,
+        "cahier_line": 103
+      },
+      "entree_cachee": {
+        "valeur": 1,
+        "cahier_line": 103
+      },
+      "sortie": {
+        "valeur": 5,
+        "cahier_line": 103
+      }
+    },
+    "appel_unitaire": {
+      "tokens": {
+        "entree_non_cachee": {
+          "valeur": 100,
+          "cahier_line": 103
+        },
+        "entree_cachee": {
+          "valeur": 40,
+          "cahier_line": 103
+        },
+        "sortie": {
+          "valeur": 20,
+          "cahier_line": 103
+        }
+      },
+      "cout": {
+        "valeur": 340,
+        "cahier_line": 103,
+        "citation": "vaut 340 micro-USD"
+      }
+    },
+    "deux_appels_identiques": {
+      "valeur": 680,
+      "cahier_line": 103,
+      "citation": "Deux appels identiques valent 680"
+    },
+    "consommation_par_golden_six": {
+      "appels_F_MONEY_par_periode": {
+        "valeur": 2,
+        "cahier_line": 491
+      },
+      "periodes_par_trajectoire": {
+        "valeur": 4,
+        "cahier_line": 491
+      },
+      "trajectoires": {
+        "valeur": 6,
+        "cahier_line": 493,
+        "origine": "deux configurations scriptees x trois repetitions (ligne 491), enonce comme « six trajectoires » en ligne 493"
+      },
+      "appels_totaux": {
+        "valeur": 48,
+        "cahier_line": 493
+      },
+      "cout_par_trajectoire": {
+        "valeur": 2720,
+        "cahier_line": 493
+      },
+      "cout_total": {
+        "valeur": 16320,
+        "cahier_line": 493
+      },
+      "autres_tarifs": {
+        "valeur": 0,
+        "cahier_line": 491,
+        "citation": "Tous les autres tarifs valent explicitement zero dans cette fixture fictive",
+        "portee": "enonce pour la fixture golden-six de T38, pas pour la grille de la ligne 103"
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les champs d'entree sont disjoints : le total d'entree n'est pas la somme d'un total incluant le cache et du cache.",
+      "cahier_line": 103
+    },
+    {
+      "regle": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise AVANT facturation, pas pendant.",
+      "cahier_line": 103
+    },
+    {
+      "regle": "Les montants sont des chaines d'entiers non negatifs en micro-USD.",
+      "cahier_line": 80,
+      "portee": "convention globale §E ; elle fixe la representation, la ligne 103 fixe les valeurs"
+    },
+    {
+      "regle": "Les 16320 micro-USD sont une verite de test, pas une estimation du prix d'une experience reelle.",
+      "cahier_line": 495
+    }
+  ],
+  "controles_de_coherence": [
+    {
+      "controle": "100*2 + 40*1 + 20*5 = 340",
+      "verdict": "les tarifs et le decompte de la ligne 103 produisent le montant annonce a la meme ligne"
+    },
+    {
+      "controle": "340 * 2 = 680",
+      "verdict": "conforme a l'enonce de la ligne 103"
+    },
+    {
+      "controle": "2 appels/periode * 4 periodes * 340 = 2720",
+      "verdict": "conforme a T38.A3 (ligne 493)"
+    },
+    {
+      "controle": "2720 * 6 trajectoires = 16320",
+      "verdict": "conforme a T38.A3 (ligne 493)"
+    },
+    {
+      "controle": "6 trajectoires * 4 periodes * 2 appels = 48",
+      "verdict": "conforme a T38.A2 (ligne 493)"
+    },
+    {
+      "controle": "grep -c 'micro-USD' sur les lignes du cahier",
+      "verdict": "la chaine n'apparait qu'aux lignes 80, 103, 493 et 495 (execute)"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-MONEY-1",
+      "question": "La mise a zero « tous les autres tarifs » (ligne 491) appartient-elle a la grille F-MONEY ou seulement a la fixture golden-six de T38 ?",
+      "ce_que_le_cahier_dit": "la ligne 103 n'enonce que trois tarifs et ne dit rien d'une quatrieme classe de tokens ; la ligne 491 pose la mise a zero dans le paragraphe « Fixture » de T38.",
+      "cahier_line": 491,
+      "bloquant": false,
+      "raison_non_bloquant": "aucune valeur enoncee ne separe les deux lectures : 340, 2720 et 16320 sont identiques dans les deux cas, et le cahier ne cite aucune classe de tokens hors des trois de la ligne 103."
+    },
+    {
+      "id": "AMB-MONEY-2",
+      "question": "Quelle arithmetique de normalisation l'adaptateur applique-t-il quand un fournisseur inclut le cache dans un total d'entree ?",
+      "ce_que_le_cahier_dit": "la ligne 103 impose la disjonction des champs et l'existence d'une normalisation, mais n'ecrit pas l'operation. La disjonction l'implique (non_cachee = total - cachee) sans que la ligne la formule.",
+      "cahier_line": 103,
+      "bloquant": false,
+      "raison_non_bloquant": "la fixture F-MONEY fournit directement des champs deja disjoints (100/40/20) ; aucune de ses valeurs ne depend de la normalisation."
+    }
+  ]
+}

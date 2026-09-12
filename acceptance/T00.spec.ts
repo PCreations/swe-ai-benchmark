@@ -453,6 +453,36 @@ function sha256(file: string): string {
  */
 const UV_FROZEN_INSTALL: readonly string[] = ['sync', '--locked'];
 
+/**
+ * L'INSTALLATION FIGEE COTE NODE — MEME POINT UNIQUE DE DEFINITION.
+ *
+ * Symetrique de UV_FROZEN_INSTALL, et pour la meme raison. « Le lockfile reste
+ * inchange apres installation figee » (cahier L155) se lit en deux temps : la
+ * commande ne reecrit pas le lock, ET elle refuse d'installer quand le
+ * manifeste ne correspond plus au lock. La premiere moitie seule est satisfaite
+ * par une commande qui n'ouvre jamais le manifeste — c'est vrai des deux cotes,
+ * pas seulement du cote Python. Cote pnpm, c'est `--frozen-lockfile` qui porte
+ * le refus ; sans lui, `pnpm install` resout le manifeste et reecrit le lock.
+ *
+ * Jusqu'ici, cette moitie-la du gel etait AFFIRMEE en commentaire et jamais
+ * OBSERVEE : la suite n'exercait le refus que du cote uv. Le cahier (L139)
+ * refuse la preuve qui n'observe rien. A6 rejoue donc CETTE argv sur un arbre
+ * desynchronise et exige le refus ; retirer le drapeau ici rend le controle
+ * vert a tort et fait tomber A6 (mutant T00.M9).
+ *
+ * Mesure faite sur pnpm 10.33.0, manifeste decale d'une dependance directe
+ * absente du lock :
+ *
+ *   pnpm install --frozen-lockfile   manifeste decale -> exit 1,
+ *                                    ERR_PNPM_OUTDATED_LOCKFILE. Le controle
+ *                                    precede la resolution : aucune requete au
+ *                                    registre n'est faite, le cas reste donc
+ *                                    executable reseau coupe (cahier L521).
+ *   pnpm install                     manifeste decale -> le refus disparait ;
+ *                                    l'outil part resoudre la dependance.
+ */
+const PNPM_FROZEN_INSTALL: readonly string[] = ['install', '--frozen-lockfile'];
+
 interface FrozenInstall {
   before: Record<string, string | null>;
   after: Record<string, string | null>;
@@ -508,7 +538,7 @@ beforeAll(() => {
   // L'installation figee d'abord : les invocations imbriquees du runner en
   // dependent, et A1/A6 lisent les empreintes calculees ici.
   const before = hashLockfiles();
-  const pnpmInstall = run('pnpm', ['install', '--frozen-lockfile'], {
+  const pnpmInstall = run('pnpm', [...PNPM_FROZEN_INSTALL], {
     cwd: REPO,
     timeoutMs: 20 * 60 * 1000,
   });
@@ -1012,7 +1042,7 @@ describe('T00 — depot initialise et verificateur minimal', () => {
     console.log(
       `[T00.A6] ${tracked[0]}=${String(frozen.after[tracked[0]]).slice(0, 16)}... ` +
         `${tracked[1]}=${String(frozen.after[tracked[1]]).slice(0, 16)}... ` +
-        `(inchangees apres pnpm install --frozen-lockfile + uv ${UV_FROZEN_INSTALL.join(' ')})`,
+        `(inchangees apres pnpm ${PNPM_FROZEN_INSTALL.join(' ')} + uv ${UV_FROZEN_INSTALL.join(' ')})`,
     );
 
     // ----------------------------------------------------------------------
@@ -1110,6 +1140,113 @@ describe('T00 — depot initialise et verificateur minimal', () => {
       `[T00.A6] controle negatif uv ${UV_FROZEN_INSTALL.join(' ')} : ` +
         `manifeste synchronise -> exit ${String(healthy.code)}, ` +
         `manifeste desynchronise -> exit ${String(drifted.code)}`,
+    );
+
+    // ----------------------------------------------------------------------
+    // CONTROLE NEGATIF SYMETRIQUE — la chaine NODE doit REFUSER un manifeste
+    // decale.
+    //
+    // Le trou etait le meme des deux cotes, et n'etait bouche que d'un cote.
+    // L'egalite des empreintes prouve que `pnpm install --frozen-lockfile` ne
+    // REECRIT pas le lock ; elle ne prouve pas qu'il le FAIT RESPECTER. Une
+    // commande qui n'ouvre jamais package.json la satisferait tout autant —
+    // c'est litteralement ce que fait `uv sync --frozen`, mesure plus haut.
+    // Jusqu'ici la suite l'affirmait du cote pnpm sans l'observer : « une
+    // preuve comporte des sorties effectivement observees » (cahier:L139).
+    //
+    // Meme protocole qu'au-dessus, et pour la meme raison : bac a sable
+    // jetable synthetise ICI, hors de l'arbre du depot, deux branches, verdicts
+    // OPPOSES exiges. Le manifeste sain ne declare AUCUNE dependance et le
+    // decalage en ajoute une qui n'existe dans aucun registre : le refus de
+    // pnpm precede la resolution, donc le cas n'emet aucune requete reseau
+    // (cahier:L521 — « tests avec reseau externe desactive »).
+    const pnpmSandbox = path.join(TMP, 'pnpm-controle-negatif');
+    fs.mkdirSync(pnpmSandbox, { recursive: true });
+    const pnpmManifest = path.join(pnpmSandbox, 'package.json');
+    const pnpmSandboxLock = path.join(pnpmSandbox, 'pnpm-lock.yaml');
+
+    const manifestNodeSync = `${JSON.stringify(
+      {
+        name: 'bench-t00-a6-controle',
+        version: '0.0.0',
+        private: true,
+        dependencies: {},
+      },
+      null,
+      2,
+    )}\n`;
+    const manifestNodeDrifted = `${JSON.stringify(
+      {
+        name: 'bench-t00-a6-controle',
+        version: '0.0.0',
+        private: true,
+        dependencies: { 'bench-t00-paquet-absent-du-lock': '1.0.0' },
+      },
+      null,
+      2,
+    )}\n`;
+    // Meme garde qu'au-dessus : sans decalage effectif, les deux branches
+    // seraient la meme et le controle serait creux.
+    expect(manifestNodeDrifted).not.toBe(manifestNodeSync);
+
+    fs.writeFileSync(pnpmManifest, manifestNodeSync, 'utf8');
+    const seedNode = run('pnpm', ['install', '--lockfile-only'], {
+      cwd: pnpmSandbox,
+      timeoutMs: 10 * 60 * 1000,
+    });
+    expect({
+      etape: 'lock-de-reference-node',
+      exit: seedNode.code,
+      err: seedNode.code === 0 ? '' : tail(`${seedNode.stdout}\n${seedNode.stderr}`, 15),
+    }).toEqual({ etape: 'lock-de-reference-node', exit: 0, err: '' });
+    expect(fs.existsSync(pnpmSandboxLock) ? 'present' : 'LOCK-DE-REFERENCE-ABSENT').toBe('present');
+
+    // (i) BRANCHE SYNCHRONISEE — la MEME argv que l'installation figee du depot
+    //     doit reussir. Sans elle, le refus de la branche (ii) ne serait
+    //     imputable a rien : une commande cassee refuserait tout aussi bien.
+    const healthyNode = run('pnpm', [...PNPM_FROZEN_INSTALL], {
+      cwd: pnpmSandbox,
+      timeoutMs: 10 * 60 * 1000,
+    });
+    expect({
+      branche: 'manifeste-synchronise',
+      exit: healthyNode.code,
+      err: healthyNode.code === 0 ? '' : tail(`${healthyNode.stdout}\n${healthyNode.stderr}`, 15),
+    }).toEqual({ branche: 'manifeste-synchronise', exit: 0, err: '' });
+
+    // (ii) BRANCHE DECALEE — meme arbre, meme lock, meme argv ; SEUL le
+    //      manifeste a bouge. L'installation doit echouer, et NOMMER sa cause :
+    //      un exit non nul obtenu pour une autre raison (paquet introuvable,
+    //      panne reseau) verdirait le cas sans rien prouver sur le gel.
+    const pnpmSandboxLockBefore = sha256(pnpmSandboxLock);
+    fs.writeFileSync(pnpmManifest, manifestNodeDrifted, 'utf8');
+    const driftedNode = run('pnpm', [...PNPM_FROZEN_INSTALL], {
+      cwd: pnpmSandbox,
+      timeoutMs: 10 * 60 * 1000,
+    });
+    const driftedNodeOut = `${driftedNode.stdout}\n${driftedNode.stderr}`;
+    const refuseNode = driftedNode.code !== 0;
+    const motifNode =
+      /lockfile|pnpm-lock\.yaml/i.test(driftedNodeOut) &&
+      /not up to date|outdated_lockfile|frozen-lockfile/i.test(driftedNodeOut);
+    expect({
+      branche: 'manifeste-desynchronise',
+      refuse: refuseNode,
+      motif: motifNode,
+      sortie: refuseNode && motifNode ? '' : `exit=${String(driftedNode.code)}\n${tail(driftedNodeOut, 15)}`,
+    }).toEqual({ branche: 'manifeste-desynchronise', refuse: true, motif: true, sortie: '' });
+
+    // Le refus n'autorise pas davantage la reecriture du lock, cote Node non
+    // plus : le gel vaut aussi dans la branche qui echoue.
+    expect({ lockfile: 'bac-a-sable/pnpm-lock.yaml', sha256: sha256(pnpmSandboxLock) }).toEqual({
+      lockfile: 'bac-a-sable/pnpm-lock.yaml',
+      sha256: pnpmSandboxLockBefore,
+    });
+
+    console.log(
+      `[T00.A6] controle negatif pnpm ${PNPM_FROZEN_INSTALL.join(' ')} : ` +
+        `manifeste synchronise -> exit ${String(healthyNode.code)}, ` +
+        `manifeste desynchronise -> exit ${String(driftedNode.code)}`,
     );
 
     // Et la mutation doit etre detectable : l'empreinte depend bien du contenu.

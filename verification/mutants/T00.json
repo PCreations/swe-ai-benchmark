@@ -51,7 +51,24 @@
     "cyclique. T00.M8 est leur contre-epreuve, et A4 les exerce sur trois",
     "registres DERIVES du meme registre synthetique isole, de sorte que la seule",
     "difference entre le registre accepte et le registre refuse soit la",
-    "corruption nommee."
+    "corruption nommee.",
+    "",
+    "SYMETRIE DU GEL (A6, suite). Le meme trou existait des DEUX cotes et n'etait",
+    "bouche que d'un. L'egalite des empreintes prouve qu'une commande ne REECRIT",
+    "pas le lock ; elle ne prouve pas qu'elle le FAIT RESPECTER. T00.M7 le montrait",
+    "cote uv ; cote pnpm, le refus d'un manifeste decale etait AFFIRME en",
+    "commentaire et jamais OBSERVE. T00.M9 est sa contre-epreuve : A6 rejoue",
+    "desormais l'argv Node du depot sur un bac a sable desynchronise et exige un",
+    "refus qui NOMME sa cause. Mesure sur pnpm 10.33.0, manifeste decale d'une",
+    "dependance directe absente du lock : `--frozen-lockfile` sort en 1 avec",
+    "ERR_PNPM_OUTDATED_LOCKFILE, avant toute requete au registre ; sans le drapeau,",
+    "le refus disparait et l'outil part resoudre. Mesure des deux argv sur le bac",
+    "a sable : `install --frozen-lockfile` -> sain 0, decale 1, motif VRAI ;",
+    "`install` -> sain 0, decale 1 mais motif FAUX (ERR_PNPM_FETCH_404). C'est donc",
+    "`motif`, et non le code de sortie, qui tue A6 sous la mutation.",
+    "A6 porte donc TROIS mutants :",
+    "M6 (l'artefact bouge), M7 et M9 (la commande cesse de refuser, cote uv puis",
+    "cote pnpm)."
   ],
   "schema": "bench.mutants/1",
   "task": "T00",
@@ -61,7 +78,7 @@
     "T00"
   ],
   "acceptance_entry": "acceptance/T00.spec.ts",
-  "mutant_count": 8,
+  "mutant_count": 9,
   "mutants": [
     {
       "id": "T00.M1",
@@ -159,7 +176,7 @@
       "target": "Les lockfiles pnpm-lock.yaml et analysis/uv.lock, en tant qu'ARTEFACTS : leur contenu doit survivre a l'installation figee. L'affaiblissement de la COMMANDE d'installation est l'objet distinct du mutant T00.M7.",
       "mutation": "Faire muter le lockfile pendant l'installation figee : retirer le drapeau de gel cote pnpm (`pnpm install` sans --frozen-lockfile) sur un arbre dont le manifeste a ete legerement decale, de sorte que l'outil reecrive pnpm-lock.yaml ; ou, de facon equivalente et plus directe, ajouter un octet a analysis/uv.lock entre le calcul de l'empreinte avant et celui d'apres. ATTENTION \u2014 retirer le drapeau cote uv (`uv sync` tout court) n'est PAS une variante equivalente de ce mutant : uv reecrirait le lock, certes, mais le passage inverse `--locked` -> `--frozen` ne le reecrit pas et laissait pourtant A6 vert. C'est exactement ce que T00.M7 couvre a part.",
       "expected_effect": "T00.A6 devient rouge.",
-      "observation_qui_echoue": "A6 calcule le sha256 de pnpm-lock.yaml ET de analysis/uv.lock avant l'installation figee, execute `pnpm install --frozen-lockfile` puis la commande uv figee du depot (`uv sync --locked`, cf. T00.M7) en exigeant exit 0 pour les deux, recalcule les empreintes et exige l'egalite fichier par fichier. Toute reecriture change l'empreinte : l'egalite tombe. Si la mutation porte sur le manifeste au lieu du lockfile, c'est l'installation figee elle-meme qui sort en non-zero cote pnpm, et c'est encore A6 qui tombe \u2014 mais cette derniere phrase ne vaut PAS cote Python : `uv sync --frozen` sort en 0 sur un manifeste decale. Le refus cote Python est prouve par le controle negatif d'A6, dont T00.M7 est la contre-epreuve.",
+      "observation_qui_echoue": "A6 calcule le sha256 de pnpm-lock.yaml ET de analysis/uv.lock avant l'installation figee, execute `pnpm install --frozen-lockfile` puis la commande uv figee du depot (`uv sync --locked`, cf. T00.M7) en exigeant exit 0 pour les deux, recalcule les empreintes et exige l'egalite fichier par fichier. Toute reecriture change l'empreinte : l'egalite tombe. Si la mutation porte sur le manifeste au lieu du lockfile, c'est l'installation figee elle-meme qui sort en non-zero cote pnpm \u2014 et cette phrase n'est plus une affirmation : A6 l'OBSERVE desormais dans son controle negatif Node, dont T00.M9 est la contre-epreuve. Elle ne vaut de toute facon PAS cote Python : `uv sync --frozen` sort en 0 sur un manifeste decale ; ce refus-la est prouve par le controle negatif uv d'A6, dont T00.M7 est la contre-epreuve.",
       "pourquoi_cette_perturbation": "Cas `artifact` : A6 n'appelle aucun export metier, donc stuber un module ne changerait rien \u2014 le cas resterait vert et la porte de necessite usuelle ne prouverait rien. Seule la mutation de l'artefact mord. A6 embarque en outre un temoin : une copie du lockfile est modifiee d'un octet et son empreinte doit changer, ce qui interdit l'implementation degeneree ou la comparaison porterait sur une constante ou sur un fichier absent. Ce mutant prouve la premiere moitie du gel (le lock ne bouge pas) ; il ne prouve pas la seconde (un manifeste desynchronise est refuse), qui revient a T00.M7.",
       "doit_rester_vert": [
         "T00.A2",
@@ -178,7 +195,7 @@
       "mutation": "Revenir a `uv sync --frozen` (ou, dans une variante qui l'employait, retirer le `uv lock --check` prealable). `--frozen` n'est pas l'equivalent uv de `--frozen-lockfile` : il signifie \u00ab n'examine meme pas pyproject.toml, installe le lock tel quel \u00bb et n'affirme donc rien sur la coherence manifeste/lock. La mutation ne reecrit aucun lockfile et ne casse aucune installation saine : elle retire uniquement le refus.",
       "expected_effect": "T00.A6 devient rouge.",
       "observation_qui_echoue": "A6 porte un CONTROLE NEGATIF a deux branches, sur un bac a sable jetable qu'il synthetise lui-meme (manifeste minimal + lock genere par `uv lock`), sans jamais toucher l'arbre du depot. Branche (i) manifeste synchronise : la commande figee doit sortir en 0. Branche (ii) meme arbre, meme lock, meme argv, SEUL le manifeste a bouge d'une dependance directe absente du lock : la commande doit sortir en non-zero ET nommer sa cause (le lockfile a mettre a jour), faute de quoi une panne de resolution ou un uv absent verdirait le cas pour la mauvaise raison. Sous la mutation, la branche (ii) sort en 0 \u2014 `refuse` et `motif` tombent ensemble. Mesure faite : avec `--locked`, (i) exit 0 et (ii) exit 1 ; avec `--frozen`, (i) exit 0 et (ii) exit 0. La branche (i) est ce qui interdit l'implementation degeneree inverse : une commande qui echouerait toujours satisferait la branche (ii) sans rien prouver.",
-      "pourquoi_cette_perturbation": "Sans ce mutant, la moitie Python d'A6 etait VERTE sans rien asserter : `uv sync --frozen` ne reecrit pas le lock, donc l'egalite des empreintes tenait, et il sort en 0 sur un manifeste decale, donc l'assertion de reussite tenait aussi \u2014 un cas vert pour la mauvaise raison, exactement ce que le cahier (L139) refuse : \u00ab une preuve comporte des sorties effectivement observees \u00bb. Le gel exige DEUX proprietes, pas une : le lock n'est pas reecrit (T00.M6) et un manifeste desynchronise fait echouer l'installation (ce mutant-ci). La perturbation est du type `rendre PERMISSIF` et non `casser` : casser la commande ferait echouer les deux branches, y compris la branche saine, et le cas tomberait pour une raison sans rapport avec le gel.",
+      "pourquoi_cette_perturbation": "Sans ce mutant, la moitie Python d'A6 etait VERTE sans rien asserter : `uv sync --frozen` ne reecrit pas le lock, donc l'egalite des empreintes tenait, et il sort en 0 sur un manifeste decale, donc l'assertion de reussite tenait aussi \u2014 un cas vert pour la mauvaise raison, exactement ce que le cahier (L139) refuse : \u00ab une preuve comporte des sorties effectivement observees \u00bb. Le gel exige DEUX proprietes, pas une : le lock n'est pas reecrit (T00.M6) et un manifeste desynchronise fait echouer l'installation (ce mutant-ci). La perturbation est du type `rendre PERMISSIF` et non `casser` : casser la commande ferait echouer les deux branches, y compris la branche saine, et le cas tomberait pour une raison sans rapport avec le gel. Son jumeau cote Node est T00.M9 : le gel est une propriete de CHAQUE chaine verrouillee, pas d'une seule.",
       "doit_rester_vert": [
         "T00.A1",
         "T00.A2",
@@ -204,6 +221,25 @@
         "T00.A3",
         "T00.A5",
         "T00.A6"
+      ]
+    },
+    {
+      "id": "T00.M9",
+      "kills_case": "T00.A6",
+      "proof_kind": "artifact",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "La commande d'installation figee cote Node \u2014 le point UNIQUE ou A6 definit l'argv `pnpm`, employee a la fois par l'installation de l'arbre du depot et par son controle negatif.",
+      "mutation": "Retirer le drapeau de gel : revenir a `pnpm install` (ou `pnpm install --no-frozen-lockfile`). La mutation ne casse aucune installation saine et, sur l'arbre du depot, ne reecrit meme rien tant que manifeste et lock concordent : elle retire uniquement le REFUS du manifeste decale.",
+      "expected_effect": "T00.A6 devient rouge.",
+      "observation_qui_echoue": "A6 porte, en plus du controle negatif uv, un CONTROLE NEGATIF NODE a deux branches, sur un bac a sable jetable qu'il synthetise lui-meme (package.json sans aucune dependance + lock genere par `pnpm install --lockfile-only`), sans jamais toucher l'arbre du depot. Branche (i) manifeste synchronise : l'argv figee doit sortir en 0. Branche (ii) meme arbre, meme lock, meme argv, SEUL le manifeste a bouge d'une dependance directe absente du lock : la commande doit sortir en non-zero ET nommer sa cause (le lockfile qui n'est plus a jour avec le manifeste), faute de quoi un paquet introuvable ou une panne reseau verdirait le cas pour la mauvaise raison. Sous la mutation, le refus disparait : soit la resolution aboutit et la branche (ii) sort en 0, soit elle echoue sur une cause etrangere au gel (ERR_PNPM_FETCH_404 mesure sur le bac a sable, dont la dependance ajoutee n'existe dans aucun registre) et c'est `motif` qui tombe. Dans les deux cas l'egalite du controle negatif tombe. Le lock du bac a sable est en outre compare avant/apres la branche refusee : le gel vaut aussi dans la branche qui echoue.",
+      "pourquoi_cette_perturbation": "Cas `artifact` : A6 n'appelle aucun export metier, et T00.M6 en couvre deja la moitie artefactuelle (le lock ne doit pas bouger). Mais cette moitie-la est satisfaite par une commande qui n'ouvre JAMAIS le manifeste \u2014 c'est litteralement le cas de `uv sync --frozen`, et rien ne garantissait a priori que `pnpm install` sans drapeau se comporte mieux. \u00ab Le lockfile reste inchange apres installation figee \u00bb (cahier L155) exige les deux proprietes sur CHAQUE chaine verrouillee (cahier L151 : workspace pnpm ET environnement Python verrouille). La perturbation est du type `rendre PERMISSIF` et non `casser` : casser la commande ferait echouer les deux branches, y compris la branche saine, et le cas tomberait pour une raison sans rapport avec le gel. Sans ce mutant, la moitie Node du refus etait AFFIRMEE en commentaire et jamais observee \u2014 exactement ce que le cahier (L139) refuse.",
+      "doit_rester_vert": [
+        "T00.A1",
+        "T00.A2",
+        "T00.A3",
+        "T00.A4",
+        "T00.A5"
       ]
     }
   ]

@@ -1,150 +1,137 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// @bench/storage — SQUELETTE du stockage immuable d'artefacts (tâche T13,
-// cahier L265-L272).
+// LE PORT `ArtifactStore` (tâche T13, cahier L265-L272).
 //
-// CE FICHIER NE CONTIENT AUCUNE RÈGLE MÉTIER. Il déclare les rôles que
-// `acceptance/T13.spec.ts` nomme en §IV de son en-tête, et chacun lève
-// `NotImplemented`. C'est l'étage ROUGE : le contrat existe, le comportement
-// n'existe pas encore.
+// L267 énumère trois livrables : « port `ArtifactStore`, adaptateur local et
+// manifeste de contenu ». Ce fichier est le PORT — la façade que le reste du
+// moteur appelle, et la seule surface que T14 devra reproduire sur un service
+// objet réel (L273). L'adaptateur local vit dans src/artifact-local.ts,
+// l'extraction bornée dans src/artifact-archive.ts, et le manifeste de contenu
+// est la valeur que toute écriture acceptée rend.
 //
-// POURQUOI DÉCLARER PLUTÔT QUE LAISSER ABSENT.
-// Sans ces exports, les six cas de T13 tombent tous sur la MÊME assertion,
-// `CONTRAT-NON-SATISFAIT` : un rouge qui ne prouve que l'absence d'un nom.
-// `verification/runner/red.mjs` refuse précisément ce genre de rouge par
-// défaut (« un rouge dont la cause est un module introuvable […] n'est PAS une
-// preuve »). Une fois les rôles déclarés, chaque cas échoue sur un APPEL RÉEL,
-// à l'endroit que le cas vérifie.
+// POURQUOI UN PORT SÉPARÉ DE SON ADAPTATEUR, ALORS QU'IL N'EN EXISTE QU'UN.
+// L34 : « le cœur métier ne dépend ni de Temporal, ni de Docker […] les
+// interfaces sont implémentées par adaptateurs. » Un appelant qui importerait
+// `LocalArtifactStore` ferait entrer le système de fichiers dans sa propre
+// définition ; il n'importe ici que six rôles, dont aucun ne nomme un disque.
 //
-// POURQUOI AUCUN RÔLE NE REND DE VALEUR PLAUSIBLE.
-// T13 porte trois cas de refus (A3, A4, A6) et un cas d'absence (A5).
-// `verification/mutants/T13.json` le dit en toutes lettres : « pour les cas
-// refusal, un stub qui lève rend le cas VERT ; pour le cas absence, une
-// implémentation qui n'écrit JAMAIS rien satisfait "l'écriture interrompue
-// n'est pas visible" sans rien prouver ». Ces quatre cas restent pourtant
-// rouges ici, et pas par chance : chacun embarque un CONTRÔLE POSITIF qu'une
-// exception ne peut pas simuler — A3 relit les octets AVANT de corrompre, A4
-// relit la référence là où l'objet EST, A5 écrit un témoin SANS interruption
-// dans un magasin jumeau, A6 extrait une archive BÉNIGNE. Rendre un buffer
-// vide, `null` ou une liste vide verdirait au contraire ces moitiés-là à vide.
+// LES SIX RÔLES, ET CE QUE CHACUN DOIT AU CAHIER.
+//   openArtifactStore({ root })                    adaptateur local     L267
+//   putArtifact(h, octets, opts?)                  manifeste de contenu L267
+//   getArtifact(h, ref)                            relecture exacte     L269
+//   listArtifacts(h)                               objets FINAUX        L269
+//   extractArchive(h, { archive_path, dest_dir })  extraction bornée    L269
+//   artifactSizeLimit()                            limite déclarée      L271
 //
-// `artifactSizeLimit` lève aussi, au lieu de rendre un nombre. L271 exige une
-// « limite de taille déclarée » et n'en donne aucune valeur ; publier ici un
-// entier choisi au hasard satisferait l'assertion d'A1 alors qu'aucune limite
-// n'est appliquée nulle part. Ce serait le NOM d'une limite, pas une limite.
+// AUCUN DE CES RÔLES NE LÈVE `NotImplemented` : le squelette a disparu avec
+// l'implémentation qu'il annonçait. Ce qu'ils lèvent désormais est un
+// `ArtifactRefusal`, qui porte un code nommant sa cause — `ARTIFACT_CORRUPT`
+// et `ARTIFACT_MISSING` sont les deux que L269 fixe littéralement.
 //
-// Les noms primaires sont retenus, sans alias : la liste d'alias de la suite
-// est une tolérance de NOMMAGE du côté de qui appelle, jamais une invitation à
-// en inventer un ici.
+// CE QUE T13 NE PRÉTEND PAS FAIRE. Rien sur un service objet réel, les
+// identités limitées par préfixe ni les transferts repris : c'est T14 (L273).
+// Rien sur la cohérence d'un point de reprise entre base, fichiers et files :
+// c'est T15 (L281). Rien sur l'isolation du candidat : c'est T19 (L317). T13
+// n'en porte que la part qui vit dans le stockage — un nom de fichier fourni
+// par un candidat n'atteint jamais un chemin du stockage central (L271).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { NotImplemented } from '@bench/contracts'
+import {
+  ARTIFACT_SIZE_LIMIT_BYTES,
+  getLocalArtifact,
+  listLocalArtifacts,
+  openLocalArtifactStore,
+  putLocalArtifact,
+} from './artifact-local.js'
+import { extractArchiveInto } from './artifact-archive.js'
+import type { ArtifactManifest } from './artifact-local.js'
+import type { ExtractArchiveReport } from './artifact-archive.js'
 
-/** Cible de l'adaptateur LOCAL (L267) : la racine d'un répertoire existant. */
-export interface ArtifactStoreTarget {
-  /** Chemin absolu d'un répertoire existant. */
-  root: string
-}
+export {
+  ARTIFACT_DIGEST_ALGORITHM,
+  ARTIFACT_SIZE_LIMIT_BYTES,
+  LocalArtifactStore,
+  isLocalArtifactStore,
+} from './artifact-local.js'
+export type {
+  ArtifactFault,
+  ArtifactManifest,
+  ArtifactStoreTarget,
+  PutArtifactOptions,
+} from './artifact-local.js'
+export type { ExtractArchiveReport, ExtractArchiveRequest } from './artifact-archive.js'
 
 /**
- * Le MANIFESTE DE CONTENU de L267, rendu par une écriture acceptée.
+ * Ouvre l'adaptateur local sur une racine de répertoire existante (L267).
  *
- * L'empreinte est PUBLIÉE, et non seulement interne : sans cela, « empreintes
- * vérifiées avant usage » (L271) serait invérifiable de l'extérieur.
+ * La cible est un objet PLAT et STRICT : `{ root }`, et rien d'autre. L80 veut
+ * qu'une propriété inconnue soit rejetée, et un contrat qui accepterait
+ * silencieusement une clé qu'il ignore laisserait un appelant croire qu'il a
+ * configuré quelque chose.
  */
-export interface ArtifactManifest {
-  /** La référence de contenu (L269). Le cahier n'en fixe pas le format. */
-  ref: string
-  /** SHA-256 hexadécimal des octets écrits (L82). */
-  digest: string
-  /** Taille en octets. */
-  size: number
+export function openArtifactStore(target: unknown): unknown {
+  return openLocalArtifactStore(target)
 }
 
 /**
- * Le POINT D'INJECTION NOMMÉ de L141, seule valeur admise.
+ * Écrit des octets bruts et rend le MANIFESTE DE CONTENU (L267).
  *
- * `INTERRUPT_BEFORE_PUBLISH` : les octets sont écrits, puis l'écriture est
- * interrompue AVANT la publication de l'objet final. Sans lui, « une écriture
- * interrompue » (A5) ne serait pas reproductible.
- */
-export type ArtifactFault = 'INTERRUPT_BEFORE_PUBLISH'
-
-export interface PutArtifactOptions {
-  fault?: ArtifactFault
-}
-
-/** Les deux chemins ABSOLUS d'une extraction bornée (L269). */
-export interface ExtractArchiveRequest {
-  archive_path: string
-  dest_dir: string
-}
-
-/** Ce qu'une extraction acceptée rapporte. Une extraction réussie peut ne rien rendre. */
-export interface ExtractArchiveReport {
-  entries: readonly string[]
-}
-
-/**
- * Ouvre l'adaptateur local sur une racine de répertoire (L267).
+ * Le manifeste PUBLIE l'empreinte : sans elle, « empreintes vérifiées avant
+ * usage » (L271) serait invérifiable depuis l'extérieur, et la vérification se
+ * réduirait à une promesse interne.
  *
- * SQUELETTE — lève `NotImplemented`.
- */
-export function openArtifactStore(_target: unknown): unknown {
-  throw new NotImplemented('storage.openArtifactStore')
-}
-
-/**
- * Écrit des octets bruts et rend le manifeste de contenu (L267).
- *
- * SQUELETTE — lève `NotImplemented`.
+ * Le troisième argument porte le point d'injection nommé de L141. C'est un
+ * livrable : une écriture interrompue doit être reproductible, sinon A5 se
+ * réduirait à espérer une panne au bon moment.
  */
 export function putArtifact(
-  _handle: unknown,
-  _bytes: unknown,
-  _options?: PutArtifactOptions,
+  handle: unknown,
+  bytes: unknown,
+  options?: unknown,
 ): ArtifactManifest {
-  throw new NotImplemented('storage.putArtifact')
+  return putLocalArtifact(handle, bytes, options)
 }
 
 /**
  * Relit les octets EXACTS d'une référence, ou refuse par un code nommé
  * (`ARTIFACT_CORRUPT`, `ARTIFACT_MISSING` — L269).
  *
- * SQUELETTE — lève `NotImplemented`.
+ * Une lecture refusée ne rend AUCUN octet. Rendre un tampon vide serait la
+ * permissivité que A4 condamne : l'appelant ne pourrait plus distinguer un
+ * objet vide d'un objet absent.
  */
-export function getArtifact(_handle: unknown, _ref: unknown): Uint8Array {
-  throw new NotImplemented('storage.getArtifact')
+export function getArtifact(handle: unknown, ref: unknown): Uint8Array {
+  return getLocalArtifact(handle, ref)
 }
 
 /**
- * Rend ce que le magasin publie comme objets FINAUX (L269) : c'est ce rôle qui
- * rend la visibilité observable, donc le cas d'absence A5 vérifiable.
+ * Rend ce que le magasin publie comme objets FINAUX (L269).
  *
- * SQUELETTE — lève `NotImplemented`.
+ * C'est ce rôle qui rend la VISIBILITÉ observable, donc « n'est pas visible
+ * comme objet final » vérifiable. Une écriture restée en transit n'y figure
+ * pas : elle n'a jamais franchi sa publication.
  */
-export function listArtifacts(_handle: unknown): readonly ArtifactManifest[] {
-  throw new NotImplemented('storage.listArtifacts')
+export function listArtifacts(handle: unknown): readonly ArtifactManifest[] {
+  return listLocalArtifacts(handle)
 }
 
 /**
- * Extraction bornée à la destination (L269, L271) : un nom de fichier porté par
- * une archive n'est jamais concaténé directement à un chemin du stockage.
+ * Extraction bornée à la destination (L269, L271).
  *
- * SQUELETTE — lève `NotImplemented`.
+ * Le magasin passé en premier argument n'est pas consulté : une extraction est
+ * bornée par la destination qu'on lui donne. Le rôle vit néanmoins sur le port
+ * du stockage, parce que c'est là qu'est écrite la règle de L271 sur les noms
+ * de fichiers fournis par un candidat.
  */
-export function extractArchive(
-  _handle: unknown,
-  _request: ExtractArchiveRequest,
-): ExtractArchiveReport {
-  throw new NotImplemented('storage.extractArchive')
+export function extractArchive(_handle: unknown, request: unknown): ExtractArchiveReport {
+  return extractArchiveInto(request)
 }
 
 /**
- * La LIMITE DE TAILLE DÉCLARÉE de L271. Le cahier n'en fixe pas la valeur ; ce
- * squelette n'en invente donc aucune.
+ * LA LIMITE DE TAILLE DÉCLARÉE de L271, en octets.
  *
- * SQUELETTE — lève `NotImplemented`.
+ * Elle est appliquée à chaque écriture et à chaque entrée d'archive ; la
+ * publier sans l'imposer en ferait le nom d'une limite, pas une limite.
  */
 export function artifactSizeLimit(): number {
-  throw new NotImplemented('storage.artifactSizeLimit')
+  return ARTIFACT_SIZE_LIMIT_BYTES
 }

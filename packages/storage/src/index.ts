@@ -20,10 +20,11 @@
 //   readPeriodResult(h, { idempotency_key })  relecture               (L261 A1)
 //   publishRetryLimit()                       la limite fixée         (L261 A6)
 //
-// AUCUN DES SIX RÔLES DE T12 NE LÈVE `NotImplemented` : leur squelette a
-// disparu avec l'implémentation qu'il annonçait. Les six rôles d'ARTEFACTS
-// ajoutés plus bas (tâche T13, L265-L272) lèvent tous, eux : c'est leur étage
-// rouge, et src/artifacts.ts dit pourquoi.
+// LES SIX RÔLES D'ARTEFACTS de T13 (L265-L272) sont publiés plus bas. Aucun des
+// douze rôles de ce paquet ne lève désormais `NotImplemented` : les squelettes
+// ont disparu avec les implémentations qu'ils annonçaient. Ce que les rôles
+// d'artefacts lèvent est un `ArtifactRefusal`, qui porte un code nommant sa
+// cause — src/artifacts.ts décrit le port, src/artifact-local.ts l'adaptateur.
 //
 // CE QUE CE PAQUET NE PRÉTEND PAS FAIRE. Une transaction garantit les effets
 // LOCAUX ; elle ne rend pas une requête fournisseur distante exactement unique
@@ -50,9 +51,14 @@ export { CentralStore, isCentralStore } from './store.js'
 export { STORAGE_REFUSAL_CODES, StorageRefusal, isStorageRefusal } from './errors.js'
 export type { StorageRefusalCode } from './errors.js'
 
-// ── T13 — stockage immuable d'artefacts (L265-L272). SQUELETTE : chacun de ces
-//    six rôles lève `NotImplemented`. Voir src/artifacts.ts pour la raison de
-//    chaque refus, et pourquoi aucun ne rend de valeur plausible.
+// ── T13 — stockage immuable d'artefacts (L265-L272).
+//
+//    openArtifactStore({ root })                    adaptateur local     L267
+//    putArtifact(h, octets, opts?)                  manifeste de contenu L267
+//    getArtifact(h, ref)                            relecture exacte     L269
+//    listArtifacts(h)                               objets FINAUX        L269
+//    extractArchive(h, { archive_path, dest_dir })  extraction bornée    L269
+//    artifactSizeLimit()                            limite déclarée      L271
 export {
   openArtifactStore,
   putArtifact,
@@ -60,6 +66,12 @@ export {
   listArtifacts,
   extractArchive,
   artifactSizeLimit,
+} from './artifacts.js'
+export {
+  ARTIFACT_DIGEST_ALGORITHM,
+  ARTIFACT_SIZE_LIMIT_BYTES,
+  LocalArtifactStore,
+  isLocalArtifactStore,
 } from './artifacts.js'
 export type {
   ArtifactFault,
@@ -69,6 +81,9 @@ export type {
   ExtractArchiveRequest,
   PutArtifactOptions,
 } from './artifacts.js'
+
+export { ARTIFACT_REFUSAL_CODES, ArtifactRefusal, isArtifactRefusal } from './artifact-errors.js'
+export type { ArtifactRefusalCode } from './artifact-errors.js'
 
 export type {
   PeriodRecord,

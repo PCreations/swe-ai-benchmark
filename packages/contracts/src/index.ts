@@ -81,5 +81,27 @@ export type { Clock } from './clock.js'
 // plus aucun export public de ce paquet ne le lève.
 export { NotImplemented, isNotImplemented } from './not-implemented.js'
 
-export { CAMPAIGN_MANIFEST_REQUIRED_FIELDS, SEED_STREAMS } from './manifest.js'
-export type { BudgetSpec, CampaignManifest, CorpusRef, SeedSet, SeedStream } from './manifest.js'
+// ── T03 : le manifeste de campagne du §E, sous ses DEUX formes. Les interfaces
+//    servent au code qui le construit ; `CAMPAIGN_MANIFEST_SCHEMA` sert au code
+//    qui le reçoit en JSON et doit rejeter une propriété inconnue (L80) — une
+//    interface TypeScript ne survit pas à l'exécution et ne peut rien rejeter.
+export {
+  CAMPAIGN_MANIFEST_REQUIRED_FIELDS,
+  CAMPAIGN_MANIFEST_SCHEMA,
+  CORPUS_DIGEST_FIELD,
+  SEED_STREAMS,
+} from './manifest.js'
+export type {
+  BudgetSpec,
+  CampaignManifest,
+  ConfigurationSpec,
+  CorpusEntry,
+  CorpusRef,
+  ManifestDocument,
+  ManifestSchemaNode,
+  PolicySet,
+  ProjectSpec,
+  ScenarioSpec,
+  SeedSet,
+  SeedStream,
+} from './manifest.js'

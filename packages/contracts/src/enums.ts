@@ -62,13 +62,37 @@ export type CallState = (typeof CALL_STATES)[number]
  * être rejeté. » Les trois champs existent donc au niveau des contrats ; la
  * règle de rejet elle-même appartient à l'évaluation.
  */
-export const EXECUTION_MODES = ['SIMULATED', 'LIVE'] as const
+/**
+ * §B, cahier L20-L21 : le tableau « Deux modes » nomme LITTÉRALEMENT ses deux
+ * membres, en minuscules — `recorded` et `live`. L169 les réemploie tels quels
+ * (`bench demo --mode recorded`).
+ *
+ * CORRECTION ASSUMÉE (T03). Ce constant valait `['SIMULATED', 'LIVE']`, deux
+ * valeurs qui n'apparaissent nulle part dans le cahier. Aucune suite
+ * d'acceptation ne s'y référait — le tableau n'était lu par aucun test, donc
+ * l'écart n'avait jamais été observé. Il l'est à T03, dont le manifeste archivé
+ * porte `"execution_mode": "recorded"` : garder `SIMULATED` aurait obligé à
+ * écrire une validation qui contredit le §B pour satisfaire une fixture, ou à
+ * réécrire la fixture pour satisfaire le code. Les deux sont interdits.
+ */
+export const EXECUTION_MODES = ['recorded', 'live'] as const
 export type ExecutionMode = (typeof EXECUTION_MODES)[number]
 
 export const COST_ORIGINS = ['FICTIONAL_GRID', 'PROVIDER_INVOICE'] as const
 export type CostOrigin = (typeof COST_ORIGINS)[number]
 
-export const CORPUS_PROVENANCES = ['PUBLIC_FIXTURE', 'PRIVATE_FIXTURE', 'ATTACK_FIXTURE'] as const
+/**
+ * §H, cahier L413 : « sa provenance reste synthétique ou hybride selon les
+ * sources ». Deux membres, donc, et non trois.
+ *
+ * CORRECTION ASSUMÉE (T03), même nature que celle d'`EXECUTION_MODES` : ce
+ * constant valait `['PUBLIC_FIXTURE', 'PRIVATE_FIXTURE', 'ATTACK_FIXTURE']`,
+ * qui transcrit L54 — les SOUS-DOSSIERS de `fixtures` (« publics, privés et
+ * attaques de test »). Un dossier de fixtures et la provenance d'un corpus sont
+ * deux notions distinctes ; la confusion plaçait dans un enum du §E des valeurs
+ * que le §E ne mentionne pas.
+ */
+export const CORPUS_PROVENANCES = ['synthetic', 'hybrid'] as const
 export type CorpusProvenance = (typeof CORPUS_PROVENANCES)[number]
 
 /** Appartenance à un enum, avec rétrécissement de type. */

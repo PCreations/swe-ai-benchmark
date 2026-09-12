@@ -10,9 +10,16 @@
 // T03 : « aucune création de worker pendant une compilation de manifeste »
 // (L183) n'est pas une promesse, c'est une impossibilité de typage.
 //
-// À ce commit le paquet n'expose qu'un SQUELETTE (voir campaign.ts) : l'étage
-// rouge de T03 exige que les six cas échouent sur une assertion de
-// comportement, pas sur un nom introuvable.
+// À ce commit le paquet porte T03 : validation structurée d'un manifeste de
+// campagne, et planificateur pur de ses cellules.
 // ─────────────────────────────────────────────────────────────────────────────
 export { compileCampaignManifest } from './campaign.js'
-export type { CompileOptions } from './campaign.js'
+export type { CampaignCell, CampaignPlan, CompileOptions } from './campaign.js'
+
+export {
+  MANIFEST_REJECTION_KINDS,
+  ManifestRejection,
+  isManifestRejection,
+  validateCampaignManifest,
+} from './manifest-validation.js'
+export type { ManifestRejectionKind } from './manifest-validation.js'

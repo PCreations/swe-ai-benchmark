@@ -771,7 +771,13 @@ tache dont une dependance est STALE reste affichee « W attend » meme si sa
 propre attestation vient d'etre poussee. Ton etage ramene le tableau a son point
 fixe.
 
-BOUCLE, 5 ITERATIONS AU PLUS :
+BOUCLE, 44 ITERATIONS AU PLUS — une par tache, et ce plafond n'est PAS
+arbitraire : la cascade de dependances est strictement SEQUENTIELLE. A chaque
+instant une seule tache est STALE (la racine de la chaine) ; les suivantes sont
+WAITING derriere elle. Tu ne peux donc re-attester qu'UNE tache par iteration,
+et il en faut autant que de taches deja prouvees. Un plafond de 5 a fonctionne
+tant qu'il y en avait 4 ; il a echoue des la 11e (SETTLE_NON_CONVERGENT observe).
+Chaque \`accept\` coute ~14 s : 44 iterations restent bon marche.
   1. \`node tools/bench resume --json\`. Lis le champ \`stale\`.
   2. S'il est vide : termine, ok=true, dis combien d'iterations il a fallu.
   3. Sinon, pour CHAQUE tache de \`stale\`, dans l'ordre :
@@ -784,7 +790,7 @@ BOUCLE, 5 ITERATIONS AU PLUS :
   4. \`git push --atomic origin ${BRANCH} ${LEDGER}\` (4 reprises, 2s/4s/8s/16s).
   5. Recommence.
 
-Si apres 5 iterations \`stale\` n'est toujours pas vide, rends ok=false avec
+Si apres 44 iterations \`stale\` n'est toujours pas vide, rends ok=false avec
 l'etat \`SETTLE_NON_CONVERGENT\`, la liste des taches restantes ET le refus exact
 de chacune. Ne cherche pas a resoudre plus loin : une non-convergence est un fait
 a rapporter, pas a contourner.

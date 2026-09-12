@@ -67,7 +67,38 @@
     "D'ou deux mutants distincts sur A6 : M8 supprime la reprise (la borne n'est",
     "jamais atteinte parce qu'il n'y a plus de boucle), M9 desolidarise la borne",
     "ANNONCEE de la borne RESPECTEE (la boucle existe, mais la limite publiee ne",
-    "decrit plus rien). Un seul des deux ne suffit pas."
+    "decrit plus rien). Un seul des deux ne suffit pas.",
+    "",
+    "RECTIFICATION DE LA CARTE DE SPECIFICATION, ET CE QU'ELLE A CHANGE ICI.",
+    "La premiere version de la suite affirmait qu'« aucune fixture de §F ne porte",
+    "sur T12 ». docs/specs/T12.md dit desormais le contraire : la carte epingle",
+    "QUATRE fixtures maitresses sur les cas de T12 — F-FAILURE (A1, A4, A5),",
+    "F-MONEY (A1, A5), F-BUDGET (A1, A2, A6) et F-RESERVATION (A1, A2, A5). Elles",
+    "ne decrivent pas la persistance : elles decrivent l'ETAT METIER que la",
+    "persistance doit rendre intact et les CARDINAUX que la concurrence ne doit",
+    "pas faire bouger. La suite les IMPORTE donc de la racine gelee et compare",
+    "contre elles, au lieu de comparer un aller-retour contre lui-meme : A1",
+    "republie les quatre periodes de F-FAILURE et exige, apres arret/reconnexion,",
+    "Q=[0,0,0,0], R=[0,0,0,0], couts=[100,50,0,0] et leur SOMME ENTIERE 150 ; A4",
+    "exige que la panne avant commit n'ajoute aucune facture (ecart de total = 0)",
+    "et n'efface aucune periode deja ecrite ; A5 exige qu'apres panne apres commit",
+    "et deux reprises le total persiste vaille encore 340 — 680 etant la valeur",
+    "que le cahier donne lui-meme a DEUX appels identiques ; A2 et A6 comptent les",
+    "lignes logiques contre `doublons`=0, `confirmees`=1 et `acceptees_au_plus`=1.",
+    "",
+    "TROIS MUTANTS NOUVEAUX (M10, M11, M12) sont les contre-epreuves de ce que ces",
+    "assertions ajoutent, et d'elles seules. Leur champ `mesure` dit ce qui a ete",
+    "OBSERVE et ce qui ne l'a pas ete : contrairement a M1-M9, ils n'ont PAS ete",
+    "exerces sur une sonde jetable. Raison nommee, pas omise : `packages/storage`",
+    "porte desormais une implementation que le role test-author ne lit pas et ne",
+    "touche pas (ADR-001, et la regle des deux cles), et fabriquer une sonde",
+    "concurrente supposerait d'avoir lu ce qu'elle remplace. Ce qui A ETE mesure",
+    "est la contre-epreuve du CAS, pas de l'implementation : les cinq familles",
+    "d'assertions nouvelles ont ete perturbees UNE A UNE dans la suite elle-meme",
+    "(zone ACCEPTANCE) et chacune a fait rougir son cas en NOMMANT la valeur",
+    "observee — 150, 340, 0, et une ligne dans `public.periods`. Une assertion qui",
+    "survit a la falsification de son attendu n'observe rien ; celles-ci n'y",
+    "survivent pas."
   ],
   "schema": "bench.mutants/1",
   "task": "T12",
@@ -77,7 +108,7 @@
     "T12"
   ],
   "acceptance_entry": "acceptance/T12.spec.ts",
-  "mutant_count": 9,
+  "mutant_count": 12,
   "mutants": [
     {
       "id": "T12.M1",
@@ -266,6 +297,62 @@
         "T12.A5"
       ],
       "mesure": "Applique a la sonde jetable (limite annoncee 5, boucle a 8) : A6 SEUL passe au rouge, les cinq autres restent verts. Assertion observee : attendu 5, observe 8."
+    },
+    {
+      "id": "T12.M10",
+      "kills_case": "T12.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point ou l'identite d'une periode est constituee avant d'etre ecrite : les six identifiants de L78 PLUS `period_index`.",
+      "mutation": "Retirer `period_index` de l'identite de periode : les quatre periodes d'une meme trajectoire se superposent sur une seule ligne, la derniere ecrite gagnant. Rien d'autre ne bouge — la cle d'idempotence reste unique, chaque publication rend un recu, et une relecture par cle continue de repondre.",
+      "expected_effect": "T12.A1 devient rouge.",
+      "observation_qui_echoue": "A1 ne publie plus trois enveloppes independantes mais les QUATRE periodes d'une meme trajectoire, celle de F-FAILURE, puis les relit apres arret/reconnexion et en fait la SOMME ENTIERE (L143). Sous la mutation, les quatre periodes ne portent plus qu'un etat metier : la somme relue cesse de valoir 150 (`cout_total` de F-FAILURE), et le comptage des periodes relisibles cesse de valoir 4 (`lignes_conservees`).",
+      "pourquoi_cette_perturbation": "L78 est explicite : « une periode ajoute `period_index` commencant a 1 », de sorte que « les appels 1 et 2 d'une meme periode sont distincts sans devenir deux repetitions scientifiques ». Avant la rectification de la carte, A1 publiait trois enveloppes de cles distinctes et comparait chaque relecture a ce qu'il venait d'ecrire : une implementation qui confond deux periodes d'une meme trajectoire pouvait y survivre, parce que rien n'exigeait que QUATRE periodes coexistent ni que leur agregat vaille une valeur scellee. C'est ce trou que F-FAILURE ferme.",
+      "doit_rester_vert": [
+        "T12.A3"
+      ],
+      "tue_aussi": [
+        "T12.A4"
+      ],
+      "mesure": "NON MESURE sur une implementation : voir le $comment — `packages/storage` porte desormais du code que ce role ne lit pas et ne mute pas. CE QUI A ETE MESURE est l'autre moitie, celle qui etablit que l'assertion observe quelque chose : en falsifiant l'attendu de la somme (150 -> 151) dans la suite elle-meme, A1 est passe au ROUGE en nommant la valeur relue — « Expected: 151 / Received: 150 ». Observation collaterale de la meme execution, non sollicitee mais reelle : l'implementation presente REFUSE deja deux periodes de meme identite et meme `period_index` (SQLSTATE 23505, PUBLISH_RETRY_EXHAUSTED, tentatives=5) — c'est pourquoi les periodes de F-FAILURE recoivent leur propre trajectoire dans la suite."
+    },
+    {
+      "id": "T12.M11",
+      "kills_case": "T12.A4",
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre ABSENT ce qui doit RESTER",
+      "target": "La portee du rollback declenche par le point d'injection `BEFORE_COMMIT` : ce que la transaction interrompue emporte en s'annulant.",
+      "mutation": "Elargir la reprise : sur panne avant commit, nettoyer « l'etat incoherent » au-dela de la transaction courante — par exemple supprimer les lignes de la trajectoire concernee, ou vider l'outbox de la campagne avant de relever l'erreur. L'orphelin reste bien absent ; ce sont les periodes DEJA COMMITTEES qui disparaissent.",
+      "expected_effect": "T12.A4 devient rouge.",
+      "observation_qui_echoue": "A4 publie les quatre periodes de F-FAILURE, releve leur total (150), interrompt une cinquieme publication avant commit, puis RELIT les quatre periodes. Sous la mutation, la relecture echoue ou le total cesse de valoir 150, et l'ecart avant/apres cesse de valoir `factures_ajoutees`=0.",
+      "pourquoi_cette_perturbation": "M6 couvre la moitie prescrite par verification/cases.lock.json — rendre l'orphelin PRESENT. Elle ne couvre pas l'autre moitie, que L121 enonce dans la meme phrase : « un arret de calcul apres P2 NE SUPPRIME PAS P3 et P4 ; aucune facture imaginaire n'y est ajoutee ». Un cas d'absence est toujours menace par les deux bords : quelque chose qui apparait, et quelque chose qui disparait. Sans cette contre-epreuve, une implementation qui nettoie trop largement apres une panne serait declaree conforme par un cas qui ne regarde que l'orphelin.",
+      "doit_rester_vert": [
+        "T12.A3",
+        "T12.A5"
+      ],
+      "tue_aussi": [],
+      "mesure": "NON MESURE sur une implementation, pour la raison nommee au $comment. MESURE sur le cas : en falsifiant l'attendu de l'ecart (0 -> 1), A4 est passe au ROUGE en nommant l'ecart observe — « Expected: 1 / Received: 0 ». L'assertion de conservation est donc vivante, et non satisfaite d'avance."
+    },
+    {
+      "id": "T12.M12",
+      "kills_case": "T12.A6",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "La DEUXIEME tentative de la boucle de reprise sur conflit de serialisation : le chemin qui reprend apres qu'un conflit a annule la premiere.",
+      "mutation": "Faire sauter le controle d'idempotence sur les tentatives de reprise : la premiere tentative verifie si la cle existe deja, les suivantes inserent directement. La boucle de reprise existe toujours, la limite publiee est toujours respectee, et une publication isolee se comporte normalement.",
+      "expected_effect": "T12.A6 devient rouge.",
+      "observation_qui_echoue": "A6 fait desormais courir DEUX ecritures concurrentes (F-BUDGET : « deux reservations concurrentes ... ne peuvent pas etre toutes deux acceptees ») qui subissent TOUTES DEUX un conflit a leur premiere tentative, puis compte les lignes de la table qui porte a la fois la cle et son empreinte. Sous la mutation, les deux reprises inserent : deux lignes logiques la ou `acceptees_au_plus` en autorise une.",
+      "pourquoi_cette_perturbation": "M8 et M9 portent sur la BORNE — l'existence de la reprise, et la fidelite de la limite annoncee. Ni l'une ni l'autre ne porte sur ce que la reprise REECRIT. L'ancienne clause « sans perdre l'unicite » n'etait exercee que par une course SANS conflit injecte (vingt publications ordinaires), ou le chemin de reprise n'est jamais emprunte : la moitie interessante de la phrase de L261 n'etait donc pas observee. Le sous-cas (iv) l'exerce, et ce mutant est sa contre-epreuve.",
+      "doit_rester_vert": [
+        "T12.A1",
+        "T12.A3",
+        "T12.A4"
+      ],
+      "tue_aussi": [],
+      "mesure": "NON MESURE sur une implementation, pour la raison nommee au $comment. MESURE sur le cas : en falsifiant le seuil du surnombre (`n > acceptees_au_plus` -> `n > acceptees_au_plus - 1`), A6 est passe au ROUGE en nommant ce qu'il a compte — « DEUX-ECRITURES-DEUX-LIGNES [[\"public.periods\",1]] ». Le comptage est donc reel : une seule ligne logique a ete observee la ou deux ecritures conflictuelles concurrentes ont abouti."
     }
   ]
 }

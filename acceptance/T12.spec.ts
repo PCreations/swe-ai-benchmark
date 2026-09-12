@@ -60,11 +60,11 @@
  * ─────────────────────────────────────────────────────────────────────── II
  * PROVENANCE DES LITTERAUX — la regle qui ferme la boucle du test rouge.
  *
- * Aucune fixture de §F ne porte sur T12 : la racine gelee
- * `acceptance/reference/**` ne contient rien qui decrive la persistance. Tout
- * litteral COMPARE dans une assertion porte donc un commentaire
- * `// cahier:L<n>` resoluble par `sed -n '<n>p' docs/cahier.md`, et il n'y en a
- * que huit :
+ * Tout litteral COMPARE dans une assertion a l'une de DEUX provenances, et
+ * aucune autre : un IMPORT de la racine gelee `acceptance/reference/**`, ou un
+ * commentaire `// cahier:L<n>` resoluble par `sed -n '<n>p' docs/cahier.md`.
+ *
+ * (a) LES LITTERAUX RELEVES DANS LE CAHIER — il y en a huit :
  *
  *   20                       — L261, « vingt publications concurrentes »
  *   1                        — L261, « un seul resultat logique »
@@ -77,6 +77,54 @@
  *                              conflit, c'est une deuxieme tentative
  *   0                        — L261, « ne laisse NI resultat NI evenement
  *                              orphelin visible »
+ *
+ * (b) LES VALEURS SCELLEES DE §F. La premiere version de cette suite affirmait
+ *     qu'« aucune fixture de §F ne porte sur T12 ». La carte de specification
+ *     dit desormais le contraire, et c'est elle qui fait foi : docs/specs/T12.md
+ *     epingle QUATRE fixtures maitresses sur les cas de T12 —
+ *
+ *       F-FAILURE     (L121, L123)  -> A1, A4, A5
+ *       F-MONEY       (L103)        -> A1, A5
+ *       F-BUDGET      (L105)        -> A1, A2, A6
+ *       F-RESERVATION (L119)        -> A1, A2, A5
+ *
+ *     Ces fixtures ne decrivent pas la persistance : elles decrivent l'ETAT
+ *     METIER que la persistance doit rendre intact, et les CARDINAUX que la
+ *     concurrence ne doit pas faire bouger. C'est exactement ce dont A1, A2,
+ *     A4, A5 et A6 parlent. La suite les IMPORTE donc et compare contre elles :
+ *
+ *       F-FAILURE  K=4, `lignes_conservees`=4, `Q_par_periode`=[0,0,0,0],
+ *                  `R_par_periode`=[0,0,0,0], `couts`=[100,50,0,0],
+ *                  `cout_total`=150, `factures_ajoutees`=0
+ *                  -> A1 republie ces quatre periodes, les relit APRES
+ *                     arret/reconnexion et retrouve Q, R et couts valeur par
+ *                     valeur, puis leur SOMME ENTIERE (L143). A4 exige que la
+ *                     panne avant commit n'ajoute AUCUNE facture a ce total et
+ *                     ne supprime aucune des periodes deja ecrites.
+ *       F-MONEY    `appel_de_reference.cout_attendu`=340,
+ *                  `deux_appels_identiques.cout_attendu`=680
+ *                  -> A5 publie un resultat facture 340, subit la panne APRES
+ *                     commit, reprend deux fois, et exige que le total persiste
+ *                     vaille encore 340. 680 est la valeur que le cahier donne
+ *                     a DEUX appels identiques : c'est, chiffree par le cahier
+ *                     lui-meme, la valeur qu'une duplication produirait.
+ *       F-BUDGET   `nombre_de_demandes_concurrentes`=2, `acceptees_au_plus`=1
+ *                  -> A6 fait courir DEUX ecritures conflictuelles sur la meme
+ *                     cle et exige qu'au plus UNE ligne logique en sorte.
+ *       F-RESERVATION `creneau.capacite`=1, `P1.etat_attendu.confirmees`=1,
+ *                  `P1.etat_attendu.doublons`=0
+ *                  -> A2 et A5 mesurent l'ECART de lignes entre la base
+ *                     concurrente (ou reprise) et une base ou la meme
+ *                     enveloppe n'a ete publiee qu'une fois, et exigent que cet
+ *                     ecart vaille `doublons`, c'est-a-dire zero.
+ *
+ *     CE QUE CES FIXTURES NE DISENT PAS, la suite ne l'affirme pas. L'unite des
+ *     couts de F-FAILURE est `null` (SC-001, DIV-1) : la suite compare des
+ *     ENTIERS et des CHAINES D'ENTIERS au sens de L80, jamais une unite. Les
+ *     montants de F-BUDGET (1000, 600, 660) et la grille tarifaire de F-MONEY
+ *     sont le contrat de T16 (L297), pas celui de T12 : la suite n'en tire
+ *     aucune regle de calcul, seulement des CARDINAUX de concurrence et une
+ *     valeur a transporter sans la deformer.
  *
  * AUCUNE valeur attendue n'a ete obtenue en lancant l'implementation et en
  * figeant ce qu'on a vu passer. Les seules valeurs que la suite FABRIQUE sont
@@ -361,6 +409,143 @@ const MOTIF_LIMITE_ATTEINTE = /CONFLICT|CONFLIT|RETRY|REPRISE|EXHAUST|EPUIS|LIMI
 const MARQUEURS_DE_PLANTAGE =
   /TypeError|ReferenceError|RangeError|SyntaxError|is not a function|is not iterable|Cannot read (?:propert|of)|of undefined|of null|ECONNREFUSED|ECONNRESET|EPIPE|socket hang up|undefined is not/;
 
+/* ═════ §F : les fixtures maitresses que docs/specs/T12.md epingle sur T12 ═══
+ *
+ * Racine GELEE apres T01 (L139, docs/FROZEN_ROOTS.json). La lecture ne LEVE
+ * jamais au chargement du module : une exception ici produirait
+ * « Test suite failed to run », que verification/runner/red.mjs classe
+ * SUITE_FAILED_TO_RUN et refuse comme preuve. Les defauts sont donc collectes
+ * et ASSERTES par `assertReferences()` dans chaque cas qui les consomme.
+ */
+
+const RACINE_REFERENCE = path.join(REPO, 'acceptance', 'reference');
+
+const DEFAUTS_REFERENCE: string[] = [];
+
+function lireReference(nom: string): Json {
+  try {
+    const doc = JSON.parse(
+      fs.readFileSync(path.join(RACINE_REFERENCE, `${nom}.json`), 'utf8'),
+    ) as Json;
+    if (doc.fixture !== nom) {
+      DEFAUTS_REFERENCE.push(
+        `FIXTURE-MAL-NOMMEE acceptance/reference/${nom}.json porte fixture=${rendu(doc.fixture)}`,
+      );
+    }
+    return doc;
+  } catch (e) {
+    DEFAUTS_REFERENCE.push(
+      `FIXTURE-ILLISIBLE acceptance/reference/${nom}.json : ${(e as Error).message}`,
+    );
+    return {};
+  }
+}
+
+/** `valeurs.<chemin>.valeur` — le chemin est celui du transcripteur de T00. */
+function scelle(doc: Json, nom: string, chemin: string): unknown {
+  let cur: unknown = doc;
+  for (const seg of `valeurs.${chemin}.valeur`.split('.')) {
+    if (cur === null || typeof cur !== 'object') {
+      DEFAUTS_REFERENCE.push(`REFERENCE-CHEMIN-ABSENT ${nom} valeurs.${chemin}.valeur`);
+      return undefined;
+    }
+    cur = (cur as Json)[seg];
+  }
+  if (cur === undefined) {
+    DEFAUTS_REFERENCE.push(`REFERENCE-VALEUR-ABSENTE ${nom} valeurs.${chemin}.valeur`);
+  }
+  return cur;
+}
+
+const F_FAILURE = lireReference('F-FAILURE');
+const F_MONEY = lireReference('F-MONEY');
+const F_BUDGET = lireReference('F-BUDGET');
+const F_RESERVATION = lireReference('F-RESERVATION');
+
+const entierScelle = (doc: Json, nom: string, chemin: string): number => {
+  const v = scelle(doc, nom, chemin);
+  if (typeof v !== 'number' || !Number.isInteger(v)) {
+    DEFAUTS_REFERENCE.push(`REFERENCE-NON-ENTIERE ${nom} ${chemin} = ${rendu(v)}`);
+    return Number.NaN;
+  }
+  return v;
+};
+
+const tableauScelle = (doc: Json, nom: string, chemin: string): number[] => {
+  const v = scelle(doc, nom, chemin);
+  if (!Array.isArray(v) || v.some((x) => typeof x !== 'number' || !Number.isInteger(x))) {
+    DEFAUTS_REFERENCE.push(`REFERENCE-NON-TABLEAU-D-ENTIERS ${nom} ${chemin} = ${rendu(v)}`);
+    return [];
+  }
+  return v as number[];
+};
+
+/** F-FAILURE (L121, L123) — l'etat metier de quatre periodes sans deploiement. */
+const F_K = entierScelle(F_FAILURE, 'F-FAILURE', 'K');
+const F_LIGNES_CONSERVEES = entierScelle(F_FAILURE, 'F-FAILURE', 'lignes_conservees');
+const F_Q = tableauScelle(F_FAILURE, 'F-FAILURE', 'Q_par_periode');
+const F_R = tableauScelle(F_FAILURE, 'F-FAILURE', 'R_par_periode');
+const F_COUTS = tableauScelle(F_FAILURE, 'F-FAILURE', 'couts');
+const F_COUT_TOTAL = entierScelle(F_FAILURE, 'F-FAILURE', 'cout_total');
+const F_FACTURES_AJOUTEES = entierScelle(
+  F_FAILURE,
+  'F-FAILURE',
+  'arret_de_calcul_apres_P2.factures_ajoutees',
+);
+
+/** F-MONEY (L103) — un appel vaut 340 ; DEUX appels identiques valent 680. */
+const F_UN_APPEL = entierScelle(F_MONEY, 'F-MONEY', 'appel_de_reference.cout_attendu');
+const F_DEUX_APPELS = entierScelle(F_MONEY, 'F-MONEY', 'deux_appels_identiques.cout_attendu');
+
+/** F-BUDGET (L105) — deux demandes concurrentes, au plus une acceptee. */
+const F_DEMANDES_CONCURRENTES = entierScelle(
+  F_BUDGET,
+  'F-BUDGET',
+  'sous_cas_1_concurrence.nombre_de_demandes_concurrentes',
+);
+const F_ACCEPTEES_AU_PLUS = entierScelle(
+  F_BUDGET,
+  'F-BUDGET',
+  'sous_cas_1_concurrence.acceptees_au_plus',
+);
+
+/** F-RESERVATION (L119) — capacite 1, une confirmee, ZERO doublon. */
+const F_CAPACITE = entierScelle(F_RESERVATION, 'F-RESERVATION', 'creneau.capacite');
+const F_CONFIRMEES = entierScelle(F_RESERVATION, 'F-RESERVATION', 'P1.etat_attendu.confirmees');
+const F_DOUBLONS = entierScelle(F_RESERVATION, 'F-RESERVATION', 'P1.etat_attendu.doublons');
+
+/**
+ * Chaque cas qui consomme §F l'asserte d'abord. Une fixture illisible doit
+ * NOMMER son defaut, pas produire un `undefined` qui se compare a lui-meme.
+ */
+function assertReferences(): void {
+  expect(
+    DEFAUTS_REFERENCE.length === 0
+      ? 'fixtures-de-reference-lisibles'
+      : `FIXTURES-DE-REFERENCE-INEXPLOITABLES : ${DEFAUTS_REFERENCE.join(' | ')}`,
+  ).toBe('fixtures-de-reference-lisibles'); // cahier:L139
+  expect(
+    F_COUTS.length === F_K && F_Q.length === F_K && F_R.length === F_K
+      ? 'F-FAILURE-coherente'
+      : `F-FAILURE-INCOHERENTE K=${String(F_K)} couts=${rendu(F_COUTS)} Q=${rendu(F_Q)} R=${rendu(F_R)}`,
+  ).toBe('F-FAILURE-coherente');
+}
+
+/**
+ * Somme ENTIERE d'une liste de montants au sens de L80 : « chaines d'entiers
+ * non negatifs ». Un montant qui n'est pas une telle chaine ne devient pas
+ * zero — il rend `null`, et l'appelant echoue en le NOMMANT (L143 : « les
+ * nombres exacts se verifient en entier »).
+ */
+function sommeEntiere(montants: unknown[]): number | null {
+  let total = 0;
+  for (const m of montants) {
+    if (typeof m !== 'string' || !/^[0-9]+$/.test(m)) return null;
+    total += Number.parseInt(m, 10);
+  }
+  return total;
+}
+
 /* ══════════════════════════ PostgreSQL reel (L141, L263) ═══════════════ */
 
 /**
@@ -568,6 +753,27 @@ function indexUniquesSur(db: string, e: Emplacement): string[] {
   );
   if (!r.ok || r.out.length === 0) return [];
   return r.out.split('\n').map((s) => s.trim()).filter(Boolean);
+}
+
+/**
+ * LES TABLES QUI PORTENT LA LIGNE DE RESULTAT — celles qui portent A LA FOIS la
+ * cle d'idempotence et son empreinte. C'est la meme identification que la
+ * preuve SQL d'A3 (L263), extraite ici pour que A2, A5 et A6 puissent COMPTER
+ * les lignes logiques sans imposer un nom de table que L259 ne fixe pas.
+ * Rend `schema.table -> nombre de lignes portant la cle`.
+ */
+function lignesLogiques(db: string, cle: string, digest: string): Record<string, number> {
+  const parTable = new Set(
+    emplacementsDeLaCle(db, digest).map((e) => `${e.schema}.${e.table}`),
+  );
+  const out: Record<string, number> = {};
+  for (const e of emplacementsDeLaCle(db, cle)) {
+    const q = `${e.schema}.${e.table}`;
+    if (!parTable.has(q)) continue;
+    if (q in out) continue;
+    out[q] = lignesPortantLaCle(db, e.table, cle);
+  }
+  return out;
 }
 
 /* ═══════════════ chargement du paquet declare par le registre ══════════ */
@@ -1047,13 +1253,21 @@ function rendezVous(n: number, delaiMs = 5_000): () => Promise<void> {
 
 /* ═══════════════ enveloppes : identite L78, resultat L95, L82 ══════════ */
 
-function identite(periodIndex: number): Json {
+/**
+ * L'identite complete de L78, plus `period_index`. `trajectoire` distingue DEUX
+ * trajectoires independantes dans une meme base : L78 dit que les periodes
+ * d'une meme trajectoire se distinguent par `period_index`, donc deux periodes
+ * de MEME identite et MEME index sont la meme periode. Les quatre periodes de
+ * F-FAILURE decrivent UN candidat ; elles recoivent leur propre trajectoire
+ * plutot que de se superposer aux periodes deja publiees par le meme cas.
+ */
+function identite(periodIndex: number, trajectoire = '1'): Json {
   return {
     campaign_id: `${RUN}-campaign`,
     parent_project_id: `${RUN}-project`,
     scenario_id: `${RUN}-scenario`,
     configuration_id: `${RUN}-configuration`,
-    repetition_id: `${RUN}-repetition-1`,
+    repetition_id: `${RUN}-repetition-${trajectoire}`,
     budget_id: `${RUN}-budget`,
     period_index: periodIndex,
   }; // cahier:L78
@@ -1082,8 +1296,13 @@ interface Enveloppe extends Json {
   events: Json[];
 }
 
-function enveloppe(cle: string, periodIndex: number, depense = UN_USD_EN_MICRO): Enveloppe {
-  const identity = identite(periodIndex);
+function enveloppe(
+  cle: string,
+  periodIndex: number,
+  depense = UN_USD_EN_MICRO,
+  trajectoire = '1',
+): Enveloppe {
+  const identity = identite(periodIndex, trajectoire);
   const result = resultat(periodIndex, depense);
   const events: Json[] = [
     {
@@ -1094,6 +1313,49 @@ function enveloppe(cle: string, periodIndex: number, depense = UN_USD_EN_MICRO):
   ];
   const corps = { identity, result, events };
   return { idempotency_key: cle, input_digest: empreinte(corps), ...corps }; // cahier:L82
+}
+
+/**
+ * L'ENVELOPPE D'UNE PERIODE DE F-FAILURE (index 0..K-1).
+ *
+ * Le `PeriodResult` (L95) porte les valeurs SCELLEES de la fixture : Q et R de
+ * la periode, et son cout transporte comme chaine d'entiers au sens de L80.
+ * F-FAILURE laisse explicitement NON FIXES le nombre d'exigences actives et le
+ * nombre d'intentions offertes (`non_fixe_par_le_cahier`) : seule leur PRESENCE
+ * est requise pour que Q vaille 0 et non null. Ces deux cardinaux sont donc des
+ * ENTREES de la suite, jamais des valeurs attendues — a la difference de Q, R
+ * et du cout, qui sont compares contre la fixture apres relecture.
+ */
+function enveloppeDeFailure(prefixe: string, i: number): Enveloppe {
+  const cle = `${prefixe}-p${String(i + 1)}`;
+  const identity = identite(i + 1, `failure-${prefixe}`);
+  const result: Json = {
+    spend_micro_usd: String(F_COUTS[i]), // reference: F-FAILURE couts — L80 impose la chaine
+    requirements_evaluated: 2, // presence requise (L121) ; cardinal non fixe par §F
+    intents_offered: 4, // idem — « si les exigences et usages y sont presents »
+    intents_succeeded: 0, // L121 : « un candidat SANS DEPLOIEMENT »
+    incidents: 0,
+    Q: F_Q[i], // reference: F-FAILURE Q_par_periode
+    R: F_R[i], // reference: F-FAILURE R_par_periode
+    G: 0,
+    status: PHASE_TERMINALE, // cahier:L97
+    proof_digests: [empreinte({ periode: i + 1, flux: 'proof' })], // cahier:L82
+  };
+  const events: Json[] = [
+    {
+      event_type: 'PERIOD_RESULT_PUBLISHED',
+      occurred_at: '2030-01-01T00:00:00Z',
+      payload: { period_index: i + 1, idempotency_key: cle },
+    },
+  ];
+  const corps = { identity, result, events };
+  return { idempotency_key: cle, input_digest: empreinte(corps), ...corps }; // cahier:L82
+}
+
+/** Le montant relu pour une cle, tel que le stockage le rend. */
+function depenseRelue(vue: Json): unknown {
+  const r = vue.result as Json | undefined;
+  return r === undefined ? undefined : r.spend_micro_usd;
 }
 
 /** La vue COMPARABLE d'un enregistrement relu : quatre champs, rien de volatil. */
@@ -1241,6 +1503,59 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
           ? 'empreinte-persistee'
           : `EMPREINTE-ABSENTE-DE-POSTGRESQL ${envs[0].input_digest} : profil=${rendu(pDigest)}`,
       ).toBe('empreinte-persistee'); // cahier:L68
+
+      // (6) « LE MEME ETAT » EST UN ETAT METIER SCELLE, PAS UN ALLER-RETOUR.
+      //     docs/specs/T12.md epingle F-FAILURE sur A1 : quatre periodes sans
+      //     deploiement, Q et R nuls, couts [100,50,0,0] de total 150. La suite
+      //     les publie, ferme, rouvre, et compare les valeurs RELUES a la
+      //     fixture gelee — jamais a ce qu'elle vient d'ecrire. Une
+      //     implementation qui normaliserait, arrondirait ou re-typerait ces
+      //     montants passerait un aller-retour contre lui-meme, pas celui-ci.
+      assertReferences();
+      const envsF = Array.from({ length: F_K }, (_, i) => enveloppeDeFailure(`${RUN}-a1f`, i));
+      for (const e of envsF) {
+        exigerAccepte(await publier(h2, e), `publication de ${e.idempotency_key}`);
+      }
+      const voieF = await fermer(h2);
+      expect(
+        voieF !== 'aucune' && !voieF.includes('A LEVE')
+          ? 'deuxieme-arret-observe'
+          : `ARRET-DU-STORE-IMPOSSIBLE voie=${voieF}`,
+      ).toBe('deuxieme-arret-observe'); // cahier:L261
+
+      const h3 = await ouvrir(db);
+      const relusF = envsF.map(() => ({}) as Json);
+      let conservees = 0;
+      for (let i = 0; i < envsF.length; i += 1) {
+        const issue = await lire(h3, envsF[i].idempotency_key);
+        if (!estVide(issue)) conservees += 1;
+        relusF[i] = vueDuRecord(
+          exigerAccepte(issue, `relecture apres reconnexion de ${envsF[i].idempotency_key}`),
+        );
+      }
+      // « conserve quatre lignes » (L121) : le nombre de periodes RELISIBLES est
+      // compte, il n'est pas deduit de la taille du tableau qu'on a ecrit.
+      expect(conservees).toBe(F_LIGNES_CONSERVEES); // reference: F-FAILURE lignes_conservees
+      expect(relusF.map((v) => (v.result as Json | undefined)?.Q)).toEqual(F_Q); // reference: F-FAILURE
+      expect(relusF.map((v) => (v.result as Json | undefined)?.R)).toEqual(F_R); // reference: F-FAILURE
+      const depenses = relusF.map(depenseRelue);
+      expect(depenses).toEqual(F_COUTS.map(String)); // reference: F-FAILURE couts + cahier:L80
+      const total = sommeEntiere(depenses);
+      expect(
+        total !== null
+          ? total
+          : `MONTANTS-NON-ENTIERS-APRES-RECONNEXION ${rendu(depenses)} — L80 exige des ` +
+              `chaines d'entiers non negatifs ; un montant illisible ne devient pas zero`,
+      ).toBe(F_COUT_TOTAL); // reference: F-FAILURE cout_total + cahier:L143
+
+      // Le temoin independant voit AUSSI ces quatre periodes.
+      for (const e of envsF) {
+        expect(
+          totalDuProfil(profilDeLaCle(db, e.idempotency_key)) > AUCUNE_TRACE
+            ? 'periode-de-failure-en-base'
+            : `PERIODE-DE-FAILURE-ABSENTE-DE-POSTGRESQL ${e.idempotency_key}`,
+        ).toBe('periode-de-failure-en-base'); // cahier:L263
+      }
     },
     CASE_TIMEOUT_MS,
   );
@@ -1307,6 +1622,46 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
           ),
         ),
       ).toEqual(canonique(vueDeLEnveloppe(env))); // cahier:L261
+
+      // « UN SEUL RESULTAT LOGIQUE », CHIFFRE PAR §F. docs/specs/T12.md epingle
+      // F-RESERVATION sur A2 : creneau de capacite 1, une confirmee, ZERO
+      // doublon. L'ECART de lignes entre la base concurrente et la base ou la
+      // meme enveloppe n'a ete publiee qu'UNE fois doit valoir ce `doublons`.
+      // L'egalite des profils ci-dessus dit la meme chose ; celle-ci la CHIFFRE
+      // contre une fixture gelee et NOMME les tables qui derivent.
+      assertReferences();
+      const profilConc = profilDeLaCle(db, cle);
+      const ecarts = [...new Set([...Object.keys(profilRef), ...Object.keys(profilConc)])]
+        .map((t) => ({ t, d: (profilConc[t] ?? 0) - (profilRef[t] ?? 0) }))
+        .filter((x) => x.d !== 0);
+      expect(
+        ecarts.length === 0
+          ? F_DOUBLONS
+          : `DOUBLONS-APRES-VINGT-PUBLICATIONS ${rendu(ecarts)} — attendu ` +
+              `${String(F_DOUBLONS)} (F-RESERVATION P1 « rejeu de sa cle idempotente sans doublon »)`,
+      ).toBe(F_DOUBLONS); // reference: F-RESERVATION doublons
+
+      // Et la LIGNE LOGIQUE elle-meme se compte : la table qui porte a la fois
+      // la cle et son empreinte (la meme identification que la preuve SQL d'A3)
+      // n'en porte qu'une, comme un creneau de capacite 1 n'admet qu'une
+      // reservation confirmee.
+      const logiquesRef = lignesLogiques(dbRef, cle, env.input_digest);
+      expect(
+        Object.keys(logiquesRef).length > 0
+          ? 'ligne-logique-localisee'
+          : `LIGNE-LOGIQUE-INTROUVABLE : aucune table ne porte a la fois ${cle} et ` +
+              `${env.input_digest} sur la base de reference`,
+      ).toBe('ligne-logique-localisee'); // cahier:L263
+      const logiquesConc = lignesLogiques(db, cle, env.input_digest);
+      expect(logiquesConc).toEqual(logiquesRef); // cahier:L261
+      const surnombre = Object.entries(logiquesConc).filter(([, n]) => n !== F_CONFIRMEES);
+      expect(
+        surnombre.length === 0
+          ? 'une-seule-ligne-logique'
+          : `LIGNES-LOGIQUES-EN-SURNOMBRE ${rendu(surnombre)} — attendu ` +
+              `${String(F_CONFIRMEES)} par table portant la cle et son empreinte ` +
+              `(F-RESERVATION : creneau de capacite ${String(F_CAPACITE)})`,
+      ).toBe('une-seule-ligne-logique'); // reference: F-RESERVATION confirmees
     },
     CASE_TIMEOUT_MS,
   );
@@ -1458,6 +1813,67 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
       // ET la cle interrompue reste absente APRES que le temoin ait ete ecrit :
       // ce n'est donc pas la base entiere qui est muette.
       expect(totalDuProfil(profilDeLaCle(db, clePanne))).toBe(AUCUNE_TRACE); // cahier:L261
+
+      // « AUCUNE FACTURE IMAGINAIRE N'Y EST AJOUTEE » (L121). docs/specs/T12.md
+      // epingle F-FAILURE sur A4 : l'arret de calcul ne supprime pas les
+      // periodes deja ecrites, et il n'ajoute aucune facture. Une absence se
+      // constate ici SUR UN TOTAL SCELLE, pas seulement sur une cle : quatre
+      // periodes sont publiees, une cinquieme publication est interrompue avant
+      // commit, et le total relu doit valoir exactement ce que la fixture
+      // enonce — ni plus (facture imaginaire), ni moins (periode effacee).
+      assertReferences();
+      const envsF = Array.from({ length: F_K }, (_, i) => enveloppeDeFailure(`${RUN}-a4f`, i));
+      for (const e of envsF) {
+        exigerAccepte(await publier(h, e), `publication de ${e.idempotency_key}`);
+      }
+      const avantPanne = sommeEntiere(
+        await Promise.all(
+          envsF.map(async (e) =>
+            depenseRelue(
+              vueDuRecord(
+                exigerAccepte(await lire(h, e.idempotency_key), `relecture de ${e.idempotency_key}`),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(avantPanne).toBe(F_COUT_TOTAL); // reference: F-FAILURE cout_total
+
+      // La cinquieme publication porte un cout NON NUL et est interrompue avant
+      // commit : si elle laissait quoi que ce soit, le total bougerait.
+      const cleImaginaire = `${RUN}-a4f-imaginaire`;
+      const envImaginaire = enveloppe(
+        cleImaginaire,
+        F_K + 1,
+        String(F_UN_APPEL),
+        `failure-${RUN}-a4f`,
+      );
+      exigerRefuse(
+        await publier(h, envImaginaire, { fault: 'BEFORE_COMMIT' }),
+        'facture imaginaire interrompue avant le commit',
+      ); // cahier:L141
+      expect(totalDuProfil(profilDeLaCle(db, cleImaginaire))).toBe(AUCUNE_TRACE); // cahier:L261
+
+      const apresPanne = sommeEntiere(
+        await Promise.all(
+          envsF.map(async (e) =>
+            depenseRelue(
+              vueDuRecord(
+                exigerAccepte(
+                  await lire(h, e.idempotency_key),
+                  `relecture apres panne de ${e.idempotency_key}`,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(apresPanne).toBe(F_COUT_TOTAL); // reference: F-FAILURE cout_total
+      expect(
+        apresPanne !== null && avantPanne !== null
+          ? apresPanne - avantPanne
+          : `MONTANTS-ILLISIBLES avant=${rendu(avantPanne)} apres=${rendu(apresPanne)}`,
+      ).toBe(F_FACTURES_AJOUTEES); // reference: F-FAILURE factures_ajoutees
     },
     CASE_TIMEOUT_MS,
   );
@@ -1517,6 +1933,65 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
       expect(
         canonique(vueDuRecord(exigerAccepte(await lire(h, cle), 'relecture apres reprise'))),
       ).toEqual(canonique(vueDeLEnveloppe(env))); // cahier:L261
+
+      // « NE DUPLIQUE RIEN », CHIFFRE PAR §F. docs/specs/T12.md epingle F-MONEY
+      // et F-RESERVATION sur A5. Un resultat facture 340 (F-MONEY, appel de
+      // reference) subit la panne APRES commit, puis DEUX reprises. Le cahier
+      // donne lui-meme la valeur que produirait une duplication : deux appels
+      // identiques valent 680. Le total persiste doit donc valoir 340, et la
+      // ligne logique rester unique — ecart de lignes egal a `doublons`, zero.
+      assertReferences();
+      const cleM = `${RUN}-a5-money`;
+      const envM = enveloppe(cleM, 2, String(F_UN_APPEL));
+
+      exigerAccepte(await publier(hRef, envM), 'publication unique de reference, facturee');
+      const profilRefM = profilDeLaCle(dbRef, cleM);
+      const logiquesRefM = lignesLogiques(dbRef, cleM, envM.input_digest);
+      expect(
+        Object.keys(logiquesRefM).length > 0
+          ? 'ligne-logique-localisee'
+          : `LIGNE-LOGIQUE-INTROUVABLE ${cleM} / ${envM.input_digest} sur la base de reference`,
+      ).toBe('ligne-logique-localisee'); // cahier:L263
+
+      exigerRefuse(
+        await publier(h, envM, { fault: 'AFTER_COMMIT' }),
+        'publication facturee interrompue apres le commit',
+      ); // cahier:L141
+      exigerAccepte(await publier(h, envM), 'premiere reprise de la publication facturee');
+      exigerAccepte(await publier(h, envM), 'deuxieme reprise de la publication facturee');
+
+      const vueM = vueDuRecord(
+        exigerAccepte(await lire(h, cleM), 'relecture apres les deux reprises'),
+      );
+      expect(depenseRelue(vueM)).toBe(String(F_UN_APPEL)); // reference: F-MONEY + cahier:L80
+
+      const logiquesM = lignesLogiques(db, cleM, envM.input_digest);
+      expect(logiquesM).toEqual(logiquesRefM); // cahier:L261
+      const dupliquees = Object.entries(logiquesM).filter(([, n]) => n !== F_CONFIRMEES);
+      expect(
+        dupliquees.length === 0
+          ? 'aucune-ligne-dupliquee'
+          : `LIGNES-DUPLIQUEES-APRES-REPRISE ${rendu(dupliquees)} — attendu ` +
+              `${String(F_CONFIRMEES)} par table ; a ${String(F_UN_APPEL)} la ligne, deux ` +
+              `lignes vaudraient ${String(F_DEUX_APPELS)} (F-MONEY, deux appels identiques)`,
+      ).toBe('aucune-ligne-dupliquee'); // reference: F-RESERVATION confirmees
+
+      const totalPersiste = Object.values(logiquesM).map((n) => n * F_UN_APPEL);
+      expect(
+        totalPersiste.every((t) => t === F_UN_APPEL)
+          ? 'total-persiste-egal-a-un-appel'
+          : `TOTAL-PERSISTE-DUPLIQUE ${rendu(totalPersiste)} — un seul appel vaut ` +
+              `${String(F_UN_APPEL)}, deux appels identiques valent ${String(F_DEUX_APPELS)}`,
+      ).toBe('total-persiste-egal-a-un-appel'); // reference: F-MONEY
+
+      const ecartsM = [...new Set([...Object.keys(profilRefM), ...Object.keys(profilDeLaCle(db, cleM))])]
+        .map((t) => ({ t, d: (profilDeLaCle(db, cleM)[t] ?? 0) - (profilRefM[t] ?? 0) }))
+        .filter((x) => x.d !== 0);
+      expect(
+        ecartsM.length === 0
+          ? F_DOUBLONS
+          : `DOUBLONS-APRES-REPRISE ${rendu(ecartsM)} — attendu ${String(F_DOUBLONS)}`,
+      ).toBe(F_DOUBLONS); // reference: F-RESERVATION doublons
     },
     CASE_TIMEOUT_MS,
   );
@@ -1625,6 +2100,59 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
           : `TENTATIVES-HORS-BORNE limite=${String(L)} : ${rendu(horsBorne)}`,
       ).toBe('tentatives-dans-la-borne'); // cahier:L261
       expect(profilDeLaCle(dbCourse, cle3)).toEqual(profilRef); // cahier:L261
+
+      // (iv) DEUX ECRITURES CONFLICTUELLES, AU PLUS UNE LIGNE LOGIQUE.
+      //      docs/specs/T12.md epingle F-BUDGET sur A6 : « deux reservations
+      //      concurrentes de 600 ne peuvent pas etre toutes deux acceptees ».
+      //      Le montant est le contrat de T16 ; ce que T12 en retient est le
+      //      CARDINAL — deux demandes concurrentes, au plus une acceptee. Ici,
+      //      les deux ecritures subissent un conflit de serialisation a leur
+      //      premiere tentative : elles doivent etre REPRISES dans la borne, et
+      //      n'en laisser qu'une seule ligne logique.
+      assertReferences();
+      const cle4 = `${RUN}-a6-deux`;
+      const env4 = enveloppe(cle4, 4);
+      const dbDeux = creerBase('a6deux');
+      await migrer(dbDeux);
+      const hDeux = await ouvrir(dbDeux);
+      const barriere2 = rendezVous(F_DEMANDES_CONCURRENTES);
+      const deux = await Promise.all(
+        Array.from({ length: F_DEMANDES_CONCURRENTES }, () =>
+          publier(hDeux, env4, { barrier: barriere2, fault: 'CONFLICT_ONCE' }),
+        ),
+      );
+      expect(deux.length).toBe(F_DEMANDES_CONCURRENTES); // reference: F-BUDGET
+      const refusesDeux = deux.map((x, i) => ({ i, x })).filter(({ x }) => x.refuse);
+      expect(
+        refusesDeux.length === 0
+          ? 'deux-ecritures-conflictuelles-reprises'
+          : `ECRITURE-CONFLICTUELLE-NON-REPRISE ${String(refusesDeux.length)}/` +
+              `${String(F_DEMANDES_CONCURRENTES)} : ` +
+              court(refusesDeux.map(({ i, x }) => `#${String(i)} ${x.texte}`).join(' | '), 600),
+      ).toBe('deux-ecritures-conflictuelles-reprises'); // cahier:L261
+      const horsBorne2 = deux
+        .map((x, i) => ({ i, n: tentatives(x.valeur, x.texte) }))
+        .filter(({ n }) => n === null || !Number.isInteger(n) || n < TENTATIVES_APRES_UN_CONFLIT || n > L);
+      expect(
+        horsBorne2.length === 0
+          ? 'reprise-effective-et-bornee'
+          : `TENTATIVES-HORS-BORNE limite=${String(L)}, attendu >= ` +
+              `${String(TENTATIVES_APRES_UN_CONFLIT)} apres un conflit : ${rendu(horsBorne2)}`,
+      ).toBe('reprise-effective-et-bornee'); // cahier:L261
+      const logiques4 = lignesLogiques(dbDeux, cle4, env4.input_digest);
+      expect(
+        Object.keys(logiques4).length > 0
+          ? 'ligne-logique-localisee'
+          : `LIGNE-LOGIQUE-INTROUVABLE ${cle4} / ${env4.input_digest} apres deux ecritures`,
+      ).toBe('ligne-logique-localisee'); // cahier:L263
+      const enTrop = Object.entries(logiques4).filter(([, n]) => n > F_ACCEPTEES_AU_PLUS);
+      expect(
+        enTrop.length === 0
+          ? 'au-plus-une-ligne-logique'
+          : `DEUX-ECRITURES-DEUX-LIGNES ${rendu(enTrop)} — au plus ` +
+              `${String(F_ACCEPTEES_AU_PLUS)} (F-BUDGET : deux demandes concurrentes ne peuvent ` +
+              `pas etre toutes deux acceptees)`,
+      ).toBe('au-plus-une-ligne-logique'); // reference: F-BUDGET acceptees_au_plus
     },
     CASE_TIMEOUT_MS,
   );

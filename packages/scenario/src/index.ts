@@ -18,11 +18,18 @@
 //
 // T06 EST ÉCRITE : aucun de ses quatre rôles ne lève `NotImplemented`.
 //
-// UN CINQUIÈME RÔLE, ET IL LÈVE ENCORE. `demo.ts` déclare `runDemo`, le pilote
-// de période scripté de T11 (L247). Le registre force ce rôle dans l'un des
-// trois paquets que T11 déclare, et `demo.ts` dit en tête pourquoi c'est
-// celui-ci. À ce commit il n'est qu'un NOM : il lève `NotImplemented`, et c'est
-// l'étage rouge de T11, pas une régression de T06.
+// UN CINQUIÈME RÔLE, ÉCRIT : `runDemo`, le pilote de période scripté de T11
+// (L247). Le registre force ce rôle dans l'un des trois paquets que T11 déclare
+// (`packages/domain`, `packages/scenario`, `packages/workload`) et `demo.ts` dit
+// en tête pourquoi c'est celui-ci : A2 et A6 portent sur les EXIGENCES ACTIVES
+// d'une période et sur leur remplacement, que ce paquet possède déjà.
+//
+// Le pilote ASSEMBLE (L249) : il appelle `@bench/domain` pour les métriques,
+// `@bench/oracle` pour le modèle métier indépendant et `@bench/workload` pour
+// l'horloge métier et les usages. Ces trois dépendances sont déclarées dans
+// `package.json` ; aucune règle de ces paquets n'est réécrite ici.
+//
+// PLUS AUCUN EXPORT PUBLIC DE CE PAQUET NE LÈVE `NotImplemented`.
 // ─────────────────────────────────────────────────────────────────────────────
 export {
   CUSTOMER_ANSWER_SCHEMA,
@@ -64,5 +71,24 @@ export type {
   SourceRequirement,
 } from './source.js'
 
-export { runDemo } from './demo.js'
-export type { DemoOptions } from './demo.js'
+export { DEMO_MODE, DEMO_RESULT_SCHEMA, DEMO_STORAGE, runDemo } from './demo.js'
+export type {
+  BusinessFact,
+  BusinessHistory,
+  DemoOptions,
+  DemoPeriodResult,
+  DemoResult,
+  PublishedRequirement,
+} from './demo.js'
+
+export {
+  DEMO_SCENARIO_ID,
+  DEMO_VARIANTS,
+  RESERVATION_SETUP,
+  SCRIPTED_PERIODS,
+  SCRIPTED_SPEND,
+} from './demo-script.js'
+export type { DemoVariant, ScriptedAction, ScriptedPeriod } from './demo-script.js'
+
+export { CONTROL_BY_REQUIREMENT, CONTROL_IDS } from './demo-controls.js'
+export type { ControlId, ControlOutcome, ControlStatus, ForeignReadProbe } from './demo-controls.js'

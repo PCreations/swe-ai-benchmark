@@ -7,6 +7,21 @@
     "tsBuildInfoFile": "dist/.tsbuildinfo",
     "types": []
   },
-  "include": ["src/**/*.ts"],
-  "references": [{ "path": "../contracts" }]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../contracts"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../oracle"
+    },
+    {
+      "path": "../workload"
+    }
+  ]
 }

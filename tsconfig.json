@@ -17,6 +17,7 @@
     { "path": "./packages/scenario" },
     { "path": "./packages/workload" },
     { "path": "./packages/evaluation" },
-    { "path": "./packages/storage" }
+    { "path": "./packages/storage" },
+    { "path": "./apps/cli" }
   ]
 }

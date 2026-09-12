@@ -1,0 +1,18 @@
+{
+  "$comment": [
+    "Seul projet du depot a declarer types: [\"node\"]. Une ENTREE DE COMMANDE lit",
+    "argv et ecrit sur la sortie standard : elle ne peut pas s'en passer. Les",
+    "paquets de domaine, eux, restent sous types: [] — c'est ce qui rend mecanique",
+    "l'independance du coeur metier vis-a-vis de Node (ADR-005 §3)."
+  ],
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../../packages/scenario" }]
+}

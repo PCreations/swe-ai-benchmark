@@ -24,6 +24,12 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
+  apps/cli:
+    dependencies:
+      '@bench/scenario':
+        specifier: workspace:*
+        version: link:../../packages/scenario
+
   packages/contracts: {}
 
   packages/domain:
@@ -52,6 +58,15 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@bench/oracle':
+        specifier: workspace:*
+        version: link:../oracle
+      '@bench/workload':
+        specifier: workspace:*
+        version: link:../workload
 
   packages/storage:
     dependencies:

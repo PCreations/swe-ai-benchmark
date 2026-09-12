@@ -1,0 +1,81 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T00",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [113]
+  },
+  "consommateurs": [
+    { "cas": "T32.A1", "cahier_line": 435, "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6" },
+    { "cas": "T32.fin", "cahier_line": 437, "exige": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs" },
+    { "cas": "T36.A2", "cahier_line": 473, "exige": "F-COST-RATIO affiche 5/6 et les deux moyennes" }
+  ],
+  "valeurs": {
+    "nombre_de_projets": { "valeur": 2, "cahier_line": 113, "source": "verbatim" },
+    "poids_des_projets": { "valeur": "egal", "cahier_line": 113, "source": "verbatim" },
+    "couts_bras_A": { "valeur": [10, 90], "cahier_line": 113, "source": "verbatim" },
+    "couts_bras_B": { "valeur": [20, 100], "cahier_line": 113, "source": "verbatim" },
+    "moyenne_A": { "valeur": 50, "cahier_line": 113, "source": "verbatim" },
+    "moyenne_B": { "valeur": 60, "cahier_line": 113, "source": "verbatim" },
+    "ratio_principal_A_sur_B": {
+      "rationnel": "5/6",
+      "num": 5,
+      "den": 6,
+      "decimal_exact": null,
+      "note_decimale": "5/6 n a pas de developpement decimal fini ; ne jamais inscrire 0,83 ni 0,833",
+      "cahier_line": 113,
+      "source": "verbatim"
+    }
+  },
+  "derivations": [
+    { "id": "DER-COST-RATIO-01", "enonce": "moyenne A = (10 + 90)/2 = 50", "verifie": true },
+    { "id": "DER-COST-RATIO-02", "enonce": "moyenne B = (20 + 100)/2 = 60", "verifie": true },
+    { "id": "DER-COST-RATIO-03", "enonce": "ratio des moyennes = 50/60 = 5/6", "verifie": true },
+    { "id": "DER-COST-RATIO-04", "enonce": "moyenne des ratios (methode incorrecte) = (10/20 + 90/100)/2 = (1/2 + 9/10)/2 = (7/5)/2 = 7/10 = 0.7", "verifie": true },
+    {
+      "id": "DER-COST-RATIO-05",
+      "enonce": "Lecture croisee avec F-CLUSTERS (l.115) : P1 porte A=10 et B=20, P2 porte A=90 et B=100. Les vecteurs [10,90] et [20,100] sont donc indexes par projet, un cout par projet, et non par repetition a l interieur d un projet.",
+      "verifie": true,
+      "role": "leve la lecture alternative de la ligne 113 seule"
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": 0.7,
+      "cahier_line": 113,
+      "pourquoi": "« La moyenne des ratios serait 0.7 et constitue un resultat incorrect pour cette metrique » — valeur nommee par le cahier comme fausse pour cette metrique",
+      "collision_a_surveiller": "0,7 est aussi la valeur JUSTE de la reussite agregee par intention de F-QUALITY (7/10, l.107) ; les deux 0,7 ne sont pas le meme fait"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "poids des scenarios appliques a l interieur du parent avant poids entre parents",
+      "cahier_line": 435,
+      "portee": "T32.A6, ordre d agregation"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-COST-RATIO-01",
+      "statut": "NON_TRANCHE",
+      "point": "Unite des couts 10, 90, 20, 100.",
+      "pourquoi": "Controle execute : `sed -n '113p' docs/cahier.md | grep -c 'micro-USD'` rend 0. La chaine « micro-USD » n apparait qu en ligne 103 (F-MONEY). Inscrire une unite en l attribuant a la ligne 113 serait une attribution non soutenue par sa source.",
+      "cahier_lines": [113, 103, 80],
+      "consequence_si_mal_tranche": "Aucune valeur ne change : le ratio 5/6 est sans dimension. Le risque porte sur l affichage T36 (l.473), qui doit porter des unites (T36.A4)."
+    },
+    {
+      "id": "AMB-COST-RATIO-02",
+      "statut": "NON_TRANCHE",
+      "point": "Le cahier ne dit pas si les deux projets de F-COST-RATIO sont les memes objets que P1 et P2 de F-CLUSTERS (l.115).",
+      "pourquoi": "La ligne 115 reprend les memes nombres (10/20 et 90/100) et les memes moyennes 50/60, et la ligne 117 parle des « deux projets precedents ». La coincidence numerique est totale mais l identite des objets n est pas enoncee ; F-CLUSTERS ajoute dix repetitions a P1, que la ligne 113 ne mentionne pas.",
+      "cahier_lines": [113, 115, 117],
+      "consequence_si_mal_tranche": "Aucune valeur de F-COST-RATIO ne change ; l enjeu est de savoir si une correction de l une doit se propager a l autre."
+    }
+  ]
+}

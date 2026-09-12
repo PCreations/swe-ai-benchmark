@@ -1,0 +1,91 @@
+{
+  "fixture": "F-BUDGET",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "verification": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes": [
+      105
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 105,
+      "texte": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+    }
+  ],
+  "budget": {
+    "valeur": 1000,
+    "cahier_line": 105
+  },
+  "sous_cas": [
+    {
+      "id": "SC1-deux-reservations-concurrentes",
+      "cahier_line": 105,
+      "montant_par_demande": 600,
+      "nombre_de_demandes": 2,
+      "concurrentes": true,
+      "attendu": "les deux ne peuvent pas être toutes deux acceptées"
+    },
+    {
+      "id": "SC2-etat-apres-reglement",
+      "cahier_line": 105,
+      "reglement_de_la_reservation_acceptee": 340,
+      "etat_attendu": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      }
+    },
+    {
+      "id": "SC2a-reservation-600",
+      "cahier_line": 105,
+      "depuis_etat": "SC2-etat-apres-reglement",
+      "teste_separement_de": [
+        "SC2b-reservation-661"
+      ],
+      "montant": 600,
+      "verdict": "admissible",
+      "available_apres": 60
+    },
+    {
+      "id": "SC2b-reservation-661",
+      "cahier_line": 105,
+      "depuis_etat": "SC2-etat-apres-reglement",
+      "teste_separement_de": [
+        "SC2a-reservation-600"
+      ],
+      "montant": 661,
+      "verdict": "refusée",
+      "available_apres": 660
+    },
+    {
+      "id": "SC3-reservation-ambigue",
+      "cahier_line": 105,
+      "contexte": "troisième sous-cas indépendant, budget frais et zéro dépense",
+      "montant": 600,
+      "etat": "ambiguë, non réconciliée",
+      "available_maintenu": 400,
+      "duree": "tant qu'elle n'est pas réconciliée"
+    }
+  ],
+  "lectures_retenues": [
+    {
+      "point": "« budget frais » de SC3",
+      "lecture": "budget = 1000, le budget de la fixture",
+      "justification": "1000 − 600 = 400, la valeur available=400 énoncée ligne 105 ; aucun autre budget n’est cité."
+    }
+  ],
+  "controles_de_coherence": [
+    "1000 − 340 = 660 (SC2).",
+    "660 − 600 = 60 (SC2a) ; 661 > 660 donc refus, available inchangé à 660 (SC2b).",
+    "1000 − 600 = 400 (SC3)."
+  ],
+  "ambiguites": []
+}

@@ -1,0 +1,129 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "verification": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes": [
+      117
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 117,
+      "texte": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  ],
+  "base": {
+    "enonce": "Sur les deux projets précédents",
+    "cahier_line": 117,
+    "projets": [
+      {
+        "id": "P1",
+        "cout_A": 10,
+        "cout_B": 20
+      },
+      {
+        "id": "P2",
+        "cout_A": 90,
+        "cout_B": 100
+      }
+    ],
+    "note": "F-CLUSTERS (ligne 115) et F-COST-RATIO (ligne 113) portent les mêmes valeurs par projet ; les deux lectures donnent les mêmes ratios."
+  },
+  "tirages_forces": {
+    "valeur": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ],
+    "cahier_line": 117
+  },
+  "ratios_cout_A_sur_B": {
+    "valeurs": [
+      {
+        "tirage": [
+          "P1",
+          "P1"
+        ],
+        "exact": "1/2",
+        "decimal": 0.5,
+        "decimal_exact": true
+      },
+      {
+        "tirage": [
+          "P1",
+          "P2"
+        ],
+        "exact": "5/6",
+        "decimal": null,
+        "decimal_exact": false
+      },
+      {
+        "tirage": [
+          "P2",
+          "P1"
+        ],
+        "exact": "5/6",
+        "decimal": null,
+        "decimal_exact": false
+      },
+      {
+        "tirage": [
+          "P2",
+          "P2"
+        ],
+        "exact": "9/10",
+        "decimal": 0.9,
+        "decimal_exact": true
+      }
+    ],
+    "cahier_line": 117
+  },
+  "intervalle": {
+    "convention": "quantile empirique inverse",
+    "niveaux": [
+      "2,5 %",
+      "97,5 %"
+    ],
+    "borne_basse": {
+      "exact": "1/2",
+      "decimal": 0.5
+    },
+    "borne_haute": {
+      "exact": "9/10",
+      "decimal": 0.9
+    },
+    "cahier_line": 117
+  },
+  "portee": {
+    "regle": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+    "cahier_line": 117
+  },
+  "controles_de_coherence": [
+    "[P1,P1] : A=(10+10)/2=10, B=(20+20)/2=20 → 1/2.",
+    "[P1,P2] et [P2,P1] : A=(10+90)/2=50, B=(20+100)/2=60 → 5/6.",
+    "[P2,P2] : A=90, B=100 → 9/10.",
+    "Ordre trié des quatre ratios : 1/2 < 5/6 = 5/6 < 9/10 ; l'intervalle 2,5 %–97,5 % au quantile empirique inverse retient les extrêmes 1/2 et 9/10."
+  ],
+  "ambiguites": []
+}

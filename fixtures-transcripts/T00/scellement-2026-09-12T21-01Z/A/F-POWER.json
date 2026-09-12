@@ -1,0 +1,176 @@
+{
+  "fixture": "F-POWER",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "verification": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes": [
+      127
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 127,
+      "texte": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "campagnes": {
+    "nombre": 4,
+    "cahier_line": 127
+  },
+  "parents_par_campagne": {
+    "nombre": 2,
+    "ids": [
+      "P1",
+      "P2"
+    ],
+    "note": "deux parents distincts portant les mêmes valeurs",
+    "cahier_line": 127
+  },
+  "bras_B": {
+    "cout": 100,
+    "V": 1,
+    "U": 1,
+    "portee": "dans chaque parent, identique pour les quatre campagnes",
+    "cahier_line": 127
+  },
+  "bras_A": {
+    "cahier_line": 127,
+    "valeurs": [
+      {
+        "campagne": 1,
+        "cout": 80,
+        "V": 1,
+        "U": 1
+      },
+      {
+        "campagne": 2,
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      {
+        "campagne": 3,
+        "cout": 80,
+        "V": 0.96,
+        "U": 1
+      },
+      {
+        "campagne": 4,
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99
+      }
+    ]
+  },
+  "conditions": [
+    {
+      "condition": "comptabilité résolue",
+      "cahier_line": 127
+    },
+    {
+      "condition": "absence de violation critique",
+      "cahier_line": 127
+    },
+    {
+      "condition": "valeurs connues sur les deux bras",
+      "cahier_line": 127
+    }
+  ],
+  "tirages": {
+    "regle": "Les tirages parents exhaustifs donnent des distributions ponctuelles.",
+    "cahier_line": 127
+  },
+  "bornes_ratio": {
+    "valeurs": [
+      0.8,
+      1,
+      0.8,
+      0.8
+    ],
+    "par_campagne": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "cahier_line": 127,
+    "note": "« bornes » au pluriel avec une seule valeur par campagne : la distribution étant ponctuelle, borne basse = borne haute."
+  },
+  "bornes_delta_V": {
+    "valeurs": [
+      0,
+      0,
+      -0.04,
+      -0.01
+    ],
+    "par_campagne": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "cahier_line": 127
+  },
+  "bornes_delta_U": {
+    "valeurs": [
+      0,
+      0,
+      0,
+      -0.01
+    ],
+    "par_campagne": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "cahier_line": 127
+  },
+  "decisions_T34": {
+    "valeurs": [
+      true,
+      false,
+      false,
+      true
+    ],
+    "par_campagne": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "cahier_line": 127
+  },
+  "portee": {
+    "regle": "Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu'une estimation ponctuelle générale suffit à décider.",
+    "cahier_line": 127
+  },
+  "controles_de_coherence": [
+    "ratios coût A/B : 80/100 = 0.8 ; 100/100 = 1 ; 80/100 = 0.8 ; 80/100 = 0.8.",
+    "ΔV = V(A) − V(B) : 1−1 = 0 ; 1−1 = 0 ; 0.96−1 = −0.04 ; 0.99−1 = −0.01.",
+    "ΔU = U(A) − U(B) : 1−1 = 0 ; 1−1 = 0 ; 1−1 = 0 ; 0.99−1 = −0.01.",
+    "−0.04 et −0.01 sont les valeurs énoncées ; une soustraction IEEE-754 naïve (0.96−1) rend −0.040000000000000036 et ne doit pas être inscrite comme la valeur de la fixture.",
+    "Deux campagnes sur quatre décidées vraies : cohérent avec la puissance 0,5 et l'erreur standard sqrt(0.5*0.5/4)=0,25 énoncées hors §F (ligne 463)."
+  ],
+  "usages_hors_section_F": [
+    {
+      "cahier_line": 463,
+      "fait": "T35.A1 : F-POWER traversant le vrai pipeline d'analyse produit décisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25."
+    }
+  ],
+  "ambiguites": [
+    {
+      "point": "Règle de décision produisant [vrai, faux, faux, vrai] (ligne 127)",
+      "manque": "§F énonce les bornes (ratio, ΔV, ΔU) et le verdict attendu, mais aucun seuil : ni marge de non-infériorité sur V ou U, ni seuil de gain de coût, ni règle de combinaison des trois.",
+      "consequence": "Les verdicts sont matérialisables comme valeurs attendues ; la règle qui les produit ne l'est pas depuis §F.",
+      "cahier_line": 127
+    }
+  ]
+}

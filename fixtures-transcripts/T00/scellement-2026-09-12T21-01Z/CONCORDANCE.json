@@ -1,0 +1,75 @@
+{
+  "schema": "bench.fixture-concordance/1",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "date_utc": "2026-09-12T21:01Z",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [101, 129],
+    "controle_execute": "sha256sum docs/cahier.md == docs/CAHIER_SHA256 -> egal"
+  },
+  "paire_comparee": {
+    "A": ".bench/fixtures/A",
+    "B": ".bench/fixtures/B",
+    "inedite": true,
+    "note": "paire distincte des deux rondes deja archivees (fixtures-transcripts/T00/{A,B} et /revalidation-2026-09-12) : les 22 blobs different des deux"
+  },
+  "resultat": {
+    "concordance_A_B": true,
+    "divergences_de_valeur": 0,
+    "fixtures_comparees": 10,
+    "methode": "comparaison valeur par valeur (pas fichier par fichier) : les deux transcriptions ont des schemas differents (A: bench.fixture-transcription A ; B: bench.fixture-transcription/1 oriente consommateurs). Balayage numerique automatique des valeurs materialisees + relecture integrale des 10 paires."
+  },
+  "controles_executes": [
+    "les 10 blocs enonce_verbatim de A relus contre docs/cahier.md par indexation de ligne -> 10/10 identiques au caractere",
+    "balayage numerique des valeurs materialisees, A vs B, fixture par fixture -> aucun ecart de valeur ; les seuls ecarts sont de representation (A ecrit 0.5 la ou B ecrit {num:1,den:2}), d'etiquetage (identifiants de sous-cas, ids de derivation) ou de perimetre declare hors-§F",
+    "grep 'micro-USD' sur les 14 lignes de §F (103..129) -> present uniquement en 103",
+    "sed -n '129p' | grep -o 'en produit une' -> present",
+    "node verification/runner/references.mjs -> exit 0 (racine gelee intacte)",
+    "git rev-parse HEAD:acceptance/reference -> f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, egal au tree_oid inscrit dans docs/FROZEN_ROOTS.json"
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets": [
+        "F-QUALITY : poids fixe a l'introduction — B@1 pese 1 et C@1 pese 2 en P3 et P4. A les propage, B les marque source:arbitrage avec les memes valeurs : concordants apres arbitrage.",
+        "F-FAILURE (DIV-1) : unite des couts NON SPECIFIEE. A n'en inscrit aucune, B inscrit explicitement null. Concordants.",
+        "F-REGRESSION (DIV-2) : nombre attendu = 1. A et B l'inscrivent tous deux comme transcription de « en produit une ». Concordants."
+      ]
+    }
+  ],
+  "spec_conflicts_ouverts": 0,
+  "ambiguites_reportees_non_bloquantes": {
+    "regle": "une ambiguite ne bloque que si elle porte sur une valeur materialisee. Aucune de celles ci-dessous n'en porte : ni A ni B n'inscrit de valeur sur ces points, et la racine scellee les liste sous non_fixe_par_le_cahier.",
+    "declarees_par_A": 5,
+    "declarees_par_B_non_tranchees": 29,
+    "points": [
+      "unite des montants/couts en l.105, 113, 115, 117, 121, 127 (seule l.103 porte micro-USD) — aucune unite materialisee",
+      "F-BUDGET : laquelle des deux reservations de 600 est acceptee, et le code de refus de 661",
+      "F-BUDGET : ventilation spent/reserved des sous-cas 3a et 4 (B la derive de l'invariant l.297 ; ni A ni la racine ne la materialisent)",
+      "F-QUALITY : identifiant, version, poids, revelation et echeance de l'exigence du test negatif — seule la regle est materialisee",
+      "F-QUALITY : tension apparente entre intentions offertes [4,4,0,2] (l.107) et T08.A2 (l.223) ; aucun calendrier de periodes",
+      "F-BOOTSTRAP : quels « deux projets precedents » (l.113 ou l.115) — les quatre ratios sont identiques sous les deux lectures ; formule d'index du quantile inverse non ecrite ; ordre des ratios (l'ordre des tirages coincide avec l'ordre trie)",
+      "F-CLUSTERS : l'invariance par duplication n'est affirmee que pour l'estimation ponctuelle",
+      "F-COST-RATIO / F-CLUSTERS : identite des objets projets entre les deux fixtures",
+      "F-FAILURE : exigences et usages par periode non enumeres ; lequel des etats d'arret porte l'arret apres P2",
+      "F-POWER : la marge et la regle de decision qui produisent [vrai,faux,faux,vrai] (l.451 la qualifie de « marges d'exemple ») ; J et Bonferroni ; repetitions par parent",
+      "F-REGRESSION : etat de cancel@2 en P3/P4 ; echeance et etat de isolation@1 avant P3 ; relation avec la serie de F-QUALITY",
+      "F-RESERVATION : sort de la demande de B rejetee en P1 (releve par A ET par B) ; etat du clone refuse a 12:00:00.001Z ; valeurs de la sequence d'admission ; origine des 100 reservations de T09.A3 ; code du conflit explicite de T07.A6",
+      "F-MONEY : representation JSON des montants, entier ou chaine d'entier (l.80) — A et B inscrivent tous deux un entier JSON ; aucune divergence de valeur"
+    ]
+  },
+  "racine_de_reference": {
+    "action": "AUCUNE ECRITURE",
+    "motif": "acceptance/reference/** est deja scellee et son contenu reproduit exactement la transcription commune de cette paire, SC-001 compris (poids reconduits marques comme arbitrage, unite F-FAILURE a null, F-REGRESSION a 1). La reecrire deplacerait le tree oid, donc docs/FROZEN_ROOTS.json, et invaliderait les 44 attestations, sans changer une seule valeur.",
+    "tree_oid_constate": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "tree_oid_inscrit_dans_FROZEN_ROOTS": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "identiques": true,
+    "verdict": "GEL CONFIRME, RACINE NON DEPLACEE"
+  }
+}

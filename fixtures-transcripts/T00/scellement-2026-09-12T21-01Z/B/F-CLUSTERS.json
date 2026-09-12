@@ -1,0 +1,119 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T00",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [115]
+  },
+  "consommateurs": [
+    { "cas": "T32.A2", "cahier_line": 435, "exige": "F-CLUSTERS ne change pas apres duplication des repetitions P1" },
+    { "cas": "T32.fin", "cahier_line": 437, "exige": "jeu de mutations detectant le pooling des lignes" },
+    { "cas": "T33.A5", "cahier_line": 443, "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents" },
+    { "cas": "T33.A6", "cahier_line": 443, "exige": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l inference interprojets" },
+    { "cas": "T38.A8", "cahier_line": 493, "exige": "inference interprojets refusee sur une fixture a un seul parent, malgre six trajectoires" }
+  ],
+  "valeurs": {
+    "projets": [
+      {
+        "id": "P1",
+        "cout_A": { "valeur": 10, "cahier_line": 115, "source": "verbatim" },
+        "cout_B": { "valeur": 20, "cahier_line": 115, "source": "verbatim" },
+        "repetitions": { "valeur": 10, "cahier_line": 115, "source": "verbatim", "note": "dix repetitions identiques" }
+      },
+      {
+        "id": "P2",
+        "cout_A": { "valeur": 90, "cahier_line": 115, "source": "verbatim" },
+        "cout_B": { "valeur": 100, "cahier_line": 115, "source": "verbatim" },
+        "repetitions": { "valeur": 1, "cahier_line": 115, "source": "verbatim" }
+      }
+    ],
+    "moyenne_interprojets_A": { "valeur": 50, "cahier_line": 115, "source": "verbatim" },
+    "moyenne_interprojets_B": { "valeur": 60, "cahier_line": 115, "source": "verbatim" },
+    "invariance_par_duplication": {
+      "valeur": "Dupliquer toutes les repetitions de P1 laisse l estimation ponctuelle inchangee",
+      "cahier_line": 115,
+      "source": "verbatim",
+      "portee": "estimation PONCTUELLE ; le cahier n affirme rien ici sur l intervalle"
+    },
+    "interdiction_du_pooling": {
+      "valeur": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "cahier_line": 115,
+      "source": "verbatim"
+    },
+    "nombre_de_lignes_brutes": { "valeur": 11, "cahier_line": 115, "source": "verbatim", "note": "10 repetitions de P1 + 1 de P2" }
+  },
+  "derivations": [
+    {
+      "id": "DER-CLUSTERS-01",
+      "enonce": "Agregation correcte : moyenne dans chaque projet (P1 : A=10, B=20 sur dix repetitions identiques ; P2 : A=90, B=100), puis moyenne entre projets a poids egal : A = (10+90)/2 = 50, B = (20+100)/2 = 60.",
+      "verifie": true
+    },
+    {
+      "id": "DER-CLUSTERS-02",
+      "enonce": "Ratio correct A/B = 50/60 = 5/6, identique a F-COST-RATIO (l.113).",
+      "verifie": true
+    },
+    {
+      "id": "DER-CLUSTERS-03",
+      "enonce": "Pooling naif sur les onze lignes (methode que la ligne 115 interdit) : A = (10*10 + 90)/11 = 190/11, B = (20*10 + 100)/11 = 300/11, ratio = 190/300 = 19/30. Aucune de ces trois valeurs n est enoncee par le cahier ; elles sont derivees pour nommer l erreur que le controle doit attraper.",
+      "verifie": true,
+      "source": "derive",
+      "avertissement": "valeurs de contre-exemple, a ne pas confondre avec des valeurs de la fixture"
+    },
+    {
+      "id": "DER-CLUSTERS-04",
+      "enonce": "Duplication des repetitions de P1 : 20 repetitions identiques a 10 laissent la moyenne de P1 inchangee (10 et 20), donc les moyennes interprojets restent 50 et 60. Le pooling naif, lui, deviendrait A = (10*20 + 90)/21 = 290/21 : c est precisement ce que l invariance de T32.A2 distingue.",
+      "verifie": true
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": "A = 190/11, B = 300/11, ratio = 19/30",
+      "source": "derive (DER-CLUSTERS-03)",
+      "pourquoi": "moyenne naive sur onze lignes ; explicitement ecartee par la ligne 115"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "Les repetitions et variantes ne sont pas de nouveaux projets independants.",
+      "cahier_line": 73,
+      "portee": "invariant D.11 ; fonde le refus du pooling"
+    },
+    {
+      "texte": "poids des scenarios appliques a l interieur du parent avant poids entre parents",
+      "cahier_line": 435,
+      "portee": "T32.A6"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-CLUSTERS-01",
+      "statut": "NON_TRANCHE",
+      "point": "La ligne 115 n affirme l invariance par duplication que pour « l estimation ponctuelle ».",
+      "pourquoi": "Elle ne dit rien de l intervalle ni de l erreur standard. T33.A5 (l.443) etend l invariance aux « resultats », mais seulement « avec la meme liste de tirages parents » — condition que la ligne 115 ne pose pas. Le cahier ne dit donc pas si une duplication doit laisser l intervalle inchange hors tirages imposes.",
+      "cahier_lines": [115, 443],
+      "consequence_si_mal_tranche": "Un cas qui exigerait l invariance de l intervalle sans imposer les tirages testerait une propriete que le cahier n affirme pas."
+    },
+    {
+      "id": "AMB-CLUSTERS-02",
+      "statut": "NON_TRANCHE",
+      "point": "Unite des couts 10, 20, 90, 100.",
+      "pourquoi": "Controle execute : `sed -n '115p' docs/cahier.md | grep -c 'micro-USD'` rend 0. La chaine n apparait qu en ligne 103.",
+      "cahier_lines": [115, 103],
+      "consequence_si_mal_tranche": "Aucune valeur ne change ; l enjeu porte sur l etiquetage des unites exige par T36.A4 (l.473)."
+    },
+    {
+      "id": "AMB-CLUSTERS-03",
+      "statut": "NON_TRANCHE",
+      "point": "Identite entre P1/P2 de F-CLUSTERS et les deux projets de F-COST-RATIO (l.113).",
+      "pourquoi": "Memes nombres et memes moyennes, mais le cahier n enonce pas que ce sont les memes objets. Voir AMB-COST-RATIO-02.",
+      "cahier_lines": [113, 115, 117]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "fixture": "F-REGRESSION",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "verification": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes": [
+      129
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 129,
+      "texte": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+    }
+  ],
+  "exigences": [
+    {
+      "id": "cancel",
+      "version": 1,
+      "reference": "cancel@1",
+      "cahier_line": 129,
+      "evenements": [
+        {
+          "periode": "P2",
+          "etat": "satisfaite"
+        },
+        {
+          "periode": "P3",
+          "etat": "remplacée par cancel@2"
+        }
+      ],
+      "regression": false,
+      "motif": "Le retrait de `cancel@1` par remplacement ne produit pas de régression."
+    },
+    {
+      "id": "cancel",
+      "version": 2,
+      "reference": "cancel@2",
+      "cahier_line": 129,
+      "evenements": [
+        {
+          "periode": "P3",
+          "etat": "remplace cancel@1"
+        }
+      ],
+      "regression": false
+    },
+    {
+      "id": "isolation",
+      "version": 1,
+      "reference": "isolation@1",
+      "cahier_line": 129,
+      "evenements": [
+        {
+          "periode": "P3",
+          "etat": "satisfaite"
+        },
+        {
+          "periode": "P4",
+          "etat": "violée"
+        }
+      ],
+      "regression": true,
+      "motif": "Satisfaite en P3 puis violée en P4 : une régression."
+    }
+  ],
+  "regressions_attendues": {
+    "total": 1,
+    "detail": [
+      {
+        "periode": "P4",
+        "exigence": "isolation@1"
+      }
+    ],
+    "cahier_line": 129
+  },
+  "regle_de_comptage": {
+    "regle": "Compter par id/version active, pas par nombre d'assertions.",
+    "cahier_line": 129
+  },
+  "controles_de_coherence": [
+    "« en produit une » (ligne 129) fixe le total attendu à 1 régression, portée par isolation@1 en P4."
+  ],
+  "ambiguites": [
+    {
+      "point": "Tableau complet des exigences par période (ligne 129)",
+      "manque": "Le cahier n'énonce ni l'état de `cancel@1` en P1, ni celui de `cancel@2` en P3 et P4, ni celui d'`isolation@1` avant P3, ni le nombre de périodes de la fixture (P2, P3 et P4 sont seules citées).",
+      "consequence": "Les lignes non citées devraient être décidées hors source pour matérialiser un jeu complet.",
+      "cahier_line": 129
+    }
+  ]
+}

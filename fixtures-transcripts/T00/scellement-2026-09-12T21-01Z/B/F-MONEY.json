@@ -1,0 +1,106 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-MONEY",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T00",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [103]
+  },
+  "consommateurs": [
+    { "cas": "T16.A1", "cahier_line": 295, "exige": "F-MONEY donne 340" },
+    { "cas": "T01.A6", "cahier_line": 165, "exige": "la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est detectee par la verification des references" },
+    { "cas": "T17.A2", "cahier_line": 303, "exige": "panne apres facture 340 et avant reception de reponse donne UNKNOWN, un seul appel et reservation maintenue" },
+    { "cas": "T17.A4", "cahier_line": 303, "exige": "ingestion du recu regle 340 sans inventer de reponse textuelle" },
+    { "cas": "T38.A3", "cahier_line": 493, "exige": "2720 micro-USD par trajectoire, 16320 au total ; la fixture golden-six (l.491) pose deux appels F-MONEY par periode" },
+    { "cas": "T38.A2", "cahier_line": 493, "exige": "48 appels recus et regles" }
+  ],
+  "valeurs": {
+    "grille_tarifaire": {
+      "nature": "grille fictive",
+      "unite": "micro-USD par token",
+      "cahier_line": 103,
+      "source": "verbatim",
+      "entree_non_cachee": { "valeur": 2, "cahier_line": 103, "source": "verbatim" },
+      "entree_cachee": { "valeur": 1, "cahier_line": 103, "source": "verbatim" },
+      "sortie": { "valeur": 5, "cahier_line": 103, "source": "verbatim" }
+    },
+    "appel_de_reference": {
+      "tokens_entree_non_caches": { "valeur": 100, "cahier_line": 103, "source": "verbatim" },
+      "tokens_entree_caches": { "valeur": 40, "cahier_line": 103, "source": "verbatim" },
+      "tokens_sortie": { "valeur": 20, "cahier_line": 103, "source": "verbatim" },
+      "cout_micro_usd": { "valeur": 340, "cahier_line": 103, "source": "verbatim" }
+    },
+    "deux_appels_identiques_micro_usd": { "valeur": 680, "cahier_line": 103, "source": "verbatim" },
+    "disjonction_des_champs_d_entree": {
+      "valeur": true,
+      "cahier_line": 103,
+      "source": "verbatim",
+      "citation": "Les champs d entree sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  },
+  "derivations": [
+    {
+      "id": "DER-MONEY-01",
+      "enonce": "100*2 + 40*1 + 20*5 = 200 + 40 + 100 = 340",
+      "verifie": true,
+      "role": "controle de coherence interne de la ligne 103, aucune valeur nouvelle"
+    },
+    {
+      "id": "DER-MONEY-02",
+      "enonce": "2 * 340 = 680",
+      "verifie": true,
+      "role": "controle de coherence interne de la ligne 103"
+    },
+    {
+      "id": "DER-MONEY-03",
+      "enonce": "golden-six (l.491) : 2 appels F-MONEY par periode * 4 periodes = 8 appels par trajectoire ; 8 * 340 = 2720 (l.493)",
+      "verifie": true,
+      "role": "confirmation par le consommateur T38.A3 ; n est pas une valeur de F-MONEY"
+    },
+    {
+      "id": "DER-MONEY-04",
+      "enonce": "6 trajectoires * 8 appels = 48 appels (l.493) ; 6 * 2720 = 16320 (l.493)",
+      "verifie": true,
+      "role": "confirmation par les consommateurs T38.A2 et T38.A3"
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": 341,
+      "cahier_line": 165,
+      "pourquoi": "valeur de corruption nommee par T01.A6 ; la verification des references doit la detecter"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "Les montants sont des chaines d entiers non negatifs en micro-USD ; 1000000 vaut 1 USD.",
+      "cahier_line": 80,
+      "portee": "contrats de domaine (§E)"
+    },
+    {
+      "texte": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires.",
+      "cahier_line": 71,
+      "portee": "invariant D.9"
+    },
+    {
+      "texte": "Dans la fixture golden-six, tous les autres tarifs valent explicitement zero.",
+      "cahier_line": 491,
+      "portee": "T38, pas F-MONEY elle-meme"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-MONEY-01",
+      "statut": "NON_TRANCHE",
+      "point": "Representation des montants dans le fichier de reference : entier JSON (340) ou chaine d entier (\"340\") ?",
+      "pourquoi": "La ligne 103 ecrit 340 en toutes lettres sans typage. La ligne 80 impose des chaines d entiers non negatifs pour les montants des JSON de domaine, mais ne dit pas que la fixture de reference est un JSON de domaine.",
+      "cahier_lines": [103, 80],
+      "consequence_si_mal_tranche": "T01.A6 compare la reference a un attendu ; un desaccord de type peut rendre la detection de corruption bruyante ou muette selon l egalite employee."
+    }
+  ]
+}

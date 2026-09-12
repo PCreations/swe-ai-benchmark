@@ -1,0 +1,136 @@
+{
+  "role": "fixture-transcriber-A",
+  "tache": "T00",
+  "etage": "FIXTURES",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "verification": "sed -n '<cahier_line>p' docs/cahier.md"
+  },
+  "enumeration": {
+    "methode": "grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md — dix noms distincts, tous définis dans §F (lignes 101-129).",
+    "fixtures": [
+      "F-MONEY",
+      "F-BUDGET",
+      "F-QUALITY",
+      "F-COST-RATIO",
+      "F-CLUSTERS",
+      "F-BOOTSTRAP",
+      "F-RESERVATION",
+      "F-FAILURE",
+      "F-POWER",
+      "F-REGRESSION"
+    ],
+    "nombre": 10
+  },
+  "hors_perimetre": [
+    {
+      "nom": "golden-six",
+      "cahier_line": 489,
+      "motif": "Fixture nommée de T38 (§H), hors §F et sans préfixe F-. Ses chiffres 2720/16320 (ligne 493) sont référencés depuis F-MONEY.json sous `usages_hors_section_F`."
+    }
+  ],
+  "ambiguites_totales": 5,
+  "fichiers": [
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "cahier_lines": [
+        103
+      ],
+      "ambiguites": 0,
+      "sha256_canonique": "bdb815565c8c5ee5a083d8fcfdcf80adee940e947e6fd9d523e28ca63e34612b"
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "cahier_lines": [
+        105
+      ],
+      "ambiguites": 0,
+      "sha256_canonique": "123fab99fa6b4765fabbff158c8307e5f0030b2ee66c1d9f0973102c512e5eda"
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "cahier_lines": [
+        107,
+        109,
+        111
+      ],
+      "ambiguites": 1,
+      "sha256_canonique": "c0e43b4895732a61f87684efdf9ef3d6ced452446a208cc51b2139ca127149fe"
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "cahier_lines": [
+        113
+      ],
+      "ambiguites": 0,
+      "sha256_canonique": "a76890bc1c8e143c894b0c78834e38a44f3a17dc5f3f66042db5842301547bf9"
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "cahier_lines": [
+        115
+      ],
+      "ambiguites": 0,
+      "sha256_canonique": "650295cfb6fda5d913c1ed95d4b94effb5d3ee824aab986d3c24cec1ed6ef5f2"
+    },
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "cahier_lines": [
+        117
+      ],
+      "ambiguites": 0,
+      "sha256_canonique": "28d01828b97ab47ea542b68643df17bfbef761070c170d08e0ae00c46dd7ab98"
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ],
+      "ambiguites": 2,
+      "sha256_canonique": "d6c2c7dbd4c890a87748fed15aab611019cdaf96411f6056ec0fb1e1fd25d1da"
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "cahier_lines": [
+        121
+      ],
+      "ambiguites": 0,
+      "sha256_canonique": "25a654174066fdc2e4fe96dd10dc60520017ba72339e5c43a3445a9bd478b9be"
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "cahier_lines": [
+        127
+      ],
+      "ambiguites": 1,
+      "sha256_canonique": "09e99db1de0458d5a874c61d3c2da445ebcd4a7657fd7824c37a24bc48b6d4df"
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "cahier_lines": [
+        129
+      ],
+      "ambiguites": 1,
+      "sha256_canonique": "678450445e2ce51cac1f73a217d80308c40110afe9a0d5323a3be8e84cf222cc"
+    }
+  ]
+}

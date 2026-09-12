@@ -1,0 +1,99 @@
+{
+  "fixture": "F-FAILURE",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "verification": "sed -n '<cahier_line>p' docs/cahier.md",
+    "lignes": [
+      121
+    ]
+  },
+  "enonce_verbatim": [
+    {
+      "cahier_line": 121,
+      "texte": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
+  ],
+  "K": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "candidat": {
+    "description": "sans déploiement sur les quatre périodes",
+    "cahier_line": 121
+  },
+  "lignes_conservees": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "Q_par_periode": {
+    "valeurs": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "condition": "si les exigences et usages y sont présents",
+    "cahier_line": 121
+  },
+  "R_par_periode": {
+    "valeurs": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "condition": "si les exigences et usages y sont présents",
+    "cahier_line": 121
+  },
+  "couts_par_periode": {
+    "valeurs": [
+      100,
+      50,
+      0,
+      0
+    ],
+    "par_periode": [
+      "P1",
+      "P2",
+      "P3",
+      "P4"
+    ],
+    "cahier_line": 121
+  },
+  "cout_total": {
+    "valeur": 150,
+    "cahier_line": 121
+  },
+  "regles": [
+    {
+      "regle": "Un arrêt de calcul après P2 ne supprime pas P3 et P4.",
+      "cahier_line": 121
+    },
+    {
+      "regle": "Aucune facture imaginaire n'est ajoutée à P3 et P4.",
+      "cahier_line": 121
+    }
+  ],
+  "controles_de_coherence": [
+    "100 + 50 + 0 + 0 = 150 — concorde avec le total énoncé ligne 121.",
+    "La condition « si les exigences et usages y sont présents » est ce qui distingue Q=0/R=0 de Q=null/R=null (conventions ligne 111 de F-QUALITY)."
+  ],
+  "usages_hors_section_F": [
+    {
+      "cahier_line": 427,
+      "fait": "T31.A1 : F-FAILURE exporte quatre périodes et total 150."
+    },
+    {
+      "cahier_line": 493,
+      "fait": "T38.A7 : F-FAILURE produit un échec produit dans une exécution moteur terminée."
+    }
+  ],
+  "ambiguites": []
+}

@@ -1,0 +1,164 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-POWER",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T00",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [127]
+  },
+  "consommateurs": [
+    { "cas": "T35.A1", "cahier_line": 463, "exige": "F-POWER traversant le vrai pipeline d analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25" },
+    { "cas": "T34.A1", "cahier_line": 453, "exige": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture" },
+    { "cas": "T34.A2", "cahier_line": 453, "exige": "borne ratio=1 refuse" },
+    { "cas": "T34.A3", "cahier_line": 453, "exige": "borne DeltaV=-0,02 refuse (donc comparaison STRICTE a la marge)" },
+    { "cas": "T34.regle", "cahier_line": 451, "exige": "superiorite cout si borne superieure du ratio <1 ; non-inferiorite V/U si leurs bornes inferieures >-marge ; aucune violation critique ; comptabilite resolue et donnees admissibles" },
+    { "cas": "T35.A5", "cahier_line": 463, "exige": "meme entree/version/graine donne meme sortie" }
+  ],
+  "valeurs": {
+    "nombre_de_campagnes": { "valeur": 4, "cahier_line": 127, "source": "verbatim", "note": "quatre petites campagnes statistiques" },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "ids": ["P1", "P2"],
+      "cahier_line": 127,
+      "source": "verbatim",
+      "note": "deux parents distincts portant les memes valeurs"
+    },
+    "bras_B_dans_chaque_parent": {
+      "cout": { "valeur": 100, "cahier_line": 127, "source": "verbatim" },
+      "V": { "valeur": 1, "cahier_line": 127, "source": "verbatim" },
+      "U": { "valeur": 1, "cahier_line": 127, "source": "verbatim" }
+    },
+    "bras_A_par_campagne": [
+      { "campagne": 1, "cout": 80, "V": 1, "U": 1, "cahier_line": 127, "source": "verbatim" },
+      { "campagne": 2, "cout": 100, "V": 1, "U": 1, "cahier_line": 127, "source": "verbatim" },
+      { "campagne": 3, "cout": 80, "V": 0.96, "U": 1, "cahier_line": 127, "source": "verbatim" },
+      { "campagne": 4, "cout": 80, "V": 0.99, "U": 0.99, "cahier_line": 127, "source": "verbatim" }
+    ],
+    "conditions_communes": {
+      "comptabilite": { "valeur": "resolue", "cahier_line": 127, "source": "verbatim" },
+      "violation_critique": { "valeur": "absente", "cahier_line": 127, "source": "verbatim" },
+      "valeurs_connues_sur_les_deux_bras": { "valeur": true, "cahier_line": 127, "source": "verbatim" }
+    },
+    "nature_des_tirages": {
+      "valeur": "les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "cahier_line": 127,
+      "source": "verbatim",
+      "consequence_enoncee": "les bornes coincident avec l estimation ponctuelle"
+    },
+    "bornes_de_ratio": { "valeur": [0.8, 1, 0.8, 0.8], "cahier_line": 127, "source": "verbatim" },
+    "bornes_de_delta_V": { "valeur": [0, 0, -0.04, -0.01], "cahier_line": 127, "source": "verbatim" },
+    "bornes_de_delta_U": { "valeur": [0, 0, 0, -0.01], "cahier_line": 127, "source": "verbatim" },
+    "decisions_attendues_T34": {
+      "valeur": [true, false, false, true],
+      "cahier_line": 127,
+      "source": "verbatim",
+      "citation": "T34 doit produire [vrai,faux,faux,vrai]"
+    },
+    "puissance": { "valeur": 0.5, "cahier_line": 463, "source": "consommateur", "note": "T35.A1 ; non enonce en §F" },
+    "erreur_standard_monte_carlo": { "valeur": 0.25, "cahier_line": 463, "source": "consommateur", "note": "T35.A1 ; non enonce en §F" },
+    "portee_declaree": {
+      "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu une estimation ponctuelle generale suffit a decider",
+      "cahier_line": 127,
+      "source": "verbatim"
+    }
+  },
+  "derivations": [
+    {
+      "id": "DER-POWER-01",
+      "enonce": "ratio = cout A / cout B : 80/100 = 0,8 ; 100/100 = 1 ; 80/100 = 0,8 ; 80/100 = 0,8. Reproduit les bornes de ratio enoncees [0,8 ; 1 ; 0,8 ; 0,8].",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-02",
+      "enonce": "DeltaV = V_A - V_B : 1-1 = 0 ; 1-1 = 0 ; 0,96-1 = -0,04 ; 0,99-1 = -0,01. Reproduit [0 ; 0 ; -0,04 ; -0,01].",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-03",
+      "enonce": "DeltaU = U_A - U_B : 1-1 = 0 ; 1-1 = 0 ; 1-1 = 0 ; 0,99-1 = -0,01. Reproduit [0 ; 0 ; 0 ; -0,01].",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-04",
+      "enonce": "Les deux parents portant les MEMES valeurs, tout reechantillonnage parent exhaustif rend la meme moyenne : la distribution est ponctuelle et borne inferieure = borne superieure = estimation ponctuelle. C est ce que la ligne 127 appelle « distributions ponctuelles ».",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-05",
+      "enonce": "Application de la regle T34 (l.451) avec marges 0,02 : C1 ratio 0,8<1 et DeltaV=0>-0,02 et DeltaU=0>-0,02 -> vrai. C2 ratio 1 non <1 -> faux. C3 ratio 0,8<1 mais DeltaV=-0,04 non >-0,02 -> faux. C4 ratio 0,8<1, DeltaV=-0,01>-0,02, DeltaU=-0,01>-0,02 -> vrai. Reproduit [vrai,faux,faux,vrai].",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-06",
+      "enonce": "Les decisions [vrai,faux,faux,vrai] sont reproduites par toute marge m verifiant 0,01 < m <= 0,04 : il faut -0,01 > -m (donc m > 0,01) et NON(-0,04 > -m) (donc m <= 0,04). La marge 0,02 de la ligne 451 est dans cet intervalle, mais n est pas la seule.",
+      "verifie": true,
+      "role": "justification de AMB-POWER-01"
+    },
+    {
+      "id": "DER-POWER-07",
+      "enonce": "Puissance = proportion de decisions vraies = 2/4 = 0,5, conforme a T35.A1 (l.463).",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-08",
+      "enonce": "Erreur standard Monte-Carlo = sqrt(p(1-p)/n) = sqrt(0,5*0,5/4) = sqrt(0,0625) = 0,25, conforme a T35.A1. La meme formule est confirmee par T35.A2 (l.463) : 1800/2000 = 0,9 et sqrt(0,09/2000), soit sqrt(0,9*0,1/2000).",
+      "verifie": true
+    },
+    {
+      "id": "DER-POWER-09",
+      "enonce": "La comparaison a la marge est STRICTE : T34.A3 (l.453) refuse une borne DeltaV = -0,02 exactement, ce qui exclut la lecture >=.",
+      "verifie": true
+    }
+  ],
+  "contre_valeurs": [
+    { "valeur": "decision vraie pour la campagne 2", "cahier_line": 127, "pourquoi": "borne de ratio = 1, non strictement < 1 (T34.A2, l.453)" },
+    { "valeur": "decision vraie pour la campagne 3", "cahier_line": 127, "pourquoi": "DeltaV = -0,04 sous la marge" },
+    { "valeur": "puissance 1 ou 0", "cahier_line": 463, "pourquoi": "deux campagnes sur quatre decident vrai" },
+    { "valeur": "arret anticipe a la premiere significativite", "cahier_line": 463, "pourquoi": "T35.A6 l interdit dans ce plan a effectif fixe" }
+  ],
+  "conventions": [
+    { "texte": "Superiorite cout si borne superieure du ratio <1 ; non-inferiorite V/U si leurs bornes inferieures >-marge ; aucune violation critique interdite ; comptabilite resolue et donnees admissibles. Marges d exemple 0,02.", "cahier_line": 451, "portee": "T34" },
+    { "texte": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J) avec correction de Bonferroni.", "cahier_line": 451, "portee": "T34" },
+    { "texte": "L absence de violation observee n est pas un intervalle de securite universel.", "cahier_line": 451, "portee": "T34" },
+    { "texte": "Publier les estimations et leur incertitude ; cette regle n est pas une garantie sur la vraie puissance.", "cahier_line": 461, "portee": "T35" }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-POWER-01",
+      "statut": "NON_TRANCHE",
+      "point": "F-POWER epingle-t-elle la marge 0,02, ou l herite-t-elle de T34 ?",
+      "pourquoi": "La ligne 127 donne les decisions attendues mais aucune marge. La seule marge du cahier est en ligne 451, ou elle est qualifiee de « Marges d exemple 0,02 » — le cahier la presente donc comme un exemple, pas comme une constante de la fixture. Voir DER-POWER-06 : tout m dans (0,01 ; 0,04] rend les memes decisions, donc aucune valeur enoncee ne fixe m a 0,02.",
+      "cahier_lines": [127, 451],
+      "consequence_si_mal_tranche": "Une fixture gelee qui inscrirait marge=0,02 comme valeur de §F attribuerait a la ligne 127 un nombre qu elle ne contient pas ; une fixture qui n en inscrirait aucune ne permettrait pas de rejouer les decisions."
+    },
+    {
+      "id": "AMB-POWER-02",
+      "statut": "NON_TRANCHE",
+      "point": "Nombre de contrastes J et application de la correction de Bonferroni a ces quatre campagnes.",
+      "pourquoi": "La ligne 451 fait dependre le niveau marginal de J (1-0,05/(3J)), mais la ligne 127 ne dit pas combien de contrastes porte chaque campagne. Les distributions etant ponctuelles (l.127), le niveau de confiance ne deplace aucune borne ici : l ambiguite est sans effet sur les valeurs enoncees, mais elle en a un sur ce que la fixture prouve du pipeline.",
+      "cahier_lines": [127, 451, 453],
+      "consequence_si_mal_tranche": "T35.A1 exige que F-POWER traverse le VRAI pipeline ; si J n est pas fixe, le pipeline traverse est parametre par un choix non enonce."
+    },
+    {
+      "id": "AMB-POWER-03",
+      "statut": "NON_TRANCHE",
+      "point": "Nombre de repetitions par parent, et nombre de tirages du reechantillonnage exhaustif.",
+      "pourquoi": "La ligne 127 dit « tirages parents exhaustifs » sans donner le nombre de repetitions dans chaque parent ni la taille de l enumeration. Avec deux parents portant les memes valeurs, le resultat est ponctuel quelle que soit cette taille, donc aucune valeur enoncee ne la revele.",
+      "cahier_lines": [127, 117],
+      "consequence_si_mal_tranche": "Le manifeste de tirages exige par T33 (l.441) ne peut pas etre reconstruit a partir de §F seule."
+    },
+    {
+      "id": "AMB-POWER-04",
+      "statut": "NON_TRANCHE",
+      "point": "Unite des couts 80 et 100.",
+      "pourquoi": "Controle execute : `sed -n '127p' docs/cahier.md | grep -c 'micro-USD'` rend 0.",
+      "cahier_lines": [127, 103],
+      "consequence_si_mal_tranche": "Aucune valeur ne change : les ratios sont sans dimension."
+    }
+  ]
+}

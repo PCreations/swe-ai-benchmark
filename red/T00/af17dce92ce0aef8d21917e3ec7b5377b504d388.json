@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T00",
+  "subject_commit": "af17dce92ce0aef8d21917e3ec7b5377b504d388",
+  "dirty": false,
+  "input_digest": "6328ffb8cd32e1996fe75d3be9cb35b0f78fdae9240ac260d88b185e159dbfa9",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T00.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M1",
+      "note": "Applique : ajout de `export const __MUTANT_T00_M1: number = \"pas un nombre\"` a packages/contracts/src/units.ts (erreur de type stricte). Observe : jest acceptance/T00.spec.ts -> A1 ROUGE, A2/A3/A4/A5/A6 verts. Restaure par git checkout -- packages/contracts/src/units.ts, arbre propre verifie."
+    },
+    {
+      "id": "T00.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M2",
+      "note": "Applique : verification/runner/verify-task.mjs, EXIT_FOR_REASON[REASON.PASS] passe de 0 a 1 (code non nul sur un test vrai). Observe : A2 ROUGE, et A4/A5 ROUGES aussi — c'est le `tue_aussi` declare par le mutant (leurs controles de capacite exigent 0/PASS). A1 et A6 restes verts, conformes a doit_rester_vert. Restaure, arbre propre verifie."
+    },
+    {
+      "id": "T00.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M3",
+      "note": "Applique : verification/runner/verify-task.mjs, adjudicate() — la branche `if (failed.length || skipped.length || missing.length || vacuous.length)` neutralisee en `if (false && (...))`, donc un cas rouge conclut PASS. Observe : A3 ROUGE seul, A1/A2/A4/A5/A6 verts. Restaure, arbre propre verifie."
+    },
+    {
+      "id": "T00.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M4",
+      "note": "Applique : verification/runner/verify-task.mjs, decide() — la branche `if (!task)` renvoie REASON.PASS au lieu de REASON.UNKNOWN_TASK (l'id absent traite comme tache vide, donc zero cas requis tous satisfaits). Observe : A4 ROUGE (T99 obtient exit 0/PASS au lieu de exit 2/UNKNOWN_TASK), A1/A2/A6 restes verts comme doit_rester_vert l'exige. Restaure, arbre propre verifie."
+    },
+    {
+      "id": "T00.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M5",
+      "note": "Applique : variante (a) du mutant — verification/runner/verify-task.mjs, adjudicate(), la branche `!run.loaded || aucun cas execute` renvoie REASON.PASS au lieu de REASON.NOT_IMPLEMENTED (PASS a vide). Observe : A5 ROUGE seul, A1/A2/A6 verts. Restaure, arbre propre verifie."
+    },
+    {
+      "id": "T00.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M9",
+      "note": "Applique : acceptance/T00.spec.ts, PNPM_FROZEN_INSTALL passe de ['install','--frozen-lockfile'] a ['install'] — le point unique de definition de l'argv pnpm, partage par l'installation de l'arbre et par le controle negatif. Observe : A6 ROUGE sur la branche `manifeste-desynchronise` du controle negatif Node, avec motif=false et non refuse=false : pnpm sort bien en 1 mais sur ERR_PNPM_FETCH_404 (cause etrangere au gel) au lieu de ERR_PNPM_OUTDATED_LOCKFILE — exactement l'effet decrit par le mutant. Les empreintes des deux lockfiles du depot sont restees identiques pendant la mutation (pnpm-lock.yaml cb8b994168819752, analysis/uv.lock 5bea4ea56815d13e), donc la chute vient du controle negatif et non d'une reecriture. A1/A2/A3/A4/A5 restes verts. Restaure, arbre propre verifie."
+    }
+  ],
+  "mutation_proof": {
+    "T00.A1": {
+      "killed_by": "T00.M1",
+      "note": "Applique : ajout de `export const __MUTANT_T00_M1: number = \"pas un nombre\"` a packages/contracts/src/units.ts (erreur de type stricte). Observe : jest acceptance/T00.spec.ts -> A1 ROUGE, A2/A3/A4/A5/A6 verts. Restaure par git checkout -- packages/contracts/src/units.ts, arbre propre verifie."
+    },
+    "T00.A2": {
+      "killed_by": "T00.M2",
+      "note": "Applique : verification/runner/verify-task.mjs, EXIT_FOR_REASON[REASON.PASS] passe de 0 a 1 (code non nul sur un test vrai). Observe : A2 ROUGE, et A4/A5 ROUGES aussi — c'est le `tue_aussi` declare par le mutant (leurs controles de capacite exigent 0/PASS). A1 et A6 restes verts, conformes a doit_rester_vert. Restaure, arbre propre verifie."
+    },
+    "T00.A3": {
+      "killed_by": "T00.M3",
+      "note": "Applique : verification/runner/verify-task.mjs, adjudicate() — la branche `if (failed.length || skipped.length || missing.length || vacuous.length)` neutralisee en `if (false && (...))`, donc un cas rouge conclut PASS. Observe : A3 ROUGE seul, A1/A2/A4/A5/A6 verts. Restaure, arbre propre verifie."
+    },
+    "T00.A4": {
+      "killed_by": "T00.M4",
+      "note": "Applique : verification/runner/verify-task.mjs, decide() — la branche `if (!task)` renvoie REASON.PASS au lieu de REASON.UNKNOWN_TASK (l'id absent traite comme tache vide, donc zero cas requis tous satisfaits). Observe : A4 ROUGE (T99 obtient exit 0/PASS au lieu de exit 2/UNKNOWN_TASK), A1/A2/A6 restes verts comme doit_rester_vert l'exige. Restaure, arbre propre verifie."
+    },
+    "T00.A5": {
+      "killed_by": "T00.M5",
+      "note": "Applique : variante (a) du mutant — verification/runner/verify-task.mjs, adjudicate(), la branche `!run.loaded || aucun cas execute` renvoie REASON.PASS au lieu de REASON.NOT_IMPLEMENTED (PASS a vide). Observe : A5 ROUGE seul, A1/A2/A6 verts. Restaure, arbre propre verifie."
+    },
+    "T00.A6": {
+      "killed_by": "T00.M9",
+      "note": "Applique : acceptance/T00.spec.ts, PNPM_FROZEN_INSTALL passe de ['install','--frozen-lockfile'] a ['install'] — le point unique de definition de l'argv pnpm, partage par l'installation de l'arbre et par le controle negatif. Observe : A6 ROUGE sur la branche `manifeste-desynchronise` du controle negatif Node, avec motif=false et non refuse=false : pnpm sort bien en 1 mais sur ERR_PNPM_FETCH_404 (cause etrangere au gel) au lieu de ERR_PNPM_OUTDATED_LOCKFILE — exactement l'effet decrit par le mutant. Les empreintes des deux lockfiles du depot sont restees identiques pendant la mutation (pnpm-lock.yaml cb8b994168819752, analysis/uv.lock 5bea4ea56815d13e), donc la chute vient du controle negatif et non d'une reecriture. A1/A2/A3/A4/A5 restes verts. Restaure, arbre propre verifie."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

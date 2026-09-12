@@ -10,5 +10,5 @@
     "ce que les paquets declarent."
   ],
   "files": [],
-  "references": [{ "path": "./packages/contracts" }]
+  "references": [{ "path": "./packages/contracts" }, { "path": "./packages/domain" }]
 }

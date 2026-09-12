@@ -1,0 +1,392 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T11 — au moins une par cas requis, conforme au",
+    "mode de preuve fixe par verification/cases.lock.json.",
+    "",
+    "A quoi sert ce fichier. Un cas d'acceptation ne vaut que s'il existe une",
+    "modification de l'implementation qui le fait passer au rouge. Le cahier",
+    "(L139) refuse la preuve qui n'observe rien : « un programme qui ecrit",
+    "seulement passed=true, un test avec zero assertion [...] ne satisfait pas le",
+    "contrat ». Chaque mutant ci-dessous est cette contre-epreuve : appliquer la",
+    "mutation, relancer `pnpm verify:task T11`, exiger que le cas nomme par",
+    "kills_case devienne ROUGE. Un mutant qui laisse la suite verte denonce un",
+    "cas creux, pas une implementation correcte.",
+    "",
+    "LA PORTE « NECESSITE » N'EST PAS UNIVERSELLE. Stuber les exports d'un module",
+    "est la bonne perturbation pour un cas `behaviour` seulement. Pour le cas",
+    "`refusal` A6, un stub qui leve rendrait le controle metier absent ou",
+    "explosif, donc NON PASSANT — et A6 resterait vert sans rien prouver. La",
+    "perturbation correcte y est INVERSE : rendre le controle PERMISSIF. Pour le",
+    "cas `numeric` A4, la perturbation fausse la REGLE DE COLLECTE sans toucher",
+    "la fixture F-FAILURE : un test qui n'encoderait que le litteral 150 y",
+    "survivrait.",
+    "",
+    "CAS D'INVARIANCE (A5). cases.lock.json le classe `behaviour` mais lui donne",
+    "une perturbation CIBLEE, et elle prime : « un stub renvoyant une constante",
+    "laisserait l'egalite vraie ». Les deux mutants d'A5 sont donc l'introduction",
+    "du facteur interdit (T11.M9, non-determinisation) et sa degenerescence",
+    "symetrique (T11.M10, tout declarer volatil jusqu'a ce qu'il ne reste rien a",
+    "comparer).",
+    "",
+    "Les cibles sont decrites par leur ROLE et non par un chemin de fichier :",
+    "l'auteur des tests derive le contrat de la carte de specification et n'a pas",
+    "lu l'implementation. Un mutant se pose sur le point du programme qui remplit",
+    "le role decrit.",
+    "",
+    "CE QUI A ETE MESURE, ET SUR QUOI. Les douze mutants ci-dessous ne sont pas",
+    "des intentions : chacun a ete EXECUTE, avant toute implementation de T11,",
+    "contre une implementation SYNTHETIQUE conforme au contrat publie en tete de",
+    "acceptance/T11.spec.ts (arbre jetable hors depot, meme suite, meme chaine",
+    "Jest). L'implementation synthetique rend les six cas VERTS ; chaque mutation",
+    "y a ensuite ete appliquee seule, et la colonne `mesure` inscrit les cas",
+    "REELLEMENT devenus rouges. Cette mesure prouve deux choses que l'ecriture",
+    "seule ne prouve pas : que la suite PEUT virer au vert (elle n'exige rien",
+    "d'insatisfiable), et que chaque mutant tue le cas qu'il vise sans en",
+    "emporter d'autres par accident.",
+    "",
+    "UN TROU TROUVE PAR CETTE MESURE, ET BOUCHE (A5). Dans sa premiere ecriture,",
+    "A5 lancait ses deux executions l'une apres l'autre. T11.M9 — un horodatage",
+    "d'execution injecte dans le resultat canonique — la laissait VERTE : les",
+    "deux executions tombaient dans la meme milliseconde, les deux horodatages",
+    "etaient egaux. Un faux PASS sur exactement la perturbation que le cas doit",
+    "detecter. A5 separe desormais ses deux executions de 1100 ms, ce qui couvre",
+    "la seconde, la plus grossiere des resolutions d'horodatage usuelles ; sous",
+    "cet ecart, T11.M9 tue le cas. Sans la mesure, ce trou serait entre dans le",
+    "depot sous un commentaire affirmant le contraire.",
+    "",
+    "UN MUTANT EMPORTE TOUT, ET C'EST ASSUME (T11.M1). cases.lock.json prescrit",
+    "pour A1 le stub du pilote de periode. Le pilote est le TRONC de la",
+    "trajectoire : sans lui aucun des six cas n'observe quoi que ce soit, et la",
+    "mesure le confirme (six rouges). Ce mutant prouve donc la necessite du",
+    "pilote, pas la specificite d'A1 — c'est T11.M2 et T11.M3 qui la prouvent, en",
+    "ne tuant qu'A1. Les trois sont requis : sans M1 la porte de necessite ne",
+    "serait pas celle que le verrou des cas prescrit ; sans M2/M3, « DANS L'ORDRE »",
+    "et « par la commande » resteraient des mots non observes.",
+    "",
+    "UN COUPLAGE MESURE, ET NON MASQUE (T11.M6). Vider l'historique metier de P4",
+    "tue A3, comme prevu, mais tue AUSSI A6 sur l'implementation synthetique :",
+    "celle-ci inscrit le verdict intertenant `NOT_FOUND` de L123 DANS cet",
+    "historique. Une implementation qui le publierait ailleurs (incidents,",
+    "observations, journal d'audit) ne verrait tomber qu'A3. Le couplage est donc",
+    "une propriete de l'implementation mesuree, pas du cas : il est inscrit ici",
+    "plutot que tu, pour que l'etage MUTATION ne conclue pas a un cas mal ecrit."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T11",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T11"
+  ],
+  "acceptance_entry": "acceptance/T11.spec.ts",
+  "mutant_count": 12,
+  "contre_epreuve": {
+    "methode": "implementation synthetique conforme au contrat publie en tete de acceptance/T11.spec.ts, hors depot, chaque mutation appliquee seule",
+    "chaine": "node --experimental-vm-modules node_modules/jest/bin/jest.js (meme chaine que verification/runner/chains.mjs)",
+    "temoin_sain": "les six cas requis VERTS",
+    "note": "les valeurs de `mesure` sont les cas reellement observes rouges, pas les cas esperes"
+  },
+  "mutants": [
+    {
+      "id": "T11.M1",
+      "kills_case": "T11.A1",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le PILOTE DE PERIODE — le point du programme qui, sous `bench demo --mode recorded --storage memory`, execute les periodes l'une apres l'autre et les inscrit dans le resultat JSON.",
+      "mutation": "Stuber l'export qui remplit ce role : le remplacer par un module qui LEVE, ou par un pilote qui n'execute aucune periode et rend un resultat sans sequence de periodes. Le stub doit lever et non rendre une constante (cases.lock.json, contrainte generale sur la porte de necessite).",
+      "expected_effect": "T11.A1 devient rouge.",
+      "observation_qui_echoue": "A1 exige une sequence de periodes trouvable dans le resultat, de longueur K=4 (valeur lue dans acceptance/reference/F-FAILURE.json), portant les `period_index` 1..4 dans cet ordre d'apparition. Sans periode executee, la recherche de sequence echoue en nommant le resultat observe.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit exactement « stuber le pilote de periode de `bench demo --mode recorded --storage memory` (aucune periode executee) : la sequence ordonnee des quatre periodes disparait du resultat JSON ». A1 est un cas `behaviour` : c'est la forme ou la regle universelle du stub est valide.",
+      "doit_rester_vert": [],
+      "tue_aussi": [
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A1",
+          "T11.A2",
+          "T11.A3",
+          "T11.A4",
+          "T11.A5",
+          "T11.A6"
+        ],
+        "note": "le pilote est le tronc commun : aucun cas n'observe plus rien. La specificite d'A1 est prouvee par T11.M2 et T11.M3."
+      }
+    },
+    {
+      "id": "T11.M2",
+      "kills_case": "T11.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser l'ORDRE, sans toucher au contenu",
+      "target": "Le point du pilote qui ORDONNE la sequence des periodes inscrites au resultat.",
+      "mutation": "Permuter deux periodes dans la sequence produite (par exemple emettre P1, P3, P2, P4) en laissant le CONTENU de chaque periode strictement inchange : memes exigences, memes metriques, memes depenses, meme horloge metier.",
+      "expected_effect": "T11.A1 devient rouge, et lui seul.",
+      "observation_qui_echoue": "A1 compare la suite des `period_index` dans l'ordre d'apparition a [1,2,3,4], puis la suite des horloges metier a celle que scelle acceptance/reference/F-RESERVATION.json (`valeurs.horloges_des_periodes`). Les deux egalites tombent sous permutation. C'est la seule observation qui donne un sens au mot « DANS L'ORDRE » de L251 : un resultat qui contiendrait les quatre periodes en desordre satisferait « quatre periodes » sans satisfaire le cas.",
+      "pourquoi_cette_perturbation": "Sans ce mutant, A1 serait indistinguable d'un cas qui compte les periodes. Il existe en outre parce que T11.M1, prescrit par le verrou, emporte les six cas : un mutant qui tue tout ne demontre la specificite d'aucun cas.",
+      "doit_rester_vert": [
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A1"
+        ],
+        "note": "les cinq autres cas designent leur periode par la VALEUR de `period_index`, jamais par sa position : c'est ce qui rend la permutation discriminante."
+      }
+    },
+    {
+      "id": "T11.M3",
+      "kills_case": "T11.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser la COMMANDE, sans toucher au domaine",
+      "target": "La commande `bench demo` — le point qui lit ses drapeaux `--mode` et `--storage` et en fait les options de la trajectoire.",
+      "mutation": "Faire ignorer ses drapeaux a la commande : lancer la trajectoire dans un autre mode que celui demande (le resultat porte `execution_mode` different de `recorded`), ou n'imprimer aucun resultat JSON sur la sortie standard. L'export de paquet, lui, reste correct.",
+      "expected_effect": "T11.A1 devient rouge.",
+      "observation_qui_echoue": "A1 n'observe pas seulement l'export : il LANCE `bench demo --mode recorded --storage memory` en sous-processus (argv litterale de L247), exige un resultat JSON sur la sortie standard, puis exige de ce resultat `execution_mode` = `recorded` (L24, L247), quatre periodes, les memes index ordonnes et les memes horloges metier que l'export. Sous la mutation, `execution_mode` ne vaut plus `recorded`, ou aucun JSON n'est trouve et la liste des entrees essayees est imprimee.",
+      "pourquoi_cette_perturbation": "La COMMANDE est le premier livrable nomme par L247. Une suite qui n'appellerait que l'export laisserait ce livrable entierement non observe — et l'implementation pourrait livrer un domaine correct sans commande, ou une commande qui ment sur son mode. La perturbation est ciblee sur la commande seule pour qu'elle ne se confonde pas avec T11.M1.",
+      "doit_rester_vert": [
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A1"
+        ]
+      }
+    },
+    {
+      "id": "T11.M4",
+      "kills_case": "T11.A2",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export de DECISION / REVELATION DE REGLE en P3 — le point qui calcule le jeu d'exigences actives et dues d'une periode.",
+      "mutation": "Stuber cet export de sorte que P3 continue de rendre le jeu de regles de P2 : `cancel@1` reste active en P3 et `cancel@2` n'y apparait jamais. Variante equivalente pour la porte `module-stub` : remplacer l'export par un module qui leve — A2 echoue alors sur l'absence d'exigences actives, en la nommant.",
+      "expected_effect": "T11.A2 devient rouge.",
+      "observation_qui_echoue": "A2 lit dans acceptance/reference/F-REGRESSION.json les deux identifiants scelles — `cancel@1`, satisfaite en P2 et remplacee en P3 par `cancel@2` — puis exige QUATRE choses sur la periode d'index 3 : `cancel@2` presente parmi les exigences actives (la moitie positive, decisive), `cancel@1` absente, `cancel@1` inscrite au registre des remplacements et liee a `cancel@2`, et `cancel@1` non comptee en regression (la racine gelee dit `produit_une_regression: false`). Sous la mutation, les deux premieres tombent ensemble.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit « stuber l'export de decision/revelation de regle en P3 (la demo continue de renvoyer le jeu de regles de P2) », et note que « la moitie positive (remplacement visible) est l'assertion decisive ». A2 exige aussi l'etat d'ENTREE — `cancel@1` active ET satisfaite en P2 — sans quoi « retiree en P3 » serait satisfait par une exigence jamais introduite : une absence partout n'est pas un retrait.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A2"
+        ]
+      }
+    },
+    {
+      "id": "T11.M5",
+      "kills_case": "T11.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser la TRACE du retrait",
+      "target": "Le registre des EXIGENCES REMPLACEES d'une periode — le champ « remplacement eventuel » que L86 fait figurer au contrat `Requirement`, et que T04 livre sous le nom d'exigences remplacees.",
+      "mutation": "Cesser d'inscrire le remplacement : P3 publie bien `cancel@2` parmi ses exigences actives et n'y publie plus `cancel@1`, mais son registre des remplacements reste vide. Rien d'autre ne change.",
+      "expected_effect": "T11.A2 devient rouge.",
+      "observation_qui_echoue": "A2 exige que le retrait soit un ACTE ENREGISTRE et pas une simple absence : le registre des remplacements de P3 doit nommer `cancel@1` ET le lier a `cancel@2`. Sous la mutation, les deux assertions tombent alors que les deux precedentes restent vraies.",
+      "pourquoi_cette_perturbation": "Sans ce mutant, la moitie « ancienne regle RETIREE » d'A2 se reduirait a une absence — et une absence est ce qu'on observe aussi quand l'exigence n'a jamais existe, quand le nom a change, ou quand la collection est vide. L86 fournit le champ qui distingue les deux situations ; ce mutant est ce qui rend cette distinction obligatoire. Il est distinct de T11.M4 parce que les deux points de decision sont distincts : calculer le jeu actif, et journaliser la substitution.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A2"
+        ]
+      }
+    },
+    {
+      "id": "T11.M6",
+      "kills_case": "T11.A3",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export qui ALIMENTE L'HISTORIQUE METIER — le point qui rend, pour une periode, les faits metier accumules par la trajectoire.",
+      "mutation": "Stuber cet export de sorte que la periode d'index 4 rende un historique VIDE (ou que l'export leve). Les metriques, les exigences et les depenses des quatre periodes restent inchangees.",
+      "expected_effect": "T11.A3 devient rouge.",
+      "observation_qui_echoue": "A3 exige, sur la periode d'index 4 : un historique metier trouvable et NON VIDE ; la presence des trois acteurs de acceptance/reference/F-RESERVATION.json ; la presence du creneau `S1` et du locataire `legacy` (migration de L119) ; et l'etat scelle a l'entree de P4 par L123 — A annule, B confirme, C en attente — lu sur les faits rattaches a chaque acteur ; enfin au moins un fait par acteur. Un historique vide fait tomber la premiere et toutes les suivantes.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit « stuber l'export qui alimente l'historique metier (P4 renvoie un historique vide) : la presence exigee en P4 tombe ». Ce que A3 protege, au fond, est l'invariant D-1 (L63) : « l'etat applicatif d'une trajectoire persiste ; aucun retour automatique a une base ideale ». Un cas qui se contenterait d'un champ present mais vide ne protegerait rien.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A4",
+        "T11.A5"
+      ],
+      "tue_aussi": [
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A3",
+          "T11.A6"
+        ],
+        "note": "A6 tombe ici UNIQUEMENT parce que l'implementation mesuree inscrit le verdict intertenant `NOT_FOUND` de L123 dans l'historique metier. Une implementation qui le publierait ailleurs ne verrait tomber qu'A3. Couplage de l'implementation, pas du cas."
+      }
+    },
+    {
+      "id": "T11.M7",
+      "kills_case": "T11.A4",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser la REGLE DE COLLECTE",
+      "target": "La regle de collecte des resultats de periode — le point qui decide combien de lignes une trajectoire conserve, et lesquelles.",
+      "mutation": "Arreter la conservation a K-1 : la variante F-FAILURE ne conserve que trois resultats. Variante equivalente : filtrer les periodes dont Q=0 et R=0, c'est-a-dire ne garder que les « survivants ». La fixture F-FAILURE n'est PAS touchee.",
+      "expected_effect": "T11.A4 devient rouge.",
+      "observation_qui_echoue": "A4 exige exactement `lignes_conservees` = 4 lignes (valeur lue dans acceptance/reference/F-FAILURE.json), les index 1..4 tous presents, Q=[0,0,0,0] et R=[0,0,0,0] en nombres exacts et jamais `null`, les couts [100,50,0,0] ligne par ligne et leur somme egale a 150. Conserver trois lignes fait tomber le compte, la suite des index, les series Q et R, la serie des couts et la somme — cinq assertions.",
+      "pourquoi_cette_perturbation": "A4 est un cas `numeric` : cases.lock.json prescrit « fausser la regle de collecte des resultats sans toucher F-FAILURE ». C'est la perturbation qui distingue un test qui REPRODUIT la regle d'un test qui recopie le litteral 150 : le total 150 survivrait a bien des fautes, la serie [100,50,0,0] sur quatre lignes conservees n'y survit pas.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A4"
+        ]
+      }
+    },
+    {
+      "id": "T11.M8",
+      "kills_case": "T11.A4",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser la REGLE DE FACTURATION",
+      "target": "Le point qui impute une depense a une periode posterieure a l'arret de calcul.",
+      "mutation": "Ajouter une facture imaginaire a une periode sans deploiement : la serie des couts devient par exemple [100,50,10,0] et le total 160. Le nombre de lignes conservees reste 4, et Q et R restent nuls.",
+      "expected_effect": "T11.A4 devient rouge.",
+      "observation_qui_echoue": "A4 compare la serie des couts LIGNE PAR LIGNE a [100,50,0,0] (racine gelee) et la somme des lignes conservees a 150. Les deux tombent. Mesure faite : couts observes [100,50,10,0] contre [100,50,0,0].",
+      "pourquoi_cette_perturbation": "L121 enonce DEUX proprietes distinctes de l'arret de calcul apres P2 : « un arret de calcul apres P2 ne supprime pas P3 et P4 » (T11.M7) et « aucune facture imaginaire n'y est ajoutee » (ce mutant-ci). Un seul des deux mutants laisserait la seconde affirmee en commentaire et jamais observee — exactement ce que L139 refuse. Les deux zeros finaux de la serie des couts ne sont donc pas decoratifs : ils sont la seule chose qui interdit d'inventer une depense sur une periode qui n'a rien exerce.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A5",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A4"
+        ]
+      }
+    },
+    {
+      "id": "T11.M9",
+      "kills_case": "T11.A5",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "INTRODUIRE le facteur interdit (non-determinisation)",
+      "target": "Le resultat CANONIQUE de la demo — la partie du resultat qui n'est pas declaree volatile.",
+      "mutation": "Injecter une source non deterministe dans cette partie : un horodatage d'execution, une duree mesuree, ou un identifiant aleatoire, SANS l'ajouter a la declaration des metadonnees volatiles.",
+      "expected_effect": "T11.A5 devient rouge.",
+      "observation_qui_echoue": "A5 lance la demo DEUX fois, lit dans chaque resultat la declaration explicite de ses metadonnees volatiles (L559), retire ces chemins et compare les empreintes SHA-256 des octets canoniques de L82. Sous la mutation, les deux empreintes different et le message imprime les deux projections. Mesure faite : `executed_at` a 16:40:20.825Z contre 16:40:21.927Z.",
+      "pourquoi_cette_perturbation": "cases.lock.json prescrit exactement cette perturbation et met en garde : « un stub renvoyant une constante laisserait l'egalite vraie ». C'est pourquoi la porte `module-stub` ne vaut pas ici, et c'est aussi pourquoi A5 porte un CONTROLE DE DISCRIMINATION (voir T11.M10). ATTENTION — ce mutant n'est efficace que parce que A5 separe ses deux executions de 1100 ms : mesure faite sans cet ecart, les deux horodatages tombaient dans la meme milliseconde et le cas restait VERT.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A5"
+        ],
+        "note": "sans l'ecart de 1100 ms entre les deux executions : ZERO rouge — le trou que cette mesure a trouve et fait boucher."
+      }
+    },
+    {
+      "id": "T11.M10",
+      "kills_case": "T11.A5",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "DEGENERER la comparaison (tout declarer volatil)",
+      "target": "La declaration des metadonnees volatiles — le point qui decide ce que la comparaison canonique ignore.",
+      "mutation": "Elargir la declaration jusqu'a vider la comparaison : declarer volatile la sequence des periodes, ou l'un des identifiants d'identite (par exemple `campaign_id`), voire le resultat entier. L'egalite des empreintes devient alors trivialement vraie.",
+      "expected_effect": "T11.A5 devient rouge.",
+      "observation_qui_echoue": "Avant de comparer, A5 exige que la PROJECTION CANONIQUE conserve ce que L559 enumere : les six identifiants d'identite de L78 (`campaign_id`, `parent_project_id`, `scenario_id`, `configuration_id`, `repetition_id`, `budget_id`) et les quatre periodes. Mesure faite : « campaign_id absent de la projection canonique », suivi de la projection observee. A5 porte en outre un CONTROLE DE DISCRIMINATION : la trajectoire nominale et la variante F-FAILURE doivent avoir des resultats canoniques DIFFERENTS — ce qui tue l'implementation qui rendrait une constante.",
+      "pourquoi_cette_perturbation": "Un cas d'invariance passe trivialement quand les deux cotes de l'egalite ont ete vides de leur contenu. C'est la degenerescence symetrique de T11.M9 : l'un ajoute du bruit dans la comparaison, l'autre supprime ce qui est compare. Sans ce mutant, « meme resultat canonique » pourrait etre satisfait par un resultat canonique qui ne contient plus de resultat.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A6"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A5"
+        ]
+      }
+    },
+    {
+      "id": "T11.M11",
+      "kills_case": "T11.A6",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le CONTROLE METIER D'ISOLATION INTERTENANT — le point qui juge si une lecture des reservations `legacy` depuis le locataire `other` est une violation.",
+      "mutation": "Rendre ce controle permissif : le faire conclure PASS alors que la variante `cross-tenant-read` a effectivement lu des reservations `legacy` depuis le locataire `other`. Aucun autre controle ne change, et la trajectoire continue de produire un resultat.",
+      "expected_effect": "T11.A6 devient rouge.",
+      "observation_qui_echoue": "A6 lance la variante `cross-tenant-read` (litteral de L251) et exige que le controle dont le NOM dit l'isolation intertenant soit ROUGE. Mesure faite : « la variante cross-tenant-read laisse le controle d'isolation [[isolation-intertenant, VERT]] — la lecture intertenant n'est pas detectee ». A6 exige AUSSI, sur la trajectoire conforme, que ce meme controle soit VERT et que le verdict `NOT_FOUND` de L123 apparaisse en P4 : un refus n'est un refus que s'il existe un non-refus.",
+      "pourquoi_cette_perturbation": "A6 est un cas `refusal`, et c'est ici le defaut decisif : stuber un export ferait disparaitre ou exploser le controle, donc echouer la trajectoire — et A6 resterait VERT sans rien prouver. cases.lock.json le dit mot pour mot : « un stub qui leve ferait echouer le controle et laisserait le cas vert ». La seule perturbation informative est l'inverse, rendre le controle permissif. C'est aussi pourquoi A6 exige un RESULTAT de la variante : un plantage n'est pas une detection.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A6"
+        ]
+      }
+    },
+    {
+      "id": "T11.M12",
+      "kills_case": "T11.A6",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre UNIVERSELLEMENT REFUSANT",
+      "target": "L'agregation des controles metier — le point qui attribue son statut a chaque controle nomme.",
+      "mutation": "Faire echouer TOUS les controles metier, dans toutes les variantes y compris la trajectoire conforme. Le controle d'isolation est alors bien ROUGE sous `cross-tenant-read`, pour une raison qui n'a rien a voir avec la detection.",
+      "expected_effect": "T11.A6 devient rouge.",
+      "observation_qui_echoue": "A6 exige que la trajectoire conforme publie au moins un controle VERT autre que celui d'isolation, et qu'au moins un de ces controles le RESTE sous la variante : la detection doit etre CIBLEE. Mesure faite : « la trajectoire conforme ne publie aucun controle vert hors isolation : [[isolation-intertenant, VERT], [fifo-attente, ROUGE], [frontiere-24h, ROUGE]] ».",
+      "pourquoi_cette_perturbation": "Le refus n'est pas une competence. Un moteur qui declarerait tout en violation satisferait l'enonce « la variante fait echouer le controle associe » sans rien discriminer — c'est, a l'echelle du controle metier, la meme faute que le runner qui refuserait toute tache (T00.M2). Sans ce mutant, A6 serait vert sur l'implementation la plus inutile qui soit.",
+      "doit_rester_vert": [
+        "T11.A1",
+        "T11.A2",
+        "T11.A3",
+        "T11.A4",
+        "T11.A5"
+      ],
+      "mesure": {
+        "rouges": [
+          "T11.A6"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T08",
+  "subject_commit": "af17dce92ce0aef8d21917e3ec7b5377b504d388",
+  "dirty": false,
+  "input_digest": "c92cfd509fccf02efa312294ad3fbe76c7d84844fa4232766cfaebf9da1c17d9",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T08.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T08.M1",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/plan.ts — l ordre rendu par orderUsages est tourne de (workers % n) positions, workers lu via workers/worker_count/concurrency. jest acceptance/T08.spec.ts : A1 ROUGE, A2/A3/A4/A5/A6 verts (1 failed, 5 passed). Restaure par git checkout, arbre propre re-verifie. A1 tombe aussi sous T08.M6 (estampille horloge systeme) et T08.M7 (generateur constant), tous deux appliques et observes."
+    },
+    {
+      "id": "T08.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T08.M2",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/plan.ts — le catalogue est filtre sur candidate_state.created avant orderUsages, donc seuls les usages dont le candidat a deja cree les handles sont proposes. jest : A2 et A3 ROUGES, A1/A4/A5/A6 verts (2 failed, 4 passed). Restaure, arbre propre. A2 tombe aussi sous T08.M7."
+    },
+    {
+      "id": "T08.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T08.M3",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/execute.ts — la branche missing.length>0 n inscrit plus d issue : l intention non servie est supprimee du resultat au lieu d etre conservee. jest : A3 seul ROUGE, les cinq autres verts (1 failed, 5 passed). Restaure, arbre propre. A3 tombe aussi sous T08.M10 (aucune reference jamais resolue, monde jamais appele) et sous T08.M2, tous deux appliques et observes."
+    },
+    {
+      "id": "T08.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T08.M4",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/execute.ts — les essais negatifs de securite entrent dans business.offered et leur DENIED alimente business.failed, la contamination du comptage metier devient PRESENTE. jest : A4 seul ROUGE, les cinq autres verts (1 failed, 5 passed). Restaure, arbre propre. A4 tombe aussi sous T08.M9 (compteurs structurellement presents mais tous nuls) et T08.M10, tous deux appliques et observes."
+    },
+    {
+      "id": "T08.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T08.M5",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/clock.ts — createBusinessClock indexe un etat de module partage par instant de depart (deux poignees distinctes, un seul etat) et advanceBusinessClock y ecrit : la fuite de temps de A vers B devient PRESENTE. jest : A5 seul ROUGE, les cinq autres verts (1 failed, 5 passed). Restaure, arbre propre. A5 tombe aussi sous T08.M8 (avance rendue no-op) et T08.M6, tous deux appliques et observes."
+    },
+    {
+      "id": "T08.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T08.M6",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/clock.ts (advanceBusinessClock devient un no-op qui rend l horloge inchangee) ET sur plan.ts (l instant des intentions vient de new Date().toISOString() au lieu de l horloge metier fournie). jest : A1, A5 et A6 ROUGES, A2/A3/A4 verts (3 failed, 3 passed). Restaure, arbre propre. A6 tombe aussi sous T08.M8, applique et observe."
+    }
+  ],
+  "mutation_proof": {
+    "T08.A1": {
+      "killed_by": "T08.M1",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/plan.ts — l ordre rendu par orderUsages est tourne de (workers % n) positions, workers lu via workers/worker_count/concurrency. jest acceptance/T08.spec.ts : A1 ROUGE, A2/A3/A4/A5/A6 verts (1 failed, 5 passed). Restaure par git checkout, arbre propre re-verifie. A1 tombe aussi sous T08.M6 (estampille horloge systeme) et T08.M7 (generateur constant), tous deux appliques et observes."
+    },
+    "T08.A2": {
+      "killed_by": "T08.M2",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/plan.ts — le catalogue est filtre sur candidate_state.created avant orderUsages, donc seuls les usages dont le candidat a deja cree les handles sont proposes. jest : A2 et A3 ROUGES, A1/A4/A5/A6 verts (2 failed, 4 passed). Restaure, arbre propre. A2 tombe aussi sous T08.M7."
+    },
+    "T08.A3": {
+      "killed_by": "T08.M3",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/execute.ts — la branche missing.length>0 n inscrit plus d issue : l intention non servie est supprimee du resultat au lieu d etre conservee. jest : A3 seul ROUGE, les cinq autres verts (1 failed, 5 passed). Restaure, arbre propre. A3 tombe aussi sous T08.M10 (aucune reference jamais resolue, monde jamais appele) et sous T08.M2, tous deux appliques et observes."
+    },
+    "T08.A4": {
+      "killed_by": "T08.M4",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/execute.ts — les essais negatifs de securite entrent dans business.offered et leur DENIED alimente business.failed, la contamination du comptage metier devient PRESENTE. jest : A4 seul ROUGE, les cinq autres verts (1 failed, 5 passed). Restaure, arbre propre. A4 tombe aussi sous T08.M9 (compteurs structurellement presents mais tous nuls) et T08.M10, tous deux appliques et observes."
+    },
+    "T08.A5": {
+      "killed_by": "T08.M5",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/clock.ts — createBusinessClock indexe un etat de module partage par instant de depart (deux poignees distinctes, un seul etat) et advanceBusinessClock y ecrit : la fuite de temps de A vers B devient PRESENTE. jest : A5 seul ROUGE, les cinq autres verts (1 failed, 5 passed). Restaure, arbre propre. A5 tombe aussi sous T08.M8 (avance rendue no-op) et T08.M6, tous deux appliques et observes."
+    },
+    "T08.A6": {
+      "killed_by": "T08.M6",
+      "note": "EXECUTE : mutation posee sur packages/workload/src/clock.ts (advanceBusinessClock devient un no-op qui rend l horloge inchangee) ET sur plan.ts (l instant des intentions vient de new Date().toISOString() au lieu de l horloge metier fournie). jest : A1, A5 et A6 ROUGES, A2/A3/A4 verts (3 failed, 3 passed). Restaure, arbre propre. A6 tombe aussi sous T08.M8, applique et observe."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

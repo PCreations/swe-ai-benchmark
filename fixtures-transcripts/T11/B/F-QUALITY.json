@@ -1,0 +1,414 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-QUALITY",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    107,
+    109,
+    111
+  ],
+  "consommateurs": [
+    {
+      "cas": "T04.A1",
+      "tache": "T04",
+      "cahier_line": 191,
+      "proof_kind": "numeric",
+      "exige": "F-QUALITY donne exactement les resultats annonces",
+      "implique_pour_la_fixture": "V, U, exposition et reussite agregee doivent etre portes separement, en exact"
+    },
+    {
+      "cas": "T04.A2",
+      "tache": "T04",
+      "cahier_line": 191,
+      "proof_kind": "behaviour",
+      "exige": "dupliquer les assertions d'une exigence ne change pas Q",
+      "implique_pour_la_fixture": "les poids sont des donnees de l'exigence, jamais un compte d'assertions (invariant D10, ligne 72)"
+    },
+    {
+      "cas": "T04.A5",
+      "tache": "T04",
+      "cahier_line": 191,
+      "proof_kind": "numeric",
+      "exige": "zero usage donne R=null, panne avec quatre usages donne R=0",
+      "implique_pour_la_fixture": "P3 (0 offerte) porte R=null ; la variante panne est un cas distinct a quatre intentions offertes et R=0"
+    },
+    {
+      "cas": "T04.A6",
+      "tache": "T04",
+      "cahier_line": 191,
+      "proof_kind": "absence",
+      "exige": "exigence non encore due absente du denominateur",
+      "implique_pour_la_fixture": "la fixture doit porter un test negatif : une exigence revelee mais non echue"
+    },
+    {
+      "cas": "T08.A2",
+      "tache": "T08",
+      "cahier_line": 223,
+      "proof_kind": "behaviour",
+      "exige": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n'a cree aucune donnee",
+      "implique_pour_la_fixture": "les intentions OFFERTES sont une donnee du plan d'usage, independante de l'etat applicatif ; voir QUALITY-AMB-2"
+    },
+    {
+      "cas": "T32.A3",
+      "tache": "T32",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "exige": "F-QUALITY conserve V=13/16, U=2/3 et ratio intentions 7/10 comme colonnes DISTINCTES"
+    },
+    {
+      "cas": "T36.A1",
+      "tache": "T36",
+      "cahier_line": 473,
+      "proof_kind": "numeric",
+      "exige": "affiche 0,8125 et 2/3 avec arrondi annonce, SANS remplacer U par 0,7"
+    }
+  ],
+  "structure": {
+    "nombre_de_periodes": 4,
+    "duree": "identique pour les quatre periodes",
+    "cahier_line": 107
+  },
+  "entrees_Q_par_periode": {
+    "$source": "ligne 109, « Entrees exactes de Q »",
+    "P1": {
+      "exigences": [
+        {
+          "id": "A@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "B@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        }
+      ],
+      "Q_attendu": {
+        "rationnel": "2/2",
+        "valeur": 1
+      }
+    },
+    "P2": {
+      "exigences": [
+        {
+          "id": "A@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "B@1",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "C@1",
+          "poids": 2,
+          "statut": "non satisfaite",
+          "ajoutee_en": "P2"
+        }
+      ],
+      "Q_attendu": {
+        "rationnel": "2/4",
+        "valeur": 0.5
+      }
+    },
+    "P3": {
+      "exigences": [
+        {
+          "id": "A@2",
+          "poids": 1,
+          "statut": "satisfaite",
+          "remplace": "A@1"
+        },
+        {
+          "id": "B@1",
+          "poids": 1,
+          "statut": "violee"
+        },
+        {
+          "id": "C@1",
+          "poids": 2,
+          "statut": "satisfaite"
+        }
+      ],
+      "Q_attendu": {
+        "rationnel": "3/4",
+        "valeur": 0.75
+      }
+    },
+    "P4": {
+      "exigences": [
+        {
+          "id": "A@2",
+          "poids": 1,
+          "statut": "satisfaite"
+        },
+        {
+          "id": "C@1",
+          "poids": 2,
+          "statut": "satisfaite"
+        }
+      ],
+      "retrait": "B retiree en P4",
+      "Q_attendu": {
+        "rationnel": "3/3",
+        "valeur": 1
+      }
+    },
+    "toutes_dues": {
+      "enonce": "toutes les exigences citees sont dues a la periode concernee",
+      "cahier_line": 109
+    }
+  },
+  "test_negatif": {
+    "enonce": "une exigence revelee mais NON ENCORE DUE : son poids ne doit pas entrer dans Q avant son echeance",
+    "cahier_line": 109,
+    "consommateur": "T04.A6",
+    "valeurs_concretes": null,
+    "voir_ambiguite": "QUALITY-AMB-1"
+  },
+  "attendus": [
+    {
+      "id": "QUALITY-Q",
+      "enonce": "serie Q",
+      "valeur_exacte": [
+        "1",
+        "1/2",
+        "3/4",
+        "1"
+      ],
+      "decimal": [
+        1,
+        0.5,
+        0.75,
+        1
+      ],
+      "cahier_line": 107,
+      "cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-V",
+      "enonce": "V, moyenne temporelle de Q sur quatre periodes de meme duree",
+      "valeur_exacte": "13/16",
+      "decimal": 0.8125,
+      "cahier_line": 107,
+      "cite_verbatim": true,
+      "decimal_cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-R",
+      "enonce": "serie R",
+      "valeur_exacte": [
+        "1",
+        "1/2",
+        null,
+        "1/2"
+      ],
+      "cahier_line": 107,
+      "cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-OFFERTES",
+      "enonce": "intentions offertes par periode",
+      "valeur_exacte": [
+        4,
+        4,
+        0,
+        2
+      ],
+      "cahier_line": 107,
+      "cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-REUSSIES",
+      "enonce": "intentions reussies par periode",
+      "valeur_exacte": [
+        4,
+        2,
+        0,
+        1
+      ],
+      "cahier_line": 107,
+      "cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-U",
+      "enonce": "U, moyenne temporelle de R sur les periodes EXPOSEES",
+      "valeur_exacte": "2/3",
+      "decimal_exact": false,
+      "cahier_line": 107,
+      "cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-EXPO",
+      "enonce": "exposition",
+      "valeur_exacte": "3/4",
+      "decimal": 0.75,
+      "cahier_line": 107,
+      "cite_verbatim": true
+    },
+    {
+      "id": "QUALITY-AGG",
+      "enonce": "reussite agregee PAR INTENTION",
+      "valeur_exacte": "7/10",
+      "decimal": 0.7,
+      "cahier_line": 107,
+      "cite_verbatim": true
+    }
+  ],
+  "separation_obligatoire": {
+    "enonce": "U (2/3), exposition (3/4) et reussite agregee par intention (7/10) sont TROIS NOMBRES DIFFERENTS et doivent rester identifies",
+    "cahier_line": 107,
+    "renforce_par": [
+      "T32.A3 (colonnes distinctes, ligne 435)",
+      "T36.A1 (ne pas remplacer U par 0,7, ligne 473)"
+    ]
+  },
+  "anti_valeurs": [
+    {
+      "valeur": 0.7,
+      "a_la_place_de": "U",
+      "motif": "T36.A1 interdit explicitement de remplacer U par 0,7 ; 0,7 est la reussite agregee par intention, pas U",
+      "cahier_line": 473
+    }
+  ],
+  "conventions": [
+    {
+      "id": "QUALITY-C1",
+      "enonce": "R vaut null lorsqu'AUCUNE intention admissible n'est proposee",
+      "cahier_line": 111
+    },
+    {
+      "id": "QUALITY-C2",
+      "enonce": "U est la moyenne temporelle sur les periodes EXPOSEES, avec l'exposition publiee",
+      "cahier_line": 111
+    },
+    {
+      "id": "QUALITY-C3",
+      "enonce": "une campagne confirmatoire exige une exposition predefinie NON NULLE",
+      "cahier_line": 111
+    },
+    {
+      "id": "QUALITY-C4",
+      "enonce": "une trajectoire INDISPONIBLE face a des intentions prevues a R=0, JAMAIS null",
+      "cahier_line": 111,
+      "consommateur": "T04.A5"
+    },
+    {
+      "id": "QUALITY-C5",
+      "enonce": "Q est null si aucun poids d'exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree",
+      "cahier_line": 111
+    },
+    {
+      "id": "QUALITY-C6",
+      "enonce": "les series de simple preparation restent marquees hors mesure",
+      "cahier_line": 111
+    },
+    {
+      "id": "QUALITY-C7",
+      "enonce": "le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite (invariant D10)",
+      "cahier_line": 72,
+      "consommateur": "T04.A2"
+    }
+  ],
+  "derivations": {
+    "$note": "controles de coherence faits a la main depuis les entrees du cahier ; non cites verbatim.",
+    "items": [
+      {
+        "expression": "(1 + 1/2 + 3/4 + 1) / 4",
+        "resultat": "13/16 = 0.8125",
+        "confirme": "QUALITY-V"
+      },
+      {
+        "expression": "Q(P1)=(1+1)/(1+1) ; Q(P2)=(1+1+0)/(1+1+2) ; Q(P3)=(1+0+2)/(1+1+2) ; Q(P4)=(1+2)/(1+2)",
+        "resultat": "[1, 1/2, 3/4, 1]",
+        "confirme": "les entrees de la ligne 109 produisent bien la serie Q de la ligne 107"
+      },
+      {
+        "expression": "R(P1)=4/4 ; R(P2)=2/4 ; R(P3)= aucune offerte -> null ; R(P4)=1/2",
+        "resultat": "[1, 1/2, null, 1/2]",
+        "confirme": "QUALITY-R coherent avec offertes/reussies"
+      },
+      {
+        "expression": "periodes exposees = 3 sur 4",
+        "resultat": "3/4",
+        "confirme": "QUALITY-EXPO"
+      },
+      {
+        "expression": "(1 + 1/2 + 1/2) / 3",
+        "resultat": "2/3",
+        "confirme": "QUALITY-U"
+      },
+      {
+        "expression": "(4+2+0+1) / (4+4+0+2) = 7/10",
+        "resultat": "7/10",
+        "confirme": "QUALITY-AGG"
+      }
+    ]
+  },
+  "ambiguites": [
+    {
+      "id": "QUALITY-AMB-1",
+      "sujet": "identite du test negatif « exigence revelee mais non encore due »",
+      "texte_cahier": "Le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance",
+      "cahier_line": 109,
+      "probleme": "le cahier ne donne ni id, ni version, ni poids, ni periode de revelation, ni echeance pour cette exigence. Toute valeur concrete serait une invention du transcripteur.",
+      "lectures": [
+        "seule la REGLE est transcriptible ; les valeurs concretes sont laissees au concepteur du test, qui ne doit alors pas les presenter comme donnees de §F",
+        "l'exigence est censee etre ajoutee a l'une des quatre periodes existantes sans en changer les Q attendus, ce qui contraint son poids a etre exclu partout"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": true,
+      "remarque": "T04.A6 est classe 'absence' dans cases.lock.json : il asserte l'ABSENCE du poids au denominateur, ce qui reste verifiable sans fixer le poids."
+    },
+    {
+      "id": "QUALITY-AMB-2",
+      "sujet": "quelle periode porte « les quatre usages » de T08.A2",
+      "texte_cahier": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n'a cree aucune donnee",
+      "cahier_line": 223,
+      "probleme": "la serie des offertes est [4,4,0,2] : DEUX periodes offrent quatre intentions (P1 et P2), et le cas ne nomme pas laquelle",
+      "lectures": [
+        "P1, premiere periode a quatre intentions offertes",
+        "P2, egalement a quatre offertes",
+        "enonce generique : toute periode a quatre offertes conserve ses quatre offertes"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": true
+    },
+    {
+      "id": "QUALITY-AMB-3",
+      "sujet": "definition de l'exposition : periodes a R non nul ou periodes a intentions offertes > 0",
+      "texte_cahier": "U est la moyenne temporelle sur les periodes exposees, avec l'exposition publiee",
+      "cahier_line": 111,
+      "probleme": "sur cette fixture les deux definitions coincident (P3 est a la fois la seule a R=null et la seule a zero offerte), donc 3/4 ne les departage pas",
+      "lectures": [
+        "exposition = proportion de periodes ou R n'est pas null",
+        "exposition = proportion de periodes ou au moins une intention admissible est offerte"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "la convention C4 (indisponible face a des intentions prevues -> R=0) rend les deux lectures separables sur une AUTRE fixture, pas sur celle-ci"
+    },
+    {
+      "id": "QUALITY-AMB-4",
+      "sujet": "arrondi d'affichage de U",
+      "texte_cahier": "F-QUALITY affiche 0,8125 et 2/3 avec arrondi annonce",
+      "cahier_line": 473,
+      "probleme": "2/3 n'a pas d'ecriture decimale finie ; le cahier exige un « arrondi annonce » sans donner ni le nombre de decimales ni le mode d'arrondi",
+      "lectures": [
+        "le rapport publie la fraction exacte 2/3 et l'arrondi n'est qu'un ornement",
+        "le rapport publie un decimal arrondi dont la precision est declaree ailleurs"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "la valeur de fixture reste 2/3 exact ; §G ligne 143 plafonne la tolerance des fixtures arithmetiques a 1e-12"
+    }
+  ]
+}

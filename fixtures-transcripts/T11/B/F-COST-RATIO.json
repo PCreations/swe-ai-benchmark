@@ -1,0 +1,170 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-COST-RATIO",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    113
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "tache": "T32",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "implique_pour_la_fixture": "les deux moyennes ET le ratio sont trois sorties distinctes a porter"
+    },
+    {
+      "cas": "T36.A2",
+      "tache": "T36",
+      "cahier_line": 473,
+      "proof_kind": "numeric",
+      "exige": "F-COST-RATIO affiche 5/6 et les deux moyennes"
+    },
+    {
+      "cas": "T32.fin",
+      "tache": "T32",
+      "cahier_line": 437,
+      "proof_kind": "mutation",
+      "exige": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs",
+      "implique_pour_la_fixture": "0,7 doit etre porte explicitement comme ANTI-VALEUR, sinon la mutation « moyenne des ratios » n'est pas detectable"
+    }
+  ],
+  "donnees": {
+    "projets": 2,
+    "ponderation": "poids egal",
+    "cahier_line": 113,
+    "bras_A": {
+      "couts_par_projet": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "bras_B": {
+      "couts_par_projet": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "appariement": {
+      "enonce": "index par index : projet 1 = (A=10, B=20), projet 2 = (A=90, B=100)",
+      "confirme_par": "l'anti-valeur 0,7 n'est atteignable que par moyenne(10/20, 90/100) = moyenne(0,5 ; 0,9)",
+      "cahier_line": 113
+    }
+  },
+  "attendus": [
+    {
+      "id": "COSTRATIO-MEAN-A",
+      "enonce": "moyenne du bras A",
+      "valeur_exacte": 50,
+      "cahier_line": 113,
+      "cite_verbatim": true
+    },
+    {
+      "id": "COSTRATIO-MEAN-B",
+      "enonce": "moyenne du bras B",
+      "valeur_exacte": 60,
+      "cahier_line": 113,
+      "cite_verbatim": true
+    },
+    {
+      "id": "COSTRATIO-RATIO",
+      "enonce": "ratio principal A/B",
+      "valeur_exacte": "5/6",
+      "decimal_exact": false,
+      "cahier_line": 113,
+      "cite_verbatim": true
+    }
+  ],
+  "anti_valeurs": [
+    {
+      "valeur": 0.7,
+      "valeur_exacte": "7/10",
+      "nom": "moyenne des ratios",
+      "motif": "« La moyenne des ratios serait 0.7 et constitue un resultat INCORRECT pour cette metrique »",
+      "cahier_line": 113,
+      "cite_verbatim": true
+    }
+  ],
+  "conventions": [
+    {
+      "id": "COSTRATIO-C1",
+      "enonce": "l'ordre est : moyenner d'abord DANS chaque bras sur les projets, puis faire le ratio des moyennes — jamais l'inverse",
+      "cahier_line": 113
+    },
+    {
+      "id": "COSTRATIO-C2",
+      "enonce": "poids des scenarios appliques a l'interieur du parent AVANT poids entre parents",
+      "cahier_line": 435,
+      "source": "T32.A6"
+    },
+    {
+      "id": "COSTRATIO-C3",
+      "enonce": "denominateur nul produit null / ZERO_DENOMINATOR, sans epsilon",
+      "cahier_line": 435,
+      "source": "T32.A5"
+    }
+  ],
+  "derivations": {
+    "$note": "controles a la main, non cites verbatim.",
+    "items": [
+      {
+        "expression": "(10 + 90) / 2",
+        "resultat": 50,
+        "confirme": "COSTRATIO-MEAN-A"
+      },
+      {
+        "expression": "(20 + 100) / 2",
+        "resultat": 60,
+        "confirme": "COSTRATIO-MEAN-B"
+      },
+      {
+        "expression": "50 / 60",
+        "resultat": "5/6",
+        "confirme": "COSTRATIO-RATIO"
+      },
+      {
+        "expression": "(10/20 + 90/100) / 2 = (0.5 + 0.9)/2",
+        "resultat": "0.7",
+        "confirme": "l'anti-valeur, et l'appariement index par index"
+      }
+    ]
+  },
+  "ambiguites": [
+    {
+      "id": "COSTRATIO-AMB-1",
+      "sujet": "unite et nature des couts 10/90/20/100",
+      "texte_cahier": "A coute [10,90], B [20,100]",
+      "cahier_line": 113,
+      "probleme": "ni unite (micro-USD ?) ni granularite (cout par projet, par trajectoire, deja agrege ?) ne sont ecrites",
+      "lectures": [
+        "un cout deja agrege par projet, l'unite etant sans effet sur un ratio",
+        "des micro-USD par la regle generale de §E ligne 80"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "le ratio 5/6 est invariant d'echelle (cf. T33.A3, multiplier tous les couts par 7 ne change rien), donc l'unite n'affecte aucune valeur assertee"
+    },
+    {
+      "id": "COSTRATIO-AMB-2",
+      "sujet": "identite des deux projets de F-COST-RATIO et de ceux de F-CLUSTERS",
+      "texte_cahier": "F-BOOTSTRAP : « Sur les deux projets precedents »",
+      "cahier_line": 117,
+      "probleme": "« les deux projets precedents » designe les projets de F-CLUSTERS (ligne 115) ou ceux de F-COST-RATIO (ligne 113) — les deux fixtures precedent F-BOOTSTRAP",
+      "lectures": [
+        "F-CLUSTERS, fixture immediatement precedente",
+        "F-COST-RATIO, qui introduit les deux projets de poids egal"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "les deux lectures COINCIDENT numeriquement : les moyennes par projet sont (A=10,B=20) et (A=90,B=100) dans les deux cas. L'ambiguite est donc sans effet sur les quatre ratios de F-BOOTSTRAP."
+    }
+  ]
+}

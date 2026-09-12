@@ -1,0 +1,88 @@
+{
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T11",
+  "regle": "Toute valeur provient du texte du cahier, jamais d'un calcul fait par une implementation. Verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "titre_ligne": 101,
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "plage_section": [
+      101,
+      129
+    ],
+    "lignes": [
+      113
+    ]
+  },
+  "source_verbatim": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "nature": "ratio de cout entre deux bras, agrege sur deux projets de poids egal",
+  "projets": {
+    "nombre": {
+      "valeur": 2,
+      "cahier_line": 113
+    },
+    "poids": {
+      "valeur": "egal",
+      "cahier_line": 113
+    }
+  },
+  "couts": {
+    "A": {
+      "valeur": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "B": {
+      "valeur": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    }
+  },
+  "attendus": {
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "rationnel": "5/6",
+      "decimal_du_cahier": null,
+      "cahier_line": 113
+    }
+  },
+  "anti_attendu": {
+    "moyenne_des_ratios": {
+      "decimal_du_cahier": 0.7,
+      "cahier_line": 113
+    },
+    "statut": {
+      "valeur": "INCORRECT pour cette metrique — ratio des moyennes, jamais moyenne des ratios",
+      "cahier_line": 113
+    }
+  },
+  "conventions": [
+    {
+      "enonce": "Le ratio principal est le ratio des moyennes (A/B), pas la moyenne des ratios.",
+      "cahier_line": 113
+    }
+  ],
+  "non_specifie": [
+    "Le cahier n'enonce pas l'unite des couts [10,90]/[20,100].",
+    "L'appariement des deux entrees de chaque liste aux deux projets n'est pas nomme explicitement (ordre positionnel implicite)."
+  ],
+  "ambiguites": []
+}

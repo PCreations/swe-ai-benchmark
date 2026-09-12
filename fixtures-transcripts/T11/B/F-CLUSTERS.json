@@ -1,0 +1,196 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-CLUSTERS",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    115
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "tache": "T32",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "exige": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "implique_pour_la_fixture": "la fixture doit porter l'etat AVANT et APRES duplication, et l'egalite des estimations ponctuelles"
+    },
+    {
+      "cas": "T33.A5",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la MEME liste de tirages parents"
+    },
+    {
+      "cas": "T33.A6",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "refusal",
+      "exige": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets",
+      "implique_pour_la_fixture": "F-CLUSTERS a DEUX grappes ; la variante a une grappe est le cas negatif associe"
+    },
+    {
+      "cas": "T32.fin",
+      "tache": "T32",
+      "cahier_line": 437,
+      "proof_kind": "mutation",
+      "exige": "jeu de mutations detectant le POOLING des lignes",
+      "implique_pour_la_fixture": "le compte de onze lignes doit etre porte pour que la mutation « moyenne naive sur onze lignes » soit detectable"
+    }
+  ],
+  "donnees": {
+    "grappes": [
+      {
+        "projet": "P1",
+        "bras_A": 10,
+        "bras_B": 20,
+        "repetitions": 10,
+        "qualificatif_cahier": "dix repetitions identiques",
+        "cahier_line": 115
+      },
+      {
+        "projet": "P2",
+        "bras_A": 90,
+        "bras_B": 100,
+        "repetitions": 1,
+        "qualificatif_cahier": "une repetition",
+        "cahier_line": 115
+      }
+    ],
+    "lignes_totales": {
+      "valeur": 11,
+      "cahier_line": 115,
+      "cite_verbatim": true,
+      "note": "le cahier ecrit « onze lignes »"
+    }
+  },
+  "attendus": [
+    {
+      "id": "CLUSTERS-MEAN-A",
+      "enonce": "moyenne interprojets du bras A",
+      "valeur_exacte": 50,
+      "cahier_line": 115,
+      "cite_verbatim": true
+    },
+    {
+      "id": "CLUSTERS-MEAN-B",
+      "enonce": "moyenne interprojets du bras B",
+      "valeur_exacte": 60,
+      "cahier_line": 115,
+      "cite_verbatim": true
+    },
+    {
+      "id": "CLUSTERS-INVAR",
+      "enonce": "dupliquer TOUTES les repetitions de P1 (10 -> 20) laisse l'estimation ponctuelle INCHANGEE",
+      "etat_apres": {
+        "P1": {
+          "repetitions": 20,
+          "bras_A": 10,
+          "bras_B": 20
+        },
+        "P2": {
+          "repetitions": 1,
+          "bras_A": 90,
+          "bras_B": 100
+        },
+        "moyennes": {
+          "A": 50,
+          "B": 60
+        }
+      },
+      "cahier_line": 115,
+      "cite_verbatim": true
+    }
+  ],
+  "anti_valeurs": [
+    {
+      "nom": "moyenne naive sur onze lignes",
+      "enonce_cahier": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "cahier_line": 115,
+      "cite_verbatim": true,
+      "valeurs_chiffrees_non_citees": {
+        "bras_A": "190/11",
+        "bras_B": "300/11",
+        "ratio": "190/300 = 19/30"
+      },
+      "avertissement": "ces trois nombres sont DERIVES par le transcripteur, le cahier ne les ecrit pas ; ils ne sont pas des valeurs de reference"
+    }
+  ],
+  "conventions": [
+    {
+      "id": "CLUSTERS-C1",
+      "enonce": "l'agregation est : moyenne DANS la grappe (projet), puis moyenne ENTRE grappes a poids egal — le nombre de repetitions ne pondere pas la grappe",
+      "cahier_line": 115
+    },
+    {
+      "id": "CLUSTERS-C2",
+      "enonce": "les repetitions et variantes ne sont pas de nouveaux projets independants (invariant D11)",
+      "cahier_line": 73
+    },
+    {
+      "id": "CLUSTERS-C3",
+      "enonce": "« Moyennes interprojets ENCORE 50 et 60 » : F-CLUSTERS reproduit deliberement les moyennes de F-COST-RATIO avec un desequilibre de repetitions",
+      "cahier_line": 115
+    }
+  ],
+  "derivations": {
+    "$note": "controles a la main, non cites verbatim.",
+    "items": [
+      {
+        "expression": "(10 + 90) / 2",
+        "resultat": 50,
+        "confirme": "CLUSTERS-MEAN-A"
+      },
+      {
+        "expression": "(20 + 100) / 2",
+        "resultat": 60,
+        "confirme": "CLUSTERS-MEAN-B"
+      },
+      {
+        "expression": "10 repetitions + 1 repetition",
+        "resultat": 11,
+        "confirme": "les « onze lignes » du cahier"
+      },
+      {
+        "expression": "(10*10 + 90) / 11",
+        "resultat": "190/11 ~ 17,27",
+        "confirme": "l'anti-valeur de pooling, NON citee par le cahier"
+      }
+    ]
+  },
+  "ambiguites": [
+    {
+      "id": "CLUSTERS-AMB-1",
+      "sujet": "collision de noms P1/P2",
+      "texte_cahier": "Projet P1 : A=10, B=20 ... Projet P2 : A=90, B=100",
+      "cahier_line": 115,
+      "probleme": "P1..P4 designent ailleurs des PERIODES (F-QUALITY ligne 109, F-RESERVATION ligne 119, F-FAILURE ligne 121) ; ici P1/P2 designent des PROJETS, et dans F-POWER (ligne 127) encore d'autres parents nommes P1/P2 avec d'autres valeurs",
+      "lectures": [
+        "P1/P2 de F-CLUSTERS et F-BOOTSTRAP sont des projets (grappes)",
+        "P1..P4 ailleurs sont des periodes"
+      ],
+      "non_tranche": false,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "consigne comme piege de lecture, pas comme ambiguite reelle : le contexte tranche a chaque occurrence. Les parents P1/P2 de F-POWER ne portent PAS les valeurs de F-CLUSTERS."
+    },
+    {
+      "id": "CLUSTERS-AMB-2",
+      "sujet": "que signifie « identiques » pour les dix repetitions de P1",
+      "texte_cahier": "A=10, B=20 sur dix repetitions identiques",
+      "cahier_line": 115,
+      "probleme": "le cahier ne dit pas si les dix repetitions portent des identites distinctes (repetition_id de §E ligne 78) avec les memes valeurs, ou si elles sont indiscernables",
+      "lectures": [
+        "dix repetition_id distincts portant les memes couts — lecture imposee par §E, qui fait de repetition_id une composante d'identite",
+        "dix lignes strictement identiques, y compris d'identite"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "sans effet sur 50/60, mais determine si « permuter les lignes » (T33.A5) est observable"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "tache": "T11",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "titre_ligne": 101,
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "plage_section": [
+      101,
+      129
+    ]
+  },
+  "methode": "Transcription directe de §F du cahier, fixture par fixture, dans l'ordre du texte. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes.",
+  "fixtures": [
+    {
+      "nom": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "cahier_lines": [
+        103
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "cahier_lines": [
+        105
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "cahier_lines": [
+        107,
+        109,
+        111
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "cahier_lines": [
+        113
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "cahier_lines": [
+        115
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "cahier_lines": [
+        117
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ],
+      "nb_ambiguites": 3
+    },
+    {
+      "nom": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "cahier_lines": [
+        121
+      ],
+      "nb_ambiguites": 0
+    },
+    {
+      "nom": "F-POWER",
+      "fichier": "F-POWER.json",
+      "cahier_lines": [
+        127
+      ],
+      "nb_ambiguites": 3
+    },
+    {
+      "nom": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "cahier_lines": [
+        129
+      ],
+      "nb_ambiguites": 0
+    }
+  ],
+  "nombre_de_fixtures": 10,
+  "ambiguites_totales": 6
+}

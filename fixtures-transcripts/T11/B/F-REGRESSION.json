@@ -1,0 +1,251 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-REGRESSION",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    129
+  ],
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "tache": "T04",
+      "cahier_line": 191,
+      "proof_kind": "behaviour",
+      "exige": "F-REGRESSION EXCLUT cancel@1 et COMPTE isolation@1"
+    },
+    {
+      "cas": "T04.A4",
+      "tache": "T04",
+      "cahier_line": 191,
+      "proof_kind": "numeric",
+      "exige": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+      "voir_ambiguite": "REGRESSION-AMB-2"
+    },
+    {
+      "cas": "T11.A2",
+      "tache": "T11",
+      "cahier_line": 251,
+      "proof_kind": "behaviour",
+      "exige": "remplacement de regle en P3 VISIBLE et ancienne regle RETIREE",
+      "implique_pour_la_fixture": "le remplacement cancel@1 -> cancel@2 doit etre observable au niveau de la trajectoire, pas seulement des metriques"
+    },
+    {
+      "cas": "T06.A6",
+      "tache": "T06",
+      "cahier_line": 207,
+      "proof_kind": "behaviour",
+      "exige": "remplacer une exigence DESACTIVE LA BONNE VERSION AU BON INSTANT"
+    }
+  ],
+  "exigences": [
+    {
+      "id": "cancel",
+      "version": 1,
+      "notation": "cancel@1",
+      "chronologie": [
+        {
+          "periode": "P2",
+          "statut": "satisfaite",
+          "cahier_line": 129
+        },
+        {
+          "periode": "P3",
+          "statut": "REMPLACEE par cancel@2 (donc retiree des actives)",
+          "cahier_line": 129
+        }
+      ],
+      "effet_sur_G": {
+        "compte": false,
+        "enonce": "le retrait de cancel@1 ne produit PAS de regression",
+        "cahier_line": 129,
+        "cite_verbatim": true
+      }
+    },
+    {
+      "id": "cancel",
+      "version": 2,
+      "notation": "cancel@2",
+      "chronologie": [
+        {
+          "periode": "P3",
+          "statut": "remplace cancel@1",
+          "cahier_line": 129
+        }
+      ],
+      "effet_sur_G": {
+        "compte": false,
+        "enonce": "aucun statut de violation ne lui est attribue par le cahier"
+      }
+    },
+    {
+      "id": "isolation",
+      "version": 1,
+      "notation": "isolation@1",
+      "chronologie": [
+        {
+          "periode": "P3",
+          "statut": "satisfaite",
+          "cahier_line": 129
+        },
+        {
+          "periode": "P4",
+          "statut": "VIOLEE",
+          "cahier_line": 129
+        }
+      ],
+      "effet_sur_G": {
+        "compte": true,
+        "enonce": "satisfaite en P3 puis violee en P4 en produit une [regression]",
+        "cahier_line": 129,
+        "cite_verbatim": true
+      }
+    }
+  ],
+  "attendus": [
+    {
+      "id": "REGRESSION-EXCLUSION",
+      "enonce": "cancel@1, retiree par remplacement, n'est PAS comptee comme regression",
+      "cahier_line": 129,
+      "cite_verbatim": true,
+      "renforce_par": "T04.A3 ligne 191"
+    },
+    {
+      "id": "REGRESSION-COMPTAGE",
+      "enonce": "isolation@1 est comptee comme UNE regression en P4",
+      "cahier_line": 129,
+      "cite_verbatim": true,
+      "renforce_par": "T04.A3 ligne 191"
+    },
+    {
+      "id": "REGRESSION-G-P4",
+      "enonce": "G en P4",
+      "valeur_exacte": 1,
+      "derive": true,
+      "cite_verbatim": false,
+      "derivation": "« en produit une » (ligne 129) + definition de G (ligne 189 : exigences actives dues, autrefois satisfaites, actuellement violees)"
+    },
+    {
+      "id": "REGRESSION-GNEW-P4",
+      "enonce": "G_new en P4",
+      "valeur_exacte": 1,
+      "derive": true,
+      "cite_verbatim": false,
+      "derivation": "isolation@1 etait satisfaite a la periode precedente comparable (P3) et devient violee en P4 (definition de G_new, ligne 189)"
+    }
+  ],
+  "definitions": [
+    {
+      "terme": "G",
+      "enonce": "compte les regressions ACTUELLEMENT OUVERTES, c'est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees",
+      "cahier_line": 189,
+      "cite_verbatim": true
+    },
+    {
+      "terme": "G_new",
+      "enonce": "compte celles qui etaient satisfaites a la PERIODE PRECEDENTE COMPARABLE et deviennent violees",
+      "cahier_line": 189,
+      "cite_verbatim": true
+    },
+    {
+      "terme": "persistance",
+      "enonce": "une regression persistante contribue a G, SANS redevenir nouvelle a chaque periode",
+      "cahier_line": 189,
+      "cite_verbatim": true
+    }
+  ],
+  "conventions": [
+    {
+      "id": "REGRESSION-C1",
+      "enonce": "compter par ID/VERSION ACTIVE, pas par nombre d'assertions",
+      "cahier_line": 129,
+      "cite_verbatim": true
+    },
+    {
+      "id": "REGRESSION-C2",
+      "enonce": "le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite (invariant D10)",
+      "cahier_line": 72
+    },
+    {
+      "id": "REGRESSION-C3",
+      "enonce": "seules les exigences ACTIVES ET DUES entrent dans G ; une exigence remplacee cesse d'etre active",
+      "cahier_line": 189
+    }
+  ],
+  "anti_valeurs": [
+    {
+      "nom": "compter le retrait comme une regression",
+      "valeur_fautive_pour_G_P3": 1,
+      "motif": "confondre remplacement et violation ferait de cancel@1 une regression en P3",
+      "cahier_line": 129
+    },
+    {
+      "nom": "compter par assertions",
+      "motif": "interdit par la ligne 129 et l'invariant D10",
+      "cahier_line": 129
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "REGRESSION-AMB-1",
+      "sujet": "etat des periodes non citees (P1, et isolation@1 avant P3)",
+      "texte_cahier": "Exigence cancel@1 satisfaite en P2 ... Une exigence isolation@1 satisfaite en P3 puis violee en P4",
+      "cahier_line": 129,
+      "probleme": "le cahier ne dit rien de P1, ni du statut de cancel@1 en P1, ni de la date de revelation ou d'echeance d'isolation@1 (existe-t-elle, due, satisfaite en P1 et P2 ?). G et G_new de P1, P2 et P3 ne sont donc pas determines.",
+      "lectures": [
+        "F-REGRESSION ne fixe que deux faits, les autres periodes etant hors de son perimetre",
+        "F-REGRESSION se greffe sur les quatre periodes de F-QUALITY, qui ne mentionnent pourtant ni cancel ni isolation mais A, B et C"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": true,
+      "remarque": "les exigences de F-QUALITY (A@1, A@2, B@1, C@1 — ligne 109) et celles de F-REGRESSION (cancel@1, cancel@2, isolation@1) sont des ensembles DISJOINTS, ce qui plaide contre la greffe"
+    },
+    {
+      "id": "REGRESSION-AMB-2",
+      "sujet": "support des « deux periodes consecutives cassees » de T04.A4",
+      "texte_cahier": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+      "cahier_line": 191,
+      "probleme": "F-REGRESSION s'arrete a P4. Le cas T04.A4 exige DEUX periodes consecutives en violation, donc soit une cinquieme periode ou isolation@1 reste violee, soit un mini-cas independant.",
+      "lectures": [
+        "prolongement de F-REGRESSION : isolation@1 reste violee en P5, donnant G=1 en P4 et P5, G_new=1 puis 0",
+        "cas autonome de T04, sans lien avec les identifiants de F-REGRESSION"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": true
+    },
+    {
+      "id": "REGRESSION-AMB-3",
+      "sujet": "sens de « periode precedente comparable » dans G_new",
+      "texte_cahier": "celles qui etaient satisfaites a la periode precedente COMPARABLE",
+      "cahier_line": 189,
+      "probleme": "le cahier ne definit pas « comparable ». Periode immediatement precedente ? Precedente ou l'exigence etait active et due ? Precedente de meme configuration ?",
+      "lectures": [
+        "periode immediatement precedente du meme parcours",
+        "derniere periode ou l'exigence etait active et due, ce qui differe des qu'une exigence saute une periode"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "sur F-REGRESSION, P3 est a la fois l'immediate precedente de P4 et la derniere ou isolation@1 etait due : la fixture ne departage pas les deux lectures"
+    },
+    {
+      "id": "REGRESSION-AMB-4",
+      "sujet": "statut de cancel@2 apres le remplacement",
+      "texte_cahier": "remplacee en P3 par cancel@2",
+      "cahier_line": 129,
+      "probleme": "le cahier ne dit pas si cancel@2 est satisfaite, violee ou non encore due en P3 et P4",
+      "lectures": [
+        "satisfaite, sinon une regression apparaitrait et contredirait « le retrait de cancel@1 ne produit pas de regression »",
+        "statut indifferent, l'exigence n'ayant jamais ete satisfaite auparavant sous sa version 2 et ne pouvant donc pas REGRESSER"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "la seconde lecture est la plus sure : G ne compte que les exigences AUTREFOIS SATISFAITES (ligne 189), et cancel@2 n'a pas de passe"
+    }
+  ]
+}

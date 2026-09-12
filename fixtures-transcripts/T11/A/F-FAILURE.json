@@ -1,0 +1,106 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T11",
+  "regle": "Toute valeur provient du texte du cahier, jamais d'un calcul fait par une implementation. Verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "titre_ligne": 101,
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "plage_section": [
+      101,
+      129
+    ],
+    "lignes": [
+      121
+    ]
+  },
+  "source_verbatim": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "nature": "candidat en echec total : les lignes et les depenses survivent",
+  "K": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "condition": {
+    "valeur": "candidat SANS DEPLOIEMENT sur les quatre periodes",
+    "cahier_line": 121
+  },
+  "attendus": {
+    "nombre_de_lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les exigences sont presentes dans la periode",
+      "cahier_line": 121
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les usages sont presents dans la periode",
+      "cahier_line": 121
+    },
+    "couts": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "exact": true,
+      "cahier_line": 121
+    }
+  },
+  "arret_de_calcul": {
+    "enonce": "Un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n'y est ajoutee.",
+    "p3_p4_conservees": {
+      "valeur": true,
+      "cahier_line": 121
+    },
+    "facture_ajoutee_en_p3_p4": {
+      "valeur": 0,
+      "note": "aucune facture imaginaire",
+      "cahier_line": 121
+    }
+  },
+  "conventions": [
+    {
+      "enonce": "Q=0 et R=0 sont conditionnes a la presence des exigences et des usages dans la periode (le cahier ecrit « si les exigences et usages y sont presents »).",
+      "cahier_line": 121
+    },
+    {
+      "enonce": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais `null` (convention l.111).",
+      "cahier_line": 111
+    },
+    {
+      "enonce": "Un echec conserve ses depenses, ses intentions non servies et son backlog (invariant D.5, l.65).",
+      "cahier_line": 65
+    }
+  ],
+  "non_specifie": [
+    "Le cahier ne donne pour F-FAILURE ni V, ni U, ni exposition : il donne Q, R, les couts et leur total. Les deriver ici serait un calcul, pas une transcription.",
+    "L'unite des couts [100,50,0,0] n'est pas enoncee.",
+    "Le nombre d'exigences et d'usages par periode n'est pas chiffre."
+  ],
+  "ambiguites": []
+}

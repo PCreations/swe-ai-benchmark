@@ -4,9 +4,19 @@
   "private": true,
   "type": "module",
   "description": "Persistance des evenements et resultats dans PostgreSQL : migrations du schema central, repositories, outbox et publication transactionnelle (cahier L255-L263, tache T12).",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
-  "dependencies": { "@bench/contracts": "workspace:*" }
+  "files": [
+    "dist",
+    "migrations"
+  ],
+  "dependencies": {
+    "@bench/contracts": "workspace:*"
+  }
 }

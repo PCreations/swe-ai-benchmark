@@ -28,6 +28,8 @@ export {
   isSignedMicroUsd,
   microUsd,
   mulMicroUsd,
+  parseAdjustmentMicroUsd,
+  parseAmountMicroUsd,
   signedMicroUsd,
   toBigInt,
 } from './units.js'
@@ -60,6 +62,19 @@ export type { OperationIdentity, PeriodIdentity, TrajectoryIdentity } from './id
 
 export { canonicalJson } from './canonical.js'
 export type { CanonicalValue } from './canonical.js'
+
+// ── T02 (squelette) : sérialisation canonique, empreintes, dérivation de
+//    graines et horloge injectable — les livrables que le cahier L171 place
+//    dans `contracts`. Chaque export LÈVE tant que T02 n'est pas vert ; aucun
+//    ne rend de constante, parce que les cas A1, A2, A5 et A6 sont des énoncés
+//    d'égalité, d'invariance ou de déterminisme qu'une constante satisferait
+//    sans rien calculer (verification/mutants/T02.json).
+export { canonicalBytes, canonicalDigest, sha256Hex } from './digest.js'
+export { createRng, deriveSeed, rngForStream } from './seeds.js'
+export type { Rng } from './seeds.js'
+export { fixedClock } from './clock.js'
+export type { Clock } from './clock.js'
+export { NotImplemented, isNotImplemented } from './not-implemented.js'
 
 export { CAMPAIGN_MANIFEST_REQUIRED_FIELDS, SEED_STREAMS } from './manifest.js'
 export type { BudgetSpec, CampaignManifest, CorpusRef, SeedSet, SeedStream } from './manifest.js'

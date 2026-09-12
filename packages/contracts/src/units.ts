@@ -13,6 +13,7 @@
 // passé par `microUsd()`, donc sans avoir été validé.
 // ─────────────────────────────────────────────────────────────────────────────
 import { ContractViolation } from './errors.js'
+import { NotImplemented } from './not-implemented.js'
 
 declare const MICRO_USD: unique symbol
 declare const SIGNED_MICRO_USD: unique symbol
@@ -103,3 +104,52 @@ export function compareMicroUsd(a: MicroUsd, b: MicroUsd): -1 | 0 | 1 {
 }
 
 export const ZERO_MICRO_USD = '0' as MicroUsd
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SQUELETTE T02 — les deux constructeurs que `acceptance/T02.spec.ts` exerce.
+//
+// POURQUOI DEUX, ET PAS UN AVEC UN DRAPEAU. §E (cahier L80) : « Les montants
+// sont des chaînes d'entiers NON NÉGATIFS en micro-USD [...] Les ajustements
+// sont des écritures séparées signées. » Le signe négatif n'est pas interdit en
+// soi : il est interdit à un MONTANT et légitime dans une ÉCRITURE
+// D'AJUSTEMENT. C'est tout le sens du qualificatif « hors écriture
+// d'ajustement » de L173. Un constructeur unique paramétré rendrait cette
+// frontière invisible au diff.
+//
+// `isMicroUsd` / `microUsd` / `signedMicroUsd` existent déjà (livrables T00) et
+// n'acceptent qu'une `string`. Les entrées que T02.A4 soumet sont plus larges —
+// `NaN`, `Infinity`, la chaîne vide, `1e6` — parce que le cahier interdit les
+// « nombres non finis » en plus des décimaux. Les deux exports ci-dessous
+// prennent donc `unknown` : refuser un nombre non fini suppose de pouvoir le
+// RECEVOIR.
+//
+// ÉTAT : ils LÈVENT `NotImplemented`, et non `ContractViolation`. La distinction
+// n'est pas cosmétique — la suite compte tout `throw` comme un REFUS, si bien
+// qu'un stub levant une violation de contrat se ferait passer pour la garde
+// qu'il ne contient pas. Le cas reste rouge par sa MOITIÉ POSITIVE : T02.A4
+// exige aussi que `0`, `1000000`, les montants importés de la racine gelée
+// F-MONEY et un entier au-delà de 2^53 soient ACCEPTÉS et relus à l'identique.
+// C'est la leçon que `verification/mutants/T02.json` inscrit en T02.M8 : le
+// refus n'est pas une compétence.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Montant en micro-USD (§E, cahier L80). Non négatif, entier exact, sans limite
+ * à 2^53 : le transport est une chaîne, l'arithmétique un `bigint`.
+ *
+ * Refuse : négatifs, décimaux, `NaN`, infinis, chaîne vide, notation
+ * exponentielle, zéros de tête.
+ */
+export function parseAmountMicroUsd(_value: unknown, _path = '$'): MicroUsd {
+  throw new NotImplemented('contracts.parseAmountMicroUsd')
+}
+
+/**
+ * Écriture d'ajustement (§E, cahier L80) : « écritures séparées signées ». Le
+ * négatif y est LÉGITIME ; le décimal, le `NaN` et l'infini restent refusés.
+ * L'ajustement ne blanchit que le SIGNE.
+ */
+export function parseAdjustmentMicroUsd(_value: unknown, _path = '$'): SignedMicroUsd {
+  throw new NotImplemented('contracts.parseAdjustmentMicroUsd')
+}
+

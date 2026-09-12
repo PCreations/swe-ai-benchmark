@@ -15,6 +15,7 @@
     { "path": "./packages/domain" },
     { "path": "./packages/oracle" },
     { "path": "./packages/scenario" },
-    { "path": "./packages/workload" }
+    { "path": "./packages/workload" },
+    { "path": "./packages/evaluation" }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "name": "@bench/evaluation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Qualification des oracles et detection des tests defectueux : pipeline de qualification, registre de mutants semantiques, file de quarantaine (cahier L237-L244, tache T10).",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "dependencies": { "@bench/contracts": "workspace:*" }
+}

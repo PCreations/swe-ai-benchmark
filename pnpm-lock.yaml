@@ -32,6 +32,12 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
+  packages/evaluation:
+    dependencies:
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/oracle:
     dependencies:
       '@bench/contracts':
@@ -43,6 +49,8 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+
+  packages/storage: {}
 
   packages/workload:
     dependencies:

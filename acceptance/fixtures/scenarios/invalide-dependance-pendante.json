@@ -1,0 +1,344 @@
+{
+  "schema": "bench.scenario.source/1",
+  "scenario_id": "SCN-RESERVATION-4P",
+  "corpus_provenance": "synthetic",
+  "business_domain": "reservation",
+  "period_count": 4,
+  "periods": [
+    {
+      "period_index": 1,
+      "business_clock": "2030-01-01T00:00:00Z",
+      "sentinel": "SENTINELLE-T06-P1-PERIODE-fcaa60d2fb14eab4",
+      "events": [
+        {
+          "event_id": "EVT-P1-RESERVATION-A",
+          "depends_on": [],
+          "sentinel": "SENTINELLE-T06-P1-EVT-1-6491d9175ab98216",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P1-EVT-1-6491d9175ab98216",
+            "fait": "reservation de A acceptee"
+          }
+        },
+        {
+          "event_id": "EVT-P1-REJEU-IDEMPOTENT-A",
+          "depends_on": [
+            "EVT-P1-RESERVATION-A"
+          ],
+          "sentinel": "SENTINELLE-T06-P1-EVT-2-aa48fd608d03f3fb",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P1-EVT-2-aa48fd608d03f3fb",
+            "fait": "rejeu de sa cle idempotente sans doublon"
+          }
+        },
+        {
+          "event_id": "EVT-P1-DEMANDE-CONCURRENTE-B",
+          "depends_on": [
+            "EVT-P1-RESERVATION-A"
+          ],
+          "sentinel": "SENTINELLE-T06-P1-EVT-3-ba2d5289dca5c224",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P1-EVT-3-ba2d5289dca5c224",
+            "fait": "demande concurrente de B rejetee sans surbooking"
+          }
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "A",
+          "version": 1,
+          "key": "A@1",
+          "capability_id": "CAP-A",
+          "weight": 1,
+          "due_at_period": 1,
+          "replaces": null,
+          "criticality": "MAJOR",
+          "source": "F-QUALITY entrees_exactes_de_Q.P1.actives_dues[0] (cahier L109)",
+          "sentinel": "SENTINELLE-T06-P1-EXI-1-67877601425cb6a4"
+        },
+        {
+          "requirement_id": "B",
+          "version": 1,
+          "key": "B@1",
+          "capability_id": "CAP-B",
+          "weight": 1,
+          "due_at_period": 1,
+          "replaces": null,
+          "criticality": "MAJOR",
+          "source": "F-QUALITY entrees_exactes_de_Q.P1.actives_dues[1] (cahier L109)",
+          "sentinel": "SENTINELLE-T06-P1-EXI-2-c72defeebd29f0c4"
+        }
+      ],
+      "requirement_withdrawals": [],
+      "customer_answers": [
+        {
+          "question_id": "capacite_du_creneau_s1",
+          "answer": "1",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.creneau.capacite.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P1-REP-1-dd5158d501db0ea4"
+        },
+        {
+          "question_id": "debut_du_creneau_s1",
+          "answer": "2030-01-03T12:00:00Z",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.creneau.debut.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P1-REP-2-d512e28c0fcc1bbc"
+        },
+        {
+          "question_id": "locataire_initial",
+          "answer": "legacy",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.locataire_initial.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P1-REP-3-bd8fdef774007c76"
+        }
+      ]
+    },
+    {
+      "period_index": 2,
+      "business_clock": "2030-01-01T01:00:00Z",
+      "sentinel": "SENTINELLE-T06-P2-PERIODE-7ed4db48a83cdecf",
+      "events": [
+        {
+          "event_id": "EVT-P2-ATTENTE-B-PUIS-C",
+          "depends_on": [
+            "EVT-P1-DEMANDE-CONCURRENTE-B"
+          ],
+          "sentinel": "SENTINELLE-T06-P2-EVT-1-aea6f4e305ae3434",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P2-EVT-1-aea6f4e305ae3434",
+            "fait": "ordre d attente : B puis C"
+          }
+        },
+        {
+          "event_id": "EVT-P2-ANNULATION-A",
+          "depends_on": [
+            "EVT-P1-RESERVATION-A"
+          ],
+          "sentinel": "SENTINELLE-T06-P2-EVT-2-6e7d56561b670f14",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P2-EVT-2-6e7d56561b670f14",
+            "fait": "annulation de A"
+          }
+        },
+        {
+          "event_id": "EVT-P2-PROMOTION-B",
+          "depends_on": [
+            "EVT-P2-ANNULATION-A",
+            "EVT-P2-ATTENTE-B-PUIS-C"
+          ],
+          "sentinel": "SENTINELLE-T06-P2-EVT-3-b59af872313fe739",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P2-EVT-3-b59af872313fe739",
+            "fait": "B devient confirme"
+          }
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "C",
+          "version": 1,
+          "key": "C@1",
+          "capability_id": "CAP-C",
+          "weight": 2,
+          "due_at_period": 2,
+          "replaces": null,
+          "criticality": "MAJOR",
+          "source": "F-QUALITY entrees_exactes_de_Q.P2.actives_dues[2] (cahier L109)",
+          "sentinel": "SENTINELLE-T06-P2-EXI-1-ff3ff75bdd059216"
+        },
+        {
+          "requirement_id": "cancel",
+          "version": 1,
+          "key": "cancel@1",
+          "capability_id": "CAP-CANCEL",
+          "weight": 1,
+          "due_at_period": 2,
+          "replaces": null,
+          "criticality": "MAJOR",
+          "source": "F-REGRESSION exigence_remplacee (cahier L129) — poids non fixe par le cahier",
+          "sentinel": "SENTINELLE-T06-P2-EXI-2-777d7af8cdb2720a"
+        }
+      ],
+      "requirement_withdrawals": [],
+      "customer_answers": [
+        {
+          "question_id": "etat_de_a_apres_annulation",
+          "answer": "annule",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.P2.etat_attendu.A.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P2-REP-1-e85bd2d3e7b99384"
+        },
+        {
+          "question_id": "etat_de_b_apres_annulation",
+          "answer": "confirme",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.P2.etat_attendu.B.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P2-REP-2-172174b271e6a33e"
+        }
+      ]
+    },
+    {
+      "period_index": 3,
+      "business_clock": "2030-01-02T11:00:00Z",
+      "sentinel": "SENTINELLE-T06-P3-PERIODE-03717d3da360fe7a",
+      "events": [
+        {
+          "event_id": "EVT-P3-REGLE-ANNULATION-24H",
+          "depends_on": [
+            "EVT-P2-PROMOTION-B"
+          ],
+          "sentinel": "SENTINELLE-T06-P3-EVT-1-69b9bcdf4abef4bc",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P3-EVT-1-69b9bcdf4abef4bc",
+            "fait": "annulation permise au moins 24 heures avant le debut, frontiere incluse"
+          }
+        },
+        {
+          "event_id": "EVT-P3-PROBE-FRONTIERE-EXACTE",
+          "depends_on": [
+            "EVT-P3-REGLE-ANNULATION-24H"
+          ],
+          "sentinel": "SENTINELLE-T06-P3-EVT-2-8619859168d36a3b",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P3-EVT-2-8619859168d36a3b",
+            "fait": "B a 2030-01-02T12:00:00Z : annulation acceptee"
+          }
+        },
+        {
+          "event_id": "EVT-P3-PROBE-FRONTIERE-PLUS-1MS",
+          "depends_on": [
+            "EVT-P3-REGLE-ANNULATION-24H"
+          ],
+          "sentinel": "SENTINELLE-T06-P3-EVT-3-02f7b7903821f70f",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P3-EVT-3-02f7b7903821f70f",
+            "fait": "B a 2030-01-02T12:00:00.001Z : refus metier"
+          }
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "A",
+          "version": 2,
+          "key": "A@2",
+          "capability_id": "CAP-A",
+          "weight": 1,
+          "due_at_period": 3,
+          "replaces": "A@1",
+          "criticality": "MAJOR",
+          "source": "F-QUALITY entrees_exactes_de_Q.P3 (cahier L109) — « P3 remplace A@1 par A@2 »",
+          "sentinel": "SENTINELLE-T06-P3-EXI-1-186d0fd09d490868"
+        },
+        {
+          "requirement_id": "cancel",
+          "version": 2,
+          "key": "cancel@2",
+          "capability_id": "CAP-CANCEL",
+          "weight": 1,
+          "due_at_period": 3,
+          "replaces": "cancel@1",
+          "criticality": "MAJOR",
+          "source": "F-REGRESSION exigence_remplacee (cahier L129) — remplacee_en P3",
+          "sentinel": "SENTINELLE-T06-P3-EXI-2-85f95602cc35b613"
+        },
+        {
+          "requirement_id": "isolation",
+          "version": 1,
+          "key": "isolation@1",
+          "capability_id": "CAP-ISOLATION",
+          "weight": 1,
+          "due_at_period": 3,
+          "replaces": null,
+          "criticality": "MAJOR",
+          "source": "F-REGRESSION exigence_violee (cahier L129) — satisfaite en P3",
+          "sentinel": "SENTINELLE-T06-P3-EXI-3-3bbe350721132b16"
+        }
+      ],
+      "requirement_withdrawals": [],
+      "customer_answers": [
+        {
+          "question_id": "delai_minimal_avant_annulation_heures",
+          "answer": "24",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.P3.delai_heures.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P3-REP-1-5849dd68dc1cf4e6"
+        },
+        {
+          "question_id": "frontiere_d_annulation_incluse",
+          "answer": "true",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.P3.frontiere_incluse.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P3-REP-2-92df45785792201c"
+        },
+        {
+          "question_id": "instant_de_la_frontiere_d_annulation",
+          "answer": "2030-01-02T12:00:00Z",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.P3.frontiere.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P3-REP-3-5291fad09d43f9b7"
+        }
+      ]
+    },
+    {
+      "period_index": 4,
+      "business_clock": "2030-01-02T13:00:00Z",
+      "sentinel": "SENTINELLE-T06-P4-PERIODE-83d70f3ab8257509",
+      "events": [
+        {
+          "event_id": "EVT-P4-MIGRATION-LEGACY",
+          "depends_on": [
+            "EVT-P2-PROMOTION-B",
+            "EVT-INEXISTANT-T06"
+          ],
+          "sentinel": "SENTINELLE-T06-P4-EVT-1-1622d1352d02dfb3",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P4-EVT-1-1622d1352d02dfb3",
+            "fait": "donnees existantes migrees vers `legacy`"
+          }
+        },
+        {
+          "event_id": "EVT-P4-CREATION-LOCATAIRE-OTHER",
+          "depends_on": [
+            "EVT-P4-MIGRATION-LEGACY"
+          ],
+          "sentinel": "SENTINELLE-T06-P4-EVT-2-475f0b0867348bb1",
+          "payload": {
+            "sentinel": "SENTINELLE-T06-P4-EVT-2-475f0b0867348bb1",
+            "fait": "creation d'un locataire `other`"
+          }
+        }
+      ],
+      "requirements": [],
+      "requirement_withdrawals": [
+        "B@1"
+      ],
+      "customer_answers": [
+        {
+          "question_id": "verdict_intertenant",
+          "answer": "NOT_FOUND sans donnee metier divulguee",
+          "source_reference": {
+            "fixture": "F-RESERVATION",
+            "path": "valeurs.P4.verdict_intertenant.valeur"
+          },
+          "sentinel": "SENTINELLE-T06-P4-REP-1-5b0c9a2ac79bc533"
+        }
+      ]
+    }
+  ]
+}

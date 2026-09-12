@@ -1,0 +1,309 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T08 \u2014 une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.lock.json.",
+    "",
+    "A quoi sert ce fichier. Un cas d'acceptation ne vaut que s'il existe une",
+    "modification de l'implementation qui le fait passer au rouge. Le cahier",
+    "(L139) refuse la preuve qui n'observe rien : \u00ab un programme qui ecrit",
+    "seulement passed=true, un test avec zero assertion [...] ne satisfait pas le",
+    "contrat \u00bb. Chaque mutant ci-dessous est cette contre-epreuve : appliquer la",
+    "mutation, relancer `pnpm verify:task T08`, exiger que le cas nomme par",
+    "kills_case devienne ROUGE. Un mutant qui laisse la suite verte denonce un",
+    "cas creux, pas une implementation correcte.",
+    "",
+    "LA PORTE \u00ab NECESSITE \u00bb N'EST PAS UNIVERSELLE. Stuber les exports d'un module",
+    "est la bonne perturbation pour un cas `behaviour` ORDINAIRE. T08 porte les",
+    "deux exceptions que verification/cases.lock.json nomme :",
+    "  \u2022 A4 et A5 sont classes `absence` \u2014 ils affirment qu'une chose N'EST PAS",
+    "    la. Un stub qui rend du vide, ou une horloge constante, les laisserait",
+    "    VERTS a vide. La perturbation correcte est `make-present` : rendre la",
+    "    chose interdite PRESENTE et exiger le rouge.",
+    "  \u2022 A1 est classe `behaviour` mais c'est un cas d'INVARIANCE. Le commentaire",
+    "    de cases.lock l'inscrit nommement dans la liste (T03.A2, T04.A2, T08.A1,",
+    "    ...) : \u00ab un stub constant rendrait les deux cotes de l'egalite identiques",
+    "    et les laisserait VERTS \u00bb. Sa perturbation prescrite INTRODUIT le facteur",
+    "    interdit \u2014 le nombre de workers \u2014 et prime sur la perturbation generique",
+    "    du mode.",
+    "",
+    "Les cibles sont decrites par leur ROLE et non par un chemin de fichier :",
+    "l'auteur des tests derive le contrat de docs/specs/T08.md et n'a lu",
+    "packages/workload ni sur le disque, ni par `git show`. Un mutant se pose sur",
+    "le point du programme qui remplit le role decrit.",
+    "",
+    "SIX CONVENTIONS D'APPEL SONT FIXEES PAR acceptance/T08.spec.ts, parce que le",
+    "cahier ne les dicte pas, et les mutants les reprennent telles quelles :",
+    "  (1) createBusinessClock({ start }) rend une horloge INDEPENDANTE a chaque",
+    "      appel \u2014 c'est le livrable \u00ab horloge metier isolee \u00bb de L221 et l'enonce",
+    "      meme d'A5 ;",
+    "  (2) advanceBusinessClock(horloge, deltaMs) avance de deltaMs MILLISECONDES",
+    "      de temps METIER et rend l'horloge avancee ; la milliseconde est l'unite",
+    "      du cahier, qui oppose 12:00:00Z a 12:00:00.001Z (L119) ;",
+    "  (3) readBusinessClock(horloge) rend l'instant metier en UTC ISO 8601 (L80) ;",
+    "  (4) generateIntentPlan(entree) prend un objet plat et strict (L80) :",
+    "      { scenario, seed, workers, tenant, actors, clock, usages,",
+    "        candidate_state }, ou `usages` est le CATALOGUE des usages offerts",
+    "      ({ id, operation, requires, produces }), `candidate_state` est",
+    "      { created: string[] }, et `clock` l'horloge metier qui donne l'instant",
+    "      metier des intentions (L88) ;",
+    "  (5) executeIntentPlan(plan, monde) execute le plan RENDU PAR LE GENERATEUR",
+    "      contre le monde que la suite fournit ; le monde est a la fois une",
+    "      fonction et un objet portant les alias perform/execute/run/call/handle/",
+    "      apply/send, et rend { ok, external_id?, denied?, code? }. Le resultat",
+    "      expose les issues intention par intention ET des compteurs agreges, que",
+    "      la suite LIT sans jamais les recalculer \u2014 A4 porte sur le COMPTAGE ;",
+    "  (6) une intention qui `requires` un handle qu'aucune intention anterieure",
+    "      n'a effectivement produit est NON SERVIE : elle reste dans les issues,",
+    "      avec un statut de la famille UNSERVED, et le monde n'est pas appele",
+    "      pour elle. Quand le handle EST resolu, l'identifiant externe REELLEMENT",
+    "      rendu par le monde parvient a l'intention dependante \u2014 c'est la",
+    "      \u00ab resolution d'identifiants externes \u00bb de L221.",
+    "",
+    "CE QUI A ETE MESURE, ET COMMENT. Les dix mutations ci-dessous ont ete",
+    "appliquees a une SONDE JETABLE, ecrite par l'auteur des tests hors du depot",
+    "suivi et supprimee avant le commit \u2014 elle n'est pas packages/workload et n'a",
+    "jamais ete committee. Sur cette sonde intacte, les six cas sont VERTS ; sous",
+    "chaque mutation, le cas nomme par kills_case devient ROUGE. Les champs",
+    "`tue_aussi` et `doit_rester_vert` ne sont pas des suppositions : ce sont les",
+    "cas OBSERVES rouges et verts sous la mutation, releves par",
+    "`jest acceptance/T08.spec.ts` et reportes tels quels.",
+    "",
+    "QUATRE MUTANTS DEGENERES EN PLUS DES SIX (M7 a M10). Les six premiers",
+    "verifient que chaque cas mord sur la faute qu'il vise. Les quatre suivants",
+    "verifient l'inverse \u2014 que les CONTROLES POSITIFS de la suite mordent sur les",
+    "implementations vides, celles qui verdissent un cas d'absence ou une",
+    "invariance sans rien faire. Sans eux, A1, A3, A4 et A5 resteraient",
+    "indistinguables d'un programme mort :",
+    "  M7  generateur CONSTANT       -> A1 (temoin anti-constante) et A2",
+    "  M8  horloge CONSTANTE          -> A5 (controle positif) et A6",
+    "  M9  compteurs NULS             -> A4 (make-present)",
+    "  M10 executeur qui ne sert rien -> A3 (controle positif de la resolution)"
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T08",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T08"
+  ],
+  "acceptance_entry": "acceptance/T08.spec.ts",
+  "mutant_count": 10,
+  "mutants": [
+    {
+      "id": "T08.M1",
+      "kills_case": "T08.A1",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "INTRODUIRE le facteur interdit",
+      "target": "Le point du GENERATEUR DE PLAN qui ordonne les intentions \u2014 celui qui doit produire une cle stable independante des conditions d'execution.",
+      "mutation": "Faire dependre la generation du nombre de workers : lire `workers` / `worker_count` / `concurrency` dans l'entree et s'en servir pour partitionner ou faire tourner l'ordre des intentions (par exemple decaler la liste triee de `workers % n` positions), ou plus generalement ordonner les intentions par ordre d'achevement au lieu d'une cle stable. La mutation ne change ni le NOMBRE d'intentions, ni leur contenu : elle ne touche que l'ordre, et seulement sous certaines valeurs de `workers`.",
+      "expected_effect": "T08.A1 devient rouge.",
+      "observation_qui_echoue": "A1 genere un plan de reference SANS option d'execution, puis le regenere sous trois canaux documentes (`workers`, `worker_count`, `concurrency`) aux valeurs 1 et 6, et exige a chaque fois l'egalite ORDONNEE des cles d'intention (`toEqual` sur un tableau, pas sur un ensemble) \u2014 c'est la seule forme d'egalite ou un reordonnancement se voit. Le cas exige en outre qu'AU MOINS UN canal ait ete accepte pour chacune des deux valeurs, faute de quoi l'invariance ne serait affirmee sur rien. Sous la mutation, le plan a 6 workers differe du plan de reference et l'egalite tombe.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit exactement cette perturbation pour A1 \u2014 \u00ab faire dependre la generation du nombre de workers (partitionner la graine par worker, ou ordonner les intentions par ordre d'achevement au lieu d'une cle stable) \u00bb \u2014 et ajoute l'avertissement qui la rend necessaire : \u00ab noter qu'un stub constant garderait ce cas vert \u00bb. La regle universelle du mode `behaviour` ne mord donc pas ici ; la perturbation ciblee prime. Le stub constant, lui, est l'objet distinct du mutant T08.M7.",
+      "doit_rester_vert": [
+        "T08.A2",
+        "T08.A4",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [
+        "T08.A3"
+      ],
+      "mesure": "Applique a la sonde jetable : A1 et A3 rouges, A2/A4/A5/A6 verts. A3 tombe en collateral parce que le decalage d'ordre fait passer l'intention dependante AVANT celle qui produit son handle : la reference devient legitimement non resolue, et le controle positif d'A3 \u2014 \u00ab la dependante est SERVIE quand la reference existe \u00bb \u2014 tombe. C'est une observation, pas une supposition."
+    },
+    {
+      "id": "T08.M2",
+      "kills_case": "T08.A2",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le point du GENERATEUR DE PLAN qui decide quels usages du catalogue sont PROPOSES.",
+      "mutation": "Filtrer les usages sur l'etat du candidat : ne proposer que ceux dont tous les handles `requires` figurent deja dans `candidate_state.created`. Variante equivalente pour la porte 'module-stub' : remplacer l'entree publiee du paquet par un module sans aucun export, de sorte qu'aucun role ne se resolve.",
+      "expected_effect": "T08.A2 devient rouge.",
+      "observation_qui_echoue": "A2 fournit le catalogue des QUATRE usages de F-QUALITY avec `candidate_state = { created: [] }` \u2014 \u00ab le candidat n'a cree aucune donnee \u00bb \u2014 et trois des quatre usages exigent un handle que le candidat n'a pas cree. Il exige que le plan porte exactement `valeurs.intentions_offertes.valeur[0]` intentions, litteral LU dans la racine gelee F-QUALITY et jamais ecrit en dur, et que les quatre usages du catalogue y soient TOUS proposes, distincts. Sous la mutation il n'en reste qu'un : le cardinal tombe, et les trois assertions de presence par usage tombent avec lui. La variante 'module vide' fait tomber plus tot encore, sur l'assertion de contrat de nommage.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit \u00ab stuber/filtrer l'export qui propose les usages pour F-QUALITY (ne proposer que les usages dont le candidat a deja cree la donnee, donc moins de quatre) \u00bb. C'est la forme ou la regle universelle du stub est valide : A2 exerce un export metier et observe son resultat. Un A2 qui se contenterait de verifier l'existence du paquet packages/workload survivrait a cette mutation \u2014 c'est precisement ce que le mutant interdit.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A4",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [
+        "T08.A3"
+      ],
+      "mesure": "Applique a la sonde jetable : A2 et A3 rouges, A1/A4/A5/A6 verts. A3 tombe en collateral parce que son catalogue enchaine deux usages dont le second `requires` le handle du premier : le filtre le retire du plan, qui ne porte plus qu'une intention. Observe, non suppose."
+    },
+    {
+      "id": "T08.M3",
+      "kills_case": "T08.A3",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le point de l'EXECUTEUR DE PLAN qui traite une intention dont une reference externe n'a pas pu etre resolue a la suite d'un echec anterieur.",
+      "mutation": "Supprimer l'intention du resultat au lieu de la conserver avec le statut non servie : passer a l'intention suivante sans rien inscrire dans les issues. Variante equivalente : la conserver mais lui donner un statut de la famille SERVED, ce qui revient a nier l'echec au lieu de le porter.",
+      "expected_effect": "T08.A3 devient rouge.",
+      "observation_qui_echoue": "A3 execute DEUX FOIS le meme plan contre deux mondes qui ne different que sur un point : la creation reussit, ou elle echoue. Il exige que les DEUX executions rendent autant d'issues qu'il y a d'intentions au plan, que les deux jeux d'identifiants d'issues soient EGAUX, et que l'intention dependante soit PRESENTE dans l'execution en echec \u2014 c'est le \u00ab pas une suppression \u00bb de L223, l'invariant D-5 de L67 (\u00ab un echec conserve [\u2026] ses intentions non servies \u00bb) et la \u00ab conservation du nombre d'intentions offertes \u00bb de L225. Sous la mutation, l'execution en echec rend une issue de moins : trois assertions tombent d'un coup (cardinal, egalite des identifiants, presence). La variante 'statut SERVED' tombe, elle, sur l'assertion de famille de statut, qui exige `non_servie` et refuse explicitement `servie`.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit \u00ab faire supprimer du plan l'intention dont la reference externe manque a la suite d'un echec anterieur (au lieu de la conserver avec le statut non servie) : l'intention attendue n'est plus presente dans le plan \u00bb. Le cas affirme une valeur PRODUITE et PRESENTE, donc `behaviour`, et la regle universelle du stub y est valide. L'implementation degeneree inverse \u2014 celle qui ne sert JAMAIS rien \u2014 est l'objet distinct du mutant T08.M10.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A4",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [],
+      "mesure": "Applique a la sonde jetable : A3 seul rouge, les cinq autres verts. La mutation est parfaitement ciblee \u2014 c'est le mutant le plus etroit des dix."
+    },
+    {
+      "id": "T08.M4",
+      "kills_case": "T08.A4",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "rendre PRESENT",
+      "target": "Le point de l'EXECUTEUR DE PLAN qui separe le comptage des parcours metier valides de celui des essais negatifs de securite.",
+      "mutation": "Faire entrer les essais negatifs de securite dans le comptage metier : ne plus les exclure du denominateur des intentions metier offertes, et compter leur refus (`DENIED`) comme un echec de parcours metier. La contamination devient alors PRESENTE dans les compteurs metier.",
+      "expected_effect": "T08.A4 devient rouge.",
+      "observation_qui_echoue": "A4 execute un plan de QUATRE intentions \u2014 deux parcours metier valides et deux essais negatifs de securite, ces derniers refuses par le monde avec le `NOT_FOUND` que le contrat intertenant de \u00a7F prescrit (L123). Il lit chez l'implementation, sans jamais les recalculer, le compteur d'echecs metier, celui d'intentions metier offertes et celui d'intentions metier reussies, et exige respectivement 0, 2 et 2. Sous la mutation, les offertes passent a 4 et les echecs a 2 : les trois assertions tombent. A4 exige en outre `offerts !== 4` explicitement, de sorte que la contamination du seul denominateur suffise a le tuer.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit \u00ab compter un essai negatif de securite comme echec d'un parcours metier valide (le faire entrer dans le numerateur/denominateur des usages metier) : la contamination devient PRESENTE \u00bb. Le cas est classe `absence` : il affirme une NON-contamination, et \u00ab un cas d'absence passe trivialement quand tout est casse \u00bb. Stuber les exports le rendrait vert a vide ; seule la mise en PRESENCE mord. La degenerescence symetrique \u2014 des compteurs tous nuls \u2014 est l'objet du mutant T08.M9.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A3",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [],
+      "mesure": "Applique a la sonde jetable : A4 seul rouge, les cinq autres verts."
+    },
+    {
+      "id": "T08.M5",
+      "kills_case": "T08.A5",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "rendre PRESENT",
+      "target": "Le point qui FABRIQUE une horloge metier \u2014 celui qui doit rendre une source de temps propre a chaque trajectoire.",
+      "mutation": "Rendre l'horloge metier globale ou partagee entre trajectoires : `createBusinessClock` renvoie une instance de module unique (ou deux poignees qui indexent le meme etat), de sorte qu'avancer A ecrive dans la meme source de temps que B. La fuite de temps de A vers B devient PRESENTE.",
+      "expected_effect": "T08.A5 devient rouge.",
+      "observation_qui_echoue": "A5 cree DEUX horloges depuis le meme instant scelle `valeurs.horloge_initiale.valeur`, exige d'abord que les deux poignees ne soient pas identiques, puis avance A du delai scelle `valeurs.P3.delai_heures.valeur` et exige que A ait bouge de 24 h EXACTEMENT (controle positif) AVANT d'exiger que B soit reste a l'instant initial. Sous la mutation, B a suivi A : l'assertion \u00ab horloge B apres l avance de A \u00bb lit 2030-01-02T00:00:00Z la ou la racine gelee dit 2030-01-01T00:00:00Z. Le cas porte encore un controle de SYMETRIE \u2014 avancer B doit deplacer B et laisser A ou il etait \u2014 et une assertion finale exigeant que les deux instants finaux DIFFERENT, qui tombe elle aussi.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit \u00ab rendre l'horloge metier globale/partagee entre trajectoires (avancer A ecrit dans la meme source de temps que B) : la fuite de temps de A vers B devient PRESENTE \u00bb. Le cas est classe `absence` \u2014 \u00ab une horloge stube constante laisserait le cas vert \u00bb \u2014 donc la porte usuelle ne mord pas. Elle est l'objet du mutant T08.M8, qui en est la contre-epreuve separee.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A3",
+        "T08.A4",
+        "T08.A6"
+      ],
+      "tue_aussi": [],
+      "mesure": "Applique a la sonde jetable : A5 seul rouge, les cinq autres verts. A6 reste vert parce qu'il n'emploie qu'UNE horloge : le partage n'y est pas observable \u2014 ce qui est precisement pourquoi A5 existe a part."
+    },
+    {
+      "id": "T08.M6",
+      "kills_case": "T08.A6",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Les deux points par lesquels le temps METIER se substitue au temps physique : l'avance de l'horloge metier, et la source d'instant que le generateur de plan estampille sur les intentions.",
+      "mutation": "Neutraliser l'avance de l'horloge metier \u2014 `advanceBusinessClock` devient un no-op qui rend l'horloge inchangee \u2014 et faire lire l'horloge SYSTEME la ou l'instant metier etait attendu : le generateur estampille `new Date().toISOString()` au lieu de l'instant de l'horloge fournie. La frontiere des 24 h de F-RESERVATION n'est alors plus franchissable ni observable sans attente reelle.",
+      "expected_effect": "T08.A6 devient rouge.",
+      "observation_qui_echoue": "A6 ouvre une horloge a l'heure scellee de P3 (2030-01-02T11:00:00Z), l'avance du delta qui separe P3 de la frontiere, et exige de lire EXACTEMENT `valeurs.P3.frontiere.valeur`. Il avance ensuite d'UNE milliseconde et exige de lire `valeurs.P3.probes.clone_2_frontiere_plus_1ms.instant.valeur`. Sous le no-op, la premiere lecture rend encore 11:00:00Z et l'assertion tombe \u2014 l'aide `avancer` essaie d'abord les trois canaux de delta et signale AVANCE-SANS-EFFET, ce qui distingue un no-op d'un canal mal nomme. A6 exige en outre que les intentions du plan portent l'instant metier de l'horloge \u2014 un plan date de l'horloge systeme porterait l'annee courante, pas 2030 \u2014 puis recalcule les DEUX cotes de la regle sur les instants que l'implementation a produits : exactement 24 h a la frontiere, une milliseconde de moins juste apres.",
+      "pourquoi_cette_perturbation": "verification/cases.lock.json prescrit \u00ab neutraliser l'avance de l'horloge metier (advance devient un no-op, les gardes lisent l'horloge systeme) : la frontiere des 24 h de F-RESERVATION n'est plus franchissable ni observable sans attente reelle \u00bb. Le cas affirme un resultat PRODUIT \u2014 le controle de la frontiere s'obtient en avancant l'horloge metier isolee \u2014 donc `behaviour`, et la regle universelle du stub y est valide. A6 ne tire PAS sa force de son chronometre : L141 avertit qu'\u00ab un timeout borne un blocage ; il ne demontre pas qu'un evenement aurait du arriver en 100 ms \u00bb. La seule borne physique affirmee est celle que le cahier enonce, les 24 heures ; la preuve est portee par les instants metier.",
+      "doit_rester_vert": [
+        "T08.A2",
+        "T08.A3",
+        "T08.A4"
+      ],
+      "tue_aussi": [
+        "T08.A1",
+        "T08.A5"
+      ],
+      "mesure": "Applique a la sonde jetable : A1, A5 et A6 rouges, A2/A3/A4 verts. A5 tombe parce que le no-op supprime aussi son controle positif ; A1 tombe parce que l'estampille systeme remplace l'instant metier attendu sur les intentions. Observe, non suppose."
+    },
+    {
+      "id": "T08.M7",
+      "kills_case": "T08.A1",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "rendre CONSTANT",
+      "target": "Le GENERATEUR DE PLAN dans son entier \u2014 le point qui doit faire dependre sa sortie du catalogue d'usages recu.",
+      "mutation": "Rendre le generateur CONSTANT : ignorer l'entree et rendre toujours le meme plan de quatre intentions, quel que soit le catalogue, la graine, le locataire ou l'horloge.",
+      "expected_effect": "T08.A1 devient rouge.",
+      "observation_qui_echoue": "A1 porte un TEMOIN ANTI-CONSTANTE : un catalogue d'usages DIFFERENT doit produire un plan DIFFERENT (`not.toEqual`), et ce plan doit porter le cardinal du catalogue fourni. Un generateur constant rend deux fois le meme plan : le temoin tombe. A2 porte le meme temoin sous une autre forme \u2014 un catalogue de DEUX usages doit donner DEUX intentions, et A2 exige explicitement que ce cardinal ne vaille PAS quatre.",
+      "pourquoi_cette_perturbation": "C'est le defaut que verification/cases.lock.json nomme pour A1 : \u00ab un stub constant garderait ce cas vert \u00bb. Sans ce mutant, A1 serait vert sur un planificateur qui ne lit rien \u2014 les deux cotes de l'egalite d'invariance seraient identiques pour la pire des raisons. Le mutant T08.M1 prouve que A1 mord sur la faute visee ; celui-ci prouve qu'il mord aussi sur le programme mort. Les deux sont necessaires, et aucun ne remplace l'autre.",
+      "doit_rester_vert": [
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [
+        "T08.A2",
+        "T08.A3",
+        "T08.A4"
+      ],
+      "mesure": "Applique a la sonde jetable : A1, A2, A3 et A4 rouges, A5 et A6 verts. A5 et A6 survivent parce qu'ils n'interrogent pas le catalogue \u2014 A6 n'observe du plan que l'instant metier, que la sonde constante estampille encore depuis l'horloge."
+    },
+    {
+      "id": "T08.M8",
+      "kills_case": "T08.A5",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "rendre CONSTANT",
+      "target": "L'AVANCE de l'horloge metier \u2014 le point qui doit deplacer l'instant lu.",
+      "mutation": "Rendre l'horloge CONSTANTE : `advanceBusinessClock` accepte son delta, ne leve pas, et rend l'horloge inchangee. Rien n'est partage entre trajectoires ; simplement, rien ne bouge.",
+      "expected_effect": "T08.A5 devient rouge.",
+      "observation_qui_echoue": "A5 exige, AVANT toute assertion d'absence, que l'avance ait DEPLACE A du delai scelle : l'aide `avancer` n'accepte un canal de delta que s'il change effectivement l'instant lu, et le cas exige ensuite que A lise `horloge_initiale + delai_heures`. Sous une horloge constante, aucun canal ne repond et l'assertion AVANCE-SANS-EFFET-SUR-A tombe la premiere.",
+      "pourquoi_cette_perturbation": "C'est le defaut que verification/cases.lock.json nomme pour A5 : \u00ab une horloge stube constante laisserait le cas vert, donc absence \u00bb. Le mutant T08.M5 prouve que A5 mord sur la fuite de temps ; celui-ci prouve qu'il mord aussi sur l'horloge morte, qui satisferait \u00ab B n'a pas bouge \u00bb pour la pire des raisons. Un cas d'absence sans contre-epreuve de presence ne prouve rien, et c'est exactement ce que le mode `make-present` existe pour interdire.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A3",
+        "T08.A4"
+      ],
+      "tue_aussi": [
+        "T08.A6"
+      ],
+      "mesure": "Applique a la sonde jetable : A5 et A6 rouges, A1/A2/A3/A4 verts. A6 tombe parce que la frontiere n'est plus atteignable \u2014 ce qui est le meme fait observe sous un autre angle."
+    },
+    {
+      "id": "T08.M9",
+      "kills_case": "T08.A4",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "vider les compteurs",
+      "target": "Les COMPTEURS AGREGES du resultat d'execution \u2014 le point qui publie les intentions metier offertes/reussies/en echec et le decompte des essais negatifs de securite.",
+      "mutation": "Publier des compteurs structurellement presents mais tous NULS : `business` et `compliance` existent, avec zero partout. Les issues intention par intention, elles, restent correctes.",
+      "expected_effect": "T08.A4 devient rouge.",
+      "observation_qui_echoue": "A4 exige, AVANT son assertion d'absence, que les essais negatifs soient PRESENTS du cote conformite/criticite : le compteur de conformite doit valoir 2 et celui des refus 2. Il exige ensuite, sur une seconde execution ou UN parcours metier valide echoue reellement, que le compteur d'echecs metier vaille 1 \u2014 ce qui interdit le compteur constamment nul. Alors seulement il exige 0 echec metier sur l'execution saine. Sous des compteurs nuls, les deux controles positifs tombent, et le \u00ab 0 \u00bb de l'enonce n'est plus creditable.",
+      "pourquoi_cette_perturbation": "\u00ab Un cas d'absence passe trivialement quand tout est casse \u00bb (verification/cases.lock.json). `echecs metier == 0` est vrai de toute implementation qui ne compte rien : sans ce mutant, A4 aurait ete vert sur un resultat vide, exactement le faux PASS que le mode `absence` existe pour interdire. T08.M4 prouve que A4 mord sur la contamination ; celui-ci prouve qu'il mord aussi sur le vide.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A3",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [],
+      "mesure": "Applique a la sonde jetable : A4 seul rouge, les cinq autres verts. A3 survit parce qu'il lit les ISSUES, pas les compteurs \u2014 la separation des deux lectures est deliberee."
+    },
+    {
+      "id": "T08.M10",
+      "kills_case": "T08.A3",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "rendre TOUT non servi",
+      "target": "Le point de l'EXECUTEUR DE PLAN qui decide qu'une reference externe est resolue \u2014 c'est-a-dire la condition sous laquelle une intention est effectivement servie.",
+      "mutation": "Ne resoudre JAMAIS : traiter toute intention comme si sa reference manquait, donc inscrire tout le plan en non servi sans appeler le monde une seule fois.",
+      "expected_effect": "T08.A3 devient rouge.",
+      "observation_qui_echoue": "A3 exige, AVANT son assertion sur l'echec, un CONTROLE POSITIF complet sur l'execution ou la creation reussit : l'intention creatrice doit etre SERVIE, l'intention dependante doit etre SERVIE, le monde doit avoir ete APPELE pour elle, et l'identifiant externe reellement rendu par le monde doit lui etre parvenu. Sous la mutation, les quatre tombent : rien n'est servi et le monde n'est jamais appele. La conservation du cardinal, elle, tient \u2014 ce qui montre bien qu'elle ne suffit pas seule.",
+      "pourquoi_cette_perturbation": "Sans ce mutant, A3 serait vert sur un executeur qui declare tout non servi : \u00ab l'intention dependante est presente avec un statut non servie \u00bb y serait vrai, pour la pire des raisons. C'est la contre-epreuve du controle positif, et c'est aussi la seule assertion de la suite qui observe la \u00ab resolution d'identifiants externes \u00bb de L221 comme un effet REEL et non comme une etiquette.",
+      "doit_rester_vert": [
+        "T08.A1",
+        "T08.A2",
+        "T08.A5",
+        "T08.A6"
+      ],
+      "tue_aussi": [
+        "T08.A4"
+      ],
+      "mesure": "Applique a la sonde jetable : A3 et A4 rouges, A1/A2/A5/A6 verts. A4 tombe parce que ses deux parcours metier valides ne sont plus servis : son compteur de reussites metier passe de 2 a 0."
+    }
+  ]
+}

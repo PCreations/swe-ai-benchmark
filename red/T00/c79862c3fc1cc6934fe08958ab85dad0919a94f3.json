@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T00",
+  "subject_commit": "c79862c3fc1cc6934fe08958ab85dad0919a94f3",
+  "dirty": false,
+  "input_digest": "77e298f51d2f2ab1d4b3166a6fae39da4b7ca32ab8d8383d27b464d33bc3181a",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T00.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M1",
+      "note": "mutation EXECUTEE : ajout de `export const MUTANT_M1: string = null` dans packages/contracts/src/units.ts. Observe : tsc -p packages/contracts sort en 2, diagnostics ['error TS2322'] (units.ts(169,14) Type null is not assignable to type string) ; T00.A1 vire ROUGE, T00.A4 T00.A5 T00.A6 restent VERTS comme doit_rester_vert l exige. Source restauree par git checkout, six cas reverts ensuite."
+    },
+    {
+      "id": "T00.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M2",
+      "note": "mutation EXECUTEE : EXIT_FOR_REASON[REASON.PASS] passe de 0 a 1 dans verification/runner/verify-task.mjs (le runner rend un code non nul alors que tous les cas requis sont verts). Observe : T00.A2 ROUGE, et T00.A4 T00.A5 tombent aussi — c est le tue_aussi declare par le mutant, leurs controles de capacite exigeant exit 0 / PASS ; T00.A1 et T00.A6 restent VERTS. Restaure par git checkout."
+    },
+    {
+      "id": "T00.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M3",
+      "note": "mutation EXECUTEE : dans adjudicate() de verification/runner/verify-task.mjs, le compte d echecs est ignore (const failed = []), donc un cas rouge n empeche plus PASS. Observe : T00.A3 ROUGE et lui seul ; T00.A1 T00.A2 T00.A4 T00.A5 T00.A6 restent VERTS. Restaure par git checkout."
+    },
+    {
+      "id": "T00.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M4",
+      "note": "mutation EXECUTEE : dans decide() de verification/runner/verify-task.mjs, un id absent du registre n est plus refuse — il est synthetise en carte vide (zero cas requis) et rend PASS. Observe : T00.A4 ROUGE et lui seul ; T00.A1 T00.A2 T00.A6 restent VERTS comme doit_rester_vert l exige. Restaure par git checkout."
+    },
+    {
+      "id": "T00.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M5",
+      "note": "mutation EXECUTEE, variante (b) du mutant : dans decide(), `if (task.status === DONE) return PASS` — le runner fait confiance au champ status de la carte au lieu d executer la suite. Observe sur acceptance/fixtures/registries/synthetic-44-t01-declared-done.json : T00.A5 ROUGE et lui seul ; T00.A1 T00.A2 T00.A6 restent VERTS. Restaure par git checkout."
+    },
+    {
+      "id": "T00.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M6",
+      "note": "mutation EXECUTEE sur l ARTEFACT : dans pnpm-lock.yaml, importers du root, specifier de typescript passe de 6.0.3 a 6.0.2 — le verrou cesse de concorder avec le manifeste. Observe : pnpm install --frozen-lockfile sort en 1 (attendu 0, recu 1), T00.A6 ROUGE ; T00.A1 tombe aussi puisqu il exige la meme installation figee, ce que doit_rester_vert (A2 A3 A4 A5) autorise ; A2 A3 A4 A5 sont restes VERTS. Lockfile restaure, sha256 91418cadba80867cbbe1ea67cf9324302af6bd620dfa5d276af41ae277f8fb64 identique a HEAD."
+    }
+  ],
+  "mutation_proof": {
+    "T00.A1": {
+      "killed_by": "T00.M1",
+      "note": "mutation EXECUTEE : ajout de `export const MUTANT_M1: string = null` dans packages/contracts/src/units.ts. Observe : tsc -p packages/contracts sort en 2, diagnostics ['error TS2322'] (units.ts(169,14) Type null is not assignable to type string) ; T00.A1 vire ROUGE, T00.A4 T00.A5 T00.A6 restent VERTS comme doit_rester_vert l exige. Source restauree par git checkout, six cas reverts ensuite."
+    },
+    "T00.A2": {
+      "killed_by": "T00.M2",
+      "note": "mutation EXECUTEE : EXIT_FOR_REASON[REASON.PASS] passe de 0 a 1 dans verification/runner/verify-task.mjs (le runner rend un code non nul alors que tous les cas requis sont verts). Observe : T00.A2 ROUGE, et T00.A4 T00.A5 tombent aussi — c est le tue_aussi declare par le mutant, leurs controles de capacite exigeant exit 0 / PASS ; T00.A1 et T00.A6 restent VERTS. Restaure par git checkout."
+    },
+    "T00.A3": {
+      "killed_by": "T00.M3",
+      "note": "mutation EXECUTEE : dans adjudicate() de verification/runner/verify-task.mjs, le compte d echecs est ignore (const failed = []), donc un cas rouge n empeche plus PASS. Observe : T00.A3 ROUGE et lui seul ; T00.A1 T00.A2 T00.A4 T00.A5 T00.A6 restent VERTS. Restaure par git checkout."
+    },
+    "T00.A4": {
+      "killed_by": "T00.M4",
+      "note": "mutation EXECUTEE : dans decide() de verification/runner/verify-task.mjs, un id absent du registre n est plus refuse — il est synthetise en carte vide (zero cas requis) et rend PASS. Observe : T00.A4 ROUGE et lui seul ; T00.A1 T00.A2 T00.A6 restent VERTS comme doit_rester_vert l exige. Restaure par git checkout."
+    },
+    "T00.A5": {
+      "killed_by": "T00.M5",
+      "note": "mutation EXECUTEE, variante (b) du mutant : dans decide(), `if (task.status === DONE) return PASS` — le runner fait confiance au champ status de la carte au lieu d executer la suite. Observe sur acceptance/fixtures/registries/synthetic-44-t01-declared-done.json : T00.A5 ROUGE et lui seul ; T00.A1 T00.A2 T00.A6 restent VERTS. Restaure par git checkout."
+    },
+    "T00.A6": {
+      "killed_by": "T00.M6",
+      "note": "mutation EXECUTEE sur l ARTEFACT : dans pnpm-lock.yaml, importers du root, specifier de typescript passe de 6.0.3 a 6.0.2 — le verrou cesse de concorder avec le manifeste. Observe : pnpm install --frozen-lockfile sort en 1 (attendu 0, recu 1), T00.A6 ROUGE ; T00.A1 tombe aussi puisqu il exige la meme installation figee, ce que doit_rester_vert (A2 A3 A4 A5) autorise ; A2 A3 A4 A5 sont restes VERTS. Lockfile restaure, sha256 91418cadba80867cbbe1ea67cf9324302af6bd620dfa5d276af41ae277f8fb64 identique a HEAD."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

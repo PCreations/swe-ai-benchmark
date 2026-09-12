@@ -16,11 +16,11 @@
 // série de périodes vers Q, R, G, G_new par période et V, U, exposition et
 // réussite agrégée par intention pour la campagne (L185–L194).
 //
-// Il DÉCLARE en outre les quatre rôles de T05 — la machine à états d'une
-// période (L195–L202). Ils sont un SQUELETTE : chacun lève `NotImplemented`.
-// Les déclarer maintenant déplace le rouge de `acceptance/T05.spec.ts` de
-// l'absence d'un NOM (« CONTRAT-NON-SATISFAIT ») vers l'appel réel, seule
-// forme de rouge que `verification/runner/red.mjs` accepte comme preuve.
+// Il porte en outre T05 — la machine à états d'une période (L195–L202) : les
+// quatre rôles `initialPeriodState`, `applyPeriodEvent`, `reducePeriodLog` et
+// `closePeriod`, la table exhaustive des transitions autorisées et les erreurs
+// de transition typées. Aucun de ses effets n'est exécuté ici : une transition
+// rend des COMMANDES, que des adaptateurs exécuteront (L201).
 // ─────────────────────────────────────────────────────────────────────────────
 export { compileCampaignManifest } from './campaign.js'
 export type { CampaignCell, CampaignPlan, CompileOptions } from './campaign.js'
@@ -46,6 +46,10 @@ export type {
 } from './metrics.js'
 
 export {
+  PERIOD_PHASE_COMMANDS,
+  PERIOD_TRANSITION_ERROR_CODES,
+  PERIOD_TRANSITIONS,
+  PeriodLogRejected,
   applyPeriodEvent,
   closePeriod,
   initialPeriodState,
@@ -57,8 +61,12 @@ export type {
   PeriodCommand,
   PeriodEvent,
   PeriodHaltState,
+  PeriodOutcome,
   PeriodPhase,
+  PeriodRejection,
   PeriodResult,
   PeriodState,
   PeriodTransition,
+  PeriodTransitionErrorCode,
+  PeriodTransitionRejection,
 } from './period.js'

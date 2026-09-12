@@ -63,17 +63,22 @@ export type { OperationIdentity, PeriodIdentity, TrajectoryIdentity } from './id
 export { canonicalJson } from './canonical.js'
 export type { CanonicalValue } from './canonical.js'
 
-// ── T02 (squelette) : sérialisation canonique, empreintes, dérivation de
-//    graines et horloge injectable — les livrables que le cahier L171 place
-//    dans `contracts`. Chaque export LÈVE tant que T02 n'est pas vert ; aucun
-//    ne rend de constante, parce que les cas A1, A2, A5 et A6 sont des énoncés
-//    d'égalité, d'invariance ou de déterminisme qu'une constante satisferait
-//    sans rien calculer (verification/mutants/T02.json).
+// ── T02 : sérialisation canonique, empreintes, dérivation de graines et
+//    horloge injectable — les livrables que le cahier L171 place dans
+//    `contracts`. Les trois rôles de l'empreinte restent SÉPARÉS (octets,
+//    hachage, composition) : c'est ce qui rend vérifiable l'égalité du §E
+//    « l'empreinte d'une valeur est le SHA-256 de ses octets canoniques ».
+//    SHA-256 (FIPS 180-4), l'encodage UTF-8 et le générateur pseudo-aléatoire
+//    sont écrits dans le paquet, sans aucun import : ADR-005 §3 veut ce paquet
+//    indépendant, et `tsconfig.json` le rend mécanique par `types: []`.
 export { canonicalBytes, canonicalDigest, sha256Hex } from './digest.js'
-export { createRng, deriveSeed, rngForStream } from './seeds.js'
-export type { Rng } from './seeds.js'
+export { PRNG_ALGORITHM_VERSION, PRNG_TEST_VECTOR, createRng, deriveSeed, rngForStream } from './seeds.js'
+export type { PrngTestVector, Rng } from './seeds.js'
 export { fixedClock } from './clock.js'
 export type { Clock } from './clock.js'
+
+// `NotImplemented` reste exporté pour les squelettes des tâches ultérieures ;
+// plus aucun export public de ce paquet ne le lève.
 export { NotImplemented, isNotImplemented } from './not-implemented.js'
 
 export { CAMPAIGN_MANIFEST_REQUIRED_FIELDS, SEED_STREAMS } from './manifest.js'

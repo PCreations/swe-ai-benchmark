@@ -12,4 +12,7 @@ for s in 00-apt-base 10-runtimes 20-postgres18 50-runc-oci 30-objectstore 40-tem
 done
 echo "[90-verify-pins]"; bash "$DIR/90-verify-pins.sh" || true
 echo
-echo "bootstrap termine — lance maintenant : node tools/bench doctor"
+# Le bootstrap INSTALLE ; il ne demarre rien. Les deux gestes sont separes
+# parce qu'un conteneur qui redemarre garde ses binaires et perd ses serveurs :
+# c'est `svc up` qu'il faut alors rejouer, pas un provisionnement complet.
+echo "bootstrap termine — lance maintenant : node tools/bench svc up && node tools/bench doctor"

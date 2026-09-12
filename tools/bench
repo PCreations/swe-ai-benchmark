@@ -15,6 +15,7 @@ import { observeSuite, adjudicate, record } from '../verification/runner/red.mjs
 import { verifyTask, render as renderResult } from '../verification/runner/verify-task.mjs'
 import { accept, render as renderAccept } from '../verification/runner/accept.mjs'
 import * as lease from './lease.mjs'
+import * as svc from './svc.mjs'
 
 const [cmd = 'resume', ...rest] = process.argv.slice(2)
 const has = (f) => rest.includes(f)
@@ -35,6 +36,16 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
                          BENCH_REGISTRY=<fichier> detourne la lecture du registre.
                          Ce rapport ne vaut PAS attestation : voir accept.
   doctor [--json]        EXECUTE chaque sonde de capacite et ecrit .bench/doctor.json
+  svc <up|down|status>   cycle de vie des services que ces sondes exigent
+      [--json]           (PostgreSQL 18, Garage S3, Temporal). Le remede que
+                         doctor imprime sous une capacite absente.
+                         up     (re)demarre, IDEMPOTENT, et n'a rendu la main
+                                que lorsque la SONDE elle-meme repond presente.
+                                Fabrique binaire/config manquants en appelant
+                                infra/bootstrap/*.sh — jamais autrement.
+                         down   arrete ce qui tourne, et attend l'absence.
+                         status n'ecrit rien.
+                         sorties : 0 les 3 repondent · 1 au moins un absent
   registry lint          valide le registre : id inconnu, cycle, doublon,
                          dependance absente, status non fige, cas retires
   digest <Txx>           imprime l'input_digest d'une tache et ses composantes
@@ -93,6 +104,32 @@ switch (cmd) {
     if (absent) L.push('Une capacite absente donne BLOCKED (sortie 2), jamais un PASS affaibli.')
     out(L.join('\n'), 0)
     break
+  }
+
+  case 'svc': {
+    const sub = rest.find((a) => !a.startsWith('-')) ?? 'status'
+    // La progression part sur stderr : `--json` doit rester analysable sur
+    // stdout meme quand `up` babille pendant trente secondes.
+    const log = (l) => process.stderr.write(`${l}\n`)
+
+    if (sub === 'status') {
+      const st = svc.status()
+      // `status` NE DEMARRE RIEN et N'ECRIT RIEN — c'est la seule sous-commande
+      // qu'un script de supervision peut appeler en boucle sans effet de bord.
+      if (json) out(JSON.stringify(st, null, 2), st.allUp ? 0 : 1)
+      out(svc.renderStatus(st), st.allUp ? 0 : 1)
+    }
+    if (sub === 'up') {
+      const res = svc.up(log)
+      if (json) out(JSON.stringify(res, null, 2), res.ok ? 0 : 1)
+      out(svc.renderUp(res), res.ok ? 0 : 1)
+    }
+    if (sub === 'down') {
+      const res = svc.down(log)
+      if (json) out(JSON.stringify(res, null, 2), res.ok ? 0 : 1)
+      out(svc.renderDown(res), res.ok ? 0 : 1)
+    }
+    out(`sous-commande inconnue : ${sub}\n\n${USAGE}`, 1)
   }
 
   case 'registry': {

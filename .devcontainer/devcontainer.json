@@ -10,7 +10,13 @@
     "",
     "PAS DE docker-compose, deliberement : compose exige un demon que cet hote",
     "n'a pas, et un socle compose-only rendrait l'hote INUTILISABLE au lieu de",
-    "degrade. Les services sont geres par `bench svc up|down|status`."
+    "degrade. Les services sont geres par `bench svc up|down|status`.",
+    "",
+    "postCreateCommand INSTALLE, postStartCommand DEMARRE. La distinction n'est",
+    "pas cosmetique : un conteneur qui redemarre garde ses binaires et perd ses",
+    "serveurs. Sans `svc up` au demarrage, postgres18/s3/temporal repassent",
+    "ABSENT au boot suivant et les taches attestees avec elles deviennent STALE",
+    "sans que rien ne sache les retablir."
   ],
   "name": "swe-ai-benchmark",
   "build": { "dockerfile": "Dockerfile", "context": ".." },
@@ -46,7 +52,7 @@
 
   "onCreateCommand": "bash infra/bootstrap/00-apt-base.sh",
   "postCreateCommand": "bash infra/bootstrap/run-all.sh --verify-pins",
-  "postStartCommand": "node tools/bench doctor >/dev/null 2>&1 || true",
+  "postStartCommand": "node tools/bench svc up || true; node tools/bench doctor >/dev/null 2>&1 || true",
   "postAttachCommand": "node tools/bench resume || true",
 
   "forwardPorts": [7233, 8233, 9000, 9001],

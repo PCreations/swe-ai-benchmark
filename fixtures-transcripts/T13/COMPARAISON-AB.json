@@ -1,0 +1,403 @@
+{
+  "schema": "bench.fixture.comparaison/2",
+  "tache": "T13",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "verdict": "FIXTURES_CONCORDANTES",
+  "scelle": false,
+  "pourquoi_scelle_false": "la racine acceptance/reference etait DEJA scellee et gelee au commit cd23991 (tache T00) depuis la MEME transcription commune. Cette passe T13 la re-confirme valeur par valeur sans la toucher : la rematerialiser aurait soit ete un no-op, soit deplace un arbre gele — ce qui exige un SPEC_CONFLICT ouvert, et aucun ne l'est. Aucun commit de zone REFERENCE n'a donc ete produit.",
+  "source": {
+    "cahier": "docs/cahier.md",
+    "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "controle": "sha256sum docs/cahier.md == docs/CAHIER_SHA256 — EXECUTE, egal",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets": [
+        "F-QUALITY : le poids est fixe a l'introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4",
+        "F-FAILURE : l'unite des couts reste NON SPECIFIEE",
+        "F-REGRESSION : le nombre attendu vaut 1"
+      ]
+    }
+  ],
+  "spec_conflicts_ouverts": [],
+  "methode": "comparaison VALEUR PAR VALEUR, jamais fichier par fichier : A et B n'encodent pas pareil (A : rationnels {num,den} ; B : chaines « 5/6 » plus decimal) et B a CHANGE DE SCHEMA pendant l'etage. Deux passes : (1) extraction schema-independante des multi-ensembles de valeurs par fixture ; (2) comparaison explicite champ par champ, rationnels et decimaux normalises, instants ISO normalises (.000Z == Z).",
+  "comparaison": {
+    "champs_compares": 73,
+    "divergences_A_vs_B": 0,
+    "divergences_A_vs_reference_gelee": 0,
+    "valeurs_communes_multiensembles": 76
+  },
+  "instabilite_observee": {
+    "constat": "le repertoire .bench/fixtures/B a ete REECRIT pendant la comparaison : reecriture fichier par fichier de 18:16 a 18:31:57 UTC, changement de schema inclus (« bench.fixture-transcription/1 » uniforme a l'arrivee), et le nombre d'ambiguites declarees est passe de 45 a 22.",
+    "pourquoi_c_est_consigne": "une concordance affirmee contre un objet mouvant ne serait pas auditable ; l'archive ci-dessous fige les OCTETS EXACTS compares.",
+    "aucun_processus_ecrivain": "ps -eo pid,ppid,etimes,cmd : aucun processus tiers ecrivant dans .bench ; seuls la session courante et les services (postgres, garage, temporal) tournent.",
+    "stabilisation": "surveillance du hash de repertoire toutes les 5 s : STABLE pendant 60 s consecutives a 18:33:01 UTC, dir-hash 8f2a11910bb7 ; le snapshot archive porte ce hash.",
+    "verification_post_snapshot": "diff des sha256 entre le snapshot et .bench/fixtures/B apres stabilisation : identiques.",
+    "effet_sur_le_verdict": "aucun : la comparaison finale a ete rejouee sur l'etat stabilise, et les 73 champs concordent. La version instable anterieure divergeait seulement par la FORME (schemas) et par deux ajouts de PERIMETRE, listes plus bas."
+  },
+  "controles_executes": [
+    {
+      "objet": "SC-001 / DIV-1 — unite des couts de F-FAILURE",
+      "commande": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+      "resultat": "0",
+      "conclusion": "la chaine n'est pas en ligne 121 (elle n'est qu'en 103, F-MONEY) ; l'unite reste NON SPECIFIEE. B ne l'inscrit plus : DIV-1 purgee."
+    },
+    {
+      "objet": "SC-001 / DIV-2 — nombre attendu de F-REGRESSION",
+      "commande": "sed -n '129p' docs/cahier.md",
+      "resultat": "« ... satisfaite en P3 puis violee en P4 en produit une »",
+      "conclusion": "1 est une transcription. A, B (version stabilisee : G_attendu.P4 = 1) et la reference concordent."
+    },
+    {
+      "objet": "SC-001 / DIV-3 — poids en P3/P4 de F-QUALITY",
+      "commande": "lecture de docs/spec-conflicts/SC-001 (RESOLU)",
+      "resultat": "poids fixe a l'introduction",
+      "conclusion": "B@1=1 et C@1=2 en P3/P4 ; A, B et la reference portent ces poids."
+    },
+    {
+      "objet": "attribution des nombres de F-POWER ajoutes par B",
+      "commande": "sed -n '463p' docs/cahier.md",
+      "resultat": "« ... produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25 »",
+      "conclusion": "l'attribution de B est EXACTE cette fois (contrairement a DIV-1), mais la ligne 463 est une ligne d'acceptation (§H, T35.A1), hors du §F transcrit. Ni A ni la reference ne les inscrivent."
+    },
+    {
+      "objet": "la marge 0,02 est-elle en §F ?",
+      "commande": "sed -n '101,129p' docs/cahier.md | grep -n 'marge|puissance|erreur standard'",
+      "resultat": "aucune occurrence",
+      "conclusion": "aucune des trois notions n'est en §F ; B place 0,02 hors de .valeurs (sous regle_de_decision_appliquee, marquee DERIVE de la l.451). A et B concordent donc a NE PAS l'inscrire."
+    },
+    {
+      "objet": "etat du gel",
+      "commande": "checkReferences() puis git rev-parse HEAD:acceptance/reference",
+      "resultat": "state GELEE, head_oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, 10 fichiers, worktree_diff [], problems []",
+      "conclusion": "l'oid observe est exactement celui declare dans docs/FROZEN_ROOTS.json ; la racine n'a pas bouge."
+    }
+  ],
+  "concordances_verifiees": {
+    "F-MONEY": "grille 2/1/5 ; appel 100/40/20 -> 340 ; deux appels -> 680",
+    "F-BUDGET": "budget 1000 ; deux demandes de 600, une au plus acceptee ; reglement 340 -> spent 340 / reserved 0 / available 660 ; puis 600 admissible -> 60 et 661 refusee -> 660 ; sous-cas independant 600 ambigu -> available 400",
+    "F-QUALITY": "Q=[1,1/2,3/4,1] ; V=13/16=0.8125 ; R=[1,1/2,null,1/2] ; offertes [4,4,0,2] ; reussies [4,2,0,1] ; U=2/3 ; exposition 3/4 ; reussite agregee 7/10 ; poids A@1=1, B@1=1, C@1=2, A@2=1 aux quatre periodes",
+    "F-COST-RATIO": "A=[10,90], B=[20,100] ; moyennes 50 et 60 ; ratio 5/6 ; 0,7 nommee INCORRECTE",
+    "F-CLUSTERS": "P1 10/20 sur dix repetitions, P2 90/100 sur une ; moyennes interprojets 50 et 60 ; invariance par duplication 50/60",
+    "F-BOOTSTRAP": "tirages [P1,P1][P1,P2][P2,P1][P2,P2] ; ratios [1/2,5/6,5/6,9/10] ; intervalle 2,5-97,5 % = [1/2,9/10] ; convention quantile empirique inverse",
+    "F-RESERVATION": "horloges P1 2030-01-01T00:00:00Z, P2 T01:00, P3 2030-01-02T11:00, P4 T13:00 ; S1 capacite 1 debutant 2030-01-03T12:00:00Z ; frontiere 2030-01-02T12:00:00Z acceptee, +1 ms refusee ; entree de P4 : A annule, B confirme, C en attente ; NOT_FOUND intertenant",
+    "F-FAILURE": "K=4 ; quatre lignes ; Q=[0,0,0,0] ; R=[0,0,0,0] ; couts [100,50,0,0] -> 150 ; unite non specifiee",
+    "F-POWER": "B=(100,1,1) ; A=(80,1,1)/(100,1,1)/(80,0.96,1)/(80,0.99,0.99) ; bornes ratio 0,8/1/0,8/0,8 ; dV 0/0/-0,04/-0,01 ; dU 0/0/0/-0,01 ; decisions [vrai,faux,faux,vrai]",
+    "F-REGRESSION": "cancel@1 (P2) remplacee par cancel@2 (P3) sans regression ; isolation@1 satisfaite P3 puis violee P4 -> 1 regression"
+  },
+  "ecarts_de_perimetre_sans_conflit_de_valeur": [
+    {
+      "fixture": "F-POWER",
+      "champ": "puissance, erreur standard Monte-Carlo",
+      "A": "non transcrites — A les exclut explicitement du cadrage §F",
+      "B": "inscrites : 0,5 et 0,25, cahier_line 463",
+      "reference_gelee": "ne les inscrit pas",
+      "verdict": "PAS une divergence de valeur : A n'asserte rien, B asserte une valeur dont l'attribution a la ligne 463 a ete VERIFIEE exacte. La ligne 463 est une ligne d'acceptation (§H, T35.A1), hors du §F que cet etage transcrit."
+    },
+    {
+      "fixture": "F-MONEY",
+      "champ": "sentinelle de corruption 341",
+      "A": "non transcrite",
+      "B": "inscrite, cahier_line 165",
+      "reference_gelee": "ne l'inscrit pas",
+      "verdict": "meme nature : valeur de §H (T01.A6) que B reporte pour tracabilite."
+    }
+  ],
+  "ambiguites_reportees_non_bloquantes": {
+    "regle": "une ambiguite n'arrete l'etage que si elle porte sur une valeur A ECRIRE. Celles qui portent sur un cas d'acceptation, ou sur un champ qu'aucune des deux transcriptions n'inscrit, sont citees et reportees.",
+    "total": 26,
+    "dont_A": 4,
+    "dont_B": 22,
+    "bloquantes": 0,
+    "liste": [
+      {
+        "id": "F-QUALITY.AMB3 (A : test negatif)",
+        "relevee_par": "A ET B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "id, version, poids, periode de revelation et echeance de l'exigence revelee non encore due ne sont fixes par aucune ligne ; la reference inscrit les cinq parametres a null et ne scelle que l'invariant"
+      },
+      {
+        "id": "F-RESERVATION.AMB1 (A : refus metier)",
+        "relevee_par": "A ET B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "aucun code d'erreur n'est donne en §F ; la reference scelle le verdict « refus metier » et son instant, pas un identifiant"
+      },
+      {
+        "id": "F-POWER.AMB1 (A : marge)",
+        "relevee_par": "A ET B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "« Marges d'exemple 0,02 » (l.451) est hors §F et donne comme exemple ; aucune des deux transcriptions ne l'inscrit, la reference non plus"
+      },
+      {
+        "id": "F-POWER.AMB2",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "structure interne d'un parent non donnee ; la reference ne scelle que les agregats (cout,V,U) par bras"
+      },
+      {
+        "id": "F-POWER.AMB3",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "definition de la puissance sur quatre campagnes ; la reference n'inscrit pas la puissance"
+      },
+      {
+        "id": "F-BUDGET.AMB1",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "l'identite de la reservation gagnante n'est pas scellee ; seul « une au plus acceptee » l'est"
+      },
+      {
+        "id": "F-BUDGET.AMB2",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "la definition d'une reservation ambigue n'est pas scellee ; seuls available=400 et la condition « tant qu'elle n'est pas reconciliee » le sont"
+      },
+      {
+        "id": "F-BUDGET.AMB3",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "la trace du refus de 661 n'est pas scellee ; seul available=660 l'est"
+      },
+      {
+        "id": "F-FAILURE.AMB1",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "B l'atteste elle-meme : « AUCUN sur les valeurs assertees » — les deux lectures donnent quatre lignes, Q=0, R=0, [100,50,0,0], total 150"
+      },
+      {
+        "id": "F-FAILURE.AMB2",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "aucun cardinal d'exigences ni d'intentions n'est scelle"
+      },
+      {
+        "id": "F-FAILURE.AMB3",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "aucun etat d'arret n'est scelle ; seules la conservation de P3/P4 et l'absence de facture le sont"
+      },
+      {
+        "id": "F-QUALITY.AMB1",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "le contenu individuel des intentions n'est pas scelle ; seuls les cardinaux le sont"
+      },
+      {
+        "id": "F-QUALITY.AMB2",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "porte sur l'attendu du cas T08.A2, pas sur une valeur de la fixture"
+      },
+      {
+        "id": "F-QUALITY.AMB4",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "B l'atteste : « AUCUN sur la valeur publiee » ; Q(P3)=3/4 dans la lecture retenue"
+      },
+      {
+        "id": "F-REGRESSION.AMB1",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "B l'atteste : « aucune des deux lectures ne change G » ; §F ne publie pas le Q de cette fixture"
+      },
+      {
+        "id": "F-REGRESSION.AMB2",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "le nombre de periodes de F-REGRESSION n'est pas scelle"
+      },
+      {
+        "id": "F-REGRESSION.AMB3",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "revelation et echeance d'isolation@1 ne sont pas scellees"
+      },
+      {
+        "id": "F-RESERVATION.AMB2",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "aucun volume de migration n'est scelle ; les 100 reservations de T09.A3/T21.A1 appartiennent aux jeux de donnees de ces taches"
+      },
+      {
+        "id": "F-RESERVATION.AMB3",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "l'etat scelle de P1 est « une confirmee, titulaire A, zero doublon, pas de surbooking » ; la presence de B en file a la fin de P1 n'est pas scellee"
+      },
+      {
+        "id": "F-RESERVATION.AMB4",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "ni la valeur de la cle idempotente ni les numeros de sequence ne sont scelles"
+      },
+      {
+        "id": "F-RESERVATION.AMB5",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "seules les horloges de periode sont scellees, pas les instants par operation"
+      },
+      {
+        "id": "F-RESERVATION.AMB6",
+        "relevee_par": "B",
+        "porte_sur_une_valeur_scellee": false,
+        "pourquoi": "fin de S1, taille maximale de file et acteurs du locataire `other` ne sont pas scelles"
+      }
+    ]
+  },
+  "racine_gelee": {
+    "path": "acceptance/reference",
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_de_la_racine": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "declaration": "docs/FROZEN_ROOTS.json",
+    "nombre_de_fixtures": 10,
+    "relecture": "git rev-parse cd239915d88f6ac07b4b4f45e1a565f8c04786e0:acceptance/reference",
+    "touchee_par_T13": false
+  },
+  "archive": {
+    "A": [
+      {
+        "source": ".bench/fixtures/A/F-BOOTSTRAP.json",
+        "ledger": "fixtures-transcripts/T13/A/F-BOOTSTRAP.json",
+        "sha256": "bb660086a41e38a28b7260726999f654090db4a5b07b1385117fcd67dbbee9d9",
+        "octets": 1868
+      },
+      {
+        "source": ".bench/fixtures/A/F-BUDGET.json",
+        "ledger": "fixtures-transcripts/T13/A/F-BUDGET.json",
+        "sha256": "cf018d333f0d6862f646625ac1d7342573201d37aebbce2e6ac36bdad7b606d1",
+        "octets": 3288
+      },
+      {
+        "source": ".bench/fixtures/A/F-CLUSTERS.json",
+        "ledger": "fixtures-transcripts/T13/A/F-CLUSTERS.json",
+        "sha256": "f669032cc233919f4078ec1665765cb3a13cbaefd4a8a46e1f86b2c577d81e39",
+        "octets": 1695
+      },
+      {
+        "source": ".bench/fixtures/A/F-COST-RATIO.json",
+        "ledger": "fixtures-transcripts/T13/A/F-COST-RATIO.json",
+        "sha256": "9cd79991f30f20e8ead009837b7bcdcafcc482001cb7370f6573e3a09f21da60",
+        "octets": 1404
+      },
+      {
+        "source": ".bench/fixtures/A/F-FAILURE.json",
+        "ledger": "fixtures-transcripts/T13/A/F-FAILURE.json",
+        "sha256": "1a0bfb1a230b9077d672b610e534fd1ac2bf2f0b0ed37b5d9985307ecc9db348",
+        "octets": 1887
+      },
+      {
+        "source": ".bench/fixtures/A/F-MONEY.json",
+        "ledger": "fixtures-transcripts/T13/A/F-MONEY.json",
+        "sha256": "e4b8660d1bf759fae5c27187a301386d778f2b48eff2bbba3dfbce2fbc61ce23",
+        "octets": 1778
+      },
+      {
+        "source": ".bench/fixtures/A/F-POWER.json",
+        "ledger": "fixtures-transcripts/T13/A/F-POWER.json",
+        "sha256": "67f2684490ac5cbcbf02a06bafb4a32ad0b9afd281f6796cf5ef5a40a79f63db",
+        "octets": 4732
+      },
+      {
+        "source": ".bench/fixtures/A/F-QUALITY.json",
+        "ledger": "fixtures-transcripts/T13/A/F-QUALITY.json",
+        "sha256": "67cafdca4ba7f8f568e7ffd60ea6f6e45318bc1ea05594f956233513c6254226",
+        "octets": 7295
+      },
+      {
+        "source": ".bench/fixtures/A/F-REGRESSION.json",
+        "ledger": "fixtures-transcripts/T13/A/F-REGRESSION.json",
+        "sha256": "a64cfe27ddb2f4464cfb2c78f57ceb5753b814111003b7b45dfd9e1926190206",
+        "octets": 1519
+      },
+      {
+        "source": ".bench/fixtures/A/F-RESERVATION.json",
+        "ledger": "fixtures-transcripts/T13/A/F-RESERVATION.json",
+        "sha256": "00c1ef0545e50021b62b44e27f849893dd915d2ed8b2009eabc729ae2383d222",
+        "octets": 6737
+      },
+      {
+        "source": ".bench/fixtures/A/INDEX.json",
+        "ledger": "fixtures-transcripts/T13/A/INDEX.json",
+        "sha256": "b2209296702bee62613fcf3a2cd73b17485823b41ea16436d72fd78836e7b87a",
+        "octets": 4773
+      }
+    ],
+    "B": [
+      {
+        "source": ".bench/fixtures/B/F-BOOTSTRAP.json",
+        "ledger": "fixtures-transcripts/T13/B/F-BOOTSTRAP.json",
+        "sha256": "c165b0585312bec86772c9cdf5acd3f67b48887793e86564db25739a469ed728",
+        "octets": 5810
+      },
+      {
+        "source": ".bench/fixtures/B/F-BUDGET.json",
+        "ledger": "fixtures-transcripts/T13/B/F-BUDGET.json",
+        "sha256": "e2ec894777ab5a9e19c450a851212714510e0cf55f9e88b21a2750d0e07c6a05",
+        "octets": 8162
+      },
+      {
+        "source": ".bench/fixtures/B/F-CLUSTERS.json",
+        "ledger": "fixtures-transcripts/T13/B/F-CLUSTERS.json",
+        "sha256": "22859e6eaa0dd17ebb092b9200c39735b29acde589fa670c33f3b899a9f06200",
+        "octets": 4464
+      },
+      {
+        "source": ".bench/fixtures/B/F-COST-RATIO.json",
+        "ledger": "fixtures-transcripts/T13/B/F-COST-RATIO.json",
+        "sha256": "9918f3ff8c4ea71f712386ac6956504ceafd0a190631d8a7230236c10bac732d",
+        "octets": 3658
+      },
+      {
+        "source": ".bench/fixtures/B/F-FAILURE.json",
+        "ledger": "fixtures-transcripts/T13/B/F-FAILURE.json",
+        "sha256": "d75cbaef80ace95ef388b261753e65e4cafed2b3afb67d8a088b0bc3bdc0f498",
+        "octets": 8235
+      },
+      {
+        "source": ".bench/fixtures/B/F-MONEY.json",
+        "ledger": "fixtures-transcripts/T13/B/F-MONEY.json",
+        "sha256": "78a3154fb82cc3b3481d9dc4849545c65d07d3922786600d179d12a8be0e70a6",
+        "octets": 5225
+      },
+      {
+        "source": ".bench/fixtures/B/F-POWER.json",
+        "ledger": "fixtures-transcripts/T13/B/F-POWER.json",
+        "sha256": "22910b2f1867a6dc96c94eff70a4bc7d36c44f64465a8699049df90785b8c5be",
+        "octets": 9567
+      },
+      {
+        "source": ".bench/fixtures/B/F-QUALITY.json",
+        "ledger": "fixtures-transcripts/T13/B/F-QUALITY.json",
+        "sha256": "1178badfea260d170eb550b89a5c663e5dcb663740f2a6d8ca02a6b49da460ef",
+        "octets": 13003
+      },
+      {
+        "source": ".bench/fixtures/B/F-REGRESSION.json",
+        "ledger": "fixtures-transcripts/T13/B/F-REGRESSION.json",
+        "sha256": "c6eeddaf0f770d4af821e93113e70104737d165fbc737ad70a68cf2d78cc57ec",
+        "octets": 5994
+      },
+      {
+        "source": ".bench/fixtures/B/F-RESERVATION.json",
+        "ledger": "fixtures-transcripts/T13/B/F-RESERVATION.json",
+        "sha256": "f6773980695caa52409dfa607e1ac168e0baddd5723a35698a02de7c2359d58c",
+        "octets": 17284
+      },
+      {
+        "source": ".bench/fixtures/B/INDEX.json",
+        "ledger": "fixtures-transcripts/T13/B/INDEX.json",
+        "sha256": "0f99e482b7b456170f478f00c7cec0342418a5f9b0ffa78d90b1212a451c984a",
+        "octets": 5917
+      }
+    ]
+  }
+}

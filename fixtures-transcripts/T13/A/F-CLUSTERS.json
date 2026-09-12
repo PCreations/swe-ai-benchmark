@@ -1,0 +1,60 @@
+{
+  "fixture": "F-CLUSTERS",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      115
+    ],
+    "verification": [
+      "sed -n '115p' docs/cahier.md"
+    ]
+  },
+  "verbatim": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "donnees": {
+    "projets": [
+      {
+        "cahier_line": 115,
+        "id": "P1",
+        "A": 10,
+        "B": 20,
+        "repetitions": 10,
+        "repetitions_identiques": true
+      },
+      {
+        "cahier_line": 115,
+        "id": "P2",
+        "A": 90,
+        "B": 100,
+        "repetitions": 1
+      }
+    ],
+    "moyennes_interprojets": {
+      "cahier_line": 115,
+      "A": 50,
+      "B": 60
+    },
+    "anti_pattern": {
+      "cahier_line": 115,
+      "nom": "moyenne naïve sur onze lignes",
+      "statut": "ne doit pas remplacer l’agrégation interprojets",
+      "valeur": "non donnée par le cahier — non transcrite"
+    },
+    "invariance_duplication": {
+      "cahier_line": 115,
+      "enonce": "Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée.",
+      "moyennes_apres_duplication": {
+        "A": 50,
+        "B": 60
+      }
+    }
+  },
+  "ambiguites": []
+}

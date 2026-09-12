@@ -1,0 +1,77 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [113],
+    "relecture": "sed -n '113p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs (T32.A1, T36.A2, jeu de mutations l.437), puis confrontee a SF l.113. L identification projet -> couple (A,B) est confirmee par F-CLUSTERS l.115. Aucune implementation consultee.",
+  "consommateurs": [
+    {
+      "cas": "T32.A1", "cahier_line": 435, "proof_kind": "numeric",
+      "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "deduction": "la fixture doit porter les couts par projet ET les deux moyennes ET le ratio, les trois etant assertes separement"
+    },
+    {
+      "cas": "T36.A2", "cahier_line": 473, "proof_kind": "numeric",
+      "exige": "F-COST-RATIO affiche 5/6 et les deux moyennes",
+      "deduction": "les deux moyennes restent des colonnes visibles a cote du ratio, jamais resumees par lui"
+    },
+    {
+      "cas": "T32 (fin de tache)", "cahier_line": 437, "proof_kind": "mutation",
+      "exige": "jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs",
+      "deduction": "la fixture doit porter la valeur FAUSSE 0.7 comme cible de mutant nommee"
+    },
+    {
+      "cas": "T32.A6", "cahier_line": 435, "proof_kind": "behaviour",
+      "exige": "poids des scenarios appliques a l interieur du parent avant poids entre parents",
+      "deduction": "les deux projets sont de POIDS EGAL entre parents : la moyenne interprojets est une moyenne des moyennes par projet"
+    }
+  ],
+  "valeurs": {
+    "projets": {
+      "nombre": 2,
+      "poids": "egal",
+      "cahier_line": 113,
+      "lignes": [
+        {"projet": "P1", "cout_A": 10, "cout_B": 20},
+        {"projet": "P2", "cout_A": 90, "cout_B": 100}
+      ],
+      "note_indexation": "SF l.113 ecrit A=[10,90] et B=[20,100] ; l appariement par projet (P1=(10,20), P2=(90,100)) est confirme mot pour mot par F-CLUSTERS l.115"
+    },
+    "moyenne_A": {"valeur": 50, "cahier_line": 113},
+    "moyenne_B": {"valeur": 60, "cahier_line": 113},
+    "ratio_principal_A_sur_B": {
+      "rationnel": "5/6",
+      "decimal_exact": null,
+      "definition": "moyenne(A) / moyenne(B) — ratio des moyennes",
+      "cahier_line": 113
+    },
+    "valeur_incorrecte_nommee": {
+      "nom": "moyenne des ratios",
+      "valeur": 0.7,
+      "rationnel": "7/10",
+      "cahier_line": 113,
+      "citation": "La moyenne des ratios serait 0.7 et constitue un resultat incorrect pour cette metrique."
+    }
+  },
+  "verifications_arithmetiques": [
+    {"quoi": "moyenne A", "calcul": "(10 + 90)/2 = 50", "exact": true},
+    {"quoi": "moyenne B", "calcul": "(20 + 100)/2 = 60", "exact": true},
+    {"quoi": "ratio des moyennes", "calcul": "50/60 = 5/6", "exact": true},
+    {"quoi": "moyenne des ratios (FAUSSE)", "calcul": "(10/20 + 90/100)/2 = (0.5 + 0.9)/2 = 0.7", "resultat": 0.7, "statut": "valeur FAUSSE nommee par le cahier"},
+    {"quoi": "distinction", "calcul": "5/6 = 0.8333... != 0.7", "exact": true}
+  ],
+  "notes_de_portee": [
+    "Le cahier ne nomme pas l unite des couts ni le nombre de repetitions par projet ; F-CLUSTERS (l.115) montre que le nombre de repetitions ne change pas la moyenne par projet quand les repetitions sont identiques.",
+    "5/6 n a pas de representation decimale finie : a publier en rationnel ou avec arrondi annonce (T36, l.473)."
+  ],
+  "derivations": [],
+  "ambiguites": []
+}

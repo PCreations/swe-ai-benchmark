@@ -1,0 +1,181 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BUDGET",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [105],
+    "relecture": "sed -n '105p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs, puis confrontee au texte de SF l.105. L invariant de clôture vient de SH l.297 (fin de T16). Aucune implementation consultee.",
+  "consommateurs": [
+    {
+      "cas": "T16.A2",
+      "cahier_line": 295,
+      "proof_kind": "numeric",
+      "exige": "F-BUDGET respecte tous ses montants sous transactions concurrentes",
+      "deduction": "la fixture doit porter CHAQUE montant de chaque sous-cas, et declarer lesquels sont concurrents et lesquels sont des etats separes ; sinon << tous ses montants >> n a pas de referent"
+    },
+    {
+      "cas": "T16.A7",
+      "cahier_line": 295,
+      "proof_kind": "refusal",
+      "exige": "une reservation dont le cout maximal est non borne est refusee en mode plafond strict avec UNBOUNDED_COST",
+      "deduction": "consommateur voisin : il impose que toute reservation de F-BUDGET porte un cout maximal BORNE, sinon elle serait refusee avant d etre admissible"
+    },
+    {
+      "cas": "T16 (fin de tache)",
+      "cahier_line": 297,
+      "proof_kind": "invariant",
+      "exige": "invariants spent + reserved + available = limit dans les cas sans depassement fournisseur, entiers exacts",
+      "deduction": "fixe reserved dans les deux etats ou le cahier ne publie que spent et available"
+    }
+  ],
+  "unites": {
+    "monnaie": "micro-USD",
+    "cahier_line": 80,
+    "note": "SF l.105 ne nomme pas l unite ; elle est deduite de l.80 (montants en micro-USD) et du reglement a 340, montant de F-MONEY (l.103)"
+  },
+  "invariant_de_cloture": {
+    "formule": "spent + reserved + available = limit",
+    "portee": "cas sans depassement fournisseur",
+    "cahier_line": 297
+  },
+  "valeurs": {
+    "limite": {
+      "valeur": 1000,
+      "chaine": "1000",
+      "cahier_line": 105
+    },
+    "sous_cas_1_concurrence": {
+      "intitule": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
+      "cahier_line": 105,
+      "montant_de_chaque_demande": 600,
+      "nombre_de_demandes": 2,
+      "acceptees_au_plus": 1,
+      "refusees_au_moins": 1,
+      "surbooking_budgetaire": "interdit",
+      "etat_apres_acceptation_avant_reglement": {
+        "spent": 0,
+        "reserved": 600,
+        "available": 400,
+        "statut_des_valeurs": "DERIVE de l invariant l.297 (1000 - 600 = 400) ; SF ne publie pas cet etat intermediaire"
+      }
+    },
+    "sous_cas_2_apres_reglement": {
+      "intitule": "reglement a 340 de la reservation acceptee",
+      "cahier_line": 105,
+      "montant_du_reglement": 340,
+      "etat_de_reference": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660,
+        "statut_des_valeurs": "ENONCE mot pour mot par le cahier",
+        "controle_invariant": "340 + 0 + 660 = 1000"
+      },
+      "branches_a_tester_separement": [
+        {
+          "id": "2a",
+          "intitule": "une reservation de 600 est admissible et laisse 60 disponibles",
+          "cahier_line": 105,
+          "montant_demande": 600,
+          "verdict": "ADMISSIBLE",
+          "etat_resultant": {
+            "spent": 340,
+            "reserved": 600,
+            "available": 60,
+            "statut_des_valeurs": "available=60 ENONCE ; spent et reserved DERIVES de l invariant l.297",
+            "controle_invariant": "340 + 600 + 60 = 1000"
+          }
+        },
+        {
+          "id": "2b",
+          "intitule": "une de 661 est refusee et laisse 660",
+          "cahier_line": 105,
+          "montant_demande": 661,
+          "verdict": "REFUSEE",
+          "etat_resultant": {
+            "spent": 340,
+            "reserved": 0,
+            "available": 660,
+            "statut_des_valeurs": "available=660 ENONCE ; spent et reserved DERIVES (etat inchange)",
+            "controle_invariant": "340 + 0 + 660 = 1000"
+          }
+        }
+      ],
+      "independance": "les branches 2a et 2b partent TOUTES DEUX de l etat de reference et ne s enchainent pas : le cahier dit << Depuis cet etat, tester separement >>"
+    },
+    "sous_cas_3_reservation_ambigue": {
+      "intitule": "troisieme sous-cas INDEPENDANT, budget frais et zero depense",
+      "cahier_line": 105,
+      "limite": 1000,
+      "spent_initial": 0,
+      "montant_reserve": 600,
+      "etat_tant_que_non_reconciliee": {
+        "spent": 0,
+        "reserved": 600,
+        "available": 400,
+        "statut_des_valeurs": "available=400 et spent=0 ENONCES ; reserved=600 DERIVE de l invariant l.297",
+        "controle_invariant": "0 + 600 + 400 = 1000"
+      },
+      "condition_de_maintien": "tant qu elle n est pas reconciliee"
+    }
+  },
+  "verifications_arithmetiques": [
+    {"quoi": "etat de reference", "calcul": "1000 - 340 = 660 disponibles, reserved retombe a 0 apres reglement", "exact": true},
+    {"quoi": "branche 2a", "calcul": "660 - 600 = 60", "resultat": 60, "exact": true},
+    {"quoi": "branche 2b", "calcul": "661 > 660 donc refus ; disponible inchange 660", "resultat": 660, "exact": true},
+    {"quoi": "frontiere implicite de 2b", "calcul": "660 serait admissible, 661 ne l est pas : la frontiere du refus est exactement available+1", "statut": "DERIVE, non enonce"},
+    {"quoi": "sous-cas 3", "calcul": "1000 - 600 = 400", "resultat": 400, "exact": true}
+  ],
+  "notes_de_portee": [
+    "Les trois sous-cas sont INDEPENDANTS : le sous-cas 3 repart d un budget frais, il ne s enchaine pas sur l etat de reference.",
+    "Le cahier ne promet un plafond absolu que lorsque l adaptateur possede une borne fiable ; sinon le mode strict bloque l emission (l.297).",
+    "Invariant D.9 : les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires (l.71)."
+  ],
+  "derivations": [
+    {"quoi": "reserved dans l etat de reference apres reglement", "valeur": 0, "normatif": true, "note": "ENONCE par le cahier (reserved=0), pas derive"},
+    {"quoi": "reserved dans 2a, 2b et le sous-cas 3", "normatif": false, "depuis": [297], "note": "impose par l invariant de cloture, pas ecrit en SF"}
+  ],
+  "ambiguites": [
+    {
+      "id": "F-BUDGET.AMB1",
+      "point": "identite de la reservation acceptee parmi les deux demandes concurrentes de 600",
+      "cahier_line": 105,
+      "citation": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
+      "lectures": [
+        "exactement une est acceptee, laquelle n est pas determinee (non-determinisme admis, l assertion ne porte que sur le comptage)",
+        "l ordre d admission explicite designe la gagnante, par analogie avec le FIFO de F-RESERVATION (l.123)"
+      ],
+      "impact": "aucune valeur monetaire ne change ; mais un test qui nomme la gagnante trancherait une question que le cahier laisse ouverte",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-BUDGET.AMB2",
+      "point": "definition d une reservation << ambigue >>",
+      "cahier_line": 105,
+      "citation": "une reservation ambigue de 600 maintient available=400 tant qu elle n est pas reconciliee",
+      "lectures": [
+        "elle correspond a l etat d appel UNKNOWN de l.99 (reponse fournisseur perdue, invariant D.7 l.69)",
+        "elle designe toute reservation non encore reglee ni annulee, sans lien avec l etat d appel"
+      ],
+      "impact": "determine quel evenement met fin a l ambiguite et donc quel etat succede a available=400",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-BUDGET.AMB3",
+      "point": "trace laissee par la reservation refusee de 661",
+      "cahier_line": 105,
+      "lectures": [
+        "le refus n ecrit rien : seul available=660 est observable",
+        "le refus ecrit une entree de refus typee, observable dans le registre"
+      ],
+      "impact": "aucune valeur monetaire ne change ; affecte ce qu un export doit contenir (T31)",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

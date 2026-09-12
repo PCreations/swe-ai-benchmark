@@ -1,0 +1,49 @@
+{
+  "fixture": "F-REGRESSION",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      129
+    ],
+    "verification": [
+      "sed -n '129p' docs/cahier.md"
+    ]
+  },
+  "verbatim": {
+    "129": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+  },
+  "donnees": {
+    "cas": [
+      {
+        "id": "remplacement_sans_regression",
+        "cahier_line": 129,
+        "exigence": "cancel@1",
+        "satisfaite_en": "P2",
+        "remplacee_en": "P3",
+        "remplacante": "cancel@2",
+        "regression_produite": false,
+        "enonce": "le retrait de `cancel@1` ne produit pas de régression"
+      },
+      {
+        "id": "violation_avec_regression",
+        "cahier_line": 129,
+        "exigence": "isolation@1",
+        "satisfaite_en": "P3",
+        "violee_en": "P4",
+        "regression_produite": true,
+        "nombre_regressions": 1
+      }
+    ],
+    "regle_de_comptage": {
+      "cahier_line": 129,
+      "enonce": "Compter par id/version active, pas par nombre d’assertions."
+    }
+  },
+  "ambiguites": []
+}

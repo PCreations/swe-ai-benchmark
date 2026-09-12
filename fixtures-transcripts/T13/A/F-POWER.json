@@ -1,0 +1,143 @@
+{
+  "fixture": "F-POWER",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      127
+    ],
+    "verification": [
+      "sed -n '127p' docs/cahier.md"
+    ]
+  },
+  "verbatim": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "donnees": {
+    "campagnes": {
+      "cahier_line": 127,
+      "nombre": 4,
+      "qualificatif": "petites campagnes statistiques"
+    },
+    "structure_parents": {
+      "cahier_line": 127,
+      "enonce": "chaque campagne a deux parents distincts P1/P2 portant les mêmes valeurs",
+      "parents": [
+        "P1",
+        "P2"
+      ]
+    },
+    "bras_B": {
+      "cahier_line": 127,
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "portee": "dans chaque parent, identique pour les quatre campagnes"
+    },
+    "bras_A_par_campagne": {
+      "cahier_line": 127,
+      "format": "(coût, V, U)",
+      "valeurs": [
+        {
+          "campagne": 1,
+          "cout": 80,
+          "V": 1,
+          "U": 1
+        },
+        {
+          "campagne": 2,
+          "cout": 100,
+          "V": 1,
+          "U": 1
+        },
+        {
+          "campagne": 3,
+          "cout": 80,
+          "V": 0.96,
+          "U": 1
+        },
+        {
+          "campagne": 4,
+          "cout": 80,
+          "V": 0.99,
+          "U": 0.99
+        }
+      ]
+    },
+    "preconditions": {
+      "cahier_line": 127,
+      "valeurs": [
+        "comptabilité résolue",
+        "absence de violation critique",
+        "valeurs connues sur les deux bras"
+      ]
+    },
+    "tirages": {
+      "cahier_line": 127,
+      "enonce": "Les tirages parents exhaustifs donnent des distributions ponctuelles.",
+      "consequence": "chaque « borne » ci-dessous est une distribution dégénérée : borne basse = borne haute"
+    },
+    "bornes_ratio": {
+      "cahier_line": 127,
+      "valeurs": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ]
+    },
+    "bornes_deltaV": {
+      "cahier_line": 127,
+      "valeurs": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ]
+    },
+    "bornes_deltaU": {
+      "cahier_line": 127,
+      "valeurs": [
+        0,
+        0,
+        0,
+        -0.01
+      ]
+    },
+    "decisions_attendues": {
+      "cahier_line": 127,
+      "producteur": "T34",
+      "valeurs": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "ecriture_cahier": "[vrai,faux,faux,vrai]"
+    },
+    "portee": {
+      "cahier_line": 127,
+      "enonce": "Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  },
+  "ambiguites": [
+    {
+      "cahier_line": 127,
+      "point": "La §F donne le vecteur de décisions [vrai,faux,faux,vrai] mais pas la règle qui le produit : ni la marge de non-infériorité sur ΔV/ΔU, ni la stricte inégalité exigée sur la borne supérieure du ratio.",
+      "consequence": "Les décisions sont pinnées comme valeurs de fixture, mais ne sont pas dérivables de la seule §F.",
+      "bloquant": false,
+      "justification_non_bloquant": "Le vecteur est énoncé littéralement en §F ; il n’y a rien à trancher pour transcrire la fixture. La règle correspondante est énoncée hors §F (ligne 451 : borne supérieure du ratio < 1, non-infériorité si bornes inférieures > −marge, « Marges d’exemple 0,02 ») et reproduit ce vecteur ; mais 0,02 y est donné comme exemple, donc la marge de F-POWER n’est figée nulle part."
+    },
+    {
+      "cahier_line": 127,
+      "point": "La §F ne donne ni la puissance ni l’erreur standard associées à F-POWER.",
+      "consequence": "Ces deux nombres ne sont pas transcrits ici : ils n’apparaissent que dans une ligne d’acceptation, hors du cadrage de cet étage.",
+      "bloquant": false
+    }
+  ]
+}

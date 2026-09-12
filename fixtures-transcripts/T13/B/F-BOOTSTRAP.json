@@ -1,0 +1,76 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T12",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [117],
+    "relecture": "sed -n '117p' docs/cahier.md"
+  },
+  "methode": "Deduite d abord des consommateurs (T33.A1 a A7), puis confrontee a SF l.117. Les deux projets sont ceux de F-COST-RATIO / F-CLUSTERS (l.113, l.115). Aucune implementation consultee.",
+  "consommateurs": [
+    {"cas": "T33.A1", "cahier_line": 443, "proof_kind": "numeric", "exige": "F-BOOTSTRAP donne les quatre ratios et l intervalle [1/2,9/10]", "deduction": "la fixture doit porter la LISTE FORCEE de reechantillonnages, les quatre ratios DANS L ORDRE, et les deux bornes"},
+    {"cas": "T33.A2", "cahier_line": 443, "proof_kind": "behaviour", "exige": "les deux bras suivent exactement les memes indices parents", "deduction": "le tirage est APPARIE : un meme tirage [Pi,Pj] indexe A et B ensemble"},
+    {"cas": "T33.A3", "cahier_line": 443, "proof_kind": "behaviour", "exige": "multiplier tous les couts par 7 ne change ni ratio ni intervalle", "deduction": "la fixture doit porter la variante x7 et l egalite attendue"},
+    {"cas": "T33.A4", "cahier_line": 443, "proof_kind": "numeric", "exige": "A=B donne tous les ratios egaux a 1", "deduction": "variante degeneree a porter dans la fixture"},
+    {"cas": "T33.A5", "cahier_line": 443, "proof_kind": "behaviour", "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents", "deduction": "s appuie sur les 10 repetitions de P1 dans F-CLUSTERS"},
+    {"cas": "T33.A6", "cahier_line": 443, "proof_kind": "refusal", "exige": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l inference interprojets", "deduction": "la fixture a DEUX grappes ; la variante a une grappe est un refus nomme"},
+    {"cas": "T33.A7", "cahier_line": 443, "proof_kind": "absence", "exige": "les bandes ponctuelles ne sont jamais etiquetees simultanees", "deduction": "l intervalle [1/2,9/10] est une bande PONCTUELLE, jamais presentee comme simultanee"}
+  ],
+  "valeurs": {
+    "parents": [
+      {"projet": "P1", "cout_A": 10, "cout_B": 20},
+      {"projet": "P2", "cout_A": 90, "cout_B": 100}
+    ],
+    "parents_source": {"cahier_line": 117, "citation": "Sur les deux projets precedents", "renvoi": [113, 115]},
+    "liste_forcee_de_reechantillonnages": {
+      "valeur": [["P1", "P1"], ["P1", "P2"], ["P2", "P1"], ["P2", "P2"]],
+      "nombre": 4,
+      "nature": "exhaustive sur 2 parents avec remise (2^2)",
+      "ordre": "l ordre des tableaux est conserve (l.82) : la liste est celle du cahier, dans cet ordre",
+      "cahier_line": 117
+    },
+    "ratios_cout_A_sur_B": {
+      "valeurs": ["1/2", "5/6", "5/6", "9/10"],
+      "decimales": [0.5, null, null, 0.9],
+      "ordre": "aligne sur la liste forcee, tirage par tirage",
+      "cahier_line": 117
+    },
+    "intervalle": {
+      "niveau": "2,5 % - 97,5 %",
+      "convention": "quantile empirique inverse",
+      "borne_basse": "1/2",
+      "borne_haute": "9/10",
+      "cahier_line": 117
+    },
+    "limite_declaree": {
+      "enonce": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets",
+      "cahier_line": 117
+    }
+  },
+  "verifications_arithmetiques": [
+    {"quoi": "tirage [P1,P1]", "calcul": "moyenne A = (10+10)/2 = 10 ; moyenne B = (20+20)/2 = 20 ; ratio = 10/20 = 1/2", "exact": true},
+    {"quoi": "tirage [P1,P2]", "calcul": "A = (10+90)/2 = 50 ; B = (20+100)/2 = 60 ; ratio = 50/60 = 5/6", "exact": true},
+    {"quoi": "tirage [P2,P1]", "calcul": "A = (90+10)/2 = 50 ; B = (100+20)/2 = 60 ; ratio = 5/6", "exact": true},
+    {"quoi": "tirage [P2,P2]", "calcul": "A = 90 ; B = 100 ; ratio = 90/100 = 9/10", "exact": true},
+    {"quoi": "liste triee", "calcul": "[1/2, 5/6, 5/6, 9/10] — deja croissante dans l ordre du cahier", "exact": true},
+    {"quoi": "quantile empirique inverse, n=4", "calcul": "2,5 % -> ceil(0.025*4) = 1 -> 1er element trie = 1/2 ; 97,5 % -> ceil(0.975*4) = 4 -> 4e element trie = 9/10", "resultat": ["1/2", "9/10"], "statut": "CONCORDANT avec la valeur enoncee ; le detail de la convention est deduit, pas ecrit"},
+    {"quoi": "variante x7 (T33.A3)", "calcul": "P1=(70,140), P2=(630,700) ; [P1,P1] -> 70/140 = 1/2 ; [P1,P2] -> 350/420 = 5/6 ; [P2,P2] -> 630/700 = 9/10 — ratios et intervalle inchanges", "exact": true},
+    {"quoi": "variante A=B (T33.A4)", "calcul": "tout ratio vaut 1 ; l intervalle devient [1,1]", "resultat": ["1", "1"], "statut": "DERIVE : le cahier enonce les ratios egaux a 1, pas l intervalle"},
+    {"quoi": "estimation ponctuelle de reference", "calcul": "ratio sur l echantillon complet [P1,P2] = 5/6, contenu dans [1/2, 9/10]", "exact": true}
+  ],
+  "notes_de_portee": [
+    "La liste de reechantillonnages est FORCEE : aucune graine n intervient dans cette fixture, elle valide le calcul et non le tirage.",
+    "Le cahier donne le RESULTAT de la convention de quantile empirique inverse sur cette liste de 4 elements, pas sa definition generale ; celle-ci doit etre archivee par T33 (l.445). Toute extrapolation a n != 4 sort de cette fixture.",
+    "Le bootstrap principal reechantillonne les MOYENNES PAR PARENT ; une variante hierarchique est une methode distincte declaree (l.445)."
+  ],
+  "derivations": [
+    {"quoi": "intervalle de la variante A=B", "valeur": ["1", "1"], "normatif": false, "depuis": [443]},
+    {"quoi": "couts x7", "valeur": {"P1": [70, 140], "P2": [630, 700]}, "normatif": false, "depuis": [443], "note": "T33.A3 dit << multiplier tous les couts par 7 >> sans ecrire les produits"}
+  ],
+  "ambiguites": []
+}

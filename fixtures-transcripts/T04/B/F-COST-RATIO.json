@@ -1,0 +1,133 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-COST-RATIO",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "source_lines": [
+      113
+    ]
+  },
+  "resume": "Deux projets de poids egal ; le ratio principal est le rapport des moyennes (5/6), pas la moyenne des rapports (0,7).",
+  "verbatim": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "valeurs": {
+    "nombre_de_projets": {
+      "valeur": 2,
+      "cahier_line": 113
+    },
+    "ponderation": {
+      "valeur": "poids egal",
+      "cahier_line": 113
+    },
+    "couts_bras_A": {
+      "valeur": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "couts_bras_B": {
+      "valeur": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    },
+    "moyenne_A": {
+      "valeur": 50,
+      "cahier_line": 113,
+      "decomposition_verifiable": "(10+90)/2 = 50"
+    },
+    "moyenne_B": {
+      "valeur": 60,
+      "cahier_line": 113,
+      "decomposition_verifiable": "(20+100)/2 = 60"
+    },
+    "ratio_principal": {
+      "valeur": "5/6",
+      "definition": "A/B = moyenne_A / moyenne_B",
+      "cahier_line": 113,
+      "decomposition_verifiable": "50/60 = 5/6"
+    },
+    "resultat_incorrect_a_rejeter": {
+      "valeur": 0.7,
+      "nom": "moyenne des ratios",
+      "cahier_line": 113,
+      "decomposition_verifiable": "(10/20 + 90/100)/2 = (0.5 + 0.9)/2 = 0.7",
+      "regle": "constitue un resultat incorrect pour cette metrique"
+    }
+  },
+  "appariement_des_projets": {
+    "valeur": {
+      "P1": {
+        "A": 10,
+        "B": 20
+      },
+      "P2": {
+        "A": 90,
+        "B": 100
+      }
+    },
+    "cahier_line": 115,
+    "note": "l'affectation des couts [10,90] et [20,100] aux projets P1 et P2 n'est pas ecrite a la l.113 ; elle est fixee par la l.115 (F-CLUSTERS), qui reprend « les deux projets precedents »"
+  },
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "attend": "moyennes 50/60 et ratio 5/6"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "attend": "affiche 5/6 et les deux moyennes"
+    },
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "attend": "sert de base aux quatre tirages de F-BOOTSTRAP",
+      "via": "l.117 « les deux projets precedents »"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-COST-RATIO.AMB1",
+      "severite": "mineure",
+      "point": "Unite des couts 10/90/20/100.",
+      "constat": "La l.113 ne donne pas d'unite. La l.80 impose le micro-USD pour les montants du domaine ; la l.443 (T33.A3) exige par ailleurs l'invariance d'echelle du ratio.",
+      "options": [
+        "micro-USD, coherent avec l.80",
+        "unite abstraite de fixture d'analyse"
+      ],
+      "impact": "typage de la colonne de cout a l'export (l.425-427) ; nul sur le ratio.",
+      "cahier_lines": [
+        113,
+        80,
+        443
+      ]
+    },
+    {
+      "id": "F-COST-RATIO.AMB2",
+      "severite": "mineure",
+      "point": "Nombre de repetitions par projet.",
+      "constat": "La l.113 donne un cout unique par projet et par bras. La l.115 precise que P1 porte dix repetitions identiques et P2 une seule ; le cahier ne dit pas si F-COST-RATIO est le cas a une repetition par projet ou la vue agregee de F-CLUSTERS.",
+      "options": [
+        "une repetition par projet (fixture autonome)",
+        "vue agregee par parent de F-CLUSTERS"
+      ],
+      "impact": "structure des lignes source de T32.A1 ; les moyennes 50/60 et le ratio 5/6 sont identiques dans les deux lectures.",
+      "cahier_lines": [
+        113,
+        115
+      ]
+    }
+  ]
+}

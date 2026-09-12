@@ -1,0 +1,162 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-CLUSTERS",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "source_lines": [
+      115
+    ]
+  },
+  "resume": "Grappes desequilibrees : dix repetitions pour P1, une pour P2 ; l'agregation se fait par parent, pas sur les onze lignes.",
+  "verbatim": {
+    "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "valeurs": {
+    "projets": [
+      {
+        "id": "P1",
+        "A": {
+          "valeur": 10,
+          "cahier_line": 115
+        },
+        "B": {
+          "valeur": 20,
+          "cahier_line": 115
+        },
+        "repetitions": {
+          "valeur": 10,
+          "cahier_line": 115,
+          "qualificatif": "identiques"
+        }
+      },
+      {
+        "id": "P2",
+        "A": {
+          "valeur": 90,
+          "cahier_line": 115
+        },
+        "B": {
+          "valeur": 100,
+          "cahier_line": 115
+        },
+        "repetitions": {
+          "valeur": 1,
+          "cahier_line": 115
+        }
+      }
+    ],
+    "lignes_totales": {
+      "valeur": 11,
+      "cahier_line": 115,
+      "decomposition_verifiable": "10 + 1 = 11"
+    },
+    "moyenne_interprojets_A": {
+      "valeur": 50,
+      "cahier_line": 115,
+      "decomposition_verifiable": "(10 + 90)/2 = 50"
+    },
+    "moyenne_interprojets_B": {
+      "valeur": 60,
+      "cahier_line": 115,
+      "decomposition_verifiable": "(20 + 100)/2 = 60"
+    },
+    "regle_de_refus": {
+      "valeur": "une moyenne naive sur onze lignes ne doit pas remplacer cette agregation",
+      "cahier_line": 115
+    },
+    "invariance_par_duplication": {
+      "valeur": "dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee",
+      "cahier_line": 115,
+      "etat_apres_duplication": {
+        "P1_repetitions": 20,
+        "P2_repetitions": 1,
+        "moyenne_A": 50,
+        "moyenne_B": 60
+      }
+    }
+  },
+  "contre_exemple_derive": {
+    "derive": true,
+    "nom": "moyenne naive sur les onze lignes",
+    "note": "valeur NON ecrite au cahier ; arithmetique posee a la main a partir des seules valeurs des l.113 et l.115, pour materialiser le resultat que la l.115 interdit",
+    "A_naif": "190/11",
+    "B_naif": "300/11",
+    "ratio_naif": "19/30",
+    "decomposition_verifiable": "A: (10*10 + 90)/11 = 190/11 ; B: (20*10 + 100)/11 = 300/11 ; ratio: 190/300 = 19/30",
+    "cahier_lines": [
+      113,
+      115
+    ]
+  },
+  "conventions_applicables": [
+    {
+      "regle": "Les repetitions et variantes ne sont pas de nouveaux projets independants.",
+      "cahier_line": 74
+    },
+    {
+      "regle": "poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "cahier_line": 435
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "attend": "ne change pas apres duplication des repetitions P1"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "attend": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "attend": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets"
+    },
+    {
+      "cas": "T38.A8",
+      "cahier_line": 493,
+      "attend": "inference interprojets refusee sur une fixture a un seul parent, malgre six trajectoires"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-CLUSTERS.AMB1",
+      "severite": "mineure",
+      "point": "Le cahier ne chiffre pas la moyenne naive interdite.",
+      "constat": "La l.115 nomme le resultat a refuser (« une moyenne naive sur onze lignes ») sans donner sa valeur, contrairement a la l.113 qui chiffre 0,7 pour F-COST-RATIO.",
+      "options": [
+        "asserter le contre-exemple chiffre 190/11, 300/11, 19/30 (arithmetique posee a la main)",
+        "n'asserter que l'egalite aux moyennes 50/60, sans nommer la valeur fautive"
+      ],
+      "impact": "forme du mutant de T32.A2 ; aucune sur les valeurs attendues 50/60.",
+      "cahier_lines": [
+        113,
+        115
+      ]
+    },
+    {
+      "id": "F-CLUSTERS.AMB2",
+      "severite": "semantique",
+      "point": "Duplication « de toutes les repetitions de P1 » : facteur et portee.",
+      "constat": "La l.115 n'indique pas le facteur de duplication (x2 ?) ni si P2 est dupliquee aussi. L'invariance revendiquee vaut pour toute duplication a l'interieur du parent.",
+      "options": [
+        "x2 sur P1 seul (10 -> 20 repetitions)",
+        "facteur libre, P1 seul",
+        "duplication des deux parents"
+      ],
+      "impact": "definition du cas de T32.A2 ; la conclusion (50/60 inchangees) est la meme.",
+      "cahier_lines": [
+        115
+      ]
+    }
+  ]
+}

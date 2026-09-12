@@ -1,0 +1,157 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-MONEY",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "source_lines": [
+      103
+    ]
+  },
+  "resume": "Grille tarifaire fictive a trois champs d'entree disjoints ; un appel de reference vaut exactement 340 micro-USD.",
+  "verbatim": {
+    "103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+  },
+  "valeurs": {
+    "unite": {
+      "valeur": "micro-USD",
+      "cahier_line": 103,
+      "note": "1000000 micro-USD = 1 USD",
+      "note_cahier_line": 80
+    },
+    "grille_par_token": {
+      "input_uncached": {
+        "valeur": 2,
+        "cahier_line": 103
+      },
+      "input_cached": {
+        "valeur": 1,
+        "cahier_line": 103
+      },
+      "output": {
+        "valeur": 5,
+        "cahier_line": 103
+      }
+    },
+    "appel_de_reference": {
+      "usage": {
+        "input_uncached_tokens": {
+          "valeur": 100,
+          "cahier_line": 103
+        },
+        "input_cached_tokens": {
+          "valeur": 40,
+          "cahier_line": 103
+        },
+        "output_tokens": {
+          "valeur": 20,
+          "cahier_line": 103
+        }
+      },
+      "cout_attendu": {
+        "valeur": 340,
+        "cahier_line": 103,
+        "decomposition_verifiable": "100*2 + 40*1 + 20*5 = 200 + 40 + 100 = 340"
+      }
+    },
+    "deux_appels_identiques": {
+      "valeur": 680,
+      "cahier_line": 103
+    },
+    "champs_entree_disjoints": {
+      "valeur": true,
+      "cahier_line": 103,
+      "regle": "les tokens caches ne sont PAS comptes dans les tokens non caches ; si un fournisseur inclut le cache dans un total, son adaptateur le normalise AVANT facturation"
+    }
+  },
+  "conventions_applicables": [
+    {
+      "regle": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD.",
+      "cahier_line": 80
+    },
+    {
+      "regle": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires.",
+      "cahier_line": 71
+    },
+    {
+      "regle": "Les ajustements sont des ecritures separees signees, pas l'edition d'une facture deja inscrite.",
+      "cahier_line": 80
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "attend": "la corruption de F-MONEY (attendu 341 au lieu de 340) est detectee par la verification des references"
+    },
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "attend": "F-MONEY donne 340"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "attend": "48 appels recus et regles"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "attend": "2720 micro-USD par trajectoire, 16320 au total"
+    }
+  ],
+  "coherence_derivee": [
+    {
+      "nom": "golden-six",
+      "entrees_cahier": [
+        {
+          "fait": "deux appels F-MONEY par periode ; tous les autres tarifs valent explicitement zero",
+          "cahier_line": 491
+        },
+        {
+          "fait": "un scenario de quatre periodes, deux configurations, trois repetitions -> six trajectoires, 24 periodes",
+          "cahier_line": 491
+        }
+      ],
+      "chaine": "340 * 2 = 680 par periode ; 680 * 4 = 2720 par trajectoire ; 2720 * 6 = 16320 ; 2 * 4 * 6 = 48 appels",
+      "concorde_avec": [
+        {
+          "valeur": 2720,
+          "cahier_line": 493
+        },
+        {
+          "valeur": 16320,
+          "cahier_line": 493
+        },
+        {
+          "valeur": 48,
+          "cahier_line": 493
+        }
+      ],
+      "statut": "CONCORDANT"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-MONEY.AMB1",
+      "severite": "forme",
+      "point": "Serialisation des tarifs unitaires (2 / 1 / 5).",
+      "constat": "La l.80 impose que les *montants* soient des chaines d'entiers non negatifs ; la l.103 ecrit les tarifs par token comme des nombres nus. Le cahier ne dit pas si un tarif par token est un montant (donc une chaine) ou un coefficient numerique.",
+      "options": [
+        "grille serialisee en chaines ('2','1','5')",
+        "grille serialisee en entiers JSON (2,1,5), seuls les couts resultants etant des chaines"
+      ],
+      "impact": "forme canonique de la fixture et donc son empreinte SHA-256 ; aucun impact sur la valeur 340.",
+      "cahier_lines": [
+        80,
+        103
+      ]
+    }
+  ]
+}

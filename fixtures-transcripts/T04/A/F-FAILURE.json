@@ -1,0 +1,65 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "tache": "T04",
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "lignes": [
+      121
+    ],
+    "verifiable_par": [
+      "sed -n '121p' docs/cahier.md"
+    ]
+  },
+  "citation": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "K": {
+    "cahier_line": 121,
+    "valeur": 4
+  },
+  "candidat": {
+    "cahier_line": 121,
+    "description": "sans deploiement sur les quatre periodes"
+  },
+  "lignes_conservees": {
+    "cahier_line": 121,
+    "nombre": 4,
+    "par_periode": {
+      "Q": 0,
+      "R": 0
+    },
+    "condition_enoncee": "si les exigences et usages y sont presents",
+    "renvoi_convention": {
+      "cahier_line": 111,
+      "Q": "sans poids d'exigence active due, Q serait null — ici Q=0 suppose des exigences dues",
+      "R": "une trajectoire indisponible face a des intentions prevues a R=0, jamais null"
+    }
+  },
+  "couts": {
+    "cahier_line": 121,
+    "par_periode": [
+      100,
+      50,
+      0,
+      0
+    ],
+    "total": 150,
+    "valeurs_enoncees_par_le_cahier": true,
+    "recoupement_interne_au_cahier": "100+50+0+0 = 150"
+  },
+  "arret_de_calcul": {
+    "cahier_line": 121,
+    "enonce": "Un arret de calcul apres P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n'y est ajoutee.",
+    "periodes_apres_arret": 4,
+    "couts_P3_P4": [
+      0,
+      0
+    ]
+  },
+  "ambiguites": []
+}

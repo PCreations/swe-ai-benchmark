@@ -1,0 +1,226 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-FAILURE",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "source_lines": [
+      121
+    ]
+  },
+  "resume": "Echec produit a K=4 : quatre lignes conservees a Q=0 et R=0, couts [100,50,0,0] totalisant 150, et aucun effacement de periode apres un arret de calcul.",
+  "verbatim": {
+    "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "valeurs": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "condition": {
+      "valeur": "un candidat sans deploiement sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "Q_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "condition": "si les exigences et usages y sont presents"
+    },
+    "R_par_periode": {
+      "valeur": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cahier_line": 121,
+      "condition": "si les exigences et usages y sont presents",
+      "regle_liee": "une trajectoire indisponible face a des intentions prevues a R=0, jamais null",
+      "regle_cahier_line": 111
+    },
+    "couts_par_periode": {
+      "valeur": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "cahier_line": 121
+    },
+    "cout_total": {
+      "valeur": 150,
+      "cahier_line": 121,
+      "decomposition_verifiable": "100 + 50 + 0 + 0 = 150"
+    },
+    "arret_de_calcul": {
+      "valeur": "un arret de calcul apres P2 ne supprime pas P3 et P4",
+      "cahier_line": 121
+    },
+    "aucune_facture_imaginaire": {
+      "valeur": "aucune facture imaginaire n'y est ajoutee",
+      "cahier_line": 121
+    }
+  },
+  "derives": [
+    {
+      "nom": "V",
+      "valeur": 0,
+      "derive": true,
+      "chaine": "V est la moyenne temporelle de Q (l.107/l.111) ; Q=[0,0,0,0] -> V=0",
+      "cahier_lines": [
+        107,
+        111,
+        121
+      ]
+    },
+    {
+      "nom": "U",
+      "valeur": 0,
+      "derive": true,
+      "chaine": "U est la moyenne temporelle de R sur les periodes exposees (l.111) ; les usages sont presents aux quatre periodes, donc les quatre sont exposees ; R=[0,0,0,0] -> U=0",
+      "cahier_lines": [
+        111,
+        121
+      ]
+    },
+    {
+      "nom": "exposition",
+      "valeur": "4/4",
+      "derive": true,
+      "chaine": "usages presents aux quatre periodes (l.121) -> quatre periodes exposees sur quatre",
+      "cahier_lines": [
+        111,
+        121
+      ]
+    },
+    {
+      "nom": "deployment_coverage",
+      "valeur": "NO_DEPLOYMENT",
+      "derive": true,
+      "chaine": "« sans deploiement sur les quatre periodes » (l.121) et enum de la l.97",
+      "cahier_lines": [
+        97,
+        121
+      ]
+    }
+  ],
+  "conventions_applicables": [
+    {
+      "regle": "Un echec conserve ses depenses, ses intentions non servies et son backlog.",
+      "cahier_line": 69
+    },
+    {
+      "regle": "Les etats d'arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n'effacent pas la periode de l'analyse.",
+      "cahier_line": 97
+    },
+    {
+      "regle": "Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide.",
+      "cahier_line": 28
+    },
+    {
+      "regle": "Un defaut de prerequis produit BLOCKED, jamais PASS.",
+      "cahier_line": 28
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T05.A6",
+      "cahier_line": 199,
+      "attend": "sans deploiement, la cloture d'une periode produit les demandes non servies prevues par F-FAILURE"
+    },
+    {
+      "cas": "T11.A4",
+      "cahier_line": 251,
+      "attend": "F-FAILURE conserve quatre resultats"
+    },
+    {
+      "cas": "T31.A1",
+      "cahier_line": 427,
+      "attend": "F-FAILURE exporte quatre periodes et total 150"
+    },
+    {
+      "cas": "T38.A7",
+      "cahier_line": 493,
+      "attend": "F-FAILURE produit un echec produit dans une execution moteur terminee"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-FAILURE.AMB1",
+      "severite": "bloquante-pour-le-test",
+      "point": "Contenu des exigences et des usages des quatre periodes.",
+      "constat": "Q=0 et R=0 ne valent que « si les exigences et usages y sont presents » (l.121). Le cahier ne donne ni les exigences (id, version, poids, echeance) ni le nombre d'intentions offertes par periode. Or R=0 exige au moins une intention offerte, faute de quoi la l.111 impose null.",
+      "options": [
+        "reutiliser les exigences de F-QUALITY (A@1, B@1, C@1, A@2) et un plan d'usage explicite",
+        "definir un jeu propre a F-FAILURE, a chiffrer"
+      ],
+      "impact": "sans ces entrees, T31.A1 et T11.A4 ne peuvent asserter Q=0/R=0, seulement les couts.",
+      "cahier_lines": [
+        111,
+        121
+      ]
+    },
+    {
+      "id": "F-FAILURE.AMB2",
+      "severite": "semantique",
+      "point": "L'arret de calcul apres P2 est-il le cas de base ou une variante ?",
+      "constat": "La l.121 enonce d'abord la trajectoire a quatre periodes de couts [100,50,0,0], puis « un arret de calcul apres P2 ne supprime pas P3 et P4 ». On ne peut decider si l'arret explique les couts nuls de P3/P4 (meme scenario) ou constitue un sous-cas supplementaire.",
+      "options": [
+        "un seul scenario : l'arret apres P2 explique [.,.,0,0]",
+        "deux sous-cas : trajectoire complete sans deploiement, puis variante avec arret"
+      ],
+      "impact": "nombre de lignes et de sous-cas exportes par T31.A1.",
+      "cahier_lines": [
+        121
+      ]
+    },
+    {
+      "id": "F-FAILURE.AMB3",
+      "severite": "semantique",
+      "point": "Lequel des trois etats d'arret s'applique.",
+      "constat": "La l.97 enumere BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED. La l.121 dit « un arret de calcul apres P2 » sans le nommer.",
+      "options": [
+        "BUDGET_EXHAUSTED",
+        "RUNNER_BLOCKED",
+        "CANCELLED",
+        "le cas est agnostique aux trois"
+      ],
+      "impact": "champ de statut exporte ; T31.A1 n'en depend pas numeriquement.",
+      "cahier_lines": [
+        97,
+        121
+      ]
+    },
+    {
+      "id": "F-FAILURE.AMB4",
+      "severite": "mineure",
+      "point": "Unite et serialisation des couts [100,50,0,0].",
+      "constat": "La l.121 ne donne pas d'unite. La l.80 impose des chaines d'entiers en micro-USD pour les montants ; T31.A2 exige que les montants soient conserves exactement.",
+      "options": [
+        "micro-USD, serialises en chaines",
+        "unite abstraite de fixture d'analyse"
+      ],
+      "impact": "typage de la colonne exportee.",
+      "cahier_lines": [
+        80,
+        121,
+        427
+      ]
+    }
+  ]
+}

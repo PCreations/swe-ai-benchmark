@@ -1,0 +1,199 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "tache": "T04",
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "lignes": [
+      127
+    ],
+    "verifiable_par": [
+      "sed -n '127p' docs/cahier.md"
+    ]
+  },
+  "citation": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "structure": {
+    "cahier_line": 127,
+    "nombre_de_campagnes": 4,
+    "parents_par_campagne": 2,
+    "parents": [
+      "P1",
+      "P2"
+    ],
+    "enonce": "chaque campagne a deux parents distincts P1/P2 portant les MEMES valeurs"
+  },
+  "bras_B": {
+    "cahier_line": 127,
+    "cout": 100,
+    "V": 1,
+    "U": 1,
+    "enonce": "dans chaque parent, B coute 100 et a V=U=1"
+  },
+  "campagnes": [
+    {
+      "campagne": 1,
+      "cahier_line": 127,
+      "bras_A": {
+        "cout": 80,
+        "V": 1,
+        "U": 1
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      "bornes_ratio_cout": {
+        "basse": 0.8,
+        "haute": 0.8,
+        "note": "distribution ponctuelle : les deux bornes coincident"
+      },
+      "bornes_delta_V": {
+        "basse": 0,
+        "haute": 0
+      },
+      "bornes_delta_U": {
+        "basse": 0,
+        "haute": 0
+      }
+    },
+    {
+      "campagne": 2,
+      "cahier_line": 127,
+      "bras_A": {
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      "bornes_ratio_cout": {
+        "basse": 1,
+        "haute": 1,
+        "note": "distribution ponctuelle : les deux bornes coincident"
+      },
+      "bornes_delta_V": {
+        "basse": 0,
+        "haute": 0
+      },
+      "bornes_delta_U": {
+        "basse": 0,
+        "haute": 0
+      }
+    },
+    {
+      "campagne": 3,
+      "cahier_line": 127,
+      "bras_A": {
+        "cout": 80,
+        "V": 0.96,
+        "U": 1
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      "bornes_ratio_cout": {
+        "basse": 0.8,
+        "haute": 0.8,
+        "note": "distribution ponctuelle : les deux bornes coincident"
+      },
+      "bornes_delta_V": {
+        "basse": -0.04,
+        "haute": -0.04
+      },
+      "bornes_delta_U": {
+        "basse": 0,
+        "haute": 0
+      }
+    },
+    {
+      "campagne": 4,
+      "cahier_line": 127,
+      "bras_A": {
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99
+      },
+      "bras_B": {
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      "bornes_ratio_cout": {
+        "basse": 0.8,
+        "haute": 0.8,
+        "note": "distribution ponctuelle : les deux bornes coincident"
+      },
+      "bornes_delta_V": {
+        "basse": -0.01,
+        "haute": -0.01
+      },
+      "bornes_delta_U": {
+        "basse": -0.01,
+        "haute": -0.01
+      }
+    }
+  ],
+  "bornes_enoncees_par_le_cahier": {
+    "cahier_line": 127,
+    "ratio": [
+      0.8,
+      1,
+      0.8,
+      0.8
+    ],
+    "delta_V": [
+      0,
+      0,
+      -0.04,
+      -0.01
+    ],
+    "delta_U": [
+      0,
+      0,
+      0,
+      -0.01
+    ],
+    "convention_de_signe": "Delta = A moins B (recoupement : 0.96-1 = -0.04 ; 0.99-1 = -0.01)",
+    "origine_des_bornes": "Les tirages parents exhaustifs donnent des distributions PONCTUELLES ; les bornes coincident donc avec l'estimation."
+  },
+  "preconditions": {
+    "cahier_line": 127,
+    "comptabilite": "resolue",
+    "violation_critique": "absente",
+    "valeurs": "connues sur les deux bras"
+  },
+  "decisions_attendues": {
+    "cahier_line": 127,
+    "consommateur": "T34",
+    "valeurs": [
+      true,
+      false,
+      false,
+      true
+    ],
+    "notation_cahier": "[vrai,faux,faux,vrai]"
+  },
+  "portee_declaree": {
+    "cahier_line": 127,
+    "enonce": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider."
+  },
+  "non_specifie": [
+    {
+      "point": "les seuils de decision qui transforment (ratio, dV, dU) en [vrai,faux,faux,vrai] ne sont pas enonces en §F",
+      "effet": "aucun sur les valeurs de la fixture : le cahier enonce directement les quatre decisions attendues"
+    }
+  ],
+  "ambiguites": []
+}

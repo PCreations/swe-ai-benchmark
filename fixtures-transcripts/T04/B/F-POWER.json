@@ -1,0 +1,304 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-POWER",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "source_lines": [
+      127
+    ]
+  },
+  "resume": "Quatre campagnes a deux parents, valeurs connues sur les deux bras ; distributions ponctuelles, bornes ratio/dV/dU donnees, decisions attendues [vrai, faux, faux, vrai].",
+  "verbatim": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "valeurs": {
+    "nombre_de_campagnes": {
+      "valeur": 4,
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "valeur": 2,
+      "identifiants": [
+        "P1",
+        "P2"
+      ],
+      "propriete": "deux parents distincts portant les memes valeurs",
+      "cahier_line": 127
+    },
+    "bras_B": {
+      "cout": {
+        "valeur": 100,
+        "cahier_line": 127
+      },
+      "V": {
+        "valeur": 1,
+        "cahier_line": 127
+      },
+      "U": {
+        "valeur": 1,
+        "cahier_line": 127
+      },
+      "portee": "identique dans les quatre campagnes"
+    },
+    "bras_A_par_campagne": [
+      {
+        "campagne": 1,
+        "cout": 80,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "cout": 80,
+        "V": 0.96,
+        "U": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99,
+        "cahier_line": 127
+      }
+    ],
+    "conditions_communes": {
+      "valeur": "comptabilite resolue, absence de violation critique, valeurs connues sur les deux bras",
+      "cahier_line": 127
+    },
+    "nature_des_distributions": {
+      "valeur": "les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "cahier_line": 127,
+      "consequence": "borne inferieure = borne superieure = estimation ponctuelle"
+    },
+    "bornes_ratio": {
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127,
+      "decomposition_verifiable": "80/100=0,8 ; 100/100=1 ; 80/100=0,8 ; 80/100=0,8"
+    },
+    "bornes_dV": {
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "decomposition_verifiable": "1-1=0 ; 1-1=0 ; 0,96-1=-0,04 ; 0,99-1=-0,01"
+    },
+    "bornes_dU": {
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "decomposition_verifiable": "1-1=0 ; 1-1=0 ; 1-1=0 ; 0,99-1=-0,01"
+    },
+    "decisions_attendues_T34": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127,
+      "texte_cahier": "T34 doit produire [vrai,faux,faux,vrai]"
+    },
+    "portee": {
+      "valeur": "cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider",
+      "cahier_line": 127
+    }
+  },
+  "sorties_de_dimensionnement": {
+    "cahier_line": 463,
+    "puissance": {
+      "valeur": 0.5,
+      "cahier_line": 463,
+      "decomposition_verifiable": "2 decisions vraies sur 4 campagnes = 0,5"
+    },
+    "erreur_standard": {
+      "valeur": 0.25,
+      "cahier_line": 463,
+      "decomposition_verifiable": "sqrt(0,5 * 0,5 / 4) = sqrt(0,0625) = 0,25"
+    },
+    "condition": {
+      "valeur": "F-POWER traversant le vrai pipeline d'analyse",
+      "cahier_line": 463
+    }
+  },
+  "regle_de_decision_appliquee": {
+    "cahier_line": 451,
+    "texte": "Règle : supériorité coût si borne supérieure du ratio <1 ; non-infériorité V/U si leurs bornes inférieures >−marge ; aucune violation critique interdite ; comptabilité résolue et données admissibles. Marges d’exemple 0,02. Pour J contrastes et trois critères inférentiels, la famille contient 3J intervalles ; niveau marginal `1−0,05/(3J)` avec correction de Bonferroni. L’absence de violation observée n’est pas un intervalle de sécurité universel.",
+    "application": [
+      {
+        "campagne": 1,
+        "ratio_sup": 0.8,
+        "dV_inf": 0.0,
+        "dU_inf": 0.0,
+        "test": "0,8 < 1 vrai ; 0 > -0,02 vrai ; 0 > -0,02 vrai",
+        "decision": true
+      },
+      {
+        "campagne": 2,
+        "ratio_sup": 1.0,
+        "dV_inf": 0.0,
+        "dU_inf": 0.0,
+        "test": "1 < 1 faux",
+        "decision": false
+      },
+      {
+        "campagne": 3,
+        "ratio_sup": 0.8,
+        "dV_inf": -0.04,
+        "dU_inf": 0.0,
+        "test": "0,8 < 1 vrai ; -0,04 > -0,02 faux",
+        "decision": false
+      },
+      {
+        "campagne": 4,
+        "ratio_sup": 0.8,
+        "dV_inf": -0.01,
+        "dU_inf": -0.01,
+        "test": "0,8 < 1 vrai ; -0,01 > -0,02 vrai ; -0,01 > -0,02 vrai",
+        "decision": true
+      }
+    ],
+    "concorde_avec": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127
+    },
+    "contrainte_sur_la_marge": {
+      "derive": true,
+      "chaine": "pour reproduire [vrai,faux,faux,vrai] il faut refuser dV=-0,04 et accepter dV=-0,01, donc 0,01 < marge <= 0,04 ; la marge d'exemple 0,02 de la l.451 est dans cet intervalle",
+      "cahier_lines": [
+        127,
+        451
+      ]
+    }
+  },
+  "consommateurs": [
+    {
+      "cas": "T34.A1",
+      "cahier_line": 453,
+      "attend": "bornes ratio 0,8, dV=0, dU=0 et critiques absentes donnent superiorite sur fixture"
+    },
+    {
+      "cas": "T34.A2",
+      "cahier_line": 453,
+      "attend": "borne ratio=1 refuse"
+    },
+    {
+      "cas": "T34.A3",
+      "cahier_line": 453,
+      "attend": "borne dV=-0,02 refuse"
+    },
+    {
+      "cas": "T34.A4",
+      "cahier_line": 453,
+      "attend": "cout plus faible mais dU=-0,04 refuse"
+    },
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "attend": "decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-POWER.AMB1",
+      "severite": "semantique",
+      "point": "Valeur normative de la marge.",
+      "constat": "La l.451 parle de « marges d'exemple 0,02 ». Les decisions attendues de la l.127 ne sont reproductibles que pour une marge dans l'intervalle ouvert-ferme ]0,01 ; 0,04]. Le cahier ne dit pas si 0,02 est normatif pour F-POWER ou seulement illustratif ailleurs.",
+      "options": [
+        "marge=0,02 figee dans la fixture",
+        "marge parametrique contrainte a ]0,01 ; 0,04]"
+      ],
+      "impact": "reproductibilite de T34.A1..A4 et de T35.A1.",
+      "cahier_lines": [
+        127,
+        451,
+        453,
+        463
+      ]
+    },
+    {
+      "id": "F-POWER.AMB2",
+      "severite": "semantique",
+      "point": "Nombre de repetitions par parent et de contrastes J.",
+      "constat": "La l.127 donne un triplet (cout, V, U) par bras et par parent, sans dire combien de repetitions chaque parent porte, ni quelle valeur de J s'applique a la correction de Bonferroni de la l.451 (niveau marginal 1-0,05/(3J)).",
+      "options": [
+        "une repetition par parent, J=1 par campagne",
+        "J a fixer par la configuration de campagne"
+      ],
+      "impact": "nul sur les bornes ici — les distributions sont ponctuelles, donc degenerees a tout niveau — mais necessaire pour materialiser les lignes source.",
+      "cahier_lines": [
+        127,
+        451
+      ]
+    },
+    {
+      "id": "F-POWER.AMB3",
+      "severite": "mineure",
+      "point": "Collision de noms P1/P2 entre fixtures.",
+      "constat": "F-CLUSTERS et F-BOOTSTRAP utilisent P1/P2 pour deux parents de valeurs differentes ; F-POWER utilise P1/P2 pour deux parents portant les memes valeurs. Le cahier ne les distingue pas nominalement.",
+      "options": [
+        "prefixer les identifiants par fixture",
+        "conserver P1/P2 et se fier au contexte"
+      ],
+      "impact": "lisibilite et risque de melange de jeux a l'assemblage.",
+      "cahier_lines": [
+        115,
+        117,
+        127
+      ]
+    },
+    {
+      "id": "F-POWER.AMB4",
+      "severite": "mineure",
+      "point": "Unite et sens du cout 80/100.",
+      "constat": "La l.127 ne donne pas d'unite ; le ratio est le seul usage. Par ailleurs le cahier ne dit pas si les couts 80/100 sont par parent, par repetition ou par trajectoire.",
+      "options": [
+        "cout moyen par parent",
+        "cout par repetition unique"
+      ],
+      "impact": "structure des lignes source ; nul sur les ratios 0,8 / 1 / 0,8 / 0,8.",
+      "cahier_lines": [
+        127
+      ]
+    }
+  ],
+  "notes_de_lecture": [
+    {
+      "point": "separateurs decimaux mixtes a la l.127",
+      "constat": "la l.127 ecrit les triplets du bras A avec le point decimal et la virgule comme separateur de tuple — (80,0.96,1), (80,0.99,0.99) — et les bornes avec la virgule decimale — 0,8 / -0,04 / -0,01. Les valeurs restent determinees ; seul le risque de relecture est signale.",
+      "cahier_line": 127
+    }
+  ]
+}

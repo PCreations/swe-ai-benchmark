@@ -1,0 +1,94 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcripteur": "A",
+  "tache": "T04",
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "lignes": [
+      129
+    ],
+    "verifiable_par": [
+      "sed -n '129p' docs/cahier.md"
+    ]
+  },
+  "citation": {
+    "129": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+  },
+  "exigences": [
+    {
+      "id": "cancel@1",
+      "cahier_line": 129,
+      "evenements": [
+        {
+          "periode": "P2",
+          "etat": "satisfaite"
+        },
+        {
+          "periode": "P3",
+          "etat": "retiree",
+          "detail": "remplacee par cancel@2"
+        }
+      ],
+      "regression": false,
+      "enonce": "le retrait de cancel@1 ne produit pas de regression"
+    },
+    {
+      "id": "cancel@2",
+      "cahier_line": 129,
+      "evenements": [
+        {
+          "periode": "P3",
+          "etat": "active",
+          "detail": "remplace cancel@1"
+        }
+      ],
+      "regression": false
+    },
+    {
+      "id": "isolation@1",
+      "cahier_line": 129,
+      "evenements": [
+        {
+          "periode": "P3",
+          "etat": "satisfaite"
+        },
+        {
+          "periode": "P4",
+          "etat": "violee"
+        }
+      ],
+      "regression": true,
+      "periode_de_regression": "P4",
+      "enonce": "une exigence satisfaite en P3 puis violee en P4 produit une regression"
+    }
+  ],
+  "regressions_attendues": {
+    "cahier_line": 129,
+    "total": 1,
+    "detail": [
+      {
+        "id": "isolation@1",
+        "periode": "P4"
+      }
+    ]
+  },
+  "regle_de_comptage": {
+    "cahier_line": 129,
+    "enonce": "Compter par id/version active, pas par nombre d'assertions."
+  },
+  "non_specifie": [
+    {
+      "point": "le cahier n'enonce pas si cancel@2 est satisfaite en P3 ni son etat en P4",
+      "effet": "aucun sur le comptage enonce : cancel@2 n'a jamais ete satisfaite auparavant, un premier echec ne serait pas une regression"
+    },
+    {
+      "point": "l'etat de cancel@1 en P1 et celui d'isolation@1 en P1/P2 ne sont pas enonces",
+      "effet": "aucun sur le comptage enonce, qui ne porte que sur P2->P3 (cancel) et P3->P4 (isolation)"
+    }
+  ],
+  "ambiguites": []
+}

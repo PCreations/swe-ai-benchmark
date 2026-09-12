@@ -1,0 +1,193 @@
+{
+  "schema": "bench.fixture.transcription/1",
+  "fixture": "F-REGRESSION",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "source_lines": [
+      129
+    ]
+  },
+  "resume": "Un remplacement d'exigence ne compte pas comme regression ; une exigence satisfaite puis violee en compte une. Comptage par id/version active.",
+  "verbatim": {
+    "129": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+  },
+  "valeurs": {
+    "cas_non_regressif": {
+      "exigence": {
+        "id": "cancel",
+        "version": 1,
+        "notation": "cancel@1",
+        "cahier_line": 129
+      },
+      "satisfaite_en": {
+        "valeur": "P2",
+        "cahier_line": 129
+      },
+      "remplacee_en": {
+        "valeur": "P3",
+        "par": "cancel@2",
+        "cahier_line": 129
+      },
+      "attendu": {
+        "valeur": "le retrait de cancel@1 ne produit pas de regression",
+        "cahier_line": 129,
+        "contribution_G": 0,
+        "contribution_G_new": 0
+      }
+    },
+    "cas_regressif": {
+      "exigence": {
+        "id": "isolation",
+        "version": 1,
+        "notation": "isolation@1",
+        "cahier_line": 129
+      },
+      "satisfaite_en": {
+        "valeur": "P3",
+        "cahier_line": 129
+      },
+      "violee_en": {
+        "valeur": "P4",
+        "cahier_line": 129
+      },
+      "attendu": {
+        "valeur": "en produit une",
+        "cahier_line": 129,
+        "contribution_G_en_P4": 1,
+        "contribution_G_new_en_P4": 1
+      }
+    },
+    "regle_de_comptage": {
+      "valeur": "compter par id/version active, pas par nombre d'assertions",
+      "cahier_line": 129
+    }
+  },
+  "definitions": [
+    {
+      "nom": "G",
+      "texte": "G compte les regressions actuellement ouvertes, c'est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees.",
+      "cahier_line": 189
+    },
+    {
+      "nom": "G_new",
+      "texte": "G_new compte celles qui etaient satisfaites a la periode precedente comparable et deviennent violees.",
+      "cahier_line": 189
+    },
+    {
+      "nom": "persistance",
+      "texte": "Une regression persistante contribue a G, sans redevenir nouvelle a chaque periode.",
+      "cahier_line": 189
+    }
+  ],
+  "variante_exigee_par_les_consommateurs": {
+    "cas": "T04.A4",
+    "cahier_line": 191,
+    "enonce": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+    "serie_attendue": {
+      "G": [
+        1,
+        1
+      ],
+      "G_new": [
+        1,
+        0
+      ]
+    },
+    "fonde_sur": [
+      189
+    ],
+    "note": "cette variante a deux periodes consecutives cassees n'est pas chiffree a la l.129 ; elle est exigee par la l.191 et decoule de la definition de la l.189"
+  },
+  "conventions_applicables": [
+    {
+      "regle": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite.",
+      "cahier_line": 72
+    },
+    {
+      "regle": "Requirement porte id, version et remplacement eventuel.",
+      "cahier_line": 88
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T04.A3",
+      "cahier_line": 191,
+      "attend": "F-REGRESSION exclut cancel@1 et compte isolation@1"
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "attend": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-REGRESSION.AMB1",
+      "severite": "bloquante-pour-le-test",
+      "point": "Statut de cancel@2 apres son introduction en P3.",
+      "constat": "La l.129 dit que cancel@1 est remplacee en P3 par cancel@2, sans dire si cancel@2 est satisfaite en P3, ni en P4. Sans ce statut, G et G_new de P3 et P4 ne sont pas calculables en entier — seules les contributions de cancel@1 (0) et d'isolation@1 (1 en P4) le sont.",
+      "options": [
+        "cancel@2 satisfaite en P3 et P4",
+        "statut laisse libre, n'asserter que les contributions"
+      ],
+      "impact": "T04.A3 ne peut asserter une valeur totale de G, seulement l'exclusion de cancel@1 et l'inclusion d'isolation@1.",
+      "cahier_lines": [
+        129,
+        189,
+        191
+      ]
+    },
+    {
+      "id": "F-REGRESSION.AMB2",
+      "severite": "bloquante-pour-le-test",
+      "point": "Histoire d'isolation@1 avant P3 et de cancel@1 avant P2.",
+      "constat": "La l.129 ne dit pas si isolation@1 existe, est due ou est satisfaite en P1 et P2, ni si cancel@1 est due et satisfaite en P1. Le nombre de periodes de F-REGRESSION n'est pas davantage donne (P2, P3 et P4 sont citees ; P1 seulement implicitement).",
+      "options": [
+        "quatre periodes alignees sur K=4 (l.121)",
+        "trois periodes P2..P4",
+        "a expliciter"
+      ],
+      "impact": "la serie complete G / G_new par periode n'est pas materialisable sans ces entrees.",
+      "cahier_lines": [
+        129,
+        189
+      ]
+    },
+    {
+      "id": "F-REGRESSION.AMB3",
+      "severite": "semantique",
+      "point": "« periode precedente comparable » de la definition de G_new.",
+      "constat": "La l.189 fonde G_new sur la « periode precedente comparable » sans dire ce qui rend deux periodes comparables (meme exigence active ? meme echeance ? periode immediatement precedente ?).",
+      "options": [
+        "periode immediatement precedente",
+        "derniere periode ou l'exigence etait active et due"
+      ],
+      "impact": "les deux lectures coincident sur isolation@1 (P3 puis P4) mais divergent des qu'une exigence est inactive une periode.",
+      "cahier_lines": [
+        189
+      ]
+    },
+    {
+      "id": "F-REGRESSION.AMB4",
+      "severite": "mineure",
+      "point": "Poids et capability_id des exigences cancel et isolation.",
+      "constat": "La l.129 ne donne ni poids ni capability_id, alors que le contrat Requirement (l.88) les exige et que Q les utilise.",
+      "options": [
+        "poids 1 par defaut",
+        "valeurs a fixer en ADR"
+      ],
+      "impact": "materialisation JSON stricte ; nul sur le comptage G, qui est par id/version.",
+      "cahier_lines": [
+        88,
+        129
+      ]
+    }
+  ]
+}

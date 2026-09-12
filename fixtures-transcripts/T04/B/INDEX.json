@@ -1,0 +1,134 @@
+{
+  "schema": "bench.fixture.transcription.index/1",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T04",
+  "etage": "FIXTURES",
+  "cahier": {
+    "path": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin": "docs/CAHIER_SHA256",
+    "section": "F",
+    "section_first_line": 101,
+    "section_last_nonempty_line": 129
+  },
+  "methode": [
+    "depart par les consommateurs : verification/cases.lock.json + §H du cahier",
+    "confrontation au texte de §F, ligne par ligne",
+    "aucune implementation consultee (packages/**, apps/**, analysis/src/**, acceptance/**)",
+    "chaque valeur porte son champ cahier_line, verifiable par sed -n '<n>p' docs/cahier.md"
+  ],
+  "fixtures": [
+    "F-BOOTSTRAP",
+    "F-BUDGET",
+    "F-CLUSTERS",
+    "F-COST-RATIO",
+    "F-FAILURE",
+    "F-MONEY",
+    "F-POWER",
+    "F-QUALITY",
+    "F-REGRESSION",
+    "F-RESERVATION"
+  ],
+  "fixture_count": 10,
+  "lignes_de_section_F_couvertes": {
+    "103": "F-MONEY",
+    "105": "F-BUDGET",
+    "107": "F-QUALITY",
+    "109": "F-QUALITY (entrees exactes de Q)",
+    "111": "F-QUALITY (conventions)",
+    "113": "F-COST-RATIO",
+    "115": "F-CLUSTERS",
+    "117": "F-BOOTSTRAP",
+    "119": "F-RESERVATION",
+    "121": "F-FAILURE",
+    "123": "F-RESERVATION (probes, FIFO, NOT_FOUND)",
+    "125": "F-RESERVATION (horloges)",
+    "127": "F-POWER",
+    "129": "F-REGRESSION",
+    "101": "titre de section",
+    "102,104,106,108,110,112,114,116,118,120,122,124,126,128,130": "lignes vides"
+  },
+  "valeurs_exactes_controlees": {
+    "V": "13/16 = 0.8125 (l.107)",
+    "U": "2/3 (l.107)",
+    "exposition": "3/4 (l.107)",
+    "reussite_par_intention": "7/10 (l.107)",
+    "appel_F-MONEY": "340 micro-USD (l.103)",
+    "deux_appels": "680 (l.103)",
+    "golden_six_par_trajectoire": "2720 (l.493)",
+    "golden_six_total": "16320 (l.493)",
+    "ratio_principal": "5/6 (l.113)",
+    "moyenne_des_ratios_incorrecte": "0.7 (l.113)",
+    "ratios_bootstrap": "[1/2, 5/6, 5/6, 9/10] (l.117)",
+    "intervalle": "[1/2, 9/10] (l.117)",
+    "total_F-FAILURE": "150 (l.121)",
+    "frontiere_annulation": "2030-01-02T12:00:00Z incluse, refus a 2030-01-02T12:00:00.001Z (l.119)",
+    "horloges_F-RESERVATION": "P1 2030-01-01T00:00:00Z, P2 01:00, P3 2030-01-02T11:00:00Z, P4 13:00 (l.125)",
+    "decisions_F-POWER": "[vrai, faux, faux, vrai] (l.127)",
+    "puissance_F-POWER": "0,5 et erreur standard 0,25 (l.463)"
+  },
+  "ambiguites_par_fixture": {
+    "F-BOOTSTRAP": [
+      "F-BOOTSTRAP.AMB1",
+      "F-BOOTSTRAP.AMB2"
+    ],
+    "F-BUDGET": [
+      "F-BUDGET.AMB1",
+      "F-BUDGET.AMB2",
+      "F-BUDGET.AMB3"
+    ],
+    "F-CLUSTERS": [
+      "F-CLUSTERS.AMB1",
+      "F-CLUSTERS.AMB2"
+    ],
+    "F-COST-RATIO": [
+      "F-COST-RATIO.AMB1",
+      "F-COST-RATIO.AMB2"
+    ],
+    "F-FAILURE": [
+      "F-FAILURE.AMB1",
+      "F-FAILURE.AMB2",
+      "F-FAILURE.AMB3",
+      "F-FAILURE.AMB4"
+    ],
+    "F-MONEY": [
+      "F-MONEY.AMB1"
+    ],
+    "F-POWER": [
+      "F-POWER.AMB1",
+      "F-POWER.AMB2",
+      "F-POWER.AMB3",
+      "F-POWER.AMB4"
+    ],
+    "F-QUALITY": [
+      "F-QUALITY.AMB1",
+      "F-QUALITY.AMB2",
+      "F-QUALITY.AMB3",
+      "F-QUALITY.AMB4"
+    ],
+    "F-REGRESSION": [
+      "F-REGRESSION.AMB1",
+      "F-REGRESSION.AMB2",
+      "F-REGRESSION.AMB3",
+      "F-REGRESSION.AMB4"
+    ],
+    "F-RESERVATION": [
+      "F-RESERVATION.AMB1",
+      "F-RESERVATION.AMB2",
+      "F-RESERVATION.AMB3",
+      "F-RESERVATION.AMB4",
+      "F-RESERVATION.AMB5"
+    ]
+  },
+  "ambiguites_total": 31,
+  "ambiguites_bloquantes": [
+    "F-FAILURE.AMB1",
+    "F-QUALITY.AMB1",
+    "F-REGRESSION.AMB1",
+    "F-REGRESSION.AMB2",
+    "F-RESERVATION.AMB1"
+  ],
+  "commit": null,
+  "note_etage": "etage sans commit : rien n'est ecrit dans le depot (.bench/ est ignore par git). La materialisation revient a l'etage de scellement, si et seulement si A et B concordent."
+}

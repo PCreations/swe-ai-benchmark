@@ -1,0 +1,127 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-POWER",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-POWER fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [127],
+
+  "consommateurs": [
+    { "cas": "T35.A1", "cahier_line": 463, "proof_kind": "numeric",
+      "exige": "F-POWER traversant le VRAI pipeline d'analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "deduction": "la fixture doit porter les entrees brutes par parent ET les trois sorties (decisions, puissance, erreur standard) ; « traversant le vrai pipeline » interdit de cabler les decisions" },
+    { "cas": "T34.A1", "cahier_line": 453, "proof_kind": "behaviour",
+      "exige": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture",
+      "deduction": "c'est exactement la campagne 1 de F-POWER" },
+    { "cas": "T34.A2", "cahier_line": 453, "proof_kind": "refusal",
+      "exige": "borne ratio=1 REFUSE",
+      "deduction": "campagne 2 de F-POWER" },
+    { "cas": "T34.A3", "cahier_line": 453, "proof_kind": "refusal",
+      "exige": "borne DeltaV=-0,02 refuse",
+      "deduction": "voisin de la campagne 3 (DeltaV=-0,04) ; -0,02 n'est pas une valeur de F-POWER, c'est la frontiere de la marge" },
+    { "cas": "T34.A4", "cahier_line": 453, "proof_kind": "refusal",
+      "exige": "cout plus faible mais DeltaU=-0,04 refuse",
+      "deduction": "variante ; F-POWER ne descend qu'a DeltaU=-0,01" },
+    { "cas": "T34.A5", "cahier_line": 453, "proof_kind": "refusal",
+      "exige": "UNKNOWN ou grappe unique donne INCONCLUSIVE",
+      "deduction": "F-POWER pose explicitement « comptabilite resolue » et deux parents, pour etre HORS de ce cas" }
+  ],
+
+  "valeurs": {
+    "campagnes": { "valeur": 4, "cahier_line": 127, "qualificatif": "petites campagnes statistiques" },
+    "parents_par_campagne": { "valeur": 2, "ids": ["P1", "P2"], "cahier_line": 127,
+      "propriete": "distincts, PORTANT LES MEMES VALEURS" },
+    "consequence_des_parents_identiques": {
+      "valeur": "Les tirages parents EXHAUSTIFS donnent des distributions PONCTUELLES.",
+      "cahier_line": 127,
+      "note": "d'ou borne superieure = borne inferieure = valeur ponctuelle pour chaque grandeur"
+    },
+
+    "bras_B_dans_chaque_parent": {
+      "cout": { "valeur": 100, "cahier_line": 127 },
+      "V": { "valeur": 1, "cahier_line": 127 },
+      "U": { "valeur": 1, "cahier_line": 127 }
+    },
+
+    "bras_A_par_campagne": {
+      "$cahier_line": 127,
+      "$enonce": "A a respectivement pour les quatre campagnes (cout,V,U) : (80,1,1), (100,1,1), (80,0.96,1), (80,0.99,0.99)",
+      "campagne_1": { "cout": 80,  "V": 1,    "U": 1 },
+      "campagne_2": { "cout": 100, "V": 1,    "U": 1 },
+      "campagne_3": { "cout": 80,  "V": 0.96, "U": 1 },
+      "campagne_4": { "cout": 80,  "V": 0.99, "U": 0.99 }
+    },
+
+    "preconditions_communes": {
+      "comptabilite": { "valeur": "resolue", "cahier_line": 127 },
+      "violation_critique": { "valeur": "absente", "cahier_line": 127 },
+      "valeurs_connues": { "valeur": "sur les deux bras", "cahier_line": 127 }
+    },
+
+    "bornes_attendues": {
+      "$cahier_line": 127,
+      "ratio":  { "valeur": [0.8, 1, 0.8, 0.8], "nature": "borne superieure (cf. regle T34, l.451)" },
+      "DeltaV": { "valeur": [0, 0, -0.04, -0.01], "nature": "borne inferieure (cf. regle T34, l.451)" },
+      "DeltaU": { "valeur": [0, 0, 0, -0.01], "nature": "borne inferieure (cf. regle T34, l.451)" }
+    },
+
+    "decisions_attendues": {
+      "valeur": [true, false, false, true],
+      "cahier_line": 127,
+      "enonce": "T34 doit produire [vrai,faux,faux,vrai]",
+      "producteur": "T34"
+    },
+
+    "sorties_de_dimensionnement": {
+      "puissance": { "valeur": 0.5, "cahier_line": 463, "cas": "T35.A1" },
+      "erreur_standard": { "valeur": 0.25, "cahier_line": 463, "cas": "T35.A1" }
+    },
+
+    "portee_scientifique": {
+      "valeur": "Cette fixture traverse agregation, bootstrap et decision, SANS supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  },
+
+  "regle_de_decision_consommatrice": {
+    "$note": "n'appartient pas a §F : transcrite depuis la regle T34 parce que les decisions attendues de F-POWER n'ont de sens qu'avec elle",
+    "cahier_line": 451,
+    "enonce": "superiorite cout si borne superieure du ratio <1 ; non-inferiorite V/U si leurs bornes inferieures >-marge ; aucune violation critique interdite ; comptabilite resolue et donnees admissibles.",
+    "marge": { "valeur": 0.02, "qualificatif_du_cahier": "Marges d'exemple", "cahier_line": 451,
+      "avertissement": "« d'exemple » — voir AMB-POWER-1" },
+    "correction_multiple": { "valeur": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J) avec correction de Bonferroni.", "cahier_line": 451 },
+    "limite": { "valeur": "L'absence de violation observee n'est pas un intervalle de securite universel.", "cahier_line": 451 }
+  },
+
+  "negatifs": [
+    { "regle_fausse": "cabler les decisions au lieu de les faire produire par le pipeline d'analyse", "cahier_line": 463, "cas": "T35.A1" },
+    { "regle_fausse": "conclure a la superiorite avec une borne de ratio egale a 1 (campagne 2)", "cahier_line": 453 },
+    { "regle_fausse": "conclure a la superiorite avec DeltaV=-0,04 (campagne 3), le cout fut-il plus faible", "cahier_line": 453 },
+    { "regle_fausse": "arret anticipe a la premiere significativite dans ce plan a effectif fixe", "cahier_line": 463, "cas": "T35.A6" },
+    { "regle_fausse": "transformer un effet attendu de 20 % en seuil cout 0,8", "cahier_line": 463, "cas": "T35.A3" }
+  ],
+
+  "ambiguites": [
+    { "id": "AMB-POWER-1",
+      "porte": "la marge de non-inferiorite dont depend [vrai,faux,faux,vrai]",
+      "constat": "Les decisions attendues de F-POWER ne sont pas reproductibles sans fixer la marge. La l.451 l'appelle « Marges d'EXEMPLE 0,02 », pas la marge de la fixture. Confronte aux bornes DeltaV [0,0,-0,04,-0,01] et a la regle « bornes inferieures > -marge », toute marge m telle que 0,01 < m <= 0,04 produit le meme resultat : la campagne 3 refuse et la 4 accepte. La valeur 0,02 est donc suggeree, pas epinglee.",
+      "lectures": ["0,02 est la marge de la fixture, et « d'exemple » qualifie seulement son statut de politique reglable", "la marge est une entree de politique (l.449 : « Les politiques sont des entrees validees ») qui n'appartient pas a la fixture gelee"],
+      "pourquoi_ne_pas_trancher": "T35.A1 exige que F-POWER traverse le VRAI pipeline : la marge est alors une entree du pipeline, et l'inscrire dans la fixture gelee fixerait une politique que le cahier declare reglable. L'omettre rend les decisions attendues non reproductibles.",
+      "bloquant": false },
+    { "id": "AMB-POWER-2",
+      "porte": "conventions de signe et d'orientation, non ecrites",
+      "constat": "Le cahier n'ecrit ni ratio = cout_A/cout_B, ni DeltaV = V_A - V_B. Les deux sont reconstituables depuis les valeurs : 80/100 = 0,8 et 100/100 = 1 pour le ratio ; 0,96 - 1 = -0,04 et 0,99 - 1 = -0,01 pour DeltaV ; 0,99 - 1 = -0,01 pour DeltaU. Toutes les bornes enoncees se reproduisent exactement sous ces deux conventions, et aucune autre orientation ne les reproduit.",
+      "lectures": ["les conventions sont epinglees par les valeurs, donc transcriptibles", "elles restent une reconstitution du transcripteur, pas un enonce du cahier"],
+      "pourquoi_ne_pas_trancher": "signale par honnetete plutot que par doute : contrairement a AMB-POWER-1, ici les nombres du cahier ne laissent qu'une seule lecture possible. A traiter comme une ambiguite de forme, pas de valeur.",
+      "bloquant": false },
+    { "id": "AMB-POWER-3",
+      "porte": "la puissance 0,5 et l'erreur standard 0,25 sont enoncees en §H, pas en §F",
+      "constat": "§F l.127 s'arrete aux decisions. Les valeurs 0,5 et 0,25 n'apparaissent qu'en l.463 (T35.A1). Elles se reconstituent depuis les decisions (2 vrais sur 4 = 0,5 ; sqrt(0,5*0,5/4) = 0,25) mais le cahier n'ecrit pas cette formule pour F-POWER — il l'ecrit pour T35.A2 sous la forme sqrt(0,09/2000).",
+      "lectures": ["0,5 et 0,25 appartiennent a F-POWER et doivent etre dans la fixture gelee", "elles appartiennent au cas T35.A1 et pas a la fixture"],
+      "pourquoi_ne_pas_trancher": "je les transcris ci-dessus en les attribuant a leur ligne reelle (463), sans les presenter comme du §F ; le scellement doit dire si la fixture les porte.",
+      "bloquant": false }
+  ]
+}

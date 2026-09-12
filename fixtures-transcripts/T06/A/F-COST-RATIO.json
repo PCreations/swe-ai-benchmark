@@ -1,0 +1,60 @@
+{
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "A",
+  "tache": "T04",
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "lignes": [
+      113
+    ],
+    "verifiable_par": [
+      "sed -n '113p' docs/cahier.md"
+    ]
+  },
+  "citation": {
+    "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "projets": {
+    "cahier_line": 113,
+    "nombre": 2,
+    "poids": "egal",
+    "couts": {
+      "A": [
+        10,
+        90
+      ],
+      "B": [
+        20,
+        100
+      ]
+    }
+  },
+  "moyennes": {
+    "cahier_line": 113,
+    "A": 50,
+    "B": 60,
+    "valeurs_enoncees_par_le_cahier": true
+  },
+  "ratio_principal": {
+    "cahier_line": 113,
+    "definition": "A/B des moyennes",
+    "valeur": {
+      "fraction": "5/6",
+      "numerateur": 5,
+      "denominateur": 6
+    },
+    "recoupement_interne_au_cahier": "50/60 = 5/6"
+  },
+  "resultat_incorrect_a_ne_pas_produire": {
+    "cahier_line": 113,
+    "nom": "moyenne des ratios",
+    "valeur": 0.7,
+    "enonce": "La moyenne des ratios serait 0.7 et constitue un resultat INCORRECT pour cette metrique.",
+    "recoupement_interne_au_cahier": "(10/20 + 90/100)/2 = 0.7"
+  },
+  "ambiguites": []
+}

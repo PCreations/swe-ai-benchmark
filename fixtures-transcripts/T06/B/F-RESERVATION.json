@@ -1,0 +1,160 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-RESERVATION",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-RESERVATION fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [119, 123, 125],
+
+  "consommateurs": [
+    { "cas": "T07.A1", "cahier_line": 215, "proof_kind": "behaviour",
+      "exige": "F-RESERVATION P1 n'a qu'UNE reservation confirmee et AUCUN doublon idempotent" },
+    { "cas": "T07.A2", "cahier_line": 215, "proof_kind": "behaviour",
+      "exige": "P2 promeut B AVANT C",
+      "deduction": "l'ordre de la file est une valeur attendue, pas un detail : la fixture doit porter la sequence d'admission" },
+    { "cas": "T07.A3", "cahier_line": 215, "proof_kind": "behaviour",
+      "exige": "annulation permise EXACTEMENT a 24 h" },
+    { "cas": "T07.A4", "cahier_line": 215, "proof_kind": "refusal",
+      "exige": "refus 1 ms apres la frontiere",
+      "deduction": "la fixture doit porter les deux instants a la milliseconde ; un arrondi a la seconde les confondrait" },
+    { "cas": "T07.A5", "cahier_line": 215, "proof_kind": "absence",
+      "exige": "acteur other ne voit AUCUNE donnee legacy" },
+    { "cas": "T07.A6", "cahier_line": 215, "proof_kind": "refusal",
+      "exige": "repetition d'une operation avec meme cle et arguments differents donne un conflit explicite",
+      "deduction": "contrepartie du rejeu idempotent de P1 ; voir AMB-RESERVATION-2 sur le nom du conflit" },
+    { "cas": "T07.A7", "cahier_line": 215, "proof_kind": "absence",
+      "exige": "une annulation REPETEE ne promeut pas deux personnes",
+      "deduction": "rejouer l'annulation de A ne doit pas promouvoir B puis C" },
+    { "cas": "T08.A6", "cahier_line": 223, "proof_kind": "behaviour",
+      "exige": "controle de la frontiere 24 h SANS attendre 24 heures physiques",
+      "deduction": "les instants de la fixture sont une horloge metier injectee, pas le temps reel" },
+    { "cas": "T09.A1", "cahier_line": 233, "proof_kind": "behaviour",
+      "exige": "temoin conforme realise F-RESERVATION" },
+    { "cas": "T09.A2", "cahier_line": 233, "proof_kind": "refusal",
+      "exige": "double reservation concurrente synchronisee par barriere ne depasse pas la capacite",
+      "deduction": "la concurrence de P1 doit etre reellement simultanee, pas sequentielle" },
+    { "cas": "T09.A3", "cahier_line": 233, "proof_kind": "numeric",
+      "exige": "migration P4 preserve 100 reservations et les rattache a legacy",
+      "deduction": "100 n'apparait nulle part en §F : voir AMB-RESERVATION-1" },
+    { "cas": "T09.A4", "cahier_line": 233, "proof_kind": "refusal",
+      "exige": "temoin drop-one-row perd EXACTEMENT une reservation et est distinguable de l'etat attendu" },
+    { "cas": "T09.A5", "cahier_line": 233, "proof_kind": "behaviour",
+      "exige": "restauration d'un export metier retrouve les memes faits SANS exiger un schema SQL identique",
+      "deduction": "correspond a « Evaluer l'etat metier exporte, pas un nom de table impose » (l.119)" },
+    { "cas": "T11.A6", "cahier_line": 251, "proof_kind": "refusal",
+      "exige": "la variante cross-tenant-read fait echouer le controle metier associe" }
+  ],
+
+  "valeurs": {
+    "horloge_initiale": { "valeur": "2030-01-01T00:00:00Z", "cahier_line": 119 },
+    "acteurs": { "valeur": ["A", "B", "C"], "cahier_line": 119 },
+    "locataire_initial": { "valeur": "legacy", "cahier_line": 119 },
+    "creneau": {
+      "id": { "valeur": "S1", "cahier_line": 119 },
+      "capacite": { "valeur": 1, "cahier_line": 119 },
+      "debut": { "valeur": "2030-01-03T12:00:00Z", "cahier_line": 119 }
+    },
+
+    "horloges_principales": {
+      "$cahier_line": 125,
+      "P1": { "valeur": "2030-01-01T00:00:00Z", "enonce": "le 1er janvier 2030 a 00:00 UTC", "cahier_line": 125 },
+      "P2": { "valeur": "2030-01-01T01:00:00Z", "enonce": "a 01:00", "cahier_line": 125 },
+      "P3": { "valeur": "2030-01-02T11:00:00Z", "enonce": "le 2 janvier a 11:00", "cahier_line": 125 },
+      "P4": { "valeur": "2030-01-02T13:00:00Z", "enonce": "a 13:00", "cahier_line": 125 },
+      "note_sur_les_instants": { "valeur": "Les instants synthetiques accelerent ici les periodes ; les resultats ne les presentent PAS comme quatre mois reels.", "cahier_line": 125 },
+      "note_sur_les_probes": { "valeur": "Les probes privees P3 utilisent leurs heures propres et sont jetees.", "cahier_line": 125 }
+    },
+
+    "P1": {
+      "$cahier_line": 119,
+      "faits": [
+        { "fait": "reservation de A ACCEPTEE", "cahier_line": 119 },
+        { "fait": "rejeu de sa cle idempotente SANS doublon", "cahier_line": 119 },
+        { "fait": "demande concurrente de B REJETEE, sans surbooking", "cahier_line": 119 }
+      ],
+      "etat_attendu": { "confirmees": ["A"], "en_attente": [], "annulees": [],
+        "note": "B est rejete en P1, il n'entre pas en file ; la file apparait en P2" }
+    },
+
+    "P2": {
+      "$cahier_line": 119,
+      "faits": [
+        { "fait": "B puis C en attente", "cahier_line": 119, "ordre": ["B", "C"] },
+        { "fait": "annulation de A", "cahier_line": 119 },
+        { "fait": "B devient CONFIRME", "cahier_line": 119 },
+        { "fait": "C reste PREMIER en attente", "cahier_line": 119 }
+      ],
+      "etat_attendu": { "confirmees": ["B"], "en_attente": ["C"], "annulees": ["A"] },
+      "regle_de_file": { "valeur": "FIFO est ordonne par SEQUENCE D'ADMISSION EXPLICITE, pas par egalite possible de timestamps.", "cahier_line": 123 }
+    },
+
+    "P3": {
+      "$cahier_line": 119,
+      "regle": { "valeur": "annulation permise au moins 24 heures avant le debut, FRONTIERE INCLUSE", "cahier_line": 119 },
+      "frontiere_calculee_par_le_cahier": { "valeur": "2030-01-02T12:00:00Z", "cahier_line": 119,
+        "note": "24 h avant le debut du creneau 2030-01-03T12:00:00Z ; le cahier ecrit cet instant lui-meme" },
+      "probes": {
+        "$nature": "deux CLONES JETABLES du meme etat ; elles ne modifient pas l'etat persistant principal",
+        "$cahier_line": 123,
+        "clone_1": { "acteur": "B", "instant": "2030-01-02T12:00:00Z", "verdict": "annulation PERMISE", "cahier_line": 119,
+          "effet_sur_le_clone": { "valeur": "C devient CONFIRME", "cahier_line": 123 } },
+        "clone_2": { "acteur": "B", "instant": "2030-01-02T12:00:00.001Z", "verdict": "REFUS METIER", "cahier_line": 119,
+          "nom_du_refus": null, "note": "le cahier ne nomme pas ce refus — voir AMB-RESERVATION-2" }
+      }
+    },
+
+    "P4": {
+      "$cahier_line": 119,
+      "etat_a_l_entree": { "valeur": { "annulees": ["A"], "confirmees": ["B"], "en_attente": ["C"] }, "cahier_line": 123,
+        "enonce": "A l'entree de P4, celui-ci conserve A annule, B confirme et C en attente." },
+      "faits": [
+        { "fait": "donnees existantes migrees vers le locataire legacy", "cahier_line": 119 },
+        { "fait": "creation d'un locataire other", "cahier_line": 119 },
+        { "fait": "les acteurs de other ne peuvent NI LIRE NI MODIFIER les reservations legacy", "cahier_line": 119 }
+      ],
+      "contrat_intertenant": {
+        "reponse": { "valeur": "NOT_FOUND", "cahier_line": 123 },
+        "regle": { "valeur": "sans donnee metier divulguee", "cahier_line": 123 },
+        "note": "NOT_FOUND et non FORBIDDEN : un refus qui distingue « existe mais interdit » de « n'existe pas » divulguerait l'existence"
+      },
+      "evaluation": { "valeur": "Evaluer l'ETAT METIER EXPORTE, pas un nom de table impose.", "cahier_line": 119 }
+    }
+  },
+
+  "negatifs": [
+    { "regle_fausse": "surbooking : deux reservations confirmees sur S1 (capacite 1)", "cahier_line": 119 },
+    { "regle_fausse": "doublon cree par le rejeu de la cle idempotente de A", "cahier_line": 119 },
+    { "regle_fausse": "promouvoir C avant B en P2", "cahier_line": 119 },
+    { "regle_fausse": "refuser l'annulation exactement a 2030-01-02T12:00:00Z (frontiere INCLUSE)", "cahier_line": 119 },
+    { "regle_fausse": "accepter l'annulation a 2030-01-02T12:00:00.001Z", "cahier_line": 119 },
+    { "regle_fausse": "laisser les probes P3 modifier l'etat persistant principal", "cahier_line": 123 },
+    { "regle_fausse": "ordonner la file par timestamp plutot que par sequence d'admission explicite", "cahier_line": 123 },
+    { "regle_fausse": "promouvoir deux personnes sur une annulation repetee", "cahier_line": 215, "cas": "T07.A7" },
+    { "regle_fausse": "repondre autre chose que NOT_FOUND a un acteur other, ou divulguer une donnee metier", "cahier_line": 123 },
+    { "regle_fausse": "imposer un nom de table ou un schema SQL identique a la restauration", "cahier_line": 119 }
+  ],
+
+  "ambiguites": [
+    { "id": "AMB-RESERVATION-1",
+      "porte": "T09.A3 — « migration P4 preserve 100 reservations »",
+      "constat": "Controle execute : `grep -c '100' ` sur les lignes 119, 123, 125 -> le nombre 100 n'y figure pas. §F ne connait que les acteurs A, B, C sur le creneau S1 de capacite 1, soit au plus une reservation confirmee et une file. Les 100 reservations n'apparaissent qu'en §H l.233.",
+      "lectures": ["F-RESERVATION porte un jeu de donnees de migration a 100 reservations que §F ne decrit pas", "100 est un jeu d'echelle propre a T09, distinct de F-RESERVATION, et la fixture n'a pas a le porter"],
+      "pourquoi_ne_pas_trancher": "inscrire 100 reservations dans la fixture gelee inventerait 100 lignes que le cahier n'enonce pas ; les omettre pourrait laisser T09.A3 sans reference.",
+      "bloquant": false },
+    { "id": "AMB-RESERVATION-2",
+      "porte": "nom des refus metier de la fixture",
+      "constat": "§F nomme UN seul resultat : NOT_FOUND pour l'intertenant (l.123). Il ne nomme ni le refus de la demande concurrente de B en P1, ni le refus d'annulation a 12:00:00.001Z (« recoit un refus METIER »), ni le conflit exige par T07.A6. Le seul nom voisin disponible est IDEMPOTENCY_CONFLICT, enonce en l.199 pour T05.A4 — meme identite, contenu different — et non pour la reservation.",
+      "lectures": ["ces refus portent des noms a definir ailleurs (catalogue de resultats attendus de T07, l.213) et ne font pas partie de la fixture gelee", "la fixture doit les nommer pour que T07.A4 et T07.A6 aient une reference exacte"],
+      "pourquoi_ne_pas_trancher": "inventer un nom d'erreur dans une racine gelee creerait un contrat que le cahier n'a pas ecrit, et qu'aucun cas ne pourrait contredire.",
+      "bloquant": false },
+    { "id": "AMB-RESERVATION-3",
+      "porte": "statut de la demande de B en P1 face a la file de P2",
+      "constat": "P1 : « demande concurrente de B REJETEE sans surbooking ». P2 : « B puis C en attente ». Le cahier ne dit pas si l'entree en file de B en P2 est une nouvelle demande ou la reprise de celle rejetee en P1.",
+      "lectures": ["la file d'attente est une capacite REVELEE en P2 (coherent avec le protocole longitudinal, §D.2 l.64) : la demande de B en P1 est definitivement rejetee, et B redemande en P2", "la demande de P1 est mise en file retroactivement quand la capacite apparait"],
+      "pourquoi_ne_pas_trancher": "la seconde lecture changerait la sequence d'admission, donc l'ordre FIFO que T07.A2 assertionne. La premiere me parait soutenue par §D.2, mais le cahier ne l'ecrit pas.",
+      "bloquant": false }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "schema": "bench.fixture-transcript-comparison/1",
+  "etage": "FIXTURES",
+  "tache": "T06",
+  "role": "fixture-transcriber",
+  "objet": "Comparaison valeur par valeur des deux transcriptions independantes du §F, et confrontation a la racine acceptance/reference deja gelee.",
+  "cahier": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_lignes": [101, 129]
+  },
+  "transcriptions_comparees": {
+    "A": { "origine": ".bench/fixtures/A", "auto_declaree_tache": "T04", "fixtures": 10, "ambiguites_declarees": 2 },
+    "B": { "origine": ".bench/fixtures/B", "auto_declaree_tache": "T06", "fixtures": 10, "ambiguites_declarees": 16,
+           "cadrage": "consommateurs-d-abord (part des cas d'acceptation, puis confronte au §F)" }
+  },
+
+  "resultat": "CONCORDANTES",
+  "divergences_de_valeur": 0,
+
+  "methode_de_comparaison": {
+    "principe": "comparaison par VALEUR, pas par fichier : la mise en forme peut differer legitimement",
+    "controles_executes": [
+      "extraction automatique du multiensemble des scalaires (nombres, fractions, instants ISO) de chaque fichier, exclusion des pointeurs de ligne (cahier_line) et des blocs de metadonnees de cas, puis difference symetrique A/B par fixture",
+      "normalisation fraction<->decimal (1/2 == 0.5, 1/1 == 1) avant comparaison",
+      "controle croise des 77 valeurs porteuses du §F dans les TROIS sources : A, B et acceptance/reference (racine gelee)"
+    ],
+    "ecarts_residuels_examines_un_a_un": [
+      { "fixture": "F-MONEY", "ecart": "B porte 24, 48 et 0 (periodes totales, appels totaux, autres tarifs) et 341",
+        "verdict": "COUVERTURE, pas contradiction : 24 et 48 se derivent des valeurs partagees 6x4x2, que A porte ; 0 est ecrit par A en toutes lettres (« tous explicitement zero ») ; 341 est la contre-valeur de T01.A6, ligne 165, hors §F" },
+      { "fixture": "F-BUDGET", "ecart": "A porte acceptees_max=1, B porte nombre_de_demandes=2",
+        "verdict": "ENONCES COMPLEMENTAIRES de la meme regle (« deux concurrentes, pas toutes deux acceptees ») ; la racine gelee porte les deux" },
+      { "fixture": "F-QUALITY", "ecart": "A porte 3 (numerateur de 3/4, et sommes de poids satisfait/total)",
+        "verdict": "DERIVE des poids sur lesquels A et B concordent ; aucune valeur nouvelle" },
+      { "fixture": "F-BOOTSTRAP", "ecart": "A porte 2.5 et 97.5 en nombres ; B les porte dans le nom de cle intervalle_2_5_a_97_5 ; la racine gelee les ecrit « 2,5 % » et « 97,5 % » (virgule decimale, comme le cahier)",
+        "verdict": "ENCODAGE. B restitue en outre les parents 10/20/90/100 que A donne en prose dans base.enonce" },
+      { "fixture": "F-RESERVATION", "ecart": "A porte 2, 3, 4 (ordinaux d'etapes, clones, sequence d'admission) et 24 (delai_heures)",
+        "verdict": "ENCODAGE : B ecrit la regle des 24 h en prose et l'ordre de file en liste [B, C]" },
+      { "fixture": "F-POWER", "ecart": "B porte 0.02 (marge, ligne 451), 0.5 et 0.25 (puissance et erreur standard, ligne 463)",
+        "verdict": "HORS §F, et B l'ecrit explicitement (« n'appartient pas a §F »). A le dit de son cote dans non_specifie. Les deux transcripteurs s'accordent donc a NE PAS les attribuer au §F ; la racine gelee les range en non_fixe_par_le_cahier" }
+    ]
+  },
+
+  "ambiguites": {
+    "total_releve": 18,
+    "bloquantes": 0,
+    "regle_appliquee": "une ambiguite ne bloque que si elle porte sur une valeur effectivement materialisee dans acceptance/reference. Une question portant sur un cas d'acceptation, ou sur un champ qu'aucune des deux transcriptions n'inscrit, se reporte.",
+    "report": [
+      { "id": "F-BUDGET-AMB-1 / AMB-BUDGET-2", "releve_par": "A et B", "porte": "ventilation spent/reserved des 600 ambigus du sous-cas 4",
+        "materialisee": false, "ou_consignee": "F-BUDGET.json, non_fixe_par_le_cahier + ambiguites_reportees" },
+      { "id": "F-BUDGET-AMB-2", "releve_par": "A", "porte": "la sequence d'entree qui rend la reservation « ambigue »",
+        "materialisee": false, "ou_consignee": "F-BUDGET.json : seule l'invariant available=400 est scelle" },
+      { "id": "AMB-BUDGET-1", "releve_par": "B", "porte": "unite des montants de F-BUDGET, absente de la ligne 105",
+        "materialisee": false, "ou_consignee": "F-BUDGET.json, non_fixe_par_le_cahier : « l'unite des montants n'est pas ecrite ligne 105 »" },
+      { "id": "AMB-QUALITY-1", "releve_par": "B", "porte": "T04.A5 exige une periode a R=0 ; aucune des quatre n'en a",
+        "materialisee": false, "ou_consignee": "porte sur un CAS D'ACCEPTATION ; la racine scelle R=[1,1/2,null,1/2], sans periode a R=0" },
+      { "id": "AMB-QUALITY-2", "releve_par": "A et B", "porte": "id, poids, revelation et echeance de l'exigence du test negatif",
+        "materialisee": false, "ou_consignee": "F-QUALITY.json, non_fixe_par_le_cahier + ambiguites_reportees" },
+      { "id": "AMB-QUALITY-3", "releve_par": "B", "porte": "referent de « les quatre usages » (T08.A2)",
+        "materialisee": false, "ou_consignee": "porte sur un CAS D'ACCEPTATION ; la racine scelle les cardinaux [4,4,0,2], pas la nature des intentions" },
+      { "id": "AMB-RESERVATION-1", "releve_par": "B", "porte": "les 100 reservations de T09.A3, absentes du §F",
+        "materialisee": false, "ou_consignee": "F-RESERVATION.json, non_fixe_par_le_cahier : « le nombre de reservations presentes avant la migration P4 : §F n'en cite aucun »" },
+      { "id": "AMB-RESERVATION-2", "releve_par": "B", "porte": "noms des refus metier autres que NOT_FOUND",
+        "materialisee": false, "ou_consignee": "la racine ecrit « refus metier » (mots du cahier, l.119) et NOT_FOUND (nomme par le cahier, l.123) ; aucun code d'erreur invente" },
+      { "id": "AMB-RESERVATION-3", "releve_par": "B", "porte": "la demande de B rejetee en P1 est-elle remise en file en P2",
+        "materialisee": false, "ou_consignee": "A et B scellent la meme sequence d'admission (B=1, C=2) et P1 en_attente=[] ; le mecanisme n'est pas materialise" },
+      { "id": "AMB-FAILURE-1", "releve_par": "B", "porte": "exigences et intentions offertes de P1..P4",
+        "materialisee": false, "ou_consignee": "F-FAILURE.json, non_fixe_par_le_cahier" },
+      { "id": "AMB-FAILURE-2", "releve_par": "B", "porte": "unite des couts (deja tranchee par SC-001/DIV-1)",
+        "materialisee": false, "ou_consignee": "F-FAILURE.json : unite_des_couts.valeur = null, NON SPECIFIEE" },
+      { "id": "AMB-POWER-1", "releve_par": "B", "porte": "la marge 0,02 dont dependent les decisions",
+        "materialisee": false, "ou_consignee": "F-POWER.json, non_fixe_par_le_cahier : « la regle de decision et la marge [...] appartiennent au §H, pas a la ligne 127 »" },
+      { "id": "AMB-POWER-2", "releve_par": "B", "porte": "conventions de signe ratio=A/B et DeltaV=V_A-V_B",
+        "materialisee": false, "ou_consignee": "ambiguite de FORME : B constate lui-meme qu'aucune autre orientation ne reproduit les bornes. A et B concordent sur les bornes." },
+      { "id": "AMB-POWER-3", "releve_par": "B", "porte": "puissance 0,5 et erreur standard 0,25 (ligne 463, §H)",
+        "materialisee": false, "ou_consignee": "F-POWER.json, non_fixe_par_le_cahier : « la ligne 127 n'en enonce aucune »" },
+      { "id": "AMB-REGRESSION-1", "releve_par": "B", "porte": "le « 1 » est-il G, G_new, ou les deux",
+        "materialisee": false, "ou_consignee": "la racine scelle regressions_attendues=1 SANS etiquette G/G_new ; grep G_new sur la racine -> aucun fichier" },
+      { "id": "AMB-REGRESSION-2", "releve_par": "B", "porte": "nombre de periodes et etat en P1",
+        "materialisee": false, "ou_consignee": "F-REGRESSION.json, non_fixe_par_le_cahier" },
+      { "id": "AMB-REGRESSION-3", "releve_par": "A et B", "porte": "statut de cancel@2 en P3/P4",
+        "materialisee": false, "ou_consignee": "F-REGRESSION.json, non_fixe_par_le_cahier" }
+    ]
+  },
+
+  "arbitrages_honores": [
+    { "id": "SC-001", "statut": "RESOLU",
+      "effets": [
+        "F-QUALITY : le poids est fixe a l'introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4. A et B l'appliquent tous deux ; la racine gelee le porte avec l'arbitrage cite.",
+        "F-FAILURE : unite des couts NON SPECIFIEE. A est silencieux, B ecrit null, la racine ecrit null.",
+        "F-REGRESSION : nombre attendu = 1. A ecrit total=1, B ecrit nombre_attendu=1, la racine ecrit regressions_attendues=1."
+      ],
+      "note": "B a REEXECUTE les trois controles textuels de SC-001 plutot que de les reprendre sur parole ; resultats identiques a ceux consignes dans l'entree." }
+  ],
+
+  "etat_de_la_racine_de_reference": {
+    "constat": "acceptance/reference/** etait DEJA materialisee et gelee au scellement T00 (commit cd239915d88f6ac07b4b4f45e1a565f8c04786e0).",
+    "tree_oid_constate": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "tree_oid_declare_dans_FROZEN_ROOTS": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "identite": true,
+    "relecture_executee": "git rev-parse HEAD:acceptance/reference",
+    "fixtures": 10,
+    "porteurs_de_valeur": 186,
+    "porteurs_sans_cahier_line": 0,
+    "confrontation_aux_transcriptions_du_jour": "les 77 valeurs porteuses du §F relevees a la main sont presentes et identiques dans A, dans B et dans la racine gelee ; seul l'encodage des niveaux de quantile differe (« 2,5 % » contre 2.5), ce qui est de la mise en forme",
+    "consequence": "AUCUNE ecriture n'est due en zone REFERENCE. Reecrire la racine deplacerait le tree oid, invaliderait les 44 attestations et exigerait un SPEC_CONFLICT ouvert, alors qu'aucune divergence ne le justifie.",
+    "conclusion": "le gel est CONFIRME par une double transcription independante supplementaire, et non simplement reconduit"
+  },
+
+  "ce_que_cette_archive_prouve": "La concordance est desormais AUDITABLE : les deux transcriptions brutes sont conservees telles qu'ecrites par leurs auteurs, a cote du present releve de comparaison. Un tiers peut rejouer la comparaison sans faire confiance a ce compte rendu."
+}

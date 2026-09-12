@@ -1,0 +1,79 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-BOOTSTRAP",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-BOOTSTRAP fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [117],
+
+  "consommateurs": [
+    { "cas": "T33.A1", "cahier_line": 443, "proof_kind": "numeric",
+      "exige": "F-BOOTSTRAP donne les quatre ratios ET l'intervalle [1/2,9/10]",
+      "deduction": "la liste ordonnee des quatre ratios est elle-meme une valeur attendue, pas seulement l'intervalle qui en decoule" },
+    { "cas": "T33.A2", "cahier_line": 443, "proof_kind": "behaviour",
+      "exige": "les deux bras suivent exactement les memes indices parents",
+      "deduction": "le bootstrap est APPARIE : chaque tirage designe des parents, et A comme B sont lus sur ces memes parents" },
+    { "cas": "T33.A3", "cahier_line": 443, "proof_kind": "behaviour",
+      "exige": "multiplier tous les couts par 7 ne change ni ratio ni intervalle",
+      "deduction": "invariance d'echelle ; le facteur 7 vient de §H, pas de §F" },
+    { "cas": "T33.A4", "cahier_line": 443, "proof_kind": "numeric",
+      "exige": "A=B donne tous les ratios egaux a 1",
+      "deduction": "variante degeneree derivee de la meme liste de tirages" },
+    { "cas": "T33.A6", "cahier_line": 443, "proof_kind": "refusal",
+      "exige": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets",
+      "deduction": "deux parents sont le minimum de cette fixture ; un seul doit refuser, pas estimer" },
+    { "cas": "T33.A7", "cahier_line": 443, "proof_kind": "absence",
+      "exige": "les bandes ponctuelles ne sont jamais etiquetees simultanees",
+      "deduction": "l'intervalle [1/2,9/10] est ponctuel ; l'etiqueter simultane serait faux" },
+    { "cas": "T38.A8", "cahier_line": 493, "proof_kind": "refusal",
+      "exige": "inference interprojets refusee sur une fixture a un seul parent, malgre six trajectoires",
+      "deduction": "confirme que la grappe, pas la trajectoire, est l'unite de reechantillonnage" }
+  ],
+
+  "valeurs": {
+    "parents": {
+      "valeur": "les deux projets precedents (F-CLUSTERS / F-COST-RATIO)",
+      "cahier_line": 117,
+      "P1": { "A": 10, "B": 20, "cahier_line": 115 },
+      "P2": { "A": 90, "B": 100, "cahier_line": 115 }
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [["P1","P1"], ["P1","P2"], ["P2","P1"], ["P2","P2"]],
+      "cahier_line": 117,
+      "qualificatif": "forcee",
+      "taille_du_tirage": 2,
+      "nombre_de_tirages": 4,
+      "note": "exhaustive sur 2 parents tires avec remise : 2^2 = 4"
+    },
+    "ratios_cout_A_sur_B": {
+      "valeur": ["1/2", "5/6", "5/6", "9/10"],
+      "cahier_line": 117,
+      "ordre": "conserve, aligne sur la liste de reechantillonnages ci-dessus",
+      "correspondance": [
+        { "tirage": ["P1","P1"], "ratio": "1/2" },
+        { "tirage": ["P1","P2"], "ratio": "5/6" },
+        { "tirage": ["P2","P1"], "ratio": "5/6" },
+        { "tirage": ["P2","P2"], "ratio": "9/10" }
+      ]
+    },
+    "convention_de_quantile": { "valeur": "quantile empirique inverse", "cahier_line": 117 },
+    "intervalle_2_5_a_97_5": { "valeur": ["1/2", "9/10"], "cahier_line": 117 },
+    "portee_scientifique": {
+      "valeur": "Cette fixture valide le CALCUL, pas une couverture suffisante avec deux projets.",
+      "cahier_line": 117,
+      "note": "a transcrire tel quel : une attestation qui presenterait cet intervalle comme une couverture frequentiste serait un faux. Voir aussi l.445 : « Une sortie deterministe n'implique pas une couverture frequentiste garantie. »"
+    }
+  },
+
+  "negatifs": [
+    { "regle_fausse": "tirer les bras A et B sur des indices parents differents", "cahier_line": 443, "cas": "T33.A2" },
+    { "regle_fausse": "etiqueter [1/2,9/10] comme une bande simultanee", "cahier_line": 443, "cas": "T33.A7" },
+    { "regle_fausse": "estimer une inference interprojets sur une grappe unique", "cahier_line": 443, "cas": "T33.A6", "attendu": "INSUFFICIENT_CLUSTERS" },
+    { "regle_fausse": "presenter cet intervalle comme une couverture suffisante", "cahier_line": 117 }
+  ],
+
+  "ambiguites": []
+}

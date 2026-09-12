@@ -1,0 +1,151 @@
+{
+  "fixture": "F-BUDGET",
+  "transcripteur": "A",
+  "tache": "T04",
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "lignes": [
+      105
+    ],
+    "verifiable_par": [
+      "sed -n '105p' docs/cahier.md"
+    ]
+  },
+  "citation": {
+    "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+  },
+  "budget_total": {
+    "cahier_line": 105,
+    "valeur": 1000
+  },
+  "sous_cas": [
+    {
+      "id": "F-BUDGET-SC1",
+      "nom": "deux reservations concurrentes de 600",
+      "cahier_line": 105,
+      "etat_initial": {
+        "budget": 1000,
+        "spent": 0,
+        "reserved": 0
+      },
+      "entrees": [
+        {
+          "type": "reservation",
+          "montant": 600,
+          "concurrente": true
+        },
+        {
+          "type": "reservation",
+          "montant": 600,
+          "concurrente": true
+        }
+      ],
+      "resultat_enonce": "les deux ne peuvent pas etre toutes deux acceptees",
+      "acceptees_max": 1
+    },
+    {
+      "id": "F-BUDGET-SC2",
+      "nom": "reglement a 340 de la reservation acceptee",
+      "cahier_line": 105,
+      "entree": {
+        "type": "reglement",
+        "montant": 340,
+        "cible": "la reservation acceptee en SC1"
+      },
+      "etat_resultant": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "valeurs_enoncees_par_le_cahier": [
+        "spent=340",
+        "reserved=0",
+        "available=660"
+      ]
+    },
+    {
+      "id": "F-BUDGET-SC3a",
+      "nom": "depuis l'etat de SC2, reservation de 600 — branche independante",
+      "cahier_line": 105,
+      "etat_de_depart": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "entree": {
+        "type": "reservation",
+        "montant": 600
+      },
+      "verdict": "admissible",
+      "available_resultant": 60,
+      "note": "« tester separement » : SC3a et SC3b partent du meme etat et ne se composent pas."
+    },
+    {
+      "id": "F-BUDGET-SC3b",
+      "nom": "depuis l'etat de SC2, reservation de 661 — branche independante",
+      "cahier_line": 105,
+      "etat_de_depart": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "entree": {
+        "type": "reservation",
+        "montant": 661
+      },
+      "verdict": "refusee",
+      "available_resultant": 660
+    },
+    {
+      "id": "F-BUDGET-SC4",
+      "nom": "troisieme sous-cas independant : reservation ambigue",
+      "cahier_line": 105,
+      "etat_de_depart": {
+        "budget": 1000,
+        "spent": 0,
+        "commentaire_cahier": "budget frais et zero depense"
+      },
+      "entree": {
+        "type": "reservation",
+        "montant": 600,
+        "qualificatif": "ambigue"
+      },
+      "invariant_enonce": {
+        "available": 400,
+        "condition": "tant qu'elle n'est pas reconciliee"
+      },
+      "independance": "sous-cas independant : il ne part pas de l'etat de SC2."
+    }
+  ],
+  "renvoi_hors_section_F": {
+    "statut": "contexte, non normatif pour la transcription",
+    "cahier_line": 69,
+    "citation": {
+      "69": "7. Un appel fournisseur dont la réponse est perdue n’est pas relancé aveuglément. Son état reste ambigu tant qu’il n’est pas réconcilié."
+    },
+    "objet": "le cahier definit ailleurs la notion d'etat « ambigu » (reponse fournisseur perdue, ambigu tant que non reconcilie) ; §F ne la rappelle pas."
+  },
+  "ambiguites": [
+    {
+      "id": "F-BUDGET-AMB-1",
+      "cahier_line": 105,
+      "point": "SC4 : quelle rubrique comptable porte les 600 d'une reservation ambigue non reconciliee",
+      "detail": "Le cahier n'enonce pour SC4 que `available=400`. Il ne dit pas si les 600 figurent dans `reserved`, dans une rubrique distincte d'ambigus, ou dans `spent` provisoire. Materialiser l'etat comptable complet exige ce choix ; la transcription ne le fait pas.",
+      "ce_qui_est_certain": {
+        "available": 400,
+        "budget": 1000
+      }
+    },
+    {
+      "id": "F-BUDGET-AMB-2",
+      "cahier_line": 105,
+      "point": "SC4 : ce qui rend la reservation « ambigue » n'est pas enonce en §F",
+      "detail": "La sequence d'entree qui produit une reservation ambigue (quel evenement, a quel etat d'appel) n'est pas donnee en §F. La ligne 69 en donne la notion generale hors §F. Materialiser la sequence d'entree exige ce choix ; la transcription ne le fait pas.",
+      "ce_qui_est_certain": "l'invariant available=400 tant que non reconciliee"
+    }
+  ]
+}

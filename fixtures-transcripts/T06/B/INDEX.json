@@ -1,0 +1,85 @@
+{
+  "schema": "bench.fixture-transcript-index/1",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "cadrage": "CONSOMMATEURS-D-ABORD. Pour chaque fixture : recensement des cas d'acceptation qui la citent (verification/cases.lock.json + docs/cahier.md §H), deduction de ce que la fixture doit contenir pour que ces cas aient un sens, PUIS confrontation au texte de §F. AUCUNE implementation consultee : ni packages/**, ni apps/**, ni analysis/src/**, ni acceptance/reference/**.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_sha256_verifie": true,
+  "section": "F",
+  "section_lignes": [101, 129],
+
+  "recensement_des_fixtures": {
+    "methode": "grep -on 'F-[A-Z][A-Z-]*' docs/cahier.md | noms distincts",
+    "resultat": 10,
+    "liste": ["F-BOOTSTRAP","F-BUDGET","F-CLUSTERS","F-COST-RATIO","F-FAILURE","F-MONEY","F-POWER","F-QUALITY","F-REGRESSION","F-RESERVATION"],
+    "note": "la liste fournie dans la consigne a ete verifiee et non presumee : elle est exacte et complete, aucune autre F-* n'existe dans le cahier"
+  },
+
+  "fichiers": [
+    { "fixture": "F-MONEY",       "source_lignes": [103],            "ambiguites": 0 },
+    { "fixture": "F-BUDGET",      "source_lignes": [105],            "ambiguites": 2 },
+    { "fixture": "F-QUALITY",     "source_lignes": [107, 109, 111],  "ambiguites": 3 },
+    { "fixture": "F-COST-RATIO",  "source_lignes": [113],            "ambiguites": 0 },
+    { "fixture": "F-CLUSTERS",    "source_lignes": [115],            "ambiguites": 0 },
+    { "fixture": "F-BOOTSTRAP",   "source_lignes": [117],            "ambiguites": 0 },
+    { "fixture": "F-RESERVATION", "source_lignes": [119, 123, 125],  "ambiguites": 3 },
+    { "fixture": "F-FAILURE",     "source_lignes": [121],            "ambiguites": 2 },
+    { "fixture": "F-POWER",       "source_lignes": [127],            "ambiguites": 3 },
+    { "fixture": "F-REGRESSION",  "source_lignes": [129],            "ambiguites": 3 }
+  ],
+
+  "controles_executes": [
+    { "controle": "sha256sum docs/cahier.md == docs/CAHIER_SHA256", "resultat": "identique" },
+    { "controle": "91 citations cahier_line confrontees au texte de la ligne citee", "resultat": "91/91 verifiees",
+      "note": "une erreur reelle trouvee et corrigee : le candidat FAILED est en l.28, pas l.44" },
+    { "controle": "coherence arithmetique de toutes les valeurs enoncees", "resultat": "44/44 OK",
+      "detail": "340=100*2+40*1+20*5 ; 2720=2*340*4 ; 16320=6*2720 ; 660=1000-340 ; V=13/16 ; U=(1+1/2+1/2)/3=2/3 ; 7/10=(4+2+0+1)/(4+4+0+2) ; Q3=(1+2)/4=3/4 ; 5/6=50/60 ; moyenne des ratios=0,7 ; ratios bootstrap [1/2,5/6,5/6,9/10] ; frontiere 24h = 2030-01-02T12:00:00Z ; 150=100+50 ; decisions F-POWER [vrai,faux,faux,vrai] ; puissance 0,5 ; se 0,25" },
+    { "controle": "SC-001/DIV-1 reexecute : sed -n '121p' docs/cahier.md | grep -c 'micro-USD'", "resultat": "0 — l'unite de F-FAILURE reste non specifiee" },
+    { "controle": "SC-001/DIV-2 reexecute : sed -n '129p' docs/cahier.md | grep -c 'en produit une'", "resultat": "1 — le nombre attendu de F-REGRESSION vaut 1" },
+    { "controle": "AMB-RESERVATION-1 : occurrences de '100' en l.119,123,125", "resultat": "0 — les 100 reservations de T09.A3 ne sont pas dans §F" },
+    { "controle": "AMB-BUDGET-1 : sed -n '105p' docs/cahier.md | grep -c 'micro-USD'", "resultat": "0 — l'unite de F-BUDGET n'est pas ecrite" },
+    { "controle": "AMB-POWER-1 : balayage strict de la marge sur la regle l.451", "resultat": "[vrai,faux,faux,vrai] reproduit pour toute marge m dans ]0,01 ; 0,04] — 0,02 est suggeree, pas epinglee" },
+    { "controle": "SC-001 : contre-exemple B@1=3, C@1=8 reevalue", "resultat": "Q3=(1+8)/12=3/4 et Q4=(1+8)/9=1 — confirme qu'aucune valeur du cahier ne distingue les deux lectures de poids" }
+  ],
+
+  "arbitrages_anterieurs_honores": [
+    { "id": "SC-001", "statut": "RESOLU", "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets_repris": [
+        "F-QUALITY : le poids est fixe a l'introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4 — inscrit comme HYPOTHESE, pas comme transcription",
+        "F-FAILURE : l'unite des couts reste non specifiee",
+        "F-REGRESSION : le nombre attendu vaut 1"
+      ],
+      "note": "les trois controles textuels de SC-001 ont ete REEXECUTES ici plutot que repris sur parole" }
+  ],
+
+  "ambiguites_totales": 16,
+  "ambiguites_bloquantes": 0,
+  "ambiguites": [
+    { "id": "AMB-BUDGET-1",      "fixture": "F-BUDGET",      "porte": "unite des montants, non ecrite en l.105" },
+    { "id": "AMB-BUDGET-2",      "fixture": "F-BUDGET",      "porte": "sous-cas 3 : budget frais, reserved et spent non enonces" },
+    { "id": "AMB-QUALITY-1",     "fixture": "F-QUALITY",     "porte": "T04.A5 exige une periode a R=0 ; aucune des quatre n'en a" },
+    { "id": "AMB-QUALITY-2",     "fixture": "F-QUALITY",     "porte": "l'exigence revelee non echue n'a ni id, ni poids, ni echeance" },
+    { "id": "AMB-QUALITY-3",     "fixture": "F-QUALITY",     "porte": "referent de « les quatre usages » (T08.A2), alors que 10 intentions sont offertes" },
+    { "id": "AMB-RESERVATION-1", "fixture": "F-RESERVATION", "porte": "les 100 reservations de T09.A3 sont absentes de §F" },
+    { "id": "AMB-RESERVATION-2", "fixture": "F-RESERVATION", "porte": "seul NOT_FOUND est nomme ; les autres refus metier ne le sont pas" },
+    { "id": "AMB-RESERVATION-3", "fixture": "F-RESERVATION", "porte": "statut de la demande de B rejetee en P1 face a la file de P2" },
+    { "id": "AMB-FAILURE-1",     "fixture": "F-FAILURE",     "porte": "exigences et usages de P1..P4 non enonces, alors que R=0 exige un denominateur non nul" },
+    { "id": "AMB-FAILURE-2",     "fixture": "F-FAILURE",     "porte": "unite absente de la fixture mais exigee a l'export T31" },
+    { "id": "AMB-POWER-1",       "fixture": "F-POWER",       "porte": "la marge 0,02 est dite « d'exemple » ; les decisions attendues en dependent" },
+    { "id": "AMB-POWER-2",       "fixture": "F-POWER",       "porte": "conventions de signe ratio=A/B et DeltaV=V_A-V_B non ecrites (mais epinglees par les valeurs)" },
+    { "id": "AMB-POWER-3",       "fixture": "F-POWER",       "porte": "puissance 0,5 et se 0,25 sont en §H l.463, pas en §F" },
+    { "id": "AMB-REGRESSION-1",  "fixture": "F-REGRESSION",  "porte": "le « 1 » est-il G, G_new, ou les deux ?" },
+    { "id": "AMB-REGRESSION-2",  "fixture": "F-REGRESSION",  "porte": "nombre de periodes et etat en P1 non enonces" },
+    { "id": "AMB-REGRESSION-3",  "fixture": "F-REGRESSION",  "porte": "statut de cancel@2 en P3/P4 non enonce" }
+  ],
+
+  "avertissement_au_scellement": [
+    "Cet etage ne produit AUCUN commit : .bench/ est ignore par git (.gitignore l.13, verifie par git check-ignore).",
+    "acceptance/reference/** est DEJA GELEE : docs/FROZEN_ROOTS.json inscrit 10 fixtures, tree_oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, commit de gel cd239915d88f6ac07b4b4f45e1a565f8c04786e0, provenance tache T00. Son contenu n'a deliberement PAS ete lu, pour que cette transcription reste independante.",
+    "Le contenu anterieur de .bench/fixtures/B (etage T03) a ete sauvegarde hors depot avant ecrasement, sans etre lu ; il reste par ailleurs archive dans le ledger sous fixtures-transcripts/T03/B/.",
+    "Les 16 ambiguites ci-dessus sont consignees, non tranchees. Aucune n'a ete refermee par un calcul du transcripteur."
+  ]
+}

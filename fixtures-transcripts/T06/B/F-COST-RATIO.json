@@ -1,0 +1,55 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-COST-RATIO",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-COST-RATIO fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [113],
+
+  "consommateurs": [
+    { "cas": "T32.A1", "cahier_line": 435, "proof_kind": "numeric",
+      "exige": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "deduction": "la fixture doit porter les deux moyennes ET le ratio comme trois valeurs attendues distinctes : un ratio juste obtenu de moyennes fausses reste faux" },
+    { "cas": "T36.A2", "cahier_line": 473, "proof_kind": "numeric",
+      "exige": "F-COST-RATIO affiche 5/6 ET les deux moyennes",
+      "deduction": "les moyennes ne sont pas un detail de calcul : elles sont publiees" },
+    { "cas": "T32.A6", "cahier_line": 435, "proof_kind": "behaviour",
+      "exige": "poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "deduction": "le « poids egal » des deux projets s'applique APRES agregation intra-projet" }
+  ],
+
+  "valeurs": {
+    "projets": { "valeur": 2, "poids": "egal", "cahier_line": 113 },
+    "couts_bras_A": { "valeur": [10, 90], "cahier_line": 113 },
+    "couts_bras_B": { "valeur": [20, 100], "cahier_line": 113 },
+    "appariement_par_projet": {
+      "valeur": [
+        { "projet": "P1", "A": 10, "B": 20 },
+        { "projet": "P2", "A": 90, "B": 100 }
+      ],
+      "cahier_line": 115,
+      "note": "l.113 donne les deux listes sans nommer les projets ; l.115 (F-CLUSTERS) nomme explicitement P1: A=10,B=20 et P2: A=90,B=100. L'appariement est donc epingle par le cahier, et confirme par la valeur 0,7 de la moyenne des ratios."
+    },
+    "moyenne_A": { "valeur": 50, "cahier_line": 113 },
+    "moyenne_B": { "valeur": 60, "cahier_line": 113 },
+    "ratio_principal_A_sur_B": { "valeur": "5/6", "cahier_line": 113 },
+    "definition_du_ratio_principal": {
+      "valeur": "ratio des moyennes (moyenne_A / moyenne_B), non moyenne des ratios",
+      "cahier_line": 113,
+      "note": "non ecrit comme definition, mais impose par l'opposition explicite des deux nombres 5/6 et 0,7"
+    }
+  },
+
+  "negatifs": [
+    { "valeur_fausse": "0.7",
+      "nom": "moyenne des ratios",
+      "cahier_line": 113,
+      "enonce": "La moyenne des ratios serait 0.7 et constitue un resultat INCORRECT pour cette metrique.",
+      "doit": "etre detecte par le jeu de mutations de T32 (l.437 : « jeu de mutations detectant moyenne des ratios, pooling des lignes et exclusion des echecs »)" }
+  ],
+
+  "ambiguites": []
+}

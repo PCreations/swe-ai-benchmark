@@ -1,0 +1,55 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-CLUSTERS",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-CLUSTERS fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [115],
+
+  "consommateurs": [
+    { "cas": "T32.A2", "cahier_line": 435, "proof_kind": "numeric",
+      "exige": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "deduction": "la fixture doit porter l'etat AVANT et APRES duplication, et la meme estimation ponctuelle des deux cotes" },
+    { "cas": "T33.A5", "cahier_line": 443, "proof_kind": "behaviour",
+      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "deduction": "l'invariance de duplication est aussi une propriete du bootstrap, pas seulement de l'agregation" },
+    { "cas": "T32.A6", "cahier_line": 435, "proof_kind": "behaviour",
+      "exige": "poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "deduction": "c'est exactement ce qui fait que 10 repetitions de P1 ne pesent pas 10 fois" }
+  ],
+
+  "valeurs": {
+    "projets": [
+      { "id": "P1", "A": { "valeur": 10, "cahier_line": 115 }, "B": { "valeur": 20, "cahier_line": 115 },
+        "repetitions": { "valeur": 10, "cahier_line": 115, "qualificatif": "identiques" } },
+      { "id": "P2", "A": { "valeur": 90, "cahier_line": 115 }, "B": { "valeur": 100, "cahier_line": 115 },
+        "repetitions": { "valeur": 1, "cahier_line": 115 } }
+    ],
+    "lignes_totales": { "valeur": 11, "cahier_line": 115, "enonce": "« onze lignes »" },
+    "moyenne_interprojets_A": { "valeur": 50, "cahier_line": 115, "enonce": "« Moyennes interprojets encore 50 et 60 »" },
+    "moyenne_interprojets_B": { "valeur": 60, "cahier_line": 115 },
+    "continuite_avec_F_COST_RATIO": {
+      "valeur": true, "cahier_line": 115,
+      "note": "« encore 50 et 60 » : memes moyennes qu'en l.113, obtenues malgre un nombre de repetitions desequilibre"
+    },
+    "invariance_par_duplication": {
+      "valeur": "Dupliquer TOUTES les repetitions de P1 laisse l'estimation ponctuelle INCHANGEE.",
+      "cahier_line": 115,
+      "etat_apres": { "repetitions_P1": 20, "repetitions_P2": 1, "moyenne_A": 50, "moyenne_B": 60,
+        "note": "20 est deduit de « dupliquer toutes les repetitions » applique a 10 ; les moyennes sont celles enoncees, inchangees par construction" }
+    }
+  },
+
+  "negatifs": [
+    { "regle_fausse": "moyenne naive sur les onze lignes (pooling)",
+      "cahier_line": 115,
+      "enonce": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation.",
+      "valeurs_attendues_du_calcul_faux": null,
+      "note": "le cahier INTERDIT ce calcul sans en enoncer le resultat. Contrairement a F-COST-RATIO ou 0,7 est ecrit, aucun nombre n'est donne ici. Je n'en calcule donc aucun : une valeur produite par moi ne serait pas une transcription." }
+  ],
+
+  "ambiguites": []
+}

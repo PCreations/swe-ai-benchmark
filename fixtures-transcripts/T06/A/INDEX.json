@@ -1,0 +1,154 @@
+{
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T04",
+  "etage": "FIXTURES",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F. Fixtures maitresses a materialiser sans recalcul depuis l'implementation",
+    "ligne_titre_section": 101,
+    "premiere_ligne_de_contenu": 103,
+    "derniere_ligne_de_contenu": 129,
+    "ligne_section_suivante": 131,
+    "citation_titre": {
+      "101": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+    }
+  },
+  "methode": {
+    "provenance_des_valeurs": "cahier uniquement ; aucune valeur produite par une implementation",
+    "sources_non_consultees": [
+      "acceptance/**",
+      "toute suite de tests",
+      "toute implementation",
+      ".bench/fixtures/B (transcription independante)"
+    ],
+    "recensement": "grep -on '`F-[A-Z-]*`' docs/cahier.md — dix noms distincts, tous definis entre les lignes 103 et 129",
+    "citations": "chaque fichier porte le texte VERBATIM de ses lignes source, relu depuis docs/cahier.md",
+    "recoupements": "les champs `recoupement_interne_au_cahier` recalculent une valeur DEJA enoncee par le cahier a partir d'autres valeurs du cahier ; ils ne creent aucune valeur nouvelle",
+    "politique_ambiguites": "`ambiguites` = point ou materialiser exige un choix que le cahier ne fait pas ; `non_specifie` = silence du cahier dont aucune valeur enoncee ne depend"
+  },
+  "fixtures": [
+    {
+      "nom": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "cahier_lignes": [
+        103
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "cahier_lignes": [
+        105
+      ],
+      "ambiguites": 2
+    },
+    {
+      "nom": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "cahier_lignes": [
+        107,
+        109,
+        111
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "cahier_lignes": [
+        113
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "cahier_lignes": [
+        115
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "cahier_lignes": [
+        117
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "cahier_lignes": [
+        119,
+        123,
+        125
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "cahier_lignes": [
+        121
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-POWER",
+      "fichier": "F-POWER.json",
+      "cahier_lignes": [
+        127
+      ],
+      "ambiguites": 0
+    },
+    {
+      "nom": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "cahier_lignes": [
+        129
+      ],
+      "ambiguites": 0
+    }
+  ],
+  "ordre_du_cahier": [
+    "F-MONEY",
+    "F-BUDGET",
+    "F-QUALITY",
+    "F-COST-RATIO",
+    "F-CLUSTERS",
+    "F-BOOTSTRAP",
+    "F-RESERVATION",
+    "F-FAILURE",
+    "F-POWER",
+    "F-REGRESSION"
+  ],
+  "paragraphes_de_section_F_rattaches": {
+    "109": "Entrees exactes de Q -> F-QUALITY",
+    "111": "Conventions R/U/Q -> F-QUALITY (conventions generales de §F, citees aussi par F-FAILURE)",
+    "123": "Probes jetables, etat a l'entree de P4, FIFO, NOT_FOUND -> F-RESERVATION",
+    "125": "Horloges principales -> F-RESERVATION"
+  },
+  "ambiguites_totales": 2,
+  "ambiguites": [
+    {
+      "fixture": "F-BUDGET",
+      "id": "F-BUDGET-AMB-1",
+      "cahier_line": 105,
+      "point": "SC4 : quelle rubrique comptable porte les 600 d'une reservation ambigue non reconciliee"
+    },
+    {
+      "fixture": "F-BUDGET",
+      "id": "F-BUDGET-AMB-2",
+      "cahier_line": 105,
+      "point": "SC4 : ce qui rend la reservation « ambigue » n'est pas enonce en §F"
+    }
+  ],
+  "note_valeurs_hors_section_F": "2720 et 16320 ne figurent pas en §F ; ils sont reportes dans F-MONEY sous `derives_hors_section_F` avec leur provenance (composition de fixture ligne 491, totaux enonces ligne 493).",
+  "commit": null,
+  "raison_absence_de_commit": "etage de transcription : ecriture sous .bench/ (ignore par git) ; aucun commit ne doit etre produit — la materialisation appartient a l'etage de scellement"
+}

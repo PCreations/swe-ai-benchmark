@@ -1,0 +1,87 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-FAILURE",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-FAILURE fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [121],
+
+  "consommateurs": [
+    { "cas": "T05.A6", "cahier_line": 199, "proof_kind": "behaviour",
+      "exige": "sans deploiement, la cloture d'une periode produit les demandes non servies PREVUES PAR F-FAILURE",
+      "deduction": "les intentions non servies sont un produit de la cloture, pas une absence de ligne" },
+    { "cas": "T11.A4", "cahier_line": 251, "proof_kind": "numeric",
+      "exige": "F-FAILURE conserve QUATRE resultats",
+      "deduction": "le compte de lignes est lui-meme une assertion : un filtre de survivants en supprimerait" },
+    { "cas": "T31.A1", "cahier_line": 427, "proof_kind": "numeric",
+      "exige": "F-FAILURE exporte quatre periodes ET total 150",
+      "deduction": "la fixture doit porter les quatre couts individuels ET leur somme" },
+    { "cas": "T38.A7", "cahier_line": 493, "proof_kind": "behaviour",
+      "exige": "F-FAILURE produit un echec PRODUIT dans une execution moteur TERMINEE",
+      "deduction": "distinction §B l.28 : un candidat FAILED dans une execution du moteur valide. Les deux niveaux ne se confondent pas." }
+  ],
+
+  "valeurs": {
+    "K": { "valeur": 4, "cahier_line": 121, "sens": "nombre de periodes" },
+    "profil_du_candidat": { "valeur": "sans deploiement sur les quatre periodes", "cahier_line": 121 },
+    "lignes_conservees": { "valeur": 4, "cahier_line": 121 },
+    "Q_par_periode": { "valeur": [0, 0, 0, 0], "cahier_line": 121 },
+    "R_par_periode": { "valeur": [0, 0, 0, 0], "cahier_line": 121 },
+    "condition_des_zeros": {
+      "valeur": "si les exigences ET les usages y sont presents",
+      "cahier_line": 121,
+      "portee": "conditionne Q=0 et R=0 sur les QUATRE periodes",
+      "articulation_avec_les_conventions": "sans cette condition, l.111 donnerait R=null (aucune intention admissible proposee) et Q=null (aucun poids d'exigence active due). La fixture doit donc porter explicitement des exigences dues et des usages sur P1 a P4, y compris P3 et P4 ou le cout est nul."
+    },
+    "couts_par_periode": { "valeur": [100, 50, 0, 0], "cahier_line": 121 },
+    "cout_total": { "valeur": 150, "cahier_line": 121 },
+    "unite_des_couts": {
+      "valeur": null,
+      "statut": "NON SPECIFIEE",
+      "arbitrage": "SC-001 / DIV-1",
+      "controle_reexecute": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD' -> 0",
+      "note": "la chaine micro-USD n'apparait qu'en l.103 (F-MONEY). Attribuer l'unite a la l.121 serait une invention deja attrapee une fois."
+    },
+    "arret_de_calcul": {
+      "valeur": "Un arret de calcul apres P2 ne supprime pas P3 et P4 ; AUCUNE facture imaginaire n'y est ajoutee.",
+      "cahier_line": 121,
+      "consequences": [
+        { "fait": "P3 et P4 restent presentes", "cout_attendu": 0 },
+        { "fait": "aucun cout invente en P3/P4", "cout_attendu": 0 }
+      ],
+      "appuis": [
+        { "valeur": "Les etats d'arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n'effacent pas la periode de l'analyse.", "cahier_line": 97 },
+        { "valeur": "deployment_coverage vaut NO_DEPLOYMENT, PARTIAL ou ACCEPTED. Ces champs ne remplacent pas Q et R.", "cahier_line": 97,
+          "application": "le candidat de F-FAILURE est NO_DEPLOYMENT sur les quatre periodes, ce qui ne dispense pas de calculer Q et R" },
+        { "valeur": "Un echec conserve ses depenses, ses intentions non servies et son backlog.", "cahier_line": 67, "note": "invariant D.5" }
+      ]
+    }
+  },
+
+  "negatifs": [
+    { "regle_fausse": "supprimer P3 et P4 apres un arret de calcul en P2", "cahier_line": 121 },
+    { "regle_fausse": "ajouter une facture en P3 ou P4", "cahier_line": 121 },
+    { "regle_fausse": "rendre Q=null ou R=null alors que exigences et usages sont presents", "cahier_line": 121 },
+    { "regle_fausse": "filtre implicite de survivants a l'export", "cahier_line": 429, "note": "l.429 : « aucun filtre implicite de survivants et aucune valeur vide convertie en zero »" },
+    { "regle_fausse": "convertir une valeur vide en zero", "cahier_line": 429 },
+    { "regle_fausse": "confondre un candidat FAILED avec une execution moteur invalide", "cahier_line": 28 }
+  ],
+
+  "ambiguites": [
+    { "id": "AMB-FAILURE-1",
+      "porte": "contenu des exigences et des usages de P1 a P4",
+      "constat": "Q=0 et R=0 sont CONDITIONNES a « si les exigences et usages y sont presents », mais le cahier n'enonce ni quelles exigences, ni combien d'intentions sont offertes par periode. Or R=0 exige un denominateur non nul : sans intentions offertes, l.111 impose null.",
+      "lectures": ["la fixture herite des exigences/usages d'un scenario a definir ailleurs", "la fixture doit porter ses propres exigences et un compte d'intentions offertes par periode, que le cahier a omis"],
+      "pourquoi_ne_pas_trancher": "choisir un compte d'intentions offertes fixerait le denominateur de R dans une racine gelee, sans aucun appui textuel.",
+      "bloquant": false },
+    { "id": "AMB-FAILURE-2",
+      "porte": "l'unite des couts, deja tranchee",
+      "constat": "SC-001/DIV-1 a etabli que l'unite n'est pas specifiee. Consigne ici pour memoire : T31.A2 exige « montants conserves EXACTEMENT » (l.427) et §D.9 (l.71) impose des entiers exacts. Une fixture sans unite reste donc exploitable, mais l'export de T31 devra en porter une (l.429 : « L'export porte versions, hashes et unites »).",
+      "lectures": ["l'unite est une propriete de l'export, pas de la fixture", "l'absence d'unite dans la fixture gelee laissera T31 sans reference d'unite"],
+      "pourquoi_ne_pas_trancher": "arbitrage SC-001 deja rendu : ne pas le rouvrir seul.",
+      "bloquant": false }
+  ]
+}

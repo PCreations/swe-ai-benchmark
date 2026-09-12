@@ -1,0 +1,146 @@
+{
+  "schema": "bench.fixture-transcript/1",
+  "fixture": "F-QUALITY",
+  "tache": "T06",
+  "etage": "FIXTURES",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : les cas d'acceptation qui citent F-QUALITY fixent ce que la fixture doit contenir ; le texte de §F est ensuite confronte. Aucune implementation consultee.",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "source_lignes": [107, 109, 111],
+
+  "consommateurs": [
+    { "cas": "T04.A1", "cahier_line": 191, "proof_kind": "numeric",
+      "exige": "F-QUALITY donne exactement les resultats annonces",
+      "deduction": "Q, V, R, U, exposition et ratio d'intentions sont tous des valeurs attendues exactes, pas des approximations" },
+    { "cas": "T04.A2", "cahier_line": 191, "proof_kind": "behaviour",
+      "exige": "dupliquer les assertions d'une exigence ne change pas Q",
+      "deduction": "Q est pondere par le POIDS de l'exigence, jamais par un compte d'assertions (invariant D.10, l.72). La fixture doit porter les poids explicitement." },
+    { "cas": "T04.A5", "cahier_line": 191, "proof_kind": "numeric",
+      "exige": "zero usage donne R=null, panne avec quatre usages donne R=0",
+      "deduction": "P3 (0 intention offerte -> R=null) couvre la premiere moitie. AUCUNE des quatre periodes ne couvre la seconde : voir AMB-QUALITY-1." },
+    { "cas": "T04.A6", "cahier_line": 191, "proof_kind": "absence",
+      "exige": "exigence non encore due absente du denominateur",
+      "deduction": "la fixture doit porter une exigence revelee mais non echue (test negatif de l.109) : voir AMB-QUALITY-2" },
+    { "cas": "T08.A2", "cahier_line": 223, "proof_kind": "behaviour",
+      "exige": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n'a cree aucune donnee",
+      "deduction": "les intentions OFFERTES ne dependent pas de l'etat applicatif ; seules les REUSSIES en dependent. Voir AMB-QUALITY-3 sur le referent de « les quatre usages »." },
+    { "cas": "T32.A3", "cahier_line": 435, "proof_kind": "numeric",
+      "exige": "F-QUALITY conserve V=13/16, U=2/3 et ratio intentions 7/10 comme COLONNES DISTINCTES",
+      "deduction": "les trois nombres doivent etre portes separement par la fixture, avec leurs identifiants" },
+    { "cas": "T36.A1", "cahier_line": 473, "proof_kind": "numeric",
+      "exige": "F-QUALITY affiche 0,8125 et 2/3 avec arrondi annonce, SANS remplacer U par 0,7",
+      "deduction": "0,7 est le ratio agrege par intention (7/10). Confondre U et lui est l'erreur que ce cas cible : la fixture doit rendre la confusion detectable." }
+  ],
+
+  "valeurs": {
+    "periodes": { "valeur": 4, "cahier_line": 107, "duree": "de meme duree" },
+
+    "Q_par_periode":              { "valeur": ["1", "1/2", "3/4", "1"], "cahier_line": 107 },
+    "V":                          { "valeur": "13/16", "decimal_exact": "0.8125", "cahier_line": 107 },
+    "R_par_periode":              { "valeur": ["1", "1/2", null, "1/2"], "cahier_line": 107 },
+    "intentions_offertes":        { "valeur": [4, 4, 0, 2], "cahier_line": 107 },
+    "intentions_reussies":        { "valeur": [4, 2, 0, 1], "cahier_line": 107 },
+    "U":                          { "valeur": "2/3", "cahier_line": 107 },
+    "exposition":                 { "valeur": "3/4", "cahier_line": 107 },
+    "reussite_agregee_par_intention": { "valeur": "7/10", "cahier_line": 107 },
+
+    "les_trois_nombres_sont_distincts": {
+      "valeur": true,
+      "cahier_line": 107,
+      "enonce": "Ces trois derniers nombres sont differents et doivent rester identifies.",
+      "porte_sur": ["U = 2/3", "exposition = 3/4", "reussite_agregee_par_intention = 7/10"]
+    },
+
+    "entrees_exactes_de_Q": {
+      "$cahier_line": 109,
+      "$enonce_integral": "Entrees exactes de Q : P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violee et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites.",
+      "toutes_dues": { "valeur": "Toutes les exigences citees sont dues a la periode concernee.", "cahier_line": 109 },
+      "P1": {
+        "exigences": [
+          { "id": "A@1", "poids": 1, "poids_cahier_line": 109, "satisfaite": true },
+          { "id": "B@1", "poids": 1, "poids_cahier_line": 109, "satisfaite": true }
+        ],
+        "Q_attendu": "1", "Q_cahier_line": 107
+      },
+      "P2": {
+        "exigences": [
+          { "id": "A@1", "poids": 1, "poids_cahier_line": 109, "satisfaite": true },
+          { "id": "B@1", "poids": 1, "poids_cahier_line": 109, "satisfaite": true },
+          { "id": "C@1", "poids": 2, "poids_cahier_line": 109, "satisfaite": false, "ajoutee_en": "P2" }
+        ],
+        "Q_attendu": "1/2", "Q_cahier_line": 107
+      },
+      "P3": {
+        "exigences": [
+          { "id": "A@2", "poids": 1, "poids_cahier_line": 109, "satisfaite": true, "remplace": "A@1" },
+          { "id": "B@1", "poids": 1, "poids_source": "SC-001", "satisfaite": false, "note": "violee ; poids NON reecrit en l.109" },
+          { "id": "C@1", "poids": 2, "poids_source": "SC-001", "satisfaite": true, "note": "poids NON reecrit en l.109" }
+        ],
+        "Q_attendu": "3/4", "Q_cahier_line": 107
+      },
+      "P4": {
+        "exigences": [
+          { "id": "A@2", "poids": 1, "poids_source": "SC-001", "satisfaite": true },
+          { "id": "C@1", "poids": 2, "poids_source": "SC-001", "satisfaite": true }
+        ],
+        "retiree": "B",
+        "Q_attendu": "1", "Q_cahier_line": 107
+      },
+      "test_negatif": {
+        "enonce": "Le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance.",
+        "cahier_line": 109,
+        "id": null, "poids": null, "revelee_en": null, "echeance": null,
+        "note": "aucun de ces quatre champs n'est enonce par le cahier — voir AMB-QUALITY-2"
+      }
+    }
+  },
+
+  "conventions": [
+    { "regle": "R vaut null lorsqu'aucune intention admissible n'est proposee.", "cahier_line": 111 },
+    { "regle": "U est la moyenne temporelle sur les periodes EXPOSEES, avec l'exposition publiee.", "cahier_line": 111 },
+    { "regle": "Une campagne confirmatoire exige une exposition predefinie non nulle.", "cahier_line": 111 },
+    { "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, JAMAIS null.", "cahier_line": 111 },
+    { "regle": "Q est null si aucun poids d'exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree.", "cahier_line": 111 },
+    { "regle": "Les series de simple preparation restent marquees hors mesure.", "cahier_line": 111 },
+    { "regle": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite.", "cahier_line": 72, "note": "invariant D.10, appui de T04.A2" }
+  ],
+
+  "arbitrages": [
+    { "id": "SC-001", "statut": "RESOLU", "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "regle_retenue": "Le poids d'une exigence est fixe a son introduction et ne change pas tant qu'elle est active.",
+      "effet_ici": "en P3 et P4, B@1 pese 1 et C@1 pese 2",
+      "statut_epistemique": "HYPOTHESE, pas transcription. SC-001 etablit qu'aucune valeur du cahier ne distingue cette lecture d'une autre : le contre-exemple B@1=3 / C@1=8 reproduit lui aussi Q=[1,1/2,3/4,1]. Retenue parce qu'elle n'invente aucun nombre et qu'elle est observationnellement inerte.",
+      "reconstitue_ici": "Q3 = (1+2)/(1+1+2) = 3/4 ; Q4 = (1+2)/(1+2) = 1" }
+  ],
+
+  "negatifs": [
+    { "valeur_fausse": "0.7", "pour": "U", "cahier_line": 473,
+      "raison": "0,7 est la reussite agregee par intention (7/10), pas U (2/3). T36.A1 interdit la substitution." },
+    { "regle_fausse": "ponderer Q par le nombre d'assertions d'une exigence", "cahier_line": 191, "cas": "T04.A2" },
+    { "regle_fausse": "compter une exigence revelee mais non echue au denominateur de Q", "cahier_line": 191, "cas": "T04.A6" },
+    { "regle_fausse": "rendre R=0 quand aucune intention admissible n'est proposee (doit etre null)", "cahier_line": 111 },
+    { "regle_fausse": "rendre R=null pour une trajectoire indisponible face a des intentions prevues (doit etre 0)", "cahier_line": 111 }
+  ],
+
+  "ambiguites": [
+    { "id": "AMB-QUALITY-1",
+      "porte": "T04.A5 — « panne avec quatre usages donne R=0 »",
+      "constat": "Aucune des quatre periodes de F-QUALITY n'a R=0. R=[1,1/2,null,1/2] ; la seule periode a zero intention offerte est P3, et elle vaut null. Le couple (4 intentions offertes, 0 reussie, indisponibilite) n'existe nulle part dans la fixture enoncee.",
+      "lectures": ["T04.A5 s'appuie sur une VARIANTE derivee de F-QUALITY (perturber P1 ou P2, qui offrent 4 intentions, en indisponibilite totale)", "T04.A5 s'appuie sur une fixture distincte, non nommee par §F"],
+      "pourquoi_ne_pas_trancher": "choisir la periode a perturber, et si la variante appartient a F-QUALITY, inventerait une ligne de fixture que le cahier n'ecrit pas. La convention l.111 (« indisponible face a des intentions prevues a R=0 ») donne la regle mais pas le cas.",
+      "bloquant": false },
+    { "id": "AMB-QUALITY-2",
+      "porte": "l.109, test negatif : l'exigence revelee mais non encore due",
+      "constat": "Le cahier impose son EFFET (« son poids ne doit pas entrer dans Q avant son echeance ») mais n'enonce ni son id, ni son poids, ni sa date de revelation, ni son echeance. T04.A6 en depend directement.",
+      "lectures": ["ces quatre champs sont libres, toute valeur convient puisque seul l'effet est assertionne", "ils font partie de la fixture gelee et doivent etre fixes une fois pour toutes"],
+      "pourquoi_ne_pas_trancher": "acceptance/reference est gelee ; un poids invente ici deviendrait une valeur de reference que le cahier ne soutient pas.",
+      "bloquant": false },
+    { "id": "AMB-QUALITY-3",
+      "porte": "T08.A2 — referent de « les quatre usages de F-QUALITY »",
+      "constat": "Les intentions offertes sont [4,4,0,2], soit DIX au total. « Les quatre usages » ne designe donc pas l'ensemble de la fixture. P1 en offre quatre et P2 aussi.",
+      "lectures": ["les quatre intentions d'UNE periode (P1, ou P2)", "un jeu de quatre usages canoniques reutilise a chaque periode, dont P2 ne reussit que 2, P3 aucun (0 offert) et P4 2 offerts"],
+      "pourquoi_ne_pas_trancher": "la seconde lecture contredit intentions_offertes=[4,4,0,2] pour P3 et P4 ; la premiere laisse indetermine de quelle periode il s'agit. Le cahier ne desambigue pas.",
+      "bloquant": false }
+  ]
+}

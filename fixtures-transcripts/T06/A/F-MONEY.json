@@ -1,0 +1,72 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "A",
+  "tache": "T04",
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle_dans": "docs/CAHIER_SHA256",
+    "section": "F",
+    "lignes": [
+      103
+    ],
+    "verifiable_par": [
+      "sed -n '103p' docs/cahier.md"
+    ]
+  },
+  "citation": {
+    "103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+  },
+  "grille_tarifaire": {
+    "cahier_line": 103,
+    "qualificatif_cahier": "fictive",
+    "unite": "micro-USD par token",
+    "entree_non_cachee": 2,
+    "entree_cachee": 1,
+    "sortie": 5,
+    "note_unite": "Le cahier ecrit « entree non cachee 2 micro-USD/token ; entree cachee 1 ; sortie 5 » : l'unite est portee par le premier tarif et vaut pour les trois."
+  },
+  "appel_reference": {
+    "cahier_line": 103,
+    "tokens_entree_non_cachee": 100,
+    "tokens_entree_cachee": 40,
+    "tokens_sortie": 20,
+    "cout_micro_usd": 340,
+    "valeur_enoncee_par_le_cahier": true,
+    "recoupement_interne_au_cahier": "100*2 + 40*1 + 20*5 = 340"
+  },
+  "deux_appels_identiques": {
+    "cahier_line": 103,
+    "nombre_appels": 2,
+    "cout_total_micro_usd": 680,
+    "valeur_enoncee_par_le_cahier": true
+  },
+  "regle_champs_entree_disjoints": {
+    "cahier_line": 103,
+    "enonce": "Les champs d'entree sont disjoints : les tokens d'entree cachee ne sont pas inclus dans les tokens d'entree non cachee.",
+    "normalisation_fournisseur": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise AVANT facturation."
+  },
+  "derives_hors_section_F": {
+    "statut": "NON ENONCE EN §F — reporte ici pour tracabilite, a ne pas traiter comme contenu de §F",
+    "composition_de_la_fixture_de_bout_en_bout": {
+      "cahier_line": 491,
+      "citation": {
+        "491": "Fixture : un projet, un scénario de quatre périodes, deux configurations scriptées conformes, trois répétitions, deux appels F-MONEY par période. Tous les autres tarifs valent explicitement zéro dans cette fixture fictive. Tous les parcours valides et exigences actives sont satisfaits."
+      },
+      "trajectoires": 6,
+      "derivation_trajectoires": "deux configurations scriptees x trois repetitions = six trajectoires",
+      "periodes_par_trajectoire": 4,
+      "appels_F_MONEY_par_periode": 2,
+      "autres_tarifs": "tous explicitement zero dans cette fixture fictive"
+    },
+    "totaux": {
+      "cahier_line": 493,
+      "par_periode_micro_usd": 680,
+      "par_trajectoire_micro_usd": 2720,
+      "total_micro_usd": 16320,
+      "provenance": "2720 et 16320 ne figurent pas en §F ; ils sont enonces ligne 493 (liste d'acceptation de T38), hors perimetre de transcription. Recoupement avec §F : 2*340=680 par periode, 4*680=2720 par trajectoire, 6*2720=16320."
+    }
+  },
+  "ambiguites": []
+}

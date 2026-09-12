@@ -1,0 +1,177 @@
+{
+  "schema": "bench.fixtures-comparaison/1",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber (scellement)",
+  "cahier": {
+    "chemin": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_verifie": "sha256sum docs/cahier.md == docs/CAHIER_SHA256, identiques, re-execute ce tour",
+    "section": "F",
+    "section_lignes": [101, 129]
+  },
+  "transcriptions_comparees": {
+    "A": {
+      "cadrage": "source d'abord — §F ligne par ligne, aucun cas d'acceptation lu",
+      "fichiers": 11,
+      "ambiguites_declarees": 3,
+      "ambiguites_auto_declarees_bloquantes": 0
+    },
+    "B": {
+      "cadrage": "consommateurs d'abord — les cas d'acceptation qui citent la fixture sont lus avant §F",
+      "fichiers": 11,
+      "ambiguites_declarees": 34,
+      "ambiguites_auto_declarees_bloquantes": 9
+    }
+  },
+  "methode": [
+    "Comparaison VALEUR PAR VALEUR, pas fichier par fichier : les deux schemas different legitimement (A serialise les rationnels en {exact:\"5/6\",num,den}, B en {num,den} ; A se restreint au §F, B annote en plus des valeurs de §H en les portant avec leur cahier_line).",
+    "1) Extraction STRUCTUREE : un extracteur ecrit a la main pour chacun des TROIS cotes (A, B, racine scellee) produit un profil de valeurs canonisees par fixture — series Q/R, agregats, poids et statuts par periode et par exigence, montants, horodatages, bornes, decisions. 106 champs compares en triple.",
+    "2) Extraction MECANIQUE de controle : tous les scalaires numeriques, rationnels et horodatages vivant sous un noeud portant une cahier_line du §F, cote A et cote B, puis diff des ensembles. Chaque ecart a ete ouvert et qualifie a la main (voir ecarts_ouverts_et_qualifies).",
+    "3) Couverture inverse : tout scalaire §F atteste par A ET par B a ete cherche dans la racine deja scellee — 78 valeurs communes, 1 exception qualifiee (un indice de rang, pas une valeur du cahier).",
+    "Controles de SC-001 REEXECUTES ce tour, jamais repris d'un resume, sorties recopiees ci-dessous."
+  ],
+  "resultat": {
+    "verdict": "CONCORDANTES",
+    "champs_compares_en_triple": 106,
+    "divergences_de_valeur_A_vs_B": 0,
+    "ecarts_transcription_commune_vs_racine_scellee": 0,
+    "scalaires_F_communs_A_et_B": 78,
+    "scalaires_communs_absents_de_la_racine": 1,
+    "artefacts_de_serialisation_qualifies": 17
+  },
+  "controles_reexecutes": [
+    {
+      "controle": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+      "sortie": "0",
+      "controle_complementaire": "grep -n 'micro-USD' docs/cahier.md | cut -d: -f1  ->  80 103 493 495",
+      "conclusion": "SC-001 DIV-1 confirme : « micro-USD » n'est PAS en ligne 121. L'unite des couts de F-FAILURE reste NON SPECIFIEE. Ce tour, B inscrit a nouveau une unite pour ces couts mais en l'attribuant cette fois a la ligne 80 (convention generale des montants) et non a la 121 ; c'est le meme sujet que DIV-1 — l'unite des couts de F-FAILURE — et SC-001 est RESOLU dessus, donc la regle s'applique et l'etage ne rebloque pas. A n'inscrit aucune unite (grep micro-USD F-FAILURE : A=0, B=2). La racine porte unite_des_couts = null et l'unite en non_fixe_par_le_cahier : zero octet a changer."
+    },
+    {
+      "controle": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+      "sortie": "en produit une",
+      "conclusion": "SC-001 DIV-2 confirme : le nombre attendu de F-REGRESSION vaut 1, c'est une transcription et non un calcul. A ecrit nombre_de_regressions=1 ; B l'ecrit G=1 en P4 dans ses derives. La racine porte regressions_attendues=1."
+    },
+    {
+      "controle": "poids de B@1 et C@1 en P3/P4, releves dans A, dans B et dans la racine",
+      "sortie": "A P3 : A@2 w1 S | B@1 w1 N | C@1 w2 S — A P4 : A@2 w1 S | C@1 w2 S ; B identique ; racine identique (profils compares par egalite canonique)",
+      "conclusion": "SC-001 DIV-3 (RESOLU) applique a l'identique des trois cotes : le poids est fixe a l'introduction de l'exigence. La racine conserve la reserve explicite que ce report vient de SC-001 et PAS de l'arithmetique — d'autres poids reproduiraient les memes Q."
+    },
+    {
+      "controle": "checkReferences() de verification/runner/references.mjs",
+      "sortie": "source=docs/FROZEN_ROOTS.json, state=GELEE, head_oid=f8d7adb6f569916b5176d0ebefe13f7aa10bdc91, files=10, worktree_diff=[], F-MONEY CONFORME (expected_integers [340,680], missing []), problems=[]",
+      "conclusion": "la racine gelee est intacte et l'arbre de travail ne s'en ecarte pas."
+    },
+    {
+      "controle": "git rev-parse HEAD:acceptance/reference",
+      "sortie": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+      "conclusion": "identique au tree_oid declare dans docs/FROZEN_ROOTS.json (gel pose au commit cd239915d88f6ac07b4b4f45e1a565f8c04786e0)."
+    }
+  ],
+  "ecarts_ouverts_et_qualifies": [
+    {
+      "fixture": "F-RESERVATION",
+      "ecart": "effet de la probe de frontiere : A ecrit effet_sur_le_clone = « C devient confirme » ; B ecrit consequence = { \"C\": \"devient confirme\" }",
+      "qualification": "PAS UNE DIVERGENCE — meme fait (« Sur le clone ou B annule exactement a 24 h, C devient confirme », L123), sujet porte par la cle chez B et par la phrase chez A. La racine ecrit consequence_sur_le_clone = « C devient confirme ».",
+      "cahier_line": 123
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "ecart": "l'entier 2 est atteste des deux cotes sous une cahier_line du §F, mais n'existe pas dans la racine",
+      "qualification": "PAS UNE VALEUR DU CAHIER — chez A c'est rang_d_admission=2 (C), chez B seq=2 / period_index=2 / clone=2 : des INDICES DE POSITION. La racine encode la meme information par des listes ordonnees (ordre_d_attente = [\"B\",\"C\"]) et par les noms clone_1_frontiere_exacte / clone_2_frontiere_plus_1ms. Aucune quantite du §F n'est donc absente de la racine.",
+      "cahier_line": 119
+    },
+    {
+      "fixture": "F-BUDGET",
+      "ecart": "A inscrit nombre_de_reservations_concurrentes = 2 ; B inscrit acceptees = 1 et refusees = 1",
+      "qualification": "PAS UNE DIVERGENCE — deux faces de « deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees ». La racine porte les deux : nombre_de_demandes_concurrentes = 2 et acceptees_au_plus = 1. Aucun des deux n'affirme LAQUELLE est acceptee, et la racine ne le materialise pas non plus.",
+      "cahier_line": 105
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "ecart": "B derive l'etat apres duplication (P1 a 20 repetitions, 21 lignes) et rappelle le ratio 5/6 ; A ne les inscrit pas",
+      "qualification": "PAS UNE DIVERGENCE — B marque ces valeurs comme derivees et signale lui-meme (ambiguite F-CLUSTERS/A1) que 21 vs 22 n'est pas tranche par le cahier. Aucun facteur de duplication n'est materialise dans la racine : « le facteur de duplication du controle d'invariance » y figure en non_fixe_par_le_cahier. Le ratio 5/6 est celui de F-COST-RATIO, identique des deux cotes.",
+      "cahier_line": 115
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "ecart": "B chiffre la moyenne naive sur onze lignes (190/11, 300/11, ratio 19/30) en ANTI-VALEUR ; A refuse de la calculer",
+      "qualification": "PAS UNE DIVERGENCE — les deux disent la meme chose du cahier : la ligne 115 declare cette moyenne non substituable sans la chiffrer. La racine porte « la valeur de la moyenne naive sur onze lignes : la ligne 115 se borne a la declarer non substituable » en non_fixe_par_le_cahier.",
+      "cahier_line": 115
+    },
+    {
+      "fixture": "F-BOOTSTRAP",
+      "ecart": "B recopie dans la fixture les valeurs parents (P1 A=10/B=20, P2 A=90/B=100) avec cahier_line 115 ; A les cite en prose comme renvoi a F-CLUSTERS",
+      "qualification": "PAS UNE DIVERGENCE — memes valeurs, meme source. La racine porte source_des_projets = « ligne 115 : P1 (A=10, B=20) et P2 (A=90, B=100) ». B inscrit aussi nombre_de_tirages = 4, qui est la longueur de la liste forcee que les deux transcrivent a l'identique.",
+      "cahier_line": 117
+    },
+    {
+      "fixture": "F-MONEY",
+      "ecart": "A et B inscrivent tous deux 2720, 16320 et 48, A dans renvois_hors_section_F avec un avertissement explicite, B dans derives.composition_golden_six avec cahier_line 491/493",
+      "qualification": "PAS UNE DIVERGENCE — memes nombres, memes sources (L491, L493, hors §F), et les DEUX transcriptions les isolent explicitement du §F et les declarent non normatifs pour la fixture. Aucun agregat n'est materialise dans la racine (grep 2720|16320 sur acceptance/reference : 0), et la racine l'inscrit en non_fixe_par_le_cahier : « §F n'enonce aucun agregat par trajectoire ou par execution pour cette fixture ».",
+      "cahier_line": 493
+    },
+    {
+      "fixture": "F-POWER",
+      "ecart": "B inscrit puissance = 0,5 et erreur standard = 0,25 avec cahier_line 463 ; A ne les inscrit pas et note que §F n'enonce aucune regle de decision",
+      "qualification": "PAS UNE DIVERGENCE — L463 (T35.A1) est en §H ; B porte la valeur avec sa ligne, A declare le perimetre sans contester le nombre. Ni 0,5 ni 0,25 ne sont materialises dans la racine, qui les liste en non_fixe_par_le_cahier pour la ligne 127. Valeur materialisee identique des deux cotes : absente.",
+      "cahier_line": 463
+    },
+    {
+      "fixture": "F-QUALITY, F-COST-RATIO, F-BOOTSTRAP",
+      "ecart": "serialisation des rationnels : A ecrit la fraction litterale (\"13/16\", \"2/3\", \"5/6\", \"7/10\") en plus de {num,den} ; B n'ecrit que {num,den}",
+      "qualification": "PAS UNE DIVERGENCE — memes rationnels, verifies par canonisation (reduction et comparaison num/den). Les deux mettent le decimal a null pour 2/3 et 5/6 : aucune ecriture arrondie n'est introduite d'un cote ni de l'autre (L143).",
+      "cahier_line": 143
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "ecart": "A ecrit nombre_de_regressions = 1 ; B l'exprime comme G = 1 en P4 dans ses derives",
+      "qualification": "PAS UNE DIVERGENCE — cardinal d'un cote, serie G de l'autre, meme fait, et les deux portent regression=false pour le retrait de cancel@1 et regression=true pour isolation@1. SC-001 DIV-2 tranche le chiffre : 1.",
+      "cahier_line": 129
+    }
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "effets": [
+        "F-QUALITY (DIV-3) : le poids est fixe a l'introduction de l'exigence — B@1 pese 1 et C@1 pese 2 en P3 et P4. A et B l'appliquent tous deux ce tour, la racine aussi.",
+        "F-FAILURE (DIV-1) : l'unite des couts reste NON SPECIFIEE. Controle re-execute ce tour : 0 occurrence de micro-USD en L121. B attribue cette fois l'unite a la L80 ; meme sujet, arbitrage deja rendu, aucun reblocage.",
+        "F-REGRESSION (DIV-2) : le nombre attendu vaut 1, transcrit de « en produit une » (L129)."
+      ]
+    }
+  ],
+  "spec_conflicts_ouverts_rencontres": [],
+  "sur_le_test_de_blocage": {
+    "regle_appliquee": "une ambiguite n'arrete l'etage que si elle porte sur une valeur A MATERIALISER. Les 37 entrees (3 chez A, 34 chez B) ont ete confrontees une a une a ce test, et les 9 que B declare bloquantes ont ete verifiees champ par champ dans la racine.",
+    "resultat": "0 sur 37 porte sur une valeur materialisee.",
+    "verification_des_9_bloquantes_de_B": [
+      {"id": "F-QUALITY/A1", "objet": "parametres de l'exigence du test negatif", "constat_execute": "racine F-QUALITY : id, version, poids, periode_de_revelation, echeance = null (les cinq). Seul l'invariant est scelle.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T04 (cas A6)"},
+      {"id": "F-QUALITY/A2", "objet": "identite des « quatre usages » de T08.A2", "constat_execute": "la racine ne materialise que les cardinaux [4,4,0,2] et [4,2,0,1], identiques chez A et B ; « la nature des intentions derriere les cardinaux » est en non_fixe_par_le_cahier.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T08"},
+      {"id": "F-RESERVATION/A1", "objet": "les 100 reservations de la migration P4 (T09.A3, L233)", "constat_execute": "grep '100' sur la racine F-RESERVATION : 2 occurrences, toutes deux dans le TEXTE de l'ambiguite reportee, aucune dans valeurs. §F n'enonce aucun volume.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T09, T21"},
+      {"id": "F-RESERVATION/A4", "objet": "codes des refus metier", "constat_execute": "racine F-RESERVATION : un seul code, NOT_FOUND, et uniquement pour le contrat intertenant (L123). Aucun code pour le rejet concurrent ni pour l'annulation hors delai — ni A ni B n'en inscrit.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T07"},
+      {"id": "F-FAILURE/A1", "objet": "une trajectoire ou deux sous-cas", "constat_execute": "les deux transcriptions ecrivent les memes valeurs sous l'une comme sous l'autre lecture (K=4, 4 lignes, Q=[0,0,0,0], R=[0,0,0,0], couts [100,50,0,0], total 150) et gardent l'arret de calcul dans un bloc separe ; la racine fait de meme.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T11, T31"},
+      {"id": "F-FAILURE/A3", "objet": "cardinal des intentions et des exigences", "constat_execute": "aucun cardinal n'est materialise : la racine porte « le nombre d'intentions offertes par periode » et « le nombre d'exigences actives dues et leurs poids » en non_fixe_par_le_cahier.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T05"},
+      {"id": "F-POWER/A1", "objet": "semantique de la puissance 0,5 sur 4 campagnes heterogenes", "constat_execute": "ni 0,5 ni 0,25 ne sont materialises ; la racine les liste en non_fixe_par_le_cahier (« la ligne 127 n'en enonce aucune »).", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T35"},
+      {"id": "F-REGRESSION/A1", "objet": "trajectoire propre ou surcouche de F-QUALITY, contenu de P1", "constat_execute": "la racine ne materialise que les deux chronologies enoncees (P2/P3 et P3/P4) et inscrit « l'existence et le contenu d'une periode P1 » en non_fixe_par_le_cahier.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T04"},
+      {"id": "F-REGRESSION/A2", "objet": "« deux periodes consecutives cassees » de T04.A4 (L191)", "constat_execute": "hors §F : la ligne 129 ne decrit qu'une periode violee. Rien n'est materialise pour ce cas.", "porte_sur_une_valeur_materialisee": false, "a_reporter_a": "T04"}
+    ],
+    "ambiguites_de_A": [
+      {"id": "F-QUALITY/test-negatif-non-parametre", "porte_sur_une_valeur_materialisee": false, "note": "A declare lui-meme impact_sur_les_valeurs_publiees = nul ; meme objet que F-QUALITY/A1 de B."},
+      {"id": "F-RESERVATION/codes-de-refus-non-nommes", "porte_sur_une_valeur_materialisee": false, "note": "meme objet que F-RESERVATION/A4 de B ; A declare impact nul sur les instants, etats et rangs transcrits."},
+      {"id": "F-POWER/regle-de-decision-absente-de-la-section-F", "porte_sur_une_valeur_materialisee": false, "note": "les entrees, les bornes et le vecteur [vrai,faux,faux,vrai] sont transcrits tels quels ; seule la regle qui les relie manque, et elle est en §H (L451)."}
+    ],
+    "consequence": "aucun SPEC_CONFLICT nouveau n'est ouvert. Bloquer sur ces entrees aurait fige l'etage sans changer un seul octet de la racine."
+  },
+  "etat_de_la_racine": {
+    "constat": "la racine acceptance/reference/** portait deja, valeur pour valeur, la transcription COMMUNE de A et B pour T03 : 106 champs compares en triple, 0 ecart ; 78 scalaires §F communs, tous presents.",
+    "consequence": "l'etage est IDEMPOTENT. Aucun octet de la zone REFERENCE n'a ete reecrit : reestampiller la provenance (T00 -> T03) aurait deplace le tree oid d'une racine GELEE, invalide les 44 attestations et exige un SPEC_CONFLICT, pour zero changement de valeur. Le gel se constate, il ne se rejoue pas.",
+    "nombre_de_fixtures_scellees": 10,
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "commit_du_gel": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "relecture": "git rev-parse HEAD:acceptance/reference",
+    "declaration": "docs/FROZEN_ROOTS.json — tree_oid identique, verifie ce tour par checkReferences() : state=GELEE, worktree_diff=[], problems=[]",
+    "commit_de_ce_tour_dans_la_zone_REFERENCE": null
+  }
+}

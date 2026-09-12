@@ -1,0 +1,170 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [127],
+  "methode": "Parti des consommateurs (T34.A1 a A4 pour la regle, T35.A1 pour la puissance), puis confronte au texte de §F ligne 127. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {"cas": "T35.A1", "cahier_line": 463, "proof_kind": "numeric", "texte": "`T35.A1` F-POWER traversant le vrai pipeline d'analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25", "exige_de_la_fixture": "la fixture doit traverser agregation (T32), bootstrap (T33) et decision (T34) sans court-circuit"},
+    {"cas": "T34.A1", "cahier_line": 453, "proof_kind": "behaviour", "texte": "`T34.A1` bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture", "exige_de_la_fixture": "c'est exactement la campagne 1"},
+    {"cas": "T34.A2", "cahier_line": 453, "proof_kind": "refusal", "texte": "`A2` borne ratio=1 refuse", "exige_de_la_fixture": "c'est exactement la campagne 2 ; le seuil est STRICT (< 1), sinon 1 passerait"},
+    {"cas": "T34.A3", "cahier_line": 453, "proof_kind": "refusal", "texte": "`A3` borne DeltaV=-0,02 refuse", "exige_de_la_fixture": "avec une marge de 0,02, la comparaison est > -marge STRICTEMENT ; -0,02 ne passe pas, ce qui explique que -0,01 (campagne 4) passe et -0,04 (campagne 3) non"},
+    {"cas": "T34.A4", "cahier_line": 453, "proof_kind": "refusal", "texte": "`A4` cout plus faible mais DeltaU=-0,04 refuse", "exige_de_la_fixture": "contre-cas voisin de la campagne 4 (qui a DeltaU=-0,01 et passe)"},
+    {"cas": "T33.A6", "cahier_line": 443, "proof_kind": "refusal", "texte": "`A6` une seule grappe donne `INSUFFICIENT_CLUSTERS`", "exige_de_la_fixture": "F-POWER a DEUX parents distincts par campagne, donc l'inference n'est pas refusee pour cette raison"}
+  ],
+
+  "donnees": {
+    "nombre_de_campagnes": {"valeur": 4, "cahier_line": 127, "qualificatif": "petites campagnes statistiques"},
+    "parents_par_campagne": {"valeur": 2, "cahier_line": 127, "noms": ["P1", "P2"], "propriete": "deux parents DISTINCTS portant les MEMES valeurs"},
+    "bras": ["A", "B"],
+
+    "bras_B_dans_chaque_parent": {
+      "cout": {"valeur": 100, "cahier_line": 127},
+      "V": {"valeur": 1, "cahier_line": 127},
+      "U": {"valeur": 1, "cahier_line": 127},
+      "portee": "identique dans les quatre campagnes et dans les deux parents"
+    },
+
+    "campagnes": [
+      {
+        "index": 1,
+        "bras_A": {"cout": 80, "V": 1, "U": 1, "cahier_line": 127},
+        "borne_ratio": {"valeur": 0.8, "cahier_line": 127, "verification": "80/100 = 0,8"},
+        "borne_delta_V": {"valeur": 0, "cahier_line": 127, "verification": "1 - 1 = 0"},
+        "borne_delta_U": {"valeur": 0, "cahier_line": 127, "verification": "1 - 1 = 0"},
+        "decision_T34": {"valeur": true, "cahier_line": 127},
+        "motif": "ratio 0,8 < 1 ; DeltaV=0 > -0,02 ; DeltaU=0 > -0,02"
+      },
+      {
+        "index": 2,
+        "bras_A": {"cout": 100, "V": 1, "U": 1, "cahier_line": 127},
+        "borne_ratio": {"valeur": 1, "cahier_line": 127, "verification": "100/100 = 1"},
+        "borne_delta_V": {"valeur": 0, "cahier_line": 127},
+        "borne_delta_U": {"valeur": 0, "cahier_line": 127},
+        "decision_T34": {"valeur": false, "cahier_line": 127},
+        "motif": "ratio = 1, donc PAS strictement < 1 : la superiorite cout echoue"
+      },
+      {
+        "index": 3,
+        "bras_A": {"cout": 80, "V": 0.96, "U": 1, "cahier_line": 127},
+        "borne_ratio": {"valeur": 0.8, "cahier_line": 127},
+        "borne_delta_V": {"valeur": -0.04, "cahier_line": 127, "verification": "0,96 - 1 = -0,04"},
+        "borne_delta_U": {"valeur": 0, "cahier_line": 127},
+        "decision_T34": {"valeur": false, "cahier_line": 127},
+        "motif": "cout superieur, mais DeltaV = -0,04 n'est pas > -0,02 : la non-inferiorite V echoue"
+      },
+      {
+        "index": 4,
+        "bras_A": {"cout": 80, "V": 0.99, "U": 0.99, "cahier_line": 127},
+        "borne_ratio": {"valeur": 0.8, "cahier_line": 127},
+        "borne_delta_V": {"valeur": -0.01, "cahier_line": 127, "verification": "0,99 - 1 = -0,01"},
+        "borne_delta_U": {"valeur": -0.01, "cahier_line": 127, "verification": "0,99 - 1 = -0,01"},
+        "decision_T34": {"valeur": true, "cahier_line": 127},
+        "motif": "ratio 0,8 < 1 ; -0,01 > -0,02 pour V et pour U"
+      }
+    ],
+
+    "series": {
+      "bornes_ratio": {"valeur": [0.8, 1, 0.8, 0.8], "cahier_line": 127},
+      "bornes_delta_V": {"valeur": [0, 0, -0.04, -0.01], "cahier_line": 127},
+      "bornes_delta_U": {"valeur": [0, 0, 0, -0.01], "cahier_line": 127},
+      "decisions_T34": {"valeur": [true, false, false, true], "cahier_line": 127, "ecriture_cahier": "[vrai,faux,faux,vrai]"}
+    },
+
+    "pourquoi_les_bornes_sont_ponctuelles": {
+      "valeur": "Les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "cahier_line": 127,
+      "consequence": "borne basse = borne haute = valeur ponctuelle, parce que les deux parents portent les MEMES valeurs : tout reechantillonnage de 2 parents parmi {P1,P2} redonne la meme moyenne"
+    },
+
+    "conditions_de_recevabilite": {
+      "comptabilite": {"valeur": "resolue", "cahier_line": 127},
+      "violations_critiques": {"valeur": "absentes", "cahier_line": 127},
+      "valeurs_connues": {"valeur": "sur les deux bras", "cahier_line": 127},
+      "raison": "la regle de T34 (ligne 451) exige « aucune violation critique interdite ; comptabilite resolue et donnees admissibles » ; sans ces trois conditions les quatre campagnes seraient INCONCLUSIVE (T34.A5)"
+    },
+
+    "resultats_de_dimensionnement": {
+      "puissance": {"valeur": 0.5, "cahier_line": 463, "verification": "2 decisions vraies sur 4 campagnes = 1/2", "source": "T35.A1"},
+      "erreur_standard": {"valeur": 0.25, "cahier_line": 463, "verification": "racine(0,5 x 0,5 / 4) = racine(0,0625) = 0,25", "source": "T35.A1"}
+    },
+
+    "portee_declaree": {
+      "texte": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  },
+
+  "derives": {
+    "$note": "Non ecrits ligne 127 ; regle de decision de la ligne 451 appliquee aux bornes affirmees.",
+    "marge_utilisee": {
+      "valeur": 0.02,
+      "cahier_line": 451,
+      "citation": "Marges d'exemple 0,02",
+      "consequence": "c'est la seule marge qui reproduit [vrai,faux,faux,vrai] : elle rejette -0,04 et accepte -0,01"
+    },
+    "strictitude_des_comparaisons": {
+      "cout": "borne superieure du ratio < 1, STRICT (campagne 2 le prouve)",
+      "non_inferiorite": "borne inferieure > -marge, STRICT (T34.A3 le prouve avec -0,02 refuse)",
+      "cahier_lines": [451, 453]
+    },
+    "correction_de_bonferroni": {
+      "regle": {"texte": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J).", "cahier_line": 451},
+      "application_a_F_POWER": "J n'est pas donne pour ces campagnes ; avec un contraste A contre B par campagne, J=1 et le niveau marginal vaut 1-0,05/3. Sans effet observable ici : les distributions sont ponctuelles, donc toutes les bandes sont degenerees quel que soit le niveau.",
+      "voir_ambiguite": "F-POWER/A2"
+    }
+  },
+
+  "anti_valeurs": [
+    {"valeur": "decisions [vrai,vrai,faux,vrai]", "source": "derive", "pourquoi": "comparaison <= 1 au lieu de < 1 sur le ratio : la campagne 2 passerait a tort"},
+    {"valeur": "decisions [vrai,faux,vrai,vrai]", "source": "derive", "pourquoi": "marge de 0,05 au lieu de 0,02 : la campagne 3 passerait a tort"},
+    {"valeur": "puissance 1", "cahier_line": 463, "pourquoi": "compter toutes les campagnes comme positives"},
+    {"valeur": "erreur standard 0,125", "source": "derive", "pourquoi": "diviser par 8 parents au lieu de 4 campagnes"}
+  ],
+
+  "conventions": [
+    {"texte": "Superiorite cout si borne superieure du ratio < 1 ; non-inferiorite V/U si leurs bornes inferieures > -marge ; aucune violation critique interdite ; comptabilite resolue et donnees admissibles.", "cahier_line": 451},
+    {"texte": "L'absence de violation observee n'est pas un intervalle de securite universel.", "cahier_line": 451},
+    {"texte": "Publier les estimations et leur incertitude ; cette regle n'est pas une garantie sur la vraie puissance.", "cahier_line": 461},
+    {"texte": "Les bandes ponctuelles ne sont jamais etiquetees simultanees.", "cahier_line": 443}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-POWER/A1",
+      "question": "La « puissance 0,5 » se calcule-t-elle sur quatre campagnes HETEROGENES (chacune sa propre valeur de A), alors qu'une puissance se definit d'ordinaire comme la proportion de decisions positives sur des simulations d'UNE meme configuration ?",
+      "ce_que_dit_le_cahier": "ligne 127 donne quatre campagnes aux parametres differents ; ligne 463 exige « puissance 0,5 et erreur standard 0,25 », ce qui n'est reproductible qu'en comptant 2 vrais sur ces 4 campagnes et en posant n=4.",
+      "cahier_lines": [127, 461, 463],
+      "impact": "BLOQUANT pour la semantique de T35 : la ligne 461 impose « nombre de simulations » et « grille croissante du nombre de parents » comme parametres, que F-POWER ne fournit pas. Traiter 4 configurations distinctes comme 4 simulations d'une meme configuration est une lecture forcee par les nombres, pas enoncee par le cahier.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-POWER/A2",
+      "question": "Combien de contrastes J la famille de F-POWER contient-elle, et donc quel niveau marginal de Bonferroni s'applique ?",
+      "ce_que_dit_le_cahier": "ligne 451 donne la formule 1-0,05/(3J) ; ligne 127 ne donne pas J.",
+      "cahier_lines": [127, 451],
+      "impact": "nul sur les quatre decisions (bornes ponctuelles, donc insensibles au niveau) ; determinant pour T34.A6, qui exige J=2 -> six intervalles et niveau 1-0,05/6 sur une AUTRE entree.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-POWER/A3",
+      "question": "Combien de repetitions chaque parent porte-t-il, et les couts 80/100 sont-ils des couts par repetition, par trajectoire ou deja agreges au parent ?",
+      "ce_que_dit_le_cahier": "ligne 127 attribue une valeur (cout, V, U) par bras et par parent, sans niveau d'agregation. La ligne 435 (T32.A6) impose pourtant que les poids intra-parent soient appliques AVANT les poids inter-parents.",
+      "cahier_lines": [127, 435],
+      "impact": "aucun sur les bornes affirmees (parents identiques) ; determinant pour que la fixture traverse reellement l'agregation de T32 au lieu de la court-circuiter, ce que T35.A1 exige (« traversant le VRAI pipeline d'analyse »).",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-POWER/A4",
+      "question": "V et U de la campagne 3 et 4 (0,96 / 0,99) sont-ils exacts en binaire ?",
+      "ce_que_dit_le_cahier": "ligne 127 les ecrit en decimal ; ligne 143 exige que les nombres exacts se verifient « en entier ou rationnel » et plafonne la tolerance flottante a 1e-12 pour les fixtures arithmetiques.",
+      "cahier_lines": [127, 143],
+      "impact": "0,96 = 24/25 et 0,99 = 99/100 ne sont pas representables exactement en binaire ; DeltaV = 0,99 - 1 en flottant double ne vaut pas exactement -0,01. La comparaison -0,01 > -0,02 reste vraie, donc les decisions ne basculent pas, mais une assertion d'egalite stricte sur les bornes echouerait sans tolerance declaree.",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

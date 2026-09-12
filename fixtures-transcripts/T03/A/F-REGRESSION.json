@@ -1,0 +1,49 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcripteur": "A",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      129
+    ],
+    "texte_source": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+  },
+  "enonce": {
+    "cas_1_remplacement": {
+      "exigence": "cancel@1",
+      "id": "cancel",
+      "version": 1,
+      "satisfaite_en": "P2",
+      "evenement": "remplacee en P3 par cancel@2",
+      "remplacante": "cancel@2",
+      "regression_produite": false,
+      "enonce_source": "le retrait de cancel@1 ne produit pas de regression",
+      "cahier_line": 129
+    },
+    "cas_2_violation": {
+      "exigence": "isolation@1",
+      "id": "isolation",
+      "version": 1,
+      "satisfaite_en": "P3",
+      "violee_en": "P4",
+      "regression_produite": true,
+      "nombre_de_regressions": 1,
+      "enonce_source": "en produit une",
+      "cahier_line": 129
+    },
+    "regle_de_comptage": {
+      "regle": "Compter par id/version active, pas par nombre d'assertions.",
+      "cahier_line": 129
+    }
+  },
+  "notes": [
+    {
+      "objet": "portee des deux cas",
+      "constat": "Le cahier n'enumere en section F ni les periodes hors P2/P3/P4 ni un total de regressions par periode. Les seules affirmations transcrites sont : zero regression imputable au retrait de cancel@1 en P3, et une regression imputable a isolation@1 en P4.",
+      "cahier_line": 129
+    }
+  ],
+  "ambiguites": []
+}

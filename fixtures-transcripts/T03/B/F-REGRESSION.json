@@ -1,0 +1,117 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [129],
+  "methode": "Parti des consommateurs (T04.A3 et la precision G/G_new de la ligne 189), puis confronte au texte de §F ligne 129. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {"cas": "T04.A3", "cahier_line": 191, "proof_kind": "behaviour", "texte": "`A3` F-REGRESSION exclut `cancel@1` et compte `isolation@1`", "exige_de_la_fixture": "deux verdicts opposes sur deux exigences nommees, dans la meme trajectoire"},
+    {"cas": "T04.A4", "cahier_line": 191, "proof_kind": "numeric", "texte": "`A4` deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0", "exige_de_la_fixture": "une regression PERSISTANTE, distincte de la regression unique de la ligne 129 — voir ambiguite F-REGRESSION/A2"},
+    {"cas": "T04.A2", "cahier_line": 191, "proof_kind": "behaviour", "texte": "`A2` dupliquer les assertions d'une exigence ne change pas Q", "exige_de_la_fixture": "meme principe que « Compter par id/version active, pas par nombre d'assertions » (ligne 129)"},
+    {"cas": "T11.A2", "cahier_line": 251, "proof_kind": "behaviour", "texte": "`A2` remplacement de regle en P3 visible et ancienne regle retiree", "exige_de_la_fixture": "le remplacement cancel@1 -> cancel@2 doit etre OBSERVABLE dans l'etat de P3, et cancel@1 absente des exigences actives"}
+  ],
+
+  "donnees": {
+    "unite_de_comptage": {
+      "valeur": "id/version active",
+      "cahier_line": 129,
+      "interdit": "compter par nombre d'assertions",
+      "invariant_lie": {"texte": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite.", "cahier_line": 72}
+    },
+
+    "cas_1_remplacement_sans_regression": {
+      "exigence": "cancel@1",
+      "cahier_line": 129,
+      "chronologie": [
+        {"periode": "P2", "etat": "satisfaite", "cahier_line": 129},
+        {"periode": "P3", "etat": "remplacee par cancel@2", "cahier_line": 129}
+      ],
+      "verdict": {"valeur": "PAS de regression", "cahier_line": 129, "citation": "le retrait de `cancel@1` ne produit pas de regression"},
+      "raison_structurelle": "cancel@1 n'est plus une exigence ACTIVE en P3 ; la ligne 189 ne compte que les exigences actives dues, autrefois satisfaites et actuellement violees"
+    },
+
+    "cas_2_violation_avec_regression": {
+      "exigence": "isolation@1",
+      "cahier_line": 129,
+      "chronologie": [
+        {"periode": "P3", "etat": "satisfaite", "cahier_line": 129},
+        {"periode": "P4", "etat": "violee", "cahier_line": 129}
+      ],
+      "verdict": {"valeur": "UNE regression", "cahier_line": 129, "citation": "Une exigence `isolation@1` satisfaite en P3 puis violee en P4 en produit une"}
+    },
+
+    "regle_de_comptage": {
+      "G": {"texte": "G compte les regressions actuellement ouvertes, c'est-a-dire les exigences actives dues, autrefois satisfaites et actuellement violees.", "cahier_line": 189},
+      "G_new": {"texte": "G_new compte celles qui etaient satisfaites a la periode precedente comparable et deviennent violees.", "cahier_line": 189},
+      "persistance": {"texte": "Une regression persistante contribue a G, sans redevenir nouvelle a chaque periode.", "cahier_line": 189}
+    }
+  },
+
+  "derives": {
+    "$note": "Non ecrits ligne 129 ; application de la regle de la ligne 189 aux deux chronologies affirmees. Le cahier n'enonce AUCUNE serie G pour F-REGRESSION.",
+    "G_par_periode": {
+      "P2": {"G": 0, "G_new": 0, "raison": "cancel@1 satisfaite ; rien de precedemment satisfait n'est viole"},
+      "P3": {"G": 0, "G_new": 0, "raison": "cancel@1 retiree (non active) ; isolation@1 satisfaite"},
+      "P4": {"G": 1, "G_new": 1, "raison": "isolation@1, active et due, satisfaite en P3 et violee en P4"}
+    },
+    "P1": {"valeur": "non decrite par le cahier", "voir_ambiguite": "F-REGRESSION/A1"},
+    "variante_persistance": {
+      "source": "T04.A4, ligne 191",
+      "enonce": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+      "application_possible": "prolonger isolation@1 violee en P5 donnerait G=[.., 1, 1] et G_new=[.., 1, 0]",
+      "reserve": "F-REGRESSION s'arrete a P4 ; cette prolongation n'est pas ecrite par le cahier"
+    }
+  },
+
+  "anti_valeurs": [
+    {"valeur": "G=1 en P3 a cause du retrait de cancel@1", "cahier_line": 129, "pourquoi": "un remplacement n'est pas une regression"},
+    {"valeur": "G=2 en P4", "cahier_line": 129, "pourquoi": "compter cancel@1 retiree ET isolation@1 violee"},
+    {"valeur": "G proportionnel au nombre d'assertions echouees", "cahier_line": 129, "pourquoi": "« Compter par id/version active, pas par nombre d'assertions »"},
+    {"valeur": "G_new=1 a chaque periode ou isolation@1 reste violee", "cahier_line": 189, "pourquoi": "« Une regression persistante contribue a G, sans redevenir nouvelle a chaque periode »"}
+  ],
+
+  "conventions": [
+    {"texte": "Compter par id/version active, pas par nombre d'assertions.", "cahier_line": 129},
+    {"texte": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite.", "cahier_line": 72},
+    {"texte": "G compte les regressions actuellement ouvertes ; G_new celles qui deviennent violees depuis la periode precedente comparable.", "cahier_line": 189}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-REGRESSION/A1",
+      "question": "F-REGRESSION est-elle une trajectoire propre (et alors que contient P1 ?), ou une surcouche de F-QUALITY ?",
+      "ce_que_dit_le_cahier": "ligne 129 ne cite que P2, P3 et P4, et des exigences (`cancel`, `isolation`) absentes du catalogue A/B/C de F-QUALITY (ligne 109). P1 n'est jamais decrite.",
+      "cahier_lines": [107, 109, 129],
+      "impact": "BLOQUANT pour l'assemblage : T04.A1 (F-QUALITY) et T04.A3 (F-REGRESSION) sont deux cas de la meme tache ; s'ils partagent une trajectoire, les denominateurs de Q changent. Si ce sont deux trajectoires, il faut une periode P1 pour F-REGRESSION, dont le contenu n'est pas donne.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-REGRESSION/A2",
+      "question": "D'ou vient le cas « deux periodes consecutives cassees » de T04.A4 ?",
+      "ce_que_dit_le_cahier": "ligne 191 l'exige ; ligne 129 n'offre qu'une seule periode violee (P4). Aucune periode P5 n'est decrite.",
+      "cahier_lines": [129, 191],
+      "impact": "BLOQUANT pour T04.A4 : la persistance (G=1 deux fois, G_new=1 puis 0) ne peut pas s'observer sur F-REGRESSION telle qu'ecrite. Il faut soit une periode supplementaire, soit un jeu de donnees distinct.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-REGRESSION/A3",
+      "question": "cancel@2 est-elle satisfaite en P3 et en P4 ? isolation@1 est-elle due des P3 ou plus tot ?",
+      "ce_que_dit_le_cahier": "ligne 129 dit que cancel@1 est « remplacee en P3 par cancel@2 » sans donner l'etat de cancel@2, et qu'isolation@1 est « satisfaite en P3 » sans dire quand elle est revelee ni due.",
+      "cahier_line": 129,
+      "impact": "nul sur les deux verdicts de regression affirmes ; determinant des qu'on veut aussi calculer Q sur cette trajectoire (les poids de cancel@2 et isolation@1 ne sont pas donnes).",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-REGRESSION/A4",
+      "question": "Que signifie « periode precedente COMPARABLE » (ligne 189) dans cette fixture ?",
+      "ce_que_dit_le_cahier": "la ligne 189 introduit le qualificatif « comparable » sans le definir. Pour isolation@1, P3 est la periode precedente et elle est comparable ; la question se pose si une exigence n'est pas due a chaque periode.",
+      "cahier_lines": [129, 189],
+      "impact": "nul sur F-REGRESSION telle qu'ecrite ; determinant pour G_new sur une exigence dont la due-ness est intermittente, ce que F-QUALITY produit deja (B@1 retiree en P4).",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

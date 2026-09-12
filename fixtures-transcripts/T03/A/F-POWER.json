@@ -1,0 +1,212 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      127
+    ],
+    "texte_source": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "enonce": {
+    "structure": {
+      "nombre_de_campagnes": 4,
+      "parents_par_campagne": [
+        "P1",
+        "P2"
+      ],
+      "parents_distincts": true,
+      "parents_portent_les_memes_valeurs": true,
+      "cahier_line": 127
+    },
+    "bras_B_dans_chaque_parent": {
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "cahier_line": 127
+    },
+    "bras_A_par_campagne": [
+      {
+        "campagne": 1,
+        "cout": 80,
+        "V": 1,
+        "U": 1,
+        "texte_cahier": "(80,1,1)",
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "cout": 100,
+        "V": 1,
+        "U": 1,
+        "texte_cahier": "(100,1,1)",
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "cout": 80,
+        "V": 0.96,
+        "U": 1,
+        "texte_cahier": "(80,0.96,1)",
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99,
+        "texte_cahier": "(80,0.99,0.99)",
+        "cahier_line": 127
+      }
+    ],
+    "conditions": {
+      "comptabilite": "resolue",
+      "violation_critique": "absente",
+      "valeurs": "connues sur les deux bras",
+      "cahier_line": 127
+    },
+    "tirages_parents": {
+      "nature": "exhaustifs",
+      "consequence": "distributions ponctuelles",
+      "cahier_line": 127
+    },
+    "bornes": {
+      "commentaire": "Les distributions etant ponctuelles, la borne basse et la borne haute coincident sur la valeur donnee par le cahier.",
+      "ratio": [
+        {
+          "campagne": 1,
+          "valeur": 0.8,
+          "texte_cahier": "0,8",
+          "borne_basse": 0.8,
+          "borne_haute": 0.8
+        },
+        {
+          "campagne": 2,
+          "valeur": 1,
+          "texte_cahier": "1",
+          "borne_basse": 1,
+          "borne_haute": 1
+        },
+        {
+          "campagne": 3,
+          "valeur": 0.8,
+          "texte_cahier": "0,8",
+          "borne_basse": 0.8,
+          "borne_haute": 0.8
+        },
+        {
+          "campagne": 4,
+          "valeur": 0.8,
+          "texte_cahier": "0,8",
+          "borne_basse": 0.8,
+          "borne_haute": 0.8
+        }
+      ],
+      "delta_V": [
+        {
+          "campagne": 1,
+          "valeur": 0,
+          "texte_cahier": "0",
+          "borne_basse": 0,
+          "borne_haute": 0
+        },
+        {
+          "campagne": 2,
+          "valeur": 0,
+          "texte_cahier": "0",
+          "borne_basse": 0,
+          "borne_haute": 0
+        },
+        {
+          "campagne": 3,
+          "valeur": -0.04,
+          "texte_cahier": "-0,04",
+          "borne_basse": -0.04,
+          "borne_haute": -0.04
+        },
+        {
+          "campagne": 4,
+          "valeur": -0.01,
+          "texte_cahier": "-0,01",
+          "borne_basse": -0.01,
+          "borne_haute": -0.01
+        }
+      ],
+      "delta_U": [
+        {
+          "campagne": 1,
+          "valeur": 0,
+          "texte_cahier": "0",
+          "borne_basse": 0,
+          "borne_haute": 0
+        },
+        {
+          "campagne": 2,
+          "valeur": 0,
+          "texte_cahier": "0",
+          "borne_basse": 0,
+          "borne_haute": 0
+        },
+        {
+          "campagne": 3,
+          "valeur": 0,
+          "texte_cahier": "0",
+          "borne_basse": 0,
+          "borne_haute": 0
+        },
+        {
+          "campagne": 4,
+          "valeur": -0.01,
+          "texte_cahier": "-0,01",
+          "borne_basse": -0.01,
+          "borne_haute": -0.01
+        }
+      ],
+      "cahier_line": 127
+    },
+    "decisions_attendues": {
+      "producteur": "T34",
+      "valeurs": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "texte_cahier": "[vrai,faux,faux,vrai]",
+      "cahier_line": 127
+    },
+    "portee": {
+      "regle": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  },
+  "notes": [
+    {
+      "objet": "coherence arithmetique",
+      "constat": "ratio = cout A / cout B : 80/100=0,8 ; 100/100=1 ; 80/100=0,8 ; 80/100=0,8. deltaV = V(A)-V(B) : 0 ; 0 ; 0,96-1=-0,04 ; 0,99-1=-0,01. deltaU = U(A)-U(B) : 0 ; 0 ; 0 ; 0,99-1=-0,01. Conforme aux bornes ecrites.",
+      "cahier_line": 127
+    },
+    {
+      "objet": "representation des decimaux",
+      "constat": "0,8 / 0,96 / 0,99 / -0,04 / -0,01 sont des decimaux exacts du cahier. Le champ texte_cahier conserve la forme litterale pour qu'aucun arrondi binaire ne soit pris pour la valeur de reference.",
+      "cahier_line": 127
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-POWER/regle-de-decision-absente-de-la-section-F",
+      "severite": "parametre_non_specifie",
+      "objet": "La section F donne les entrees, les bornes et les quatre decisions attendues, mais pas la regle qui les relie.",
+      "manquant": [
+        "seuil de ratio",
+        "tolerance sur deltaV",
+        "tolerance sur deltaU"
+      ],
+      "observation": "Les decisions [vrai,faux,faux,vrai] imposent seulement qu'un deltaV de -0,04 fasse basculer la decision alors qu'un deltaV de -0,01 ne la fait pas, et qu'un ratio de 1 suffise a refuser. Aucune borne numerique de tolerance n'est ecrite en section F ; je ne l'invente pas.",
+      "impact_sur_les_valeurs_publiees": "nul : entrees, bornes et decisions attendues sont transcrites telles quelles.",
+      "cahier_line": 127
+    }
+  ]
+}

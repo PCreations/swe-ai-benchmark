@@ -1,0 +1,121 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [115],
+  "methode": "Parti des consommateurs (T32.A2, T33.A5/A6), puis confronte au texte de §F ligne 115. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "texte": "`A2` F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "exige_de_la_fixture": "un etat AVANT duplication et un etat APRES duplication, avec la meme estimation ponctuelle"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "texte": "`A5` permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "exige_de_la_fixture": "la grappe (le parent) est l'unite de rééchantillonnage, pas la ligne de repetition"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "proof_kind": "refusal",
+      "texte": "`A6` une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l'inference interprojets",
+      "exige_de_la_fixture": "F-CLUSTERS a 2 grappes, donc 11 lignes ne suffisent pas a fabriquer des grappes : le compte de grappes est 2, pas 11"
+    },
+    {
+      "cas": "T38.A8",
+      "cahier_line": 493,
+      "proof_kind": "refusal",
+      "texte": "`A8` inference interprojets refusee sur cette fixture a un seul parent, malgre six trajectoires",
+      "exige_de_la_fixture": "meme principe : le nombre de lignes ne fait pas le nombre de grappes"
+    }
+  ],
+
+  "donnees": {
+    "nombre_de_grappes": {"valeur": 2, "cahier_line": 115, "nom": "projets parents P1 et P2"},
+    "nombre_de_lignes_de_repetition": {"valeur": 11, "cahier_line": 115, "verification": "10 (P1) + 1 (P2)"},
+
+    "P1": {
+      "repetitions": {"valeur": 10, "cahier_line": 115, "qualite": "repetitions identiques"},
+      "A_par_repetition": {"valeur": 10, "cahier_line": 115},
+      "B_par_repetition": {"valeur": 20, "cahier_line": 115},
+      "moyenne_intra_parent": {"A": 10, "B": 20, "source": "derive : 10 repetitions identiques"}
+    },
+    "P2": {
+      "repetitions": {"valeur": 1, "cahier_line": 115},
+      "A_par_repetition": {"valeur": 90, "cahier_line": 115},
+      "B_par_repetition": {"valeur": 100, "cahier_line": 115},
+      "moyenne_intra_parent": {"A": 90, "B": 100, "source": "derive : 1 repetition"}
+    },
+
+    "moyennes_interprojets": {
+      "A": {"valeur": 50, "cahier_line": 115, "verification": "(10 + 90)/2 = 50 — moyenne des moyennes PARENTS"},
+      "B": {"valeur": 60, "cahier_line": 115, "verification": "(20 + 100)/2 = 60"},
+      "formulation_du_cahier": "« Moyennes interprojets encore 50 et 60 » : identiques a F-COST-RATIO malgre le desequilibre 10 vs 1"
+    },
+
+    "invariance_par_duplication": {
+      "cahier_line": 115,
+      "enonce": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+      "etat_apres": {"P1_repetitions": 20, "P2_repetitions": 1, "lignes": 21},
+      "estimation_ponctuelle_attendue": {"A": 50, "B": 60, "ratio_num": 5, "ratio_den": 6},
+      "portee": "estimation PONCTUELLE ; le cahier ne dit rien de l'invariance des bandes sous duplication"
+    }
+  },
+
+  "derives": {
+    "$note": "Non ecrits ligne 115 ; arithmetique exacte, utile comme temoin de l'erreur que le cahier interdit.",
+    "moyenne_naive_sur_11_lignes": {
+      "source": "derive de la ligne 115 (« Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation »)",
+      "A": {"num": 190, "den": 11, "verification": "(10x10 + 90)/11 = 190/11"},
+      "B": {"num": 300, "den": 11, "verification": "(20x10 + 100)/11 = 300/11"},
+      "ratio": {"num": 19, "den": 30, "verification": "(190/11)/(300/11) = 190/300 = 19/30"},
+      "statut": "ANTI-VALEUR"
+    },
+    "moyenne_naive_apres_duplication": {
+      "source": "derive : 21 lignes",
+      "A": {"num": 290, "den": 21},
+      "B": {"num": 500, "den": 21},
+      "ratio": {"num": 29, "den": 50},
+      "remarque": "la naive BOUGE sous duplication (19/30 -> 29/50) alors que l'agregation correcte ne bouge pas : c'est exactement le discriminant de T32.A2"
+    }
+  },
+
+  "anti_valeurs": [
+    {"valeur": "A = 190/11, B = 300/11, ratio = 19/30", "cahier_line": 115, "pourquoi": "moyenne naive sur onze lignes, interdite comme substitut de l'agregation par parent"},
+    {"valeur": "11 grappes", "cahier_line": 443, "pourquoi": "confondre lignes de repetition et grappes ; le bootstrap rééchantillonne les parents"}
+  ],
+
+  "conventions": [
+    {"texte": "Le bootstrap principal rééchantillonne les moyennes par parent ; une variante hierarchique devient une methode distincte declaree.", "cahier_line": 445},
+    {"texte": "Les repetitions et variantes ne sont pas de nouveaux projets independants.", "cahier_line": 73},
+    {"texte": "Poids des scenarios appliques a l'interieur du parent avant poids entre parents.", "cahier_line": 435}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-CLUSTERS/A1",
+      "question": "« Dupliquer toutes les repetitions de P1 » : 10 -> 20 repetitions de P1 seul, ou duplication de toutes les repetitions de tous les parents ?",
+      "ce_que_dit_le_cahier": "ligne 115 dit « toutes les repetitions de P1 », ce qui cible P1. T33.A5 (ligne 443) parle plus largement de « dupliquer des repetitions identiques ».",
+      "cahier_lines": [115, 443],
+      "impact": "nul sur l'estimation ponctuelle (50/60 dans les deux lectures, car les repetitions sont identiques) ; determinant pour le nombre de lignes attendu dans l'export (21 vs 22).",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-CLUSTERS/A2",
+      "question": "L'invariance annoncee couvre-t-elle seulement l'estimation ponctuelle, ou aussi l'intervalle bootstrap ?",
+      "ce_que_dit_le_cahier": "ligne 115 ecrit « laisse l'estimation PONCTUELLE inchangee », restriction explicite. T33.A5 ajoute « ne change pas les resultats AVEC LA MEME LISTE DE TIRAGES PARENTS », ce qui n'est une invariance de bande que sous liste de tirages forcee.",
+      "cahier_lines": [115, 443],
+      "impact": "determine si T32.A2 doit asserter aussi l'intervalle. Assertion trop large = affirmation non fondee sur le cahier.",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

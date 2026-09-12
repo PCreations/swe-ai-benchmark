@@ -1,0 +1,114 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [121],
+  "methode": "Parti des consommateurs (T05.A6, T11.A4, T31.A1, T38.A7), puis confronte au texte de §F ligne 121. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {"cas": "T05.A6", "cahier_line": 199, "proof_kind": "behaviour", "texte": "`A6` sans deploiement, la cloture d'une periode produit les demandes non servies prevues par F-FAILURE", "exige_de_la_fixture": "les intentions non servies doivent etre ENUMERABLES a la cloture, pas seulement comptees"},
+    {"cas": "T11.A4", "cahier_line": 251, "proof_kind": "numeric", "texte": "`A4` F-FAILURE conserve quatre resultats", "exige_de_la_fixture": "quatre PeriodResult, y compris apres un arret de calcul"},
+    {"cas": "T31.A1", "cahier_line": 427, "proof_kind": "numeric", "texte": "`T31.A1` F-FAILURE exporte quatre periodes et total 150", "exige_de_la_fixture": "l'export porte 4 lignes de periode et un total de couts exact de 150"},
+    {"cas": "T38.A7", "cahier_line": 493, "proof_kind": "behaviour", "texte": "`A7` F-FAILURE produit un echec produit dans une execution moteur terminee", "exige_de_la_fixture": "distinguer l'echec METIER du candidat de l'echec du moteur (ligne 28)"}
+  ],
+
+  "donnees": {
+    "K": {"valeur": 4, "cahier_line": 121, "signification": "nombre de periodes"},
+    "condition_candidat": {"valeur": "aucun deploiement sur les quatre periodes", "cahier_line": 121},
+    "condition_de_validite": {
+      "valeur": "si les exigences et usages y sont presents",
+      "cahier_line": 121,
+      "portee": "Q=0 et R=0 ne sont exigibles QUE sous cette condition ; sans exigence active due Q serait null (ligne 111), sans intention admissible R serait null (ligne 111)"
+    },
+
+    "lignes_conservees": {"valeur": 4, "cahier_line": 121, "citation": "conserve quatre lignes"},
+
+    "Q_par_periode": {"valeur": [0, 0, 0, 0], "cahier_line": 121},
+    "R_par_periode": {"valeur": [0, 0, 0, 0], "cahier_line": 121},
+
+    "couts_par_periode": {
+      "valeur": ["100", "50", "0", "0"],
+      "cahier_line": 121,
+      "unite": "micro-USD (ligne 80)"
+    },
+    "cout_total": {
+      "valeur": "150",
+      "cahier_line": 121,
+      "verification": "100 + 50 + 0 + 0 = 150",
+      "confirme_par": "T31.A1 (ligne 427)"
+    },
+
+    "arret_de_calcul": {
+      "enonce": {"valeur": "Un arret de calcul apres P2 ne supprime pas P3 et P4", "cahier_line": 121},
+      "interdiction": {"valeur": "aucune facture imaginaire n'y est ajoutee", "cahier_line": 121, "consequence": "les couts de P3 et P4 valent exactement 0, pas une estimation"},
+      "etats_d_arret_possibles": {"valeur": ["BUDGET_EXHAUSTED", "RUNNER_BLOCKED", "CANCELLED"], "cahier_line": 97, "note": "le cahier ne dit pas lequel s'applique ici — voir ambiguite F-FAILURE/A2"},
+      "regle_liee": {"texte": "Les etats d'arret de calcul BUDGET_EXHAUSTED, RUNNER_BLOCKED et CANCELLED n'effacent pas la periode de l'analyse.", "cahier_line": 97}
+    }
+  },
+
+  "derives": {
+    "$note": "Non ecrits ligne 121 ; arithmetique exacte sur les series affirmees.",
+    "V": {"valeur": 0, "verification": "moyenne temporelle de [0,0,0,0] = 0", "source": "derive, ligne 107 pour la definition de V"},
+    "U": {"valeur": 0, "verification": "moyenne de R sur les periodes exposees ; les quatre le sont puisque des usages sont presents", "source": "derive, ligne 111 pour la definition de U"},
+    "exposition": {"num": 4, "den": 4, "valeur": 1, "source": "derive : usages presents aux quatre periodes"},
+    "reussite_agregee_par_intention": {"valeur": 0, "verification": "0 reussie / N offertes = 0 pour tout N > 0", "source": "derive ; N n'est pas fourni par le cahier, voir ambiguite F-FAILURE/A3"},
+    "champs_de_statut": {
+      "attempt_outcome": {"valeur": "FAILED", "cahier_line": 97, "source": "derive de « un candidat sans deploiement »"},
+      "deployment_coverage": {"valeur": "NO_DEPLOYMENT", "cahier_line": 97, "source": "derive"},
+      "reserve": {"texte": "Ces champs ne remplacent pas Q et R.", "cahier_line": 97}
+    }
+  },
+
+  "anti_valeurs": [
+    {"valeur": "2 lignes de periode au lieu de 4", "cahier_line": 121, "pourquoi": "supprimer P3 et P4 apres l'arret de calcul"},
+    {"valeur": "Q=null ou R=null aux periodes 3 et 4", "cahier_line": 121, "pourquoi": "si exigences et usages sont presents, la valeur est 0, pas null"},
+    {"valeur": "couts extrapoles en P3/P4 (par ex. [100,50,50,50])", "cahier_line": 121, "pourquoi": "« aucune facture imaginaire n'y est ajoutee »"},
+    {"valeur": "total 150 requalifie en echec du moteur", "cahier_line": 28, "pourquoi": "« Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide. Ne pas confondre ces deux niveaux. »"},
+    {"valeur": "backlog vide ou intentions non servies effacees", "cahier_line": 67, "pourquoi": "invariant 5 : « Un echec conserve ses depenses, ses intentions non servies et son backlog »"}
+  ],
+
+  "conventions": [
+    {"texte": "Un echec conserve ses depenses, ses intentions non servies et son backlog.", "cahier_line": 67},
+    {"texte": "Un defaut de prerequis produit BLOCKED, jamais PASS. Une vraie IA qui echoue a developper produit un resultat candidat FAILED dans une execution du moteur eventuellement valide.", "cahier_line": 28},
+    {"texte": "Les etats d'arret de calcul n'effacent pas la periode de l'analyse.", "cahier_line": 97},
+    {"texte": "Les montants sont des chaines d'entiers non negatifs en micro-USD.", "cahier_line": 80}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-FAILURE/A1",
+      "question": "La fixture decrit-elle UNE trajectoire, ou deux sous-cas (a : quatre periodes sans deploiement ; b : arret de calcul apres P2) ?",
+      "ce_que_dit_le_cahier": "ligne 121 enchaine « un candidat sans deploiement sur les quatre periodes conserve quatre lignes » puis « Un arret de calcul apres P2 ne supprime pas P3 et P4 ». La serie de couts [100,50,0,0] est compatible avec les deux lectures : un candidat qui ne depense plus rien apres P2, ou une trajectoire interrompue.",
+      "cahier_line": 121,
+      "impact": "BLOQUANT : si c'est une seule trajectoire, P3 et P4 sont a la fois « arretees » et porteuses de Q=0/R=0 mesurables, ce qui suppose que exigences et usages y sont evalues malgre l'arret. Si ce sont deux sous-cas, le second n'a pas a porter de Q/R. T11.A4 et T31.A1 asserteront des choses differentes selon la lecture.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-FAILURE/A2",
+      "question": "Quel etat d'arret s'applique apres P2 : BUDGET_EXHAUSTED, RUNNER_BLOCKED ou CANCELLED ?",
+      "ce_que_dit_le_cahier": "ligne 121 dit « un arret de calcul » sans le nommer ; la ligne 97 en nomme trois.",
+      "cahier_lines": [97, 121],
+      "impact": "l'export de T31 et le rapport de T36 doivent porter un statut explicite ; « arret de calcul » n'est pas une valeur d'enum.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-FAILURE/A3",
+      "question": "Combien d'intentions sont offertes par periode, et combien d'exigences actives dues avec quels poids ?",
+      "ce_que_dit_le_cahier": "ligne 121 exige seulement que « les exigences et usages y sont presents ». Aucun compte, aucun poids, aucune identite.",
+      "cahier_lines": [121, 199],
+      "impact": "BLOQUANT pour T05.A6 (classe `behaviour`), qui doit produire « les demandes non servies PREVUES par F-FAILURE » : sans liste d'intentions prevues, il n'y a rien a comparer. Les valeurs Q=0, R=0 et total=150 restent, elles, entierement determinees.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-FAILURE/A4",
+      "question": "Les couts 100 et 50 des periodes 1 et 2 se decomposent-ils en appels F-MONEY ?",
+      "ce_que_dit_le_cahier": "ligne 121 donne des totaux de periode. 100 et 50 ne sont pas des multiples de 340, donc ils ne proviennent pas d'appels de reference F-MONEY.",
+      "cahier_lines": [103, 121],
+      "impact": "faible pour les valeurs ; determinant pour T31.A3 (« somme des appels factures concorde avec le registre »), qui a besoin d'un detail d'appels pour concorder avec 150.",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

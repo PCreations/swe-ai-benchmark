@@ -1,0 +1,75 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "A",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maitresses a materialiser sans recalcul depuis l'implementation",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes_source": [
+      103
+    ],
+    "texte_source": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+  },
+  "enonce": {
+    "grille": {
+      "unite": "micro-USD par token",
+      "qualificatif": "fictive",
+      "entree_non_cachee": 2,
+      "entree_cachee": 1,
+      "sortie": 5,
+      "cahier_line": 103
+    },
+    "appel_de_reference": {
+      "tokens_entree_non_caches": 100,
+      "tokens_entree_caches": 40,
+      "tokens_sortie": 20,
+      "cout_micro_usd": 340,
+      "cahier_line": 103
+    },
+    "deux_appels_identiques": {
+      "nombre_appels": 2,
+      "cout_micro_usd": 680,
+      "cahier_line": 103
+    },
+    "disjonction_des_champs_d_entree": {
+      "regle": "Les champs d'entree sont disjoints.",
+      "normalisation_adaptateur": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+      "cahier_line": 103
+    }
+  },
+  "renvois_hors_section_F": {
+    "avertissement": "Ces valeurs NE font PAS partie de l'enonce de F-MONEY en section F. Elles sont consignees uniquement parce que l'etage appelant a exige que 2720 et 16320 restent exacts. Elles proviennent de la fixture de bout-en-bout des lignes 491-495, hors section F.",
+    "normatif_pour_F_MONEY": false,
+    "elements": [
+      {
+        "enonce": "Fixture de bout-en-bout : un projet, un scenario de quatre periodes, deux configurations scriptees conformes, trois repetitions, deux appels F-MONEY par periode ; tous les autres tarifs valent explicitement zero.",
+        "cahier_line": 491
+      },
+      {
+        "enonce": "2720 micro-USD par trajectoire, 16320 micro-USD au total.",
+        "cahier_line": 493
+      },
+      {
+        "enonce": "Les 16320 micro-USD sont une verite de test, pas une estimation du prix d'une experience reelle.",
+        "cahier_line": 495
+      }
+    ]
+  },
+  "notes": [
+    {
+      "objet": "coherence arithmetique de l'enonce",
+      "constat": "100*2 + 40*1 + 20*5 = 340 ; 2*340 = 680. Verifie a la main sur le texte, aucune valeur n'est prise d'une implementation.",
+      "cahier_line": 103
+    },
+    {
+      "objet": "codes d'erreur",
+      "constat": "Aucun code d'erreur n'est attache a F-MONEY par le cahier en section F.",
+      "cahier_line": 103
+    }
+  ],
+  "ambiguites": []
+}

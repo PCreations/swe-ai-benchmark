@@ -1,0 +1,105 @@
+{
+  "fixture": "F-COST-RATIO",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [113],
+  "methode": "Parti des consommateurs (T32.A1, T36.A2, la regle de decision T34), puis confronte au texte de §F ligne 113. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {
+      "cas": "T32.A1",
+      "cahier_line": 435,
+      "proof_kind": "numeric",
+      "texte": "`T32.A1` F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "exige_de_la_fixture": "les deux moyennes par bras ET le ratio, comme trois sorties distinctes"
+    },
+    {
+      "cas": "T32.A6",
+      "cahier_line": 435,
+      "proof_kind": "behaviour",
+      "texte": "`A6` poids des scenarios appliques a l'interieur du parent avant poids entre parents",
+      "exige_de_la_fixture": "l'ordre d'agregation est normatif : intra-parent d'abord, inter-parents ensuite"
+    },
+    {
+      "cas": "T36.A2",
+      "cahier_line": 473,
+      "proof_kind": "numeric",
+      "texte": "`A2` F-COST-RATIO affiche 5/6 et les deux moyennes",
+      "exige_de_la_fixture": "le rapport publie doit montrer 5/6 et 50 et 60, pas seulement le ratio"
+    },
+    {
+      "cas": "T34.A1 / T34.A2",
+      "cahier_line": 453,
+      "proof_kind": "behaviour / refusal",
+      "texte": "bornes ratio 0,8 ... donnent superiorite ; borne ratio=1 refuse",
+      "exige_de_la_fixture": "la convention du ratio est A/B (bras candidat sur bras temoin) : un ratio < 1 signifie A moins cher"
+    }
+  ],
+
+  "donnees": {
+    "unite": {"valeur": "cout, unite non precisee a la ligne 113", "cahier_line": 113},
+    "nombre_de_projets": {"valeur": 2, "cahier_line": 113},
+    "ponderation": {"valeur": "poids egal entre les deux projets", "cahier_line": 113},
+    "bras": ["A", "B"],
+
+    "couts_par_projet": {
+      "cahier_line": 113,
+      "A": {"valeur": [10, 90], "cahier_line": 113},
+      "B": {"valeur": [20, 100], "cahier_line": 113},
+      "lecture": "l'indice i de chaque liste designe le meme projet parent : projet 1 = (A=10, B=20), projet 2 = (A=90, B=100)"
+    },
+
+    "moyennes_interprojets": {
+      "A": {"valeur": 50, "cahier_line": 113, "verification": "(10 + 90)/2 = 50"},
+      "B": {"valeur": 60, "cahier_line": 113, "verification": "(20 + 100)/2 = 60"}
+    },
+
+    "ratio_principal": {
+      "definition": "moyenne(A) / moyenne(B) — ratio des moyennes, pas moyenne des ratios",
+      "num": 5, "den": 6,
+      "decimal_exact": null,
+      "cahier_line": 113,
+      "verification": "50/60 = 5/6",
+      "note": "5/6 n'a pas d'ecriture decimale finie ; toute decimale est un arrondi d'affichage"
+    }
+  },
+
+  "anti_valeurs": [
+    {
+      "valeur": "0.7",
+      "cahier_line": 113,
+      "nom": "moyenne des ratios",
+      "verification": "(10/20 + 90/100)/2 = (1/2 + 9/10)/2 = (5/10 + 9/10)/2 = 7/10 = 0,7",
+      "pourquoi": "le cahier la nomme explicitement comme « un resultat incorrect pour cette metrique »",
+      "collision_a_signaler": "0,7 est aussi la valeur CORRECTE de la reussite agregee par intention de F-QUALITY (7/10). Deux 0,7 de natures opposees coexistent dans le cahier ; ne pas les confondre."
+    }
+  ],
+
+  "conventions": [
+    {"texte": "Les nombres exacts se verifient en entier ou rationnel ; tolerance maximale 1e-12 pour les fixtures arithmetiques.", "cahier_line": 143},
+    {"texte": "Superiorite cout si borne superieure du ratio < 1.", "cahier_line": 451},
+    {"texte": "Poids des scenarios appliques a l'interieur du parent avant poids entre parents.", "cahier_line": 435}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-COST-RATIO/A1",
+      "question": "Chaque projet porte-t-il exactement une repetition, ou une valeur deja agregee intra-parent ?",
+      "ce_que_dit_le_cahier": "ligne 113 donne une valeur par projet et par bras, sans mentionner de repetition. F-CLUSTERS (ligne 115) reprend LES MEMES valeurs (10/20 et 90/100) en les declarant explicitement comme moyennes de 10 repetitions et de 1 repetition.",
+      "cahier_lines": [113, 115],
+      "impact": "aucun sur 50, 60 et 5/6 (la moyenne intra-parent vaut la valeur dans les deux lectures) ; determinant pour savoir si F-COST-RATIO et F-CLUSTERS sont deux fixtures ou deux vues du meme jeu.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-COST-RATIO/A2",
+      "question": "Quelle est l'unite des couts 10/90/20/100 ?",
+      "ce_que_dit_le_cahier": "ligne 113 dit « coute » sans unite. La ligne 80 impose les micro-USD aux montants du domaine, mais ces valeurs sont des entrees d'analyse (Python, T32), pas des ecritures comptables.",
+      "cahier_lines": [80, 113],
+      "impact": "nul sur le ratio (sans dimension) et sur T33.A3 (invariance par facteur 7) ; determinant pour la colonne d'unite exigee par T36.A4 (« chaque graphique porte unites »).",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_sha256_verifie_par": "sha256sum docs/cahier.md, compare a docs/CAHIER_SHA256 — identiques",
+  "section": "§F « Fixtures maitresses a materialiser sans recalcul depuis l'implementation », docs/cahier.md lignes 101-129",
+
+  "methode": [
+    "Cadrage CONSOMMATEURS-D'ABORD : pour chaque fixture, extraction des cas d'acceptation qui la citent depuis verification/cases.lock.json (279 cas) croise avec le texte §H de docs/cahier.md, en decoupant chaque ligne d'acceptation par marqueur `Axx`.",
+    "Deduction de ce que la fixture doit contenir pour que ces cas aient un sens, PUIS confrontation au texte de §F.",
+    "AUCUNE implementation consultee : ni packages/**, ni analysis/src/**, ni verification/runner/**.",
+    "Chaque valeur porte son champ cahier_line, verifiable par sed -n '<n>p' docs/cahier.md. Les 50 lignes distinctes citees ont ete relues et confirmees.",
+    "Verification arithmetique independante en rationnels exacts (BigInt) : 39 controles, 0 echec."
+  ],
+
+  "fixtures": [
+    {"nom": "F-MONEY", "cahier_lines": [103], "ambiguites": 1, "bloquantes": 0},
+    {"nom": "F-BUDGET", "cahier_lines": [105], "ambiguites": 3, "bloquantes": 0},
+    {"nom": "F-QUALITY", "cahier_lines": [107, 109, 111], "ambiguites": 4, "bloquantes": 2},
+    {"nom": "F-COST-RATIO", "cahier_lines": [113], "ambiguites": 2, "bloquantes": 0},
+    {"nom": "F-CLUSTERS", "cahier_lines": [115], "ambiguites": 2, "bloquantes": 0},
+    {"nom": "F-BOOTSTRAP", "cahier_lines": [117], "ambiguites": 3, "bloquantes": 0},
+    {"nom": "F-RESERVATION", "cahier_lines": [119, 123, 125], "ambiguites": 7, "bloquantes": 2},
+    {"nom": "F-FAILURE", "cahier_lines": [121], "ambiguites": 4, "bloquantes": 2},
+    {"nom": "F-POWER", "cahier_lines": [127], "ambiguites": 4, "bloquantes": 1},
+    {"nom": "F-REGRESSION", "cahier_lines": [129], "ambiguites": 4, "bloquantes": 2}
+  ],
+  "nombre_de_fixtures": 10,
+
+  "exhaustivite": {
+    "methode": "grep -o '`F-[A-Z0-9-]*`' docs/cahier.md | sort | uniq -c",
+    "resultat": "exactement 10 noms F-* en §F, chacun defini une fois ; aucun autre F-* dans le cahier (le seul autre motif 'F-' est 'F-8' a la ligne 82, fragment de 'UTF-8')",
+    "fixture_sans_nom_F": "la ligne 491 definit la fixture `golden-six` de T38 ; elle n'est pas une fixture §F et n'est pas transcrite ici, mais ses nombres (2 appels F-MONEY par periode, 2720, 16320, 48 appels) sont rattaches a F-MONEY comme consommateurs"
+  },
+
+  "ambiguites_totales": 34,
+  "ambiguites_bloquantes": 9,
+  "liste_bloquantes": [
+    {"id": "F-QUALITY/A1", "resume": "le test negatif « exigence revelee mais non encore due » (T04.A6) n'a ni id, ni poids, ni echeance"},
+    {"id": "F-QUALITY/A2", "resume": "« les quatre usages de F-QUALITY » (T08.A2) ne sont identifies nulle part : §F ne donne que des cardinalites [4,4,0,2]"},
+    {"id": "F-RESERVATION/A1", "resume": "les 100 reservations de la migration P4 (T09.A3) sont absentes de §F, qui ne connait que 3 acteurs et un creneau de capacite 1"},
+    {"id": "F-RESERVATION/A4", "resume": "aucun code de refus metier n'est nomme pour F-RESERVATION hormis NOT_FOUND ; T07.A4 et T07.A6 sont classes `refusal` et ont besoin d'un identifiant stable"},
+    {"id": "F-FAILURE/A1", "resume": "une trajectoire ou deux sous-cas ? « quatre periodes sans deploiement » et « arret de calcul apres P2 » ne sont pas explicitement le meme scenario"},
+    {"id": "F-FAILURE/A3", "resume": "aucun compte d'intentions ni d'exigences : T05.A6 doit produire « les demandes non servies PREVUES par F-FAILURE », sans liste prevue"},
+    {"id": "F-POWER/A1", "resume": "la « puissance 0,5 » compte 2 succes sur 4 campagnes HETEROGENES ; la ligne 461 attend un nombre de simulations et une grille d'effectifs que §F ne fournit pas"},
+    {"id": "F-REGRESSION/A1", "resume": "trajectoire propre ou surcouche de F-QUALITY ? P1 n'est jamais decrite et les exigences cancel/isolation sont hors du catalogue A/B/C"},
+    {"id": "F-REGRESSION/A2", "resume": "T04.A4 (« deux periodes consecutives cassees ») n'est pas observable sur F-REGRESSION, qui n'a qu'une seule periode violee"}
+  ],
+
+  "valeurs_exactes_verifiees": {
+    "F-MONEY": ["340 = 100x2 + 40x1 + 20x5", "680", "2720 = 8x340", "16320 = 48x340 = 6x2720"],
+    "F-BUDGET": ["1000", "600", "340", "spent=340 reserved=0 available=660", "600 -> available=60", "661 refuse -> available=660", "ambigue 600 -> available=400", "invariant spent+reserved+available=limit verifie sur les 4 etats"],
+    "F-QUALITY": ["Q=[1,1/2,3/4,1]", "V=13/16=0.8125", "R=[1,1/2,null,1/2]", "offertes [4,4,0,2]", "reussies [4,2,0,1]", "U=2/3", "exposition=3/4", "reussite agregee=7/10", "denominateurs de Q = [2,4,4,3]"],
+    "F-COST-RATIO": ["A=[10,90] B=[20,100]", "moyennes 50 et 60", "ratio 5/6", "anti-valeur 0,7 = moyenne des ratios"],
+    "F-CLUSTERS": ["P1 (10,20) x10 rep", "P2 (90,100) x1 rep", "moyennes 50 et 60", "anti-valeur naive 190/11 et 300/11, ratio 19/30"],
+    "F-BOOTSTRAP": ["4 tirages forces", "ratios [1/2,5/6,5/6,9/10]", "intervalle [1/2,9/10]", "rangs quantile inverse 1 et 4 sur n=4"],
+    "F-RESERVATION": ["horloge 2030-01-01T00:00:00Z", "S1 capacite 1 debut 2030-01-03T12:00:00Z", "frontiere 2030-01-02T12:00:00Z incluse", "refus 2030-01-02T12:00:00.001Z", "P1 00:00, P2 01:00, P3 02-01 11:00, P4 02-01 13:00"],
+    "F-FAILURE": ["K=4", "Q=[0,0,0,0]", "R=[0,0,0,0]", "couts [100,50,0,0]", "total 150"],
+    "F-POWER": ["B (100,1,1)", "A (80,1,1)/(100,1,1)/(80,0.96,1)/(80,0.99,0.99)", "ratios [0.8,1,0.8,0.8]", "DeltaV [0,0,-0.04,-0.01]", "DeltaU [0,0,0,-0.01]", "decisions [vrai,faux,faux,vrai]", "puissance 0,5", "erreur standard 0,25"],
+    "F-REGRESSION": ["cancel@1 P2 satisfaite, P3 remplacee par cancel@2 -> pas de regression", "isolation@1 P3 satisfaite, P4 violee -> une regression"]
+  },
+
+  "notes": [
+    "Aucun nombre n'a ete arrondi : 2/3, 5/6, 9/10, 13/16, 7/10, 19/30 sont ecrits en fraction exacte (num/den). Les seules decimales ecrites sont exactes en base 10 ET affirmees par le cahier : 0.8125, 0.75, 0.7, 0.8, 0.96, 0.99, 0.5, 0.25, -0.04, -0.01, -0.02.",
+    "Piege signale : 0,7 est a la fois la VALEUR CORRECTE de la reussite agregee de F-QUALITY (7/10) et l'ANTI-VALEUR nommee de F-COST-RATIO (moyenne des ratios). Les deux sont consignees avec leur ligne.",
+    "Piege signale (F-POWER/A4) : 0,96-1 et 0,99-1 ne valent pas exactement -0,04 et -0,01 en flottant double. Verifie : (0.96-1) === -0.04 est faux. Les quatre decisions restent [vrai,faux,faux,vrai] sans tolerance, mais une assertion d'egalite stricte sur les bornes echouerait — la ligne 143 plafonne la tolerance a 1e-12.",
+    "Les champs `derives` contiennent ce qui n'est PAS ecrit en §F mais decoule exactement des consommateurs ou d'une regle citee (lignes 189, 297, 451). Ils sont separes des `donnees` pour que l'etage de scellement puisse les traiter differemment d'une citation.",
+    "Aucune ecriture dans le depot : ni git add, ni commit. Cet etage ne produit aucun objet git, conformement au cadrage."
+  ]
+}

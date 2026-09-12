@@ -1,0 +1,146 @@
+{
+  "fixture": "F-MONEY",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [103],
+  "methode": "Parti des consommateurs (verification/cases.lock.json + §H), puis confronte au texte de §F ligne 103. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "proof_kind": "numeric",
+      "texte": "`T16.A1` F-MONEY donne 340",
+      "exige_de_la_fixture": "un appel de reference dont le cout attendu est l'entier exact 340 micro-USD, et la grille tarifaire qui le produit"
+    },
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "proof_kind": "refusal",
+      "texte": "`A6` la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est detectee par la verification des references",
+      "exige_de_la_fixture": "la valeur 340 doit etre une reference figee et empreintable ; 341 est la corruption temoin nommee par le cahier"
+    },
+    {
+      "cas": "T17.A2",
+      "cahier_line": 303,
+      "proof_kind": "behaviour",
+      "texte": "`A2` panne apres facture 340 et avant reception de reponse donne UNKNOWN, un seul appel et reservation maintenue",
+      "exige_de_la_fixture": "340 est le montant de facture utilise par la passerelle ; F-MONEY doit fournir ce montant sans recalcul"
+    },
+    {
+      "cas": "T17.A4",
+      "cahier_line": 303,
+      "proof_kind": "behaviour",
+      "texte": "`A4` ingestion du recu regle 340 sans inventer de reponse textuelle",
+      "exige_de_la_fixture": "le recu de reglement porte exactement 340"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "proof_kind": "numeric",
+      "texte": "`A2` 48 appels recus et regles",
+      "exige_de_la_fixture": "48 = 6 trajectoires x 4 periodes x 2 appels F-MONEY par periode (ligne 491)"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "proof_kind": "numeric",
+      "texte": "`A3` 2720 micro-USD par trajectoire, 16320 au total",
+      "exige_de_la_fixture": "l'appel de reference a 340 doit se composer exactement : 8 x 340 = 2720 et 48 x 340 = 16320"
+    }
+  ],
+
+  "donnees": {
+    "unite": {
+      "valeur": "micro-USD",
+      "cahier_line": 103,
+      "convention_liee": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; `1000000` vaut 1 USD (ligne 80)"
+    },
+    "grille_tarifaire": {
+      "cahier_line": 103,
+      "nature": "fictive, declaree telle par le cahier",
+      "entree_non_cachee_par_token": {"valeur": "2", "cahier_line": 103},
+      "entree_cachee_par_token": {"valeur": "1", "cahier_line": 103},
+      "sortie_par_token": {"valeur": "5", "cahier_line": 103}
+    },
+    "appel_de_reference": {
+      "cahier_line": 103,
+      "usage": {
+        "input_tokens_non_caches": {"valeur": 100, "cahier_line": 103},
+        "input_tokens_caches": {"valeur": 40, "cahier_line": 103},
+        "output_tokens": {"valeur": 20, "cahier_line": 103}
+      },
+      "cout_attendu_micro_usd": {"valeur": "340", "cahier_line": 103},
+      "decomposition_verifiable": "100x2 + 40x1 + 20x5 = 200 + 40 + 100 = 340"
+    },
+    "deux_appels_identiques": {
+      "cout_attendu_micro_usd": {"valeur": "680", "cahier_line": 103},
+      "note": "680 est ecrit tel quel dans le cahier ; ce n'est pas une extrapolation du transcripteur"
+    },
+    "disjonction_des_champs_d_entree": {
+      "cahier_line": 103,
+      "regle": "Les champs d'entree sont disjoints : entree non cachee et entree cachee ne se recouvrent pas.",
+      "obligation_adaptateur": "si un fournisseur inclut le cache dans un total, son adaptateur le normalise AVANT facturation"
+    }
+  },
+
+  "derives": {
+    "$note": "Valeurs non ecrites a la ligne 103 mais imposees par des consommateurs cites plus haut, ou arithmetique exacte a partir d'elles. Marquees pour que l'etage de scellement puisse les distinguer des citations directes.",
+    "normalisation_temoin": {
+      "source": "derive de la regle de disjonction, ligne 103",
+      "cas": "fournisseur rapportant total_input=140 et cached=40",
+      "apres_normalisation": {"input_non_cache": 100, "input_cache": 40},
+      "cout_attendu_micro_usd": "340",
+      "piege": "facturer 140 tokens non caches + 40 caches donnerait 280+40+100 = 420, jamais 340"
+    },
+    "composition_golden_six": {
+      "source": "cahier lignes 491 et 493 (T38), arithmetique exacte sur 340",
+      "appels_par_periode": {"valeur": 2, "cahier_line": 491},
+      "periodes_par_trajectoire": {"valeur": 4, "cahier_line": 491},
+      "trajectoires": {"valeur": 6, "cahier_line": 493},
+      "appels_totaux": {"valeur": 48, "cahier_line": 493, "verification": "6 x 4 x 2 = 48"},
+      "cout_par_trajectoire_micro_usd": {"valeur": "2720", "cahier_line": 493, "verification": "8 x 340 = 2720"},
+      "cout_total_micro_usd": {"valeur": "16320", "cahier_line": 493, "verification": "6 x 2720 = 48 x 340 = 16320"},
+      "autres_tarifs": {"valeur": "zero explicite", "cahier_line": 491}
+    }
+  },
+
+  "anti_valeurs": [
+    {
+      "valeur": "341",
+      "cahier_line": 165,
+      "pourquoi": "corruption temoin nommee par T01.A6 ; la verification des references doit la detecter"
+    },
+    {
+      "valeur": "420",
+      "source": "derive",
+      "pourquoi": "resultat d'un adaptateur qui n'a pas normalise un total incluant le cache (140 non caches au lieu de 100)"
+    },
+    {
+      "valeur": "0",
+      "cahier_line": 295,
+      "pourquoi": "T16.A5 : un cout inconnu ne devient jamais zero"
+    }
+  ],
+
+  "conventions": [
+    {"texte": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; `1000000` vaut 1 USD.", "cahier_line": 80},
+    {"texte": "Les ajustements sont des ecritures separees signees, pas l'edition d'une facture deja inscrite.", "cahier_line": 80},
+    {"texte": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires.", "cahier_line": 71},
+    {"texte": "Les nombres exacts se verifient en entier ou rationnel.", "cahier_line": 143}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-MONEY/A1",
+      "question": "Les tarifs 2, 1 et 5 sont-ils des montants par token exprimes eux aussi en chaines d'entiers micro-USD, ou des coefficients numeriques ?",
+      "ce_que_dit_le_cahier": "ligne 103 : « entree non cachee 2 micro-USD/token » — l'unite est donnee, la representation (chaine vs entier) ne l'est pas ; la ligne 80 n'impose la forme chaine qu'aux « montants »",
+      "cahier_lines": [80, 103],
+      "impact": "aucun sur les valeurs attendues (340, 680, 2720, 16320) ; impact uniquement sur la forme du schema de tarif",
+      "je_ne_tranche_pas": true
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "cahier_lines_source": [117],
+  "methode": "Parti des consommateurs (T33.A1 a A7, puis T34/T35 qui consomment les bornes), puis confronte au texte de §F ligne 117. Aucune implementation consultee.",
+
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "proof_kind": "numeric",
+      "texte": "`T33.A1` F-BOOTSTRAP donne les quatre ratios et l'intervalle [1/2,9/10]",
+      "exige_de_la_fixture": "la liste ORDONNEE des quatre ratios ET l'intervalle, comme deux sorties distinctes"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "texte": "`A2` les deux bras suivent exactement les memes indices parents",
+      "exige_de_la_fixture": "le bootstrap est APPARIE : un tirage designe un parent, et les deux bras A et B sont lus sur ce meme parent"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "texte": "`A3` multiplier tous les couts par 7 ne change ni ratio ni intervalle",
+      "exige_de_la_fixture": "invariance d'echelle : la fixture doit pouvoir etre rejouee avec les couts x7"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "proof_kind": "numeric",
+      "texte": "`A4` A=B donne tous les ratios egaux a 1",
+      "exige_de_la_fixture": "une variante degeneree A=B, distincte de la serie principale"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "proof_kind": "absence",
+      "texte": "`A7` les bandes ponctuelles ne sont jamais etiquetees simultanees",
+      "exige_de_la_fixture": "l'intervalle [1/2,9/10] est une bande PONCTUELLE ; l'etiqueter simultanee est interdit"
+    },
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "proof_kind": "numeric",
+      "texte": "`T35.A1` F-POWER traversant le vrai pipeline d'analyse ...",
+      "exige_de_la_fixture": "F-POWER traverse ce bootstrap ; la convention de quantile d'ici doit produire la-bas des bornes ponctuelles"
+    }
+  ],
+
+  "donnees": {
+    "population_source": {
+      "valeur": "les deux projets precedents",
+      "cahier_line": 117,
+      "lecture_retenue": "P1 et P2 de F-CLUSTERS (ligne 115), qui precede immediatement",
+      "voir_ambiguite": "F-BOOTSTRAP/A1",
+      "valeurs_par_parent": {
+        "P1": {"A": 10, "B": 20, "cahier_line": 115},
+        "P2": {"A": 90, "B": 100, "cahier_line": 115}
+      }
+    },
+
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [["P1", "P1"], ["P1", "P2"], ["P2", "P1"], ["P2", "P2"]],
+      "cahier_line": 117,
+      "nature": "FORCEE, pas tiree : aucune graine n'intervient",
+      "taille_de_chaque_tirage": 2,
+      "nombre_de_tirages": 4,
+      "remarque": "enumeration exhaustive des 2^2 tirages avec remise sur 2 parents ; [P1,P2] et [P2,P1] sont listes separement"
+    },
+
+    "ratios_cout_A_sur_B": {
+      "valeur": [{"num": 1, "den": 2}, {"num": 5, "den": 6}, {"num": 5, "den": 6}, {"num": 9, "den": 10}],
+      "ecriture_cahier": "[1/2,5/6,5/6,9/10]",
+      "cahier_line": 117,
+      "ordre": "dans l'ordre de la liste de reechantillonnages, pas trie",
+      "verification": [
+        "[P1,P1] : A=(10+10)/2=10, B=(20+20)/2=20 -> 10/20 = 1/2",
+        "[P1,P2] : A=(10+90)/2=50, B=(20+100)/2=60 -> 50/60 = 5/6",
+        "[P2,P1] : A=(90+10)/2=50, B=(100+20)/2=60 -> 5/6",
+        "[P2,P2] : A=90, B=100 -> 9/10"
+      ]
+    },
+
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117,
+      "livrable_liee": {"texte": "reechantillonneur parent, strates, quantile empirique inverse et manifeste de tirages", "cahier_line": 441},
+      "archivage": {"texte": "algorithme de tirage et convention de quantile archives", "cahier_line": 445}
+    },
+
+    "intervalle": {
+      "niveaux": {"bas": "2,5 %", "haut": "97,5 %", "cahier_line": 117},
+      "borne_basse": {"num": 1, "den": 2, "cahier_line": 117},
+      "borne_haute": {"num": 9, "den": 10, "cahier_line": 117},
+      "ecriture_cahier": "[1/2,9/10]",
+      "liste_triee": ["1/2", "5/6", "5/6", "9/10"],
+      "verification_derivee": "quantile empirique inverse sur n=4 : rang ceil(0,025x4)=1 -> 1/2 ; rang ceil(0,975x4)=ceil(3,9)=4 -> 9/10",
+      "nature_de_la_bande": "PONCTUELLE (voir T33.A7, ligne 443)"
+    },
+
+    "portee_declaree": {
+      "texte": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+      "cahier_line": 117,
+      "consequence": "aucune assertion de couverture frequentiste ne peut s'appuyer sur cette fixture"
+    }
+  },
+
+  "derives": {
+    "$note": "Non ecrits ligne 117 ; consequences exactes imposees par les consommateurs T33.A3 et T33.A4.",
+    "variante_echelle_x7": {
+      "source": "T33.A3, ligne 443",
+      "valeurs": {"P1": {"A": 70, "B": 140}, "P2": {"A": 630, "B": 700}},
+      "ratios_attendus": ["1/2", "5/6", "5/6", "9/10"],
+      "intervalle_attendu": ["1/2", "9/10"],
+      "raison": "le ratio est sans dimension ; un facteur commun se simplifie exactement en rationnel"
+    },
+    "variante_A_egal_B": {
+      "source": "T33.A4, ligne 443",
+      "valeurs": {"P1": {"A": 20, "B": 20}, "P2": {"A": 100, "B": 100}},
+      "ratios_attendus": ["1", "1", "1", "1"],
+      "intervalle_attendu": ["1", "1"],
+      "remarque": "les valeurs numeriques de cette variante ne sont pas donnees par le cahier ; seule la conclusion « tous les ratios egaux a 1 » l'est"
+    }
+  },
+
+  "anti_valeurs": [
+    {"valeur": "intervalle [5/6, 5/6]", "source": "derive", "pourquoi": "resultat d'une convention d'interpolation lineaire entre rangs au lieu du quantile empirique inverse"},
+    {"valeur": "trois tirages au lieu de quatre", "cahier_line": 117, "pourquoi": "fusionner [P1,P2] et [P2,P1] ; le cahier les liste separement et les deux apparaissent dans la liste de ratios"},
+    {"valeur": "bande etiquetee simultanee", "cahier_line": 443, "pourquoi": "T33.A7 l'interdit"}
+  ],
+
+  "conventions": [
+    {"texte": "Le bootstrap principal reechantillonne les moyennes par parent.", "cahier_line": 445},
+    {"texte": "Une sortie deterministe n'implique pas une couverture frequentiste garantie.", "cahier_line": 445},
+    {"texte": "Une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l'inference interprojets.", "cahier_line": 443},
+    {"texte": "Les nombres exacts se verifient en entier ou rationnel ; tolerance maximale 1e-12.", "cahier_line": 143}
+  ],
+
+  "ambiguites": [
+    {
+      "id": "F-BOOTSTRAP/A1",
+      "question": "« Les deux projets precedents » designe-t-il P1/P2 de F-CLUSTERS (10 et 1 repetitions) ou les deux projets de F-COST-RATIO (une valeur chacun) ?",
+      "ce_que_dit_le_cahier": "ligne 117 ecrit « les deux projets precedents » ; F-CLUSTERS precede immediatement et nomme deja P1 et P2. Les moyennes par parent sont identiques dans les deux lectures (10/20 et 90/100), donc les quatre ratios et l'intervalle sont les memes.",
+      "cahier_lines": [113, 115, 117],
+      "impact": "NUL sur toute valeur affirmee. Determinant seulement pour la forme des donnees d'entree du test (11 lignes vs 2 lignes) et donc pour ce que T33.A5 exerce reellement.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-BOOTSTRAP/A2",
+      "question": "Le quantile empirique inverse est-il defini par rang ceil(p x n), ou par une autre convention d'ordre (par ex. rang floor(p x n)+1) ?",
+      "ce_que_dit_le_cahier": "ligne 117 nomme la convention (« quantile empirique inverse ») et donne son resultat ([1/2, 9/10]) sans en donner la formule. La ligne 445 exige que la convention soit ARCHIVEE, donc qu'elle soit ecrite quelque part.",
+      "cahier_lines": [117, 445],
+      "impact": "sur n=4 les deux conventions courantes donnent le meme resultat [1/2, 9/10] ; elles divergent sur d'autres n. La fixture ne suffit donc pas a fixer la convention, alors que la ligne 445 exige qu'elle le soit.",
+      "je_ne_tranche_pas": true
+    },
+    {
+      "id": "F-BOOTSTRAP/A3",
+      "question": "Le ratio de chaque tirage se calcule-t-il comme moyenne(A)/moyenne(B) sur le tirage, ou comme moyenne des ratios par parent tires ?",
+      "ce_que_dit_le_cahier": "ligne 117 ne le dit pas. Seule la lecture moyenne(A)/moyenne(B) reproduit [1/2,5/6,5/6,9/10] : pour [P1,P2], la moyenne des ratios donnerait (1/2+9/10)/2 = 7/10, pas 5/6. La ligne 113 nomme d'ailleurs 0,7 comme resultat incorrect.",
+      "cahier_lines": [113, 117],
+      "impact": "levee par arithmetique : la lecture ratio-des-moyennes est la seule compatible avec les valeurs affirmees. Consignee ici parce que la fixture ne l'ecrit pas, alors qu'elle en depend entierement.",
+      "je_ne_tranche_pas": false,
+      "statut": "levee par la ligne 113 + verification arithmetique, signalee pour tracabilite"
+    }
+  ]
+}

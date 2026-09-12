@@ -1,0 +1,77 @@
+{
+  "fixture": "F-FAILURE",
+  "transcripteur": "A",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      121
+    ],
+    "texte_source": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "enonce": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "candidat": {
+      "description": "sans deploiement sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "nombre": 4,
+      "Q_par_periode": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "R_par_periode": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "condition": "si les exigences et usages y sont presents",
+      "cahier_line": 121
+    },
+    "couts": {
+      "par_periode": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "total": 150,
+      "cahier_line": 121
+    },
+    "arret_de_calcul": {
+      "moment": "apres P2",
+      "regle_1": "ne supprime pas P3 et P4",
+      "regle_2": "aucune facture imaginaire n'y est ajoutee",
+      "cahier_line": 121
+    }
+  },
+  "notes": [
+    {
+      "objet": "portee de Q=0 et R=0",
+      "constat": "Le cahier ecrit 'quatre lignes avec Q=0 et R=0' : les quatre periodes portent ces valeurs, et non null, precisement parce que les exigences et usages y sont presents. La convention de la ligne 111 confirme qu'une trajectoire indisponible face a des intentions prevues a R=0, jamais null.",
+      "cahier_line": [
+        121,
+        111
+      ]
+    },
+    {
+      "objet": "coherence arithmetique",
+      "constat": "100+50+0+0 = 150, conforme au total annonce. Les couts des periodes 3 et 4 valent zero, ce qui est different de lignes absentes.",
+      "cahier_line": 121
+    },
+    {
+      "objet": "exigences et usages non enumeres",
+      "constat": "Le cahier pose la condition 'si les exigences et usages y sont presents' sans enumerer ni les exigences ni le nombre d'intentions par periode. Aucun nombre n'est invente ici.",
+      "cahier_line": 121
+    }
+  ],
+  "ambiguites": []
+}

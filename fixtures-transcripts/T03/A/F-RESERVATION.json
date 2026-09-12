@@ -1,0 +1,215 @@
+{
+  "fixture": "F-RESERVATION",
+  "transcripteur": "A",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      119,
+      123,
+      125
+    ],
+    "texte_source_119": "`F-RESERVATION`. Horloge initiale `2030-01-01T00:00:00Z`. Acteurs A, B et C ; locataire initial `legacy`. Créneau S1 de capacité 1 débutant `2030-01-03T12:00:00Z`. P1 : réservation de A acceptée, rejeu de sa clé idempotente sans doublon, demande concurrente de B rejetée sans surbooking. P2 : B puis C en attente ; annulation de A ; B devient confirmé, C reste premier en attente. P3 : règle d’annulation au moins 24 heures avant le début, frontière incluse. Sur deux clones du même état, B peut annuler exactement le `2030-01-02T12:00:00Z`, et reçoit un refus métier à `12:00:00.001Z`. P4 : données existantes migrées vers `legacy`, création d’un locataire `other` ; ses acteurs ne peuvent ni lire ni modifier les réservations `legacy`. Évaluer l’état métier exporté, pas un nom de table imposé.",
+    "texte_source_123": "Dans F-RESERVATION, les probes de frontière P3 sont des clones jetables ; elles ne modifient pas l’état persistant principal. À l’entrée de P4, celui-ci conserve A annulé, B confirmé et C en attente. Sur le clone où B annule exactement à 24 h, C devient confirmé. FIFO est ordonné par séquence d’admission explicite, pas par égalité possible de timestamps. Le contrat intertenant de la fixture renvoie `NOT_FOUND` sans donnée métier divulguée.",
+    "texte_source_125": "Horloges principales de F-RESERVATION : P1 commence le 1er janvier 2030 à 00:00 UTC, P2 à 01:00, P3 le 2 janvier à 11:00, P4 à 13:00. Les probes privées P3 utilisent leurs heures propres et sont jetées. Les instants synthétiques accélèrent ici les périodes ; les résultats ne les présentent pas comme quatre mois réels."
+  },
+  "enonce": {
+    "horloge_initiale": {
+      "valeur": "2030-01-01T00:00:00Z",
+      "cahier_line": 119
+    },
+    "acteurs": {
+      "valeur": [
+        "A",
+        "B",
+        "C"
+      ],
+      "cahier_line": 119
+    },
+    "locataire_initial": {
+      "valeur": "legacy",
+      "cahier_line": 119
+    },
+    "creneau": {
+      "id": "S1",
+      "capacite": 1,
+      "debut": "2030-01-03T12:00:00Z",
+      "cahier_line": 119
+    },
+    "horloges_principales": {
+      "P1": "2030-01-01T00:00:00Z",
+      "P2": "2030-01-01T01:00:00Z",
+      "P3": "2030-01-02T11:00:00Z",
+      "P4": "2030-01-02T13:00:00Z",
+      "remarque_source": "Les probes privees P3 utilisent leurs heures propres et sont jetees.",
+      "cahier_line": 125
+    },
+    "P1": {
+      "horloge": "2030-01-01T00:00:00Z",
+      "faits": [
+        {
+          "acteur": "A",
+          "action": "reservation",
+          "resultat": "acceptee"
+        },
+        {
+          "acteur": "A",
+          "action": "rejeu de sa cle idempotente",
+          "resultat": "sans doublon"
+        },
+        {
+          "acteur": "B",
+          "action": "demande concurrente",
+          "resultat": "rejetee",
+          "garantie": "sans surbooking"
+        }
+      ],
+      "cahier_line": 119
+    },
+    "P2": {
+      "horloge": "2030-01-01T01:00:00Z",
+      "faits": [
+        {
+          "acteur": "B",
+          "action": "mise en attente",
+          "rang_d_admission": 1
+        },
+        {
+          "acteur": "C",
+          "action": "mise en attente",
+          "rang_d_admission": 2
+        },
+        {
+          "acteur": "A",
+          "action": "annulation"
+        },
+        {
+          "acteur": "B",
+          "resultat": "devient confirme"
+        },
+        {
+          "acteur": "C",
+          "resultat": "reste premier en attente"
+        }
+      ],
+      "ordre_source": "B puis C en attente",
+      "cahier_line": 119
+    },
+    "P3": {
+      "horloge_principale": "2030-01-02T11:00:00Z",
+      "regle": {
+        "enonce": "annulation au moins 24 heures avant le debut, frontiere incluse",
+        "frontiere": "2030-01-02T12:00:00Z",
+        "frontiere_incluse": true,
+        "cahier_line": 119
+      },
+      "probes": {
+        "nature": "deux clones jetables du meme etat ; elles ne modifient pas l'etat persistant principal",
+        "clone_1_frontiere_exacte": {
+          "instant": "2030-01-02T12:00:00Z",
+          "acteur": "B",
+          "action": "annulation",
+          "resultat": "permise",
+          "effet_sur_le_clone": "C devient confirme",
+          "cahier_line": [
+            119,
+            123
+          ]
+        },
+        "clone_2_une_milliseconde_apres": {
+          "instant": "2030-01-02T12:00:00.001Z",
+          "instant_source": "12:00:00.001Z",
+          "acteur": "B",
+          "action": "annulation",
+          "resultat": "refus metier",
+          "cahier_line": 119
+        },
+        "cahier_line": 123
+      }
+    },
+    "P4": {
+      "horloge": "2030-01-02T13:00:00Z",
+      "etat_persistant_a_l_entree": {
+        "A": "annule",
+        "B": "confirme",
+        "C": "en attente",
+        "cahier_line": 123
+      },
+      "faits": [
+        {
+          "action": "donnees existantes migrees vers le locataire legacy"
+        },
+        {
+          "action": "creation d'un locataire other"
+        },
+        {
+          "regle": "les acteurs de other ne peuvent ni lire ni modifier les reservations legacy"
+        }
+      ],
+      "contrat_intertenant": {
+        "code": "NOT_FOUND",
+        "garantie": "sans donnee metier divulguee",
+        "cahier_line": 123
+      },
+      "consigne_d_evaluation": {
+        "regle": "Evaluer l'etat metier exporte, pas un nom de table impose.",
+        "cahier_line": 119
+      }
+    },
+    "fifo": {
+      "regle": "FIFO est ordonne par sequence d'admission explicite, pas par egalite possible de timestamps.",
+      "cahier_line": 123
+    },
+    "avertissement_temporel": {
+      "regle": "Les instants synthetiques accelerent ici les periodes ; les resultats ne les presentent pas comme quatre mois reels.",
+      "cahier_line": 125
+    }
+  },
+  "notes": [
+    {
+      "objet": "date elidee de l'horloge P4",
+      "constat": "La ligne 125 ecrit 'P3 le 2 janvier a 11:00, P4 a 13:00' : la date de P4 est portee par l'enumeration et vaut le 2 janvier 2030. Lecture retenue 2030-01-02T13:00:00Z. Elle est coherente avec les probes de frontiere a 12:00 du meme jour et avec un P4 anterieur au debut du creneau (2030-01-03T12:00:00Z).",
+      "cahier_line": 125
+    },
+    {
+      "objet": "date elidee de l'instant de refus",
+      "constat": "La ligne 119 ecrit '12:00:00.001Z' apres avoir donne '2030-01-02T12:00:00Z' : meme jour, soit 2030-01-02T12:00:00.001Z.",
+      "cahier_line": 119
+    },
+    {
+      "objet": "frontiere des 24 heures",
+      "constat": "Le cahier donne directement l'instant frontiere (2030-01-02T12:00:00Z) ; il coincide avec debut du creneau moins 24 heures. Aucune valeur n'a ete calculee a la place du texte.",
+      "cahier_line": 119
+    },
+    {
+      "objet": "demande concurrente de B en P1 et mise en attente en P2",
+      "constat": "En P1 la demande concurrente de B est rejetee sans surbooking ; en P2 B puis C figurent en attente. Le cahier ne precise pas le code de rejet de P1 ni celui du refus metier de P3.",
+      "cahier_line": [
+        119
+      ]
+    },
+    {
+      "objet": "etat persistant principal",
+      "constat": "Les probes P3 etant jetables, l'etat principal entre en P4 avec A annule, B confirme, C en attente : C n'est promu que sur le clone ou B annule a la frontiere.",
+      "cahier_line": 123
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "F-RESERVATION/codes-de-refus-non-nommes",
+      "severite": "parametre_non_specifie",
+      "objet": "Codes d'erreur des refus metier de P1 (demande concurrente de B) et de P3 (annulation a 12:00:00.001Z).",
+      "manquant": [
+        "code du rejet de la demande concurrente",
+        "code du refus d'annulation hors delai"
+      ],
+      "consequence": "Seul NOT_FOUND est nomme, et uniquement pour le contrat intertenant de P4 (ligne 123). Je ne nomme pas les autres codes.",
+      "impact_sur_les_valeurs_publiees": "nul sur les instants, les etats et les rangs d'attente transcrits ici.",
+      "cahier_line": [
+        119,
+        123
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "transcripteur": "A",
+  "role": "fixture-transcriber",
+  "tache": "T03",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F. Fixtures maitresses a materialiser sans recalcul depuis l'implementation",
+    "section_lignes": [101, 129],
+    "methode": "Transcription depuis la source seule, dans l'ordre du cahier. Aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes."
+  },
+  "fixtures": [
+    { "nom": "F-MONEY",      "fichier": "F-MONEY.json",      "lignes_source": [103],           "ambiguites": 0 },
+    { "nom": "F-BUDGET",     "fichier": "F-BUDGET.json",     "lignes_source": [105],           "ambiguites": 0 },
+    { "nom": "F-QUALITY",    "fichier": "F-QUALITY.json",    "lignes_source": [107, 109, 111], "ambiguites": 1 },
+    { "nom": "F-COST-RATIO", "fichier": "F-COST-RATIO.json", "lignes_source": [113],           "ambiguites": 0 },
+    { "nom": "F-CLUSTERS",   "fichier": "F-CLUSTERS.json",   "lignes_source": [115],           "ambiguites": 0 },
+    { "nom": "F-BOOTSTRAP",  "fichier": "F-BOOTSTRAP.json",  "lignes_source": [117],           "ambiguites": 0 },
+    { "nom": "F-RESERVATION","fichier": "F-RESERVATION.json","lignes_source": [119, 123, 125], "ambiguites": 1 },
+    { "nom": "F-FAILURE",    "fichier": "F-FAILURE.json",    "lignes_source": [121],           "ambiguites": 0 },
+    { "nom": "F-POWER",      "fichier": "F-POWER.json",      "lignes_source": [127],           "ambiguites": 1 },
+    { "nom": "F-REGRESSION", "fichier": "F-REGRESSION.json", "lignes_source": [129],           "ambiguites": 0 }
+  ],
+  "couverture": {
+    "lignes_non_vides_de_la_section_F": [101, 103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127, 129],
+    "lignes_transcrites": [103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127, 129],
+    "ligne_101": "titre de section, sans valeur a materialiser",
+    "aucune_autre_fixture_F_dans_le_document": true
+  },
+  "hors_section_F_consigne": {
+    "fichier": "F-MONEY.json",
+    "cle": "renvois_hors_section_F",
+    "raison": "2720 et 16320 ont ete nommes par l'etage appelant comme nombres exacts ; ils proviennent des lignes 491-495 (fixture de bout-en-bout), hors section F, et sont marques non normatifs pour F-MONEY."
+  }
+}

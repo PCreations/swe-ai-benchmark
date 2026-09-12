@@ -1,0 +1,61 @@
+{
+  "fixture": "F-CLUSTERS",
+  "transcripteur": "A",
+  "source": {
+    "document": "docs/cahier.md",
+    "document_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_source": [
+      115
+    ],
+    "texte_source": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "enonce": {
+    "projets": [
+      {
+        "id": "P1",
+        "A": 10,
+        "B": 20,
+        "repetitions": 10,
+        "qualificatif": "repetitions identiques",
+        "cahier_line": 115
+      },
+      {
+        "id": "P2",
+        "A": 90,
+        "B": 100,
+        "repetitions": 1,
+        "cahier_line": 115
+      }
+    ],
+    "moyennes_interprojets": {
+      "A": 50,
+      "B": 60,
+      "commentaire_source": "encore 50 et 60 (memes valeurs que F-COST-RATIO)",
+      "cahier_line": 115
+    },
+    "interdiction": {
+      "regle": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation.",
+      "nombre_de_lignes_naives": 11,
+      "valeur_naive": "non chiffree par le cahier ; non calculee ici",
+      "cahier_line": 115
+    },
+    "invariance": {
+      "regle": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+      "cahier_line": 115
+    }
+  },
+  "notes": [
+    {
+      "objet": "poids des projets",
+      "constat": "Le cahier ne rechiffre pas les poids ici, mais impose des moyennes interprojets de 50 et 60 malgre 10 repetitions pour P1 et 1 pour P2 : l'agregation se fait par projet, chaque projet comptant pareil. Cette lecture est la seule compatible avec les valeurs publiees.",
+      "cahier_line": 115
+    },
+    {
+      "objet": "valeur naive non transcrite",
+      "constat": "Le cahier qualifie la moyenne naive sur onze lignes d'incorrecte sans la chiffrer. Je ne la calcule pas : une valeur absente de la source n'entre pas dans la fixture.",
+      "cahier_line": 115
+    }
+  ],
+  "ambiguites": []
+}

@@ -37,6 +37,9 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/oracle':
+        specifier: workspace:*
+        version: link:../oracle
 
   packages/oracle:
     dependencies:

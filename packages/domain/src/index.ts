@@ -15,6 +15,12 @@
 // période et leurs dénominateurs, `computePeriodMetrics`, fonction pure d'une
 // série de périodes vers Q, R, G, G_new par période et V, U, exposition et
 // réussite agrégée par intention pour la campagne (L185–L194).
+//
+// Il DÉCLARE en outre les quatre rôles de T05 — la machine à états d'une
+// période (L195–L202). Ils sont un SQUELETTE : chacun lève `NotImplemented`.
+// Les déclarer maintenant déplace le rouge de `acceptance/T05.spec.ts` de
+// l'absence d'un NOM (« CONTRAT-NON-SATISFAIT ») vers l'appel réel, seule
+// forme de rouge que `verification/runner/red.mjs` accepte comme preuve.
 // ─────────────────────────────────────────────────────────────────────────────
 export { compileCampaignManifest } from './campaign.js'
 export type { CampaignCell, CampaignPlan, CompileOptions } from './campaign.js'
@@ -38,3 +44,21 @@ export type {
   RetiredRequirement,
   SeriesMetrics,
 } from './metrics.js'
+
+export {
+  applyPeriodEvent,
+  closePeriod,
+  initialPeriodState,
+  reducePeriodLog,
+} from './period.js'
+export type {
+  AttemptOutcome,
+  DeploymentCoverage,
+  PeriodCommand,
+  PeriodEvent,
+  PeriodHaltState,
+  PeriodPhase,
+  PeriodResult,
+  PeriodState,
+  PeriodTransition,
+} from './period.js'

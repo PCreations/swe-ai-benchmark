@@ -3,9 +3,9 @@
   "state": "HELD",
   "owner": "vm-0e78e972-23ddd9d3",
   "ttl_s": 2700,
-  "acquired_at": "2026-09-12T09:04:42.530Z",
-  "heartbeat_at": "2026-09-12T10:26:33.072Z",
-  "boot_id": "9184b208-c496-4fe1-ae26-a0529aab6bcf",
+  "acquired_at": "2026-09-12T13:07:54.168Z",
+  "heartbeat_at": "2026-09-12T13:07:54.168Z",
+  "boot_id": "5c952cde-da3a-4ef6-b4b7-91d9e7b0e2a9",
   "stole_from": null,
   "note": "Un bail silencieux depuis plus de ttl_s est volable : une session tuee par la limite de quota ne rend jamais son bail, et la reprise ne doit pas en dependre."
 }

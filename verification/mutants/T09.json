@@ -1,0 +1,164 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T09\u2014 une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.lock.json.",
+    "",
+    "A quoi sert ce fichier. Un cas d'acceptation ne vaut que s'il existe une",
+    "modification de l'implementation qui le fait passer au rouge. Le cahier",
+    "(L139) refuse la preuve qui n'observe rien : \u00ab un programme qui ecrit",
+    "seulement passed=true, un test avec zero assertion [...] ne satisfait pas le",
+    "contrat \u00bb. Chaque mutant ci-dessous est cette contre-epreuve : appliquer la",
+    "mutation, relancer `pnpm verify:task T09`, exiger que le cas nomme par",
+    "kills_case devienne ROUGE. Un mutant qui laisse la suite verte denonce un",
+    "cas creux, pas une implementation correcte.",
+    "",
+    "LA PORTE \u00ab NECESSITE \u00bb N'EST PAS UNIVERSELLE. Stuber un export est la bonne",
+    "perturbation pour un cas `behaviour` seulement (A1, A5). Pour un cas",
+    "`refusal` (A2, A4), un stub qui leve rend le cas VERT : zero reservation ne",
+    "depasse jamais la capacite, et un programme mort differe toujours de l'etat",
+    "attendu. La perturbation correcte est alors INVERSE : rendre l'implementation",
+    "PERMISSIVE. Pour le cas `numeric` (A3), c'est la REGLE DE CALCUL qu'on fausse",
+    "sans toucher a la fixture, sans quoi un test qui n'encode que le litteral 100",
+    "survivrait.",
+    "",
+    "Les cibles sont decrites par leur ROLE et non par un chemin de fichier :",
+    "l'auteur des tests derive le contrat des cartes de specification et n'a lu ni",
+    "`fixtures/**` ni `infra/**`, les deux source_paths que le registre declare",
+    "pour T09. Un mutant se pose sur le point du programme qui remplit le role",
+    "decrit.",
+    "",
+    "MESURE. Les cinq mutants ont ete EXERCES, avant tout code de T09, sur une",
+    "sonde jetable non committee : un temoin de reservation minimal (serveur HTTP",
+    "+ PostgreSQL 18 reel, quatre versions, variante `drop-one-row`) implemente",
+    "contre le seul contrat publie par acceptance/T09.spec.ts. Sur cette sonde",
+    "CONFORME les cinq cas sont VERTS en 24 s ; chaque mutation a ensuite ete",
+    "appliquee seule et la suite relancee. Le champ `mesure` de chaque entree",
+    "rapporte ce qui a ete OBSERVE, y compris les tueries collaterales.",
+    "",
+    "CE QUE LA MESURE A APPRIS, ET QUI A CHANGE LES CAS. La sonde a d'abord",
+    "montre que les deux cas de refus (A2, A4) restaient VERTS sur un temoin qui",
+    "n'ecrit rien : 0 reservation ne surbooke pas, et un etat vide differe bien de",
+    "l'etat attendu. Les deux cas portent donc desormais leur CONTROLE POSITIF",
+    "dans le MEME cas \u2014 \u00ab EXACTEMENT une des deux demandes concurrentes est",
+    "ACCEPTEE \u00bb pour A2, \u00ab deux executions independantes du temoin conforme sont",
+    "declarees CONFORMES \u00bb pour A4. Consequence assumee et mesuree : le mutant",
+    "T09.M1 tue les cinq cas a la fois.",
+    "",
+    "LA BARRIERE MORD POUR DE VRAI. A2 n'affirme pas seulement qu'un compte reste",
+    "sous la capacite : sous T09.M2 la mesure montre les DEUX demandes de la meme",
+    "barriere rendre `HTTP 201 {\"ok\":true,\"status\":\"confirmed\"}`. La course",
+    "existe donc reellement entre les deux requetes liberees ensemble (L141) ;",
+    "elle n'est pas simulee par deux appels successifs."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T09",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T09"
+  ],
+  "acceptance_entry": "acceptance/T09.spec.ts",
+  "mutant_count": 5,
+  "mutants": [
+    {
+      "id": "T09.M1",
+      "kills_case": "T09.A1",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'EXPORT DE RESERVATION du temoin conforme \u2014 le point qui, sur une demande `reserve` ou `cancel` du contrat HTTP public, ecrit le fait metier dans la base PostgreSQL applicative.",
+      "mutation": "Stuber cet export : les deux operations repondent toujours en succes et n'ecrivent plus rien en base. Variante equivalente pour la porte 'module-stub' : remplacer le point d'entree des temoins par un module sans aucun export, de sorte qu'aucun role ne se resolve.",
+      "expected_effect": "T09.A1 devient rouge \u2014 et, par le jeu des controles positifs, les quatre autres cas aussi.",
+      "observation_qui_echoue": "A1 deroule F-RESERVATION P1..P4 contre un PostgreSQL REEL et reprojette l'etat metier EXPORTE apres chaque operation. Il exige `confirmes == ['A']` et `confirmes.length == 1` en P1, `attente == ['B','C']` puis `confirmes == ['B']` / `attente == ['C']` / `annules == ['A']` en P2, l'etat d'entree de P4 `[['A'],['B'],['C']]` \u2014 tous ces litteraux venant de F-RESERVATION. Sur un temoin qui n'ecrit rien, l'export est vide : la premiere egalite tombe. A1 exige en outre que l'etat SURVIVE a l'arret du processus entre chaque periode (redemarrage en version k+1 sur la MEME base) et que la base applicative porte au moins une table peuplee : c'est ce qui interdit un temoin a etat en memoire, que L235 (\u00ab tests sur PostgreSQL reel \u00bb) refuse.",
+      "pourquoi_cette_perturbation": "A1 est un cas `behaviour` : verification/cases.lock.json prescrit \u00ab stuber l'export de reservation du temoin conforme (creation/annulation n'ecrit plus rien en base) : le deroule F-RESERVATION P1-P4 ne produit plus les faits attendus \u00bb. C'est la forme ou la regle universelle du stub est valide. Un A1 qui se contenterait de verifier que le catalogue liste quatre versions survivrait a cette mutation \u2014 c'est precisement ce que le mutant interdit.",
+      "doit_rester_vert": [],
+      "tue_aussi": [
+        "T09.A2",
+        "T09.A3",
+        "T09.A4",
+        "T09.A5"
+      ],
+      "mesure": "Applique a la sonde jetable : les CINQ cas passent au rouge. A2 tombe sur son controle positif \u2014 \u00ab TOUR-1-ACCEPTES=2 attendu 1 : B=[valeur] HTTP 201 {\"ok\":true,\"status\":\"confirmed\"} / C=[valeur] HTTP 201 ... \u00bb : un temoin qui accepte tout sans rien ecrire n'a pas UNE acceptation, il en a deux. A4 et A5 tombent sur le leur (`attendu.enr.length` et `source.enr.length` observes a 0 au lieu de 8 et 3). A3 tombe sur le compte de 100. C'est voulu : un refus n'est un refus que s'il existe un non-refus."
+    },
+    {
+      "id": "T09.M2",
+      "kills_case": "T09.A2",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "LE CONTROLE DE CAPACITE DU CRENEAU, et le verrou qui le rend sur : le point ou le temoin, avant de confirmer une reservation, compare le nombre de reservations deja confirmees sur le creneau a sa capacite declaree \u2014 ainsi que la contrainte de base qui rend cette comparaison atomique face a une demande concurrente.",
+      "mutation": "Rendre le temoin PERMISSIF : retirer la comparaison au compte de confirmees (confirmer inconditionnellement), et retirer la contrainte d'unicite / le verrou transactionnel qui empeche deux transactions concurrentes de confirmer ensemble. Les deux demandes liberees par la barriere sont alors toutes deux acceptees sur un creneau de capacite 1.",
+      "expected_effect": "T09.A2 devient rouge.",
+      "observation_qui_echoue": "A2 joue CINQ tours. A chaque tour il declare un creneau de capacite `F-RESERVATION.valeurs.creneau.capacite` = 1, PREPARE deux demandes concurrentes et ne les LIBERE qu'ensemble par une barriere (L141) ; aucune n'est emise avant que l'autre ne soit prete. Il exige alors trois choses : (i) CONTROLE POSITIF \u2014 exactement UNE demande acceptee ; (ii) l'assertion decisive \u2014 l'autre REFUSEE, et refusee metier : un 5xx ou une panne de transport sont explicitement rejetes comme PLANTAGE ; (iii) l'export metier ne montre jamais plus d'une reservation confirmee sur ce creneau. Sous la mutation, (i) et (ii) tombent ensemble.",
+      "pourquoi_cette_perturbation": "A2 est un cas `refusal`, et c'est ici le defaut decisif : un stub qui leve ferait echouer les deux demandes, zero reservation confirmee ne depasserait pas la capacite, et A2 resterait VERT sans rien prouver. verification/cases.lock.json le dit mot pour mot. La seule perturbation informative est l'inverse \u2014 rendre le temoin permissif. Le CONTROLE POSITIF est ce qui interdit l'implementation degeneree symetrique, celle qui refuse tout : mesure faite, il tue A2 sous T09.M1.",
+      "doit_rester_vert": [
+        "T09.A3",
+        "T09.A4"
+      ],
+      "tue_aussi": [
+        "T09.A1",
+        "T09.A5"
+      ],
+      "mesure": "Applique a la sonde jetable (garde de capacite retiree et index unique partiel non cree) : A2 rouge sur \u00ab TOUR-1-ACCEPTES=2 attendu 1 \u00bb, les deux requetes de la MEME barriere ayant rendu 201/confirmed. A1 tombe aussi (la demande concurrente de B en P1 est confirmee : surbooking) et A5 aussi (B et C sont confirmes au lieu d'etre en attente). A3 et A4 restent VERTS : chacune de leurs reservations occupe son propre creneau, la capacite n'y est jamais disputee."
+    },
+    {
+      "id": "T09.M3",
+      "kills_case": "T09.A3",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser la regle de calcul",
+      "target": "LA REGLE DE SELECTION DE LA MIGRATION P4 \u2014 le point ou la version 4, demarree sur une base portant les donnees des periodes precedentes, choisit les lignes a rattacher au locataire `legacy`.",
+      "mutation": "Fausser la regle sans toucher a la fixture : migrer avec un OFFSET 1 (ou un LIMIT 99), de sorte qu'une reservation reellement creee aux periodes precedentes ne soit pas rattachee a `legacy`. Le jeu de donnees reste intact ; seule la regle de selection est decalee d'une ligne.",
+      "expected_effect": "T09.A3 devient rouge.",
+      "observation_qui_echoue": "A3 cree 100 reservations PAR LES OPERATIONS METIER du contrat HTTP public, reparties sur les versions 1, 2 et 3 \u2014 \u00ab les migrations portent sur les donnees reellement creees aux periodes precedentes \u00bb (L231) \u2014 puis demarre la version 4 sur la meme base, ce qui applique la migration connue. Il exige alors QUATRE choses : le compte exact `100` (cahier L233) sur l'etat metier exporte ; le meme compte sur les seules confirmees ; l'EGALITE DES ENSEMBLES D'IDENTITES metier (acteur|creneau) avant et apres migration ; et le rattachement de chaque reservation a `legacy`. L'off-by-one deplace le compte (99) ET l'ensemble. La troisieme assertion est celle qui distingue ce cas d'un test qui recopierait le litteral : une migration qui perdrait une ligne et en dupliquerait une autre conserverait 100 et tomberait tout de meme.",
+      "pourquoi_cette_perturbation": "A3 est un cas `numeric` : cases.lock.json prescrit exactement \u00ab migrer avec un OFFSET 1 / LIMIT 99 (une ligne sautee) de sorte que 99 reservations seulement soient rattachees a legacy \u00bb. Stuber un export ne serait pas la bonne porte \u2014 il tuerait A3 pour une raison sans rapport avec la regle de migration (c'est d'ailleurs ce que T09.M1 mesure). Le `100` n'est fixe ni par \u00a7F ni par la racine gelee, qui l'inscrit au contraire en ambiguite reportee (AMB-RESERVATION-1) : il vient de la ligne 233 du cahier, et le jeu de donnees qui le materialise appartient a T09.",
+      "doit_rester_vert": [
+        "T09.A2",
+        "T09.A4",
+        "T09.A5"
+      ],
+      "tue_aussi": [
+        "T09.A1"
+      ],
+      "mesure": "Applique a la sonde jetable (migration P4 avec OFFSET 1, ligne la plus ancienne non rattachee) : A3 rouge sur \u00ab Expected: 100 / Received: 99 \u00bb. A1 tombe aussi \u2014 la reservation la plus ancienne de la base principale est celle de A, et l'etat d'entree de P4 perd son `annules == ['A']`. A2, A4 et A5 restent VERTS : aucun des trois ne franchit la migration P4."
+    },
+    {
+      "id": "T09.M4",
+      "kills_case": "T09.A4",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "LE COMPARATEUR D'ETAT METIER \u2014 le role qui confronte l'etat exporte d'un temoin a l'etat attendu et rend le verdict de conformite sur lequel T10 batira sa qualification.",
+      "mutation": "Rendre le comparateur PERMISSIF : ne comparer qu'un total agrege, et avec une tolerance (par exemple accepter tout ecart de comptage inferieur ou egal a 1), de sorte que le temoin `drop-one-row` soit declare CONFORME. Aucune donnee n'est touchee : seul le jugement s'affaiblit.",
+      "expected_effect": "T09.A4 devient rouge.",
+      "observation_qui_echoue": "A4 joue TROIS fois le meme script, sur trois bases independantes : deux fois sur le temoin conforme, une fois sur `drop-one-row` (nom releve a L233). Il exige : (i) que le catalogue nomme cette fixture fautive, `conforming:false`, avec un digest DISTINCT de celui du temoin conforme (L235) ; (ii) que l'etat observe compte EXACTEMENT une reservation de moins que l'etat attendu, et que l'ensemble des identites manquantes en compte exactement une ; (iii) CONTROLE POSITIF \u2014 que le comparateur declare CONFORMES les deux executions INDEPENDANTES du temoin conforme, ce qui lui impose au passage de canoniser les metadonnees volatiles (L135, L559) ; (iv) l'assertion decisive \u2014 que la comparaison de `drop-one-row` a l'etat attendu soit REFUSEE, et refusee metier, pas par un plantage ; (v) que le rapport NOMME la difference, c'est-a-dire mentionne l'acteur ou le creneau de la reservation perdue. Sous la mutation, (iv) tombe \u2014 mesure : \u00ab ACCEPTE-A-TORT comparaison de drop-one-row a l etat attendu : {\"conforming\":true} \u00bb \u2014 et (v) tombe avec lui.",
+      "pourquoi_cette_perturbation": "A4 est un cas `refusal` : cases.lock.json nomme le defaut decisif \u2014 \u00ab un stub qui leve produirait lui aussi un ecart et laisserait le cas vert \u00bb. Ce qui doit tuer A4, c'est le comparateur qui ACCEPTE. L'exigence (v) est ce qui empeche un agregat de suffire : detecter 7 au lieu de 8 sans pouvoir dire LAQUELLE manque ne satisfait pas \u00ab chacun detecte par son controle NOMME \u00bb que T10 (L241) construira sur ce livrable. Et le CONTROLE POSITIF (iii) interdit l'implementation degeneree inverse, celle qui declare tout non conforme : mesure faite, il tue A4 sous T09.M1.",
+      "doit_rester_vert": [
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A5"
+      ],
+      "mesure": "Applique a la sonde jetable (comparateur reduit a |observe| - |attendu| <= 1) : A4 SEUL passe au rouge ; les quatre autres restent verts."
+    },
+    {
+      "id": "T09.M5",
+      "kills_case": "T09.A5",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'EXPORT METIER DE RESTAURATION \u2014 le point qui, sur l'operation `import` du contrat HTTP public, reinscrit dans la base applicative les faits metier portes par un export canonique.",
+      "mutation": "Stuber cet export : l'import repond en succes et n'ecrit aucun fait. Variante equivalente : ecrire les faits dans une table que l'export canonique ne relit pas.",
+      "expected_effect": "T09.A5 devient rouge.",
+      "observation_qui_echoue": "A5 joue un script sur la version 3, exporte son etat metier canonique, demarre la version 4 sur une base VIERGE, verifie d'abord que cette cible est vide, y restaure l'export, puis compare. Il exige : (i) CONTROLE POSITIF \u2014 l'export de la source porte reellement des faits (`confirmes == ['A']`, `attente == ['B','C']`, trois enregistrements), sans quoi \u00ab retrouver les memes faits \u00bb serait satisfait par deux etats vides ; (ii) l'egalite des identites metier et des trois listes de statuts entre source et cible ; (iii) \u00ab sans exiger un schema SQL identique \u00bb \u2014 les empreintes de schema des deux bases, relues dans `information_schema` sans jamais nommer une table (L119), doivent DIFFERER, puisque la version 3 et la version 4 sont separees par la migration P4. Sous la mutation, la cible reste vide et (ii) tombe.",
+      "pourquoi_cette_perturbation": "A5 est un cas `behaviour` : cases.lock.json prescrit \u00ab stuber l'export metier de restauration (l'import de l'export canonique n'ecrit aucun fait) : les faits metier retrouves apres restauration sont vides \u00bb. C'est la forme ou la regle universelle du stub est valide. Le controle positif (i) est ce qui interdit la lecture paresseuse du cas : sans lui, un temoin qui n'ecrit ni ne restaure rien verrait \u00ab les memes faits \u00bb des deux cotes \u2014 zero de chaque cote \u2014 et A5 serait vert sur un programme mort.",
+      "doit_rester_vert": [
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A4"
+      ],
+      "mesure": "Applique a la sonde jetable (import sans ecriture) : A5 SEUL passe au rouge, sur l'egalite des identites \u2014 attendu ['A|S1','B|S1','C|S1'], observe []. Les quatre autres restent verts."
+    }
+  ]
+}

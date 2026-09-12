@@ -1,0 +1,164 @@
+{
+  "fixture": "F-POWER",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      127
+    ]
+  },
+  "verbatim": {
+    "L127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "nombre_de_campagnes": {
+      "valeur": 4,
+      "qualificatif": "petites campagnes statistiques",
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "nombre": 2,
+      "ids": [
+        "P1",
+        "P2"
+      ],
+      "note": "deux parents distincts portant les memes valeurs",
+      "cahier_line": 127
+    },
+    "bras_B_dans_chaque_parent": {
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "cahier_line": 127
+    },
+    "campagnes": [
+      {
+        "index": 1,
+        "bras_A": {
+          "cout": 80,
+          "V": 1,
+          "U": 1
+        },
+        "borne_ratio": 0.8,
+        "borne_delta_V": 0,
+        "borne_delta_U": 0,
+        "decision_T34": true,
+        "cahier_line": 127
+      },
+      {
+        "index": 2,
+        "bras_A": {
+          "cout": 100,
+          "V": 1,
+          "U": 1
+        },
+        "borne_ratio": 1,
+        "borne_delta_V": 0,
+        "borne_delta_U": 0,
+        "decision_T34": false,
+        "cahier_line": 127
+      },
+      {
+        "index": 3,
+        "bras_A": {
+          "cout": 80,
+          "V": 0.96,
+          "U": 1
+        },
+        "borne_ratio": 0.8,
+        "borne_delta_V": -0.04,
+        "borne_delta_U": 0,
+        "decision_T34": false,
+        "cahier_line": 127
+      },
+      {
+        "index": 4,
+        "bras_A": {
+          "cout": 80,
+          "V": 0.99,
+          "U": 0.99
+        },
+        "borne_ratio": 0.8,
+        "borne_delta_V": -0.01,
+        "borne_delta_U": -0.01,
+        "decision_T34": true,
+        "cahier_line": 127
+      }
+    ],
+    "series": {
+      "bornes_ratio": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "bornes_delta_V": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "bornes_delta_U": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "decisions_T34": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "decisions_T34_verbatim": "[vrai,faux,faux,vrai]",
+      "cahier_line": 127
+    },
+    "preconditions": {
+      "enonce": "Comptabilite resolue, absence de violation critique, valeurs connues sur les deux bras.",
+      "cahier_line": 127
+    },
+    "tirages_parents": {
+      "enonce": "Les tirages parents exhaustifs donnent des distributions ponctuelles.",
+      "cahier_line": 127
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [
+    {
+      "point": "§F ne donne pas la regle de decision de T34 (seuils) qui produit [vrai,faux,faux,vrai] ; seules les decisions attendues sont enoncees.",
+      "cahier_line": 127
+    },
+    {
+      "point": "§F ne donne pas le nombre de trajectoires/repetitions a l'interieur de chaque parent.",
+      "cahier_line": 127
+    }
+  ],
+  "remarques": [
+    {
+      "note": "Le cahier donne une seule valeur de « borne » par campagne et par grandeur ; il precise que les tirages parents exhaustifs donnent des distributions ponctuelles, donc borne inferieure et borne superieure coincident sur cette valeur.",
+      "cahier_line": 127
+    },
+    {
+      "note": "Le cahier ecrit les bornes avec virgule decimale (0,8 ; -0,04 ; -0,01) ; elles sont transcrites ici en notation JSON a point, sans arrondi.",
+      "cahier_line": 127
+    }
+  ]
+}

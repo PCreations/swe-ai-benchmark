@@ -1,0 +1,104 @@
+{
+  "fixture": "F-BUDGET",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      105
+    ]
+  },
+  "verbatim": {
+    "L105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "unite": "micro-USD",
+    "budget_total": {
+      "valeur": 1000,
+      "cahier_line": 105
+    },
+    "concurrence": {
+      "montant_de_chaque_reservation": 600,
+      "nombre_de_reservations_concurrentes": 2,
+      "issue": "les deux ne peuvent pas etre toutes deux acceptees",
+      "cahier_line": 105
+    },
+    "etat_apres_reglement": {
+      "reglement_de_la_reservation_acceptee": 340,
+      "spent": 340,
+      "reserved": 0,
+      "available": 660,
+      "cahier_line": 105
+    },
+    "sous_cas_depuis_etat_apres_reglement": {
+      "mode": "testes separement (chacun repart de spent=340, reserved=0, available=660)",
+      "cas": [
+        {
+          "id": "reservation_600",
+          "montant": 600,
+          "admissible": true,
+          "available_apres": 60,
+          "cahier_line": 105
+        },
+        {
+          "id": "reservation_661",
+          "montant": 661,
+          "admissible": false,
+          "available_apres": 660,
+          "cahier_line": 105
+        }
+      ]
+    },
+    "sous_cas_independant_budget_frais": {
+      "mode": "troisieme sous-cas independant",
+      "budget": "frais",
+      "depense": 0,
+      "reservation_ambigue": 600,
+      "available": 400,
+      "condition": "tant qu'elle n'est pas reconciliee",
+      "cahier_line": 105
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Deux reservations concurrentes de 600 sur un budget de 1000 ne peuvent pas etre toutes deux acceptees.",
+      "cahier_line": 105
+    },
+    {
+      "enonce": "Une reservation ambigue maintient available=400 tant qu'elle n'est pas reconciliee (le montant n'est pas libere par l'ambiguite).",
+      "cahier_line": 105
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [
+    {
+      "point": "Le terme « reservation ambigue » n'est pas defini dans §F.",
+      "cahier_line": 105
+    },
+    {
+      "point": "Dans le troisieme sous-cas, §F n'enonce ni la decomposition spent/reserved ni le montant nominal du budget frais ; seuls « zero depense » et available=400 sont enonces. Aucune valeur n'est deduite ici.",
+      "cahier_line": 105
+    },
+    {
+      "point": "§F ne nomme pas le code de refus de la reservation de 661.",
+      "cahier_line": 105
+    }
+  ],
+  "remarques": [
+    {
+      "note": "La phrase « la reservation acceptee » implique qu'exactement une des deux reservations concurrentes est acceptee ; §F ne l'ecrit pas autrement.",
+      "cahier_line": 105
+    }
+  ]
+}

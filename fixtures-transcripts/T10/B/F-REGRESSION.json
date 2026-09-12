@@ -1,0 +1,158 @@
+{
+  "fixture": "F-REGRESSION",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T12",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "avertissement": "Valeurs transcrites du cahier uniquement. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "section": "F",
+  "cahier_lines": [
+    129
+  ],
+  "source_verbatim": [
+    {
+      "cahier_line": 129,
+      "text": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+    }
+  ],
+  "consumers": [
+    {
+      "case": "T04.A3",
+      "cahier_line": 191,
+      "clause": "F-REGRESSION exclut `cancel@1` et compte `isolation@1`",
+      "implique": "deux assertions opposees sur le meme jeu : un remplacement n'est pas une regression, une violation apres satisfaction en est une."
+    },
+    {
+      "case": "T04.A4",
+      "cahier_line": 191,
+      "clause": "deux periodes consecutives cassees donnent G=1 aux deux et G_new=1 puis 0",
+      "implique": "sonde voisine, appuyee sur la definition de G/G_new (L189), pas sur le texte §F."
+    }
+  ],
+  "definition_appliquee": {
+    "cahier_line": 189,
+    "texte": "Précision : G compte les régressions actuellement ouvertes, c’est-à-dire les exigences actives dues, autrefois satisfaites et actuellement violées. `G_new` compte celles qui étaient satisfaites à la période précédente comparable et deviennent violées. Une régression persistante contribue à G, sans redevenir nouvelle à chaque période."
+  },
+  "cas_1_remplacement": {
+    "exigence": {
+      "v": "cancel@1",
+      "cahier_line": 129
+    },
+    "satisfaite_en": {
+      "v": "P2",
+      "cahier_line": 129
+    },
+    "remplacee_en": {
+      "v": "P3",
+      "cahier_line": 129
+    },
+    "remplacante": {
+      "v": "cancel@2",
+      "cahier_line": 129
+    },
+    "regression": {
+      "v": false,
+      "cahier_line": 129
+    },
+    "litteral_cahier": "le retrait de `cancel@1` ne produit pas de regression"
+  },
+  "cas_2_violation": {
+    "exigence": {
+      "v": "isolation@1",
+      "cahier_line": 129
+    },
+    "satisfaite_en": {
+      "v": "P3",
+      "cahier_line": 129
+    },
+    "violee_en": {
+      "v": "P4",
+      "cahier_line": 129
+    },
+    "regression": {
+      "v": true,
+      "cahier_line": 129
+    },
+    "litteral_cahier": "Une exigence `isolation@1` satisfaite en P3 puis violee en P4 en produit une"
+  },
+  "regle_de_comptage": {
+    "v": "Compter par id/version active, pas par nombre d'assertions.",
+    "cahier_line": 129
+  },
+  "invariants_lies": [
+    {
+      "cahier_line": 72,
+      "texte": "10. Le nombre d’assertions ou de tests ne détermine pas le poids d’une fonctionnalité."
+    }
+  ],
+  "derivations": [
+    {
+      "valeur": "G en P4",
+      "resultat": 1,
+      "statut": "DERIVE",
+      "calcul_verifiable": "isolation@1 est active, due, autrefois satisfaite (P3) et actuellement violee (P4) : G compte 1 (definition L189). cancel@1 n'est plus active et ne compte pas.",
+      "avertissement": "non ecrit tel quel en §F."
+    },
+    {
+      "valeur": "G_new en P4",
+      "resultat": 1,
+      "statut": "DERIVE",
+      "calcul_verifiable": "isolation@1 etait satisfaite a la periode precedente comparable (P3) et devient violee en P4 (definition L189).",
+      "avertissement": "non ecrit tel quel en §F."
+    },
+    {
+      "valeur": "G en P3",
+      "resultat": 0,
+      "statut": "DERIVE",
+      "calcul_verifiable": "aucune exigence active due, autrefois satisfaite et actuellement violee en P3 selon le texte de L129.",
+      "avertissement": "non ecrit tel quel en §F ; depend de AMB-REGRESSION-01."
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-REGRESSION-01",
+      "cahier_line": 129,
+      "question": "`cancel@2` est-elle satisfaite en P3 et en P4 ?",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "satisfaite : le remplacement est propre et seul le retrait de cancel@1 est teste",
+        "non specifiee : le cas ne porte que sur la non-regression du retrait"
+      ],
+      "impact": "moyen : si cancel@2 etait violee, G en P3 ou P4 changerait et brouillerait l'assertion T04.A3."
+    },
+    {
+      "id": "AMB-REGRESSION-02",
+      "cahier_line": 129,
+      "question": "A quelle periode `isolation@1` est-elle revelee et devient-elle due ? Le cahier ne dit que « satisfaite en P3 ».",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "due des P3",
+        "revelee plus tot, due en P3"
+      ],
+      "impact": "faible sur G en P4, fort si un cas futur mesure Q sur ce jeu (une exigence non encore due est hors denominateur, L109/T04.A6)."
+    },
+    {
+      "id": "AMB-REGRESSION-03",
+      "cahier_line": 129,
+      "question": "Le jeu F-REGRESSION comporte-t-il quatre periodes P1..P4, et partage-t-il ses periodes avec F-QUALITY (L109) ?",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "jeu autonome a quatre periodes",
+        "meme trame de periodes que F-QUALITY, avec des exigences differentes"
+      ],
+      "impact": "moyen : F-QUALITY (L109) nomme les exigences A@1, A@2, B@1, C@1 et non cancel@*/isolation@* ; rien ne dit si les deux jeux coexistent."
+    },
+    {
+      "id": "AMB-REGRESSION-04",
+      "cahier_line": 129,
+      "question": "Aucune valeur de G ou G_new n'est chiffree en §F pour F-REGRESSION.",
+      "lecture_retenue": "aucune — consigne en `derivations` avec statut DERIVE",
+      "options": [
+        "G(P4)=1, G_new(P4)=1, G(P3)=0 par application de la definition L189",
+        "valeurs a fixer par T04"
+      ],
+      "impact": "moyen : T04.A3 exige « exclut cancel@1 et compte isolation@1 » sans chiffrer, donc l'assertion porte sur l'appartenance a l'ensemble compte, pas sur un entier ecrit en §F."
+    }
+  ]
+}

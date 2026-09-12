@@ -1,0 +1,107 @@
+{
+  "fixture": "F-FAILURE",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      121
+    ]
+  },
+  "verbatim": {
+    "L121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "K": {
+      "valeur": 4,
+      "cahier_line": 121
+    },
+    "candidat": {
+      "description": "candidat sans deploiement sur les quatre periodes",
+      "cahier_line": 121
+    },
+    "lignes_conservees": {
+      "nombre": 4,
+      "cahier_line": 121
+    },
+    "par_periode": [
+      {
+        "period_index": 1,
+        "Q": 0,
+        "R": 0,
+        "cout": 100,
+        "cahier_line": 121
+      },
+      {
+        "period_index": 2,
+        "Q": 0,
+        "R": 0,
+        "cout": 50,
+        "cahier_line": 121
+      },
+      {
+        "period_index": 3,
+        "Q": 0,
+        "R": 0,
+        "cout": 0,
+        "cahier_line": 121
+      },
+      {
+        "period_index": 4,
+        "Q": 0,
+        "R": 0,
+        "cout": 0,
+        "cahier_line": 121
+      }
+    ],
+    "condition_Q_R_nuls": {
+      "enonce": "Q=0 et R=0 si les exigences et usages y sont presents",
+      "cahier_line": 121
+    },
+    "couts": {
+      "valeurs": [
+        100,
+        50,
+        0,
+        0
+      ],
+      "total": 150,
+      "unite": "non precisee en §F pour cette fixture",
+      "cahier_line": 121
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Un arret de calcul apres P2 ne supprime pas P3 et P4.",
+      "cahier_line": 121
+    },
+    {
+      "enonce": "Aucune facture imaginaire n'est ajoutee a P3 et P4.",
+      "cahier_line": 121
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [
+    {
+      "point": "§F n'enonce pas le detail des exigences et usages presents dans les quatre periodes ; seule leur presence est posee comme condition de Q=0 et R=0.",
+      "cahier_line": 121
+    }
+  ],
+  "remarques": [
+    {
+      "note": "Le total 150 est enonce par le cahier ; il n'est pas recalcule ici.",
+      "cahier_line": 121
+    }
+  ]
+}

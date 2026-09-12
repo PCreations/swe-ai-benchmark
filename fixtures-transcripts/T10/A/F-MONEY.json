@@ -1,0 +1,65 @@
+{
+  "fixture": "F-MONEY",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      103
+    ]
+  },
+  "verbatim": {
+    "L103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "unite": "micro-USD",
+    "grille_tarifaire_micro_usd_par_token": {
+      "entree_non_cachee": 2,
+      "entree_cachee": 1,
+      "sortie": 5,
+      "cahier_line": 103,
+      "qualificatif_cahier": "fictive"
+    },
+    "appel_reference": {
+      "tokens_entree_non_caches": 100,
+      "tokens_entree_caches": 40,
+      "tokens_sortie": 20,
+      "cout_micro_usd": 340,
+      "cahier_line": 103
+    },
+    "deux_appels_identiques": {
+      "nombre_appels": 2,
+      "cout_total_micro_usd": 680,
+      "cahier_line": 103
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Les champs d'entree sont disjoints (entree non cachee et entree cachee ne se recouvrent pas).",
+      "cahier_line": 103
+    },
+    {
+      "enonce": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+      "cahier_line": 103
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [],
+  "remarques": [
+    {
+      "note": "340 et 680 sont enonces par le cahier ; ils ne sont pas recalcules ici depuis la grille.",
+      "cahier_line": 103
+    }
+  ]
+}

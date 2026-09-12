@@ -1,0 +1,218 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T12",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "avertissement": "Valeurs transcrites du cahier uniquement. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "section": "F",
+  "cahier_lines": [
+    117
+  ],
+  "source_verbatim": [
+    {
+      "cahier_line": 117,
+      "text": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  ],
+  "consumers": [
+    {
+      "case": "T33.A1",
+      "cahier_line": 443,
+      "clause": "F-BOOTSTRAP donne les quatre ratios et l'intervalle [1/2,9/10]",
+      "implique": "les quatre ratios ET l'intervalle sont assertes."
+    },
+    {
+      "case": "T33.A2",
+      "cahier_line": 443,
+      "clause": "les deux bras suivent exactement les memes indices parents",
+      "implique": "bootstrap APPARIE : A et B sont reechantillonnes sur la meme liste de parents."
+    },
+    {
+      "case": "T33.A3",
+      "cahier_line": 443,
+      "clause": "multiplier tous les couts par 7 ne change ni ratio ni intervalle",
+      "implique": "invariance d'echelle ; sonde derivee de la fixture."
+    },
+    {
+      "case": "T33.A4",
+      "cahier_line": 443,
+      "clause": "A=B donne tous les ratios egaux a 1"
+    },
+    {
+      "case": "T33.A6",
+      "cahier_line": 443,
+      "clause": "une seule grappe donne `INSUFFICIENT_CLUSTERS` pour l'inference interprojets"
+    },
+    {
+      "case": "T33.A7",
+      "cahier_line": 443,
+      "clause": "les bandes ponctuelles ne sont jamais etiquetees simultanees"
+    }
+  ],
+  "base": {
+    "enonce": {
+      "v": "Sur les deux projets precedents",
+      "cahier_line": 117
+    },
+    "resolution": "« les deux projets precedents » = P1 et P2 de F-CLUSTERS (L115), identiques en moyennes a ceux de F-COST-RATIO (L113).",
+    "P1": {
+      "A": {
+        "v": 10,
+        "cahier_line": 115
+      },
+      "B": {
+        "v": 20,
+        "cahier_line": 115
+      }
+    },
+    "P2": {
+      "A": {
+        "v": 90,
+        "cahier_line": 115
+      },
+      "B": {
+        "v": 100,
+        "cahier_line": 115
+      }
+    }
+  },
+  "liste_de_reechantillonnages_forcee": {
+    "cahier_line": 117,
+    "litteral_cahier": "[P1,P1], [P1,P2], [P2,P1], [P2,P2]",
+    "tirages": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ],
+    "note": {
+      "v": "forcer la liste",
+      "cahier_line": 117
+    }
+  },
+  "ratios_cout_A_sur_B": {
+    "litteral_cahier": {
+      "v": "[1/2,5/6,5/6,9/10]",
+      "cahier_line": 117
+    },
+    "valeurs": [
+      {
+        "exact": "1/2",
+        "num": 1,
+        "den": 2,
+        "cahier_line": 117,
+        "tirage": [
+          "P1",
+          "P1"
+        ],
+        "decimal_exact": 0.5,
+        "calcul_verifiable": "A=(10+10)/2=10 ; B=(20+20)/2=20 ; 10/20=1/2"
+      },
+      {
+        "exact": "5/6",
+        "num": 5,
+        "den": 6,
+        "cahier_line": 117,
+        "tirage": [
+          "P1",
+          "P2"
+        ],
+        "decimal_non_exact": true,
+        "calcul_verifiable": "A=(10+90)/2=50 ; B=(20+100)/2=60 ; 50/60=5/6"
+      },
+      {
+        "exact": "5/6",
+        "num": 5,
+        "den": 6,
+        "cahier_line": 117,
+        "tirage": [
+          "P2",
+          "P1"
+        ],
+        "decimal_non_exact": true,
+        "calcul_verifiable": "A=(90+10)/2=50 ; B=(100+20)/2=60 ; 50/60=5/6"
+      },
+      {
+        "exact": "9/10",
+        "num": 9,
+        "den": 10,
+        "cahier_line": 117,
+        "tirage": [
+          "P2",
+          "P2"
+        ],
+        "decimal_exact": 0.9,
+        "calcul_verifiable": "A=(90+90)/2=90 ; B=(100+100)/2=100 ; 90/100=9/10"
+      }
+    ]
+  },
+  "intervalle": {
+    "convention": {
+      "v": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "niveaux": {
+      "v": "2,5 %-97,5 %",
+      "cahier_line": 117
+    },
+    "borne_basse": {
+      "exact": "1/2",
+      "num": 1,
+      "den": 2,
+      "cahier_line": 117
+    },
+    "borne_haute": {
+      "exact": "9/10",
+      "num": 9,
+      "den": 10,
+      "cahier_line": 117
+    },
+    "litteral_cahier": {
+      "v": "[1/2,9/10]",
+      "cahier_line": 117
+    },
+    "calcul_verifiable": "liste triee [1/2, 5/6, 5/6, 9/10] ; quantile inverse a 2,5 % -> 1/2 ; a 97,5 % -> 9/10"
+  },
+  "avertissement_de_portee": {
+    "v": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+    "cahier_line": 117
+  },
+  "ambiguites": [
+    {
+      "id": "AMB-BOOTSTRAP-01",
+      "cahier_line": 117,
+      "question": "« les deux projets precedents » designe-t-il F-CLUSTERS (L115) ou F-COST-RATIO (L113) ?",
+      "lecture_retenue": "aucune — sans effet numerique",
+      "options": [
+        "F-CLUSTERS, paragraphe immediatement precedent (10 repetitions pour P1)",
+        "F-COST-RATIO, qui porte les memes moyennes par projet"
+      ],
+      "impact": "nul sur les quatre ratios : les deux lectures donnent les memes moyennes par parent (10/20 et 90/100). Le nombre de repetitions differe mais n'entre pas dans un bootstrap au niveau parent."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-02",
+      "cahier_line": 117,
+      "question": "La convention de « quantile empirique inverse » n'est pas ecrite formellement (interpolation, arrondi d'indice, inclusivite).",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "toute convention qui, sur 4 points, rend min a 2,5 % et max a 97,5 % (le cahier impose le resultat, pas la formule)",
+        "une convention nommee explicitement ailleurs, absente du texte"
+      ],
+      "impact": "moyen : le resultat [1/2,9/10] est impose, donc toute convention le contredisant est exclue, mais la formule reste a fixer par T33 (« convention de quantile archivee », L445)."
+    }
+  ]
+}

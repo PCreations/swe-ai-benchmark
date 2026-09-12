@@ -1,0 +1,75 @@
+{
+  "fixture": "F-REGRESSION",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      129
+    ]
+  },
+  "verbatim": {
+    "L129": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "cas": [
+      {
+        "id": "remplacement_sans_regression",
+        "exigence": "cancel@1",
+        "satisfaite_en": "P2",
+        "remplacee_en": "P3",
+        "remplacant": "cancel@2",
+        "regression": false,
+        "enonce": "le retrait de cancel@1 ne produit pas de regression",
+        "cahier_line": 129
+      },
+      {
+        "id": "violation_avec_regression",
+        "exigence": "isolation@1",
+        "satisfaite_en": "P3",
+        "violee_en": "P4",
+        "regression": true,
+        "nombre_de_regressions": 1,
+        "enonce": "une exigence isolation@1 satisfaite en P3 puis violee en P4 produit une regression",
+        "cahier_line": 129
+      }
+    ],
+    "regle_de_comptage": {
+      "enonce": "Compter par id/version active, pas par nombre d'assertions.",
+      "cahier_line": 129
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Le retrait d'une exigence remplacee par une nouvelle version n'est pas une regression.",
+      "cahier_line": 129
+    },
+    {
+      "enonce": "Le comptage se fait par id/version active, pas par nombre d'assertions.",
+      "cahier_line": 129
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [
+    {
+      "point": "§F ne dit pas ce qui se passe en P1 pour cancel@1 (revelation/echeance), ni le statut d'isolation@1 avant P3.",
+      "cahier_line": 129
+    },
+    {
+      "point": "§F n'attache pas ces deux cas a une serie G par periode chiffree ; seul le nombre de regressions produites par chaque cas est enonce.",
+      "cahier_line": 129
+    }
+  ],
+  "remarques": []
+}

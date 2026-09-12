@@ -1,0 +1,300 @@
+{
+  "etage": "FIXTURES",
+  "task": "T12",
+  "role": "fixture-transcriber",
+  "transcriber": "B",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section_source": {
+    "section": "F",
+    "ligne_titre": 101,
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "premiere_ligne": 103,
+    "derniere_ligne": 129
+  },
+  "methode": [
+    "Depart des CONSOMMATEURS : pour chaque fixture, recensement des cas d acceptation qui la citent (verification/cases.lock.json + §H de docs/cahier.md), deduction de ce que la fixture doit contenir pour que ces cas aient un sens, puis confrontation au texte de §F.",
+    "Aucune implementation consultee. Aucun fichier du depot ecrit ou modifie : .bench/ est ignore par git (.gitignore:13).",
+    "Chaque valeur porte un champ cahier_line verifiable par: sed -n '<n>p' docs/cahier.md",
+    "Les 20 blocs source_verbatim ont ete compares octet a octet aux lignes du cahier : 0 divergence."
+  ],
+  "recensement": {
+    "noms_F_trouves_en_section_F": 10,
+    "liste": [
+      "F-BOOTSTRAP",
+      "F-BUDGET",
+      "F-CLUSTERS",
+      "F-COST-RATIO",
+      "F-FAILURE",
+      "F-MONEY",
+      "F-POWER",
+      "F-QUALITY",
+      "F-REGRESSION",
+      "F-RESERVATION"
+    ],
+    "controle": "grep -oE 'F-[A-Z][A-Z-]*' docs/cahier.md | sort -u rend exactement ces 10 noms sur tout le cahier ; aucun autre F-* n existe hors ou dans §F.",
+    "hors_perimetre": [
+      {
+        "nom": "golden-six",
+        "cahier_line": 489,
+        "raison": "fixture de T38 (L491), pas une fixture maitresse F-* de §F. Ses nombres 2720 / 16320 / 48 sont reportes dans F-MONEY.consequences_golden_six parce qu ils derivent du tarif F-MONEY."
+      }
+    ]
+  },
+  "fixtures": [
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "cahier_lines": [
+        117
+      ],
+      "consumers": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A6",
+        "T33.A7"
+      ],
+      "nombre_ambiguites": 2,
+      "ambiguites": [
+        "AMB-BOOTSTRAP-01",
+        "AMB-BOOTSTRAP-02"
+      ],
+      "derivations": [],
+      "sha256": "dc7f1fbb80abbb452834dcbe15751722c40014bcafcb29fb450bed518e1b9e50"
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "cahier_lines": [
+        105
+      ],
+      "consumers": [
+        "T16.A2",
+        "T16.A7"
+      ],
+      "nombre_ambiguites": 3,
+      "ambiguites": [
+        "AMB-BUDGET-01",
+        "AMB-BUDGET-02",
+        "AMB-BUDGET-03"
+      ],
+      "derivations": [],
+      "sha256": "4ae7c390818a29d01887e5c1578efe58474f61aa65803a1983eda3e84303fb27"
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "cahier_lines": [
+        115
+      ],
+      "consumers": [
+        "T32.A2",
+        "T33.A5",
+        "T38.A8"
+      ],
+      "nombre_ambiguites": 1,
+      "ambiguites": [
+        "AMB-CLUSTERS-01"
+      ],
+      "derivations": [],
+      "sha256": "def7f979ae4cea7d9cfb885a09c7961d2247c7d827f86324c105a118e1f224af"
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "cahier_lines": [
+        113
+      ],
+      "consumers": [
+        "T32.A1",
+        "T36.A2"
+      ],
+      "nombre_ambiguites": 0,
+      "ambiguites": [],
+      "derivations": [],
+      "sha256": "9007b6a23d714a4b043b22a7370c0f0b1fde06da778691c497e7e05ee6b4affe"
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "cahier_lines": [
+        121
+      ],
+      "consumers": [
+        "T05.A6",
+        "T11.A4",
+        "T31.A1",
+        "T38.A7"
+      ],
+      "nombre_ambiguites": 4,
+      "ambiguites": [
+        "AMB-FAILURE-01",
+        "AMB-FAILURE-02",
+        "AMB-FAILURE-03",
+        "AMB-FAILURE-04"
+      ],
+      "derivations": [
+        "V",
+        "U"
+      ],
+      "sha256": "742e3e443ecc2006a0b3ea99451447499b3a6e0e5a8b8139c8b861e33c3704c1"
+    },
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "cahier_lines": [
+        103
+      ],
+      "consumers": [
+        "T01.A6",
+        "T16.A1",
+        "T38.A2",
+        "T38.A3"
+      ],
+      "nombre_ambiguites": 0,
+      "ambiguites": [],
+      "derivations": [],
+      "sha256": "f765d23cf9710ee4c34c6cadcdd7e3008070bcf3591cdbe7cdf1b433dd43bd0d"
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "cahier_lines": [
+        127
+      ],
+      "consumers": [
+        "T34.A1",
+        "T34.A2",
+        "T34.A3",
+        "T34.A4",
+        "T34.A6",
+        "T35.A1"
+      ],
+      "nombre_ambiguites": 4,
+      "ambiguites": [
+        "AMB-POWER-01",
+        "AMB-POWER-02",
+        "AMB-POWER-03",
+        "AMB-POWER-04"
+      ],
+      "derivations": [],
+      "sha256": "14d63960d2dba239429cef0ca5b257626a802b265da2dcba9eb103fc3063e771"
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "cahier_lines": [
+        107,
+        109,
+        111
+      ],
+      "consumers": [
+        "T04.A1",
+        "T04.A2",
+        "T04.A5",
+        "T04.A6",
+        "T08.A2",
+        "T32.A3",
+        "T36.A1"
+      ],
+      "nombre_ambiguites": 3,
+      "ambiguites": [
+        "AMB-QUALITY-01",
+        "AMB-QUALITY-02",
+        "AMB-QUALITY-03"
+      ],
+      "derivations": [],
+      "sha256": "006f3b94c1a12b603fb19ff62d692e56777d74847e64945a06bb4264a11b897b"
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "cahier_lines": [
+        129
+      ],
+      "consumers": [
+        "T04.A3",
+        "T04.A4"
+      ],
+      "nombre_ambiguites": 4,
+      "ambiguites": [
+        "AMB-REGRESSION-01",
+        "AMB-REGRESSION-02",
+        "AMB-REGRESSION-03",
+        "AMB-REGRESSION-04"
+      ],
+      "derivations": [
+        "G en P4",
+        "G_new en P4",
+        "G en P3"
+      ],
+      "sha256": "9f527370c3e5eb10271f9de6edcad5e24b23245ac825dd4cf006d850622ace74"
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ],
+      "consumers": [
+        "T07.A1",
+        "T07.A2",
+        "T07.A3",
+        "T07.A4",
+        "T07.A5",
+        "T07.A6",
+        "T07.A7",
+        "T09.A1",
+        "T09.A2",
+        "T09.A3",
+        "T09.A4",
+        "T09.A5",
+        "T08.A6",
+        "T11.A6"
+      ],
+      "nombre_ambiguites": 4,
+      "ambiguites": [
+        "AMB-RESERVATION-01",
+        "AMB-RESERVATION-02",
+        "AMB-RESERVATION-03",
+        "AMB-RESERVATION-04"
+      ],
+      "derivations": [],
+      "sha256": "48a39ab4a38d0cc33f7e2a6177dfb1a15b5f284aafcbd4f2bbddbc3bb66f54b6"
+    }
+  ],
+  "totaux": {
+    "fixtures_ecrites": 10,
+    "cas_consommateurs_distincts": 50,
+    "ambiguites_totales": 25,
+    "valeurs_derivees_signalees": 5
+  },
+  "ambiguites_les_plus_lourdes": [
+    {
+      "id": "AMB-POWER-01",
+      "fixture": "F-POWER",
+      "cahier_line": 451,
+      "resume": "La marge de non-inferiorite 0,02 est qualifiee de « marges d exemple » alors que les decisions [vrai,faux,faux,vrai] exigees n en sortent que pour cette valeur. Seul parametre non ecrit en §F dont depend une sortie exigee."
+    },
+    {
+      "id": "AMB-FAILURE-02",
+      "fixture": "F-FAILURE",
+      "cahier_line": 121,
+      "resume": "Les exigences et usages de F-FAILURE ne sont pas enumeres, alors que Q=0 et R=0 y sont conditionnes a leur presence : les sorties sont donnees, pas les entrees."
+    },
+    {
+      "id": "AMB-RESERVATION-01",
+      "fixture": "F-RESERVATION",
+      "cahier_line": 233,
+      "resume": "T09.A3 exige 100 reservations migrees ; §F ne decrit que A, B et C sur un creneau de capacite 1."
+    }
+  ],
+  "contrat_de_l_etage": {
+    "commit_attendu": null,
+    "push_attendu": false,
+    "raison": "Etage de transcription : aucun commit n est produit. La materialisation dans le depot revient a l etage de scellement, si et seulement si les deux transcripteurs concordent."
+  }
+}

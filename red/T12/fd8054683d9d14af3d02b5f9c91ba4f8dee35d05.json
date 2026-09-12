@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T12",
+  "subject_commit": "fd8054683d9d14af3d02b5f9c91ba4f8dee35d05",
+  "dirty": false,
+  "input_digest": "e22c1157dc48f97a385ce8602b94de24007afc20dc5873dd8f2c00de1eac59f5",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T12.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M2",
+      "note": "T12.M2 APPLIQUE aux sources : publishPeriodResult range l'enveloppe dans une Map de module (MEMOIRE_M2) et n'ecrit plus rien en base ; readPeriodResult sert cette Map. OBSERVE sur acceptance/T12.spec.ts : 6 cas sur 6 rouges. A1 tombe sur le temoin psql independant -- ETAT-ABSENT-DE-POSTGRESQL t12_...-a1-p1 : profil={public.periods:0, public.domain_events:0, public.outbox:0, ...} -- alors que l'egalite avant/apres arret+reconnexion etait encore VERTE (le cache survit a close()). Restaure ensuite par git checkout -- packages/storage."
+    },
+    {
+      "id": "T12.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M3",
+      "note": "T12.M3 APPLIQUE a migrations/0001_central_schema.sql : periods.idempotency_key passe de PRIMARY KEY a NOT NULL + index ORDINAIRE, contraintes domain_events_unique et outbox_unique retirees (les 4 FK vers periods(idempotency_key) retirees par consequence mecanique, PostgreSQL exigeant l'unicite du cote reference). OBSERVE : 6 cas sur 6 rouges ; A2 tombe sur REFUS-INATTENDU publication unique de reference : StorageRefusal(STORAGE_UNAVAILABLE) PostgreSQL a refuse la publication (42P10) : there is no unique or exclusion constraint matching the ON CONFLICT specification. MESURE COMPLEMENTAIRE EXECUTEE, contraire a l'attendu archive : la variante ETROITE (retrait de la SEULE unicite de la cle, evenements et outbox conservant la leur) laisse A2 VERT -- dans cette implementation la course a vingt est arbitree par pg_advisory_xact_lock et par periods_position_unique, pas par l'index unique de la cle. Le tueur d'A2 au bon endroit est T12.M7, dont tue_aussi nomme A2 : profil public.outbox et public.domain_events observes a 20 au lieu de 1. Restaure par git checkout -- packages/storage."
+    },
+    {
+      "id": "T12.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M5",
+      "note": "T12.M5 APPLIQUE : retrait de la SEULE unicite de periods.idempotency_key (PRIMARY KEY -> NOT NULL + CREATE INDEX periods_key_idx ordinaire ; FK retirees par consequence), refus applicatif << meme cle / autre empreinte >> et unicite des evenements/outbox intacts. OBSERVE : A3 SEUL rouge, les cinq autres VERTS -- AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE : colonnes de la ligne de resultat portant la cle [{schema:public,table:periods,colonne:idempotency_key}] -- pg_index ne declare, sur aucune d'elles, d'index unique dont elle soit l'unique colonne de tete. Les trois quarts comportementaux d'A3 etaient encore verts. Restaure par git checkout -- packages/storage."
+    },
+    {
+      "id": "T12.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M6",
+      "note": "T12.M6 APPLIQUE a src/publish.ts : l'entree d'outbox sort de la transaction -- inseree en AUTOCOMMIT par psqlOnce sur une autre connexion, juste apres le BEGIN et avant le point de panne ; l'insertion in-transaction subsiste mais devient un ON CONFLICT DO NOTHING, donc le parcours sain est inchange. OBSERVE : A4 rouge sur le profil de la cle apres la panne BEFORE_COMMIT -- attendu 0, observe 1, l'entree d'outbox orpheline ayant survecu au ROLLBACK. A1, A2, A3, A5 VERTS ; A6 rouge en collateral (non prevu par tue_aussi : sous CONFLICT_EVERY_ATTEMPT les insertions autocommit laissent elles aussi une trace, alors qu'A6 exige qu'aucune ne subsiste). Restaure par git checkout -- packages/storage."
+    },
+    {
+      "id": "T12.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M7",
+      "note": "T12.M7 APPLIQUE : la branche de rejeu du bloc DECISIVE_SQL reinsere evenements et entrees d'outbox sans verifier qu'ils existent deja, les gardes ON CONFLICT (idempotency_key, event_seq) DO NOTHING sont retirees et les contraintes domain_events_unique / outbox_unique remplacees par des index ordinaires ; periods reste dedoublonnee. OBSERVE, exactement le tue_aussi archive : A2, A3, A5, A6 rouges, A1 et A4 VERTS. A5 tombe sur l'egalite des profils apres la premiere reprise -- public.outbox 2 au lieu de 1 et public.domain_events 2 au lieu de 1, public.periods restant a 1. Restaure par git checkout -- packages/storage."
+    },
+    {
+      "id": "T12.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M9",
+      "note": "T12.M9 APPLIQUE a src/publish.ts : la borne RESPECTEE est desolidarisee de la borne ANNONCEE -- la boucle de reprise va jusqu'a PUBLISH_RETRY_LIMIT + 3 tandis que publishRetryLimit() continue de publier 5. OBSERVE : A6 SEUL rouge, les cinq autres VERTS -- sous le point d'injection CONFLICT_EVERY_ATTEMPT le refus PUBLISH_RETRY_EXHAUSTED arrive bien, mais son compteur attempts vaut 8 la ou la limite annoncee vaut 5 (attendu 5, recu 8). Restaure par git checkout -- packages/storage."
+    }
+  ],
+  "mutation_proof": {
+    "T12.A1": {
+      "killed_by": "T12.M2",
+      "note": "T12.M2 APPLIQUE aux sources : publishPeriodResult range l'enveloppe dans une Map de module (MEMOIRE_M2) et n'ecrit plus rien en base ; readPeriodResult sert cette Map. OBSERVE sur acceptance/T12.spec.ts : 6 cas sur 6 rouges. A1 tombe sur le temoin psql independant -- ETAT-ABSENT-DE-POSTGRESQL t12_...-a1-p1 : profil={public.periods:0, public.domain_events:0, public.outbox:0, ...} -- alors que l'egalite avant/apres arret+reconnexion etait encore VERTE (le cache survit a close()). Restaure ensuite par git checkout -- packages/storage."
+    },
+    "T12.A2": {
+      "killed_by": "T12.M3",
+      "note": "T12.M3 APPLIQUE a migrations/0001_central_schema.sql : periods.idempotency_key passe de PRIMARY KEY a NOT NULL + index ORDINAIRE, contraintes domain_events_unique et outbox_unique retirees (les 4 FK vers periods(idempotency_key) retirees par consequence mecanique, PostgreSQL exigeant l'unicite du cote reference). OBSERVE : 6 cas sur 6 rouges ; A2 tombe sur REFUS-INATTENDU publication unique de reference : StorageRefusal(STORAGE_UNAVAILABLE) PostgreSQL a refuse la publication (42P10) : there is no unique or exclusion constraint matching the ON CONFLICT specification. MESURE COMPLEMENTAIRE EXECUTEE, contraire a l'attendu archive : la variante ETROITE (retrait de la SEULE unicite de la cle, evenements et outbox conservant la leur) laisse A2 VERT -- dans cette implementation la course a vingt est arbitree par pg_advisory_xact_lock et par periods_position_unique, pas par l'index unique de la cle. Le tueur d'A2 au bon endroit est T12.M7, dont tue_aussi nomme A2 : profil public.outbox et public.domain_events observes a 20 au lieu de 1. Restaure par git checkout -- packages/storage."
+    },
+    "T12.A3": {
+      "killed_by": "T12.M5",
+      "note": "T12.M5 APPLIQUE : retrait de la SEULE unicite de periods.idempotency_key (PRIMARY KEY -> NOT NULL + CREATE INDEX periods_key_idx ordinaire ; FK retirees par consequence), refus applicatif << meme cle / autre empreinte >> et unicite des evenements/outbox intacts. OBSERVE : A3 SEUL rouge, les cinq autres VERTS -- AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE : colonnes de la ligne de resultat portant la cle [{schema:public,table:periods,colonne:idempotency_key}] -- pg_index ne declare, sur aucune d'elles, d'index unique dont elle soit l'unique colonne de tete. Les trois quarts comportementaux d'A3 etaient encore verts. Restaure par git checkout -- packages/storage."
+    },
+    "T12.A4": {
+      "killed_by": "T12.M6",
+      "note": "T12.M6 APPLIQUE a src/publish.ts : l'entree d'outbox sort de la transaction -- inseree en AUTOCOMMIT par psqlOnce sur une autre connexion, juste apres le BEGIN et avant le point de panne ; l'insertion in-transaction subsiste mais devient un ON CONFLICT DO NOTHING, donc le parcours sain est inchange. OBSERVE : A4 rouge sur le profil de la cle apres la panne BEFORE_COMMIT -- attendu 0, observe 1, l'entree d'outbox orpheline ayant survecu au ROLLBACK. A1, A2, A3, A5 VERTS ; A6 rouge en collateral (non prevu par tue_aussi : sous CONFLICT_EVERY_ATTEMPT les insertions autocommit laissent elles aussi une trace, alors qu'A6 exige qu'aucune ne subsiste). Restaure par git checkout -- packages/storage."
+    },
+    "T12.A5": {
+      "killed_by": "T12.M7",
+      "note": "T12.M7 APPLIQUE : la branche de rejeu du bloc DECISIVE_SQL reinsere evenements et entrees d'outbox sans verifier qu'ils existent deja, les gardes ON CONFLICT (idempotency_key, event_seq) DO NOTHING sont retirees et les contraintes domain_events_unique / outbox_unique remplacees par des index ordinaires ; periods reste dedoublonnee. OBSERVE, exactement le tue_aussi archive : A2, A3, A5, A6 rouges, A1 et A4 VERTS. A5 tombe sur l'egalite des profils apres la premiere reprise -- public.outbox 2 au lieu de 1 et public.domain_events 2 au lieu de 1, public.periods restant a 1. Restaure par git checkout -- packages/storage."
+    },
+    "T12.A6": {
+      "killed_by": "T12.M9",
+      "note": "T12.M9 APPLIQUE a src/publish.ts : la borne RESPECTEE est desolidarisee de la borne ANNONCEE -- la boucle de reprise va jusqu'a PUBLISH_RETRY_LIMIT + 3 tandis que publishRetryLimit() continue de publier 5. OBSERVE : A6 SEUL rouge, les cinq autres VERTS -- sous le point d'injection CONFLICT_EVERY_ATTEMPT le refus PUBLISH_RETRY_EXHAUSTED arrive bien, mais son compteur attempts vaut 8 la ou la limite annoncee vaut 5 (attendu 5, recu 8). Restaure par git checkout -- packages/storage."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

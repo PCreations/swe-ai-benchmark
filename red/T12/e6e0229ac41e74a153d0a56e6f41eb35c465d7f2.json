@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T12",
+  "subject_commit": "e6e0229ac41e74a153d0a56e6f41eb35c465d7f2",
+  "dirty": false,
+  "input_digest": "c919bc88d8f4c3ebe7dcd0a44d8997b970f0e79c6e25e6c19de802dd98b1e840",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T12.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M2",
+      "note": "T12.M2 applique reellement (variante mesuree du fichier) : publishPeriodResult range l'enveloppe dans une Map de module et n'ecrit plus rien en base, readPeriodResult ressert cette Map. Observe : A1 ROUGE sur \"ETAT-ABSENT-DE-POSTGRESQL t12_...-a1-p1 : profil={...toutes les 14 tables a 0...}\" — le recoupement psql, hors du processus. L'egalite avant/apres reconnexion, elle, restait verte. Les 5 autres cas tombent aussi (tue_aussi). Mutation restauree."
+    },
+    {
+      "id": "T12.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M7",
+      "note": "T12.M7 applique reellement : contraintes domain_events_unique et outbox_unique retirees de la migration, clauses ON CONFLICT correspondantes retirees, et la branche de rejeu reinsere evenements et outbox sans verifier qu'ils existent. Observe : A2 ROUGE sur l'egalite des profils apres les vingt publications concurrentes — public.domain_events 1 -> 20 et public.outbox 1 -> 20, public.periods reste a 1. Collateraux observes : A3, A5, A6 rouges ; A1 et A4 verts. Mutation restauree. NOTE : T12.M3 (retrait de l'unicite seule) a AUSSI ete applique et mesure separement — il ne tue PAS A2 sur cette implementation, parce que pg_advisory_xact_lock, et non la contrainte, ferme la fenetre de la course a vingt ; il ne tue que A3 (AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE)."
+    },
+    {
+      "id": "T12.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M4",
+      "note": "T12.M4 applique reellement : dans le bloc decisif, la branche 'meme cle / autre empreinte' n'emet plus IDEMPOTENCY_CONFLICT mais un UPDATE qui ecrase input_digest, identity et result, et rend un recu ordinaire. Observe : A3 SEUL ROUGE (A1, A2, A4, A5, A6 verts), sur ACCEPTE-A-TORT publication de t12_...-a3 avec une autre empreinte. Mutation restauree."
+    },
+    {
+      "id": "T12.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M6",
+      "note": "T12.M6 applique reellement : l'ecriture de l'outbox sort de la transaction — un INSERT INTO outbox en autocommit est envoye AVANT le BEGIN de chaque tentative, le bloc decisif la reinserant ensuite sans effet. Observe : A4 ROUGE a acceptance/T12.spec.ts:1773, expect(totalDuProfil(profilPanne)).toBe(0) : attendu 0, observe 1 — l'entree d'outbox orpheline survit a la panne BEFORE_COMMIT. A1, A2, A3, A5 verts ; A6 tombe en collateral (la cle de CONFLICT_EVERY_ATTEMPT laisse aussi une entree d'outbox), collateral non annonce par le fichier de mutants. Mutation restauree."
+    },
+    {
+      "id": "T12.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M7",
+      "note": "Meme application reelle de T12.M7 que pour A2 (deduplication a la reprise supprimee, unicite outbox/domain_events retiree). Observe : A5 ROUGE sur l'egalite des profils apres la premiere reprise — public.outbox 1 -> 2 et public.domain_events 1 -> 2, public.periods inchange a 1, ce qui est exactement la mesure consignee dans verification/mutants/T12.json. Mutation restauree."
+    },
+    {
+      "id": "T12.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M9",
+      "note": "T12.M9 applique reellement : la borne REELLE de la boucle de reprise est desolidarisee de la borne ANNONCEE (const limit = PUBLISH_RETRY_LIMIT + 3 ; publishRetryLimit() continue de rendre 5). Observe : A6 SEUL ROUGE (A1..A5 verts) a acceptance/T12.spec.ts:2053, expect(tentatives(refus)).toBe(L) : attendu 5, observe 8, sous le point d'injection CONFLICT_EVERY_ATTEMPT. Mutation restauree."
+    }
+  ],
+  "mutation_proof": {
+    "T12.A1": {
+      "killed_by": "T12.M2",
+      "note": "T12.M2 applique reellement (variante mesuree du fichier) : publishPeriodResult range l'enveloppe dans une Map de module et n'ecrit plus rien en base, readPeriodResult ressert cette Map. Observe : A1 ROUGE sur \"ETAT-ABSENT-DE-POSTGRESQL t12_...-a1-p1 : profil={...toutes les 14 tables a 0...}\" — le recoupement psql, hors du processus. L'egalite avant/apres reconnexion, elle, restait verte. Les 5 autres cas tombent aussi (tue_aussi). Mutation restauree."
+    },
+    "T12.A2": {
+      "killed_by": "T12.M7",
+      "note": "T12.M7 applique reellement : contraintes domain_events_unique et outbox_unique retirees de la migration, clauses ON CONFLICT correspondantes retirees, et la branche de rejeu reinsere evenements et outbox sans verifier qu'ils existent. Observe : A2 ROUGE sur l'egalite des profils apres les vingt publications concurrentes — public.domain_events 1 -> 20 et public.outbox 1 -> 20, public.periods reste a 1. Collateraux observes : A3, A5, A6 rouges ; A1 et A4 verts. Mutation restauree. NOTE : T12.M3 (retrait de l'unicite seule) a AUSSI ete applique et mesure separement — il ne tue PAS A2 sur cette implementation, parce que pg_advisory_xact_lock, et non la contrainte, ferme la fenetre de la course a vingt ; il ne tue que A3 (AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE)."
+    },
+    "T12.A3": {
+      "killed_by": "T12.M4",
+      "note": "T12.M4 applique reellement : dans le bloc decisif, la branche 'meme cle / autre empreinte' n'emet plus IDEMPOTENCY_CONFLICT mais un UPDATE qui ecrase input_digest, identity et result, et rend un recu ordinaire. Observe : A3 SEUL ROUGE (A1, A2, A4, A5, A6 verts), sur ACCEPTE-A-TORT publication de t12_...-a3 avec une autre empreinte. Mutation restauree."
+    },
+    "T12.A4": {
+      "killed_by": "T12.M6",
+      "note": "T12.M6 applique reellement : l'ecriture de l'outbox sort de la transaction — un INSERT INTO outbox en autocommit est envoye AVANT le BEGIN de chaque tentative, le bloc decisif la reinserant ensuite sans effet. Observe : A4 ROUGE a acceptance/T12.spec.ts:1773, expect(totalDuProfil(profilPanne)).toBe(0) : attendu 0, observe 1 — l'entree d'outbox orpheline survit a la panne BEFORE_COMMIT. A1, A2, A3, A5 verts ; A6 tombe en collateral (la cle de CONFLICT_EVERY_ATTEMPT laisse aussi une entree d'outbox), collateral non annonce par le fichier de mutants. Mutation restauree."
+    },
+    "T12.A5": {
+      "killed_by": "T12.M7",
+      "note": "Meme application reelle de T12.M7 que pour A2 (deduplication a la reprise supprimee, unicite outbox/domain_events retiree). Observe : A5 ROUGE sur l'egalite des profils apres la premiere reprise — public.outbox 1 -> 2 et public.domain_events 1 -> 2, public.periods inchange a 1, ce qui est exactement la mesure consignee dans verification/mutants/T12.json. Mutation restauree."
+    },
+    "T12.A6": {
+      "killed_by": "T12.M9",
+      "note": "T12.M9 applique reellement : la borne REELLE de la boucle de reprise est desolidarisee de la borne ANNONCEE (const limit = PUBLISH_RETRY_LIMIT + 3 ; publishRetryLimit() continue de rendre 5). Observe : A6 SEUL ROUGE (A1..A5 verts) a acceptance/T12.spec.ts:2053, expect(tentatives(refus)).toBe(L) : attendu 5, observe 8, sous le point d'injection CONFLICT_EVERY_ATTEMPT. Mutation restauree."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

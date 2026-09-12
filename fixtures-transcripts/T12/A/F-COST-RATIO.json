@@ -1,0 +1,75 @@
+{
+  "fixture": "F-COST-RATIO",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      113
+    ]
+  },
+  "verbatim": {
+    "L113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "projets": {
+      "nombre": 2,
+      "poids": "egal",
+      "cahier_line": 113
+    },
+    "couts_par_bras": {
+      "A": {
+        "valeurs": [
+          10,
+          90
+        ],
+        "cahier_line": 113
+      },
+      "B": {
+        "valeurs": [
+          20,
+          100
+        ],
+        "cahier_line": 113
+      },
+      "note_ordre": "les deux listes sont indexees par projet, dans l'ordre du cahier"
+    },
+    "moyennes": {
+      "A": 50,
+      "B": 60,
+      "cahier_line": 113
+    },
+    "ratio_principal_A_sur_B": {
+      "rationnel": "5/6",
+      "numerateur": 5,
+      "denominateur": 6,
+      "cahier_line": 113
+    },
+    "valeur_incorrecte_a_ne_pas_produire": {
+      "nom": "moyenne des ratios",
+      "valeur": 0.7,
+      "statut": "resultat incorrect pour cette metrique",
+      "cahier_line": 113
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Le ratio principal est le ratio des moyennes (5/6), pas la moyenne des ratios (0.7).",
+      "cahier_line": 113
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [],
+  "remarques": []
+}

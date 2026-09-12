@@ -1,0 +1,196 @@
+{
+  "schema": "bench.fixtures.comparaison-ab/1",
+  "tache": "T12",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "objet": "scellement — comparaison valeur par valeur des deux transcriptions independantes du §F, puis confrontation a la racine DEJA SCELLEE acceptance/reference/**",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes": [
+      101,
+      129
+    ]
+  },
+  "arbitrages_lus_avant_comparaison": [
+    {
+      "id": "SC-001",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "statut": "RESOLU",
+      "applique": true,
+      "effets": [
+        "DIV-3 / F-QUALITY : le poids d'une exigence est fixe a son introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4",
+        "DIV-1 / F-FAILURE : l'unite des couts reste NON SPECIFIEE",
+        "DIV-2 / F-REGRESSION : le nombre attendu vaut 1 (l.129 « en produit une »)"
+      ]
+    }
+  ],
+  "controles_textuels_re_executes": [
+    {
+      "commande": "sed -n '121p' docs/cahier.md | grep -c 'micro-USD'",
+      "observe": 0,
+      "conclusion": "l'unite n'est pas ecrite ligne 121 ; la chaine est en l.80, 103, 493, 495 — DIV-1 confirme contre B"
+    },
+    {
+      "commande": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+      "observe": "en produit une",
+      "conclusion": "le nombre 1 est une transcription, pas un calcul — DIV-2 confirme"
+    }
+  ],
+  "transcriptions_archivees": {
+    "nombre_de_fichiers": 22,
+    "sha256": {
+      "A/F-BOOTSTRAP.json": "f48caa3c419058099bd91e745aef4154408a851ad13310419d7bb17a4477032e",
+      "A/F-BUDGET.json": "27580abbbfc2162981c2a1ac8ccd7b41318018db537e3b4e118cee0f4c56dcfb",
+      "A/F-CLUSTERS.json": "92eaaeee5c2d873367c1656eb30c3d9623fc78a848cc9c29a317fb4809863dbe",
+      "A/F-COST-RATIO.json": "653d937dfffdf798b0f9fef080a0c3842d14111da89029504130ddaa993fcb65",
+      "A/F-FAILURE.json": "9dd4631dd3fb4aa24bfa060b81f1d5bc6a16d46d650d2318f4d6fef5fc4aaa87",
+      "A/F-MONEY.json": "d3bec53dd615c69dd81efe2f828ed46388f44190c65630ee755fa00299cb61c2",
+      "A/F-POWER.json": "ed43a6e31d729dd5c86daf31dda3a83751b16d744ddf5c8c438939ab9639e747",
+      "A/F-QUALITY.json": "74e8f6648a079f4548c861df89f07fa6f91b1b42336c2075a85c92f7c25a155a",
+      "A/F-REGRESSION.json": "ef4547a78019bdf2565f373730482380e8d4dfe5fef8d4e80b6150d66291827d",
+      "A/F-RESERVATION.json": "acf4ba7f66455c9279c8fcee3880f0cb6a10eae06eef136515b06f12744ba1c2",
+      "A/INDEX.json": "66f7287c1044bff890d0d1451f95088d447f839758348f2e57361cdb0d7a9949",
+      "B/F-BOOTSTRAP.json": "dc7f1fbb80abbb452834dcbe15751722c40014bcafcb29fb450bed518e1b9e50",
+      "B/F-BUDGET.json": "4ae7c390818a29d01887e5c1578efe58474f61aa65803a1983eda3e84303fb27",
+      "B/F-CLUSTERS.json": "def7f979ae4cea7d9cfb885a09c7961d2247c7d827f86324c105a118e1f224af",
+      "B/F-COST-RATIO.json": "9007b6a23d714a4b043b22a7370c0f0b1fde06da778691c497e7e05ee6b4affe",
+      "B/F-FAILURE.json": "742e3e443ecc2006a0b3ea99451447499b3a6e0e5a8b8139c8b861e33c3704c1",
+      "B/F-MONEY.json": "f765d23cf9710ee4c34c6cadcdd7e3008070bcf3591cdbe7cdf1b433dd43bd0d",
+      "B/F-POWER.json": "14d63960d2dba239429cef0ca5b257626a802b265da2dcba9eb103fc3063e771",
+      "B/F-QUALITY.json": "006f3b94c1a12b603fb19ff62d692e56777d74847e64945a06bb4264a11b897b",
+      "B/F-REGRESSION.json": "9f527370c3e5eb10271f9de6edcad5e24b23245ac825dd4cf006d850622ace74",
+      "B/F-RESERVATION.json": "48a39ab4a38d0cc33f7e2a6177dfb1a15b5f284aafcbd4f2bbddbc3bb66f54b6",
+      "B/INDEX.json": "d3c287f6555e4fb123693a3c5e38a8f78bee085d6c90dd41cc352d6d6edf22d3"
+    },
+    "fraicheur": {
+      "identiques_a_T10": 22,
+      "identiques_a_T09": 0,
+      "identiques_a_T08": 0,
+      "constat": "les 22 fichiers presents sur le disque sont OCTET POUR OCTET ceux deja archives sous fixtures-transcripts/T10/. Ce ne sont donc PAS deux nouvelles transcriptions produites pour T12 : c'est la meme paire, re-comparee. Constat inscrit ici pour que l'audit ne credite pas cet etage d'une double transcription independante supplementaire."
+    }
+  },
+  "controle_1_verbatim_contre_le_cahier": {
+    "methode": "chaque bloc verbatim de A et de B compare octet a octet a la ligne du cahier qu'il declare",
+    "blocs_compares": 28,
+    "divergences": 0
+  },
+  "controle_2_comparaison_A_contre_B": {
+    "methode": "extraction canonique des deux formats (les mises en forme different, les valeurs non), nombres normalises en Fraction exacte — un decimal du cahier et son rationnel equivalent comptent comme la MEME valeur",
+    "champs_de_valeur_compares": 160,
+    "divergences_de_valeur": 0,
+    "ecart_residuel_non_comptabilise_comme_divergence": {
+      "fixture": "F-FAILURE",
+      "champ": "unite des couts",
+      "A": "non precisee en §F pour cette fixture",
+      "B": "micro-USD (voir F-MONEY, L103)",
+      "cahier_line_concernee": 121,
+      "statut": "DIV-1, DEJA TRANCHEE par SC-001 (RESOLU) contre B. Arbitrage applique, non rouvert. B ne revendique plus la l.121 comme source : le champ ne porte pas de cahier_line et B consigne lui-meme AMB-FAILURE-04 comme non tranchee."
+    }
+  },
+  "controle_3_confrontation_a_la_racine_scellee": {
+    "methode": "pour chaque valeur scellee : assertion scelle == A == B",
+    "assertions": 150,
+    "vertes": 150,
+    "rouges": 0,
+    "conclusion": "la racine porte deja exactement la transcription commune de cette paire"
+  },
+  "ambiguites": {
+    "A": 0,
+    "B": 25,
+    "bloquantes": 0,
+    "regle_appliquee": "une ambiguite ne bloque que si elle porte sur une valeur que cet etage doit ECRIRE. Cet etage n'ecrit aucune valeur : la racine est scellee et gelee depuis T00, et chaque ambiguite tombe soit dans un champ `non_fixe_par_le_cahier` de la fixture, soit dans aucun champ scelle.",
+    "portant_sur_une_valeur_effectivement_SCELLEE": [
+      {
+        "id": "AMB-BUDGET-01",
+        "champ_scelle": "F-BUDGET.valeurs.sous_cas_4_reservation_ambigue.budget = 1000 (cahier_line 105)",
+        "A": "abstention — inscrit en non_enonce : « §F n'enonce pas le montant nominal du budget frais »",
+        "B": "1000, marque INFERE, lecture_retenue « aucune »",
+        "divergence": false,
+        "pourquoi_non_bloquant": "aucun des deux transcripteurs ne contredit 1000 ; l'un l'infere en le declarant tel, l'autre s'abstient. Rien a rouvrir, et rien a ecrire : 1000 est deja scelle avec la note qui dit que la l.105 ne reecrit pas le montant pour ce sous-cas."
+      },
+      {
+        "id": "AMB-BOOTSTRAP-01",
+        "champ_scelle": "F-BOOTSTRAP.valeurs.population.source_des_projets = « ligne 115 : P1 (A=10,B=20) et P2 (A=90,B=100) »",
+        "A": "renvoi a F-CLUSTERS, ligne 115",
+        "B": "renvoi a F-CLUSTERS, ligne 115 ; note que l'autre lecture (F-COST-RATIO, l.113) donne les memes moyennes par parent",
+        "divergence": false,
+        "pourquoi_non_bloquant": "les deux transcripteurs designent la meme source, et les deux lectures possibles donnent les memes couts par parent : impact numerique nul sur les quatre ratios."
+      }
+    ],
+    "toutes_les_autres": {
+      "nombre": 23,
+      "constat": "chacune tombe dans un champ `non_fixe_par_le_cahier` de la fixture concernee, ou ne correspond a aucun champ scelle",
+      "ids": [
+        "AMB-BOOTSTRAP-02",
+        "AMB-BUDGET-02",
+        "AMB-BUDGET-03",
+        "AMB-CLUSTERS-01",
+        "AMB-QUALITY-01",
+        "AMB-QUALITY-02",
+        "AMB-QUALITY-03",
+        "AMB-FAILURE-01",
+        "AMB-FAILURE-02",
+        "AMB-FAILURE-03",
+        "AMB-FAILURE-04",
+        "AMB-POWER-01",
+        "AMB-POWER-02",
+        "AMB-POWER-03",
+        "AMB-POWER-04",
+        "AMB-REGRESSION-01",
+        "AMB-REGRESSION-02",
+        "AMB-REGRESSION-03",
+        "AMB-REGRESSION-04",
+        "AMB-RESERVATION-01",
+        "AMB-RESERVATION-02",
+        "AMB-RESERVATION-03",
+        "AMB-RESERVATION-04"
+      ]
+    },
+    "reportees_au_compte_rendu": [
+      "AMB-POWER-01 : la marge de non-inferiorite 0,02 (l.451, « marges d'exemple ») est le seul parametre hors §F dont depend la sortie exigee [vrai,faux,faux,vrai]. Non scellee — elle appartient au §H.",
+      "AMB-FAILURE-02 : §F donne les sorties de F-FAILURE (Q=0, R=0) mais n'enumere pas les exigences et usages dont il conditionne ces sorties.",
+      "AMB-RESERVATION-01 : T09.A3 (l.233) exige 100 reservations migrees alors que §F ne decrit que A, B et C sur un creneau de capacite 1."
+    ]
+  },
+  "valeurs_hors_§F_portees_par_B_SEUL_et_NON_scellees": {
+    "regle": "la racine materialise §F ; une valeur derivee ou tiree d'une autre section n'y entre pas",
+    "elements": [
+      "F-MONEY : consequences golden-six (l.491, 493) — 48 appels, 2720 par trajectoire, 16320 au total ; valeur de controle corrompue 341 (l.165)",
+      "F-CLUSTERS : moyennes naives 190/11 et 300/11, calculees par le transcripteur, non ecrites l.115",
+      "F-FAILURE : V et U a 0, marques DERIVE par B lui-meme",
+      "F-REGRESSION : G(P4)=1, G_new(P4)=1, G(P3)=0, derives de la definition l.189",
+      "F-POWER : marge 0,02 (l.451), puissance 0,5 et erreur standard 0,25 (l.463)"
+    ],
+    "constat": "aucune n'est materialisee dans acceptance/reference/**, ce qui est correct ; A ne les transcrit pas."
+  },
+  "gel": {
+    "verifie_par_trois_moyens": [
+      {
+        "moyen": "git rev-parse HEAD:acceptance/reference",
+        "observe": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91"
+      },
+      {
+        "moyen": "git rev-parse cd239915d88f6ac07b4b4f45e1a565f8c04786e0:acceptance/reference (commit du gel)",
+        "observe": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91"
+      },
+      {
+        "moyen": "sha256 et taille des 10 fichiers confrontes a docs/FROZEN_ROOTS.json",
+        "observe": "10/10 conformes, 0 ecart"
+      },
+      {
+        "moyen": "checkReferences() (verification/runner/references.mjs)",
+        "observe": "state GELEE, files 10, worktree_diff [], F-MONEY CONFORME, problems []"
+      }
+    ],
+    "tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "deplace_par_cet_etage": false
+  },
+  "decision": {
+    "ecriture_en_zone_REFERENCE": "AUCUNE",
+    "motif": "REFUS RAISONNE, PAS OMISSION. La racine acceptance/reference/** porte deja la transcription commune de cette paire : 150 assertions le verifient. La reecrire, meme a contenu equivalent, deplacerait le tree oid et invaliderait les 44 attestations sans aucune divergence a corriger ; l'editer apres le gel sans SPEC_CONFLICT ouvert est interdit (docs/FROZEN_ROOTS.json, verification/ownership.json note « frozen »). docs/FROZEN_ROOTS.json est laisse intact pour la meme raison : il est dans input_digest et l'oid qu'il declare est exact et courant.",
+    "fixtures_scellees": 10,
+    "consequence": "aucun commit sur la branche source : il n'y a rien a y ecrire. Le seul evenement de cet etage est cette archive de ledger."
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "plage_de_lignes": [
+      101,
+      129
+    ]
+  },
+  "provenance": "§F du cahier uniquement ; aucun cas d'acceptation, aucune suite de tests, aucune implementation consultes",
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "fixtures_dans_l_ordre_du_cahier": [
+    {
+      "fixture": "F-MONEY",
+      "fichier": "F-MONEY.json",
+      "cahier_lines": [
+        103
+      ],
+      "ambiguites": 0,
+      "non_enonce": 0
+    },
+    {
+      "fixture": "F-BUDGET",
+      "fichier": "F-BUDGET.json",
+      "cahier_lines": [
+        105
+      ],
+      "ambiguites": 0,
+      "non_enonce": 3
+    },
+    {
+      "fixture": "F-QUALITY",
+      "fichier": "F-QUALITY.json",
+      "cahier_lines": [
+        107,
+        109,
+        111
+      ],
+      "ambiguites": 0,
+      "non_enonce": 2
+    },
+    {
+      "fixture": "F-COST-RATIO",
+      "fichier": "F-COST-RATIO.json",
+      "cahier_lines": [
+        113
+      ],
+      "ambiguites": 0,
+      "non_enonce": 0
+    },
+    {
+      "fixture": "F-CLUSTERS",
+      "fichier": "F-CLUSTERS.json",
+      "cahier_lines": [
+        115
+      ],
+      "ambiguites": 0,
+      "non_enonce": 0
+    },
+    {
+      "fixture": "F-BOOTSTRAP",
+      "fichier": "F-BOOTSTRAP.json",
+      "cahier_lines": [
+        117
+      ],
+      "ambiguites": 0,
+      "non_enonce": 0
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "fichier": "F-RESERVATION.json",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ],
+      "ambiguites": 0,
+      "non_enonce": 3
+    },
+    {
+      "fixture": "F-FAILURE",
+      "fichier": "F-FAILURE.json",
+      "cahier_lines": [
+        121
+      ],
+      "ambiguites": 0,
+      "non_enonce": 1
+    },
+    {
+      "fixture": "F-POWER",
+      "fichier": "F-POWER.json",
+      "cahier_lines": [
+        127
+      ],
+      "ambiguites": 0,
+      "non_enonce": 2
+    },
+    {
+      "fixture": "F-REGRESSION",
+      "fichier": "F-REGRESSION.json",
+      "cahier_lines": [
+        129
+      ],
+      "ambiguites": 0,
+      "non_enonce": 2
+    }
+  ],
+  "totaux": {
+    "fixtures": 10,
+    "ambiguites": 0,
+    "non_enonce": 13
+  }
+}

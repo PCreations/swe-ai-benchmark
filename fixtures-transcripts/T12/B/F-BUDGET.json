@@ -1,0 +1,213 @@
+{
+  "fixture": "F-BUDGET",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T12",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "avertissement": "Valeurs transcrites du cahier uniquement. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "section": "F",
+  "cahier_lines": [
+    105
+  ],
+  "source_verbatim": [
+    {
+      "cahier_line": 105,
+      "text": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+    }
+  ],
+  "consumers": [
+    {
+      "case": "T16.A2",
+      "cahier_line": 295,
+      "clause": "F-BUDGET respecte tous ses montants sous transactions concurrentes",
+      "implique": "chaque montant ci-dessous est une assertion, y compris sous concurrence ; les trois sous-cas sont separes et ne doivent pas etre chaines."
+    },
+    {
+      "case": "T16.A7",
+      "cahier_line": 295,
+      "clause": "une reservation dont le cout maximal est non borne est refusee en mode plafond strict avec `UNBOUNDED_COST`",
+      "implique": "voisin de F-BUDGET mais hors du texte §F : conserve comme contexte consommateur, pas comme contenu de fixture."
+    }
+  ],
+  "budget_initial": {
+    "v": 1000,
+    "cahier_line": 105
+  },
+  "sous_cas": [
+    {
+      "id": "P1-concurrence",
+      "cahier_line": 105,
+      "enonce": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
+      "montant_reservation": {
+        "v": 600,
+        "cahier_line": 105
+      },
+      "nombre_demandes_concurrentes": {
+        "v": 2,
+        "cahier_line": 105
+      },
+      "attendu": "au plus une des deux acceptees ; jamais les deux",
+      "puis_reglement": {
+        "montant_regle": {
+          "v": 340,
+          "cahier_line": 105
+        },
+        "etat_resultant": {
+          "spent": {
+            "v": 340,
+            "cahier_line": 105
+          },
+          "reserved": {
+            "v": 0,
+            "cahier_line": 105
+          },
+          "available": {
+            "v": 660,
+            "cahier_line": 105
+          }
+        },
+        "calcul_verifiable": "1000 - 340 = 660"
+      }
+    },
+    {
+      "id": "P2a-depuis-660-reservation-600",
+      "cahier_line": 105,
+      "independant": true,
+      "note": "« Depuis cet etat, tester separement » : les deux sondes partent toutes deux de spent=340/reserved=0/available=660 et ne se chainent pas.",
+      "etat_de_depart": {
+        "spent": {
+          "v": 340,
+          "cahier_line": 105
+        },
+        "reserved": {
+          "v": 0,
+          "cahier_line": 105
+        },
+        "available": {
+          "v": 660,
+          "cahier_line": 105
+        }
+      },
+      "demande": {
+        "v": 600,
+        "cahier_line": 105
+      },
+      "verdict": {
+        "v": "admissible",
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "v": 60,
+        "cahier_line": 105
+      },
+      "calcul_verifiable": "660 - 600 = 60"
+    },
+    {
+      "id": "P2b-depuis-660-reservation-661",
+      "cahier_line": 105,
+      "independant": true,
+      "etat_de_depart": {
+        "spent": {
+          "v": 340,
+          "cahier_line": 105
+        },
+        "reserved": {
+          "v": 0,
+          "cahier_line": 105
+        },
+        "available": {
+          "v": 660,
+          "cahier_line": 105
+        }
+      },
+      "demande": {
+        "v": 661,
+        "cahier_line": 105
+      },
+      "verdict": {
+        "v": "refusee",
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "v": 660,
+        "cahier_line": 105
+      },
+      "calcul_verifiable": "661 > 660 donc refus ; available inchange a 660"
+    },
+    {
+      "id": "P3-reservation-ambigue",
+      "cahier_line": 105,
+      "independant": true,
+      "note": "« troisieme sous-cas independant avec budget frais et zero depense »",
+      "budget": {
+        "valeur": 1000,
+        "cahier_line": 105,
+        "statut": "INFERE",
+        "justification": "Le cahier dit « budget frais » sans reciter le montant ; 1000 est le budget de la fixture (L105) et 1000-600=400 reproduit l'available annonce. Voir ambiguites.AMB-BUDGET-01."
+      },
+      "spent_initial": {
+        "v": 0,
+        "cahier_line": 105
+      },
+      "demande_ambigue": {
+        "v": 600,
+        "cahier_line": 105
+      },
+      "available_maintenu": {
+        "v": 400,
+        "cahier_line": 105
+      },
+      "condition": {
+        "v": "tant qu'elle n'est pas reconciliee",
+        "cahier_line": 105
+      },
+      "calcul_verifiable": "1000 - 600 = 400"
+    }
+  ],
+  "invariants_lies": [
+    {
+      "cahier_line": 71,
+      "texte": "9. Les dépenses utilisent des entiers exacts, jamais une addition de flottants monétaires."
+    },
+    {
+      "cahier_line": 69,
+      "texte": "7. Un appel fournisseur dont la réponse est perdue n’est pas relancé aveuglément. Son état reste ambigu tant qu’il n’est pas réconcilié."
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BUDGET-01",
+      "cahier_line": 105,
+      "question": "Le « budget frais » du troisieme sous-cas n'est pas chiffre explicitement.",
+      "lecture_retenue": "aucune — valeur marquee INFERE, non tranchee",
+      "options": [
+        "budget = 1000 comme au debut de la fixture (reproduit available=400)",
+        "un budget distinct non ecrit"
+      ],
+      "impact": "faible : seule la lecture 1000 reproduit l'available=400 annonce par le cahier lui-meme, mais le montant n'est pas ecrit."
+    },
+    {
+      "id": "AMB-BUDGET-02",
+      "cahier_line": 105,
+      "question": "Laquelle des deux reservations concurrentes de 600 est acceptee ?",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "exactement une acceptee, identite non specifiee",
+        "l'ordre d'arrivee decide, mais il n'est pas defini par la fixture"
+      ],
+      "impact": "faible pour T16.A2, qui porte sur les montants et non sur l'identite du gagnant ; bloquant si un cas futur exige un gagnant nomme."
+    },
+    {
+      "id": "AMB-BUDGET-03",
+      "cahier_line": 105,
+      "question": "« deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees » interdit-il les deux refus ?",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "exactement une acceptee (suggere par « la reservation acceptee » dans la phrase suivante)",
+        "au plus une acceptee ; zero acceptee resterait conforme a la lettre"
+      ],
+      "impact": "moyen : un moteur qui refuse les deux satisferait la lettre de la premiere phrase mais rendrait le reglement a 340 impossible."
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      117
+    ]
+  },
+  "verbatim": {
+    "L117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "base": {
+      "enonce": "les deux projets precedents",
+      "renvoi": "P1 et P2 de F-CLUSTERS (ligne 115)",
+      "cahier_line": 117
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117
+    },
+    "ratios_cout_A_sur_B": {
+      "valeurs": [
+        {
+          "rationnel": "1/2",
+          "numerateur": 1,
+          "denominateur": 2,
+          "cahier_line": 117
+        },
+        {
+          "rationnel": "5/6",
+          "numerateur": 5,
+          "denominateur": 6,
+          "cahier_line": 117
+        },
+        {
+          "rationnel": "5/6",
+          "numerateur": 5,
+          "denominateur": 6,
+          "cahier_line": 117
+        },
+        {
+          "rationnel": "9/10",
+          "numerateur": 9,
+          "denominateur": 10,
+          "cahier_line": 117
+        }
+      ],
+      "ordre": "aligne sur la liste de reechantillonnages ci-dessus",
+      "cahier_line": 117
+    },
+    "intervalle": {
+      "convention": "quantile empirique inverse",
+      "bornes_pourcentage": [
+        2.5,
+        97.5
+      ],
+      "borne_inf": {
+        "rationnel": "1/2",
+        "numerateur": 1,
+        "denominateur": 2,
+        "cahier_line": 117
+      },
+      "borne_sup": {
+        "rationnel": "9/10",
+        "numerateur": 9,
+        "denominateur": 10,
+        "cahier_line": 117
+      },
+      "cahier_line": 117
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+      "cahier_line": 117
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [],
+  "remarques": []
+}

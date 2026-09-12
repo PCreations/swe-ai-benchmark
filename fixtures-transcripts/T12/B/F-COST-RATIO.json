@@ -1,0 +1,118 @@
+{
+  "fixture": "F-COST-RATIO",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T12",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "avertissement": "Valeurs transcrites du cahier uniquement. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "section": "F",
+  "cahier_lines": [
+    113
+  ],
+  "source_verbatim": [
+    {
+      "cahier_line": 113,
+      "text": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+    }
+  ],
+  "consumers": [
+    {
+      "case": "T32.A1",
+      "cahier_line": 435,
+      "clause": "F-COST-RATIO donne moyennes 50/60 et ratio 5/6",
+      "implique": "les deux moyennes ET le ratio sont assertes separement."
+    },
+    {
+      "case": "T36.A2",
+      "cahier_line": 473,
+      "clause": "F-COST-RATIO affiche 5/6 et les deux moyennes",
+      "implique": "le rapport publie doit montrer 5/6 et 50 et 60."
+    }
+  ],
+  "lecture_des_indices": {
+    "note": "A et B sont les BRAS ; les listes sont indexees par PROJET. A=[10,90] signifie projet 1 -> A=10, projet 2 -> A=90.",
+    "confirmation": "Cette lecture est celle qui rend F-BOOTSTRAP (L117) coherent : le tirage [P1,P1] donne 10/20=1/2."
+  },
+  "projets": {
+    "nombre": {
+      "v": 2,
+      "cahier_line": 113
+    },
+    "poids": {
+      "v": "egal",
+      "cahier_line": 113
+    },
+    "P1": {
+      "A": {
+        "v": 10,
+        "cahier_line": 113
+      },
+      "B": {
+        "v": 20,
+        "cahier_line": 113
+      }
+    },
+    "P2": {
+      "A": {
+        "v": 90,
+        "cahier_line": 113
+      },
+      "B": {
+        "v": 100,
+        "cahier_line": 113
+      }
+    }
+  },
+  "couts": {
+    "A": {
+      "v": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "B": {
+      "v": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    }
+  },
+  "moyennes": {
+    "A": {
+      "v": 50,
+      "cahier_line": 113
+    },
+    "B": {
+      "v": 60,
+      "cahier_line": 113
+    },
+    "calcul_verifiable": "A: (10+90)/2 = 50 ; B: (20+100)/2 = 60"
+  },
+  "ratio_principal": {
+    "exact": "5/6",
+    "num": 5,
+    "den": 6,
+    "cahier_line": 113,
+    "definition": "moyenne(A) / moyenne(B)",
+    "calcul_verifiable": "50/60 = 5/6",
+    "decimal_non_exact": true,
+    "avertissement": "5/6 n'a pas d'ecriture decimale finie : ne jamais stocker 0.8333."
+  },
+  "resultat_incorrect_de_controle": {
+    "exact": "7/10",
+    "num": 7,
+    "den": 10,
+    "cahier_line": 113,
+    "decimal_exact": 0.7,
+    "enonce": {
+      "v": "La moyenne des ratios serait `0.7` et constitue un resultat incorrect pour cette metrique.",
+      "cahier_line": 113
+    },
+    "calcul_verifiable": "(10/20 + 90/100)/2 = (1/2 + 9/10)/2 = 0.7",
+    "usage": "mutant a detecter : une implementation qui moyenne les ratios rend 0.7 au lieu de 5/6."
+  },
+  "ambiguites": []
+}

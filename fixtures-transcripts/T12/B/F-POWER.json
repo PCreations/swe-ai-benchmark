@@ -1,0 +1,477 @@
+{
+  "fixture": "F-POWER",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T12",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "avertissement": "Valeurs transcrites du cahier uniquement. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "section": "F",
+  "cahier_lines": [
+    127
+  ],
+  "source_verbatim": [
+    {
+      "cahier_line": 127,
+      "text": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "consumers": [
+    {
+      "case": "T34.A1",
+      "cahier_line": 453,
+      "clause": "bornes ratio 0,8, dV=0, dU=0 et critiques absentes donnent superiorite sur fixture",
+      "implique": "campagne 1 -> vrai."
+    },
+    {
+      "case": "T34.A2",
+      "cahier_line": 453,
+      "clause": "borne ratio=1 refuse",
+      "implique": "campagne 2 -> faux ; l'inegalite sur le ratio est STRICTE (<1)."
+    },
+    {
+      "case": "T34.A3",
+      "cahier_line": 453,
+      "clause": "borne dV=-0,02 refuse",
+      "implique": "la non-inferiorite est STRICTE : > -marge, donc -0,02 avec marge 0,02 refuse."
+    },
+    {
+      "case": "T34.A4",
+      "cahier_line": 453,
+      "clause": "cout plus faible mais dU=-0,04 refuse"
+    },
+    {
+      "case": "T34.A6",
+      "cahier_line": 453,
+      "clause": "J=2 donne six intervalles et niveau marginal 1-0,05/6",
+      "implique": "3J intervalles, Bonferroni (L451)."
+    },
+    {
+      "case": "T35.A1",
+      "cahier_line": 463,
+      "clause": "F-POWER traversant le vrai pipeline d'analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25"
+    }
+  ],
+  "campagnes": {
+    "nombre": {
+      "v": 4,
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "v": 2,
+      "cahier_line": 127
+    },
+    "note_parents": {
+      "v": "chacune avec deux parents distincts P1/P2 portant les memes valeurs",
+      "cahier_line": 127
+    },
+    "tirages": {
+      "v": "Les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "cahier_line": 127
+    }
+  },
+  "conditions_communes": {
+    "comptabilite": {
+      "v": "resolue",
+      "cahier_line": 127
+    },
+    "violation_critique": {
+      "v": "absente",
+      "cahier_line": 127
+    },
+    "valeurs_connues": {
+      "v": "sur les deux bras",
+      "cahier_line": 127
+    }
+  },
+  "detail": [
+    {
+      "index": 1,
+      "bras_A": {
+        "cout": {
+          "v": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "exact_decimal": "1",
+          "cahier_line": 127,
+          "num": 1,
+          "den": 1
+        },
+        "U": {
+          "exact_decimal": "1",
+          "cahier_line": 127,
+          "num": 1,
+          "den": 1
+        }
+      },
+      "bras_B": {
+        "cout": {
+          "v": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "v": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "v": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "exact_decimal": "0.8",
+          "cahier_line": 127,
+          "note": "borne de ratio cout A/B"
+        },
+        "delta_V": {
+          "exact_decimal": "0",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": 0,
+            "den": 1
+          }
+        },
+        "delta_U": {
+          "exact_decimal": "0",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": 0,
+            "den": 1
+          }
+        }
+      },
+      "decision_T34": {
+        "v": true,
+        "cahier_line": 127
+      },
+      "calcul_verifiable": "ratio = 80/100 = 0.8 ; dV = 1 - 1 = 0 ; dU = 1 - 1 = 0"
+    },
+    {
+      "index": 2,
+      "bras_A": {
+        "cout": {
+          "v": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "exact_decimal": "1",
+          "cahier_line": 127,
+          "num": 1,
+          "den": 1
+        },
+        "U": {
+          "exact_decimal": "1",
+          "cahier_line": 127,
+          "num": 1,
+          "den": 1
+        }
+      },
+      "bras_B": {
+        "cout": {
+          "v": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "v": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "v": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "exact_decimal": "1",
+          "cahier_line": 127,
+          "note": "borne de ratio cout A/B"
+        },
+        "delta_V": {
+          "exact_decimal": "0",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": 0,
+            "den": 1
+          }
+        },
+        "delta_U": {
+          "exact_decimal": "0",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": 0,
+            "den": 1
+          }
+        }
+      },
+      "decision_T34": {
+        "v": false,
+        "cahier_line": 127
+      },
+      "calcul_verifiable": "ratio = 100/100 = 1 ; dV = 1 - 1 = 0 ; dU = 1 - 1 = 0"
+    },
+    {
+      "index": 3,
+      "bras_A": {
+        "cout": {
+          "v": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "exact_decimal": "0.96",
+          "cahier_line": 127,
+          "num": 24,
+          "den": 25
+        },
+        "U": {
+          "exact_decimal": "1",
+          "cahier_line": 127,
+          "num": 1,
+          "den": 1
+        }
+      },
+      "bras_B": {
+        "cout": {
+          "v": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "v": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "v": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "exact_decimal": "0.8",
+          "cahier_line": 127,
+          "note": "borne de ratio cout A/B"
+        },
+        "delta_V": {
+          "exact_decimal": "-0.04",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": -1,
+            "den": 25
+          }
+        },
+        "delta_U": {
+          "exact_decimal": "0",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": 0,
+            "den": 1
+          }
+        }
+      },
+      "decision_T34": {
+        "v": false,
+        "cahier_line": 127
+      },
+      "calcul_verifiable": "ratio = 80/100 = 0.8 ; dV = 0.96 - 1 = -0.04 ; dU = 1 - 1 = 0"
+    },
+    {
+      "index": 4,
+      "bras_A": {
+        "cout": {
+          "v": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "exact_decimal": "0.99",
+          "cahier_line": 127,
+          "num": 99,
+          "den": 100
+        },
+        "U": {
+          "exact_decimal": "0.99",
+          "cahier_line": 127,
+          "num": 99,
+          "den": 100
+        }
+      },
+      "bras_B": {
+        "cout": {
+          "v": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "v": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "v": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "exact_decimal": "0.8",
+          "cahier_line": 127,
+          "note": "borne de ratio cout A/B"
+        },
+        "delta_V": {
+          "exact_decimal": "-0.01",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": -1,
+            "den": 100
+          }
+        },
+        "delta_U": {
+          "exact_decimal": "-0.01",
+          "cahier_line": 127,
+          "rationnel": {
+            "num": -1,
+            "den": 100
+          }
+        }
+      },
+      "decision_T34": {
+        "v": true,
+        "cahier_line": 127
+      },
+      "calcul_verifiable": "ratio = 80/100 = 0.8 ; dV = 0.99 - 1 = -0.01 ; dU = 0.99 - 1 = -0.01"
+    }
+  ],
+  "bornes_resumees": {
+    "ratio": {
+      "v": [
+        "0.8",
+        "1",
+        "0.8",
+        "0.8"
+      ],
+      "cahier_line": 127
+    },
+    "delta_V": {
+      "v": [
+        "0",
+        "0",
+        "-0.04",
+        "-0.01"
+      ],
+      "cahier_line": 127
+    },
+    "delta_U": {
+      "v": [
+        "0",
+        "0",
+        "0",
+        "-0.01"
+      ],
+      "cahier_line": 127
+    },
+    "litteral_cahier": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de dV 0 / 0 / -0,04 / -0,01, celles de dU 0 / 0 / 0 / -0,01"
+  },
+  "decisions_attendues": {
+    "T34": {
+      "v": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127
+    },
+    "litteral_cahier": {
+      "v": "T34 doit produire `[vrai,faux,faux,vrai]`",
+      "cahier_line": 127
+    },
+    "repete_par": {
+      "case": "T35.A1",
+      "cahier_line": 463,
+      "texte": "decisions [vrai,faux,faux,vrai]"
+    }
+  },
+  "sorties_T35": {
+    "puissance": {
+      "v": "0.5",
+      "rationnel": {
+        "num": 1,
+        "den": 2
+      },
+      "cahier_line": 463,
+      "calcul_verifiable": "2 decisions vraies / 4 campagnes = 1/2"
+    },
+    "erreur_standard_monte_carlo": {
+      "v": "0.25",
+      "rationnel": {
+        "num": 1,
+        "den": 4
+      },
+      "cahier_line": 463,
+      "calcul_verifiable": "sqrt(p(1-p)/n) = sqrt(0.5*0.5/4) = sqrt(0.0625) = 0.25"
+    },
+    "controle_de_formule": {
+      "case": "T35.A2",
+      "cahier_line": 463,
+      "texte": "1800 succes sur 2000 donnent 0,9 et sqrt(0,09/2000)",
+      "coherence": "0,9*0,1 = 0,09 : meme formule sqrt(p(1-p)/n)"
+    }
+  },
+  "regle_de_decision_appliquee": {
+    "cahier_line": 451,
+    "texte": "Règle : supériorité coût si borne supérieure du ratio <1 ; non-infériorité V/U si leurs bornes inférieures >−marge ; aucune violation critique interdite ; comptabilité résolue et données admissibles. Marges d’exemple 0,02. Pour J contrastes et trois critères inférentiels, la famille contient 3J intervalles ; niveau marginal `1−0,05/(3J)` avec correction de Bonferroni. L’absence de violation observée n’est pas un intervalle de sécurité universel.",
+    "marge_utilisee": {
+      "v": "0.02",
+      "cahier_line": 451,
+      "statut": "CONTRAINTE PAR LA SORTIE",
+      "justification": "Le cahier qualifie 0,02 de « marges d'exemple », mais seule cette marge reproduit [vrai,faux,faux,vrai] : avec 0,05 la campagne 3 (dV=-0,04) passerait. Voir ambiguites.AMB-POWER-01."
+    }
+  },
+  "portee": {
+    "v": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+    "cahier_line": 127
+  },
+  "ambiguites": [
+    {
+      "id": "AMB-POWER-01",
+      "cahier_line": 451,
+      "question": "La marge de non-inferiorite 0,02 est qualifiee de « Marges d'exemple » en L451, alors que les decisions attendues de F-POWER n'en sortent que pour cette valeur.",
+      "lecture_retenue": "aucune — non tranchee, valeur marquee CONTRAINTE PAR LA SORTIE",
+      "options": [
+        "0,02 est la marge de la fixture, imposee indirectement par [vrai,faux,faux,vrai]",
+        "la marge est un parametre libre et la fixture doit la porter explicitement"
+      ],
+      "impact": "fort : c'est le seul parametre non ecrit en §F dont depend la sortie exigee. Avec une marge de 0,05, la campagne 3 deviendrait vraie et T34/T35 seraient contredits."
+    },
+    {
+      "id": "AMB-POWER-02",
+      "cahier_line": 127,
+      "question": "Une meme marge s'applique-t-elle a dV et a dU ?",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "marge unique 0,02 pour les deux (L451 dit « Marges » au pluriel sans les distinguer)",
+        "deux marges distinctes non chiffrees"
+      ],
+      "impact": "moyen : les quatre campagnes restent decidees pareil tant que les deux marges valent 0,02 ; la campagne 4 (dU=-0,01) devient sensible si la marge dU descend sous 0,01."
+    },
+    {
+      "id": "AMB-POWER-03",
+      "cahier_line": 127,
+      "question": "« deux parents distincts P1/P2 portant les memes valeurs » : les parents portent des valeurs identiques, ce qui donne une variance nulle. Le cahier n'explicite pas la largeur d'intervalle qui en resulte.",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "distribution ponctuelle : borne inferieure = borne superieure = estimation ponctuelle (coherent avec « Les tirages parents exhaustifs donnent des distributions ponctuelles »)",
+        "une convention d'intervalle degenere differente"
+      ],
+      "impact": "faible : L127 dit explicitement que les tirages exhaustifs donnent des distributions ponctuelles, ce qui justifie des bornes egales aux valeurs listees."
+    },
+    {
+      "id": "AMB-POWER-04",
+      "cahier_line": 127,
+      "question": "Le sens de dV et dU (A moins B, ou B moins A) n'est pas ecrit.",
+      "lecture_retenue": "aucune — non tranchee",
+      "options": [
+        "dV = V(A) - V(B) : 0,96 - 1 = -0,04, reproduit les bornes annoncees",
+        "dV = V(B) - V(A), qui donnerait +0,04"
+      ],
+      "impact": "faible : seule la premiere lecture reproduit les signes negatifs du cahier, mais la convention n'est pas ecrite."
+    }
+  ]
+}

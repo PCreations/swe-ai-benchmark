@@ -1,0 +1,75 @@
+{
+  "fixture": "F-CLUSTERS",
+  "tache": "T12",
+  "role": "fixture-transcriber-A",
+  "provenance": "docs/cahier.md §F uniquement ; aucune acceptation, aucun test, aucune implementation consultes",
+  "source": {
+    "fichier": "docs/cahier.md",
+    "sha256_cahier": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "cahier_lines": [
+      115
+    ]
+  },
+  "verbatim": {
+    "L115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+  },
+  "legende": {
+    "ambiguites": "points ou le texte de §F admet plusieurs lectures menant a des valeurs materialisees differentes ; non tranches ici",
+    "non_enonce": "faits qu'une materialisation doit fixer mais que §F n'enonce pas ; non inventes ici",
+    "remarques": "observations sans effet sur les valeurs materialisees",
+    "rationnels": "les valeurs exactes sont portees par {rationnel, numerateur, denominateur} ; un champ decimal n'apparait que si le cahier l'ecrit lui-meme",
+    "cahier_line": "numero de ligne dans docs/cahier.md, verifiable par: sed -n '<n>p' docs/cahier.md"
+  },
+  "donnees": {
+    "projets": [
+      {
+        "id": "P1",
+        "A": 10,
+        "B": 20,
+        "repetitions": 10,
+        "qualificatif": "dix repetitions identiques",
+        "cahier_line": 115
+      },
+      {
+        "id": "P2",
+        "A": 90,
+        "B": 100,
+        "repetitions": 1,
+        "cahier_line": 115
+      }
+    ],
+    "moyennes_interprojets": {
+      "A": 50,
+      "B": 60,
+      "cahier_line": 115
+    },
+    "nombre_de_lignes_brutes": {
+      "valeur": 11,
+      "cahier_line": 115
+    }
+  },
+  "invariants": [
+    {
+      "enonce": "Une moyenne naive sur onze lignes ne doit pas remplacer l'agregation interprojets.",
+      "cahier_line": 115
+    },
+    {
+      "enonce": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+      "cahier_line": 115
+    }
+  ],
+  "ambiguites": [],
+  "non_enonce": [],
+  "remarques": [
+    {
+      "note": "§F ne donne pas la valeur de la moyenne naive sur onze lignes ; elle n'est donc pas materialisee (aucun calcul n'est fait ici).",
+      "cahier_line": 115
+    },
+    {
+      "note": "« l'estimation ponctuelle » n'est pas davantage qualifiee ; les seules estimations citees dans cette fixture sont les moyennes interprojets 50 et 60.",
+      "cahier_line": 115
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "fixture": "F-MONEY",
+  "transcriber": "B",
+  "role": "fixture-transcriber",
+  "task": "T12",
+  "etage": "FIXTURES",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "avertissement": "Valeurs transcrites du cahier uniquement. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "section": "F",
+  "cahier_lines": [
+    103
+  ],
+  "source_verbatim": [
+    {
+      "cahier_line": 103,
+      "text": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  ],
+  "consumers": [
+    {
+      "case": "T01.A6",
+      "cahier_line": 165,
+      "clause": "la corruption de F-MONEY, par exemple attendu 341 au lieu de 340, est detectee par la verification des references",
+      "implique": "la fixture doit exposer 340 comme valeur de reference unique et comparable octet a octet ; 341 doit etre detecte comme corruption."
+    },
+    {
+      "case": "T16.A1",
+      "cahier_line": 295,
+      "clause": "F-MONEY donne 340",
+      "implique": "un appel de (100 non caches, 40 caches, 20 sortie) doit couter exactement 340 micro-USD."
+    },
+    {
+      "case": "T38.A2",
+      "cahier_line": 493,
+      "clause": "48 appels recus et regles",
+      "implique": "6 trajectoires x 4 periodes x 2 appels F-MONEY par periode = 48 (fixture golden-six, L491)."
+    },
+    {
+      "case": "T38.A3",
+      "cahier_line": 493,
+      "clause": "2720 micro-USD par trajectoire, 16320 au total",
+      "implique": "8 appels F-MONEY par trajectoire x 340 = 2720 ; 6 trajectoires x 2720 = 16320."
+    }
+  ],
+  "unite": {
+    "v": "micro-USD",
+    "cahier_line": 103
+  },
+  "grille_tarifaire": {
+    "entree_non_cachee": {
+      "v": 2,
+      "cahier_line": 103
+    },
+    "entree_cachee": {
+      "v": 1,
+      "cahier_line": 103
+    },
+    "sortie": {
+      "v": 5,
+      "cahier_line": 103
+    },
+    "unite": "micro-USD par token",
+    "cahier_line": 103
+  },
+  "appel_de_reference": {
+    "tokens": {
+      "entree_non_cachee": {
+        "v": 100,
+        "cahier_line": 103
+      },
+      "entree_cachee": {
+        "v": 40,
+        "cahier_line": 103
+      },
+      "sortie": {
+        "v": 20,
+        "cahier_line": 103
+      }
+    },
+    "cout_attendu": {
+      "v": 340,
+      "cahier_line": 103
+    },
+    "calcul_verifiable": "100*2 + 40*1 + 20*5 = 200 + 40 + 100 = 340",
+    "valeur_corrompue_de_controle": {
+      "v": 341,
+      "cahier_line": 165
+    }
+  },
+  "deux_appels_identiques": {
+    "cout_attendu": {
+      "v": 680,
+      "cahier_line": 103
+    },
+    "calcul_verifiable": "2 * 340 = 680"
+  },
+  "regle_de_normalisation": {
+    "v": "Les champs d'entree sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+    "cahier_line": 103
+  },
+  "invariants_lies": [
+    {
+      "cahier_line": 71,
+      "texte": "9. Les dépenses utilisent des entiers exacts, jamais une addition de flottants monétaires."
+    }
+  ],
+  "consequences_golden_six": {
+    "note": "Derive des lignes 491 et 493, pas de §F. Conserve ici parce que le brief exige les nombres exacts 2720 et 16320.",
+    "appels_par_periode": {
+      "v": 2,
+      "cahier_line": 491
+    },
+    "periodes_par_trajectoire": {
+      "v": 4,
+      "cahier_line": 491
+    },
+    "trajectoires": {
+      "v": 6,
+      "cahier_line": 493
+    },
+    "periodes_totales": {
+      "v": 24,
+      "cahier_line": 493
+    },
+    "appels_totaux": {
+      "v": 48,
+      "cahier_line": 493
+    },
+    "cout_par_trajectoire": {
+      "v": 2720,
+      "cahier_line": 493
+    },
+    "cout_total": {
+      "v": 16320,
+      "cahier_line": 493
+    },
+    "calcul_verifiable": "2 appels * 4 periodes = 8 appels/trajectoire ; 8 * 340 = 2720 ; 6 * 2720 = 16320 ; 6 * 8 = 48 appels",
+    "autres_tarifs": {
+      "v": "Tous les autres tarifs valent explicitement zero dans cette fixture fictive.",
+      "cahier_line": 491
+    }
+  },
+  "ambiguites": []
+}

@@ -1,0 +1,167 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "fixture": "F-CLUSTERS",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F — Fixtures maitresses a materialiser sans recalcul depuis l implementation (l.101-130)",
+  "methode": "Transcription partant des CONSOMMATEURS (verification/cases.lock.json et §H), confrontee au texte de §F. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par `sed -n '<n>p' docs/cahier.md`.",
+  "resume": "Grappes desequilibrees : agregation par projet contre pooling naif des lignes.",
+  "sections_source": [
+    {
+      "cahier_line": 115,
+      "verbatim": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T32.A2",
+      "cahier_line": 435,
+      "exigence": "F-CLUSTERS ne change pas apres duplication des repetitions P1",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "exigence": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T33.A6",
+      "cahier_line": 443,
+      "exigence": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets",
+      "proof_kind": "refusal"
+    }
+  ],
+  "valeurs": {
+    "P1": {
+      "cout_A": {
+        "entier": 10,
+        "cahier_line": 115
+      },
+      "cout_B": {
+        "entier": 20,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "entier": 10,
+        "cahier_line": 115
+      },
+      "nature": {
+        "valeur": "dix repetitions identiques",
+        "cahier_line": 115
+      }
+    },
+    "P2": {
+      "cout_A": {
+        "entier": 90,
+        "cahier_line": 115
+      },
+      "cout_B": {
+        "entier": 100,
+        "cahier_line": 115
+      },
+      "repetitions": {
+        "entier": 1,
+        "cahier_line": 115
+      }
+    },
+    "lignes_totales": {
+      "entier": 11,
+      "cahier_line": 115
+    },
+    "moyenne_interprojets_A": {
+      "rationnel": "50",
+      "num": 50,
+      "den": 1,
+      "cahier_line": 115,
+      "decimal_enonce": null
+    },
+    "moyenne_interprojets_B": {
+      "rationnel": "60",
+      "num": 60,
+      "den": 1,
+      "cahier_line": 115,
+      "decimal_enonce": null
+    },
+    "resultat_incorrect_nomme": {
+      "nom": "moyenne naive sur onze lignes (pooling)",
+      "statut": {
+        "valeur": "ne doit pas remplacer cette agregation",
+        "cahier_line": 115
+      },
+      "valeur_enoncee": null,
+      "$note": "Le cahier NOMME le piege mais n'en donne pas la valeur numerique ; non calculee ici."
+    },
+    "invariance_par_duplication": {
+      "enonce": {
+        "valeur": "Dupliquer toutes les repetitions de P1 laisse l'estimation ponctuelle inchangee.",
+        "cahier_line": 115
+      },
+      "repetitions_P1_apres_duplication": {
+        "entier": 20,
+        "cahier_line": 115
+      },
+      "moyenne_A_apres": {
+        "rationnel": "50",
+        "num": 50,
+        "den": 1,
+        "cahier_line": 115,
+        "decimal_enonce": null
+      },
+      "moyenne_B_apres": {
+        "rationnel": "60",
+        "num": 60,
+        "den": 1,
+        "cahier_line": 115,
+        "decimal_enonce": null
+      },
+      "portee": {
+        "valeur": "estimation PONCTUELLE",
+        "cahier_line": 115
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "L'agregation se fait par projet (grappe) puis entre projets ; une ligne n'est pas une unite d'inference.",
+      "cahier_line": 115
+    },
+    {
+      "regle": "Le bootstrap principal reechantillonne les MOYENNES PAR PARENT.",
+      "cahier_line": 445
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-CLUSTERS-1",
+      "question": "L'invariance par duplication est enoncee pour l'ESTIMATION PONCTUELLE seulement ; rien n'est dit de l'intervalle.",
+      "lignes": [
+        115,
+        443
+      ],
+      "lectures_possibles": [
+        "L'intervalle est egalement invariant des lors que la liste de tirages parents est la meme (lecture de T33.A5, l.443).",
+        "Seule l'estimation ponctuelle est garantie invariante ; l'intervalle peut bouger."
+      ],
+      "impact": "T33.A5 etend l'invariance aux « resultats » sous meme liste de tirages ; §F ne va pas si loin.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-CLUSTERS-2",
+      "question": "La valeur du pooling naif (le resultat explicitement incorrect) n'est pas donnee, contrairement a F-COST-RATIO ou 0,7 est ecrit.",
+      "lignes": [
+        115,
+        113
+      ],
+      "lectures_possibles": [
+        "Le mutant de T32.A2 doit produire une valeur que le cahier ne nomme pas.",
+        "Le cas se contente d'exiger l'inegalite avec 50/60."
+      ],
+      "impact": "Un cas 'numeric' sans valeur fautive attendue ne peut pas verifier que la perturbation produit LA bonne erreur.",
+      "non_tranche": true
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "etage": "FIXTURES",
+  "fixtures": [
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        117
+      ],
+      "fichier": "F-BOOTSTRAP.json",
+      "nom": "F-BOOTSTRAP",
+      "sha256": "9e0280aa5b34dda3efa1f87965b5f8f6f1a3059a85d76b319a2cbda87c705b9f"
+    },
+    {
+      "ambiguites": 2,
+      "cahier_lignes": [
+        105
+      ],
+      "fichier": "F-BUDGET.json",
+      "nom": "F-BUDGET",
+      "sha256": "69ac3bcf88415fdcb4c32e3fc787a62b7fac66ca5996ad748ea89810cace17ad"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        115
+      ],
+      "fichier": "F-CLUSTERS.json",
+      "nom": "F-CLUSTERS",
+      "sha256": "42ea9e260c3bbbab023d81cc6902d3885f41ab8f3eca63a3d60a083e9d6f351e"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        113
+      ],
+      "fichier": "F-COST-RATIO.json",
+      "nom": "F-COST-RATIO",
+      "sha256": "5d740b415f21fab133a002b16662cb5bd7f4d4f7d2df25580c6cd965eeb433e6"
+    },
+    {
+      "ambiguites": 1,
+      "cahier_lignes": [
+        121
+      ],
+      "fichier": "F-FAILURE.json",
+      "nom": "F-FAILURE",
+      "sha256": "5920b3019c93d84c8a795ee98fd162b58868d29edd85cae7379ff59e5e8b8e57"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        103
+      ],
+      "fichier": "F-MONEY.json",
+      "nom": "F-MONEY",
+      "sha256": "acc251e1ac6b707975f8520fbd1fd63009cc53c87664b80aa779661d2f7c1386"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        127
+      ],
+      "fichier": "F-POWER.json",
+      "nom": "F-POWER",
+      "sha256": "cd603290ad517b46894f9a758caa66e7a8122f70e24aff0c6e608f5afa8ecfd0"
+    },
+    {
+      "ambiguites": 1,
+      "cahier_lignes": [
+        107,
+        109,
+        111
+      ],
+      "fichier": "F-QUALITY.json",
+      "nom": "F-QUALITY",
+      "sha256": "eaf97143dbfc669f45ea7252e9e1b0ba67333399b71ffe32398923b0b4574f96"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        129
+      ],
+      "fichier": "F-REGRESSION.json",
+      "nom": "F-REGRESSION",
+      "sha256": "83eca1c6f0b2cb42f114fd80aaf71f4ada04cd09d38f0527919d7bf6020a6ed3"
+    },
+    {
+      "ambiguites": 0,
+      "cahier_lignes": [
+        119,
+        123,
+        125
+      ],
+      "fichier": "F-RESERVATION.json",
+      "nom": "F-RESERVATION",
+      "sha256": "bf9434f4f9e5900ff0818995f401d4a0484979c65a1b2a38e48e76d69dbfd684"
+    }
+  ],
+  "perimetre": {
+    "aucun_autre_nom_F": "grep -o '`F-[A-Z-]*`' docs/cahier.md ne fait apparaitre aucun autre nom que ces dix",
+    "couverture": "les 14 lignes de contenu 103..129 sont toutes rattachees a une fixture",
+    "hors_perimetre_signale": [
+      {
+        "coherence_observee": "la ligne 491 (fixture propre a T38, hors section F) decrit deux appels F-MONEY par periode sur quatre periodes et six trajectoires ; 2*340=680 par periode, 4*680=2720 par trajectoire, 6*2720=16320. Observation de coherence uniquement, non materialisee.",
+        "constat": "ces montants n'apparaissent nulle part dans la section F ; ils appartiennent au bloc de la tache T38 (liste d'acceptation T38.A3 et commande). Le cadrage du transcripteur interdit de consulter les cas d'acceptation, donc aucune fixture F-* ne les porte.",
+        "ou": "lignes 493 et 495",
+        "sujet": "2720 et 16320 micro-USD"
+      }
+    ],
+    "ligne_101": "titre de section, sans valeur a materialiser",
+    "lignes_non_vides_de_la_section": [
+      101,
+      103,
+      105,
+      107,
+      109,
+      111,
+      113,
+      115,
+      117,
+      119,
+      121,
+      123,
+      125,
+      127,
+      129
+    ],
+    "noms_F_trouves_dans_la_section": [
+      "F-MONEY",
+      "F-BUDGET",
+      "F-QUALITY",
+      "F-COST-RATIO",
+      "F-CLUSTERS",
+      "F-BOOTSTRAP",
+      "F-RESERVATION",
+      "F-FAILURE",
+      "F-POWER",
+      "F-REGRESSION"
+    ],
+    "regle": "section F du cahier uniquement (lignes 101-129), fixture par fixture, dans l'ordre du cahier"
+  },
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "total_ambiguites": 4,
+  "total_fixtures": 10,
+  "transcripteur": "A"
+}

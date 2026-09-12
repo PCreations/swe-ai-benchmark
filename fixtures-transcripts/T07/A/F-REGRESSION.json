@@ -1,0 +1,70 @@
+{
+  "ambiguites": [],
+  "cas": [
+    {
+      "exigence": "cancel@1",
+      "id": "remplacement-sans-regression",
+      "nombre_de_regressions": 0,
+      "regression": false,
+      "remplacee_en": "P3",
+      "remplacee_par": "cancel@2",
+      "satisfaite_en": "P2",
+      "source": {
+        "cahier_line": 129,
+        "citation": "le retrait de `cancel@1` ne produit pas de régression"
+      },
+      "source_faits": {
+        "cahier_line": 129,
+        "citation": "Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2`"
+      }
+    },
+    {
+      "exigence": "isolation@1",
+      "id": "violation-avec-regression",
+      "nombre_de_regressions": 1,
+      "periode_de_la_regression": "P4",
+      "regression": true,
+      "satisfaite_en": "P3",
+      "source": {
+        "cahier_line": 129,
+        "citation": "Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une"
+      },
+      "violee_en": "P4"
+    }
+  ],
+  "etage": "FIXTURES",
+  "fixture": "F-REGRESSION",
+  "methode": "transcription depuis la source (docs/cahier.md section F) ; aucune valeur calculee par une implementation, aucun cas d'acceptation ni test consulte",
+  "notes": [
+    "Le retrait d'une exigence parce qu'elle est REMPLACEE par une version ulterieure n'est pas une regression ; la violation d'une exigence active en est une.",
+    "Le cahier ne dit pas si les periodes P2/P3/P4 de F-REGRESSION sont celles de F-QUALITY : la fixture est materialisee comme autonome."
+  ],
+  "regles": [
+    {
+      "cahier_line": 129,
+      "citation": "Compter par id/version active, pas par nombre d’assertions",
+      "valeur": "Compter par id/version active, pas par nombre d'assertions."
+    }
+  ],
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "lignes": [
+      129
+    ],
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "transcripteur": "A",
+  "verbatim": {
+    "129": "`F-REGRESSION`. Exigence `cancel@1` satisfaite en P2 puis remplacée en P3 par `cancel@2` : le retrait de `cancel@1` ne produit pas de régression. Une exigence `isolation@1` satisfaite en P3 puis violée en P4 en produit une. Compter par id/version active, pas par nombre d’assertions."
+  }
+}

@@ -1,0 +1,421 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "fixture": "F-POWER",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F — Fixtures maitresses a materialiser sans recalcul depuis l implementation (l.101-130)",
+  "methode": "Transcription partant des CONSOMMATEURS (verification/cases.lock.json et §H), confrontee au texte de §F. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par `sed -n '<n>p' docs/cahier.md`.",
+  "resume": "Quatre campagnes statistiques a distributions ponctuelles : bornes ratio/DeltaV/DeltaU et decisions attendues.",
+  "sections_source": [
+    {
+      "cahier_line": 127,
+      "verbatim": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T34.A1",
+      "cahier_line": 453,
+      "exigence": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent superiorite sur fixture",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T34.A2",
+      "cahier_line": 453,
+      "exigence": "borne ratio=1 refuse",
+      "proof_kind": "refusal"
+    },
+    {
+      "cas": "T34.A3",
+      "cahier_line": 453,
+      "exigence": "borne DeltaV=-0,02 refuse",
+      "proof_kind": "refusal"
+    },
+    {
+      "cas": "T34.A4",
+      "cahier_line": 453,
+      "exigence": "cout plus faible mais DeltaU=-0,04 refuse",
+      "proof_kind": "refusal"
+    },
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "exigence": "F-POWER traversant le vrai pipeline d'analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T35.A5",
+      "cahier_line": 463,
+      "exigence": "meme entree/version/graine donne meme sortie",
+      "proof_kind": "behaviour"
+    }
+  ],
+  "valeurs": {
+    "campagnes": {
+      "entier": 4,
+      "cahier_line": 127
+    },
+    "parents_par_campagne": {
+      "nombre": {
+        "entier": 2,
+        "cahier_line": 127
+      },
+      "ids": [
+        {
+          "valeur": "P1",
+          "cahier_line": 127
+        },
+        {
+          "valeur": "P2",
+          "cahier_line": 127
+        }
+      ],
+      "particularite": {
+        "valeur": "deux parents DISTINCTS portant les MEMES valeurs",
+        "cahier_line": 127
+      }
+    },
+    "bras_B_dans_chaque_parent": {
+      "cout": {
+        "entier": 100,
+        "cahier_line": 127
+      },
+      "V": {
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal_enonce": null
+      },
+      "U": {
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 127,
+        "decimal_enonce": null
+      }
+    },
+    "bras_A_par_campagne": [
+      {
+        "campagne": 1,
+        "cout": {
+          "entier": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "decimal_enonce": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "decimal_enonce": 1,
+          "cahier_line": 127
+        }
+      },
+      {
+        "campagne": 2,
+        "cout": {
+          "entier": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "decimal_enonce": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "decimal_enonce": 1,
+          "cahier_line": 127
+        }
+      },
+      {
+        "campagne": 3,
+        "cout": {
+          "entier": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "rationnel": "24/25",
+          "num": 24,
+          "den": 25,
+          "decimal_enonce": 0.96,
+          "cahier_line": 127
+        },
+        "U": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "decimal_enonce": 1,
+          "cahier_line": 127
+        }
+      },
+      {
+        "campagne": 4,
+        "cout": {
+          "entier": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "rationnel": "99/100",
+          "num": 99,
+          "den": 100,
+          "decimal_enonce": 0.99,
+          "cahier_line": 127
+        },
+        "U": {
+          "rationnel": "99/100",
+          "num": 99,
+          "den": 100,
+          "decimal_enonce": 0.99,
+          "cahier_line": 127
+        }
+      }
+    ],
+    "conditions_d_admissibilite": [
+      {
+        "valeur": "comptabilite resolue",
+        "cahier_line": 127
+      },
+      {
+        "valeur": "absence de violation critique",
+        "cahier_line": 127
+      },
+      {
+        "valeur": "valeurs connues sur les deux bras",
+        "cahier_line": 127
+      }
+    ],
+    "distributions": {
+      "valeur": "Les tirages parents exhaustifs donnent des distributions PONCTUELLES.",
+      "cahier_line": 127
+    },
+    "bornes_de_ratio": [
+      {
+        "campagne": 1,
+        "rationnel": "4/5",
+        "num": 4,
+        "den": 5,
+        "decimal_enonce": 0.8,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "decimal_enonce": 1,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "rationnel": "4/5",
+        "num": 4,
+        "den": 5,
+        "decimal_enonce": 0.8,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "rationnel": "4/5",
+        "num": 4,
+        "den": 5,
+        "decimal_enonce": 0.8,
+        "cahier_line": 127
+      }
+    ],
+    "bornes_de_delta_V": [
+      {
+        "campagne": 1,
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "decimal_enonce": 0,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "decimal_enonce": 0,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "rationnel": "-1/25",
+        "num": -1,
+        "den": 25,
+        "decimal_enonce": -0.04,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "rationnel": "-1/100",
+        "num": -1,
+        "den": 100,
+        "decimal_enonce": -0.01,
+        "cahier_line": 127
+      }
+    ],
+    "bornes_de_delta_U": [
+      {
+        "campagne": 1,
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "decimal_enonce": 0,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 2,
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "decimal_enonce": 0,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 3,
+        "rationnel": "0",
+        "num": 0,
+        "den": 1,
+        "decimal_enonce": 0,
+        "cahier_line": 127
+      },
+      {
+        "campagne": 4,
+        "rationnel": "-1/100",
+        "num": -1,
+        "den": 100,
+        "decimal_enonce": -0.01,
+        "cahier_line": 127
+      }
+    ],
+    "decisions_T34": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "enonce": {
+        "valeur": "T34 doit produire `[vrai,faux,faux,vrai]`",
+        "cahier_line": 127
+      },
+      "cahier_line": 127
+    },
+    "derives_enonces_par_les_consommateurs": {
+      "$note": "Enonces en §H (T35.A1, l.463), pas en §F.",
+      "puissance": {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "decimal_enonce": 0.5,
+        "cahier_line": 463
+      },
+      "erreur_standard": {
+        "rationnel": "1/4",
+        "num": 1,
+        "den": 4,
+        "decimal_enonce": 0.25,
+        "cahier_line": 463
+      },
+      "formule_corroborante": {
+        "valeur": "1800 succes sur 2000 donnent 0,9 et sqrt(0,09/2000) — soit se = sqrt(p(1-p)/n)",
+        "cahier_line": 463
+      }
+    },
+    "portee_declaree": {
+      "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Regle de decision : superiorite cout si borne SUPERIEURE du ratio < 1 ; non-inferiorite V/U si leurs bornes INFERIEURES > -marge ; aucune violation critique ; comptabilite resolue et donnees admissibles.",
+      "cahier_line": 437
+    },
+    {
+      "regle": "Marges d'exemple 0,02.",
+      "cahier_line": 437
+    },
+    {
+      "regle": "Pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1-0,05/(3J) avec correction de Bonferroni.",
+      "cahier_line": 437
+    },
+    {
+      "regle": "L'absence de violation observee n'est pas un intervalle de securite universel.",
+      "cahier_line": 437
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-POWER-1",
+      "question": "La marge utilisee par F-POWER n'est pas enoncee en §F ; 0,02 n'est donne qu'a titre d'EXEMPLE en T34 (l.437).",
+      "lignes": [
+        127,
+        437
+      ],
+      "lectures_possibles": [
+        "Marge = 0,02. Les decisions [vrai,faux,faux,vrai] sont alors coherentes (-0,04 refuse, -0,01 passe).",
+        "Toute marge dans l'intervalle ouvert ]0,01 ; 0,04] donne exactement les memes quatre decisions : la fixture ne determine pas la marge."
+      ],
+      "impact": "T34.A3 exige qu'une borne DeltaV=-0,02 REFUSE ; avec une marge de 0,02 et le critere strict « > -marge », -0,02 refuse bien. Une marge differente casserait T34.A3 sans casser F-POWER.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-POWER-2",
+      "question": "Le nombre J de contrastes de F-POWER, donc la taille de famille 3J et le niveau marginal, ne sont pas enonces.",
+      "lignes": [
+        127,
+        437,
+        453
+      ],
+      "lectures_possibles": [
+        "J=1 par campagne (un seul contraste A vs B) : famille de 3 intervalles, niveau 1-0,05/3.",
+        "J non fixe par la fixture."
+      ],
+      "impact": "Nul sur les bornes ici (distributions ponctuelles : les bornes ne dependent pas du niveau), non nul sur ce que le pipeline doit declarer. T34.A6 impose J=2 -> six intervalles, cas distinct de F-POWER.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-POWER-3",
+      "question": "Le nombre de repetitions par parent, le nombre de periodes et l'unite des couts (80/100) ne sont pas enonces.",
+      "lignes": [
+        127
+      ],
+      "lectures_possibles": [
+        "Une valeur agregee par parent suffit ; la fixture opere au niveau parent.",
+        "Une structure repetition/scenario est attendue pour traverser le vrai pipeline (T35.A1)."
+      ],
+      "impact": "T35.A1 exige la traversee du VRAI pipeline d'analyse, qui agrege repetition -> scenario -> projet (T32).",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-POWER-4",
+      "question": "Les bornes sont donnees comme des nombres uniques (0,8 / 1 / 0,8 / 0,8) sans dire s'il s'agit des bornes superieures, inferieures, ou des deux (distribution ponctuelle).",
+      "lignes": [
+        127
+      ],
+      "lectures_possibles": [
+        "Distribution ponctuelle : borne inferieure = borne superieure = l'estimation. T34.A1 nomme bien « bornes ratio 0,8 » au pluriel (l.453).",
+        "Seule la borne pertinente au critere est donnee (superieure pour le ratio, inferieure pour DeltaV/DeltaU)."
+      ],
+      "impact": "Les deux lectures produisent les memes decisions ici ; elles divergent sur ce que l'export doit contenir.",
+      "non_tranche": true
+    }
+  ]
+}

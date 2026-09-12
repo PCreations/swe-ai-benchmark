@@ -1,0 +1,439 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "fixture": "F-QUALITY",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F — Fixtures maitresses a materialiser sans recalcul depuis l implementation (l.101-130)",
+  "methode": "Transcription partant des CONSOMMATEURS (verification/cases.lock.json et §H), confrontee au texte de §F. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par `sed -n '<n>p' docs/cahier.md`.",
+  "resume": "Quatre periodes : Q/V, R/U, exposition et reussite agregee par intention, avec les entrees exactes de Q.",
+  "sections_source": [
+    {
+      "cahier_line": 107,
+      "verbatim": "`F-QUALITY`. Quatre périodes de même durée avec `Q=[1, 1/2, 3/4, 1]` donnent `V=13/16=0.8125`. `R=[1, 1/2, null, 1/2]`, intentions offertes `[4,4,0,2]` et réussies `[4,2,0,1]` donnent `U=2/3`, exposition `3/4` et réussite agrégée par intention `7/10`. Ces trois derniers nombres sont différents et doivent rester identifiés."
+    },
+    {
+      "cahier_line": 109,
+      "verbatim": "Entrées exactes de Q : P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violée et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites. Toutes les exigences citées sont dues à la période concernée. Le test négatif ajoute une exigence révélée mais non encore due : son poids ne doit pas entrer dans Q avant son échéance."
+    },
+    {
+      "cahier_line": 111,
+      "verbatim": "Convention : R vaut `null` lorsqu’aucune intention admissible n’est proposée. U est la moyenne temporelle sur les périodes exposées, avec l’exposition publiée. Une campagne confirmatoire exige une exposition prédéfinie non nulle ; une trajectoire indisponible face à des intentions prévues a R=0, jamais `null`. Q est `null` si aucun poids d’exigence active due ; le préflight interdit ce cas dans une période confirmatoire mesurée. Les séries de simple préparation restent marquées hors mesure."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T04.A1",
+      "cahier_line": 191,
+      "exigence": "F-QUALITY donne exactement les resultats annonces",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T04.A2",
+      "cahier_line": 191,
+      "exigence": "dupliquer les assertions d'une exigence ne change pas Q",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T04.A5",
+      "cahier_line": 191,
+      "exigence": "zero usage donne R=null, panne avec quatre usages donne R=0",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T04.A6",
+      "cahier_line": 191,
+      "exigence": "exigence non encore due absente du denominateur",
+      "proof_kind": "absence"
+    },
+    {
+      "cas": "T08.A2",
+      "cahier_line": 223,
+      "exigence": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n'a cree aucune donnee",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T32.A3",
+      "cahier_line": 435,
+      "exigence": "F-QUALITY conserve V=13/16, U=2/3 et ratio intentions 7/10 comme colonnes distinctes",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T36.A1",
+      "cahier_line": 473,
+      "exigence": "F-QUALITY affiche 0,8125 et 2/3 avec arrondi annonce, sans remplacer U par 0,7",
+      "proof_kind": "numeric"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_periodes": {
+      "entier": 4,
+      "cahier_line": 107
+    },
+    "duree_des_periodes": {
+      "valeur": "meme duree (la moyenne temporelle est donc arithmetique)",
+      "cahier_line": 107
+    },
+    "Q_par_periode": [
+      {
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "3/4",
+        "num": 3,
+        "den": 4,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      }
+    ],
+    "V": {
+      "rationnel": "13/16",
+      "num": 13,
+      "den": 16,
+      "decimal_enonce": 0.8125,
+      "cahier_line": 107
+    },
+    "R_par_periode": [
+      {
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": null,
+        "valeur": null,
+        "cahier_line": 107,
+        "motif": "aucune intention admissible proposee"
+      },
+      {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "cahier_line": 107,
+        "decimal_enonce": null
+      }
+    ],
+    "intentions_offertes": [
+      {
+        "entier": 4,
+        "cahier_line": 107
+      },
+      {
+        "entier": 4,
+        "cahier_line": 107
+      },
+      {
+        "entier": 0,
+        "cahier_line": 107
+      },
+      {
+        "entier": 2,
+        "cahier_line": 107
+      }
+    ],
+    "intentions_reussies": [
+      {
+        "entier": 4,
+        "cahier_line": 107
+      },
+      {
+        "entier": 2,
+        "cahier_line": 107
+      },
+      {
+        "entier": 0,
+        "cahier_line": 107
+      },
+      {
+        "entier": 1,
+        "cahier_line": 107
+      }
+    ],
+    "U": {
+      "rationnel": "2/3",
+      "num": 2,
+      "den": 3,
+      "cahier_line": 107,
+      "decimal_enonce": null
+    },
+    "exposition": {
+      "rationnel": "3/4",
+      "num": 3,
+      "den": 4,
+      "cahier_line": 107,
+      "decimal_enonce": null
+    },
+    "reussite_agregee_par_intention": {
+      "rationnel": "7/10",
+      "num": 7,
+      "den": 10,
+      "cahier_line": 107,
+      "decimal_enonce": null
+    },
+    "trois_nombres_distincts": {
+      "enonce": {
+        "valeur": "Ces trois derniers nombres sont differents et doivent rester identifies.",
+        "cahier_line": 107
+      },
+      "U": "2/3",
+      "exposition": "3/4",
+      "reussite_agregee_par_intention": "7/10",
+      "piege_nomme": {
+        "valeur": "0,7",
+        "signification": "U ne doit pas etre remplace par 0,7 (la reussite agregee par intention)",
+        "cahier_line": 473
+      }
+    },
+    "entrees_exactes_de_Q": {
+      "source": {
+        "cahier_line": 109,
+        "verbatim": "Entrées exactes de Q : P1 exige A@1 et B@1, poids 1 chacun, tous deux satisfaits ; P2 ajoute C@1 de poids 2, non satisfaite, A et B restant satisfaites ; P3 remplace A@1 par A@2 de poids 1 satisfaite, B@1 est violée et C@1 satisfaite ; P4 retire B, A@2 et C@1 restent satisfaites. Toutes les exigences citées sont dues à la période concernée. Le test négatif ajoute une exigence révélée mais non encore due : son poids ne doit pas entrer dans Q avant son échéance."
+      },
+      "P1": {
+        "exigences": [
+          {
+            "id": "A@1",
+            "poids": 1,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          },
+          {
+            "id": "B@1",
+            "poids": 1,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          }
+        ],
+        "Q": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "cahier_line": 107,
+          "decimal_enonce": null
+        },
+        "verification": "(1+1)/(1+1) = 1"
+      },
+      "P2": {
+        "exigences": [
+          {
+            "id": "A@1",
+            "poids": 1,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          },
+          {
+            "id": "B@1",
+            "poids": 1,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          },
+          {
+            "id": "C@1",
+            "poids": 2,
+            "etat": "non satisfaite",
+            "cahier_line": 109,
+            "nouveaute": "ajoutee en P2"
+          }
+        ],
+        "Q": {
+          "rationnel": "1/2",
+          "num": 1,
+          "den": 2,
+          "cahier_line": 107,
+          "decimal_enonce": null
+        },
+        "verification": "(1+1+0)/(1+1+2) = 2/4 = 1/2"
+      },
+      "P3": {
+        "exigences": [
+          {
+            "id": "A@2",
+            "poids": 1,
+            "etat": "satisfaite",
+            "cahier_line": 109,
+            "nouveaute": "remplace A@1"
+          },
+          {
+            "id": "B@1",
+            "poids": 1,
+            "etat": "violee",
+            "cahier_line": 109
+          },
+          {
+            "id": "C@1",
+            "poids": 2,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          }
+        ],
+        "Q": {
+          "rationnel": "3/4",
+          "num": 3,
+          "den": 4,
+          "cahier_line": 107,
+          "decimal_enonce": null
+        },
+        "verification": "(1+0+2)/(1+1+2) = 3/4"
+      },
+      "P4": {
+        "exigences": [
+          {
+            "id": "A@2",
+            "poids": 1,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          },
+          {
+            "id": "C@1",
+            "poids": 2,
+            "etat": "satisfaite",
+            "cahier_line": 109
+          }
+        ],
+        "retirees": [
+          {
+            "id": "B",
+            "cahier_line": 109
+          }
+        ],
+        "Q": {
+          "rationnel": "1",
+          "num": 1,
+          "den": 1,
+          "cahier_line": 107,
+          "decimal_enonce": null
+        },
+        "verification": "(1+2)/(1+2) = 3/3 = 1"
+      },
+      "echeance": {
+        "valeur": "Toutes les exigences citees sont dues a la periode concernee.",
+        "cahier_line": 109
+      }
+    },
+    "test_negatif_echeance": {
+      "enonce": {
+        "valeur": "Le test negatif ajoute une exigence revelee mais non encore due : son poids ne doit pas entrer dans Q avant son echeance.",
+        "cahier_line": 109
+      },
+      "consommateur": "T04.A6"
+    }
+  },
+  "conventions": [
+    {
+      "regle": "R vaut `null` lorsqu'aucune intention admissible n'est proposee.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "U est la moyenne temporelle sur les periodes EXPOSEES, avec l'exposition publiee.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Une campagne confirmatoire exige une exposition predefinie non nulle.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais `null`.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Q est `null` si aucun poids d'exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Les series de simple preparation restent marquees hors mesure.",
+      "cahier_line": 111
+    },
+    {
+      "regle": "Le nombre d'assertions ou de tests ne determine pas le poids d'une fonctionnalite (invariant D.10).",
+      "cahier_line": 71
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-QUALITY-1",
+      "question": "T08.A2 parle des « quatre usages de F-QUALITY » ; §F ne donne que des COMPTES d'intentions ([4,4,0,2]), jamais l'identite de ces usages.",
+      "lignes": [
+        107,
+        223
+      ],
+      "lectures_possibles": [
+        "Les quatre usages sont les 4 intentions offertes en P1 (et de nouveau en P2).",
+        "Il existe un catalogue de 4 usages nommes, reutilise a chaque periode exposee (P4 n'en offrant que 2)."
+      ],
+      "impact": "T08.A2 exige que ces quatre usages soient TOUJOURS proposes ; sans leur identite, la fixture ne peut pas etre materialisee au niveau intention.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-QUALITY-2",
+      "question": "Le test negatif d'echeance (l.109) ne nomme ni l'id, ni la version, ni le poids, ni l'echeance de l'exigence revelee non encore due.",
+      "lignes": [
+        109,
+        191
+      ],
+      "lectures_possibles": [
+        "N'importe quelle exigence supplementaire de poids non nul suffit, le cas ne portant que sur son EXCLUSION.",
+        "Un id/poids precis est attendu pour que l'empreinte de la fixture soit stable."
+      ],
+      "impact": "T04.A6 est classe 'absence' : sa perturbation retire le filtre d'echeance. Un poids non nomme rend la valeur fautive (Q avec le poids inclus) non calculable a l'avance.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-QUALITY-3",
+      "question": "T04.A5 exige « panne avec quatre usages donne R=0 » ; F-QUALITY n'a aucune periode a R=0 (P3 a 0 usage et R=null).",
+      "lignes": [
+        107,
+        111,
+        191
+      ],
+      "lectures_possibles": [
+        "Le cas R=0 est une VARIANTE a construire (4 usages offerts, 0 reussi), hors des quatre periodes nominales.",
+        "Il s'agit d'une cinquieme periode de la fixture, non enoncee."
+      ],
+      "impact": "Determine si F-QUALITY doit porter une variante 'indisponible' en plus des quatre periodes.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-QUALITY-4",
+      "question": "L'exposition 3/4 est-elle une fraction de PERIODES exposees ou une fraction de DUREE exposee ?",
+      "lignes": [
+        107,
+        111
+      ],
+      "lectures_possibles": [
+        "Fraction de periodes : 3 periodes exposees sur 4.",
+        "Fraction de duree : identique ici car les quatre periodes ont la meme duree."
+      ],
+      "impact": "Nul sur cette fixture (durees egales), non nul sur une fixture a durees inegales.",
+      "non_tranche": true
+    }
+  ]
+}

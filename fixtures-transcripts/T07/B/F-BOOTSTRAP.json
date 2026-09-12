@@ -1,0 +1,217 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "fixture": "F-BOOTSTRAP",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F — Fixtures maitresses a materialiser sans recalcul depuis l implementation (l.101-130)",
+  "methode": "Transcription partant des CONSOMMATEURS (verification/cases.lock.json et §H), confrontee au texte de §F. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par `sed -n '<n>p' docs/cahier.md`.",
+  "resume": "Liste de reechantillonnages parents forcee, quatre ratios et intervalle par quantile empirique inverse.",
+  "sections_source": [
+    {
+      "cahier_line": 117,
+      "verbatim": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "exigence": "F-BOOTSTRAP donne les quatre ratios et l'intervalle [1/2,9/10]",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "exigence": "les deux bras suivent exactement les memes indices parents",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "exigence": "multiplier tous les couts par 7 ne change ni ratio ni intervalle",
+      "proof_kind": "behaviour"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "exigence": "A=B donne tous les ratios egaux a 1",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "exigence": "les bandes ponctuelles ne sont jamais etiquetees simultanees",
+      "proof_kind": "absence"
+    }
+  ],
+  "valeurs": {
+    "parents": {
+      "valeur": "les deux projets precedents (P1 : A=10, B=20 ; P2 : A=90, B=100)",
+      "cahier_line": 117
+    },
+    "liste_de_reechantillonnages_forcee": [
+      {
+        "tirage": [
+          "P1",
+          "P1"
+        ],
+        "cahier_line": 117
+      },
+      {
+        "tirage": [
+          "P1",
+          "P2"
+        ],
+        "cahier_line": 117
+      },
+      {
+        "tirage": [
+          "P2",
+          "P1"
+        ],
+        "cahier_line": 117
+      },
+      {
+        "tirage": [
+          "P2",
+          "P2"
+        ],
+        "cahier_line": 117
+      }
+    ],
+    "ratios_cout_A_sur_B": [
+      {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "cahier_line": 117,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "5/6",
+        "num": 5,
+        "den": 6,
+        "cahier_line": 117,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "5/6",
+        "num": 5,
+        "den": 6,
+        "cahier_line": 117,
+        "decimal_enonce": null
+      },
+      {
+        "rationnel": "9/10",
+        "num": 9,
+        "den": 10,
+        "cahier_line": 117,
+        "decimal_enonce": null
+      }
+    ],
+    "ratios_verification": [
+      "[P1,P1] : A=10, B=20 -> 1/2",
+      "[P1,P2] : A=(10+90)/2=50, B=(20+100)/2=60 -> 5/6",
+      "[P2,P1] : identique a [P1,P2] -> 5/6",
+      "[P2,P2] : A=90, B=100 -> 9/10"
+    ],
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "intervalle": {
+      "niveau_bas": {
+        "valeur": "2,5 %",
+        "cahier_line": 117
+      },
+      "niveau_haut": {
+        "valeur": "97,5 %",
+        "cahier_line": 117
+      },
+      "borne_basse": {
+        "rationnel": "1/2",
+        "num": 1,
+        "den": 2,
+        "cahier_line": 117,
+        "decimal_enonce": null
+      },
+      "borne_haute": {
+        "rationnel": "9/10",
+        "num": 9,
+        "den": 10,
+        "cahier_line": 117,
+        "decimal_enonce": null
+      }
+    },
+    "portee_declaree": {
+      "valeur": "Cette fixture valide le CALCUL, pas une couverture suffisante avec deux projets.",
+      "cahier_line": 117
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les deux bras suivent exactement les MEMES indices parents (bootstrap apparie).",
+      "cahier_line": 443
+    },
+    {
+      "regle": "Les graines sont derivees par identifiants et flux ; le flux `bootstrap` est distinct.",
+      "cahier_line": 82
+    },
+    {
+      "regle": "Le bootstrap principal reechantillonne les moyennes par parent ; une variante hierarchique est une methode DISTINCTE declaree.",
+      "cahier_line": 445
+    },
+    {
+      "regle": "Une sortie deterministe n'implique pas une couverture frequentiste garantie.",
+      "cahier_line": 445
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BOOTSTRAP-1",
+      "question": "La convention « quantile empirique inverse » est NOMMEE mais sa formule d'indice n'est pas ecrite.",
+      "lignes": [
+        117,
+        445
+      ],
+      "lectures_possibles": [
+        "Indice = ceil(p*n) sur la liste triee : ceil(0,025*4)=1 -> 1/2 et ceil(0,975*4)=4 -> 9/10.",
+        "Une autre convention inverse donnant les memes bornes sur n=4 (p. ex. min/max pour des niveaux si extremes)."
+      ],
+      "impact": "Sur cette liste de 4 valeurs les deux lectures donnent [1/2,9/10] ; elles divergent des que n grandit. Le cahier dit que l'algorithme de tirage ET la convention de quantile sont archives (l.445), sans les ecrire.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-BOOTSTRAP-2",
+      "question": "« Sur les deux projets precedents » : ceux de F-COST-RATIO (1 repetition chacun) ou ceux de F-CLUSTERS (10 et 1 repetitions) ?",
+      "lignes": [
+        113,
+        115,
+        117
+      ],
+      "lectures_possibles": [
+        "F-CLUSTERS, qui nomme P1 et P2 ; les moyennes par parent sont identiques dans les deux lectures (les 10 repetitions de P1 sont identiques).",
+        "F-COST-RATIO."
+      ],
+      "impact": "Aucun sur les quatre ratios ; consigne parce que le nombre de repetitions par parent change ce que T33.A5 doit dupliquer.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-BOOTSTRAP-3",
+      "question": "T33.A3 (x7) et T33.A4 (A=B) sont des fixtures DERIVEES dont §F ne donne pas les valeurs attendues.",
+      "lignes": [
+        117,
+        443
+      ],
+      "lectures_possibles": [
+        "x7 : ratios et intervalle inchanges (invariance d'echelle), enonce par T33.A3 ; A=B : quatre ratios egaux a 1 et intervalle [1,1], seul « tous les ratios egaux a 1 » etant ecrit.",
+        "Ces variantes appartiennent a la tache, pas a la fixture."
+      ],
+      "impact": "L'intervalle attendu du cas A=B n'est ecrit nulle part.",
+      "non_tranche": true
+    }
+  ]
+}

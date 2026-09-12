@@ -1,0 +1,196 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "etage": "FIXTURES",
+  "fixture": "F-MONEY",
+  "cahier": "docs/cahier.md",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "section": "F — Fixtures maitresses a materialiser sans recalcul depuis l implementation (l.101-130)",
+  "methode": "Transcription partant des CONSOMMATEURS (verification/cases.lock.json et §H), confrontee au texte de §F. Aucune implementation consultee. Chaque valeur porte sa ligne source, verifiable par `sed -n '<n>p' docs/cahier.md`.",
+  "resume": "Grille tarifaire fictive et facturation d'un appel modele.",
+  "sections_source": [
+    {
+      "cahier_line": 103,
+      "verbatim": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  ],
+  "consommateurs": [
+    {
+      "cas": "T01.A6",
+      "cahier_line": 165,
+      "exigence": "la corruption de F-MONEY (attendu 341 au lieu de 340) est detectee par la verification des references",
+      "proof_kind": "refusal"
+    },
+    {
+      "cas": "T16.A1",
+      "cahier_line": 295,
+      "exigence": "F-MONEY donne 340",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T38.A2",
+      "cahier_line": 493,
+      "exigence": "48 appels recus et regles",
+      "proof_kind": "numeric"
+    },
+    {
+      "cas": "T38.A3",
+      "cahier_line": 493,
+      "exigence": "2720 micro-USD par trajectoire, 16320 au total",
+      "proof_kind": "numeric"
+    }
+  ],
+  "valeurs": {
+    "unite": {
+      "valeur": "micro-USD",
+      "cahier_line": 103
+    },
+    "grille": {
+      "entree_non_cachee_par_token": {
+        "rationnel": "2",
+        "num": 2,
+        "den": 1,
+        "cahier_line": 103,
+        "decimal_enonce": null
+      },
+      "entree_cachee_par_token": {
+        "rationnel": "1",
+        "num": 1,
+        "den": 1,
+        "cahier_line": 103,
+        "decimal_enonce": null
+      },
+      "sortie_par_token": {
+        "rationnel": "5",
+        "num": 5,
+        "den": 1,
+        "cahier_line": 103,
+        "decimal_enonce": null
+      }
+    },
+    "appel_de_reference": {
+      "tokens_entree_non_cachee": {
+        "entier": 100,
+        "cahier_line": 103
+      },
+      "tokens_entree_cachee": {
+        "entier": 40,
+        "cahier_line": 103
+      },
+      "tokens_sortie": {
+        "entier": 20,
+        "cahier_line": 103
+      },
+      "cout_micro_usd": {
+        "entier": 340,
+        "cahier_line": 103
+      },
+      "cout_micro_usd_chaine": {
+        "valeur": "340",
+        "cahier_line": 79
+      },
+      "decomposition_verifiable": "100*2 + 40*1 + 20*5 = 200 + 40 + 100 = 340"
+    },
+    "deux_appels_identiques": {
+      "cout_micro_usd": {
+        "entier": 680,
+        "cahier_line": 103
+      },
+      "cout_micro_usd_chaine": {
+        "valeur": "680",
+        "cahier_line": 79
+      }
+    }
+  },
+  "conventions": [
+    {
+      "regle": "Les champs d'entree sont disjoints : entree non cachee et entree cachee ne se recouvrent pas.",
+      "cahier_line": 103
+    },
+    {
+      "regle": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise AVANT facturation.",
+      "cahier_line": 103
+    },
+    {
+      "regle": "Les montants sont des chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD.",
+      "cahier_line": 79
+    },
+    {
+      "regle": "Les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires (invariant D.9).",
+      "cahier_line": 70
+    },
+    {
+      "regle": "Deux appels identiques comptent DEUX fois (680) ; c'est un objet different d'un recu importe dix fois, qui ne compte qu'une fois (T16.A3). Appel != recu.",
+      "cahier_line": 295
+    }
+  ],
+  "derives_enonces_par_les_consommateurs": {
+    "$note": "Valeurs NON presentes en §F mais enoncees litteralement par §H pour la fixture golden-six (l.491) qui consomme F-MONEY. Reportees telles quelles, non recalculees.",
+    "golden_six": {
+      "appels_F_MONEY_par_periode": {
+        "entier": 2,
+        "cahier_line": 491
+      },
+      "periodes_par_trajectoire": {
+        "entier": 4,
+        "cahier_line": 491
+      },
+      "trajectoires": {
+        "entier": 6,
+        "cahier_line": 493
+      },
+      "periodes_totales": {
+        "entier": 24,
+        "cahier_line": 493
+      },
+      "appels_totaux_recus_et_regles": {
+        "entier": 48,
+        "cahier_line": 493
+      },
+      "micro_usd_par_trajectoire": {
+        "entier": 2720,
+        "cahier_line": 493
+      },
+      "micro_usd_total": {
+        "entier": 16320,
+        "cahier_line": 493
+      },
+      "tous_les_autres_tarifs": {
+        "valeur": "explicitement zero dans cette fixture fictive",
+        "cahier_line": 491
+      }
+    }
+  },
+  "ambiguites": [
+    {
+      "id": "AMB-MONEY-1",
+      "question": "Perimetre : 2720 / 16320 / 48 appartiennent-ils a F-MONEY ou a une fixture golden-six distincte ?",
+      "lignes": [
+        491,
+        493
+      ],
+      "lectures_possibles": [
+        "golden-six est une fixture de §H (T38) qui CONSOMME F-MONEY ; F-MONEY s'arrete a 340/680.",
+        "2720 et 16320 sont des valeurs maitresses a materialiser avec F-MONEY."
+      ],
+      "impact": "Determine si l'etage de scellement doit produire un 11e fichier (golden-six) alors que §F n'enumere que 10 fixtures F-*.",
+      "non_tranche": true
+    },
+    {
+      "id": "AMB-MONEY-2",
+      "question": "Le cahier n'enonce pas de nombre de tokens pour les appels de golden-six ; il donne seulement le cout par trajectoire (2720).",
+      "lignes": [
+        491,
+        493,
+        103
+      ],
+      "lectures_possibles": [
+        "Chaque appel golden-six est exactement l'appel de reference F-MONEY (100/40/20 -> 340), soit 8 appels x 340 = 2720.",
+        "Les appels golden-six ont d'autres tokens et 2720 est une donnee independante."
+      ],
+      "impact": "La premiere lecture est arithmetiquement compatible (2720 = 8 x 340, 16320 = 6 x 2720) mais n'est pas ecrite comme telle.",
+      "non_tranche": true
+    }
+  ]
+}

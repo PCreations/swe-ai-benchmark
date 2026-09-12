@@ -1,0 +1,256 @@
+{
+  "ambiguites": [],
+  "bornes": {
+    "delta_U": [
+      {
+        "cahier_line": 127,
+        "campagne": "C1",
+        "citation": "celles de ΔU 0 / 0 / 0 / −0,01",
+        "inf": 0,
+        "sup": 0
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C2",
+        "citation": "celles de ΔU 0 / 0 / 0 / −0,01",
+        "inf": 0,
+        "sup": 0
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C3",
+        "citation": "celles de ΔU 0 / 0 / 0 / −0,01",
+        "inf": 0,
+        "sup": 0
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C4",
+        "citation": "celles de ΔU 0 / 0 / 0 / −0,01",
+        "inf": -0.01,
+        "sup": -0.01
+      }
+    ],
+    "delta_V": [
+      {
+        "cahier_line": 127,
+        "campagne": "C1",
+        "citation": "celles de ΔV 0 / 0 / −0,04 / −0,01",
+        "inf": 0,
+        "sup": 0
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C2",
+        "citation": "celles de ΔV 0 / 0 / −0,04 / −0,01",
+        "inf": 0,
+        "sup": 0
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C3",
+        "citation": "celles de ΔV 0 / 0 / −0,04 / −0,01",
+        "inf": -0.04,
+        "sup": -0.04
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C4",
+        "citation": "celles de ΔV 0 / 0 / −0,04 / −0,01",
+        "inf": -0.01,
+        "sup": -0.01
+      }
+    ],
+    "note": "Les distributions etant ponctuelles, le cahier donne une seule valeur par campagne : borne inferieure = borne superieure.",
+    "ratio_cout_A_sur_B": [
+      {
+        "cahier_line": 127,
+        "campagne": "C1",
+        "citation": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8",
+        "inf": 0.8,
+        "sup": 0.8
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C2",
+        "citation": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8",
+        "inf": 1,
+        "sup": 1
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C3",
+        "citation": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8",
+        "inf": 0.8,
+        "sup": 0.8
+      },
+      {
+        "cahier_line": 127,
+        "campagne": "C4",
+        "citation": "les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8",
+        "inf": 0.8,
+        "sup": 0.8
+      }
+    ]
+  },
+  "bras_A_par_campagne": [
+    {
+      "U": 1,
+      "V": 1,
+      "campagne": "C1",
+      "cout": 80,
+      "index": 1,
+      "source": {
+        "cahier_line": 127,
+        "citation": "`(80,1,1)`"
+      }
+    },
+    {
+      "U": 1,
+      "V": 1,
+      "campagne": "C2",
+      "cout": 100,
+      "index": 2,
+      "source": {
+        "cahier_line": 127,
+        "citation": "`(100,1,1)`"
+      }
+    },
+    {
+      "U": 1,
+      "V": 0.96,
+      "campagne": "C3",
+      "cout": 80,
+      "index": 3,
+      "source": {
+        "cahier_line": 127,
+        "citation": "`(80,0.96,1)`"
+      }
+    },
+    {
+      "U": 0.99,
+      "V": 0.99,
+      "campagne": "C4",
+      "cout": 80,
+      "index": 4,
+      "source": {
+        "cahier_line": 127,
+        "citation": "`(80,0.99,0.99)`"
+      }
+    }
+  ],
+  "bras_B": {
+    "U": {
+      "cahier_line": 127,
+      "citation": "a V=U=1",
+      "valeur": 1
+    },
+    "V": {
+      "cahier_line": 127,
+      "citation": "a V=U=1",
+      "valeur": 1
+    },
+    "cout": {
+      "cahier_line": 127,
+      "citation": "B coûte 100",
+      "valeur": 100
+    },
+    "portee": "identique dans chaque parent et dans les quatre campagnes"
+  },
+  "campagnes": {
+    "cahier_line": 127,
+    "citation": "Quatre petites campagnes statistiques",
+    "valeur": 4
+  },
+  "controle_arithmetique": {
+    "but": "coherence interne des bornes ENONCEES avec les valeurs de bras ENONCEES",
+    "concorde": true,
+    "detail": "ratio cout A/B : 80/100=0,8 ; 100/100=1 ; 80/100=0,8 ; 80/100=0,8. dV = V(A)-V(B) : 1-1=0 ; 1-1=0 ; 0,96-1=-0,04 ; 0,99-1=-0,01. dU = U(A)-U(B) : 0 ; 0 ; 1-1=0 ; 0,99-1=-0,01."
+  },
+  "decisions_attendues": {
+    "brut": "[vrai,faux,faux,vrai]",
+    "consommateur": {
+      "cahier_line": 127,
+      "citation": "T34 doit produire `[vrai,faux,faux,vrai]`",
+      "valeur": "T34"
+    },
+    "valeurs": {
+      "cahier_line": 127,
+      "citation": "`[vrai,faux,faux,vrai]`",
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ]
+    }
+  },
+  "etage": "FIXTURES",
+  "fixture": "F-POWER",
+  "hypotheses": [
+    {
+      "cahier_line": 127,
+      "citation": "Comptabilité résolue",
+      "valeur": "comptabilite resolue"
+    },
+    {
+      "cahier_line": 127,
+      "citation": "absence de violation critique",
+      "valeur": "absence de violation critique"
+    },
+    {
+      "cahier_line": 127,
+      "citation": "valeurs connues sur les deux bras",
+      "valeur": "valeurs connues sur les deux bras"
+    },
+    {
+      "cahier_line": 127,
+      "citation": "Les tirages parents exhaustifs donnent des distributions ponctuelles",
+      "valeur": "les tirages parents exhaustifs donnent des distributions PONCTUELLES"
+    }
+  ],
+  "methode": "transcription depuis la source (docs/cahier.md section F) ; aucune valeur calculee par une implementation, aucun cas d'acceptation ni test consulte",
+  "notes": [
+    "Les nombres du cahier sont ecrits avec la virgule decimale francaise (0,8 ; -0,04) et le signe moins typographique U+2212 ; ils sont materialises ici en notation JSON (0.8 ; -0.04) sans changer leur valeur.",
+    "La regle de decision elle-meme (seuils) n'est pas enoncee dans la section F : seul le resultat attendu [vrai,faux,faux,vrai] l'est."
+  ],
+  "parents_par_campagne": {
+    "cahier_line": 127,
+    "citation": "chacune avec deux parents distincts P1/P2",
+    "valeur": [
+      "P1",
+      "P2"
+    ]
+  },
+  "parents_portent_les_memes_valeurs": {
+    "cahier_line": 127,
+    "citation": "portant les mêmes valeurs",
+    "valeur": true
+  },
+  "portee": {
+    "cahier_line": 127,
+    "citation": "sans supposer qu’une estimation ponctuelle générale suffit à décider",
+    "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider."
+  },
+  "role": "fixture-transcriber",
+  "source": {
+    "document": "docs/cahier.md",
+    "ligne_titre_section": 101,
+    "lignes": [
+      127
+    ],
+    "plage_section": [
+      101,
+      129
+    ],
+    "section": "F",
+    "sha256_document": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "sha256_epingle": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "titre_section": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**"
+  },
+  "tache": "T05",
+  "transcripteur": "A",
+  "verbatim": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  }
+}

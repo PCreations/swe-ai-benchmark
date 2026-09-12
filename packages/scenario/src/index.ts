@@ -16,7 +16,13 @@
 // pas être contournée en resoumettant la source : il n'existe aucun chemin qui
 // rende du contenu sans passer par l'une des trois lectures gardées.
 //
-// Plus aucun export de ce paquet ne lève `NotImplemented` : T06 est écrite.
+// T06 EST ÉCRITE : aucun de ses quatre rôles ne lève `NotImplemented`.
+//
+// UN CINQUIÈME RÔLE, ET IL LÈVE ENCORE. `demo.ts` déclare `runDemo`, le pilote
+// de période scripté de T11 (L247). Le registre force ce rôle dans l'un des
+// trois paquets que T11 déclare, et `demo.ts` dit en tête pourquoi c'est
+// celui-ci. À ce commit il n'est qu'un NOM : il lève `NotImplemented`, et c'est
+// l'étage rouge de T11, pas une régression de T06.
 // ─────────────────────────────────────────────────────────────────────────────
 export {
   CUSTOMER_ANSWER_SCHEMA,
@@ -57,3 +63,6 @@ export type {
   SourceReference,
   SourceRequirement,
 } from './source.js'
+
+export { runDemo } from './demo.js'
+export type { DemoOptions } from './demo.js'

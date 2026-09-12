@@ -1,0 +1,246 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-BOOTSTRAP",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    117
+  ],
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "numeric",
+      "exige": "F-BOOTSTRAP donne les quatre ratios et l'intervalle [1/2,9/10]"
+    },
+    {
+      "cas": "T33.A2",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "exige": "les deux bras suivent EXACTEMENT les memes indices parents",
+      "implique_pour_la_fixture": "le bootstrap est APPARIE : un tirage designe un parent, et les deux bras y sont lus ensemble"
+    },
+    {
+      "cas": "T33.A3",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "exige": "multiplier tous les couts par 7 ne change ni ratio ni intervalle"
+    },
+    {
+      "cas": "T33.A4",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "numeric",
+      "exige": "A=B donne tous les ratios egaux a 1"
+    },
+    {
+      "cas": "T33.A7",
+      "tache": "T33",
+      "cahier_line": 443,
+      "proof_kind": "behaviour",
+      "exige": "les bandes ponctuelles ne sont jamais etiquetees simultanees"
+    }
+  ],
+  "donnees": {
+    "base": {
+      "enonce": "les deux projets precedents",
+      "cahier_line": 117,
+      "valeurs": {
+        "P1": {
+          "A": 10,
+          "B": 20
+        },
+        "P2": {
+          "A": 90,
+          "B": 100
+        }
+      },
+      "voir_ambiguite": "COSTRATIO-AMB-2 (quelle fixture est « la precedente ») — les deux lectures coincident numeriquement"
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur_exacte": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117,
+      "cite_verbatim": true,
+      "qualificatif_cahier": "forcer la liste",
+      "note": "tirages parents EXHAUSTIFS de taille 2 avec remise"
+    }
+  },
+  "attendus": [
+    {
+      "id": "BOOTSTRAP-RATIOS",
+      "enonce": "les quatre ratios cout A/B, dans l'ordre de la liste de tirages",
+      "valeur_exacte": [
+        "1/2",
+        "5/6",
+        "5/6",
+        "9/10"
+      ],
+      "cahier_line": 117,
+      "cite_verbatim": true
+    },
+    {
+      "id": "BOOTSTRAP-IC",
+      "enonce": "intervalle 2,5 % - 97,5 % sous la convention de QUANTILE EMPIRIQUE INVERSE",
+      "valeur_exacte": [
+        "1/2",
+        "9/10"
+      ],
+      "cahier_line": 117,
+      "cite_verbatim": true
+    }
+  ],
+  "conventions": [
+    {
+      "id": "BOOTSTRAP-C1",
+      "enonce": "convention de quantile : quantile empirique INVERSE",
+      "cahier_line": 117
+    },
+    {
+      "id": "BOOTSTRAP-C2",
+      "enonce": "le bootstrap principal reechantillonne les MOYENNES PAR PARENT ; une variante hierarchique devient une methode distincte declaree",
+      "cahier_line": 445
+    },
+    {
+      "id": "BOOTSTRAP-C3",
+      "enonce": "portee declaree : « Cette fixture valide le CALCUL, pas une couverture suffisante avec deux projets »",
+      "cahier_line": 117,
+      "cite_verbatim": true
+    },
+    {
+      "id": "BOOTSTRAP-C4",
+      "enonce": "une sortie deterministe n'implique pas une couverture frequentiste garantie",
+      "cahier_line": 445
+    },
+    {
+      "id": "BOOTSTRAP-C5",
+      "enonce": "les graines sont derivees par flux, dont un flux `bootstrap` distinct",
+      "cahier_line": 82
+    }
+  ],
+  "cas_negatifs_lies": [
+    {
+      "cas": "T33.A6",
+      "enonce": "une seule grappe donne INSUFFICIENT_CLUSTERS pour l'inference interprojets",
+      "cahier_line": 443
+    },
+    {
+      "cas": "T38.A8",
+      "enonce": "inference interprojets refusee sur golden-six a un seul parent, malgre six trajectoires",
+      "cahier_line": 493
+    }
+  ],
+  "derivations": {
+    "$note": "controles a la main, non cites verbatim.",
+    "items": [
+      {
+        "tirage": [
+          "P1",
+          "P1"
+        ],
+        "calcul": "A=(10+10)/2=10 ; B=(20+20)/2=20 ; 10/20",
+        "resultat": "1/2"
+      },
+      {
+        "tirage": [
+          "P1",
+          "P2"
+        ],
+        "calcul": "A=(10+90)/2=50 ; B=(20+100)/2=60 ; 50/60",
+        "resultat": "5/6"
+      },
+      {
+        "tirage": [
+          "P2",
+          "P1"
+        ],
+        "calcul": "A=(90+10)/2=50 ; B=(100+20)/2=60 ; 50/60",
+        "resultat": "5/6"
+      },
+      {
+        "tirage": [
+          "P2",
+          "P2"
+        ],
+        "calcul": "A=(90+90)/2=90 ; B=(100+100)/2=100 ; 90/100",
+        "resultat": "9/10"
+      },
+      {
+        "expression": "tri de [1/2, 5/6, 5/6, 9/10] puis quantile inverse a 2,5 % et 97,5 % sur n=4",
+        "resultat": "[1/2, 9/10] = [min, max]",
+        "confirme": "BOOTSTRAP-IC"
+      },
+      {
+        "expression": "multiplier A et B par 7 dans chaque tirage",
+        "resultat": "ratios inchanges — confirme T33.A3 sans nouvelle valeur"
+      }
+    ]
+  },
+  "ambiguites": [
+    {
+      "id": "BOOTSTRAP-AMB-1",
+      "sujet": "formule exacte du quantile empirique inverse",
+      "texte_cahier": "Pour la convention de quantile empirique inverse, l'intervalle 2,5 %-97,5 % de cette liste est [1/2,9/10]",
+      "cahier_line": 117,
+      "probleme": "avec n=4, toute convention raisonnable renvoie le minimum et le maximum ; la fixture ne departage donc AUCUNE des variantes d'indexation (type 1, ceil(p*n), interpolation), qui divergent des que n grandit",
+      "lectures": [
+        "indice = ceil(p*n) sur la liste triee, avec bornes ramenees a [1, n]",
+        "fonction de repartition empirique inversee au sens large, meme resultat ici"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "n'affecte pas [1/2, 9/10], mais laisse non specifiee la convention que T33 doit archiver (« convention de quantile archivee », ligne 445)"
+    },
+    {
+      "id": "BOOTSTRAP-AMB-2",
+      "sujet": "ordre des quatre ratios",
+      "texte_cahier": "Les quatre ratios cout A/B sont [1/2,5/6,5/6,9/10]",
+      "cahier_line": 117,
+      "probleme": "cet ordre est a la fois l'ordre des tirages enumeres et l'ordre trie croissant ; la fixture ne permet pas de savoir si la sortie doit etre indexee sur les tirages ou triee",
+      "lectures": [
+        "ordre des tirages tel qu'enumere ([P1,P1], [P1,P2], [P2,P1], [P2,P2])",
+        "ordre croissant apres tri"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "les deux coincident ici ; §E ligne 82 exige que l'ordre des tableaux soit conserve dans les octets canoniques, ce qui plaide pour l'ordre des tirages"
+    },
+    {
+      "id": "BOOTSTRAP-AMB-3",
+      "sujet": "taille du reechantillon",
+      "texte_cahier": "forcer la liste de reechantillonnages [P1,P1], [P1,P2], [P2,P1], [P2,P2]",
+      "cahier_line": 117,
+      "probleme": "la liste est donnee en extension, donc la taille 2 et le tirage avec remise sont lisibles sur les donnees ; le cahier ne dit pas que la taille du reechantillon doit egaler le nombre de grappes en general",
+      "lectures": [
+        "taille du reechantillon = nombre de grappes observees (2), regle generale usuelle",
+        "taille fixee ad hoc pour cette fixture seulement"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false
+    }
+  ]
+}

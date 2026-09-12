@@ -1,0 +1,156 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-MONEY",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    103
+  ],
+  "consommateurs": [
+    {
+      "cas": "T01.A6",
+      "tache": "T01",
+      "cahier_line": 165,
+      "proof_kind": "refusal",
+      "exige": "la corruption de F-MONEY (attendu 341 au lieu de 340) doit etre DETECTEE par la verification des references",
+      "implique_pour_la_fixture": "la fixture doit porter 340 comme valeur de reference exacte, et 341 comme anti-valeur nommee"
+    },
+    {
+      "cas": "T16.A1",
+      "tache": "T16",
+      "cahier_line": 295,
+      "proof_kind": "numeric",
+      "exige": "F-MONEY donne 340",
+      "implique_pour_la_fixture": "la grille tarifaire et l'usage d'un appel doivent etre entierement fixes pour que 340 soit calculable sans autre entree"
+    },
+    {
+      "cas": "T38.A3",
+      "tache": "T38",
+      "cahier_line": 493,
+      "proof_kind": "numeric",
+      "exige": "2720 micro-USD par trajectoire, 16320 au total",
+      "implique_pour_la_fixture": "deux appels F-MONEY par periode (ligne 491), 4 periodes, 6 trajectoires ; la fixture doit etre reutilisable telle quelle comme brique de golden-six"
+    }
+  ],
+  "unite": {
+    "valeur": "micro-USD",
+    "cahier_line": 103,
+    "serialisation_contractuelle": "chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD",
+    "serialisation_cahier_line": 80
+  },
+  "grille_tarifaire": {
+    "entree_non_cachee_micro_usd_par_token": 2,
+    "entree_cachee_micro_usd_par_token": 1,
+    "sortie_micro_usd_par_token": 5,
+    "cahier_line": 103,
+    "qualificatif_cahier": "fictive"
+  },
+  "appel_de_reference": {
+    "tokens_entree_non_caches": 100,
+    "tokens_entree_caches": 40,
+    "tokens_sortie": 20,
+    "cahier_line": 103
+  },
+  "attendus": [
+    {
+      "id": "MONEY-1",
+      "enonce": "un appel de 100 non caches, 40 caches, 20 de sortie vaut 340 micro-USD",
+      "valeur_exacte": 340,
+      "type": "entier",
+      "cahier_line": 103,
+      "cite_verbatim": true
+    },
+    {
+      "id": "MONEY-2",
+      "enonce": "deux appels identiques valent 680",
+      "valeur_exacte": 680,
+      "type": "entier",
+      "cahier_line": 103,
+      "cite_verbatim": true
+    }
+  ],
+  "anti_valeurs": [
+    {
+      "valeur": 341,
+      "motif": "exemple de corruption que T01.A6 doit detecter",
+      "cahier_line": 165
+    },
+    {
+      "valeur": 0,
+      "motif": "un cout inconnu ne devient jamais zero (T16.A5)",
+      "cahier_line": 295
+    }
+  ],
+  "conventions": [
+    {
+      "id": "MONEY-C1",
+      "enonce": "les champs d'entree sont DISJOINTS : entree non cachee et entree cachee ne se recouvrent pas",
+      "cahier_line": 103
+    },
+    {
+      "id": "MONEY-C2",
+      "enonce": "si un fournisseur inclut le cache dans un total, son adaptateur le normalise AVANT facturation",
+      "cahier_line": 103
+    },
+    {
+      "id": "MONEY-C3",
+      "enonce": "les depenses utilisent des entiers exacts, jamais une addition de flottants monetaires (invariant D9)",
+      "cahier_line": 71
+    },
+    {
+      "id": "MONEY-C4",
+      "enonce": "dans la fixture golden-six de T38, tous les autres tarifs valent explicitement zero",
+      "cahier_line": 491
+    }
+  ],
+  "derivations": {
+    "$note": "calculs faits a la main depuis les entrees du cahier ; NON cites verbatim. Ils servent de controle de coherence, pas de valeur de reference.",
+    "items": [
+      {
+        "expression": "100*2 + 40*1 + 20*5",
+        "resultat": 340,
+        "confirme": "MONEY-1",
+        "cite_verbatim": false
+      },
+      {
+        "expression": "2 * 340",
+        "resultat": 680,
+        "confirme": "MONEY-2",
+        "cite_verbatim": false
+      },
+      {
+        "expression": "2 appels * 4 periodes * 340",
+        "resultat": 2720,
+        "confirme": "T38.A3 (2720 par trajectoire)",
+        "cite_verbatim": true,
+        "cahier_line": 493
+      },
+      {
+        "expression": "6 trajectoires * 2720",
+        "resultat": 16320,
+        "confirme": "T38.A3 (16320 au total)",
+        "cite_verbatim": true,
+        "cahier_line": 493
+      }
+    ]
+  },
+  "ambiguites": [
+    {
+      "id": "MONEY-AMB-1",
+      "sujet": "normalisation d'un total fournisseur incluant le cache",
+      "texte_cahier": "si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation",
+      "cahier_line": 103,
+      "probleme": "le cahier ne donne AUCUN exemple chiffre de la normalisation. Un fournisseur rapportant total_entree=140 et cache=40 doit-il donner non_cache=140-40=100, ou le total est-il deja net ?",
+      "lectures": [
+        "non_cache = total - cache (soustraction), seule lecture compatible avec la disjonction",
+        "le champ total est ignore et seuls des champs deja disjoints sont acceptes, tout total declenchant un refus"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "n'affecte pas 340/680, qui sont enonces sur des champs deja disjoints"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "fixture": "F-POWER",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T11",
+  "regle": "Toute valeur provient du texte du cahier, jamais d'un calcul fait par une implementation. Verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "titre_ligne": 101,
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "plage_section": [
+      101,
+      129
+    ],
+    "lignes": [
+      127
+    ]
+  },
+  "source_verbatim": {
+    "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+  },
+  "nature": "quatre petites campagnes statistiques a distributions ponctuelles, traversant agregation, bootstrap et decision",
+  "nombre_de_campagnes": {
+    "valeur": 4,
+    "cahier_line": 127
+  },
+  "parents_par_campagne": {
+    "valeur": [
+      "P1",
+      "P2"
+    ],
+    "note": "deux parents distincts portant LES MEMES valeurs",
+    "cahier_line": 127
+  },
+  "bras_B_dans_chaque_parent": {
+    "cout": {
+      "valeur": 100,
+      "cahier_line": 127
+    },
+    "V": {
+      "valeur": 1,
+      "cahier_line": 127
+    },
+    "U": {
+      "valeur": 1,
+      "cahier_line": 127
+    }
+  },
+  "campagnes": [
+    {
+      "campagne": 1,
+      "bras_A": {
+        "cout": {
+          "valeur": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "valeur": 0.8,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "nature": {
+          "valeur": "distribution ponctuelle : borne basse = borne haute = la valeur",
+          "cahier_line": 127
+        }
+      },
+      "decision_T34": {
+        "valeur": true,
+        "cahier_line": 127
+      }
+    },
+    {
+      "campagne": 2,
+      "bras_A": {
+        "cout": {
+          "valeur": 100,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "valeur": 1,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "nature": {
+          "valeur": "distribution ponctuelle : borne basse = borne haute = la valeur",
+          "cahier_line": 127
+        }
+      },
+      "decision_T34": {
+        "valeur": false,
+        "cahier_line": 127
+      }
+    },
+    {
+      "campagne": 3,
+      "bras_A": {
+        "cout": {
+          "valeur": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 0.96,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 1,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "valeur": 0.8,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": -0.04,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": 0,
+          "cahier_line": 127
+        },
+        "nature": {
+          "valeur": "distribution ponctuelle : borne basse = borne haute = la valeur",
+          "cahier_line": 127
+        }
+      },
+      "decision_T34": {
+        "valeur": false,
+        "cahier_line": 127
+      }
+    },
+    {
+      "campagne": 4,
+      "bras_A": {
+        "cout": {
+          "valeur": 80,
+          "cahier_line": 127
+        },
+        "V": {
+          "valeur": 0.99,
+          "cahier_line": 127
+        },
+        "U": {
+          "valeur": 0.99,
+          "cahier_line": 127
+        }
+      },
+      "bornes": {
+        "ratio": {
+          "valeur": 0.8,
+          "cahier_line": 127
+        },
+        "delta_V": {
+          "valeur": -0.01,
+          "cahier_line": 127
+        },
+        "delta_U": {
+          "valeur": -0.01,
+          "cahier_line": 127
+        },
+        "nature": {
+          "valeur": "distribution ponctuelle : borne basse = borne haute = la valeur",
+          "cahier_line": 127
+        }
+      },
+      "decision_T34": {
+        "valeur": true,
+        "cahier_line": 127
+      }
+    }
+  ],
+  "attendus": {
+    "bornes_de_ratio": {
+      "valeur": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127
+    },
+    "bornes_de_delta_V": {
+      "valeur": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "bornes_de_delta_U": {
+      "valeur": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "decisions_T34": {
+      "valeur": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "texte_du_cahier": "[vrai,faux,faux,vrai]",
+      "cahier_line": 127
+    }
+  },
+  "preconditions": [
+    {
+      "enonce": "Comptabilite resolue.",
+      "cahier_line": 127
+    },
+    {
+      "enonce": "Absence de violation critique.",
+      "cahier_line": 127
+    },
+    {
+      "enonce": "Valeurs connues sur les deux bras.",
+      "cahier_line": 127
+    }
+  ],
+  "conventions": [
+    {
+      "enonce": "Les tirages parents sont EXHAUSTIFS ; les deux parents portant les memes valeurs, les distributions obtenues sont ponctuelles.",
+      "cahier_line": 127
+    },
+    {
+      "enonce": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu'une estimation ponctuelle generale suffit a decider.",
+      "cahier_line": 127
+    }
+  ],
+  "non_specifie": [
+    "Le cahier ne chiffre pas la puissance ni l'erreur standard dans le paragraphe F-POWER.",
+    "Le nombre de repetitions par parent n'est pas donne."
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-POW-1",
+      "cahier_line": 127,
+      "enonce": "La REGLE DE DECISION de T34 n'est pas enoncee en §F. Les quatre lignes sont : (ratio 0,8 ; dV 0 ; dU 0) -> vrai ; (ratio 1 ; 0 ; 0) -> faux ; (ratio 0,8 ; dV -0,04 ; dU 0) -> faux ; (ratio 0,8 ; dV -0,01 ; dU -0,01) -> vrai. Elles impliquent un seuil de non-inferiorite sur dV situe strictement entre 0,01 et 0,04, et une tolerance sur dU d'au moins 0,01 — mais aucun de ces seuils n'est ecrit dans le cahier.",
+      "impact": "La fixture peut porter les decisions [vrai,faux,faux,vrai] comme attendus, mais ne peut pas porter le seuil qui les produit."
+    },
+    {
+      "id": "AMB-POW-2",
+      "cahier_line": 127,
+      "enonce": "Le sens du ratio n'est pas nomme (cout A / cout B). 80/100 = 0,8 et 100/100 = 1 sont coherents avec A/B, comme dans F-COST-RATIO (l.113), mais §F ne l'ecrit pas pour F-POWER.",
+      "impact": "Orientation du ratio a confirmer par le scellement."
+    },
+    {
+      "id": "AMB-POW-3",
+      "cahier_line": 127,
+      "enonce": "Le signe de delta_V / delta_U n'est pas defini explicitement. Les valeurs (-0,04 pour A a V=0,96 contre B a V=1) sont coherentes avec delta = A - B, mais la convention n'est pas ecrite.",
+      "impact": "Orientation du delta a confirmer par le scellement."
+    }
+  ]
+}

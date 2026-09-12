@@ -1,0 +1,159 @@
+{
+  "fixture": "F-BUDGET",
+  "transcripteur": "A",
+  "etage": "FIXTURES",
+  "tache": "T11",
+  "regle": "Toute valeur provient du texte du cahier, jamais d'un calcul fait par une implementation. Verifiable par: sed -n '<cahier_line>p' docs/cahier.md",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "epingle_par": "docs/CAHIER_SHA256",
+    "section": "F",
+    "titre_ligne": 101,
+    "titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "plage_section": [
+      101,
+      129
+    ],
+    "lignes": [
+      105
+    ]
+  },
+  "source_verbatim": {
+    "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+  },
+  "nature": "reservations budgetaires, concurrence et etat ambigu",
+  "budget_initial": {
+    "valeur": 1000,
+    "cahier_line": 105
+  },
+  "sous_cas": [
+    {
+      "id": "concurrence",
+      "ordre_dans_le_cahier": 1,
+      "enonce": "Deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees.",
+      "montant_de_chaque_reservation": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "invariant": {
+        "valeur": "au plus une des deux reservations de 600 est acceptee",
+        "cahier_line": 105
+      }
+    },
+    {
+      "id": "reglement",
+      "ordre_dans_le_cahier": 2,
+      "enonce": "Apres reglement a 340 de la reservation acceptee.",
+      "montant_reglement": {
+        "valeur": 340,
+        "cahier_line": 105
+      },
+      "etat_attendu": {
+        "spent": {
+          "valeur": 340,
+          "cahier_line": 105
+        },
+        "reserved": {
+          "valeur": 0,
+          "cahier_line": 105
+        },
+        "available": {
+          "valeur": 660,
+          "cahier_line": 105
+        }
+      }
+    },
+    {
+      "id": "depuis_etat_regle__reservation_600",
+      "ordre_dans_le_cahier": 3,
+      "enonce": "Depuis l'etat spent=340/reserved=0/available=660, teste SEPAREMENT : une reservation de 600 est admissible.",
+      "etat_de_depart": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660,
+        "cahier_line": 105
+      },
+      "montant_demande": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "resultat": {
+        "valeur": "ADMISSIBLE",
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 60,
+        "cahier_line": 105
+      },
+      "isolation": {
+        "valeur": "sous-cas teste separement du suivant",
+        "cahier_line": 105
+      }
+    },
+    {
+      "id": "depuis_etat_regle__reservation_661",
+      "ordre_dans_le_cahier": 4,
+      "enonce": "Depuis le MEME etat de depart, teste SEPAREMENT : une reservation de 661 est refusee.",
+      "etat_de_depart": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660,
+        "cahier_line": 105
+      },
+      "montant_demande": {
+        "valeur": 661,
+        "cahier_line": 105
+      },
+      "resultat": {
+        "valeur": "REFUSEE",
+        "cahier_line": 105
+      },
+      "available_apres": {
+        "valeur": 660,
+        "cahier_line": 105
+      },
+      "isolation": {
+        "valeur": "sous-cas teste separement du precedent",
+        "cahier_line": 105
+      }
+    },
+    {
+      "id": "reservation_ambigue",
+      "ordre_dans_le_cahier": 5,
+      "enonce": "Troisieme sous-cas INDEPENDANT : budget frais, zero depense ; une reservation ambigue de 600 maintient available=400 tant qu'elle n'est pas reconciliee.",
+      "budget": {
+        "valeur": 1000,
+        "cahier_line": 105
+      },
+      "depense_initiale": {
+        "valeur": 0,
+        "cahier_line": 105
+      },
+      "montant_reserve_ambigu": {
+        "valeur": 600,
+        "cahier_line": 105
+      },
+      "available_attendu": {
+        "valeur": 400,
+        "cahier_line": 105
+      },
+      "condition": {
+        "valeur": "tant que la reservation ambigue n'est pas reconciliee",
+        "cahier_line": 105
+      }
+    }
+  ],
+  "conventions": [
+    {
+      "enonce": "Un montant ambigu reste retenu contre le disponible ; il ne se resout ni en depense ni en liberation avant reconciliation.",
+      "cahier_line": 105
+    }
+  ],
+  "non_specifie": [
+    "Le cahier ne nomme pas l'etat/le code de la reservation concurrente perdante (sous-cas 1).",
+    "Dans le sous-cas 'reservation_ambigue', le cahier enonce available=400 et zero depense ; il n'ecrit pas explicitement la valeur de `reserved` (600 en serait l'arithmetique, mais elle n'est pas ecrite).",
+    "Le cahier n'enonce pas l'unite des montants de F-BUDGET (1000, 340, 600, 661) ; il ne dit pas qu'ils sont en micro-USD comme F-MONEY."
+  ],
+  "ambiguites": []
+}

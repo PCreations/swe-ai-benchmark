@@ -1,0 +1,328 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-POWER",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    127
+  ],
+  "consommateurs": [
+    {
+      "cas": "T34.A1",
+      "tache": "T34",
+      "cahier_line": 453,
+      "proof_kind": "behaviour",
+      "exige": "bornes ratio 0,8, DeltaV=0, DeltaU=0 et critiques absentes donnent SUPERIORITE sur fixture",
+      "correspond_a": "campagne 1"
+    },
+    {
+      "cas": "T34.A2",
+      "tache": "T34",
+      "cahier_line": 453,
+      "proof_kind": "refusal",
+      "exige": "borne ratio=1 REFUSE",
+      "correspond_a": "campagne 2"
+    },
+    {
+      "cas": "T34.A3",
+      "tache": "T34",
+      "cahier_line": 453,
+      "proof_kind": "refusal",
+      "exige": "borne DeltaV=-0,02 REFUSE",
+      "implique_pour_la_fixture": "la comparaison est STRICTE : -0,02 n'est pas > -0,02 avec marge 0,02"
+    },
+    {
+      "cas": "T34.A4",
+      "tache": "T34",
+      "cahier_line": 453,
+      "proof_kind": "refusal",
+      "exige": "cout plus faible mais DeltaU=-0,04 REFUSE"
+    },
+    {
+      "cas": "T35.A1",
+      "tache": "T35",
+      "cahier_line": 463,
+      "proof_kind": "numeric",
+      "exige": "F-POWER traversant le VRAI pipeline d'analyse produit decisions [vrai,faux,faux,vrai], puissance 0,5 et erreur standard 0,25"
+    }
+  ],
+  "structure": {
+    "campagnes": 4,
+    "qualificatif_cahier": "quatre petites campagnes statistiques",
+    "parents_par_campagne": 2,
+    "noms_des_parents": [
+      "P1",
+      "P2"
+    ],
+    "parents_portent_les_memes_valeurs": true,
+    "cahier_line": 127,
+    "cite_verbatim": true,
+    "bras_B_dans_chaque_parent": {
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "cahier_line": 127,
+      "cite_verbatim": true
+    }
+  },
+  "campagnes": [
+    {
+      "index": 1,
+      "bras_A": {
+        "cout": 80,
+        "V": 1,
+        "U": 1
+      },
+      "cahier_line": 127,
+      "bornes": {
+        "ratio": 0.8,
+        "delta_V": 0,
+        "delta_U": 0
+      },
+      "decision_attendue": true
+    },
+    {
+      "index": 2,
+      "bras_A": {
+        "cout": 100,
+        "V": 1,
+        "U": 1
+      },
+      "cahier_line": 127,
+      "bornes": {
+        "ratio": 1,
+        "delta_V": 0,
+        "delta_U": 0
+      },
+      "decision_attendue": false
+    },
+    {
+      "index": 3,
+      "bras_A": {
+        "cout": 80,
+        "V": 0.96,
+        "U": 1
+      },
+      "cahier_line": 127,
+      "bornes": {
+        "ratio": 0.8,
+        "delta_V": -0.04,
+        "delta_U": 0
+      },
+      "decision_attendue": false
+    },
+    {
+      "index": 4,
+      "bras_A": {
+        "cout": 80,
+        "V": 0.99,
+        "U": 0.99
+      },
+      "cahier_line": 127,
+      "bornes": {
+        "ratio": 0.8,
+        "delta_V": -0.01,
+        "delta_U": -0.01
+      },
+      "decision_attendue": true
+    }
+  ],
+  "attendus": [
+    {
+      "id": "POWER-RATIOS",
+      "enonce": "bornes de ratio des quatre campagnes",
+      "valeur_exacte": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127,
+      "cite_verbatim": true
+    },
+    {
+      "id": "POWER-DV",
+      "enonce": "bornes de DeltaV",
+      "valeur_exacte": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "cite_verbatim": true
+    },
+    {
+      "id": "POWER-DU",
+      "enonce": "bornes de DeltaU",
+      "valeur_exacte": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127,
+      "cite_verbatim": true
+    },
+    {
+      "id": "POWER-DECISIONS",
+      "enonce": "T34 doit produire",
+      "valeur_exacte": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "cahier_line": 127,
+      "cite_verbatim": true
+    },
+    {
+      "id": "POWER-PUISSANCE",
+      "enonce": "puissance",
+      "valeur_exacte": 0.5,
+      "cahier_line": 463,
+      "cite_verbatim": true,
+      "source": "T35.A1"
+    },
+    {
+      "id": "POWER-SE",
+      "enonce": "erreur standard (Monte-Carlo)",
+      "valeur_exacte": 0.25,
+      "cahier_line": 463,
+      "cite_verbatim": true,
+      "source": "T35.A1"
+    }
+  ],
+  "conditions_d_admissibilite": {
+    "enonce": "comptabilite resolue, absence de violation critique, valeurs connues sur les DEUX bras",
+    "cahier_line": 127,
+    "cite_verbatim": true,
+    "consequence": "aucune campagne de F-POWER ne doit tomber dans INCONCLUSIVE (T34.A5, ligne 453)"
+  },
+  "regle_de_decision": {
+    "$source": "ligne 451, « Regle »",
+    "superiorite_cout": "borne SUPERIEURE du ratio < 1",
+    "non_inferiorite": "non-inferiorite V/U si leurs bornes INFERIEURES > -marge",
+    "interdits": "aucune violation critique ; comptabilite resolue et donnees admissibles",
+    "marge": {
+      "valeur": 0.02,
+      "qualificatif_cahier": "Marges d'exemple 0,02",
+      "cahier_line": 451,
+      "voir_ambiguite": "POWER-AMB-1"
+    },
+    "bonferroni": {
+      "enonce": "pour J contrastes et trois criteres inferentiels, la famille contient 3J intervalles ; niveau marginal 1 - 0,05/(3J)",
+      "cahier_line": 451
+    },
+    "limite_declaree": "l'absence de violation observee n'est pas un intervalle de securite universel"
+  },
+  "degenerescence": {
+    "enonce": "les tirages parents EXHAUSTIFS donnent des distributions PONCTUELLES ; les bornes valent donc la valeur ponctuelle",
+    "cahier_line": 127,
+    "cite_verbatim": true,
+    "cause": "les deux parents P1/P2 portent les memes valeurs, donc tout reechantillonnage apparie donne le meme ratio"
+  },
+  "derivations": {
+    "$note": "controles a la main, non cites verbatim.",
+    "items": [
+      {
+        "campagne": 1,
+        "calcul": "80/100 = 0,8 < 1 ; DeltaV = 1-1 = 0 > -0,02 ; DeltaU = 0 > -0,02",
+        "resultat": "vrai"
+      },
+      {
+        "campagne": 2,
+        "calcul": "100/100 = 1, NON < 1",
+        "resultat": "faux"
+      },
+      {
+        "campagne": 3,
+        "calcul": "0,8 < 1 mais DeltaV = 0,96-1 = -0,04, NON > -0,02",
+        "resultat": "faux"
+      },
+      {
+        "campagne": 4,
+        "calcul": "0,8 < 1 ; DeltaV = -0,01 > -0,02 ; DeltaU = -0,01 > -0,02",
+        "resultat": "vrai"
+      },
+      {
+        "expression": "puissance = 2 decisions vraies / 4 campagnes",
+        "resultat": 0.5,
+        "confirme": "POWER-PUISSANCE"
+      },
+      {
+        "expression": "sqrt(p(1-p)/n) = sqrt(0,5*0,5/4) = sqrt(0,0625)",
+        "resultat": 0.25,
+        "confirme": "POWER-SE",
+        "note": "formule coherente avec T35.A2 (ligne 463) : 1800/2000 donne 0,9 et sqrt(0,09/2000)"
+      },
+      {
+        "expression": "J=1 contraste par campagne -> 3 intervalles -> niveau marginal 1 - 0,05/3",
+        "resultat": "non cite par le cahier",
+        "avertissement": "DERIVE : le cahier ne donne le niveau marginal de F-POWER nulle part ; il n'illustre que J=2 (T34.A6, ligne 453)"
+      }
+    ]
+  },
+  "ambiguites": [
+    {
+      "id": "POWER-AMB-1",
+      "sujet": "la marge 0,02 est qualifiee « d'exemple » alors que les decisions attendues en dependent",
+      "texte_cahier": "Marges d'exemple 0,02",
+      "cahier_line": 451,
+      "probleme": "le vecteur [vrai,faux,faux,vrai] n'est vrai que pour une marge dans l'intervalle ]0,01 ; 0,04] ; T34.A3 (borne DeltaV = -0,02 refuse) la fixe a exactement 0,02 avec comparaison stricte. Le cahier presente pourtant 0,02 comme une valeur d'EXEMPLE, donc modifiable, ce qui rendrait l'attendu de F-POWER faux.",
+      "lectures": [
+        "0,02 est la marge CONTRACTUELLE de F-POWER, et « d'exemple » ne qualifie que son emploi hors fixture",
+        "0,02 est configurable, et F-POWER doit alors porter sa propre marge dans ses entrees"
+      ],
+      "non_tranche": true,
+      "severite": "haute",
+      "affecte_une_valeur_assertee": true
+    },
+    {
+      "id": "POWER-AMB-2",
+      "sujet": "sens de DeltaV et DeltaU",
+      "texte_cahier": "celles de DeltaV 0 / 0 / -0,04 / -0,01",
+      "cahier_line": 127,
+      "probleme": "le cahier ne definit pas si Delta = V(A) - V(B) ou V(B) - V(A)",
+      "lectures": [
+        "Delta = A - B : campagne 3 donne 0,96 - 1 = -0,04, ce qui REPRODUIT la valeur citee",
+        "Delta = B - A, qui donnerait +0,04 et contredirait la ligne 127"
+      ],
+      "non_tranche": false,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "consigne pour memoire : les valeurs citees tranchent d'elles-memes en faveur de A - B ; le cahier ne l'ecrit jamais explicitement"
+    },
+    {
+      "id": "POWER-AMB-3",
+      "sujet": "nombre de repetitions par parent et definition de n dans l'erreur standard",
+      "texte_cahier": "puissance 0,5 et erreur standard 0,25",
+      "cahier_line": 463,
+      "probleme": "0,25 = sqrt(0,5*0,5/4) exige n=4 ; n est donc le nombre de CAMPAGNES SIMULEES, pas le nombre de parents (2) ni un nombre de repetitions, qui n'est jamais donne",
+      "lectures": [
+        "n = 4 campagnes, l'erreur standard etant celle de Monte-Carlo sur la proportion de decisions vraies",
+        "n = un nombre de simulations parametrable dont 4 ne serait qu'une instance"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": true,
+      "remarque": "la ligne 461 exige « nombre de simulations » comme parametre obligatoire, sans dire qu'il vaut 4 ici"
+    },
+    {
+      "id": "POWER-AMB-4",
+      "sujet": "collision de noms P1/P2 avec F-CLUSTERS et F-BOOTSTRAP",
+      "texte_cahier": "chacune avec deux parents distincts P1/P2 portant les memes valeurs",
+      "cahier_line": 127,
+      "probleme": "F-CLUSTERS (ligne 115) et F-BOOTSTRAP (ligne 117) emploient P1/P2 pour des projets aux valeurs DIFFERENTES (A=10/B=20 et A=90/B=100)",
+      "lectures": [
+        "les P1/P2 de F-POWER sont des parents propres a cette fixture, sans lien avec ceux de F-CLUSTERS"
+      ],
+      "non_tranche": false,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "piege de lecture consigne ; « portant les memes valeurs » interdit toute confusion avec F-CLUSTERS, dont les deux projets different"
+    }
+  ]
+}

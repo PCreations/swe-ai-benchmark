@@ -1,0 +1,217 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "transcripteur": "B",
+  "role": "fixture-transcriber",
+  "fixture": "F-BUDGET",
+  "cahier_sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+  "methode": "parti des consommateurs (verification/cases.lock.json + docs/cahier.md §H), puis confronte au texte de §F. Aucune implementation consultee.",
+  "lignes_source": [
+    105
+  ],
+  "consommateurs": [
+    {
+      "cas": "T16.A2",
+      "tache": "T16",
+      "cahier_line": 295,
+      "proof_kind": "numeric",
+      "exige": "F-BUDGET respecte TOUS ses montants sous transactions concurrentes",
+      "implique_pour_la_fixture": "chaque sous-cas doit porter le triplet complet (spent, reserved, available), pas seulement available"
+    },
+    {
+      "cas": "T16.A7",
+      "tache": "T16",
+      "cahier_line": 295,
+      "proof_kind": "refusal",
+      "exige": "une reservation dont le cout maximal est non borne est refusee en mode plafond strict avec UNBOUNDED_COST",
+      "implique_pour_la_fixture": "cite comme voisin ; le code UNBOUNDED_COST appartient a T16, pas au texte de §F"
+    },
+    {
+      "cas": "T16.fin",
+      "tache": "T16",
+      "cahier_line": 297,
+      "proof_kind": "invariant",
+      "exige": "invariant spent + reserved + available = limit dans les cas sans depassement fournisseur",
+      "implique_pour_la_fixture": "les trois sous-cas doivent satisfaire l'invariant ; ils le font tous"
+    }
+  ],
+  "unite": {
+    "valeur": "micro-USD (voir ambiguite BUDGET-AMB-1)",
+    "serialisation_cahier_line": 80
+  },
+  "limite": {
+    "valeur_exacte": 1000,
+    "cahier_line": 105,
+    "cite_verbatim": true
+  },
+  "sous_cas": [
+    {
+      "id": "BUDGET-SC0",
+      "nom": "concurrence initiale",
+      "etat_initial": {
+        "limit": 1000,
+        "spent": 0,
+        "reserved": 0,
+        "available": 1000
+      },
+      "action": "deux reservations CONCURRENTES de 600",
+      "attendu": {
+        "enonce": "elles ne peuvent pas etre toutes deux acceptees",
+        "cahier_line": 105,
+        "cite_verbatim": true
+      },
+      "puis": {
+        "enonce": "reglement a 340 de la reservation acceptee",
+        "cahier_line": 105
+      },
+      "etat_final": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660,
+        "cahier_line": 105,
+        "cite_verbatim": true
+      },
+      "invariant_verifie": "340 + 0 + 660 = 1000"
+    },
+    {
+      "id": "BUDGET-SC1",
+      "nom": "reservation admissible depuis l etat regle",
+      "independant": true,
+      "etat_initial": {
+        "limit": 1000,
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "action": "reservation de 600",
+      "attendu": {
+        "admissible": true,
+        "available_apres": 60,
+        "cahier_line": 105,
+        "cite_verbatim": true
+      },
+      "etat_final_deduit": {
+        "spent": 340,
+        "reserved": 600,
+        "available": 60
+      },
+      "invariant_verifie": "340 + 600 + 60 = 1000"
+    },
+    {
+      "id": "BUDGET-SC2",
+      "nom": "reservation refusee depuis l etat regle",
+      "independant": true,
+      "etat_initial": {
+        "limit": 1000,
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "action": "reservation de 661",
+      "attendu": {
+        "admissible": false,
+        "available_apres": 660,
+        "cahier_line": 105,
+        "cite_verbatim": true
+      },
+      "etat_final_deduit": {
+        "spent": 340,
+        "reserved": 0,
+        "available": 660
+      },
+      "invariant_verifie": "340 + 0 + 660 = 1000"
+    },
+    {
+      "id": "BUDGET-SC3",
+      "nom": "reservation ambigue, budget frais",
+      "independant": true,
+      "etat_initial": {
+        "limit": 1000,
+        "spent": 0,
+        "reserved": 0,
+        "available": 1000,
+        "qualificatif_cahier": "budget frais et zero depense"
+      },
+      "action": "reservation AMBIGUE de 600",
+      "attendu": {
+        "available": 400,
+        "condition": "tant qu'elle n'est pas reconciliee",
+        "cahier_line": 105,
+        "cite_verbatim": true
+      },
+      "etat_final_deduit": {
+        "spent": 0,
+        "reserved": 600,
+        "available": 400
+      },
+      "invariant_verifie": "0 + 600 + 400 = 1000"
+    }
+  ],
+  "conventions": [
+    {
+      "id": "BUDGET-C1",
+      "enonce": "SC1, SC2 et SC3 se testent SEPAREMENT ; SC1 et SC2 repartent chacun de l'etat regle (340/0/660), ils ne se cumulent pas",
+      "cahier_line": 105
+    },
+    {
+      "id": "BUDGET-C2",
+      "enonce": "un appel fournisseur dont la reponse est perdue n'est pas relance aveuglement ; son etat reste ambigu tant qu'il n'est pas reconcilie (invariant D7) — c'est la regle dont SC3 est l'instance monetaire",
+      "cahier_line": 69
+    },
+    {
+      "id": "BUDGET-C3",
+      "enonce": "les depenses utilisent des entiers exacts (invariant D9)",
+      "cahier_line": 71
+    },
+    {
+      "id": "BUDGET-C4",
+      "enonce": "les ajustements sont des ecritures separees signees, pas l'edition d'une facture deja inscrite",
+      "cahier_line": 80
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "BUDGET-AMB-1",
+      "sujet": "unite de la limite 1000 et des montants 600 / 661 / 340",
+      "texte_cahier": "Budget 1000 ; deux reservations concurrentes de 600",
+      "cahier_line": 105,
+      "probleme": "la ligne 105 n'ecrit aucune unite, contrairement a la ligne 103 qui dit micro-USD",
+      "lectures": [
+        "micro-USD, par la regle generale de §E ligne 80 (« Les montants sont des chaines d'entiers non negatifs en micro-USD »)",
+        "unite abstraite laissee libre, la fixture ne testant que l'arithmetique du budget"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false,
+      "remarque": "le reglement a 340 coincide avec le montant de F-MONEY, ce qui plaide pour micro-USD, mais le cahier ne lie pas explicitement les deux fixtures"
+    },
+    {
+      "id": "BUDGET-AMB-2",
+      "sujet": "issue exacte des deux reservations concurrentes de 600",
+      "texte_cahier": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
+      "cahier_line": 105,
+      "probleme": "le cahier INTERDIT le double accept sans garantir qu'exactement une est acceptee, et ne nomme pas la gagnante",
+      "lectures": [
+        "exactement une acceptee, une refusee — impose retroactivement par « reglement a 340 de la reservation acceptee » (meme ligne)",
+        "au plus une acceptee : la litterale de la phrase autorise aussi zero accept"
+      ],
+      "non_tranche": true,
+      "severite": "moyenne",
+      "affecte_une_valeur_assertee": true,
+      "remarque": "l'identite de la gagnante n'est PAS specifiee et ne doit pas etre assertee ; seul le nombre d'acceptees l'est"
+    },
+    {
+      "id": "BUDGET-AMB-3",
+      "sujet": "etat de SC3 apres reconciliation",
+      "texte_cahier": "maintient available=400 tant qu'elle n'est pas reconciliee",
+      "cahier_line": 105,
+      "probleme": "le cahier fixe l'etat PENDANT l'ambiguite, jamais l'etat d'arrivee (reglement effectif, annulation, ou passage a UNKNOWN)",
+      "lectures": [
+        "hors perimetre de la fixture : seule la phase non reconciliee est une donnee de F-BUDGET",
+        "l'etat d'arrivee est celui de l'etat d'appel UNKNOWN de §E ligne 96, a transcrire ici"
+      ],
+      "non_tranche": true,
+      "severite": "faible",
+      "affecte_une_valeur_assertee": false
+    }
+  ]
+}

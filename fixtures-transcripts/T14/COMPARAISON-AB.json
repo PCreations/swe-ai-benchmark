@@ -1,0 +1,150 @@
+{
+  "schema": "bench.fixture-comparison/1",
+  "tache": "T14",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber (scellement)",
+  "date": "2026-09-13",
+  "verdict": "SCELLEMENT REFUSE — FIXTURES_DISCORDANTES",
+  "resume": "10 paires comparees valeur par valeur sur le perimetre du §F (l.101-129). Concordance sur toutes les valeurs du §F sauf DEUX champs d'unite. L'un est couvert par un arbitrage RESOLU et la regle a ete appliquee ; l'autre n'est couvert par aucune entree de docs/spec-conflicts/ et arrete l'etage.",
+  "methode": {
+    "principe": "comparaison par VALEUR, pas par fichier : la mise en forme (litteraux en chaine vs num/den, casse des verdicts, placement des contre-valeurs) differe legitimement entre A et B et n'a pas ete comptee comme divergence",
+    "perimetre": "uniquement les valeurs portant une cahier_line dans [101,129] ; les valeurs explicitement etiquetees hors §F par leur transcripteur sont listees separement, elles ne sont pas des valeurs du §F",
+    "outils": [
+      "lecture integrale des 21 fichiers (.bench/fixtures/A : 10, .bench/fixtures/B : 11 dont INDEX.json)",
+      "extraction programmatique des couples (cahier_line, scalaire) puis difference d'ensembles, filtree sur [101,129]",
+      "relecture manuelle de chaque paire pour distinguer mise en forme et valeur"
+    ],
+    "non_consulte_pour_trancher": "acceptance/reference/** n'a pas servi a arbitrer la comparaison ; il n'a ete lu qu'apres coup, pour constater l'etat de la racine gelee"
+  },
+  "controles_executes": [
+    {
+      "commande": "sha256sum docs/cahier.md",
+      "resultat": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+      "conclusion": "identique a docs/CAHIER_SHA256 et au sha256 declare par A et par B : les deux transcriptions portent sur le meme texte"
+    },
+    {
+      "commande": "for n in 103 105 113 115 121 127; do sed -n \"${n}p\" docs/cahier.md | grep -c 'micro-USD'; done",
+      "resultat": "103 -> 1 ; 105 -> 0 ; 113 -> 0 ; 115 -> 0 ; 121 -> 0 ; 127 -> 0",
+      "conclusion": "la chaine micro-USD n'est presente que sur la ligne 103 parmi les lignes de fixture du §F"
+    },
+    {
+      "commande": "grep -n 'micro-USD' docs/cahier.md",
+      "resultat": "lignes 80, 103, 493, 495",
+      "conclusion": "la ligne 80 (§E) enonce « Les montants sont des chaines d'entiers non negatifs en micro-USD » pour les JSON de domaine. Ce n'est pas une valeur du §F, mais c'est un appui textuel qui existe pour les montants de F-BUDGET et qui n'a jamais ete examine par SC-001."
+    },
+    {
+      "commande": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+      "resultat": "chaine presente",
+      "conclusion": "le nombre attendu de F-REGRESSION vaut 1, conformement a SC-001/DIV-2"
+    },
+    {
+      "commande": "grep -n -i 'budget\\|105' docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "resultat": "aucune correspondance",
+      "conclusion": "SC-001 ne mentionne ni F-BUDGET ni la ligne 105"
+    },
+    {
+      "commande": "ls docs/spec-conflicts/",
+      "resultat": "SC-001-poids-des-exigences.md, seule entree, statut RESOLU",
+      "conclusion": "aucune autre entree, ni RESOLU ni OUVERT, ne couvre le champ litigieux"
+    },
+    {
+      "commande": "git rev-parse HEAD:acceptance/reference",
+      "resultat": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+      "conclusion": "egal au tree_oid declare par docs/FROZEN_ROOTS.json et a git rev-parse cd239915:acceptance/reference ; la racine gelee est intacte et le reste"
+    }
+  ],
+  "arbitrages_appliques": [
+    {
+      "id": "SC-001",
+      "statut": "RESOLU",
+      "effets_appliques": [
+        "F-QUALITY : le poids d'une exigence est fixe a son introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4. A et B inscrivent tous deux ces poids — concordants.",
+        "F-FAILURE : l'unite des couts reste non specifiee (DIV-1). Regle appliquee contre l'inscription de A.",
+        "F-REGRESSION : le nombre attendu vaut 1 (DIV-2). A et B inscrivent tous deux 1 — concordants."
+      ]
+    }
+  ],
+  "divergences_de_valeur": [
+    {
+      "id": "DIV-T14-1",
+      "fixture": "F-FAILURE",
+      "champ": "unite des couts [100,50,0,0]",
+      "cahier_line": 121,
+      "valeur_A": "\"micro-USD\" (A/F-FAILURE.json, couts.unite, avec note_unite « unite non repetee ligne 121 ; identique a celle de F-MONEY (ligne 103) »)",
+      "valeur_B": "null, source \"non_specifie\", note « AUCUNE unite n'est ecrite en ligne 121 ; ne pas attribuer micro-USD a cette ligne »",
+      "couverture": "COUVERTE par SC-001 / DIV-1, statut RESOLU",
+      "regle_appliquee": "l'unite reste non specifiee ; l'inscription de A n'est pas soutenue par sa source declaree (grep execute : 0 occurrence en l.121)",
+      "bloquant": false,
+      "remarque": "les roles sont inverses par rapport a la ronde decrite par SC-001 : c'est B qui avait inscrit micro-USD a tort en l.121, c'est A qui le fait cette ronde. L'arbitrage porte sur le champ, pas sur le transcripteur."
+    },
+    {
+      "id": "DIV-T14-2",
+      "fixture": "F-BUDGET",
+      "champ": "unite monetaire des montants 1000, 600, 340, 661, 660, 400, 60",
+      "cahier_line": 105,
+      "valeur_A": "\"micro-USD\" (A/F-BUDGET.json, unite_monetaire.valeur, cahier_line 105, avec note « unite non repetee ligne 105 ; identique a celle de F-MONEY (ligne 103) »)",
+      "valeur_B": "aucune unite inscrite ; AMB-BUDGET-01 consignee NON_TRANCHE (« Unite des montants 1000, 600, 340, 661, 660, 400, 60 »)",
+      "couverture": "NON COUVERTE — aucune entree de docs/spec-conflicts/ ne porte sur F-BUDGET ni sur la ligne 105",
+      "bloquant": true,
+      "pourquoi_ce_n_est_pas_le_sujet_de_DIV_1": [
+        "SC-001 est borne par son propre texte : son titre DIV-1 est « F-FAILURE, unite des couts » et son controle porte sur la ligne 121. Il ne nomme jamais F-BUDGET ni la ligne 105.",
+        "DIV-1 s'est reglee « sans arbitrage » parce que c'etait un pur fait de texte : la chaine revendiquee n'etait pas sur la ligne declaree. Ici le meme grep donne le meme 0 sur la ligne 105 — mais il ne suffit pas a clore la question, parce que la ligne 80 (§E) enonce que les montants des JSON de domaine sont en micro-USD, et spent/reserved/available sont des champs de montant du domaine. Il existe donc pour F-BUDGET un appui textuel que F-FAILURE n'avait pas.",
+        "Trancher dans un sens ou dans l'autre serait rendre un arbitrage, ce que ce role n'a pas le droit de faire."
+      ],
+      "consequence_du_gel": "acceptance/reference/** est gelee : materialiser l'une ou l'autre lecture rendrait l'erreur permanente et silencieuse, aucun cas d'acceptation ne la rougirait."
+    }
+  ],
+  "ambiguites": {
+    "A": {
+      "total": 0,
+      "note": "les 10 fichiers de A portent `ambiguites: []`. A consigne en revanche des champs `non_specifie` (F-BUDGET, F-QUALITY) et une section `normalisations` (F-RESERVATION)."
+    },
+    "B": {
+      "total": 40,
+      "resolues_par_spec_conflict": 1,
+      "non_tranchees": 39,
+      "bloquantes": 1,
+      "bloquante_detail": "AMB-BUDGET-01 uniquement : c'est la seule ambiguite NON_TRANCHEE qui porte sur un champ que l'un des deux transcripteurs MATERIALISE (A inscrit unite_monetaire). Elle est le pendant de DIV-T14-2.",
+      "reportees": "les 38 autres ne changent aucune valeur materialisee : soit elles portent sur un champ que NI A NI B n'inscrit (unites de F-COST-RATIO/F-CLUSTERS/F-POWER, ventilation spent/reserved, codes de refus, calendriers, criticite, sequence d'admission, formules de quantile ou d'erreur standard), soit elles portent sur un cas d'acceptation ou sur du §H hors du perimetre scelle (AMB-QUALITY-02 vs T08.A2 l.223, AMB-RESERVATION-01 vs T09.A3 l.233, AMB-POWER-01/02 vs T34). Elles sont citees ici et reportees, conformement a la regle : bloquer sur une ambiguite sans effet ferait de la prudence un arret permanent."
+    }
+  },
+  "concordances_verifiees": {
+    "F-MONEY": "grille 2/1/5 micro-USD par token (l.103, unite presente sur la ligne), appel 100/40/20 -> 340, deux appels -> 680, champs d'entree disjoints. CONCORDANT.",
+    "F-BUDGET": "budget 1000 ; 2 demandes concurrentes de 600, une seule acceptable ; reglement 340 -> spent=340, reserved=0, available=660 ; depuis cet etat et separement : 600 admissible -> available=60, 661 refusee -> available=660 ; sous-cas independant budget frais zero depense, 600 ambigue -> available=400 tant que non reconciliee. CONCORDANT SUR TOUTES CES VALEURS. Divergence limitee a l'unite (DIV-T14-2).",
+    "F-QUALITY": "Q=[1,1/2,3/4,1], V=13/16=0.8125, R=[1,1/2,null,1/2], offertes [4,4,0,2], reussies [4,2,0,1], U=2/3, exposition 3/4, reussite agregee 7/10 ; poids A@1=1, B@1=1, C@1=2, A@2=1 propages en P3/P4 selon SC-001 ; les six conventions de la l.111. CONCORDANT.",
+    "F-COST-RATIO": "2 projets de poids egal, A=[10,90], B=[20,100], moyennes 50 et 60, ratio principal A/B=5/6, 0.7 nomme comme resultat incorrect. CONCORDANT (A place 0.7 dans `resultat_incorrect_a_refuser`, B dans `contre_valeurs` — meme valeur, meme statut).",
+    "F-CLUSTERS": "P1 A=10 B=20 sur 10 repetitions, P2 A=90 B=100 sur 1 ; moyennes interprojets 50 et 60 ; 11 lignes brutes ; moyenne naive interdite ; invariance de l'estimation ponctuelle par duplication. CONCORDANT. Aucun des deux n'inscrit de valeur pour la moyenne naive.",
+    "F-BOOTSTRAP": "liste forcee [P1,P1],[P1,P2],[P2,P1],[P2,P2] ; ratios [1/2,5/6,5/6,9/10] dans cet ordre ; quantile empirique inverse ; intervalle 2,5-97,5 % = [1/2,9/10] ; portee declaree. CONCORDANT.",
+    "F-RESERVATION": "horloge initiale 2030-01-01T00:00:00Z ; acteurs A,B,C ; locataire legacy ; S1 capacite 1 debutant 2030-01-03T12:00:00Z ; P1/P2/P3/P4 = 2030-01-01T00:00:00Z / 2030-01-01T01:00:00Z / 2030-01-02T11:00:00Z / 2030-01-02T13:00:00Z ; frontiere 2030-01-02T12:00:00Z permise, 2030-01-02T12:00:00.001Z refusee ; clones jetables ; etat a l'entree de P4 A annule / B confirme / C en attente ; sur le clone, C confirme ; FIFO par sequence d'admission ; NOT_FOUND intertenant. CONCORDANT, y compris sur les dates heritees par ellipse (A les nomme `normalisations`, B `verbatim (heure) + ellipse (date)`) : meme valeur, etiquette de provenance differente.",
+    "F-FAILURE": "K=4, 4 lignes conservees, Q=0 et R=0 par periode sous condition, couts [100,50,0,0], total 150, arret apres P2 ne supprime pas P3/P4, aucune facture imaginaire. CONCORDANT SUR TOUTES CES VALEURS. Divergence limitee a l'unite (DIV-T14-1, tranchee par SC-001).",
+    "F-POWER": "4 campagnes, 2 parents P1/P2 de memes valeurs ; B (100,1,1) ; A (80,1,1), (100,1,1), (80,0.96,1), (80,0.99,0.99) ; bornes de ratio 0,8/1/0,8/0,8 ; dV 0/0/-0,04/-0,01 ; dU 0/0/0/-0,01 ; T34 -> [vrai,faux,faux,vrai] ; distributions ponctuelles. CONCORDANT.",
+    "F-REGRESSION": "cancel@1 satisfaite P2, remplacee P3 par cancel@2, aucune regression ; isolation@1 satisfaite P3, violee P4, une regression ; total 1 ; comptage par id/version active. CONCORDANT."
+  },
+  "valeurs_hors_section_F_portees_par_un_seul_transcripteur": [
+    {
+      "transcripteur": "A",
+      "fixture": "F-MONEY",
+      "valeurs": "golden-six de T38 : 2720 micro-USD par trajectoire, 16320 au total, 6 trajectoires, 24 periodes, 48 appels (l.491, l.493)",
+      "traitement": "A les etiquette explicitement « Ces montants ne sont PAS en §F ». Hors perimetre du scellement : non comptees comme divergence, non materialisables ici."
+    },
+    {
+      "transcripteur": "B",
+      "fixture": "F-POWER",
+      "valeurs": "puissance 0,5 et erreur standard Monte-Carlo 0,25 (l.463, T35.A1)",
+      "traitement": "B les etiquette source \"consommateur\", « non enonce en §F ». Ligne 463 relue : elle porte bien ces deux nombres. Hors perimetre : non comptees comme divergence."
+    },
+    {
+      "transcripteur": "B",
+      "fixture": "F-RESERVATION",
+      "valeurs": "1 reservation confirmee attendue en P1 (l.215, T07.A1)",
+      "traitement": "idem : consommateur du §H, hors perimetre du scellement."
+    }
+  ],
+  "ce_qui_n_a_pas_ete_fait_et_pourquoi": {
+    "materialisation": "AUCUNE. acceptance/reference/** n'a pas ete ecrite. La condition posee est « SI ET SEULEMENT SI elles concordent » ; elles ne concordent pas sur DIV-T14-2.",
+    "gel": "AUCUN. docs/FROZEN_ROOTS.json n'a pas ete touche. La racine reste au tree_oid f8d7adb6f569916b5176d0ebefe13f7aa10bdc91 declare, verifie egal a git rev-parse HEAD:acceptance/reference.",
+    "commit_zone_REFERENCE": "AUCUN : il n'y a rien a committer, l'arbre de travail est propre.",
+    "ouverture_du_SPEC_CONFLICT": "PAS FAITE PAR MOI, et deliberement : docs/spec-conflicts/** releve de la zone DOCS (verification/ownership.json, l'ordre des zones place docs/specs/** en SPEC et docs/FROZEN_ROOTS.json en REFERENCE, tout le reste de docs/** en DOCS). Le role fixture-transcriber n'ecrit que la zone REFERENCE. Ouvrir l'entree moi-meme serait une PARTITION_VIOLATION. L'action revient au role integrator."
+  },
+  "prochaine_action_nommee": "Ouvrir une entree docs/spec-conflicts/ (role integrator, zone DOCS) sur : « l'unite monetaire des montants de F-BUDGET (l.105) est-elle celle de la ligne 80 (§E, micro-USD pour les montants des JSON de domaine), ou reste-t-elle non specifiee comme pour F-FAILURE ? ». Tant que cette entree est OUVERTE, le scellement de T14 reste bloque ; une fois RESOLU, la regle s'applique et la comparaison A/B se reduit a zero divergence non couverte."
+}

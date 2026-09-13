@@ -1,0 +1,157 @@
+{
+  "fixture": "F-POWER",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      127
+    ],
+    "verbatim": {
+      "127": "`F-POWER`. Quatre petites campagnes statistiques, chacune avec deux parents distincts P1/P2 portant les mêmes valeurs. Dans chaque parent, B coûte 100 et a V=U=1 ; A a respectivement pour les quatre campagnes `(coût,V,U)` : `(80,1,1)`, `(100,1,1)`, `(80,0.96,1)`, `(80,0.99,0.99)`. Comptabilité résolue, absence de violation critique, valeurs connues sur les deux bras. Les tirages parents exhaustifs donnent des distributions ponctuelles ; les bornes de ratio sont donc 0,8 / 1 / 0,8 / 0,8, celles de ΔV 0 / 0 / −0,04 / −0,01, celles de ΔU 0 / 0 / 0 / −0,01. T34 doit produire `[vrai,faux,faux,vrai]`. Cette fixture traverse agrégation, bootstrap et décision, sans supposer qu’une estimation ponctuelle générale suffit à décider."
+    }
+  },
+  "campagnes": {
+    "nombre": {
+      "valeur": 4,
+      "qualificatif": "quatre petites campagnes statistiques",
+      "cahier_line": 127
+    }
+  },
+  "parents": {
+    "valeur": "chaque campagne a deux parents distincts P1/P2 portant les memes valeurs",
+    "ids": [
+      "P1",
+      "P2"
+    ],
+    "cahier_line": 127
+  },
+  "bras_B": {
+    "cout": {
+      "valeur": 100,
+      "cahier_line": 127
+    },
+    "V": {
+      "valeur": 1,
+      "cahier_line": 127
+    },
+    "U": {
+      "valeur": 1,
+      "cahier_line": 127
+    },
+    "portee": "identique dans chaque parent et dans les quatre campagnes"
+  },
+  "bras_A_par_campagne": [
+    {
+      "campagne": 1,
+      "cout": 80,
+      "V": 1,
+      "U": 1,
+      "litteral": "(80,1,1)",
+      "cahier_line": 127
+    },
+    {
+      "campagne": 2,
+      "cout": 100,
+      "V": 1,
+      "U": 1,
+      "litteral": "(100,1,1)",
+      "cahier_line": 127
+    },
+    {
+      "campagne": 3,
+      "cout": 80,
+      "V": 0.96,
+      "U": 1,
+      "litteral": "(80,0.96,1)",
+      "cahier_line": 127
+    },
+    {
+      "campagne": 4,
+      "cout": 80,
+      "V": 0.99,
+      "U": 0.99,
+      "litteral": "(80,0.99,0.99)",
+      "cahier_line": 127
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "comptabilite resolue",
+      "cahier_line": 127
+    },
+    {
+      "condition": "absence de violation critique",
+      "cahier_line": 127
+    },
+    {
+      "condition": "valeurs connues sur les deux bras",
+      "cahier_line": 127
+    }
+  ],
+  "tirages": {
+    "valeur": "Les tirages parents exhaustifs donnent des distributions ponctuelles.",
+    "cahier_line": 127
+  },
+  "bornes": {
+    "remarque": "Distributions ponctuelles : borne basse = borne haute = la valeur enoncee.",
+    "ratio": {
+      "litteral": "0,8 / 1 / 0,8 / 0,8",
+      "valeurs": [
+        0.8,
+        1,
+        0.8,
+        0.8
+      ],
+      "cahier_line": 127
+    },
+    "delta_V": {
+      "litteral": "0 / 0 / −0,04 / −0,01",
+      "valeurs": [
+        0,
+        0,
+        -0.04,
+        -0.01
+      ],
+      "cahier_line": 127
+    },
+    "delta_U": {
+      "litteral": "0 / 0 / 0 / −0,01",
+      "valeurs": [
+        0,
+        0,
+        0,
+        -0.01
+      ],
+      "cahier_line": 127
+    }
+  },
+  "sortie_attendue_T34": {
+    "litteral": "[vrai,faux,faux,vrai]",
+    "valeurs": [
+      true,
+      false,
+      false,
+      true
+    ],
+    "cahier_line": 127
+  },
+  "portee": {
+    "valeur": "Cette fixture traverse agregation, bootstrap et decision, sans supposer qu’une estimation ponctuelle generale suffit a decider.",
+    "cahier_line": 127
+  },
+  "notes": [
+    "Le critere de decision qui produit [vrai,faux,faux,vrai] n’est pas enonce en §F ; seule la sortie attendue l’est. Aucun seuil n’est transcrit ici.",
+    "Le cahier ecrit les decimales a la virgule (0,8 ; −0,04) ; les champs `valeurs` utilisent le point JSON, meme valeur exacte."
+  ],
+  "ambiguites": []
+}

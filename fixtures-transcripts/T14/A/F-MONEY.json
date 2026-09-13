@@ -1,0 +1,123 @@
+{
+  "fixture": "F-MONEY",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      103
+    ],
+    "verbatim": {
+      "103": "`F-MONEY`. Grille fictive : entrée non cachée 2 micro-USD/token ; entrée cachée 1 ; sortie 5. Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340 micro-USD. Deux appels identiques valent 680. Les champs d’entrée sont disjoints : si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation."
+    }
+  },
+  "unite_monetaire": {
+    "valeur": "micro-USD",
+    "cahier_line": 103
+  },
+  "grille_tarifaire": {
+    "commentaire": {
+      "valeur": "Grille fictive.",
+      "cahier_line": 103
+    },
+    "entree_non_cachee": {
+      "valeur": 2,
+      "unite": "micro-USD/token",
+      "cahier_line": 103
+    },
+    "entree_cachee": {
+      "valeur": 1,
+      "unite": "micro-USD/token",
+      "cahier_line": 103
+    },
+    "sortie": {
+      "valeur": 5,
+      "unite": "micro-USD/token",
+      "cahier_line": 103
+    }
+  },
+  "appel_de_reference": {
+    "tokens_entree_non_caches": {
+      "valeur": 100,
+      "cahier_line": 103
+    },
+    "tokens_entree_caches": {
+      "valeur": 40,
+      "cahier_line": 103
+    },
+    "tokens_sortie": {
+      "valeur": 20,
+      "cahier_line": 103
+    },
+    "cout_attendu": {
+      "valeur": 340,
+      "unite": "micro-USD",
+      "litteral": "340",
+      "cahier_line": 103
+    }
+  },
+  "deux_appels_identiques": {
+    "cout_attendu": {
+      "valeur": 680,
+      "unite": "micro-USD",
+      "litteral": "680",
+      "cahier_line": 103
+    }
+  },
+  "regles": [
+    {
+      "regle": "Les champs d’entree sont disjoints : entree non cachee et entree cachee ne se recouvrent pas.",
+      "cahier_line": 103
+    },
+    {
+      "regle": "Si un fournisseur inclut le cache dans un total, son adaptateur le normalise avant facturation.",
+      "cahier_line": 103
+    }
+  ],
+  "consequences_enoncees_hors_section_F": {
+    "avertissement": "Ces montants ne sont PAS en §F. Ils sont enonces en §H (tache T38, fixture `golden-six`) et reposent sur la grille F-MONEY. Reportes ici pour tracabilite uniquement.",
+    "golden_six": {
+      "composition": {
+        "valeur": "un projet, un scenario de quatre periodes, deux configurations scriptees conformes, trois repetitions, deux appels F-MONEY par periode ; tous les autres tarifs valent explicitement zero.",
+        "cahier_line": 491
+      },
+      "cout_par_trajectoire": {
+        "valeur": 2720,
+        "unite": "micro-USD",
+        "litteral": "2720",
+        "cahier_line": 493
+      },
+      "cout_total": {
+        "valeur": 16320,
+        "unite": "micro-USD",
+        "litteral": "16320",
+        "cahier_line": 493
+      },
+      "trajectoires": {
+        "valeur": 6,
+        "cahier_line": 493
+      },
+      "periodes": {
+        "valeur": 24,
+        "cahier_line": 493
+      },
+      "appels_recus_et_regles": {
+        "valeur": 48,
+        "cahier_line": 493
+      }
+    }
+  },
+  "notes": [
+    "340 = 100×2 + 40×1 + 20×5 ; le cahier enonce directement 340, la decomposition n’est rappelee que pour lecture."
+  ],
+  "ambiguites": []
+}

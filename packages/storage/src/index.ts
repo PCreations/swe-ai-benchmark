@@ -21,10 +21,14 @@
 //   publishRetryLimit()                       la limite fixée         (L261 A6)
 //
 // LES SIX RÔLES D'ARTEFACTS de T13 (L265-L272) sont publiés plus bas. Aucun des
-// douze rôles de ce paquet ne lève désormais `NotImplemented` : les squelettes
-// ont disparu avec les implémentations qu'ils annonçaient. Ce que les rôles
+// douze rôles de T12 et T13 ne lève `NotImplemented` : leurs squelettes ont
+// disparu avec les implémentations qu'ils annonçaient. Ce que les rôles
 // d'artefacts lèvent est un `ArtifactRefusal`, qui porte un code nommant sa
 // cause — src/artifacts.ts décrit le port, src/artifact-local.ts l'adaptateur.
+//
+// LES TROIS RÔLES DE T14 (L273-L279), EUX, LÈVENT ENCORE `NotImplemented` :
+// src/artifact-s3.ts est un SQUELETTE, et ce bandeau ne peut pas affirmer le
+// contraire tant que l'adaptateur S3 n'est pas écrit.
 //
 // CE QUE CE PAQUET NE PRÉTEND PAS FAIRE. Une transaction garantit les effets
 // LOCAUX ; elle ne rend pas une requête fournisseur distante exactement unique
@@ -84,6 +88,23 @@ export type {
 
 export { ARTIFACT_REFUSAL_CODES, ArtifactRefusal, isArtifactRefusal } from './artifact-errors.js'
 export type { ArtifactRefusalCode } from './artifact-errors.js'
+
+// ── T14 — adaptateur S3 et son test de contrat réel (L273-L279). SQUELETTE :
+//    les trois rôles ci-dessous lèvent `NotImplemented`. Les cinq autres rôles
+//    que la suite d'acceptation de T14 appelle — putArtifact, getArtifact,
+//    listArtifacts, extractArchive, artifactSizeLimit — sont ceux de T13,
+//    publiés plus haut : L267 pose UN port, T14 lui ajoute un adaptateur.
+//
+//    s3TestServiceConfig()          service S3 compatible pour les tests  L275
+//    openS3ArtifactStore(target)    adaptateur S3                         L275
+//    createScopedIdentity(request)  identité limitée par usage            L275
+export { s3TestServiceConfig, openS3ArtifactStore, createScopedIdentity } from './artifact-s3.js'
+export type {
+  S3ArtifactStoreTarget,
+  S3TestServiceConfig,
+  ScopedIdentity,
+  ScopedIdentityRequest,
+} from './artifact-s3.js'
 
 export type {
   PeriodRecord,

@@ -8,11 +8,25 @@
 // l'extraction bornée dans src/artifact-archive.ts, et le manifeste de contenu
 // est la valeur que toute écriture acceptée rend.
 //
-// POURQUOI UN PORT SÉPARÉ DE SON ADAPTATEUR, ALORS QU'IL N'EN EXISTE QU'UN.
+// POURQUOI UN PORT SÉPARÉ DE SES ADAPTATEURS.
 // L34 : « le cœur métier ne dépend ni de Temporal, ni de Docker […] les
 // interfaces sont implémentées par adaptateurs. » Un appelant qui importerait
 // `LocalArtifactStore` ferait entrer le système de fichiers dans sa propre
 // définition ; il n'importe ici que six rôles, dont aucun ne nomme un disque.
+//
+// DEUX ADAPTATEURS, TROIS RÔLES QUI AIGUILLENT (T14, L273).
+// `putArtifact`, `getArtifact` et `listArtifacts` reconnaissent le magasin
+// qu'on leur donne : celui de src/artifact-local.ts, ou celui de
+// src/artifact-s3.ts. C'est le port qui aiguille, et non l'appelant qui choisit
+// un module — sans quoi « le même contrat sur un service réel » (L277) serait
+// une ressemblance de noms plutôt qu'un contrat.
+//
+// UNE CONSÉQUENCE VISIBLE DANS LES SIGNATURES : l'adaptateur S3 parle au
+// réseau, donc rend des promesses. Les trois rôles rendent une valeur OU une
+// promesse, selon le magasin. Rendre une promesse même sur le disque aurait
+// rendu asynchrone un adaptateur qui ne l'est pas ; imposer le synchrone aurait
+// interdit le second adaptateur. Les appelants attendent (`await`) le résultat
+// dans les deux cas.
 //
 // LES SIX RÔLES, ET CE QUE CHACUN DOIT AU CAHIER.
 //   openArtifactStore({ root })                    adaptateur local     L267
@@ -27,12 +41,12 @@
 // `ArtifactRefusal`, qui porte un code nommant sa cause — `ARTIFACT_CORRUPT`
 // et `ARTIFACT_MISSING` sont les deux que L269 fixe littéralement.
 //
-// CE QUE T13 NE PRÉTEND PAS FAIRE. Rien sur un service objet réel, les
-// identités limitées par préfixe ni les transferts repris : c'est T14 (L273).
-// Rien sur la cohérence d'un point de reprise entre base, fichiers et files :
-// c'est T15 (L281). Rien sur l'isolation du candidat : c'est T19 (L317). T13
-// n'en porte que la part qui vit dans le stockage — un nom de fichier fourni
-// par un candidat n'atteint jamais un chemin du stockage central (L271).
+// CE QUE CE PORT NE PRÉTEND PAS FAIRE. Rien sur la cohérence d'un point de
+// reprise entre base, fichiers et files : c'est T15 (L281). Rien sur
+// l'isolation du candidat : c'est T19 (L317). Il n'en porte que la part qui vit
+// dans le stockage — un nom de fichier fourni par un candidat n'atteint jamais
+// un chemin du stockage central (L271), et une identité limitée par usage ne
+// lit pas le préfixe privé d'évaluation (L275, L279).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
@@ -43,6 +57,12 @@ import {
   putLocalArtifact,
 } from './artifact-local.js'
 import { extractArchiveInto } from './artifact-archive.js'
+import {
+  getS3Artifact,
+  isS3ArtifactStore,
+  listS3Artifacts,
+  putS3Artifact,
+} from './artifact-s3.js'
 import type { ArtifactManifest } from './artifact-local.js'
 import type { ExtractArchiveReport } from './artifact-archive.js'
 
@@ -87,7 +107,8 @@ export function putArtifact(
   handle: unknown,
   bytes: unknown,
   options?: unknown,
-): ArtifactManifest {
+): ArtifactManifest | Promise<ArtifactManifest> {
+  if (isS3ArtifactStore(handle)) return putS3Artifact(handle, bytes, options)
   return putLocalArtifact(handle, bytes, options)
 }
 
@@ -99,7 +120,8 @@ export function putArtifact(
  * permissivité que A4 condamne : l'appelant ne pourrait plus distinguer un
  * objet vide d'un objet absent.
  */
-export function getArtifact(handle: unknown, ref: unknown): Uint8Array {
+export function getArtifact(handle: unknown, ref: unknown): Uint8Array | Promise<Uint8Array> {
+  if (isS3ArtifactStore(handle)) return getS3Artifact(handle, ref)
   return getLocalArtifact(handle, ref)
 }
 
@@ -110,7 +132,10 @@ export function getArtifact(handle: unknown, ref: unknown): Uint8Array {
  * comme objet final » vérifiable. Une écriture restée en transit n'y figure
  * pas : elle n'a jamais franchi sa publication.
  */
-export function listArtifacts(handle: unknown): readonly ArtifactManifest[] {
+export function listArtifacts(
+  handle: unknown,
+): readonly ArtifactManifest[] | Promise<readonly ArtifactManifest[]> {
+  if (isS3ArtifactStore(handle)) return listS3Artifacts(handle)
   return listLocalArtifacts(handle)
 }
 

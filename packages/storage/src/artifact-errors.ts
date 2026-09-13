@@ -34,8 +34,28 @@ export const ARTIFACT_REFUSAL_CODES = [
   'ARTIFACT_MISSING',
   /** L271 : la limite de taille déclarée serait dépassée par cette écriture. */
   'ARTIFACT_TOO_LARGE',
-  /** L141 : le point d'injection `INTERRUPT_BEFORE_PUBLISH` a coupé l'écriture. */
+  /** L141 : un point d'injection nommé a coupé l'écriture avant sa publication. */
   'ARTIFACT_WRITE_INTERRUPTED',
+  /**
+   * L279 : le stockage a refusé l'autorisation. C'est le refus qu'une identité
+   * limitée par usage rencontre hors de son périmètre — il est prononcé par le
+   * SERVICE, jamais par une comparaison de préfixe côté client, et il ne se
+   * confond pas avec `ARTIFACT_MISSING` : « je n'ai pas le droit de le voir »
+   * n'est pas « il n'existe pas ».
+   */
+  'ARTIFACT_ACCESS_DENIED',
+  /**
+   * L277 (A5) : l'autorisation ouverte sur ce magasin a pris fin. Le refus est
+   * EXPLICITE et la lecture ne rend aucun octet : un repli anonyme qui servirait
+   * quand même la charge utile est exactement ce que le cas interdit.
+   */
+  'ARTIFACT_AUTHORIZATION_EXPIRED',
+  /** Le service objet n'a pas répondu. Une panne n'est jamais un objet absent. */
+  'ARTIFACT_SERVICE_UNREACHABLE',
+  /** Le service objet a refusé l'opération pour une cause qu'il nomme lui-même. */
+  'ARTIFACT_SERVICE_REFUSED',
+  /** L275 : aucun service S3 de test local n'est déclaré ni découvrable. */
+  'ARTIFACT_S3_SERVICE_UNDECLARED',
   /** L80 : la cible d'ouverture n'est pas `{ root }` sur un répertoire existant. */
   'ARTIFACT_STORE_INVALID',
   /** L80 : les octets ou les options d'écriture ne respectent pas le contrat. */

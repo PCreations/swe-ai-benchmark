@@ -20,15 +20,15 @@
 //   readPeriodResult(h, { idempotency_key })  relecture               (L261 A1)
 //   publishRetryLimit()                       la limite fixée         (L261 A6)
 //
-// LES SIX RÔLES D'ARTEFACTS de T13 (L265-L272) sont publiés plus bas. Aucun des
-// douze rôles de T12 et T13 ne lève `NotImplemented` : leurs squelettes ont
-// disparu avec les implémentations qu'ils annonçaient. Ce que les rôles
-// d'artefacts lèvent est un `ArtifactRefusal`, qui porte un code nommant sa
-// cause — src/artifacts.ts décrit le port, src/artifact-local.ts l'adaptateur.
-//
-// LES TROIS RÔLES DE T14 (L273-L279), EUX, LÈVENT ENCORE `NotImplemented` :
-// src/artifact-s3.ts est un SQUELETTE, et ce bandeau ne peut pas affirmer le
-// contraire tant que l'adaptateur S3 n'est pas écrit.
+// LES SIX RÔLES D'ARTEFACTS de T13 (L265-L272) sont publiés plus bas, et les
+// TROIS RÔLES DE T14 (L273-L279) à leur suite. Aucun des quinze rôles de T12,
+// T13 et T14 ne lève `NotImplemented` : leurs squelettes ont disparu avec les
+// implémentations qu'ils annonçaient. Ce que les rôles d'artefacts lèvent est
+// un `ArtifactRefusal`, qui porte un code nommant sa cause — src/artifacts.ts
+// décrit le port, src/artifact-local.ts son adaptateur sur un répertoire,
+// src/artifact-s3.ts son adaptateur sur un service objet réel, et
+// src/s3-test-service.ts le service de test local et ses identités limitées
+// par usage.
 //
 // CE QUE CE PAQUET NE PRÉTEND PAS FAIRE. Une transaction garantit les effets
 // LOCAUX ; elle ne rend pas une requête fournisseur distante exactement unique
@@ -89,18 +89,22 @@ export type {
 export { ARTIFACT_REFUSAL_CODES, ArtifactRefusal, isArtifactRefusal } from './artifact-errors.js'
 export type { ArtifactRefusalCode } from './artifact-errors.js'
 
-// ── T14 — adaptateur S3 et son test de contrat réel (L273-L279). SQUELETTE :
-//    les trois rôles ci-dessous lèvent `NotImplemented`. Les cinq autres rôles
-//    que la suite d'acceptation de T14 appelle — putArtifact, getArtifact,
-//    listArtifacts, extractArchive, artifactSizeLimit — sont ceux de T13,
-//    publiés plus haut : L267 pose UN port, T14 lui ajoute un adaptateur.
+// ── T14 — adaptateur S3 et son test de contrat réel (L273-L279).
+//    Les cinq autres rôles que la suite d'acceptation de T14 appelle —
+//    putArtifact, getArtifact, listArtifacts, extractArchive,
+//    artifactSizeLimit — sont ceux de T13, publiés plus haut : L267 pose UN
+//    port, T14 lui ajoute un adaptateur, et les trois rôles d'écriture
+//    reconnaissent le magasin qu'on leur donne.
 //
 //    s3TestServiceConfig()          service S3 compatible pour les tests  L275
 //    openS3ArtifactStore(target)    adaptateur S3                         L275
 //    createScopedIdentity(request)  identité limitée par usage            L275
 export { s3TestServiceConfig, openS3ArtifactStore, createScopedIdentity } from './artifact-s3.js'
+export { S3ArtifactStore, isS3ArtifactStore } from './artifact-s3.js'
 export type {
+  S3ArtifactFault,
   S3ArtifactStoreTarget,
+  S3PutArtifactOptions,
   S3TestServiceConfig,
   ScopedIdentity,
   ScopedIdentityRequest,

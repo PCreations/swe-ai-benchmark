@@ -254,12 +254,12 @@ export function artifactRef(digest: string): string {
  * ce qu'il distingue — « l'objet n'est pas là » contre « ce n'est pas une
  * référence ».
  */
-function digestOfRef(ref: unknown): string {
+export function digestOfRef(ref: unknown, role = 'getArtifact'): string {
   if (typeof ref !== 'string' || ref.length === 0) {
     throw new ArtifactRefusal(
       'ARTIFACT_REF_INVALID',
-      'getArtifact attend une reference de contenu non vide',
-      'getArtifact',
+      `${role} attend une reference de contenu non vide`,
+      role,
     )
   }
   const prefix = `${ARTIFACT_DIGEST_ALGORITHM}:`

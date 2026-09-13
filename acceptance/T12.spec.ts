@@ -51,6 +51,12 @@
  *   L199  T05.A4 : « meme identite avec contenu different donne
  *         `IDEMPOTENCY_CONFLICT` » — T12 depend de T05, le conflit de A3 est
  *         le meme concept au niveau du stockage
+ *   L481  catalogue des points d'injection OBLIGATOIRES, dont la paire
+ *         « avant/apres commit de resultat » : les deux points que A4 et A5
+ *         exercent sont fixes par le cahier, pas choisis par l'auteur des tests
+ *   L483  T37.A2 : « effets locaux controles REJOUES SANS DOUBLE PUBLICATION »
+ *         — ce que la transaction de T12 controle, c'est precisement l'effet
+ *         LOCAL (L263) ; A4 doit donc rejouer ce qu'il a interrompu
  *   L559  chaque suite d'integration recoit un `test_run_id` technique unique
  *         et ses bases ; il ne modifie aucune valeur metier
  *   L657  « l'isolation des transactions PostgreSQL est une propriete du
@@ -113,10 +119,13 @@
  *                     cle et exige qu'au plus UNE ligne logique en sorte.
  *       F-RESERVATION `creneau.capacite`=1, `P1.etat_attendu.confirmees`=1,
  *                  `P1.etat_attendu.doublons`=0
- *                  -> A2 et A5 mesurent l'ECART de lignes entre la base
- *                     concurrente (ou reprise) et une base ou la meme
+ *                  -> A2, A4 et A5 mesurent l'ECART de lignes entre la base
+ *                     concurrente (ou rejouee) et une base ou la meme
  *                     enveloppe n'a ete publiee qu'une fois, et exigent que cet
- *                     ecart vaille `doublons`, c'est-a-dire zero.
+ *                     ecart vaille `doublons`, c'est-a-dire zero. Pour A4
+ *                     l'ecart est mesure APRES le rejeu de l'enveloppe que le
+ *                     point « avant commit de resultat » avait interrompue
+ *                     (L481, L483) : c'est la moitie que l'absence ne voit pas.
  *
  *     CE QUE CES FIXTURES NE DISENT PAS, la suite ne l'affirme pas. L'unite des
  *     couts de F-FAILURE est `null` (SC-001, DIV-1) : la suite compare des
@@ -216,7 +225,12 @@
  *        'CONFLICT_EVERY_ATTEMPT' toute tentative subit un conflit       (A6)
  *      Un point d'injection est un LIVRABLE, pas une commodite de test : L141
  *      l'exige explicitement pour les tests d'ordonnancement, et sans lui une
- *      panne « avant commit » ne serait pas reproductible.
+ *      panne « avant commit » ne serait pas reproductible. L481 va plus loin :
+ *      la paire « avant/apres commit de resultat » figure au catalogue des
+ *      points OBLIGATOIRES. `BEFORE_COMMIT` et `AFTER_COMMIT` sont donc les
+ *      deux noms de cette paire, et non deux commodites interchangeables — et
+ *      L483 exige que ce qu'ils interrompent soit REJOUABLE sans double
+ *      publication, ce que A4 et A5 verifient chacun de son cote.
  *
  *   4. BARRIERE (L141). `barrier` est une fonction sans argument rendant une
  *      promesse ; l'implementation l'attend une fois par tentative, apres
@@ -2022,6 +2036,79 @@ describe('T12 — persistance des evenements et resultats dans PostgreSQL', () =
       // ET la cle interrompue reste absente APRES que le temoin ait ete ecrit :
       // ce n'est donc pas la base entiere qui est muette.
       expect(totalDuProfil(profilDeLaCle(db, clePanne))).toBe(AUCUNE_TRACE); // cahier:L261
+
+      // ── LE POINT « AVANT COMMIT DE RESULTAT » EST OBLIGATOIRE, ET CE QU'IL
+      //    INTERROMPT DOIT POUVOIR ETRE REJOUE (L481, L483).
+      //
+      //    docs/specs/T12.md epingle desormais L477-L485 sur A4. Deux phrases y
+      //    portent : L481 enumere les points d'injection OBLIGATOIRES, dont la
+      //    paire « avant/apres commit de resultat » — les deux points que A4 et
+      //    A5 exercent ne sont donc pas un choix de l'auteur des tests, c'est un
+      //    catalogue que le cahier fixe ; et L483 exige que « les effets locaux
+      //    controles [soient] rejoues SANS DOUBLE PUBLICATION ».
+      //
+      //    L'absence, seule, ne dit RIEN de la suite. Une tentative interrompue
+      //    avant commit peut laisser derriere elle un verrou non relache, un
+      //    marqueur « en cours » ou une entree de journal qui, sans jamais etre
+      //    visible en base — donc sans qu'aucune assertion ci-dessus ne bouge —
+      //    EMPECHE la reprise, ou la fait DOUBLER. Le cas serait alors vert sur
+      //    une implementation dont le premier point d'injection obligatoire est
+      //    une impasse. C'est exactement le trou que L483 ferme.
+      //
+      //    L'etalon est une base ou la MEME enveloppe n'a ete publiee QU'UNE
+      //    fois, sans panne : apres rejeu, la base qui a subi la panne doit lui
+      //    etre identique, table par table.
+      assertReferences();
+      const dbEtalon = creerBase('a4etalon');
+      await migrer(dbEtalon);
+      const hEtalon = await ouvrir(dbEtalon);
+      exigerAccepte(await publier(hEtalon, envPanne), 'publication unique de l etalon');
+      const profilEtalon = profilDeLaCle(dbEtalon, clePanne);
+      expect(
+        totalDuProfil(profilEtalon) > AUCUNE_TRACE
+          ? 'etalon-ecrit'
+          : `PUBLICATION-UNIQUE-SANS-EFFET profil=${rendu(profilEtalon)} — sans etalon ecrit, ` +
+              `l'egalite des profils ne comparerait que deux vides`,
+      ).toBe('etalon-ecrit'); // cahier:L139
+
+      exigerAccepte(
+        await publier(h, envPanne),
+        'rejeu de l enveloppe interrompue au point « avant commit de resultat »',
+      ); // cahier:L481
+      expect(profilDeLaCle(db, clePanne)).toEqual(profilEtalon); // cahier:L483
+      expect(
+        canonique(
+          vueDuRecord(exigerAccepte(await lire(h, clePanne), 'relecture apres le rejeu')),
+        ),
+      ).toEqual(canonique(vueDeLEnveloppe(envPanne))); // cahier:L483
+
+      // « SANS DOUBLE PUBLICATION » (L483), CHIFFRE PAR §F. Un deuxieme rejeu ne
+      // doit rien ajouter : l'ecart de lignes avec l'etalon vaut `doublons`,
+      // c'est-a-dire zero (F-RESERVATION).
+      exigerAccepte(await publier(h, envPanne), 'deuxieme rejeu apres la panne avant commit');
+      const logiquesEtalon = lignesLogiques(dbEtalon, clePanne, envPanne.input_digest);
+      expect(
+        Object.keys(logiquesEtalon).length > 0
+          ? 'ligne-logique-localisee'
+          : `LIGNE-LOGIQUE-INTROUVABLE ${clePanne} / ${envPanne.input_digest} sur l etalon`,
+      ).toBe('ligne-logique-localisee'); // cahier:L263
+      expect(lignesLogiques(db, clePanne, envPanne.input_digest)).toEqual(logiquesEtalon); // cahier:L483
+      const profilRejeu = profilDeLaCle(db, clePanne);
+      const ecartsRejeu = [...new Set([...Object.keys(profilEtalon), ...Object.keys(profilRejeu)])]
+        .map((t) => ({ t, d: (profilRejeu[t] ?? 0) - (profilEtalon[t] ?? 0) }))
+        .filter((x) => x.d !== 0);
+      expect(
+        ecartsRejeu.length === 0
+          ? F_DOUBLONS
+          : `DOUBLONS-APRES-REJEU ${rendu(ecartsRejeu)} — attendu ${String(F_DOUBLONS)} ; une ` +
+              `reprise au point « avant commit de resultat » ne publie pas deux fois`,
+      ).toBe(F_DOUBLONS); // reference: F-RESERVATION doublons
+      expect(lignesPortantLaCle(db, TABLE_EVENEMENTS, clePanne)).toBe(
+        lignesPortantLaCle(dbEtalon, TABLE_EVENEMENTS, clePanne),
+      ); // cahier:L259
+      expect(lignesPortantLaCle(db, TABLE_OUTBOX, clePanne)).toBe(
+        lignesPortantLaCle(dbEtalon, TABLE_OUTBOX, clePanne),
+      ); // cahier:L257
 
       // « AUCUNE FACTURE IMAGINAIRE N'Y EST AJOUTEE » (L121). docs/specs/T12.md
       // epingle F-FAILURE sur A4 : l'arret de calcul ne supprime pas les

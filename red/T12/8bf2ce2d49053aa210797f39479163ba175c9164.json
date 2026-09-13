@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T12",
+  "subject_commit": "8bf2ce2d49053aa210797f39479163ba175c9164",
+  "dirty": true,
+  "input_digest": "0ee3b520703358b1471ab12ca589f11cf6bcc02940748a17383d01e25e05774a",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T12.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M2",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (packages/storage/src/publish.ts + read.ts) : publishPeriodResult range l'enveloppe dans une Map de module et n'ecrit plus rien en base, readPeriodResult sert cette Map. OBSERVE : T12.A1 ROUGE, echec d'ASSERTION, suite chargee, sur « ETAT-ABSENT-DE-POSTGRESQL t12_j0u_mtzn06xh-a1-p1 : profil={\"public.domain_events\":0, \"public.outbox\":0, \"public.periods\":0, ...} — un etat servi depuis la memoire du processus ne satisfait pas tests sur PostgreSQL reel » (acceptance/T12.spec.ts:1597). L'egalite avant/apres reconnexion etait encore verte : c'est le temoin psql qui tue. Les cinq autres cas rouges aussi, comme annonce par tue_aussi. Arbre restaure (git checkout --), T12 revenu 6/6 vert."
+    },
+    {
+      "id": "T12.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M3",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d, forme (2) prescrite par la fiche (packages/storage/migrations/0001_central_schema.sql) : periods.idempotency_key perd PRIMARY KEY et devient NOT NULL + index ORDINAIRE periods_key_idx, la contrainte periods_position_unique est supprimee, et les 4 REFERENCES periods (idempotency_key) tombent avec la cible unique. Code applicatif inchange. OBSERVE : T12.A2 ROUGE sur « SECOND-RESULTAT-ACCEPTE public.periods(idempotency_key) : une session etrangere a pu ecrire une SECONDE ligne portant t12_j4z_mtzn0v99-a2 — un seul resultat logique n'est pas arbitre par la base, il a seulement ete observe » (T12.spec.ts:1852). T12.A3 rouge en collateral (tue_aussi, sur AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE). A1, A4, A5, A6 VERTS : doit_rester_vert verifie. Arbre restaure."
+    },
+    {
+      "id": "T12.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M4",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (DECISIVE_SQL de packages/storage/src/publish.ts) : la branche « meme cle / autre empreinte » ne rend plus IDEMPOTENCY_CONFLICT ; elle DELETE outbox/domain_events/periods pour la cle puis republie — upsert qui ecrase, aucune erreur ne remonte. OBSERVE : T12.A3 SEUL ROUGE sur « ACCEPTE-A-TORT publication de t12_job_mtzn1nf5-a3 avec une autre empreinte : {\"attempts\":1,\"inserted\":true,\"events_written\":1} » (T12.spec.ts:1239, via exigerRefusNomme:1927). A1, A2, A4, A5, A6 VERTS : doit_rester_vert verifie integralement. Arbre restaure."
+    },
+    {
+      "id": "T12.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M13",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (packages/storage/src/publish.ts + errors.ts) : WeakMap<CentralStore, Set<cle>> portee par le STORE, verrou pose quand fault BEFORE_COMMIT est arme et JAMAIS relache ; toute publication ulterieure de la meme cle sur le meme store leve StorageRefusal('PUBLISH_LOCK_HELD') — code ajoute a STORAGE_REFUSAL_CODES. Rien n'est ecrit en base, le rollback reste intact, aucun orphelin. OBSERVE : T12.A4 SEUL ROUGE sur le REJEU — « REFUS-INATTENDU rejeu de l enveloppe interrompue au point avant commit de resultat [exception] : LEVE StorageRefusal(PUBLISH_LOCK_HELD) : verrou de publication toujours detenu pour t12_k7d_mtzn2jpg-a4-panne [tentatives=1] » (T12.spec.ts:1234, via exigerAccepte:2074). A1, A2, A3, A5, A6 VERTS : doit_rester_vert verifie. Arbre restaure."
+    },
+    {
+      "id": "T12.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M7",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d : contraintes domain_events_unique et outbox_unique retirees de la migration, ON CONFLICT (idempotency_key, event_seq) DO NOTHING retire des deux INSERT, et la branche REPLAYED de DECISIVE_SQL reinsere evenements et entrees d'outbox sans verifier qu'ils existent. Le resultat, lui, reste dedoublonne (periods intacte). OBSERVE : T12.A5 ROUGE exactement ou la fiche l'annonce — egalite des profils apres la PREMIERE reprise (T12.spec.ts:2216), public.outbox 2 au lieu de 1 et public.domain_events 2 au lieu de 1, public.periods inchange a 1. A2, A3, A6 rouges comme annonce ; A1 VERT. ECART MESURE, non raisonne : A4, declare doit_rester_vert dans la fiche (mesure d'avant la croissance de la suite), est ROUGE lui aussi a ce HEAD, sur « DOUBLONS-APRES-REJEU [{public.domain_events,1},{public.outbox,1}] » (T12.spec.ts:2105) — assertion ajoutee par le commit 8bf2ce2d. Cela ne change rien a la mort d'A5, qui tombe sur son observation propre. Arbre restaure."
+    },
+    {
+      "id": "T12.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T12.M8",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (packages/storage/src/publish.ts) : la boucle de reprise disparait — sur outcome CONFLICT, publishPeriodResult leve immediatement au lieu de reprendre ; PUBLISH_RETRY_LIMIT reste 5 et publishRetryLimit() continue de l'annoncer. OBSERVE : T12.A6 SEUL ROUGE sur « REFUS-INATTENDU publication conflictuelle a la premiere tentative [exception] : LEVE StorageRefusal(PUBLISH_RETRY_EXHAUSTED) : conflit de transaction, aucune reprise (dernier SQLSTATE 40001) [tentatives=1] » (T12.spec.ts:1234, via exigerAccepte:2326). A1, A3, A4, A5 VERTS comme annonce. ECART MESURE, non raisonne : A2, declare tue_aussi dans la fiche (mesure sur sonde jetable), reste VERT sur l'implementation reelle — le verrou consultatif pg_advisory_xact_lock absorbe la course a vingt sans passer par la boucle de reprise. Arbre restaure."
+    }
+  ],
+  "mutation_proof": {
+    "T12.A1": {
+      "killed_by": "T12.M2",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (packages/storage/src/publish.ts + read.ts) : publishPeriodResult range l'enveloppe dans une Map de module et n'ecrit plus rien en base, readPeriodResult sert cette Map. OBSERVE : T12.A1 ROUGE, echec d'ASSERTION, suite chargee, sur « ETAT-ABSENT-DE-POSTGRESQL t12_j0u_mtzn06xh-a1-p1 : profil={\"public.domain_events\":0, \"public.outbox\":0, \"public.periods\":0, ...} — un etat servi depuis la memoire du processus ne satisfait pas tests sur PostgreSQL reel » (acceptance/T12.spec.ts:1597). L'egalite avant/apres reconnexion etait encore verte : c'est le temoin psql qui tue. Les cinq autres cas rouges aussi, comme annonce par tue_aussi. Arbre restaure (git checkout --), T12 revenu 6/6 vert."
+    },
+    "T12.A2": {
+      "killed_by": "T12.M3",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d, forme (2) prescrite par la fiche (packages/storage/migrations/0001_central_schema.sql) : periods.idempotency_key perd PRIMARY KEY et devient NOT NULL + index ORDINAIRE periods_key_idx, la contrainte periods_position_unique est supprimee, et les 4 REFERENCES periods (idempotency_key) tombent avec la cible unique. Code applicatif inchange. OBSERVE : T12.A2 ROUGE sur « SECOND-RESULTAT-ACCEPTE public.periods(idempotency_key) : une session etrangere a pu ecrire une SECONDE ligne portant t12_j4z_mtzn0v99-a2 — un seul resultat logique n'est pas arbitre par la base, il a seulement ete observe » (T12.spec.ts:1852). T12.A3 rouge en collateral (tue_aussi, sur AUCUNE-CONTRAINTE-UNIQUE-SUR-LA-CLE). A1, A4, A5, A6 VERTS : doit_rester_vert verifie. Arbre restaure."
+    },
+    "T12.A3": {
+      "killed_by": "T12.M4",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (DECISIVE_SQL de packages/storage/src/publish.ts) : la branche « meme cle / autre empreinte » ne rend plus IDEMPOTENCY_CONFLICT ; elle DELETE outbox/domain_events/periods pour la cle puis republie — upsert qui ecrase, aucune erreur ne remonte. OBSERVE : T12.A3 SEUL ROUGE sur « ACCEPTE-A-TORT publication de t12_job_mtzn1nf5-a3 avec une autre empreinte : {\"attempts\":1,\"inserted\":true,\"events_written\":1} » (T12.spec.ts:1239, via exigerRefusNomme:1927). A1, A2, A4, A5, A6 VERTS : doit_rester_vert verifie integralement. Arbre restaure."
+    },
+    "T12.A4": {
+      "killed_by": "T12.M13",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (packages/storage/src/publish.ts + errors.ts) : WeakMap<CentralStore, Set<cle>> portee par le STORE, verrou pose quand fault BEFORE_COMMIT est arme et JAMAIS relache ; toute publication ulterieure de la meme cle sur le meme store leve StorageRefusal('PUBLISH_LOCK_HELD') — code ajoute a STORAGE_REFUSAL_CODES. Rien n'est ecrit en base, le rollback reste intact, aucun orphelin. OBSERVE : T12.A4 SEUL ROUGE sur le REJEU — « REFUS-INATTENDU rejeu de l enveloppe interrompue au point avant commit de resultat [exception] : LEVE StorageRefusal(PUBLISH_LOCK_HELD) : verrou de publication toujours detenu pour t12_k7d_mtzn2jpg-a4-panne [tentatives=1] » (T12.spec.ts:1234, via exigerAccepte:2074). A1, A2, A3, A5, A6 VERTS : doit_rester_vert verifie. Arbre restaure."
+    },
+    "T12.A5": {
+      "killed_by": "T12.M7",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d : contraintes domain_events_unique et outbox_unique retirees de la migration, ON CONFLICT (idempotency_key, event_seq) DO NOTHING retire des deux INSERT, et la branche REPLAYED de DECISIVE_SQL reinsere evenements et entrees d'outbox sans verifier qu'ils existent. Le resultat, lui, reste dedoublonne (periods intacte). OBSERVE : T12.A5 ROUGE exactement ou la fiche l'annonce — egalite des profils apres la PREMIERE reprise (T12.spec.ts:2216), public.outbox 2 au lieu de 1 et public.domain_events 2 au lieu de 1, public.periods inchange a 1. A2, A3, A6 rouges comme annonce ; A1 VERT. ECART MESURE, non raisonne : A4, declare doit_rester_vert dans la fiche (mesure d'avant la croissance de la suite), est ROUGE lui aussi a ce HEAD, sur « DOUBLONS-APRES-REJEU [{public.domain_events,1},{public.outbox,1}] » (T12.spec.ts:2105) — assertion ajoutee par le commit 8bf2ce2d. Cela ne change rien a la mort d'A5, qui tombe sur son observation propre. Arbre restaure."
+    },
+    "T12.A6": {
+      "killed_by": "T12.M8",
+      "note": "Mutation REELLEMENT APPLIQUEE a HEAD 8bf2ce2d (packages/storage/src/publish.ts) : la boucle de reprise disparait — sur outcome CONFLICT, publishPeriodResult leve immediatement au lieu de reprendre ; PUBLISH_RETRY_LIMIT reste 5 et publishRetryLimit() continue de l'annoncer. OBSERVE : T12.A6 SEUL ROUGE sur « REFUS-INATTENDU publication conflictuelle a la premiere tentative [exception] : LEVE StorageRefusal(PUBLISH_RETRY_EXHAUSTED) : conflit de transaction, aucune reprise (dernier SQLSTATE 40001) [tentatives=1] » (T12.spec.ts:1234, via exigerAccepte:2326). A1, A3, A4, A5 VERTS comme annonce. ECART MESURE, non raisonne : A2, declare tue_aussi dans la fiche (mesure sur sonde jetable), reste VERT sur l'implementation reelle — le verrou consultatif pg_advisory_xact_lock absorbe la course a vingt sans passer par la boucle de reprise. Arbre restaure."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

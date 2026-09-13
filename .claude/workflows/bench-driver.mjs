@@ -324,6 +324,46 @@ Commit zone SPEC, Bench-Role: spec-extractor. Puis push.`
  * Les deux ecrivent dans .bench/ (gitignore) : aucun n'ecrit dans le depot, donc
  * aucune course sur l'index, et la comparaison reste possible.
  */
+/**
+ * LE GARDIEN DU GEL — la condition de sortie qui manquait a l'etage FIXTURES.
+ *
+ * §G l.139 et ownership.json : « REFERENCE est gelee apres T01 ». Une fois la
+ * racine scellee, elle ne doit PLUS etre retranscrite : la double transcription
+ * sert a la FABRIQUER honnetement, pas a la re-deriver a chaque tour.
+ *
+ * Sans cette sortie, l'etage relancait quatre agents par tour (deux par tache)
+ * pour reconstruire une racine deja figee, puis ARRETAIT toute la chaine sur une
+ * divergence de lecture du §F — alors que rien n'aurait ete ecrit de toute
+ * facon, la racine etant gelee. Observe en vrai sur T12 et T14 : chaines
+ * stoppees, zero tache avancee, sur une question d'unite monetaire de F-BUDGET
+ * qui ne pouvait avoir aucun effet.
+ *
+ * Un oid qui NE CORRESPOND PAS est en revanche une alarme, pas une invitation a
+ * retranscrire : la racine gelee aurait bouge.
+ */
+const fixtureGuardPrompt = (T) => `${BASE}
+
+ROLE : integrator. ETAGE FIXTURES (gardien), tache ${T}. TU N'ECRIS AUCUN CODE
+ET NE COMMITES RIEN. Tu constates un etat, c'est tout.
+
+1. \`cat docs/FROZEN_ROOTS.json\` — s'il n'existe pas, la racine n'a jamais ete
+   scellee : rends ok=true avec state commencant EXACTEMENT par
+   \`FIXTURES_A_FABRIQUER\`. La double transcription suivra.
+
+2. S'il existe, compare son \`tree_oid\` (racine \`acceptance/reference\`) au
+   resultat de \`git rev-parse HEAD:acceptance/reference\`.
+
+   - EGAUX : la racine est gelee et intacte. Rends ok=true, state commencant
+     EXACTEMENT par \`FIXTURES_DEJA_GELEES\`, en citant l'oid et le nombre de
+     fichiers de \`acceptance/reference\`. NE RETRANSCRIS RIEN : refabriquer une
+     racine figee ne peut rien prouver et peut tout bloquer.
+   - DIFFERENTS : ALARME. Rends ok=false, state \`RACINE_GELEE_DEPLACEE\`, en
+     donnant les deux oids. Toute modification d'une racine gelee invalide les
+     44 attestations et exige un SPEC_CONFLICT (ownership.json). Ne repare rien,
+     ne retranscris rien : nomme le fait.
+
+Rends aussi, dans le detail, la sortie brute des deux commandes.`
+
 const fixturePrompt = (T, side) => `${BASE}
 
 ROLE : fixture-transcriber (${side}). ETAGE FIXTURES, tache ${T}.
@@ -671,7 +711,14 @@ const results = await pipeline(
   (prev, T) =>
     prev?.ok === false
       ? null
-      : parallel(
+      : agent(fixtureGuardPrompt(T), { label: `fixtures:${T}:gel`, phase: 'Fixtures', schema: OUTCOME }).then((g) => {
+          // COURT-CIRCUIT. Racine deja gelee et intacte : il n'y a rien a
+          // fabriquer, et surtout rien qui puisse etre ecrit. Retranscrire
+          // couterait quatre agents par tour et pourrait bloquer la chaine sur
+          // une divergence sans effet.
+          if (g?.ok && /^FIXTURES_DEJA_GELEES/.test(g.state ?? '')) return g
+          if (g?.ok === false) return g // racine deplacee : alarme, on s'arrete
+          return parallel(
           ['A', 'B'].map((side) => () =>
             agent(fixturePrompt(T, side), { label: `fixtures:${T}:${side}`, phase: 'Fixtures', schema: OUTCOME })
           )
@@ -682,6 +729,7 @@ const results = await pipeline(
           const ko = sides.filter((v) => v.ok === false)
           if (ko.length) return { ok: false, state: 'FIXTURES_TRANSCRIPTION_ECHOUEE', detail: ko.map((v) => v.state).join(' | '), pushed: false }
           return agent(fixtureSealPrompt(T), { label: `fixtures:${T}:scellement`, phase: 'Fixtures', schema: OUTCOME })
+        })
         }),
   (prev, T) => (prev?.ok === false ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME })),
   (prev, T) => (prev?.ok === false ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME })),

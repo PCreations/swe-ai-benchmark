@@ -1,0 +1,114 @@
+{
+  "fixture": "F-BOOTSTRAP",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      117
+    ],
+    "verbatim": {
+      "117": "`F-BOOTSTRAP`. Sur les deux projets précédents, forcer la liste de rééchantillonnages `[P1,P1]`, `[P1,P2]`, `[P2,P1]`, `[P2,P2]`. Les quatre ratios coût A/B sont `[1/2,5/6,5/6,9/10]`. Pour la convention de quantile empirique inverse, l’intervalle 2,5 %–97,5 % de cette liste est `[1/2,9/10]`. Cette fixture valide le calcul, pas une couverture suffisante avec deux projets."
+    }
+  },
+  "base": {
+    "valeur": "les deux projets precedents (P1 et P2 de F-CLUSTERS)",
+    "cahier_line": 117
+  },
+  "liste_de_reechantillonnages_forcee": {
+    "litteral": "[P1,P1], [P1,P2], [P2,P1], [P2,P2]",
+    "valeurs": [
+      [
+        "P1",
+        "P1"
+      ],
+      [
+        "P1",
+        "P2"
+      ],
+      [
+        "P2",
+        "P1"
+      ],
+      [
+        "P2",
+        "P2"
+      ]
+    ],
+    "cahier_line": 117
+  },
+  "ratios_cout_A_sur_B": {
+    "litteral": "[1/2,5/6,5/6,9/10]",
+    "valeurs": [
+      {
+        "tirage": [
+          "P1",
+          "P1"
+        ],
+        "num": 1,
+        "den": 2
+      },
+      {
+        "tirage": [
+          "P1",
+          "P2"
+        ],
+        "num": 5,
+        "den": 6
+      },
+      {
+        "tirage": [
+          "P2",
+          "P1"
+        ],
+        "num": 5,
+        "den": 6
+      },
+      {
+        "tirage": [
+          "P2",
+          "P2"
+        ],
+        "num": 9,
+        "den": 10
+      }
+    ],
+    "cahier_line": 117
+  },
+  "intervalle": {
+    "convention": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117
+    },
+    "niveaux": {
+      "bas": "2,5 %",
+      "haut": "97,5 %",
+      "cahier_line": 117
+    },
+    "litteral": "[1/2,9/10]",
+    "borne_basse": {
+      "num": 1,
+      "den": 2
+    },
+    "borne_haute": {
+      "num": 9,
+      "den": 10
+    },
+    "cahier_line": 117
+  },
+  "portee": {
+    "valeur": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets.",
+    "cahier_line": 117
+  },
+  "notes": [],
+  "ambiguites": []
+}

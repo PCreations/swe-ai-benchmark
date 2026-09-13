@@ -1,0 +1,476 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-QUALITY",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T14",
+  "ronde": "T14. Provenance honnete : ce repertoire contenait deja les fichiers de la ronde T12 (elle-meme heritiere de la ronde T00) ; ils ont ete RELUS integralement au demarrage de cette ronde. Chaque valeur a ensuite ete re-derivee depuis docs/cahier.md et chaque citation re-verifiee par sed sur sa ligne declaree ; les 48 controles numeriques et les controles de citation ont ete RE-EXECUTES cette ronde (voir controles_reexecutes). Deux corrections de precision ont ete apportees, listees dans corrections_de_la_ronde. Les coincidences avec les rondes precedentes viennent de la meme source textuelle. NON CONSULTES : .bench/fixtures/A, acceptance/reference/**, toute implementation.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [
+      107,
+      109,
+      111
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T04.A1",
+      "cahier_line": 191,
+      "exige": "F-QUALITY donne exactement les resultats annonces"
+    },
+    {
+      "cas": "T04.A2",
+      "cahier_line": 191,
+      "exige": "dupliquer les assertions d une exigence ne change pas Q"
+    },
+    {
+      "cas": "T04.A5",
+      "cahier_line": 191,
+      "exige": "zero usage donne R=null, panne avec quatre usages donne R=0"
+    },
+    {
+      "cas": "T04.A6",
+      "cahier_line": 191,
+      "exige": "exigence non encore due absente du denominateur"
+    },
+    {
+      "cas": "T08.A2",
+      "cahier_line": 223,
+      "exige": "les quatre usages de F-QUALITY sont toujours proposes si le candidat n a cree aucune donnee"
+    },
+    {
+      "cas": "T32.A3",
+      "cahier_line": 435,
+      "exige": "F-QUALITY conserve V=13/16, U=2/3 et ratio intentions 7/10 comme colonnes distinctes"
+    },
+    {
+      "cas": "T36.A1",
+      "cahier_line": 473,
+      "exige": "F-QUALITY affiche 0,8125 et 2/3 avec arrondi annonce, sans remplacer U par 0,7"
+    }
+  ],
+  "valeurs": {
+    "nombre_de_periodes": {
+      "valeur": 4,
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "duree_des_periodes": {
+      "valeur": "meme duree",
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "Q_par_periode": {
+      "valeur": [
+        "1",
+        "1/2",
+        "3/4",
+        "1"
+      ],
+      "rationnels": [
+        {
+          "num": 1,
+          "den": 1
+        },
+        {
+          "num": 1,
+          "den": 2
+        },
+        {
+          "num": 3,
+          "den": 4
+        },
+        {
+          "num": 1,
+          "den": 1
+        }
+      ],
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "V": {
+      "rationnel": "13/16",
+      "num": 13,
+      "den": 16,
+      "decimal_exact": 0.8125,
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "R_par_periode": {
+      "valeur": [
+        "1",
+        "1/2",
+        null,
+        "1/2"
+      ],
+      "rationnels": [
+        {
+          "num": 1,
+          "den": 1
+        },
+        {
+          "num": 1,
+          "den": 2
+        },
+        null,
+        {
+          "num": 1,
+          "den": 2
+        }
+      ],
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "intentions_offertes": {
+      "valeur": [
+        4,
+        4,
+        0,
+        2
+      ],
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "intentions_reussies": {
+      "valeur": [
+        4,
+        2,
+        0,
+        1
+      ],
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "U": {
+      "rationnel": "2/3",
+      "num": 2,
+      "den": 3,
+      "decimal_exact": null,
+      "note_decimale": "2/3 n a pas de developpement decimal fini ; ne jamais inscrire 0,67 ni 0,667 comme valeur",
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "exposition": {
+      "rationnel": "3/4",
+      "num": 3,
+      "den": 4,
+      "decimal_exact": 0.75,
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "reussite_agregee_par_intention": {
+      "rationnel": "7/10",
+      "num": 7,
+      "den": 10,
+      "decimal_exact": 0.7,
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "trois_nombres_distincts": {
+      "valeur": "U = 2/3, exposition = 3/4 et reussite agregee par intention = 7/10 sont differents et doivent rester identifies",
+      "cahier_line": 107,
+      "source": "verbatim"
+    },
+    "entrees_exactes_de_Q": {
+      "cahier_line": 109,
+      "P1": {
+        "exigences_dues": [
+          {
+            "id": "A@1",
+            "poids": 1,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "verbatim"
+          },
+          {
+            "id": "B@1",
+            "poids": 1,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "verbatim"
+          }
+        ],
+        "Q": "1"
+      },
+      "P2": {
+        "exigences_dues": [
+          {
+            "id": "A@1",
+            "poids": 1,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "verbatim"
+          },
+          {
+            "id": "B@1",
+            "poids": 1,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "verbatim"
+          },
+          {
+            "id": "C@1",
+            "poids": 2,
+            "satisfaite": false,
+            "cahier_line": 109,
+            "source": "verbatim",
+            "note": "ajoutee en P2 avec poids 2"
+          }
+        ],
+        "Q": "1/2"
+      },
+      "P3": {
+        "exigences_dues": [
+          {
+            "id": "A@2",
+            "poids": 1,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "verbatim",
+            "note": "A@1 est remplacee par A@2 en P3"
+          },
+          {
+            "id": "B@1",
+            "poids": 1,
+            "satisfaite": false,
+            "cahier_line": 109,
+            "source": "arbitrage",
+            "arbitrage": "SC-001",
+            "note": "la ligne 109 enonce que B@1 est violee ; elle ne redonne PAS son poids en P3"
+          },
+          {
+            "id": "C@1",
+            "poids": 2,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "arbitrage",
+            "arbitrage": "SC-001",
+            "note": "la ligne 109 enonce que C@1 est satisfaite ; elle ne redonne PAS son poids en P3"
+          }
+        ],
+        "A_1_retiree": {
+          "valeur": true,
+          "cahier_line": 109,
+          "source": "verbatim"
+        },
+        "Q": "3/4"
+      },
+      "P4": {
+        "exigences_dues": [
+          {
+            "id": "A@2",
+            "poids": 1,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "verbatim"
+          },
+          {
+            "id": "C@1",
+            "poids": 2,
+            "satisfaite": true,
+            "cahier_line": 109,
+            "source": "arbitrage",
+            "arbitrage": "SC-001"
+          }
+        ],
+        "B_retiree": {
+          "valeur": true,
+          "cahier_line": 109,
+          "source": "verbatim"
+        },
+        "Q": "1"
+      },
+      "toutes_les_exigences_citees_sont_dues": {
+        "valeur": true,
+        "cahier_line": 109,
+        "source": "verbatim"
+      }
+    },
+    "test_negatif_exigence_non_encore_due": {
+      "valeur": "une exigence revelee mais non encore due ; son poids ne doit pas entrer dans Q avant son echeance",
+      "cahier_line": 109,
+      "source": "verbatim",
+      "consommateur": "T04.A6 (l.191)"
+    }
+  },
+  "derivations": [
+    {
+      "id": "DER-QUALITY-01",
+      "enonce": "V = moyenne de Q sur les 4 periodes de meme duree = (1 + 1/2 + 3/4 + 1)/4 = (13/4)/4 = 13/16 = 0.8125",
+      "verifie": true
+    },
+    {
+      "id": "DER-QUALITY-02",
+      "enonce": "R par periode = reussies/offertes : 4/4=1 ; 2/4=1/2 ; 0/0=null (convention l.111) ; 1/2. Reproduit R=[1, 1/2, null, 1/2].",
+      "verifie": true
+    },
+    {
+      "id": "DER-QUALITY-03",
+      "enonce": "U = moyenne temporelle sur les periodes exposees (P1, P2, P4) = (1 + 1/2 + 1/2)/3 = 2/3",
+      "verifie": true
+    },
+    {
+      "id": "DER-QUALITY-04",
+      "enonce": "exposition = 3 periodes exposees / 4 periodes = 3/4",
+      "verifie": true
+    },
+    {
+      "id": "DER-QUALITY-05",
+      "enonce": "reussite agregee par intention = (4+2+0+1)/(4+4+0+2) = 7/10",
+      "verifie": true
+    },
+    {
+      "id": "DER-QUALITY-06",
+      "enonce": "Q par periode a partir des entrees l.109 avec les poids de SC-001 : P1 (1+1)/(1+1)=1 ; P2 (1+1)/(1+1+2)=2/4=1/2 ; P3 (1+2)/(1+1+2)=3/4 ; P4 (1+2)/(1+2)=1. Reproduit Q=[1, 1/2, 3/4, 1].",
+      "verifie": true
+    },
+    {
+      "id": "DER-QUALITY-07",
+      "enonce": "L arithmetique seule NE fixe PAS les poids de P3. Avec wB et wC les poids de B@1 et C@1 en P3, Q3 = (1 + wC)/(1 + wB + wC) = 3/4 equivaut a 3*wB = wC + 1, qui a une infinite de solutions entieres. (wB=1, wC=2), (wB=2, wC=5) et (wB=3, wC=8) reproduisent tous Q3=3/4 et Q4=1, donc aussi V=13/16.",
+      "verifie": true,
+      "role": "justification de l ambiguite AMB-QUALITY-01, re-executee cette ronde"
+    },
+    {
+      "id": "DER-QUALITY-08",
+      "enonce": "Les deux 0,7 du cahier ne sont pas le meme fait : 7/10 est la reussite agregee par intention de F-QUALITY (l.107, valeur JUSTE) ; 0.7 est la moyenne des ratios de F-COST-RATIO (l.113, valeur FAUSSE pour cette metrique).",
+      "verifie": true,
+      "role": "collision numerique a surveiller au rendu T36"
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": "U = 0,7",
+      "cahier_line": 473,
+      "pourquoi": "T36.A1 interdit de remplacer U (2/3) par la reussite agregee par intention (7/10) ; les trois nombres restent distincts (l.107)"
+    },
+    {
+      "valeur": "R = 0 en P3",
+      "cahier_line": 107,
+      "pourquoi": "P3 n offre aucune intention : R vaut null, pas 0 (convention l.111). R=0 est reserve a une trajectoire indisponible face a des intentions prevues."
+    },
+    {
+      "valeur": "U = (1 + 1/2 + 0 + 1/2)/4 = 1/2",
+      "source": "derive",
+      "pourquoi": "resultat si null etait compte comme 0 sur quatre periodes au lieu d une moyenne sur les periodes exposees ; contredit U=2/3 (l.107)"
+    },
+    {
+      "valeur": "Q change quand on duplique les assertions d une exigence",
+      "cahier_line": 191,
+      "pourquoi": "T04.A2 et l invariant D.10 (l.72) : le nombre d assertions ne determine pas le poids"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "R vaut null lorsqu aucune intention admissible n est proposee.",
+      "cahier_line": 111,
+      "source": "verbatim"
+    },
+    {
+      "texte": "U est la moyenne temporelle sur les periodes exposees, avec l exposition publiee.",
+      "cahier_line": 111,
+      "source": "verbatim"
+    },
+    {
+      "texte": "Une campagne confirmatoire exige une exposition predefinie non nulle.",
+      "cahier_line": 111,
+      "source": "verbatim"
+    },
+    {
+      "texte": "Une trajectoire indisponible face a des intentions prevues a R=0, jamais null.",
+      "cahier_line": 111,
+      "source": "verbatim"
+    },
+    {
+      "texte": "Q est null si aucun poids d exigence active due ; le preflight interdit ce cas dans une periode confirmatoire mesuree.",
+      "cahier_line": 111,
+      "source": "verbatim"
+    },
+    {
+      "texte": "Les series de simple preparation restent marquees hors mesure.",
+      "cahier_line": 111,
+      "source": "verbatim"
+    },
+    {
+      "texte": "Le nombre d assertions ou de tests ne determine pas le poids d une fonctionnalite.",
+      "cahier_line": 72,
+      "source": "verbatim",
+      "portee": "invariant D.10"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-QUALITY-01",
+      "statut": "RESOLU_PAR_SPEC_CONFLICT",
+      "spec_conflict": "SC-001",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "point": "Le poids de B@1 et de C@1 en P3 et P4 n est ecrit nulle part : la ligne 109 n enonce chaque poids qu a l introduction de l exigence.",
+      "pourquoi": "L arithmetique ne tranche pas (DER-QUALITY-07, re-verifie cette ronde) : (wB=1, wC=2) et (wB=3, wC=8) reproduisent tous deux Q=[1, 1/2, 3/4, 1], donc aussi V=13/16, U=2/3 et 7/10.",
+      "cahier_lines": [
+        107,
+        109
+      ],
+      "resolution": "Regle retenue, statut RESOLU dans SC-001 : le poids d une exigence est fixe a son introduction et ne change pas tant qu elle est active. En P3 et P4, B@1 pese 1 et C@1 pese 2.",
+      "reste_une_hypothese": true,
+      "note": "Transcrit ici comme `source: arbitrage`, jamais comme `verbatim` : le cahier ne l enonce pas."
+    },
+    {
+      "id": "AMB-QUALITY-02",
+      "statut": "NON_TRANCHE",
+      "point": "Tension entre le vecteur d intentions offertes [4,4,0,2] (l.107) et T08.A2 (l.223) : « les quatre usages de F-QUALITY sont toujours proposes si le candidat n a cree aucune donnee ».",
+      "pourquoi": "La ligne 107 donne 0 intention offerte en P3 et 2 en P4, alors que T08.A2 parle de quatre usages toujours proposes. Le cahier ne dit pas si « les quatre usages » designe un catalogue fixe de 4 usages du scenario ou le compte offert d une periode, ni a quelle periode T08.A2 se rapporte.",
+      "cahier_lines": [
+        107,
+        223
+      ],
+      "consequence_si_mal_tranche": "Une fixture qui imposerait 4 offertes a chaque periode contredirait le vecteur [4,4,0,2] et donc U=2/3, l exposition 3/4 et le ratio 7/10."
+    },
+    {
+      "id": "AMB-QUALITY-03",
+      "statut": "NON_TRANCHE",
+      "point": "Aucun calendrier n est donne pour les quatre periodes de F-QUALITY.",
+      "pourquoi": "La ligne 107 dit seulement « quatre periodes de meme duree ». Contrairement a F-RESERVATION (horloges explicites, l.125), aucune date ni duree absolue n est fournie. « Moyenne temporelle » (l.111) coincide avec la moyenne simple uniquement parce que les durees sont egales.",
+      "cahier_lines": [
+        107,
+        111,
+        125
+      ],
+      "consequence_si_mal_tranche": "Un rendu T36 (l.473) qui etiquetterait les periodes par des dates inventerait une donnee absente du cahier."
+    },
+    {
+      "id": "AMB-QUALITY-04",
+      "statut": "NON_TRANCHE",
+      "point": "Le rapport entre F-QUALITY et F-REGRESSION n est pas enonce.",
+      "pourquoi": "Les deux fixtures decrivent quatre periodes avec des exigences versionnees et remplacees, mais le cahier ne dit ni qu elles partagent la meme serie ni qu elles sont disjointes. Si elles etaient la meme serie, B@1 (satisfaite en P1 et P2, violee en P3, l.109) serait une regression et changerait G.",
+      "cahier_lines": [
+        109,
+        129
+      ],
+      "consequence_si_mal_tranche": "G en P3 vaudrait 1 au lieu de 0 ; T04.A3 (l.191) attend que seul isolation@1 soit compte."
+    },
+    {
+      "id": "AMB-QUALITY-05",
+      "statut": "NON_TRANCHE",
+      "point": "L etat de C@1 en P2 n est pas relie a son etat en P3.",
+      "pourquoi": "La ligne 109 dit C@1 non satisfaite en P2 puis satisfaite en P3. Le cahier ne dit pas si ce passage de violee a satisfaite porte un nom (rattrapage, backlog resorbe) ni s il figure dans un compteur. §F n enonce aucun compteur pour ce sens de variation, alors qu il en enonce un pour le sens inverse (regression, l.129).",
+      "cahier_lines": [
+        109,
+        129,
+        189
+      ],
+      "consequence_si_mal_tranche": "Un cas qui attendrait un compteur symetrique testerait une grandeur que le cahier ne definit pas."
+    }
+  ],
+  "controles_reexecutes": {
+    "pin_du_cahier": "sha256(docs/cahier.md) = d5b1c356... identique a docs/CAHIER_SHA256 et a cases.lock.json.cahier_sha256 — verifie cette ronde",
+    "recensement": "grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md : 10 fixtures distinctes, aucune autre F-*. Bornes de la §F : l.101 (titre) a l.129, l.131 ouvre la §G.",
+    "citations": "les 59 citations de consommateurs ont ete appariees au registre verification/cases.lock.json : les 59 existent et portent TOUTES la meme cahier_line que le registre. Balayage inverse : aucun cas du registre ne nomme une fixture sans figurer dans ses consommateurs.",
+    "lignes_citees": "toutes les cahier_line citees par les 10 fichiers (28, 63, 67, 68, 69, 71, 72, 73, 80, 82, 88, 97, 103-129, 165, 189-251, 295-303, 427-473, 491-495) ont ete affichees et relues cette ronde",
+    "numeriques": "48 controles executes en arithmetique rationnelle exacte (fractions.Fraction), 48 OK, 0 FAIL",
+    "unites": "sed -n '<n>p' docs/cahier.md | grep -c 'micro-USD' rend 1 pour l.103 et 0 pour l.105, l.113, l.115, l.121 et l.127 — re-execute cette ronde"
+  },
+  "corrections_de_la_ronde": []
+}

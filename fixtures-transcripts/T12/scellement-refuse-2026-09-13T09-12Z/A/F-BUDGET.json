@@ -1,0 +1,165 @@
+{
+  "fixture": "F-BUDGET",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      105
+    ],
+    "verbatim": {
+      "105": "`F-BUDGET`. Budget 1000 ; deux réservations concurrentes de 600 ne peuvent pas être toutes deux acceptées. Après règlement à 340 de la réservation acceptée, `spent=340`, `reserved=0`, `available=660`. Depuis cet état, tester séparément : une réservation de 600 est admissible et laisse 60 disponibles ; une de 661 est refusée et laisse 660. Dans un troisième sous-cas indépendant avec budget frais et zéro dépense, une réservation ambiguë de 600 maintient `available=400` tant qu’elle n’est pas réconciliée."
+    }
+  },
+  "unite_monetaire": {
+    "valeur": "micro-USD",
+    "cahier_line": 105,
+    "note": "unite non repetee ligne 105 ; identique a celle de F-MONEY (ligne 103)."
+  },
+  "budget": {
+    "valeur": 1000,
+    "cahier_line": 105
+  },
+  "sous_cas": [
+    {
+      "id": "SC0",
+      "titre": "Deux reservations concurrentes de 600",
+      "etat_initial": {
+        "budget": 1000,
+        "spent": 0,
+        "reserved": 0,
+        "cahier_line": 105
+      },
+      "action": {
+        "valeur": "deux reservations concurrentes de 600",
+        "cahier_line": 105
+      },
+      "attendu": {
+        "valeur": "elles ne peuvent pas etre toutes deux acceptees",
+        "cahier_line": 105
+      },
+      "non_specifie": [
+        "laquelle des deux reservations est acceptee"
+      ]
+    },
+    {
+      "id": "SC1",
+      "titre": "Reglement a 340 de la reservation acceptee",
+      "depend_de": "SC0",
+      "action": {
+        "valeur": "reglement a 340 de la reservation acceptee",
+        "cahier_line": 105
+      },
+      "etat_attendu": {
+        "spent": {
+          "valeur": 340,
+          "cahier_line": 105
+        },
+        "reserved": {
+          "valeur": 0,
+          "cahier_line": 105
+        },
+        "available": {
+          "valeur": 660,
+          "cahier_line": 105
+        }
+      }
+    },
+    {
+      "id": "SC1a",
+      "titre": "Depuis SC1, reservation de 600",
+      "depend_de": "SC1",
+      "independance": {
+        "valeur": "teste separement de SC1b (branches disjointes depuis SC1)",
+        "cahier_line": 105
+      },
+      "action": {
+        "valeur": "reservation de 600",
+        "cahier_line": 105
+      },
+      "attendu": {
+        "verdict": {
+          "valeur": "admissible",
+          "cahier_line": 105
+        },
+        "available_apres": {
+          "valeur": 60,
+          "cahier_line": 105
+        }
+      }
+    },
+    {
+      "id": "SC1b",
+      "titre": "Depuis SC1, reservation de 661",
+      "depend_de": "SC1",
+      "independance": {
+        "valeur": "teste separement de SC1a (branches disjointes depuis SC1)",
+        "cahier_line": 105
+      },
+      "action": {
+        "valeur": "reservation de 661",
+        "cahier_line": 105
+      },
+      "attendu": {
+        "verdict": {
+          "valeur": "refusee",
+          "cahier_line": 105
+        },
+        "available_apres": {
+          "valeur": 660,
+          "cahier_line": 105
+        }
+      }
+    },
+    {
+      "id": "SC2",
+      "titre": "Sous-cas independant : budget frais, zero depense, reservation ambigue de 600",
+      "independance": {
+        "valeur": "troisieme sous-cas independant",
+        "cahier_line": 105
+      },
+      "etat_initial": {
+        "budget": {
+          "valeur": 1000,
+          "cahier_line": 105,
+          "note": "budget frais"
+        },
+        "spent": {
+          "valeur": 0,
+          "cahier_line": 105,
+          "note": "zero depense"
+        }
+      },
+      "action": {
+        "valeur": "reservation ambigue de 600",
+        "cahier_line": 105
+      },
+      "attendu": {
+        "available": {
+          "valeur": 400,
+          "cahier_line": 105
+        },
+        "condition": {
+          "valeur": "tant qu’elle n’est pas reconciliee",
+          "cahier_line": 105
+        }
+      },
+      "non_specifie": [
+        "la valeur de `reserved` n’est pas enoncee explicitement dans ce sous-cas ; seule `available=400` l’est"
+      ]
+    }
+  ],
+  "notes": [
+    "Le cahier enonce pour SC1a/SC1b « Depuis cet etat, tester separement » : ce sont deux branches independantes partant de SC1, pas une sequence."
+  ],
+  "ambiguites": []
+}

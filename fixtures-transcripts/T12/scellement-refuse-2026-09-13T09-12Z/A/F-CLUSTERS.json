@@ -1,0 +1,87 @@
+{
+  "fixture": "F-CLUSTERS",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      115
+    ],
+    "verbatim": {
+      "115": "`F-CLUSTERS`. Projet P1 : A=10, B=20 sur dix répétitions identiques. Projet P2 : A=90, B=100 sur une répétition. Moyennes interprojets encore 50 et 60. Une moyenne naïve sur onze lignes ne doit pas remplacer cette agrégation. Dupliquer toutes les répétitions de P1 laisse l’estimation ponctuelle inchangée."
+    }
+  },
+  "projets": [
+    {
+      "id": "P1",
+      "couts": {
+        "A": {
+          "valeur": 10,
+          "cahier_line": 115
+        },
+        "B": {
+          "valeur": 20,
+          "cahier_line": 115
+        }
+      },
+      "repetitions": {
+        "valeur": 10,
+        "qualificatif": "dix repetitions identiques",
+        "cahier_line": 115
+      }
+    },
+    {
+      "id": "P2",
+      "couts": {
+        "A": {
+          "valeur": 90,
+          "cahier_line": 115
+        },
+        "B": {
+          "valeur": 100,
+          "cahier_line": 115
+        }
+      },
+      "repetitions": {
+        "valeur": 1,
+        "qualificatif": "une repetition",
+        "cahier_line": 115
+      }
+    }
+  ],
+  "moyennes_interprojets": {
+    "A": {
+      "valeur": 50,
+      "cahier_line": 115
+    },
+    "B": {
+      "valeur": 60,
+      "cahier_line": 115
+    }
+  },
+  "interdits": [
+    {
+      "regle": "Une moyenne naive sur onze lignes ne doit pas remplacer cette agregation.",
+      "cahier_line": 115
+    }
+  ],
+  "invariants": [
+    {
+      "regle": "Dupliquer toutes les repetitions de P1 laisse l’estimation ponctuelle inchangee.",
+      "cahier_line": 115
+    }
+  ],
+  "notes": [
+    "Les onze lignes = 10 repetitions de P1 + 1 repetition de P2. Le cahier ne donne aucune valeur pour la moyenne naive ; aucune n’est transcrite."
+  ],
+  "ambiguites": []
+}

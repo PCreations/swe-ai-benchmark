@@ -1,0 +1,468 @@
+{
+  "schema": "bench.fixture-transcription-index/1",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord : pour chaque fixture, partir des cas d acceptation qui la citent (cahier §H et verification/cases.lock.json), en deduire ce que la fixture doit contenir, puis confronter au texte de la §F. Aucune implementation consultee, ni acceptance/reference/**, ni .bench/fixtures/A.",
+  "etage": "FIXTURES",
+  "tache": "T14",
+  "ronde": "T14. Provenance honnete : ce repertoire contenait deja les fichiers de la ronde T12 (elle-meme heritiere de la ronde T00) ; ils ont ete RELUS integralement au demarrage de cette ronde. Chaque valeur a ensuite ete re-derivee depuis docs/cahier.md et chaque citation re-verifiee par sed sur sa ligne declaree ; les 48 controles numeriques et les controles de citation ont ete RE-EXECUTES cette ronde (voir controles_reexecutes). Deux corrections de precision ont ete apportees, listees dans corrections_de_la_ronde. Les coincidences avec les rondes precedentes viennent de la meme source textuelle. NON CONSULTES : .bench/fixtures/A, acceptance/reference/**, toute implementation.",
+  "role": "fixture-transcriber (B)",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin_verifie_contre": "docs/CAHIER_SHA256 et verification/cases.lock.json.cahier_sha256",
+    "section": "F",
+    "section_lignes": [
+      101,
+      129
+    ]
+  },
+  "recensement": {
+    "methode": "grep -o 'F-[A-Z][A-Z-]*' sur docs/cahier.md, dedoublonne, puis controle croise avec grep -o des jetons entre accents graves",
+    "fixtures_trouvees": 10,
+    "liste": [
+      "F-BOOTSTRAP",
+      "F-BUDGET",
+      "F-CLUSTERS",
+      "F-COST-RATIO",
+      "F-FAILURE",
+      "F-MONEY",
+      "F-POWER",
+      "F-QUALITY",
+      "F-REGRESSION",
+      "F-RESERVATION"
+    ],
+    "aucune_autre_F_star": true,
+    "note": "la ligne 491 emploie le mot Fixture pour le jeu golden-six de T38 ; ce n est pas une fixture F-* de la §F"
+  },
+  "nombre_de_fixtures": 10,
+  "fichiers": [
+    {
+      "fichier": "F-BOOTSTRAP.json",
+      "fixture": "F-BOOTSTRAP",
+      "sha256": "a6000d4bdafe56f7afd33e33ecdb287ee4fef7536a0b971296887613c01d12e6",
+      "octets": 11483,
+      "lignes_de_la_fixture": [
+        117
+      ],
+      "consommateurs": 7,
+      "derivations": 6,
+      "contre_valeurs": 3,
+      "ambiguites": 4
+    },
+    {
+      "fichier": "F-BUDGET.json",
+      "fixture": "F-BUDGET",
+      "sha256": "bf5e7c843063e1c680ab216cb6d2a32fe45943cdf70238cea675637a3b097d56",
+      "octets": 11821,
+      "lignes_de_la_fixture": [
+        105
+      ],
+      "consommateurs": 3,
+      "derivations": 6,
+      "contre_valeurs": 3,
+      "ambiguites": 3
+    },
+    {
+      "fichier": "F-CLUSTERS.json",
+      "fixture": "F-CLUSTERS",
+      "sha256": "ac111084a0ff28acff20191c0fbbde463512d13688d8500e809ef16e89716ca5",
+      "octets": 9448,
+      "lignes_de_la_fixture": [
+        115
+      ],
+      "consommateurs": 5,
+      "derivations": 5,
+      "contre_valeurs": 1,
+      "ambiguites": 4
+    },
+    {
+      "fichier": "F-COST-RATIO.json",
+      "fixture": "F-COST-RATIO",
+      "sha256": "79acb7435fd1af3fc558e0da2e5fe2357b769c4e74ae7dbc6ecaeff90ec22169",
+      "octets": 7390,
+      "lignes_de_la_fixture": [
+        113
+      ],
+      "consommateurs": 3,
+      "derivations": 5,
+      "contre_valeurs": 1,
+      "ambiguites": 3
+    },
+    {
+      "fichier": "F-FAILURE.json",
+      "fixture": "F-FAILURE",
+      "sha256": "7774378c76766922ab35b0026977b3132f6df44e225fa8a9e5ad1a8f3a960235",
+      "octets": 11497,
+      "lignes_de_la_fixture": [
+        121
+      ],
+      "consommateurs": 7,
+      "derivations": 6,
+      "contre_valeurs": 4,
+      "ambiguites": 4
+    },
+    {
+      "fichier": "F-MONEY.json",
+      "fixture": "F-MONEY",
+      "sha256": "2849be09de230bf8a93029abae9ff17a328358f7ba5329e8bdd2fb308793f280",
+      "octets": 7349,
+      "lignes_de_la_fixture": [
+        103
+      ],
+      "consommateurs": 6,
+      "derivations": 4,
+      "contre_valeurs": 3,
+      "ambiguites": 1
+    },
+    {
+      "fichier": "F-POWER.json",
+      "fixture": "F-POWER",
+      "sha256": "880b4ac5a95cf97c4137f38761597d065a1f28d0d2190aa92d0fef5ac7f37b5e",
+      "octets": 15507,
+      "lignes_de_la_fixture": [
+        127
+      ],
+      "consommateurs": 7,
+      "derivations": 10,
+      "contre_valeurs": 4,
+      "ambiguites": 6
+    },
+    {
+      "fichier": "F-QUALITY.json",
+      "fixture": "F-QUALITY",
+      "sha256": "20c2f927d1321c39687f361347e760a9f467d1ffefc3470c07cd0abb5901bfd1",
+      "octets": 16777,
+      "lignes_de_la_fixture": [
+        107,
+        109,
+        111
+      ],
+      "consommateurs": 7,
+      "derivations": 8,
+      "contre_valeurs": 4,
+      "ambiguites": 5
+    },
+    {
+      "fichier": "F-REGRESSION.json",
+      "fixture": "F-REGRESSION",
+      "sha256": "b51c4e194151d627febb3b44b700ef0092bb27cb4a6bb8ca3ec0d8b47575f9ae",
+      "octets": 11367,
+      "lignes_de_la_fixture": [
+        129
+      ],
+      "consommateurs": 5,
+      "derivations": 5,
+      "contre_valeurs": 3,
+      "ambiguites": 5
+    },
+    {
+      "fichier": "F-RESERVATION.json",
+      "fixture": "F-RESERVATION",
+      "sha256": "bf0d92ff615ad6a075cb1f65888be3af4eb46304bdf4145ec3c22fd6d022e433",
+      "octets": 20751,
+      "lignes_de_la_fixture": [
+        119,
+        123,
+        125
+      ],
+      "consommateurs": 16,
+      "derivations": 8,
+      "contre_valeurs": 7,
+      "ambiguites": 5
+    }
+  ],
+  "ambiguites": {
+    "total": 40,
+    "non_tranche": 39,
+    "resolues_par_spec_conflict": 1,
+    "detail": [
+      {
+        "fixture": "F-BOOTSTRAP",
+        "id": "AMB-BOOTSTRAP-01",
+        "statut": "NON_TRANCHE",
+        "point": "« Les deux projets precedents » (l.117) designe-t-il F-CLUSTERS (l.115) ou F-COST-RATIO (l.113) ?"
+      },
+      {
+        "fixture": "F-BOOTSTRAP",
+        "id": "AMB-BOOTSTRAP-02",
+        "statut": "NON_TRANCHE",
+        "point": "La formule d index du quantile empirique inverse n est pas ecrite."
+      },
+      {
+        "fixture": "F-BOOTSTRAP",
+        "id": "AMB-BOOTSTRAP-03",
+        "statut": "NON_TRANCHE",
+        "point": "Le cahier n indique pas si les quatre ratios doivent etre rendus dans l ordre de la liste de tirages ou tries."
+      },
+      {
+        "fixture": "F-BOOTSTRAP",
+        "id": "AMB-BOOTSTRAP-04",
+        "statut": "NON_TRANCHE",
+        "point": "L intervalle enonce coincide avec l etendue [min, max] des quatre ratios."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "id": "AMB-BUDGET-01",
+        "statut": "NON_TRANCHE",
+        "point": "Unite des montants 1000, 600, 340, 661, 660, 400, 60."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "id": "AMB-BUDGET-02",
+        "statut": "NON_TRANCHE",
+        "point": "Laquelle des deux reservations concurrentes de 600 est acceptee, et sous quel code la perdante est refusee."
+      },
+      {
+        "fixture": "F-BUDGET",
+        "id": "AMB-BUDGET-03",
+        "statut": "NON_TRANCHE",
+        "point": "Le sous-cas 3 ne dit pas ce qui rend la reservation de 600 « ambigue »."
+      },
+      {
+        "fixture": "F-CLUSTERS",
+        "id": "AMB-CLUSTERS-01",
+        "statut": "NON_TRANCHE",
+        "point": "La ligne 115 n affirme l invariance par duplication que pour « l estimation ponctuelle »."
+      },
+      {
+        "fixture": "F-CLUSTERS",
+        "id": "AMB-CLUSTERS-02",
+        "statut": "NON_TRANCHE",
+        "point": "Unite des couts 10, 20, 90, 100."
+      },
+      {
+        "fixture": "F-CLUSTERS",
+        "id": "AMB-CLUSTERS-03",
+        "statut": "NON_TRANCHE",
+        "point": "Identite entre P1/P2 de F-CLUSTERS et les deux projets de F-COST-RATIO (l.113)."
+      },
+      {
+        "fixture": "F-CLUSTERS",
+        "id": "AMB-CLUSTERS-04",
+        "statut": "NON_TRANCHE",
+        "point": "Le desequilibre 10 repetitions contre 1 n est assorti d aucune regle de ponderation ecrite."
+      },
+      {
+        "fixture": "F-COST-RATIO",
+        "id": "AMB-COST-RATIO-01",
+        "statut": "NON_TRANCHE",
+        "point": "Unite des couts 10, 90, 20, 100."
+      },
+      {
+        "fixture": "F-COST-RATIO",
+        "id": "AMB-COST-RATIO-02",
+        "statut": "NON_TRANCHE",
+        "point": "Le cahier ne dit pas si les deux projets de F-COST-RATIO sont les memes objets que P1 et P2 de F-CLUSTERS (l.115)."
+      },
+      {
+        "fixture": "F-COST-RATIO",
+        "id": "AMB-COST-RATIO-03",
+        "statut": "NON_TRANCHE",
+        "point": "Le sens du ratio n est explicite que pour A/B."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "id": "AMB-FAILURE-01",
+        "statut": "NON_TRANCHE",
+        "point": "Unite des couts [100, 50, 0, 0] et du total 150."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "id": "AMB-FAILURE-02",
+        "statut": "NON_TRANCHE",
+        "point": "Les exigences et les usages presents dans chaque periode ne sont pas enumeres."
+      },
+      {
+        "fixture": "F-FAILURE",
+        "id": "AMB-FAILURE-03",
+        "statut": "NON_TRANCHE",
+        "point": "L arret de calcul apres P2 est-il un sous-cas distinct du scenario sans deploiement, ou le meme parcours ?"
+      },
+      {
+        "fixture": "F-FAILURE",
+        "id": "AMB-FAILURE-04",
+        "statut": "NON_TRANCHE",
+        "point": "Le sens de K n est pas defini en §F."
+      },
+      {
+        "fixture": "F-MONEY",
+        "id": "AMB-MONEY-01",
+        "statut": "NON_TRANCHE",
+        "point": "Representation des montants dans le fichier de reference : entier JSON (340) ou chaine d entier (\"340\") ?"
+      },
+      {
+        "fixture": "F-POWER",
+        "id": "AMB-POWER-01",
+        "statut": "NON_TRANCHE",
+        "point": "F-POWER epingle-t-elle la marge 0,02, ou l herite-t-elle de T34 ?"
+      },
+      {
+        "fixture": "F-POWER",
+        "id": "AMB-POWER-02",
+        "statut": "NON_TRANCHE",
+        "point": "Nombre de contrastes J et application de la correction de Bonferroni a ces quatre campagnes."
+      },
+      {
+        "fixture": "F-POWER",
+        "id": "AMB-POWER-03",
+        "statut": "NON_TRANCHE",
+        "point": "Nombre de repetitions par parent, et nombre de tirages du reechantillonnage exhaustif."
+      },
+      {
+        "fixture": "F-POWER",
+        "id": "AMB-POWER-04",
+        "statut": "NON_TRANCHE",
+        "point": "Unite des couts 80 et 100."
+      },
+      {
+        "fixture": "F-POWER",
+        "id": "AMB-POWER-05",
+        "statut": "NON_TRANCHE",
+        "point": "Les identifiants P1 et P2 designent des objets differents selon la fixture."
+      },
+      {
+        "fixture": "F-POWER",
+        "id": "AMB-POWER-06",
+        "statut": "NON_TRANCHE",
+        "point": "La formule de l erreur standard Monte-Carlo n est ecrite nulle part."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "id": "AMB-QUALITY-01",
+        "statut": "RESOLU_PAR_SPEC_CONFLICT",
+        "point": "Le poids de B@1 et de C@1 en P3 et P4 n est ecrit nulle part : la ligne 109 n enonce chaque poids qu a l introduction de l exigence."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "id": "AMB-QUALITY-02",
+        "statut": "NON_TRANCHE",
+        "point": "Tension entre le vecteur d intentions offertes [4,4,0,2] (l.107) et T08.A2 (l.223) : « les quatre usages de F-QUALITY sont toujours proposes si le candidat n a cree aucune donnee »."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "id": "AMB-QUALITY-03",
+        "statut": "NON_TRANCHE",
+        "point": "Aucun calendrier n est donne pour les quatre periodes de F-QUALITY."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "id": "AMB-QUALITY-04",
+        "statut": "NON_TRANCHE",
+        "point": "Le rapport entre F-QUALITY et F-REGRESSION n est pas enonce."
+      },
+      {
+        "fixture": "F-QUALITY",
+        "id": "AMB-QUALITY-05",
+        "statut": "NON_TRANCHE",
+        "point": "L etat de C@1 en P2 n est pas relie a son etat en P3."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "id": "AMB-REGRESSION-01",
+        "statut": "NON_TRANCHE",
+        "point": "F-REGRESSION partage-t-elle la serie de quatre periodes de F-QUALITY (l.109), ou est-ce une serie distincte ?"
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "id": "AMB-REGRESSION-02",
+        "statut": "NON_TRANCHE",
+        "point": "L etat de cancel@2 en P3 et P4 n est pas enonce."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "id": "AMB-REGRESSION-03",
+        "statut": "NON_TRANCHE",
+        "point": "La date de revelation et l echeance de isolation@1 ne sont pas donnees, ni son etat en P1 et P2."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "id": "AMB-REGRESSION-04",
+        "statut": "NON_TRANCHE",
+        "point": "Aucun poids ni valeur de Q n est donne pour les periodes de F-REGRESSION."
+      },
+      {
+        "fixture": "F-REGRESSION",
+        "id": "AMB-REGRESSION-05",
+        "statut": "NON_TRANCHE",
+        "point": "La criticite de isolation@1 n est pas donnee, alors que la regle de decision distingue les violations critiques."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "id": "AMB-RESERVATION-01",
+        "statut": "NON_TRANCHE",
+        "point": "D ou viennent les 100 reservations que T09.A3 (l.233) exige de preserver a la migration P4 ?"
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "id": "AMB-RESERVATION-02",
+        "statut": "NON_TRANCHE",
+        "point": "Le code du « conflit explicite » exige par T07.A6 (l.215) n est pas nomme dans §F."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "id": "AMB-RESERVATION-03",
+        "statut": "NON_TRANCHE",
+        "point": "Le sort de la demande de B rejetee en P1 et son entree en file d attente en P2 ne sont pas relies."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "id": "AMB-RESERVATION-04",
+        "statut": "NON_TRANCHE",
+        "point": "Les valeurs de la sequence d admission explicite ne sont pas donnees."
+      },
+      {
+        "fixture": "F-RESERVATION",
+        "id": "AMB-RESERVATION-05",
+        "statut": "NON_TRANCHE",
+        "point": "Aucune horloge n est donnee pour les actes eux-memes, seulement pour le debut des periodes."
+      }
+    ]
+  },
+  "controles_executes": [
+    "sha256sum docs/cahier.md = d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd, egal a docs/CAHIER_SHA256 et a cases.lock.json.cahier_sha256",
+    "38 controles arithmetiques re-executes cette ronde sur les derivations marquees verifie:true — 38 OK, 0 echec",
+    "regle de decision T34 (l.451) appliquee a F-POWER : marge 0,02 donne [vrai,faux,faux,vrai] ; balayage au pas 0,001 de 0,001 a 0,200 : reproduit exactement pour m dans [0,011 ; 0,040]",
+    "86 sous-chaines litterales verifiees presentes sur les 14 lignes de la §F qu elles citent (103,105,107,109,111,113,115,117,119,121,123,125,127,129) — 86/86",
+    "grep -c 'micro-USD' sur les 14 lignes de la §F : 1 en ligne 103, 0 partout ailleurs (controle DIV-1 de SC-001)",
+    "sed -n '129p' | grep -o 'en produit une' : chaine presente (controle DIV-2 de SC-001)",
+    "les identifiants de cas cites en consommateurs sont croises avec verification/cases.lock.json : 59 concordants en id ET en cahier_line, 0 divergence ; 7 renvois hors registre sont explicitement etiquetes (.fin, .precision, .regle) et pointent des lignes Fin/Precision/Regle verifiees par sed",
+    "JSON.parse sur les 10 fichiers + INDEX.json",
+    "383 references de ligne (cahier_line / cahier_lines) des 10 fichiers verifiees dans les bornes de docs/cahier.md (661 lignes) : 0 hors bornes"
+  ],
+  "consommateurs_non_couverts_par_la_section_F": [
+    {
+      "cas": "T34.A4",
+      "cahier_line": 453,
+      "constat": "aucune campagne de F-POWER n a DeltaU = -0,04 ; le plus bas est -0,01 (campagne 4). Voir DER-POWER-10."
+    },
+    {
+      "cas": "T04.A4",
+      "cahier_line": 191,
+      "constat": "F-REGRESSION ne decrit qu une regression, ouverte en P4 ; la serie « deux periodes consecutives cassees » n est pas fournie par la §F. Voir DER-REGRESSION-05."
+    },
+    {
+      "cas": "T09.A3",
+      "cahier_line": 233,
+      "constat": "les 100 reservations a preserver ne figurent pas dans la §F. Voir AMB-RESERVATION-01."
+    }
+  ],
+  "non_ecrit": "Cet etage n ecrit rien dans le depot suivi : .bench/ est ignore par .gitignore. Aucun git add, aucun commit, aucun push.",
+  "controles_reexecutes": {
+    "pin_du_cahier": "sha256(docs/cahier.md) = d5b1c356... identique a docs/CAHIER_SHA256 et a cases.lock.json.cahier_sha256 — verifie cette ronde",
+    "recensement": "grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md : 10 fixtures distinctes, aucune autre F-*. Bornes de la §F : l.101 (titre) a l.129, l.131 ouvre la §G.",
+    "citations": "les 59 citations de consommateurs ont ete appariees au registre verification/cases.lock.json : les 59 existent et portent TOUTES la meme cahier_line que le registre. Balayage inverse : aucun cas du registre ne nomme une fixture sans figurer dans ses consommateurs.",
+    "lignes_citees": "toutes les cahier_line citees par les 10 fichiers (28, 63, 67, 68, 69, 71, 72, 73, 80, 82, 88, 97, 103-129, 165, 189-251, 295-303, 427-473, 491-495) ont ete affichees et relues cette ronde",
+    "numeriques": "48 controles executes en arithmetique rationnelle exacte (fractions.Fraction), 48 OK, 0 FAIL",
+    "unites": "sed -n '<n>p' docs/cahier.md | grep -c 'micro-USD' rend 1 pour l.103 et 0 pour l.105, l.113, l.115, l.121 et l.127 — re-execute cette ronde"
+  },
+  "corrections_de_la_ronde": [
+    {
+      "fixture": "F-BUDGET",
+      "correction": "DER-BUDGET-05 affirmait que 340 etait le « seul 340 du cahier ». Controle execute : grep -n '340' docs/cahier.md rend les lignes 103, 105, 165, 295 et 303. L enonce est corrige : 340 n est DEFINI qu en l.103, les autres occurrences le citent."
+    },
+    {
+      "fixture": "F-RESERVATION",
+      "correction": "Les horloges de P2 et P4 etaient marquees `source: verbatim`. La ligne 125 ecrit « P1 commence le 1er janvier 2030 a 00:00 UTC, P2 a 01:00, P3 le 2 janvier a 11:00, P4 a 13:00 » : seules les HEURES de P2 et P4 sont litterales, leurs DATES sont heritees par ellipse. Corrige en `verbatim (heure) + ellipse (date)`, avec DER-RESERVATION-08 qui expose la lecture et nomme l alternative ecartee. Meme traitement pour le fuseau UTC, ecrit une seule fois."
+    }
+  ]
+}

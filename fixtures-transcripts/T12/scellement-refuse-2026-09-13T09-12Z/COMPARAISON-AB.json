@@ -1,0 +1,167 @@
+{
+  "schema": "bench.fixtures.comparaison-ab/1",
+  "tache": "T12",
+  "etage": "FIXTURES",
+  "role": "fixture-transcriber",
+  "horodatage_utc": "2026-09-13T09:12:40Z",
+  "objet": "scellement — comparaison valeur par valeur des deux transcriptions independantes du §F",
+  "verdict": "REFUSE — FIXTURES_DISCORDANTES",
+  "commit_source": "6d4d8fc02f167063f84997b81e87e300ab48424d",
+  "ledger_parent": "d304b500c4796130f8b01f476fd767cec400166e",
+  "note_de_provenance": "Les deux jeux archives ici declarent eux-memes `tache: T14` (A: role fixture-transcriber-A ; B: transcripteur B, cadrage consommateurs-d-abord). Ils sont archives sous T12/ parce que c'est le repertoire que l'etage m'a designe. Les deux repertoires ont ete reecrits pendant ma lecture (A a 09:02-09:04Z, B a 09:09:35Z) ; la comparaison ci-dessous a ete RE-EXECUTEE sur l'etat final et les sha256 ci-dessous sont ceux de cet etat.",
+
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "pin_verifie": "sha256sum docs/cahier.md == docs/CAHIER_SHA256 — execute cette ronde",
+    "section": "F",
+    "lignes": [101, 129]
+  },
+
+  "arbitrages_lus_avant_comparaison": [
+    {
+      "id": "SC-001",
+      "fichier": "docs/spec-conflicts/SC-001-poids-des-exigences.md",
+      "statut": "RESOLU",
+      "applique": true,
+      "effets": [
+        "DIV-3 / F-QUALITY : le poids d'une exigence est fixe a son introduction ; B@1 pese 1 et C@1 pese 2 en P3 et P4",
+        "DIV-1 / F-FAILURE : l'unite des couts reste NON SPECIFIEE",
+        "DIV-2 / F-REGRESSION : le nombre attendu vaut 1 (l.129 « en produit une »)"
+      ]
+    }
+  ],
+  "aucun_arbitrage_ouvert": "docs/spec-conflicts/ ne contient que SC-001, statut RESOLU — aucune entree OUVERT ne bloque cet etage",
+
+  "controles_textuels_executes": [
+    {
+      "commande": "for L in 103 105 113 115 117 119 121 123 125 127 129; do sed -n \"${L}p\" docs/cahier.md | grep -c 'micro-USD'; done",
+      "observe": "1 pour l.103 ; 0 pour l.105, l.113, l.115, l.117, l.119, l.121, l.123, l.125, l.127, l.129",
+      "conclusion": "« micro-USD » n'est ecrit ni ligne 105 (F-BUDGET) ni ligne 121 (F-FAILURE)"
+    },
+    {
+      "commande": "grep -n 'micro-USD' docs/cahier.md",
+      "observe": "lignes 80, 103, 493, 495",
+      "conclusion": "RECTIFICATION D'UN FAIT DE SC-001 : l'entree DIV-1 affirme « La chaine n'apparait qu'en ligne 103 ». C'est INEXACT — elle apparait aussi l.80 (§E : « Les montants sont des chaines d'entiers non negatifs en micro-USD ; 1000000 vaut 1 USD »), l.493 et l.495 (§H, T38). La conclusion de DIV-1 sur la l.121 tient (0 occurrence sur cette ligne), mais son motif global ne peut pas etre reutilise tel quel ailleurs : la l.80 est precisement ce qui rend la question de F-BUDGET distincte."
+    },
+    {
+      "commande": "sed -n '129p' docs/cahier.md | grep -o 'en produit une'",
+      "observe": "en produit une",
+      "conclusion": "le nombre 1 est une transcription, pas un calcul — A et B portent tous deux 1"
+    }
+  ],
+
+  "comparaison_A_vs_B": {
+    "methode": "extraction recursive de toutes les valeurs materialisees des deux arbres JSON (les champs de prose, de citation, de derivation et d'ambiguite sont exclus du test d'egalite), normalisation en arithmetique rationnelle exacte (fractions.Fraction), comparaison des multi-ensembles puis relecture manuelle de chaque ecart signale. La mise en forme n'est pas comparee : seules les VALEURS le sont.",
+    "fixtures_comparees": 10,
+    "divergences_de_valeur_couvertes_par_un_arbitrage": 1,
+    "divergences_de_valeur_NON_couvertes": 1,
+    "verdict": "DISCORDANTES"
+  },
+
+  "divergences": [
+    {
+      "id": "DIV-2026-09-13-01",
+      "fixture": "F-BUDGET",
+      "champ": "unite monetaire des montants (1000, 600, 340, 661, 660, 400, 60)",
+      "cahier_line": 105,
+      "valeur_A": "micro-USD — inscrite comme valeur materialisee : A/F-BUDGET.json, champ de premier niveau `unite_monetaire` = {\"valeur\": \"micro-USD\", \"cahier_line\": 105, \"note\": \"unite non repetee ligne 105 ; identique a celle de F-MONEY (ligne 103)\"}",
+      "valeur_B": "AUCUNE — B n'inscrit aucun champ d'unite pour F-BUDGET et consigne AMB-BUDGET-01, statut NON_TRANCHE : « Unite des montants 1000, 600, 340, 661, 660, 400, 60 »",
+      "couverte_par_un_arbitrage": false,
+      "bloquante": true,
+      "pourquoi_bloquante": [
+        "Elle porte sur une valeur qu'une des deux transcriptions MATERIALISE (A, champ de premier niveau). L'exemption d'ambiguite non bloquante ne vise que « un champ que ni A ni B n'inscrivent » — ce n'est pas le cas ici.",
+        "Aucune entree de docs/spec-conflicts/ ne la couvre. SC-001 tranche l'unite de F-FAILURE (l.121), pas celle de F-BUDGET (l.105) : autre fixture, autre ligne, et la « portee » declaree de SC-001 est F-QUALITY et les fixtures ou une exigence traverse plusieurs periodes.",
+        "Ce n'est pas le meme sujet que DIV-1. La l.80 (§E) enonce que les montants des JSON de domaine sont en micro-USD ; or les champs materialises de F-BUDGET (`spent`, `reserved`, `available`) SONT des champs de montant du contrat de domaine, et le 340 regle est le cout de l'appel de reference de F-MONEY (l.103). Il existe donc pour F-BUDGET un appui textuel qui n'existe pas pour les couts [100,50,0,0] de F-FAILURE. Le texte ne tranche pas : choisir serait arbitrer.",
+        "L'erreur serait SILENCIEUSE et PERMANENTE : l'unite ne change aucune valeur calculee, donc aucun cas d'acceptation ne la rougirait, et le gel la rendrait definitive. C'est exactement la classe d'erreur pour laquelle la double transcription et SC-001 existent."
+      ],
+      "ce_qui_debloquerait": "une entree docs/spec-conflicts/SC-002 statuant l'unite des montants de F-BUDGET (l.105), soit « non specifiee » comme la racine gelee le porte aujourd'hui, soit « micro-USD par la l.80 » — auquel cas la modification de la racine gelee releve du meme SPEC_CONFLICT."
+    },
+    {
+      "id": "DIV-2026-09-13-02",
+      "fixture": "F-FAILURE",
+      "champ": "unite des couts [100,50,0,0] et du total 150",
+      "cahier_line": 121,
+      "valeur_A": "micro-USD — A/F-FAILURE.json, `couts.unite` = \"micro-USD\", `couts.cahier_line` = 121, `note_unite` = \"unite non repetee ligne 121 ; identique a celle de F-MONEY (ligne 103)\"",
+      "valeur_B": "null — B/F-FAILURE.json, `valeurs.unite_des_couts` = {\"valeur\": null, \"source\": \"non_specifie\", \"note\": \"AUCUNE unite n'est ecrite en ligne 121 ; voir AMB-FAILURE-01. Ne pas attribuer micro-USD a cette ligne.\"}",
+      "couverte_par_un_arbitrage": true,
+      "bloquante": false,
+      "arbitrage": "SC-001, DIV-1, statut RESOLU : « A avait raison : l'unite reste non specifiee ». Regle appliquee, non rediscutee.",
+      "observation": "Les roles sont INVERSES par rapport a la ronde f17785e0 decrite par SC-001 : c'etait alors B qui inscrivait micro-USD et A qui refusait ; cette ronde-ci, c'est A qui l'inscrit et B qui refuse. La divergence est la meme, l'arbitrage s'y applique a l'identique. La racine gelee porte deja `unite_des_couts: null`."
+    }
+  ],
+
+  "concordances": {
+    "verdict": "Sur tout le reste, les deux transcriptions CONCORDENT valeur par valeur.",
+    "par_fixture": [
+      { "fixture": "F-MONEY", "concordante": true, "valeurs_verifiees": "grille 2 / 1 / 5 micro-USD par token ; appel 100 non caches + 40 caches + 20 sortie = 340 ; deux appels = 680 ; champs d'entree disjoints. Ecart de PERIMETRE seulement : A reporte explicitement les montants golden-six de §H (2720, 16320, 6, 24, 48, l.491/493) en les signalant « PAS en §F » ; B porte les memes nombres en `derivations` DER-MONEY-03/04 et en `consommateurs` T38.A2/A3. Memes valeurs, hors §F des deux cotes." },
+      { "fixture": "F-BUDGET", "concordante": false, "valeurs_verifiees": "budget 1000 ; deux reservations concurrentes de 600 non toutes deux acceptables ; reglement 340 -> spent=340, reserved=0, available=660 ; branche 600 admissible -> available=60 ; branche 661 refusee -> available=660 ; sous-cas independant available=400 tant que non reconciliee. TOUTES concordantes. Seule l'unite monetaire diverge (DIV-2026-09-13-01). Ecart de perimetre non contradictoire : B derive spent/reserved des sous-cas 2a et 3 par l'invariant l.297, A les declare `non_specifie` — les deux s'accordent sur le fait que la l.105 ne les enonce pas." },
+      { "fixture": "F-QUALITY", "concordante": true, "valeurs_verifiees": "4 periodes de meme duree ; Q=[1,1/2,3/4,1] ; V=13/16=0.8125 ; R=[1,1/2,null,1/2] ; offertes [4,4,0,2] ; reussies [4,2,0,1] ; U=2/3 ; exposition=3/4 ; reussite agregee par intention=7/10 ; trois nombres distincts. Entrees de Q : A@1=1, B@1=1, C@1=2, A@2=1 ; P3 = {A@2 satisfaite, B@1 violee, C@1 satisfaite} ; P4 = {A@2, C@1}. Les poids de B@1 et C@1 en P3/P4 sont portes par les deux (1 et 2) conformement a SC-001 ; B les marque `source: arbitrage`, A les marque hérités — meme valeur." },
+      { "fixture": "F-COST-RATIO", "concordante": true, "valeurs_verifiees": "2 projets de poids egal ; A=[10,90] ; B=[20,100] ; moyennes 50 et 60 ; ratio principal A/B=5/6 ; 0.7 (= 7/10) nomme par le cahier comme resultat INCORRECT pour cette metrique — porte par les deux, A en `resultat_incorrect_a_refuser`, B en `contre_valeurs` et DER-COST-RATIO-04. Aucun des deux n'inscrit de developpement decimal pour 5/6." },
+      { "fixture": "F-CLUSTERS", "concordante": true, "valeurs_verifiees": "P1 : A=10, B=20 sur 10 repetitions ; P2 : A=90, B=100 sur 1 repetition ; moyennes interprojets 50 et 60 ; interdiction du pooling sur onze lignes ; invariance de l'estimation ponctuelle par duplication. Le 11 est porte comme valeur par B et en note par A — meme nombre." },
+      { "fixture": "F-BOOTSTRAP", "concordante": true, "valeurs_verifiees": "liste forcee [P1,P1], [P1,P2], [P2,P1], [P2,P2] ; 4 reechantillonnages ; ratios [1/2, 5/6, 5/6, 9/10] dans l'ordre de la liste ; convention du quantile empirique inverse ; intervalle 2,5 %–97,5 % = [1/2, 9/10]. Les bornes de pourcentage sont ecrites « 2,5 % / 97,5 % » par A et 2.5 / 97.5 par B — meme valeur, mise en forme differente." },
+      { "fixture": "F-RESERVATION", "concordante": true, "valeurs_verifiees": "horloge initiale 2030-01-01T00:00:00Z ; acteurs A, B, C ; locataire legacy ; creneau S1 capacite 1 debutant 2030-01-03T12:00:00Z ; horloges P1 2030-01-01T00:00:00Z, P2 2030-01-01T01:00:00Z, P3 2030-01-02T11:00:00Z, P4 2030-01-02T13:00:00Z ; frontiere d'annulation 2030-01-02T12:00:00Z permise et 2030-01-02T12:00:00.001Z refusee ; etat a l'entree de P4 : A annule, B confirme, C en attente ; FIFO par sequence d'admission explicite ; NOT_FOUND intertenant. Les deux ecartent la lecture P4 = 2030-01-03T13:00:00Z (B l'archive explicitement comme lecture ecartee). IDEMPOTENCY_CONFLICT n'est materialise par aucun des deux : B ne le cite que dans AMB-RESERVATION-02 pour dire qu'il ne doit PAS etre epingle." },
+      { "fixture": "F-POWER", "concordante": true, "valeurs_verifiees": "4 campagnes ; 2 parents P1/P2 portant les memes valeurs ; bras B : cout 100, V=U=1 ; bras A : (80,1,1), (100,1,1), (80,0.96,1), (80,0.99,0.99) ; tirages parents exhaustifs -> distributions ponctuelles ; bornes de ratio 0,8 / 1 / 0,8 / 0,8 ; bornes de ΔV 0 / 0 / −0,04 / −0,01 ; bornes de ΔU 0 / 0 / 0 / −0,01 ; sortie T34 [vrai, faux, faux, vrai]. Ecart de PERIMETRE seulement : B ajoute puissance=0,5 et erreur standard Monte-Carlo=0,25 en les marquant `source: consommateur`, l.463, « non enonce en §F » ; A ne les mentionne pas. Aucune contradiction : les deux les placent hors §F." },
+      { "fixture": "F-REGRESSION", "concordante": true, "valeurs_verifiees": "cancel@1 satisfaite en P2, remplacee en P3 par cancel@2, le retrait ne produit PAS de regression (false) ; isolation@1 satisfaite en P3 puis violee en P4 en produit une (true) ; nombre de regressions attendu = 1 ; comptage par id/version active, pas par nombre d'assertions." },
+      { "fixture": "F-FAILURE", "concordante": false, "valeurs_verifiees": "K=4 ; candidat sans deploiement sur les 4 periodes ; 4 lignes conservees ; Q=0 et R=0 par periode sous condition de presence des exigences et usages ; couts [100,50,0,0] ; total 150 ; l'arret apres P2 ne supprime ni P3 ni P4 ; aucune facture imaginaire. TOUTES concordantes. Seule l'unite diverge, et elle est tranchee par SC-001/DIV-1 (DIV-2026-09-13-02) : non bloquante." }
+    ]
+  },
+
+  "ambiguites_reportees_non_bloquantes": {
+    "total_consigne_par_B": 40,
+    "resolues_par_spec_conflict": 1,
+    "non_tranchees": 39,
+    "bloquantes": 1,
+    "regle_appliquee": "une ambiguite ne bloque que si elle porte sur une valeur qui doit etre materialisee. Les 38 autres portent soit sur un champ qu'aucune des deux transcriptions n'inscrit, soit sur un cas d'acceptation, soit sur une lecture qui ne change aucune valeur : elles sont reportees, non tranchees ici.",
+    "exemples_reportees": [
+      "AMB-MONEY-01 — entier JSON 340 ou chaine \"340\" dans le fichier de reference : question de TYPAGE, pas de valeur ; A et B ecrivent tous deux l'entier JSON 340, donc concordants sur ce qui est materialise.",
+      "AMB-BOOTSTRAP-02 — la formule d'index du quantile empirique inverse n'est pas ecrite : ni A ni B n'inscrivent de formule ; l'intervalle [1/2, 9/10] est verbatim.",
+      "AMB-POWER-02 / AMB-POWER-06 — nombre de contrastes J, Bonferroni, formule de l'erreur standard Monte-Carlo : aucun des deux n'inscrit ces champs.",
+      "AMB-QUALITY-02 — tension entre [4,4,0,2] (l.107) et T08.A2 (l.223) : porte sur un cas d'acceptation, pas sur une valeur de la fixture ; les deux inscrivent [4,4,0,2].",
+      "AMB-RESERVATION-02 — le code du « conflit explicite » de T07.A6 n'est pas nomme en §F : aucun des deux ne l'inscrit."
+    ],
+    "ambiguite_bloquante": "AMB-BUDGET-01 — elle porte sur une valeur que A materialise (voir DIV-2026-09-13-01)."
+  },
+
+  "etat_de_la_racine_gelee": {
+    "observation": "acceptance/reference/** est DEJA scellee et le gel est intact a HEAD.",
+    "git_rev_parse_HEAD_acceptance_reference": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "docs_FROZEN_ROOTS_json_tree_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+    "egaux": true,
+    "commit_du_gel": "cd239915d88f6ac07b4b4f45e1a565f8c04786e0",
+    "contenu": "la racine gelee porte deja toutes les valeurs concordantes ci-dessus, et porte les DEUX unites comme non fixees : F-FAILURE `unite_des_couts: null` (note citant SC-001/DIV-1) et F-BUDGET `non_fixe_par_le_cahier: [\"l'unite des montants n'est pas ecrite ligne 105\", ...]`.",
+    "consequence": "il n'y a AUCUNE ecriture a faire en zone REFERENCE : le seul point ou la transcription A differerait de la racine gelee est justement la divergence non arbitree. L'inscrire exigerait de modifier une racine gelee sans SPEC_CONFLICT — interdit. docs/FROZEN_ROOTS.json n'est donc pas deplace et aucun commit REFERENCE n'est produit."
+  },
+
+  "actes_de_cet_etage": [
+    "LU docs/spec-conflicts/ : une seule entree, SC-001, statut RESOLU. Aucune entree OUVERT.",
+    "COMPARE les 10 paires valeur par valeur, controles textuels re-executes.",
+    "REFUSE le scellement : 1 divergence de valeur non couverte par un arbitrage (F-BUDGET, unite monetaire, l.105).",
+    "NON FAIT, deliberement : aucune materialisation de acceptance/reference/**, aucun deplacement de docs/FROZEN_ROOTS.json, aucun commit en zone REFERENCE.",
+    "ARCHIVE ici les deux transcriptions integrales, pour que le refus soit AUDITABLE et pas seulement affirme."
+  ],
+
+  "sha256_des_transcriptions_archivees": {
+    "A/F-BOOTSTRAP.json": "c27c54ddfbc7c1344ed35a3a4832dd3571271b13cc42cf0017cdc8df9bdbec66",
+    "A/F-BUDGET.json": "ce38f5252fd8b1d4d4339483fb7f023c6191809929c7d115094acca52eb4c860",
+    "A/F-CLUSTERS.json": "c80220533da4d27b77b08c57de8e101b7deaf2d0ab79fe7352d9057504477d02",
+    "A/F-COST-RATIO.json": "5fdb0d9fb0beacc3fe89d72e4bce217b6d2cbc73b8c6cd61ccf241eb9e5562b7",
+    "A/F-FAILURE.json": "dfff5220831f569d256bb5983a0ef6e150ac7ed1bed40168e9fef1cdaef0fbfd",
+    "A/F-MONEY.json": "c09928434b8bfa228967979dac23ad365ce1892bfe9aa7c91247e96fa6cdfe31",
+    "A/F-POWER.json": "98e479d415678bb54ba876942eee7f37264ed98cc2d3fca1c31959a0c9f563ce",
+    "A/F-QUALITY.json": "e5d3f3bb5ac76115cce4130e723743e3eb8c6a243c4c70f76076b6a50f416d85",
+    "A/F-REGRESSION.json": "bf63aa20231a51e85e173b18b557a00e32233a8b9b78f08f646f3fb19b0aa642",
+    "A/F-RESERVATION.json": "d0011c5872d27738aa3af9e6d1f7c031fd847104fe9bfd34d09d81e48ce346a1",
+    "B/F-BOOTSTRAP.json": "a6000d4bdafe56f7afd33e33ecdb287ee4fef7536a0b971296887613c01d12e6",
+    "B/F-BUDGET.json": "bf5e7c843063e1c680ab216cb6d2a32fe45943cdf70238cea675637a3b097d56",
+    "B/F-CLUSTERS.json": "ac111084a0ff28acff20191c0fbbde463512d13688d8500e809ef16e89716ca5",
+    "B/F-COST-RATIO.json": "79acb7435fd1af3fc558e0da2e5fe2357b769c4e74ae7dbc6ecaeff90ec22169",
+    "B/F-FAILURE.json": "7774378c76766922ab35b0026977b3132f6df44e225fa8a9e5ad1a8f3a960235",
+    "B/F-MONEY.json": "2849be09de230bf8a93029abae9ff17a328358f7ba5329e8bdd2fb308793f280",
+    "B/F-POWER.json": "880b4ac5a95cf97c4137f38761597d065a1f28d0d2190aa92d0fef5ac7f37b5e",
+    "B/F-QUALITY.json": "20c2f927d1321c39687f361347e760a9f467d1ffefc3470c07cd0abb5901bfd1",
+    "B/F-REGRESSION.json": "b51c4e194151d627febb3b44b700ef0092bb27cb4a6bb8ca3ec0d8b47575f9ae",
+    "B/F-RESERVATION.json": "bf0d92ff615ad6a075cb1f65888be3af4eb46304bdf4145ec3c22fd6d022e433",
+    "B/INDEX.json": "4143a736c26a81129f12bb08b8aec4e4d66727e51e534a5d67a40c6a7fe9c1b0"
+  }
+}

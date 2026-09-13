@@ -1,0 +1,75 @@
+{
+  "fixture": "F-FAILURE",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      121
+    ],
+    "verbatim": {
+      "121": "`F-FAILURE`. À K=4, un candidat sans déploiement sur les quatre périodes conserve quatre lignes avec Q=0 et R=0 si les exigences et usages y sont présents. Ses coûts `[100,50,0,0]` totalisent 150. Un arrêt de calcul après P2 ne supprime pas P3 et P4 ; aucune facture imaginaire n’y est ajoutée."
+    }
+  },
+  "K": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "candidat": {
+    "valeur": "candidat sans deploiement sur les quatre periodes",
+    "cahier_line": 121
+  },
+  "lignes_conservees": {
+    "valeur": 4,
+    "cahier_line": 121
+  },
+  "metriques_par_periode": {
+    "Q": {
+      "valeur": 0,
+      "cahier_line": 121,
+      "condition": "si les exigences et usages y sont presents"
+    },
+    "R": {
+      "valeur": 0,
+      "cahier_line": 121,
+      "condition": "si les exigences et usages y sont presents"
+    }
+  },
+  "couts": {
+    "litteral": "[100,50,0,0]",
+    "valeurs": [
+      100,
+      50,
+      0,
+      0
+    ],
+    "unite": "micro-USD",
+    "cahier_line": 121,
+    "note_unite": "unite non repetee ligne 121 ; identique a celle de F-MONEY (ligne 103)."
+  },
+  "cout_total": {
+    "valeur": 150,
+    "cahier_line": 121
+  },
+  "regles": [
+    {
+      "regle": "Un arret de calcul apres P2 ne supprime pas P3 et P4.",
+      "cahier_line": 121
+    },
+    {
+      "regle": "Aucune facture imaginaire n’est ajoutee a P3 et P4.",
+      "cahier_line": 121
+    }
+  ],
+  "notes": [],
+  "ambiguites": []
+}

@@ -1,0 +1,502 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-RESERVATION",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T14",
+  "ronde": "T14. Provenance honnete : ce repertoire contenait deja les fichiers de la ronde T12 (elle-meme heritiere de la ronde T00) ; ils ont ete RELUS integralement au demarrage de cette ronde. Chaque valeur a ensuite ete re-derivee depuis docs/cahier.md et chaque citation re-verifiee par sed sur sa ligne declaree ; les 48 controles numeriques et les controles de citation ont ete RE-EXECUTES cette ronde (voir controles_reexecutes). Deux corrections de precision ont ete apportees, listees dans corrections_de_la_ronde. Les coincidences avec les rondes precedentes viennent de la meme source textuelle. NON CONSULTES : .bench/fixtures/A, acceptance/reference/**, toute implementation.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [
+      119,
+      123,
+      125
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T07.A1",
+      "cahier_line": 215,
+      "exige": "F-RESERVATION P1 n a qu une reservation confirmee et aucun doublon idempotent"
+    },
+    {
+      "cas": "T07.A2",
+      "cahier_line": 215,
+      "exige": "P2 promeut B avant C"
+    },
+    {
+      "cas": "T07.A3",
+      "cahier_line": 215,
+      "exige": "annulation permise exactement a 24 h"
+    },
+    {
+      "cas": "T07.A4",
+      "cahier_line": 215,
+      "exige": "refus 1 ms apres la frontiere"
+    },
+    {
+      "cas": "T07.A5",
+      "cahier_line": 215,
+      "exige": "acteur other ne voit aucune donnee legacy"
+    },
+    {
+      "cas": "T07.A6",
+      "cahier_line": 215,
+      "exige": "repetition d une operation avec meme cle et arguments differents donne un conflit explicite"
+    },
+    {
+      "cas": "T07.A7",
+      "cahier_line": 215,
+      "exige": "une annulation repetee ne promeut pas deux personnes"
+    },
+    {
+      "cas": "T09.A1",
+      "cahier_line": 233,
+      "exige": "temoin conforme realise F-RESERVATION"
+    },
+    {
+      "cas": "T09.A2",
+      "cahier_line": 233,
+      "exige": "double reservation concurrente synchronisee par barriere ne depasse pas la capacite"
+    },
+    {
+      "cas": "T09.A3",
+      "cahier_line": 233,
+      "exige": "migration P4 preserve 100 reservations et les rattache a legacy"
+    },
+    {
+      "cas": "T09.A4",
+      "cahier_line": 233,
+      "exige": "temoin drop-one-row perd exactement une reservation et est distinguable de l etat attendu"
+    },
+    {
+      "cas": "T09.A5",
+      "cahier_line": 233,
+      "exige": "restauration d un export metier retrouve les memes faits sans exiger un schema SQL identique"
+    },
+    {
+      "cas": "T10.A2",
+      "cahier_line": 241,
+      "exige": "six mutants detectes chacun par son controle nomme : surbooking, doublon idempotent, FIFO inverse, frontiere 24 h fausse, fuite intertenant, perte de migration"
+    },
+    {
+      "cas": "T08.A6",
+      "cahier_line": 223,
+      "exige": "controle de la frontiere 24 h sans attendre 24 heures physiques"
+    },
+    {
+      "cas": "T11.A6",
+      "cahier_line": 251,
+      "exige": "la variante cross-tenant-read fait echouer le controle metier associe"
+    },
+    {
+      "cas": "T06.fin",
+      "cahier_line": 209,
+      "exige": "un pack reservation quatre periodes est compilable"
+    }
+  ],
+  "valeurs": {
+    "horloge_initiale": {
+      "valeur": "2030-01-01T00:00:00Z",
+      "cahier_line": 119,
+      "source": "verbatim"
+    },
+    "acteurs": {
+      "valeur": [
+        "A",
+        "B",
+        "C"
+      ],
+      "cahier_line": 119,
+      "source": "verbatim"
+    },
+    "locataire_initial": {
+      "valeur": "legacy",
+      "cahier_line": 119,
+      "source": "verbatim"
+    },
+    "creneau": {
+      "id": {
+        "valeur": "S1",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "capacite": {
+        "valeur": 1,
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "debut": {
+        "valeur": "2030-01-03T12:00:00Z",
+        "cahier_line": 119,
+        "source": "verbatim"
+      }
+    },
+    "horloges_principales": {
+      "P1": {
+        "valeur": "2030-01-01T00:00:00Z",
+        "cahier_line": 125,
+        "source": "verbatim",
+        "citation": "P1 commence le 1er janvier 2030 a 00:00 UTC",
+        "note": "date, heure et fuseau UTC tous litteraux dans la ligne 125"
+      },
+      "P2": {
+        "valeur": "2030-01-01T01:00:00Z",
+        "cahier_line": 125,
+        "source": "verbatim (heure) + ellipse (date et fuseau)",
+        "citation": "P2 a 01:00",
+        "note": "la ligne 125 ecrit « P2 a 01:00 » : l heure est litterale, la date du 1er janvier 2030 et le fuseau UTC sont herites par ellipse de la proposition precedente. Voir DER-RESERVATION-08.",
+        "derivation": "DER-RESERVATION-08"
+      },
+      "P3": {
+        "valeur": "2030-01-02T11:00:00Z",
+        "cahier_line": 125,
+        "source": "verbatim (date et heure) + ellipse (fuseau)",
+        "citation": "P3 le 2 janvier a 11:00",
+        "note": "« P3 le 2 janvier a 11:00 » : date et heure litterales ; le fuseau UTC est herite.",
+        "derivation": "DER-RESERVATION-08"
+      },
+      "P4": {
+        "valeur": "2030-01-02T13:00:00Z",
+        "cahier_line": 125,
+        "source": "verbatim (heure) + ellipse (date et fuseau)",
+        "citation": "P4 a 13:00",
+        "note": "la ligne 125 ecrit « P4 a 13:00 » : seule l heure est litterale. La date du 2 janvier et le fuseau UTC sont herites par ellipse. Voir DER-RESERVATION-08.",
+        "derivation": "DER-RESERVATION-08"
+      }
+    },
+    "P1": {
+      "reservation_de_A": {
+        "valeur": "acceptee",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "rejeu_de_la_cle_idempotente_de_A": {
+        "valeur": "sans doublon",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "demande_concurrente_de_B": {
+        "valeur": "rejetee sans surbooking",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "reservations_confirmees_attendues": {
+        "valeur": 1,
+        "cahier_line": 215,
+        "source": "consommateur",
+        "note": "T07.A1"
+      }
+    },
+    "P2": {
+      "file_d_attente": {
+        "valeur": [
+          "B",
+          "C"
+        ],
+        "cahier_line": 119,
+        "source": "verbatim",
+        "citation": "B puis C en attente"
+      },
+      "annulation_de_A": {
+        "valeur": true,
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "B_apres_annulation": {
+        "valeur": "confirme",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "C_apres_annulation": {
+        "valeur": "reste premier en attente",
+        "cahier_line": 119,
+        "source": "verbatim"
+      }
+    },
+    "P3": {
+      "regle_d_annulation": {
+        "valeur": "au moins 24 heures avant le debut, frontiere incluse",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "nature_des_probes": {
+        "valeur": "deux clones du meme etat, jetables ; elles ne modifient pas l etat persistant principal",
+        "cahier_lines": [
+          119,
+          123
+        ],
+        "source": "verbatim"
+      },
+      "probe_frontiere_incluse": {
+        "instant": {
+          "valeur": "2030-01-02T12:00:00Z",
+          "cahier_line": 119,
+          "source": "verbatim"
+        },
+        "acteur": {
+          "valeur": "B",
+          "cahier_line": 119,
+          "source": "verbatim"
+        },
+        "verdict": {
+          "valeur": "annulation PERMISE",
+          "cahier_line": 119,
+          "source": "verbatim"
+        },
+        "effet_sur_le_clone": {
+          "valeur": "C devient confirme",
+          "cahier_line": 123,
+          "source": "verbatim"
+        }
+      },
+      "probe_apres_frontiere": {
+        "instant": {
+          "valeur": "2030-01-02T12:00:00.001Z",
+          "cahier_line": 119,
+          "source": "verbatim"
+        },
+        "acteur": {
+          "valeur": "B",
+          "cahier_line": 119,
+          "source": "verbatim"
+        },
+        "verdict": {
+          "valeur": "refus metier",
+          "cahier_line": 119,
+          "source": "verbatim"
+        }
+      },
+      "horloge_des_probes": {
+        "valeur": "les probes privees P3 utilisent leurs heures propres et sont jetees",
+        "cahier_line": 125,
+        "source": "verbatim"
+      }
+    },
+    "P4": {
+      "etat_persistant_a_l_entree": {
+        "valeur": {
+          "A": "annule",
+          "B": "confirme",
+          "C": "en attente"
+        },
+        "cahier_line": 123,
+        "source": "verbatim"
+      },
+      "migration": {
+        "valeur": "donnees existantes migrees vers legacy",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "nouveau_locataire": {
+        "valeur": "other",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "isolation": {
+        "valeur": "les acteurs de other ne peuvent ni lire ni modifier les reservations legacy",
+        "cahier_line": 119,
+        "source": "verbatim"
+      },
+      "contrat_intertenant": {
+        "valeur": "NOT_FOUND sans donnee metier divulguee",
+        "cahier_line": 123,
+        "source": "verbatim"
+      }
+    },
+    "ordonnancement_FIFO": {
+      "valeur": "ordonne par sequence d admission explicite, pas par egalite possible de timestamps",
+      "cahier_line": 123,
+      "source": "verbatim"
+    },
+    "surface_d_evaluation": {
+      "valeur": "evaluer l etat metier exporte, pas un nom de table impose",
+      "cahier_line": 119,
+      "source": "verbatim"
+    },
+    "nature_des_instants": {
+      "valeur": "les instants synthetiques accelerent ici les periodes ; les resultats ne les presentent pas comme quatre mois reels",
+      "cahier_line": 125,
+      "source": "verbatim"
+    }
+  },
+  "derivations": [
+    {
+      "id": "DER-RESERVATION-01",
+      "enonce": "Frontiere des 24 h : 2030-01-03T12:00:00Z moins 24 h = 2030-01-02T12:00:00Z, exactement l instant que la ligne 119 donne comme permis. Calcul re-execute cette ronde sur les epoques UTC.",
+      "verifie": true
+    },
+    {
+      "id": "DER-RESERVATION-02",
+      "enonce": "Refus a 2030-01-02T12:00:00.001Z = frontiere + 1 ms ; l ecart teste est d une milliseconde, la granularite minimale que la fixture exige de distinguer.",
+      "verifie": true
+    },
+    {
+      "id": "DER-RESERVATION-03",
+      "enonce": "Ordre des horloges : P1 00:00 < P2 01:00 (1er janvier) < P3 11:00 < P4 13:00 (2 janvier). Les probes 12:00 et 12:00.001 (2 janvier) tombent entre P3 et P4, ce qui est compatible avec la ligne 125 : elles ont leurs heures propres et sont jetees.",
+      "verifie": true
+    },
+    {
+      "id": "DER-RESERVATION-04",
+      "enonce": "Les deux clones de P3 partent du meme etat : A annule, B confirme, C premier en attente. Sur le clone permis, l annulation de B promeut C (l.123) ; sur le clone refuse, l etat reste inchange. L etat persistant principal entrant en P4 est celui d avant les probes (l.123).",
+      "verifie": true
+    },
+    {
+      "id": "DER-RESERVATION-05",
+      "enonce": "T07.A7 (une annulation repetee ne promeut pas deux personnes) s appuie sur P2 : l annulation de A promeut B ; rejouee, elle ne doit pas promouvoir C, qui reste premier en attente (l.119).",
+      "verifie": true,
+      "role": "rattache un consommateur a une valeur enoncee"
+    },
+    {
+      "id": "DER-RESERVATION-06",
+      "enonce": "Les six mutants de T10.A2 (l.241) correspondent un pour un a six proprietes enoncees ici : surbooking -> capacite 1 et rejet de B en P1 ; doublon idempotent -> rejeu de la cle de A sans doublon ; FIFO inverse -> B promu avant C ; frontiere 24 h fausse -> couple 12:00:00Z / 12:00:00.001Z ; fuite intertenant -> NOT_FOUND pour other ; perte de migration -> migration vers legacy en P4.",
+      "verifie": true,
+      "role": "controle de completude par les consommateurs"
+    },
+    {
+      "id": "DER-RESERVATION-07",
+      "enonce": "La capacite 1 rend P1 et P2 mutuellement contraignants : au plus une reservation confirmee a tout instant. L etat d entree en P4 (A annule, B confirme, C en attente) respecte cette borne, et l etat du clone permis de P3 (B annule, C confirme) aussi.",
+      "verifie": true,
+      "source": "derive"
+    },
+    {
+      "id": "DER-RESERVATION-08",
+      "enonce": "Lecture elliptique de la ligne 125. Le texte est : « P1 commence le 1er janvier 2030 a 00:00 UTC, P2 a 01:00, P3 le 2 janvier a 11:00, P4 a 13:00. » Une seule date et un seul fuseau sont ecrits par proposition ; les suivantes les heritent par ellipse de coordination. D ou P2 = 2030-01-01T01:00:00Z (date et fuseau de P1) et P4 = 2030-01-02T13:00:00Z (date de P3, fuseau de P1).",
+      "verifie": true,
+      "source": "derive",
+      "lecture_alternative_ecartee": "P4 = 2030-01-03T13:00:00Z, si « a 13:00 » ouvrait une nouvelle journee. Ecartee pour deux raisons : l ellipse de coordination rattache « a 13:00 » a la date la plus proche a gauche (le 2 janvier), et cette lecture placerait P4 APRES le debut du creneau S1 (2030-01-03T12:00:00Z, l.119), alors que les trois autres periodes le precedent. Le cahier ne l exclut pas explicitement : si le transcripteur A lit autrement, la divergence doit remonter au scellement plutot que se resorber.",
+      "role": "precision apportee cette ronde : P2 et P4 etaient marquees `verbatim` alors que leur date n est pas ecrite. Meme defaut que DIV-1 du scellement f17785e0, sur un autre champ."
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": "deux reservations confirmees sur S1",
+      "cahier_line": 119,
+      "pourquoi": "capacite 1 ; surbooking interdit"
+    },
+    {
+      "valeur": "doublon cree par le rejeu de la cle idempotente de A",
+      "cahier_line": 119,
+      "pourquoi": "le rejeu est sans doublon"
+    },
+    {
+      "valeur": "C promu avant B en P2",
+      "cahier_line": 119,
+      "pourquoi": "FIFO par sequence d admission : B puis C"
+    },
+    {
+      "valeur": "annulation refusee a 2030-01-02T12:00:00Z",
+      "cahier_line": 119,
+      "pourquoi": "frontiere INCLUSE"
+    },
+    {
+      "valeur": "annulation permise a 2030-01-02T12:00:00.001Z",
+      "cahier_line": 119,
+      "pourquoi": "refus metier apres la frontiere"
+    },
+    {
+      "valeur": "une erreur intertenant revelant une donnee metier legacy",
+      "cahier_line": 123,
+      "pourquoi": "NOT_FOUND sans donnee metier divulguee"
+    },
+    {
+      "valeur": "etat persistant modifie par les probes P3",
+      "cahier_line": 123,
+      "pourquoi": "les probes sont des clones jetables"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "L etat applicatif d une trajectoire persiste ; aucun retour automatique a une base ideale.",
+      "cahier_line": 63,
+      "portee": "invariant D.1"
+    },
+    {
+      "texte": "Les effets valides sont dedupliques par cle d operation et empreinte d entree.",
+      "cahier_line": 68,
+      "portee": "invariant D.6"
+    },
+    {
+      "texte": "Les timestamps sont UTC ISO 8601 ; les nombres non finis sont interdits.",
+      "cahier_line": 80,
+      "portee": "§E"
+    },
+    {
+      "texte": "Les migrations portent sur les donnees reellement creees aux periodes precedentes.",
+      "cahier_line": 231,
+      "portee": "T09"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-RESERVATION-01",
+      "statut": "NON_TRANCHE",
+      "point": "D ou viennent les 100 reservations que T09.A3 (l.233) exige de preserver a la migration P4 ?",
+      "pourquoi": "La section §F ne nomme que trois acteurs (A, B, C) et un creneau S1 de capacite 1. Le cahier ne dit pas si ces 100 reservations font partie du materiel de F-RESERVATION, ni sur quels creneaux ou locataires elles portent.",
+      "cahier_lines": [
+        119,
+        233
+      ],
+      "consequence_si_mal_tranche": "Materialiser 100 reservations dans la fixture gelee inventerait des donnees que §F n enonce pas ; ne pas les materialiser laisse T09.A3 sans support de reference."
+    },
+    {
+      "id": "AMB-RESERVATION-02",
+      "statut": "NON_TRANCHE",
+      "point": "Le code du « conflit explicite » exige par T07.A6 (l.215) n est pas nomme dans §F.",
+      "pourquoi": "La ligne 119 decrit le rejeu d une cle idempotente SANS arguments differents. Le cas « meme cle, arguments differents » n apparait pas en §F. Le seul code nomme par le cahier pour cette situation est IDEMPOTENCY_CONFLICT en ligne 199 (T05.A4), qui porte sur les evenements du moteur, pas sur l oracle de reservation.",
+      "cahier_lines": [
+        119,
+        215,
+        199
+      ],
+      "consequence_si_mal_tranche": "Epingler IDEMPOTENCY_CONFLICT dans la fixture gelee attribuerait a §F un code que §F n ecrit pas."
+    },
+    {
+      "id": "AMB-RESERVATION-03",
+      "statut": "NON_TRANCHE",
+      "point": "Le sort de la demande de B rejetee en P1 et son entree en file d attente en P2 ne sont pas relies.",
+      "pourquoi": "La ligne 119 dit qu en P1 la demande concurrente de B est « rejetee sans surbooking », puis qu en P2 « B puis C en attente ». Le cahier ne dit pas si l attente de B en P2 est une nouvelle demande ou la conversion du rejet de P1, ni sous quel code la demande de P1 est rejetee.",
+      "cahier_lines": [
+        119
+      ],
+      "consequence_si_mal_tranche": "La sequence d admission explicite qui ordonne le FIFO (l.123) depend de cette lecture : si le rejet de P1 comptait comme admission, l ordre B/C serait fixe des P1 ; sinon il est fixe en P2."
+    },
+    {
+      "id": "AMB-RESERVATION-04",
+      "statut": "NON_TRANCHE",
+      "point": "Les valeurs de la sequence d admission explicite ne sont pas donnees.",
+      "pourquoi": "La ligne 123 impose d ordonner le FIFO par une sequence d admission explicite plutot que par les timestamps, mais §F ne fournit aucun numero de sequence. Seul l ORDRE (B puis C) est enonce.",
+      "cahier_lines": [
+        119,
+        123
+      ],
+      "consequence_si_mal_tranche": "Un export canonique qui porterait des numeros de sequence inventerait des valeurs ; un export qui n en porterait pas ne prouverait pas que l ordre ne vient pas des timestamps."
+    },
+    {
+      "id": "AMB-RESERVATION-05",
+      "statut": "NON_TRANCHE",
+      "point": "Aucune horloge n est donnee pour les actes eux-memes, seulement pour le debut des periodes.",
+      "pourquoi": "La ligne 125 date le DEBUT de chaque periode ; la ligne 119 date les deux probes de P3. Le cahier ne date ni la reservation de A, ni le rejet de B, ni les mises en attente de P2, ni l annulation de A. La regle des 24 h est verifiable pour les probes seules.",
+      "cahier_lines": [
+        119,
+        123,
+        125
+      ],
+      "consequence_si_mal_tranche": "Une fixture qui daterait ces actes inventerait des instants ; sans eux, on ne peut pas verifier que l annulation de A en P2 (1er janvier, 01:00) respecte elle aussi la regle des 24 h — elle la respecte largement, mais par deduction d horloge de periode, pas par valeur enoncee."
+    }
+  ],
+  "controles_reexecutes": {
+    "pin_du_cahier": "sha256(docs/cahier.md) = d5b1c356... identique a docs/CAHIER_SHA256 et a cases.lock.json.cahier_sha256 — verifie cette ronde",
+    "recensement": "grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md : 10 fixtures distinctes, aucune autre F-*. Bornes de la §F : l.101 (titre) a l.129, l.131 ouvre la §G.",
+    "citations": "les 59 citations de consommateurs ont ete appariees au registre verification/cases.lock.json : les 59 existent et portent TOUTES la meme cahier_line que le registre. Balayage inverse : aucun cas du registre ne nomme une fixture sans figurer dans ses consommateurs.",
+    "lignes_citees": "toutes les cahier_line citees par les 10 fichiers (28, 63, 67, 68, 69, 71, 72, 73, 80, 82, 88, 97, 103-129, 165, 189-251, 295-303, 427-473, 491-495) ont ete affichees et relues cette ronde",
+    "numeriques": "48 controles executes en arithmetique rationnelle exacte (fractions.Fraction), 48 OK, 0 FAIL",
+    "unites": "sed -n '<n>p' docs/cahier.md | grep -c 'micro-USD' rend 1 pour l.103 et 0 pour l.105, l.113, l.115, l.121 et l.127 — re-execute cette ronde"
+  },
+  "corrections_de_la_ronde": [
+    "Les horloges de P2 et P4 etaient marquees `source: verbatim`. La ligne 125 ecrit « P1 commence le 1er janvier 2030 a 00:00 UTC, P2 a 01:00, P3 le 2 janvier a 11:00, P4 a 13:00 » : seules les HEURES de P2 et P4 sont litterales, leurs DATES sont heritees par ellipse. Corrige en `verbatim (heure) + ellipse (date)`, avec DER-RESERVATION-08 qui expose la lecture et nomme l alternative ecartee. Meme traitement pour le fuseau UTC, ecrit une seule fois."
+  ]
+}

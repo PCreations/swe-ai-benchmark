@@ -1,0 +1,290 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BUDGET",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T14",
+  "ronde": "T14. Provenance honnete : ce repertoire contenait deja les fichiers de la ronde T12 (elle-meme heritiere de la ronde T00) ; ils ont ete RELUS integralement au demarrage de cette ronde. Chaque valeur a ensuite ete re-derivee depuis docs/cahier.md et chaque citation re-verifiee par sed sur sa ligne declaree ; les 48 controles numeriques et les controles de citation ont ete RE-EXECUTES cette ronde (voir controles_reexecutes). Deux corrections de precision ont ete apportees, listees dans corrections_de_la_ronde. Les coincidences avec les rondes precedentes viennent de la meme source textuelle. NON CONSULTES : .bench/fixtures/A, acceptance/reference/**, toute implementation.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [
+      105
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T16.A2",
+      "cahier_line": 295,
+      "exige": "F-BUDGET respecte tous ses montants sous transactions concurrentes"
+    },
+    {
+      "cas": "T16.A7",
+      "cahier_line": 295,
+      "exige": "une reservation dont le cout maximal est non borne est refusee en mode plafond strict avec UNBOUNDED_COST"
+    },
+    {
+      "cas": "T16.fin",
+      "cahier_line": 297,
+      "exige": "invariant spent + reserved + available = limit dans les cas sans depassement fournisseur, entiers exacts"
+    }
+  ],
+  "valeurs": {
+    "limite": {
+      "valeur": 1000,
+      "cahier_line": 105,
+      "source": "verbatim"
+    },
+    "sous_cas_1_concurrence": {
+      "montant_de_chaque_reservation": {
+        "valeur": 600,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "nombre_de_reservations_concurrentes": {
+        "valeur": 2,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "regle": {
+        "valeur": "deux reservations concurrentes de 600 ne peuvent pas etre toutes deux acceptees",
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "reglement_de_la_reservation_acceptee": {
+        "valeur": 340,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "etat_apres_reglement": {
+        "spent": {
+          "valeur": 340,
+          "cahier_line": 105,
+          "source": "verbatim"
+        },
+        "reserved": {
+          "valeur": 0,
+          "cahier_line": 105,
+          "source": "verbatim"
+        },
+        "available": {
+          "valeur": 660,
+          "cahier_line": 105,
+          "source": "verbatim"
+        }
+      }
+    },
+    "sous_cas_2a_reservation_600_admissible": {
+      "depuis": "etat_apres_reglement (spent=340, reserved=0, available=660)",
+      "testee_separement": {
+        "valeur": true,
+        "cahier_line": 105,
+        "source": "verbatim",
+        "citation": "Depuis cet etat, tester separement"
+      },
+      "montant": {
+        "valeur": 600,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "verdict": {
+        "valeur": "ADMISSIBLE",
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "available_resultant": {
+        "valeur": 60,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "spent_resultant": {
+        "valeur": 340,
+        "source": "derive",
+        "derivation": "DER-BUDGET-02"
+      },
+      "reserved_resultant": {
+        "valeur": 600,
+        "source": "derive",
+        "derivation": "DER-BUDGET-02"
+      }
+    },
+    "sous_cas_2b_reservation_661_refusee": {
+      "depuis": "etat_apres_reglement (spent=340, reserved=0, available=660)",
+      "testee_separement": {
+        "valeur": true,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "montant": {
+        "valeur": 661,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "verdict": {
+        "valeur": "REFUSEE",
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "available_resultant": {
+        "valeur": 660,
+        "cahier_line": 105,
+        "source": "verbatim"
+      }
+    },
+    "sous_cas_3_reservation_ambigue": {
+      "independance": {
+        "valeur": "sous-cas independant, budget frais et zero depense",
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "montant": {
+        "valeur": 600,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "available_maintenu": {
+        "valeur": 400,
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "duree_du_maintien": {
+        "valeur": "tant qu elle n est pas reconciliee",
+        "cahier_line": 105,
+        "source": "verbatim"
+      },
+      "spent_resultant": {
+        "valeur": 0,
+        "source": "derive",
+        "derivation": "DER-BUDGET-03"
+      },
+      "reserved_resultant": {
+        "valeur": 600,
+        "source": "derive",
+        "derivation": "DER-BUDGET-03"
+      }
+    }
+  },
+  "derivations": [
+    {
+      "id": "DER-BUDGET-01",
+      "enonce": "Invariant l.297 sur l etat apres reglement : 340 + 0 + 660 = 1000 = limite",
+      "verifie": true,
+      "role": "coherence des trois valeurs verbatim de la ligne 105"
+    },
+    {
+      "id": "DER-BUDGET-02",
+      "enonce": "Sous-cas 2a : la ligne 105 n enonce que available=60. spent reste 340 (le reglement n est pas defait) et reserved=600 se deduit de 340 + reserved + 60 = 1000 (invariant l.297).",
+      "verifie": true,
+      "role": "complete deux champs que la ligne 105 ne nomme pas"
+    },
+    {
+      "id": "DER-BUDGET-03",
+      "enonce": "Sous-cas 3 : la ligne 105 n enonce que available=400 et « zero depense ». spent=0 est verbatim par « zero depense » ; reserved=600 se deduit de 0 + reserved + 400 = 1000 (invariant l.297).",
+      "verifie": true,
+      "role": "complete un champ que la ligne 105 ne nomme pas"
+    },
+    {
+      "id": "DER-BUDGET-04",
+      "enonce": "Sous-cas 2b : 661 > 660 = available, d ou le refus ; l invariant reste 340 + 0 + 660 = 1000.",
+      "verifie": true,
+      "role": "coherence"
+    },
+    {
+      "id": "DER-BUDGET-05",
+      "enonce": "Le 340 regle en sous-cas 1 est le cout de l appel de reference de F-MONEY (l.103). Controle execute cette ronde : grep -n '340' docs/cahier.md rend les lignes 103, 105, 165, 295 et 303 — 340 n est DEFINI qu en l.103 (grille tarifaire), les quatre autres occurrences le citent.",
+      "verifie": true,
+      "role": "lecture croisee ; la ligne 105 ne redonne pas l unite (AMB-BUDGET-01)",
+      "corrige_cette_ronde": true
+    },
+    {
+      "id": "DER-BUDGET-06",
+      "enonce": "Les sous-cas 2a et 2b ne s enchainent pas : 600 puis 661 depuis le meme etat donnerait 340 + 600 + 661 = 1601 > 1000. La ligne 105 impose « tester separement », ce que cette impossibilite arithmetique confirme.",
+      "verifie": true,
+      "role": "controle de la lecture « separement »"
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": "deux reservations de 600 acceptees simultanement",
+      "cahier_line": 105,
+      "pourquoi": "explicitement interdit ; 600 + 600 = 1200 > 1000"
+    },
+    {
+      "valeur": "available=1000 apres la reservation ambigue du sous-cas 3",
+      "cahier_line": 105,
+      "pourquoi": "liberer une reservation non reconciliee contredit « maintient available=400 tant qu elle n est pas reconciliee » et l invariant D.7 (l.69)"
+    },
+    {
+      "valeur": "available=60 apres le refus de 661",
+      "cahier_line": 105,
+      "pourquoi": "un refus ne consomme rien : available reste 660"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "spent + reserved + available = limit dans les cas sans depassement fournisseur, entiers exacts",
+      "cahier_line": 297,
+      "portee": "T16, employe ici pour completer les champs non nommes"
+    },
+    {
+      "texte": "Un appel fournisseur dont la reponse est perdue n est pas relance aveuglement. Son etat reste ambigu tant qu il n est pas reconcilie.",
+      "cahier_line": 69,
+      "portee": "invariant D.7, soutient le sous-cas 3"
+    },
+    {
+      "texte": "Les sous-cas 2a et 2b se testent SEPAREMENT depuis le meme etat ; le sous-cas 3 est independant.",
+      "cahier_line": 105,
+      "portee": "F-BUDGET"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BUDGET-01",
+      "statut": "NON_TRANCHE",
+      "point": "Unite des montants 1000, 600, 340, 661, 660, 400, 60.",
+      "pourquoi": "Controle execute cette ronde : `sed -n '105p' docs/cahier.md | grep -c 'micro-USD'` rend 0. La chaine n apparait qu en ligne 103 (F-MONEY). Le 340 partage avec F-MONEY suggere micro-USD mais ne l enonce pas.",
+      "cahier_lines": [
+        105,
+        103,
+        80
+      ],
+      "consequence_si_mal_tranche": "Une unite inscrite et attribuee a la ligne 105 serait une attribution non soutenue par sa source."
+    },
+    {
+      "id": "AMB-BUDGET-02",
+      "statut": "NON_TRANCHE",
+      "point": "Laquelle des deux reservations concurrentes de 600 est acceptee, et sous quel code la perdante est refusee.",
+      "pourquoi": "La ligne 105 dit seulement qu elles ne peuvent pas etre toutes deux acceptees, puis parle de « la reservation acceptee » au singulier defini — donc exactement une aboutit — sans nommer ni le critere de depart ni le code de refus. T16.A2 (l.295) exige le respect des montants sous transactions concurrentes, pas un gagnant nomme.",
+      "cahier_lines": [
+        105,
+        295
+      ],
+      "consequence_si_mal_tranche": "Un test qui epingle un gagnant nomme rendrait rouge une implementation correcte mais ordonnee autrement."
+    },
+    {
+      "id": "AMB-BUDGET-03",
+      "statut": "NON_TRANCHE",
+      "point": "Le sous-cas 3 ne dit pas ce qui rend la reservation de 600 « ambigue ».",
+      "pourquoi": "La ligne 105 qualifie la reservation d ambigue sans dire si l ambiguite vient d une reponse fournisseur perdue (invariant D.7, l.69), d un cout maximal non borne (T16.A7, l.295) ou d autre chose. Les trois lectures laissent available=400, donc aucune valeur enoncee ne les separe.",
+      "cahier_lines": [
+        105,
+        69,
+        295
+      ],
+      "consequence_si_mal_tranche": "Le chemin de reconciliation teste, et donc l etat final apres reconciliation, dependent de cette lecture, que §F ne fixe pas."
+    }
+  ],
+  "controles_reexecutes": {
+    "pin_du_cahier": "sha256(docs/cahier.md) = d5b1c356... identique a docs/CAHIER_SHA256 et a cases.lock.json.cahier_sha256 — verifie cette ronde",
+    "recensement": "grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md : 10 fixtures distinctes, aucune autre F-*. Bornes de la §F : l.101 (titre) a l.129, l.131 ouvre la §G.",
+    "citations": "les 59 citations de consommateurs ont ete appariees au registre verification/cases.lock.json : les 59 existent et portent TOUTES la meme cahier_line que le registre. Balayage inverse : aucun cas du registre ne nomme une fixture sans figurer dans ses consommateurs.",
+    "lignes_citees": "toutes les cahier_line citees par les 10 fichiers (28, 63, 67, 68, 69, 71, 72, 73, 80, 82, 88, 97, 103-129, 165, 189-251, 295-303, 427-473, 491-495) ont ete affichees et relues cette ronde",
+    "numeriques": "48 controles executes en arithmetique rationnelle exacte (fractions.Fraction), 48 OK, 0 FAIL",
+    "unites": "sed -n '<n>p' docs/cahier.md | grep -c 'micro-USD' rend 1 pour l.103 et 0 pour l.105, l.113, l.115, l.121 et l.127 — re-execute cette ronde"
+  },
+  "corrections_de_la_ronde": [
+    "DER-BUDGET-05 affirmait que 340 etait le « seul 340 du cahier ». Controle execute : grep -n '340' docs/cahier.md rend les lignes 103, 105, 165, 295 et 303. L enonce est corrige : 340 n est DEFINI qu en l.103, les autres occurrences le citent."
+  ]
+}

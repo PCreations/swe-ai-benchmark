@@ -1,0 +1,79 @@
+{
+  "fixture": "F-COST-RATIO",
+  "tache": "T14",
+  "role": "fixture-transcriber-A",
+  "etage": "FIXTURES",
+  "provenance": "cahier uniquement — aucune implementation, aucun cas d’acceptation, aucune suite de tests consultes",
+  "source": {
+    "document": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "section_titre": "**F. Fixtures maîtresses à matérialiser sans recalcul depuis l’implémentation**",
+    "section_lignes": [
+      101,
+      129
+    ],
+    "lignes": [
+      113
+    ],
+    "verbatim": {
+      "113": "`F-COST-RATIO`. Deux projets de poids égal : A coûte `[10,90]`, B `[20,100]`. Moyennes A=50 et B=60 ; ratio principal A/B=`5/6`. La moyenne des ratios serait `0.7` et constitue un résultat incorrect pour cette métrique."
+    }
+  },
+  "projets": {
+    "nombre": {
+      "valeur": 2,
+      "cahier_line": 113
+    },
+    "poids": {
+      "valeur": "poids egal",
+      "cahier_line": 113
+    }
+  },
+  "couts": {
+    "A": {
+      "litteral": "[10,90]",
+      "valeurs": [
+        10,
+        90
+      ],
+      "cahier_line": 113
+    },
+    "B": {
+      "litteral": "[20,100]",
+      "valeurs": [
+        20,
+        100
+      ],
+      "cahier_line": 113
+    }
+  },
+  "moyennes": {
+    "A": {
+      "valeur": 50,
+      "cahier_line": 113
+    },
+    "B": {
+      "valeur": 60,
+      "cahier_line": 113
+    }
+  },
+  "ratio_principal": {
+    "definition": "A/B",
+    "litteral": "5/6",
+    "num": 5,
+    "den": 6,
+    "cahier_line": 113
+  },
+  "resultat_incorrect_a_refuser": {
+    "quantite": "moyenne des ratios",
+    "litteral": "0.7",
+    "decimal": 0.7,
+    "statut": "resultat incorrect pour cette metrique",
+    "cahier_line": 113
+  },
+  "notes": [
+    "Les deux listes sont alignees par projet : projet 1 -> A=10, B=20 ; projet 2 -> A=90, B=100 (meme appariement qu’en F-CLUSTERS, ligne 115)."
+  ],
+  "ambiguites": []
+}

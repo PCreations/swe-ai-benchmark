@@ -1,0 +1,274 @@
+{
+  "schema": "bench.fixture-transcription/1",
+  "fixture": "F-BOOTSTRAP",
+  "transcripteur": "B",
+  "cadrage": "consommateurs-d-abord",
+  "etage": "FIXTURES",
+  "tache": "T14",
+  "ronde": "T14. Provenance honnete : ce repertoire contenait deja les fichiers de la ronde T12 (elle-meme heritiere de la ronde T00) ; ils ont ete RELUS integralement au demarrage de cette ronde. Chaque valeur a ensuite ete re-derivee depuis docs/cahier.md et chaque citation re-verifiee par sed sur sa ligne declaree ; les 48 controles numeriques et les controles de citation ont ete RE-EXECUTES cette ronde (voir controles_reexecutes). Deux corrections de precision ont ete apportees, listees dans corrections_de_la_ronde. Les coincidences avec les rondes precedentes viennent de la meme source textuelle. NON CONSULTES : .bench/fixtures/A, acceptance/reference/**, toute implementation.",
+  "cahier": {
+    "fichier": "docs/cahier.md",
+    "sha256": "d5b1c356696b6028bc2240befaaee75dbfcc8a56565cdac9fa3648b25feeeadd",
+    "section": "F",
+    "lignes_de_la_fixture": [
+      117
+    ]
+  },
+  "consommateurs": [
+    {
+      "cas": "T33.A1",
+      "cahier_line": 443,
+      "exige": "F-BOOTSTRAP donne les quatre ratios et l intervalle [1/2, 9/10]"
+    },
+    {
+      "cas": "T33.A2",
+      "cahier_line": 443,
+      "exige": "les deux bras suivent exactement les memes indices parents"
+    },
+    {
+      "cas": "T33.A3",
+      "cahier_line": 443,
+      "exige": "multiplier tous les couts par 7 ne change ni ratio ni intervalle"
+    },
+    {
+      "cas": "T33.A4",
+      "cahier_line": 443,
+      "exige": "A=B donne tous les ratios egaux a 1"
+    },
+    {
+      "cas": "T33.A5",
+      "cahier_line": 443,
+      "exige": "permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats avec la meme liste de tirages parents"
+    },
+    {
+      "cas": "T33.A7",
+      "cahier_line": 443,
+      "exige": "les bandes ponctuelles ne sont jamais etiquetees simultanees"
+    },
+    {
+      "cas": "T35.A1",
+      "cahier_line": 463,
+      "exige": "F-POWER traverse le vrai pipeline d analyse, donc ce reechantillonneur"
+    }
+  ],
+  "valeurs": {
+    "population_parente": {
+      "valeur": "les deux projets precedents",
+      "cahier_line": 117,
+      "source": "verbatim",
+      "lecture": "P1 (A=10, B=20) et P2 (A=90, B=100), l.115 ; voir AMB-BOOTSTRAP-01"
+    },
+    "liste_de_reechantillonnages_forcee": {
+      "valeur": [
+        [
+          "P1",
+          "P1"
+        ],
+        [
+          "P1",
+          "P2"
+        ],
+        [
+          "P2",
+          "P1"
+        ],
+        [
+          "P2",
+          "P2"
+        ]
+      ],
+      "cahier_line": 117,
+      "source": "verbatim",
+      "note": "liste FORCEE : aucun tirage aleatoire dans cette fixture"
+    },
+    "nombre_de_reechantillonnages": {
+      "valeur": 4,
+      "cahier_line": 117,
+      "source": "verbatim"
+    },
+    "ratios_cout_A_sur_B": {
+      "valeur": [
+        "1/2",
+        "5/6",
+        "5/6",
+        "9/10"
+      ],
+      "rationnels": [
+        {
+          "num": 1,
+          "den": 2
+        },
+        {
+          "num": 5,
+          "den": 6
+        },
+        {
+          "num": 5,
+          "den": 6
+        },
+        {
+          "num": 9,
+          "den": 10
+        }
+      ],
+      "cahier_line": 117,
+      "source": "verbatim",
+      "ordre": "dans l ordre de la liste de reechantillonnages ci-dessus"
+    },
+    "convention_de_quantile": {
+      "valeur": "quantile empirique inverse",
+      "cahier_line": 117,
+      "source": "verbatim"
+    },
+    "intervalle_2_5_a_97_5": {
+      "valeur": [
+        "1/2",
+        "9/10"
+      ],
+      "rationnels": [
+        {
+          "num": 1,
+          "den": 2
+        },
+        {
+          "num": 9,
+          "den": 10
+        }
+      ],
+      "borne_basse_pct": 2.5,
+      "borne_haute_pct": 97.5,
+      "cahier_line": 117,
+      "source": "verbatim"
+    },
+    "portee_declaree": {
+      "valeur": "Cette fixture valide le calcul, pas une couverture suffisante avec deux projets",
+      "cahier_line": 117,
+      "source": "verbatim"
+    }
+  },
+  "derivations": [
+    {
+      "id": "DER-BOOTSTRAP-01",
+      "enonce": "Avec P1 (A=10, B=20) et P2 (A=90, B=100) : [P1,P1] -> A=10, B=20, ratio 1/2 ; [P1,P2] -> A=50, B=60, ratio 5/6 ; [P2,P1] -> memes moyennes, ratio 5/6 ; [P2,P2] -> A=90, B=100, ratio 9/10. Reproduit exactement [1/2, 5/6, 5/6, 9/10].",
+      "verifie": true
+    },
+    {
+      "id": "DER-BOOTSTRAP-02",
+      "enonce": "Quantile empirique inverse sur la liste triee [1/2, 5/6, 5/6, 9/10] : le 2,5e percentile tombe sur la plus petite valeur (1/2) et le 97,5e sur la plus grande (9/10). Reproduit l intervalle enonce [1/2, 9/10].",
+      "verifie": true
+    },
+    {
+      "id": "DER-BOOTSTRAP-03",
+      "enonce": "T33.A3 : multiplier tous les couts par 7 donne P1 (70, 140) et P2 (630, 700) ; chaque ratio est un quotient homogene, donc 70/140 = 1/2, 350/420 = 5/6, 630/700 = 9/10 — ratios et intervalle inchanges. Re-execute cette ronde sur les quatre tirages.",
+      "verifie": true
+    },
+    {
+      "id": "DER-BOOTSTRAP-04",
+      "enonce": "T33.A2 (appariement) : [P1,P2] et [P2,P1] donnent le meme ratio 5/6 parce que les deux bras suivent les MEMES indices parents ; un appariement casse donnerait par exemple A de [P1,P1] sur B de [P2,P2], soit 10/100 = 1/10 — valeur absente des quatre ratios enonces.",
+      "verifie": true,
+      "role": "nomme la perturbation que T33.A2 doit attraper"
+    },
+    {
+      "id": "DER-BOOTSTRAP-05",
+      "enonce": "T33.A4 : si A=B dans chaque parent, chaque reechantillonnage donne un quotient de deux moyennes egales, soit 1 pour les quatre.",
+      "verifie": true
+    },
+    {
+      "id": "DER-BOOTSTRAP-06",
+      "enonce": "Les quatre tirages sont exactement les 2^2 = 4 tirages avec remise de taille 2 dans une population de 2 parents : l enumeration est exhaustive, ce qui rejoint les « tirages parents exhaustifs » de F-POWER (l.127).",
+      "verifie": true,
+      "source": "derive",
+      "avertissement": "la ligne 117 ne qualifie pas la liste d exhaustive ; elle la dit forcee"
+    }
+  ],
+  "contre_valeurs": [
+    {
+      "valeur": "1/10",
+      "source": "derive (DER-BOOTSTRAP-04)",
+      "pourquoi": "ratio obtenu si les deux bras ne suivent pas les memes indices parents ; T33.A2 doit l exclure"
+    },
+    {
+      "valeur": "[5/6, 5/6] comme intervalle",
+      "source": "derive",
+      "pourquoi": "resultat si le quantile interpolait vers le centre au lieu de la convention inverse ; contredit [1/2, 9/10] (l.117)"
+    },
+    {
+      "valeur": "bande etiquetee « simultanee »",
+      "cahier_line": 443,
+      "pourquoi": "T33.A7 : les bandes ponctuelles ne sont jamais etiquetees simultanees"
+    }
+  ],
+  "conventions": [
+    {
+      "texte": "Le bootstrap principal reechantillonne les moyennes par parent ; une variante hierarchique devient une methode distincte declaree.",
+      "cahier_line": 445,
+      "portee": "T33, fixe le niveau de reechantillonnage"
+    },
+    {
+      "texte": "Une sortie deterministe n implique pas une couverture frequentiste garantie.",
+      "cahier_line": 445,
+      "portee": "T33"
+    },
+    {
+      "texte": "Les graines sont derivees par identifiants et flux (scenario, workload, assignment, bootstrap).",
+      "cahier_line": 82,
+      "portee": "§E ; ici sans effet, la liste de tirages etant forcee"
+    }
+  ],
+  "ambiguites": [
+    {
+      "id": "AMB-BOOTSTRAP-01",
+      "statut": "NON_TRANCHE",
+      "point": "« Les deux projets precedents » (l.117) designe-t-il F-CLUSTERS (l.115) ou F-COST-RATIO (l.113) ?",
+      "pourquoi": "Les deux fixtures precedentes portent les memes couts par projet (10/20 et 90/100), donc les quatre ratios sont identiques sous les deux lectures. Elles different par les repetitions : F-CLUSTERS donne dix repetitions a P1, F-COST-RATIO n en mentionne aucune.",
+      "cahier_lines": [
+        117,
+        115,
+        113,
+        445
+      ],
+      "consequence_si_mal_tranche": "Aucune des valeurs enoncees ne change ; le risque porte sur la definition de la variante hierarchique, que la ligne 445 declare comme methode distincte."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-02",
+      "statut": "NON_TRANCHE",
+      "point": "La formule d index du quantile empirique inverse n est pas ecrite.",
+      "pourquoi": "La ligne 117 nomme la convention et en donne le RESULTAT sur cette liste ([1/2, 9/10]), mais pas la regle d index (plancher, plafond, interpolation). Sur quatre valeurs, plusieurs regles usuelles rendent [min, max] et sont donc indistinguables ici. La ligne 445 dit que la convention est archivee par T33, donc hors §F.",
+      "cahier_lines": [
+        117,
+        445
+      ],
+      "consequence_si_mal_tranche": "La fixture ne peut pas servir a valider la regle d index elle-meme ; un cas qui pretendrait le faire depasserait ce que le cahier epingle."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-03",
+      "statut": "NON_TRANCHE",
+      "point": "Le cahier n indique pas si les quatre ratios doivent etre rendus dans l ordre de la liste de tirages ou tries.",
+      "pourquoi": "La ligne 117 donne [1/2, 5/6, 5/6, 9/10], qui est a la fois l ordre des tirages enonces et l ordre trie : les deux lectures coincident sur cette liste et ne peuvent pas etre distinguees par elle.",
+      "cahier_lines": [
+        117,
+        82
+      ],
+      "consequence_si_mal_tranche": "L ordre des tableaux est conserve dans les octets canoniques (l.82) ; deux implementations differant sur ce point auraient des empreintes differentes sans qu aucune valeur enoncee ne les separe."
+    },
+    {
+      "id": "AMB-BOOTSTRAP-04",
+      "statut": "NON_TRANCHE",
+      "point": "L intervalle enonce coincide avec l etendue [min, max] des quatre ratios.",
+      "pourquoi": "Sur quatre valeurs, toute convention de quantile qui ne coupe aucune queue rend [min, max]. La ligne 117 ne permet donc pas de distinguer « quantiles 2,5 %–97,5 % » de « etendue complete ». Le cahier previent d ailleurs que la fixture « valide le calcul, pas une couverture ».",
+      "cahier_lines": [
+        117
+      ],
+      "consequence_si_mal_tranche": "Une implementation qui rendrait toujours [min, max] passerait ce cas sans implementer aucun quantile ; T33.A1 seul ne l attraperait pas."
+    }
+  ],
+  "controles_reexecutes": {
+    "pin_du_cahier": "sha256(docs/cahier.md) = d5b1c356... identique a docs/CAHIER_SHA256 et a cases.lock.json.cahier_sha256 — verifie cette ronde",
+    "recensement": "grep -o 'F-[A-Z][A-Z-]*' docs/cahier.md : 10 fixtures distinctes, aucune autre F-*. Bornes de la §F : l.101 (titre) a l.129, l.131 ouvre la §G.",
+    "citations": "les 59 citations de consommateurs ont ete appariees au registre verification/cases.lock.json : les 59 existent et portent TOUTES la meme cahier_line que le registre. Balayage inverse : aucun cas du registre ne nomme une fixture sans figurer dans ses consommateurs.",
+    "lignes_citees": "toutes les cahier_line citees par les 10 fichiers (28, 63, 67, 68, 69, 71, 72, 73, 80, 82, 88, 97, 103-129, 165, 189-251, 295-303, 427-473, 491-495) ont ete affichees et relues cette ronde",
+    "numeriques": "48 controles executes en arithmetique rationnelle exacte (fractions.Fraction), 48 OK, 0 FAIL",
+    "unites": "sed -n '<n>p' docs/cahier.md | grep -c 'micro-USD' rend 1 pour l.103 et 0 pour l.105, l.113, l.115, l.121 et l.127 — re-execute cette ronde"
+  },
+  "corrections_de_la_ronde": []
+}

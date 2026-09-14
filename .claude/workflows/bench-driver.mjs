@@ -602,6 +602,43 @@ Boucle : implemente, \`node tools/bench verify:task ${T}\`, corrige, recommence.
 ok=true seulement quand la commande sort en 0 avec reason=PASS et les six cas
 verts. Commit Bench-Role: implementer, puis push.`
 
+const arbitragePrompt = (T, refus) => `${BASE}
+
+ROLE : test-author. ETAGE ARBITRAGE, tache ${T}.
+
+L'implementeur a REFUSE d'aller plus loin en nommant un defaut dans TA zone.
+Il n'avait pas le droit d'y toucher, et il a bien fait de s'arreter. Voici son
+refus, verbatim :
+
+  etat   : ${refus.state ?? '(sans etat)'}
+  detail : ${(refus.detail ?? '(sans detail)').slice(0, 1200)}
+
+DEUX ISSUES, ET AUCUNE AUTRE.
+
+1. IL A RAISON — le cas est defectueux. Corrige-le, et corrige la CAUSE, pas le
+   symptome. Le piege observe deux fois (T12.A2, T20.A7) est le cas VACUEUX :
+   un test qui OBSERVE un resultat sans l'EXIGER, ou dont le controle de
+   non-vacuite ne peut pas conclure. Verifie que le cas corrige distingue
+   vraiment l'implementation correcte de l'incorrecte.
+
+2. IL A TORT — le cas est juste, c'est son implementation qui ne l'est pas.
+   Alors REFUTE : cite la ligne du cahier et l'assertion exacte qui le
+   contredisent, ne touche a rien, et rends ok=false avec ce motif. Un cas
+   correct ne se plie pas parce qu'un implementeur bute dessus.
+
+CE QUE TU NE PEUX PAS FAIRE, ET QUI SERA DETECTE MECANIQUEMENT : retirer un cas
+requis, baisser une empreinte d'assertions, assouplir une assertion pour la
+rendre satisfiable. Les cas requis et les empreintes ne peuvent que CROITRE ; le
+verificateur leve ACCEPTANCE_WEAKENED, et \`bench accept\` refait toute la porte
+en clean-room de toute facon. Tu ne gagnes rien a ceder, tu perds la preuve.
+
+Tu ne touches PAS a l'implementation : ce n'est pas ta zone, et ce serait
+exactement le biais que la partition existe pour rendre impossible.
+
+Zones : ACCEPTANCE, MUTANT, GENERATOR. Commit Bench-Role: test-author, puis push.
+Rends ok=true si tu as CORRIGE (la tache repartira a l'implementation au tour
+suivant), ok=false si tu REFUTES — avec la citation qui le prouve.`
+
 const gatesPrompt = (T) => `${BASE}
 
 ETAGE GATES, tache ${T}. Tu n'implementes rien, tu executes les portes.
@@ -869,7 +906,7 @@ const results = await pipeline(
   // corrompue a 341 detectee ») ne peut pas rougir : acceptance/reference/**
   // n'existe pas, et l'implementeur n'a pas le droit de l'ecrire.
   (prev, T) =>
-    prev?.ok === false
+    !prev?.ok
       ? null
       : agent(fixtureGuardPrompt(T), { label: `fixtures:${T}:gel`, phase: 'Fixtures', schema: OUTCOME, model: MODELE }).then((g) => {
           // COURT-CIRCUIT. Racine deja gelee et intacte : il n'y a rien a
@@ -891,12 +928,44 @@ const results = await pipeline(
           return agent(fixtureSealPrompt(T), { label: `fixtures:${T}:scellement`, phase: 'Fixtures', schema: OUTCOME, model: MODELE })
         })
         }),
-  (prev, T) => (prev?.ok === false ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE })),
-  (prev, T) => (prev?.ok === false ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME, model: MODELE })),
-  (prev, T) => (prev?.ok === false ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME, model: MODELE })),
-  (prev, T) => (prev?.ok === false ? null : agent(gatesPrompt(T), { label: `gates:${T}`, phase: 'Audit', schema: OUTCOME, model: MODELE })),
+  (prev, T) => (!prev?.ok ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE })),
+  (prev, T) => (!prev?.ok ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME, model: MODELE })),
+  (prev, T) => (!prev?.ok ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME, model: MODELE })),
+  // ARBITRAGE — UN REFUS QUI NOMME UNE AUTRE ZONE DOIT AVOIR UNE SORTIE.
+  //
+  // Observe trois fois : T31 (ACCEPTANCE_ID_MISMATCH), T20.A7 (« defaut dans le
+  // script fixture d'acceptance/T20.spec.ts »), et avant elles T12.A2. Dans les
+  // trois cas l'implementeur a eu RAISON de refuser — le test qui le juge n'est
+  // pas sa zone — mais son refus n'allait nulle part : l'etage suivant est mort,
+  // et l'etage TESTS du tour suivant, idempotent, voit le fichier present et ne
+  // le rouvre pas. La tache restait bloquee indefiniment sur un defaut identifie.
+  //
+  // Cet etage ne se declenche QUE si la cause nommee tombe dans une zone de
+  // JUGEMENT. Un refus d'implementation ordinaire (service absent, cas rouge de
+  // son propre fait) passe tout droit et reste un echec.
+  //
+  // IL NE PEUT PAS AFFAIBLIR : le test-author ne peut que corriger un defaut ou
+  // REFUTER la reclamation, jamais retirer ni assouplir un cas — la monotonie
+  // reste verifiee mecaniquement, et `bench accept` refait toute la porte.
+  (prev, T) => {
+    if (!prev) return null
+    if (prev.ok) return prev
+    const cause = `${prev.state ?? ''} ${prev.detail ?? ''}`
+    const zoneDeJugement = /ACCEPTANCE|MUTANT|REFERENCE|GENERATOR|\.spec\.|analysis\/tests\//i.test(cause)
+    if (!zoneDeJugement) return prev
+    log(`ARBITRAGE ${T} : le refus nomme une zone de jugement, il est renvoye a son proprietaire.`)
+    return agent(arbitragePrompt(T, prev), { label: `arbitrage:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE }).then(
+      (a) => ({
+        ok: false, // la tache n'est PAS finie : elle repartira a l'etage IMPL au tour suivant
+        state: a?.ok ? 'ARBITRE_RELANCER_IMPL' : 'ARBITRAGE_SANS_ISSUE',
+        detail: `${prev.state} -> ${a?.state ?? 'aucun retour de l arbitre'} | ${a?.detail ?? ''}`.slice(0, 900),
+        pushed: a?.pushed ?? false,
+      })
+    )
+  },
+  (prev, T) => (!prev?.ok ? null : agent(gatesPrompt(T), { label: `gates:${T}`, phase: 'Audit', schema: OUTCOME, model: MODELE })),
   (prev, T) =>
-    prev?.ok === false
+    !prev?.ok
       ? null
       : parallel(
           AUDITORS.map((a) => () =>
@@ -942,7 +1011,7 @@ const results = await pipeline(
             ? { ok: false, state: 'AUDIT_BLOCKED', detail: blocking.flatMap((v) => v.violations).join(' | '), auditors: who, pushed: true }
             : { ok: true, state: 'AUDIT_CLEAR', detail: `${votes.length} auditeurs (${who}), aucun blocage citable`, auditors: who, pushed: true }
         }),
-  (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME, model: MODELE }))
+  (prev, T) => (!prev?.ok ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME, model: MODELE }))
 )
 
 // UN SEUL SETTLE PAR TOUR. Mesure : le tour wvdl6j5k5 a dure 156 min pour +2

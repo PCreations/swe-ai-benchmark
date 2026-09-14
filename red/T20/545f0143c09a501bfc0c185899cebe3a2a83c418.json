@@ -1,0 +1,90 @@
+{
+  "schema": "bench.red/1",
+  "task": "T20",
+  "subject_commit": "545f0143c09a501bfc0c185899cebe3a2a83c418",
+  "dirty": true,
+  "input_digest": "731ff0b6f02224897f37e939fbbf89c994afda5435c4a3c4a7d20f2e851e16e9",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T20.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M1",
+      "note": "Fusion de la copie privee de fichiers dans developerFilesDir avant destruction (variante (b) du mutant) -- verifie sur HEAD: verdict de A1 devient ROUGE (assertion sentinel-absente-des-fichiers), A2-A7 restent VERTS ; mutation appliquee puis restauree par git checkout."
+    },
+    {
+      "id": "T20.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M2",
+      "note": "verdicts[].passed lit candidateReportedVerdicts en priorite sur res.exitCode -- verifie sur HEAD: A2 devient ROUGE (echec-reel-preserve), A1/A3-A7 restent VERTS ; mutation appliquee puis restauree."
+    },
+    {
+      "id": "T20.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M3",
+      "note": "listEvaluationScenarioIds ignore kind et renvoie l'union des deux jeux -- verifie sur HEAD: A3 devient ROUGE (jeux-disjoints), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    {
+      "id": "T20.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M4",
+      "note": "boundedFeedback inclut le hiddenFilePath d'un cas NON operationnel -- verifie sur HEAD: A4 devient ROUGE (fichier-cache-non-revele), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    {
+      "id": "T20.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M5",
+      "note": "verdicts renvoye vide des que hiddenTests.length>2 (seuil cible A5 qui en fournit 7, sans toucher A1/A2/A4 qui en fournissent <=2) -- verifie sur HEAD: A5 devient ROUGE (sept-verdicts-produits), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    {
+      "id": "T20.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M6",
+      "note": "simulateTruncatedExecution renvoie desormais status COMPLETED au lieu d'EVALUATION_INCOMPLETE -- verifie sur HEAD: A6 devient ROUGE (execution-tronquee-non-declaree-complete), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    {
+      "id": "T20.A7",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M7",
+      "note": "Suppression de la regle nft 'drop' finale dans packages/sandbox/src/net.ts (createSandboxNetwork) -- l'egress ouvert deborde alors allowedEgress -- verifie sur HEAD: A7 devient ROUGE (zero-reception-sentinelle sur au moins un talon interdit), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    }
+  ],
+  "mutation_proof": {
+    "T20.A1": {
+      "killed_by": "T20.M1",
+      "note": "Fusion de la copie privee de fichiers dans developerFilesDir avant destruction (variante (b) du mutant) -- verifie sur HEAD: verdict de A1 devient ROUGE (assertion sentinel-absente-des-fichiers), A2-A7 restent VERTS ; mutation appliquee puis restauree par git checkout."
+    },
+    "T20.A2": {
+      "killed_by": "T20.M2",
+      "note": "verdicts[].passed lit candidateReportedVerdicts en priorite sur res.exitCode -- verifie sur HEAD: A2 devient ROUGE (echec-reel-preserve), A1/A3-A7 restent VERTS ; mutation appliquee puis restauree."
+    },
+    "T20.A3": {
+      "killed_by": "T20.M3",
+      "note": "listEvaluationScenarioIds ignore kind et renvoie l'union des deux jeux -- verifie sur HEAD: A3 devient ROUGE (jeux-disjoints), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    "T20.A4": {
+      "killed_by": "T20.M4",
+      "note": "boundedFeedback inclut le hiddenFilePath d'un cas NON operationnel -- verifie sur HEAD: A4 devient ROUGE (fichier-cache-non-revele), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    "T20.A5": {
+      "killed_by": "T20.M5",
+      "note": "verdicts renvoye vide des que hiddenTests.length>2 (seuil cible A5 qui en fournit 7, sans toucher A1/A2/A4 qui en fournissent <=2) -- verifie sur HEAD: A5 devient ROUGE (sept-verdicts-produits), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    "T20.A6": {
+      "killed_by": "T20.M6",
+      "note": "simulateTruncatedExecution renvoie desormais status COMPLETED au lieu d'EVALUATION_INCOMPLETE -- verifie sur HEAD: A6 devient ROUGE (execution-tronquee-non-declaree-complete), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    },
+    "T20.A7": {
+      "killed_by": "T20.M7",
+      "note": "Suppression de la regle nft 'drop' finale dans packages/sandbox/src/net.ts (createSandboxNetwork) -- l'egress ouvert deborde alors allowedEgress -- verifie sur HEAD: A7 devient ROUGE (zero-reception-sentinelle sur au moins un talon interdit), les six autres cas restent VERTS ; mutation appliquee puis restauree."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

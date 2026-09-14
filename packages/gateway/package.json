@@ -1,0 +1,21 @@
+{
+  "name": "@bench/gateway",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Passerelle modele : journal durable d'appel, fournisseur factice avec compteurs, idempotence logique et endpoint de reconciliation (cahier L299-L306, tache T17).",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@bench/contracts": "workspace:*"
+  }
+}

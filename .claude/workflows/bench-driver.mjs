@@ -945,7 +945,32 @@ const results = await pipeline(
   (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME, model: MODELE }))
 )
 
-const settle = await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME, model: MODELE })
+// UN SEUL SETTLE PAR TOUR. Mesure : le tour wvdl6j5k5 a dure 156 min pour +2
+// taches, contre ~57 min auparavant. Cause : le settle tournait DEUX fois — le
+// prealable que j'ai ajoute, puis celui-ci — et chaque settle re-atteste toutes
+// les taches perimees, une par une, en clean-room. A 24 taches prouvees, c'est
+// ~50 min par settle, et ca croit lineairement avec l'avancement.
+//
+// POURQUOI LE PREALABLE GAGNE. Sans lui, la frontiere se reduit a [T00] et le
+// tour entier est perdu (mesure deux fois : wn10qcob3, wk0hxjdj6). Sans
+// celui-ci, on perd seulement l'AFFICHAGE : le tableau reste a 0/44 en fin de
+// tour, et le prealable du tour suivant le retablit. Les attestations, elles,
+// sont deja ecrites et poussees sur le ledger — c'est la mesure durable, et
+// elle ne decroit pas.
+//
+// Rien n'est affaibli : `bench accept` reste la seule fabrique d'attestations
+// et refait toute la porte en clean-room. Le settle ne fabrique aucun verdict,
+// il ne fait que RAPPELER accept sur des taches perimees.
+//
+// CE QUI REND LE COUT QUADRATIQUE, et qu'on ne peut pas corriger sans mentir :
+// chaque nouvelle tache ajoute un paquet, donc touche pnpm-lock.yaml et
+// tsconfig.json — deux chemins GLOBAUX. Mesure sur 53e32b4 (squelette T19).
+// Les 44 taches se reperiment donc a chaque tache livree. C'est correct : le
+// lockfile determine le code qui s'execute, donc une preuve anterieure ne lie
+// plus HEAD. Le prix est reel et il est le bon.
+const settle = perimeesAuDepart.length
+  ? { ok: true, state: 'SETTLE_DEJA_FAIT_EN_DEBUT_DE_TOUR', detail: 'le tableau se remettra a jour au prealable du tour suivant ; le ledger est deja a jour' }
+  : await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME, model: MODELE })
 
 // L'issue rendue ici est un COMPTE RENDU, pas une preuve. La seule preuve est
 // ce que `bench resume` recalcule depuis les objets git au prochain appel.

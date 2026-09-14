@@ -113,9 +113,10 @@
     },
     "temporal-test-server": {
       "trust": "tofu",
-      "version": null,
-      "sha256": null,
-      "note": "PRE-TELECHARGE obligatoirement. Un telechargement paresseux depuis la suite de tests ferait passer T24.A2 pour la mauvaise raison et serait perdu au recyclage du conteneur."
+      "version": "1.38.0",
+      "sha256": "41df834fe8e1ac59619e13908f41b63e4d1054f37634a2f89033d8cf6af71b96",
+      "note": "PRE-TELECHARGE obligatoirement. Un telechargement paresseux depuis la suite de tests ferait passer T24.A2 pour la mauvaise raison et serait perdu au recyclage du conteneur. Meme hote officiel que temporal-cli ; les releases GitHub de temporalio/sdk-java sont inaccessibles depuis cet environnement (403 au proxy, mesure). L'URL 'latest' n'est pas reproductible : la version resolue et son sha256 sont figes ici des la premiere resolution. Binaire natif GraalVM : son premier argument est le PORT, pas une option.",
+      "url": "https://temporal.download/temporal-test-server/archive/latest?platform=linux&arch=amd64"
     }
   },
   "moved_from": "infra/toolchain.lock.json",

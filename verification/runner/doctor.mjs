@@ -34,6 +34,32 @@ const trySh = (cmd, opts = {}) => {
   }
 }
 
+/**
+ * BENCH_HOME — RESOLU SUR LA RACINE GIT PARTAGEE, pas sur le worktree.
+ *
+ * Il valait `process.env.BENCH_HOME ?? '/bench'` : le chemin du devcontainer,
+ * alors que `infra/bootstrap/lib.sh` et `tools/svc.mjs` posent les binaires
+ * dans `<racine>/.bench/home`. La sonde `temporal-timeskip` cherchait donc son
+ * binaire la ou personne ne l'ecrit — mesure : bootstrap OK, sonde ABSENT.
+ *
+ * `--git-common-dir` et non `--show-toplevel` : dans le clean-room, `bench
+ * doctor` tourne depuis un worktree DETACHE, qui n'a pas de `.bench/`. Les
+ * capacites sont des proprietes de l'HOTE (binaires telecharges, services
+ * demarres), pas du worktree. C'est exactement la correction que T14 a du
+ * faire pour son service S3 (commit aeb027a) ; le meme piege etait ici.
+ */
+const benchHome = () => {
+  const declare = process.env.BENCH_HOME
+  if (declare) return declare
+  const commun = trySh('git rev-parse --git-common-dir')
+  if (commun.ok && commun.out.trim()) {
+    const g = commun.out.trim()
+    const abs = g.startsWith('/') ? g : `${R}/${g}`
+    return `${abs.replace(/\/\.git\/?$/, '')}/.bench/home`
+  }
+  return `${R}/.bench/home`
+}
+
 export function bootId() {
   try {
     return readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim()
@@ -114,13 +140,44 @@ const probes = {
   // Le serveur de test à saut de temps doit être PRÉ-TÉLÉCHARGÉ : le laisser se
   // télécharger paresseusement ferait passer le test de replay de T24 pour la
   // mauvaise raison, et perdrait le cache au recyclage du conteneur.
+  /**
+   * ELLE DEMARRE LE SERVEUR, elle ne regarde plus si un fichier existe.
+   *
+   * `existsSync` acceptait un binaire tronque, corrompu, ou compile pour une
+   * autre architecture. La regle du plan est explicite : `bench doctor` EXECUTE
+   * chaque capacite, il ne teste pas la presence d'un fichier. C'etait la
+   * derniere sonde a ne pas la respecter.
+   *
+   * CE QU'ELLE NE PROUVE PAS, et qu'il faut dire : elle verifie que le serveur
+   * demarre et accepte une connexion, PAS qu'il saute reellement 24 h en moins
+   * d'une seconde. Ce saut demande un client gRPC Temporal, qui est un livrable
+   * de T24 — et c'est T24.A2 elle-meme qui doit le prouver, pas une sonde.
+   * La sonde ferme le cas « binaire absent ou inerte », pas « saut incorrect ».
+   *
+   * Premier argument = LE PORT. Ce binaire natif GraalVM n'a pas d'options :
+   * `--help` lui fait lever un NumberFormatException (mesure).
+   */
   'temporal-timeskip'() {
-    const p = process.env.TEMPORAL_TEST_SERVER ?? `${process.env.BENCH_HOME ?? '/bench'}/bin/temporal-test-server`
-    return existsSync(p)
-      ? PRESENT(`binaire pre-telecharge : ${p}`)
+    const bin = process.env.TEMPORAL_TEST_SERVER ?? `${benchHome()}/bin/temporal-test-server`
+    const REMEDE = 'bash infra/bootstrap/40-temporal.sh'
+    if (!existsSync(bin))
+      return ABSENT('serveur de test a saut de temps absent (un telechargement paresseux invaliderait T24.A2)', REMEDE)
+    // Port ephemere tire au hasard : deux sondes concurrentes ne doivent pas se
+    // disputer un port fixe, et un service deja la ne doit pas faire passer la
+    // sonde a sa place.
+    const port = 20000 + Math.floor(Math.random() * 20000)
+    const r = trySh(
+      `"${bin}" ${port} >/tmp/tts-probe-${port}.log 2>&1 & TTS=$!; ` +
+        `for i in $(seq 1 30); do sleep 0.5; ` +
+        `if (exec 3<>/dev/tcp/127.0.0.1/${port}) 2>/dev/null; then exec 3<&-; echo ECOUTE $i; break; fi; done; ` +
+        `kill $TTS 2>/dev/null; wait $TTS 2>/dev/null; true`,
+      { shell: '/bin/bash' }
+    )
+    return /ECOUTE/.test(r.out ?? '')
+      ? PRESENT(`serveur de test demarre et accepte une connexion sur ${port} (${(r.out.match(/ECOUTE (\d+)/) ?? [])[1] ?? '?'} x 0,5 s)`)
       : ABSENT(
-          'serveur de test a saut de temps absent (un telechargement paresseux invaliderait T24.A2)',
-          'infra/bootstrap/40-temporal.sh --with-test-server'
+          `le binaire est present mais n'ecoute pas : ${(r.out ?? '').trim().split('\n').pop()?.slice(0, 120) || 'aucune sortie'}`,
+          REMEDE
         )
   },
 

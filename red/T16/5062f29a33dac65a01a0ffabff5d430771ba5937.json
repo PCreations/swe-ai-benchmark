@@ -1,0 +1,54 @@
+{
+  "schema": "bench.red/1",
+  "task": "T16",
+  "subject_commit": "5062f29a33dac65a01a0ffabff5d430771ba5937",
+  "dirty": false,
+  "input_digest": "02e34a2a405cce1310f35c8380fb9a37b11c5f42d2e59fc5983739417aa8477c",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T16.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T16.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T16.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T16.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T16.A5",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T16.A6",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T16.A7",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {},
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

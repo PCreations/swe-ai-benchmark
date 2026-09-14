@@ -1,0 +1,90 @@
+{
+  "schema": "bench.red/1",
+  "task": "T34",
+  "subject_commit": "8beb0a3975da748b49e6c80e10a437f6c4e51c48",
+  "dirty": true,
+  "input_digest": "5c85ef8c41470902ac766c477280627d9a8ee9853e4b2ba7ed89371082fc4b7b",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T34.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M1",
+      "note": "Mutant applique reellement sur analysis/src/decision.py (evaluate_contrast remplacee par un retour constant INCONCLUSIVE/False). Suite relancee via node tools/bench verify:task T34 : T34.A1 vire rouge, AssertionError sur result[admissible] is True -> False is True (test_T34.py:154). T34.A2, A3, A4, A5, A7 virent rouges collateralement (leur controle de capacite exige un verdict SUPERIOR reel), T34.A6 reste vert. 6 echecs, 1 succes observes. Fichier restaure a l identique (md5 verifie) apres observation."
+    },
+    {
+      "id": "T34.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M2",
+      "note": "Mutant applique reellement (cost_superior : ratio_upper_bound < 1 remplace par <= 1). Suite relancee : seuls T34.A1 et T34.A2 virent rouges (2 echecs, 5 succes), exactement comme annonce par tue_aussi. T34.A2 echoue sur result[cost_superior] is False -> True is False (test_T34.py:202). Fichier restaure a l identique apres observation."
+    },
+    {
+      "id": "T34.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M3",
+      "note": "Mutant applique reellement (v_non_inferior : delta_v_lower_bound > -margin remplace par >= -margin). Suite relancee : seul T34.A3 vire rouge (1 echec, 6 succes). Echec observe sur result[v_non_inferior] is False -> True is False (test_T34.py:230). Fichier restaure a l identique apres observation."
+    },
+    {
+      "id": "T34.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M4",
+      "note": "Mutant applique reellement (u_non_inferior retire de la conjonction qui calcule superior). Suite relancee : seul T34.A4 vire rouge (1 echec, 6 succes). Echec observe sur result[superior] is False -> True is False (test_T34.py:268), alors que u_non_inferior reste correctement False. Fichier restaure a l identique apres observation."
+    },
+    {
+      "id": "T34.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M5",
+      "note": "Mutant applique reellement (admissible remplace par la constante True). Suite relancee : seul T34.A5 vire rouge (1 echec, 6 succes). Echec observe sur unknown_accounting[admissible] is False -> True is False (test_T34.py:296). Fichier restaure a l identique apres observation."
+    },
+    {
+      "id": "T34.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M6",
+      "note": "Mutant applique reellement (interval_count = 3*num_contrasts remplace par 3*num_contrasts - 1). Suite relancee : seul T34.A6 vire rouge (1 echec, 6 succes). Echec observe sur result[interval_count] == 6 -> 5 == 6 faux (test_T34.py:329). Fichier restaure a l identique apres observation."
+    },
+    {
+      "id": "T34.A7",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T34.M7",
+      "note": "Mutant applique reellement (not has_critical_violation retire de la conjonction qui calcule superior). Suite relancee : seul T34.A7 vire rouge (1 echec, 6 succes). Echec observe sur blocked[superior] is False -> True is False (test_T34.py:371), alors que critical_violation_blocks reste correctement True. Fichier restaure a l identique apres observation."
+    }
+  ],
+  "mutation_proof": {
+    "T34.A1": {
+      "killed_by": "T34.M1",
+      "note": "Mutant applique reellement sur analysis/src/decision.py (evaluate_contrast remplacee par un retour constant INCONCLUSIVE/False). Suite relancee via node tools/bench verify:task T34 : T34.A1 vire rouge, AssertionError sur result[admissible] is True -> False is True (test_T34.py:154). T34.A2, A3, A4, A5, A7 virent rouges collateralement (leur controle de capacite exige un verdict SUPERIOR reel), T34.A6 reste vert. 6 echecs, 1 succes observes. Fichier restaure a l identique (md5 verifie) apres observation."
+    },
+    "T34.A2": {
+      "killed_by": "T34.M2",
+      "note": "Mutant applique reellement (cost_superior : ratio_upper_bound < 1 remplace par <= 1). Suite relancee : seuls T34.A1 et T34.A2 virent rouges (2 echecs, 5 succes), exactement comme annonce par tue_aussi. T34.A2 echoue sur result[cost_superior] is False -> True is False (test_T34.py:202). Fichier restaure a l identique apres observation."
+    },
+    "T34.A3": {
+      "killed_by": "T34.M3",
+      "note": "Mutant applique reellement (v_non_inferior : delta_v_lower_bound > -margin remplace par >= -margin). Suite relancee : seul T34.A3 vire rouge (1 echec, 6 succes). Echec observe sur result[v_non_inferior] is False -> True is False (test_T34.py:230). Fichier restaure a l identique apres observation."
+    },
+    "T34.A4": {
+      "killed_by": "T34.M4",
+      "note": "Mutant applique reellement (u_non_inferior retire de la conjonction qui calcule superior). Suite relancee : seul T34.A4 vire rouge (1 echec, 6 succes). Echec observe sur result[superior] is False -> True is False (test_T34.py:268), alors que u_non_inferior reste correctement False. Fichier restaure a l identique apres observation."
+    },
+    "T34.A5": {
+      "killed_by": "T34.M5",
+      "note": "Mutant applique reellement (admissible remplace par la constante True). Suite relancee : seul T34.A5 vire rouge (1 echec, 6 succes). Echec observe sur unknown_accounting[admissible] is False -> True is False (test_T34.py:296). Fichier restaure a l identique apres observation."
+    },
+    "T34.A6": {
+      "killed_by": "T34.M6",
+      "note": "Mutant applique reellement (interval_count = 3*num_contrasts remplace par 3*num_contrasts - 1). Suite relancee : seul T34.A6 vire rouge (1 echec, 6 succes). Echec observe sur result[interval_count] == 6 -> 5 == 6 faux (test_T34.py:329). Fichier restaure a l identique apres observation."
+    },
+    "T34.A7": {
+      "killed_by": "T34.M7",
+      "note": "Mutant applique reellement (not has_critical_violation retire de la conjonction qui calcule superior). Suite relancee : seul T34.A7 vire rouge (1 echec, 6 succes). Echec observe sur blocked[superior] is False -> True is False (test_T34.py:371), alors que critical_violation_blocks reste correctement True. Fichier restaure a l identique apres observation."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

@@ -369,5 +369,15 @@ def test_T31_A7_mixing_recorded_costs_into_a_live_report_is_rejected():
     export.validate_mode_consistency(live_genuine_report)
     export.validate_mode_consistency(recorded_genuine_report)
 
-    with pytest.raises(export.ModeConflictError):
+    with pytest.raises(export.ModeConflictError) as exc_info:
         export.validate_mode_consistency(mixed_report)
+
+    # cahier:L24 -- « un rapport reel ne peut contenir des couts fictifs sans
+    # etre rejete » : l'erreur doit nommer CE QUI est refuse (les deux valeurs
+    # de mode en conflit), pas seulement lever. `pytest.raises` seul ne compte
+    # aucune assertion (le hook pytest_assertion_pass ne se declenche que sur
+    # une instruction `assert`) et n'affirme pas ce qui est refuse -- ces deux
+    # `assert` explicites observent le contenu du message d'erreur.
+    conflict_message = str(exc_info.value)
+    assert mixed_report["execution_mode"] in conflict_message
+    assert mixed_report["cost_origin"] in conflict_message

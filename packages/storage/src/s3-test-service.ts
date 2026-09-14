@@ -47,6 +47,7 @@
 // pas doit se voir, pas se deviner.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { execFileSync } from 'node:child_process'
 import * as fs from 'node:fs'
 import * as http from 'node:http'
 import * as path from 'node:path'
@@ -88,6 +89,37 @@ const ADMIN_TIMEOUT_MS = 30_000
 
 /* ────────────────────────── localisation du socle ───────────────────────── */
 
+/**
+ * La racine du dépôt PARTAGÉE par tous les arbres de travail (`git worktree`)
+ * d'un même clone : le parent du `.git` COMMUN, jamais le sommet du seul arbre
+ * courant.
+ *
+ * Pourquoi cette distinction compte ici précisément : le service S3 de test
+ * local est provisionné UNE fois sur l'hôte, sous `<racine>/.bench/home` de
+ * l'arbre de travail principal — ce répertoire est listé dans `.gitignore`
+ * (ADR-005 §6) et n'existe donc que là. `bench verify:task` et `bench accept`
+ * s'exécutent, eux, dans un `git worktree add --detach` NEUF (cahier §K : une
+ * preuve se rejoue en clean-room). `git rev-parse --show-toplevel` y rendrait
+ * le sommet de CET arbre détaché, jamais provisionné — la découverte manquerait
+ * un service pourtant bien réel et déjà en écoute, et le cas passerait au vert
+ * dans l'arbre de l'agent pour rougir en clean-room (le défaut mesuré au tour
+ * précédent sur T14). `--git-common-dir` rend le `.git` partagé entre TOUS les
+ * arbres d'un même clone, quel que soit celui d'où on l'interroge ; son parent
+ * est donc la même racine, stable, depuis n'importe quel worktree.
+ */
+function gitCommonRoot(startDir: string): string | null {
+  try {
+    const out = execFileSync(
+      'git',
+      ['rev-parse', '--path-format=absolute', '--git-common-dir'],
+      { cwd: startDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+    ).trim()
+    return out === '' ? null : path.dirname(out)
+  } catch {
+    return null
+  }
+}
+
 function repoRoot(): string {
   let dir: string
   try {
@@ -95,6 +127,10 @@ function repoRoot(): string {
   } catch {
     dir = process.cwd()
   }
+  const shared = gitCommonRoot(dir)
+  if (shared !== null) return shared
+  // Repli quand `git` est indisponible (pas de contrôle de source) : la
+  // remontée par marqueurs de fichier reste le meilleur effort.
   for (let i = 0; i < 12; i += 1) {
     if (
       fs.existsSync(path.join(dir, 'pnpm-workspace.yaml')) ||

@@ -1,0 +1,90 @@
+{
+  "schema": "bench.red/1",
+  "task": "T31",
+  "subject_commit": "dc95b380122a80e7d8cec966ffabc2eeca09a95a",
+  "dirty": false,
+  "input_digest": "2ad0df75203ceaf2c2a587b83ae653889c278d3e3268570e9f83daf6de45469e",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T31.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M1",
+      "note": "Mutation appliquee et restauree : filtre implicite des lignes a cout '0' dans export_period_results. Observe : AssertionError assert 2 == 4 sur len(exported)==expected_period_count, les 6 autres cas restent verts."
+    },
+    {
+      "id": "T31.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M2",
+      "note": "Mutation appliquee et restauree : cost_micro_usd transite par int(x)/1e6*1e6 avant str(). Observe : AssertionError \"16320.000000000002\" != \"16320\" ; collateral T31.A1 aussi rouge (ValueError sur int('100.0')), 5 autres cas verts."
+    },
+    {
+      "id": "T31.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M3",
+      "note": "Mutation appliquee et restauree : ledger_total ne somme plus que les entrees CHARGE, ignore ADJUSTMENT. Observe : AssertionError assert 680 == 640 sur ledger_total_micro_usd, les 6 autres cas restent verts."
+    },
+    {
+      "id": "T31.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M4",
+      "note": "Mutation appliquee et restauree : ligne UNKNOWN coalescee a cost_micro_usd='0' et cost_bounds=None. Observe : AssertionError assert '0' is None sur cost_micro_usd, les 6 autres cas restent verts."
+    },
+    {
+      "id": "T31.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M5",
+      "note": "Mutation appliquee et restauree : export_branch_lineage retourne total_cost_micro_usd au lieu de marginal_cost_micro_usd. Observe : AssertionError assert '12300' == '300', les 6 autres cas restent verts."
+    },
+    {
+      "id": "T31.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M6",
+      "note": "Mutation appliquee et restauree : canonical_export n'effectue plus le tri (ordered = rows). Observe : AssertionError, canonical_forward != canonical_reversed, les 6 autres cas restent verts."
+    },
+    {
+      "id": "T31.A7",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T31.M7",
+      "note": "Mutation appliquee et restauree : validate_mode_consistency devient un no-op (pass). Observe : Failed DID NOT RAISE ModeConflictError, les 6 autres cas restent verts."
+    }
+  ],
+  "mutation_proof": {
+    "T31.A1": {
+      "killed_by": "T31.M1",
+      "note": "Mutation appliquee et restauree : filtre implicite des lignes a cout '0' dans export_period_results. Observe : AssertionError assert 2 == 4 sur len(exported)==expected_period_count, les 6 autres cas restent verts."
+    },
+    "T31.A2": {
+      "killed_by": "T31.M2",
+      "note": "Mutation appliquee et restauree : cost_micro_usd transite par int(x)/1e6*1e6 avant str(). Observe : AssertionError \"16320.000000000002\" != \"16320\" ; collateral T31.A1 aussi rouge (ValueError sur int('100.0')), 5 autres cas verts."
+    },
+    "T31.A3": {
+      "killed_by": "T31.M3",
+      "note": "Mutation appliquee et restauree : ledger_total ne somme plus que les entrees CHARGE, ignore ADJUSTMENT. Observe : AssertionError assert 680 == 640 sur ledger_total_micro_usd, les 6 autres cas restent verts."
+    },
+    "T31.A4": {
+      "killed_by": "T31.M4",
+      "note": "Mutation appliquee et restauree : ligne UNKNOWN coalescee a cost_micro_usd='0' et cost_bounds=None. Observe : AssertionError assert '0' is None sur cost_micro_usd, les 6 autres cas restent verts."
+    },
+    "T31.A5": {
+      "killed_by": "T31.M5",
+      "note": "Mutation appliquee et restauree : export_branch_lineage retourne total_cost_micro_usd au lieu de marginal_cost_micro_usd. Observe : AssertionError assert '12300' == '300', les 6 autres cas restent verts."
+    },
+    "T31.A6": {
+      "killed_by": "T31.M6",
+      "note": "Mutation appliquee et restauree : canonical_export n'effectue plus le tri (ordered = rows). Observe : AssertionError, canonical_forward != canonical_reversed, les 6 autres cas restent verts."
+    },
+    "T31.A7": {
+      "killed_by": "T31.M7",
+      "note": "Mutation appliquee et restauree : validate_mode_consistency devient un no-op (pass). Observe : Failed DID NOT RAISE ModeConflictError, les 6 autres cas restent verts."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

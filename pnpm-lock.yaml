@@ -67,6 +67,9 @@ importers:
       '@bench/oracle':
         specifier: workspace:*
         version: link:../oracle
+      '@bench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
 
   packages/gateway:
     dependencies:

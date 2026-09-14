@@ -1,0 +1,21 @@
+{
+  "name": "@bench/billing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Budget et ecritures comptables atomiques : calcul tarifaire, reservations, reglement, ajustements et rapprochement (cahier L291-L298, tache T16).",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@bench/contracts": "workspace:*"
+  }
+}

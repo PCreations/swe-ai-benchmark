@@ -12,6 +12,7 @@
   "files": [],
   "references": [
     { "path": "./packages/contracts" },
+    { "path": "./packages/billing" },
     { "path": "./packages/domain" },
     { "path": "./packages/oracle" },
     { "path": "./packages/scenario" },

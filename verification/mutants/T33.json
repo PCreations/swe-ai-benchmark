@@ -1,0 +1,213 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T33 — une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.lock.json. Modele de forme repris de",
+    "verification/mutants/T00.json et verification/mutants/T32.json.",
+    "",
+    "A QUOI SERT CE FICHIER. cahier:L139 refuse la preuve qui n'observe rien :",
+    "« un programme qui ecrit seulement passed=true, un test avec zero",
+    "assertion [...] ne satisfait pas le contrat ». Chaque mutant ci-dessous",
+    "est la contre-epreuve de son cas : appliquer la mutation au module",
+    "`bootstrap` (analysis/src/bootstrap.py, zone IMPL, une fois ecrit),",
+    "relancer `pnpm verify:task T33`, exiger que le cas nomme par kills_case",
+    "devienne ROUGE.",
+    "",
+    "Les sept mutations ci-dessous ont ete VERIFIEES contre une implementation",
+    "de reference jetable du contrat pose par analysis/tests/test_T33.py",
+    "(construite et executee hors du depot, dans le cadre de ce role, puis",
+    "effacee — aucun fichier IMPL n'est committe par ce role, cf. CLAUDE.md",
+    "« regle des deux cles »). Chaque mutation a ete appliquee ISOLEMENT (une",
+    "seule a la fois) contre la suite complete des 7 cas ; les valeurs",
+    "numeriques citees dans observation_qui_echoue sont celles REELLEMENT",
+    "observees lors de cette verification (fractions exactes), pas des",
+    "valeurs supposees.",
+    "",
+    "COLLATERAUX HONNETES (tue_aussi). A la difference de T32 — dont les six",
+    "mutants sont parfaitement isoles — plusieurs cas de T33 partagent la MEME",
+    "fixture de base (F-CLUSTERS/F-BOOTSTRAP, via _clusters_rows()/_forced_draws())",
+    "et le MEME point de calcul du ratio. Une mutation reelle du coeur du",
+    "calcul (M1, M3, M5) fait donc tomber, en plus du cas qu'elle cible,",
+    "d'autres cas qui exercent le meme mecanisme sur les memes donnees. C'est",
+    "le meme phenomene que verification/mutants/T00.json::T00.M2, qui tue",
+    "explicitement T00.A4 ET T00.A5 en plus de T00.A2 via le champ",
+    "`tue_aussi` — repris ici a l'identique plutot que de fabriquer une",
+    "fixture artificiellement disjointe qui masquerait le partage reel de",
+    "code entre ces cas. `doit_rester_vert` ne liste QUE les cas verifies",
+    "verts sous cette mutation precise ; tout cas non liste et non `kills_case`",
+    "est dans `tue_aussi`.",
+    "",
+    "LA PORTE « NECESSITE » N'EST PAS UNIVERSELLE (rappel, cf. T00.json).",
+    "T33.A6 est un cas `refusal` : un stub qui leve (exception non geree)",
+    "rendrait A6 vert sans rien prouver. La perturbation correcte est donc",
+    "INVERSE : rendre l'inference interprojets PERMISSIVE (abaisser le seuil",
+    "de grappes) — verification/cases.lock.json le nomme explicitement pour ce",
+    "cas. T33.A7 est un cas `absence` : l'etiquette « simultaneous » doit",
+    "rester absente/fausse ; la perturbation qui mord est celle qui la rend",
+    "PRESENTE (vraie) sur une bande calculee ponctuellement, jamais un stub",
+    "qui leverait (ce qui empecherait meme d'observer l'etiquette).",
+    "",
+    "CONTRAT CIBLE. Les trois exports que ces mutants modifient sont ceux",
+    "poses pour la premiere fois par analysis/tests/test_T33.py :",
+    "paired_parent_bootstrap, empirical_inverse_quantile_interval,",
+    "interproject_bootstrap_interval. Aucun n'existe encore dans le depot a la",
+    "date de ce fichier (analysis/src ne contient que export.py et",
+    "aggregate.py, livres respectivement par T31 et T32)."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T33",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T33"
+  ],
+  "acceptance_entry": "analysis/tests/test_T33.py",
+  "mutant_count": 7,
+  "mutants": [
+    {
+      "id": "T33.M1",
+      "kills_case": "T33.A1",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "casser",
+      "target": "Le point de `bootstrap.empirical_inverse_quantile_interval` qui convertit un quantile q et une taille d'echantillon n en RANG (1-indexe) dans la liste triee — la convention du rang inverse (cahier:L117, L443).",
+      "mutation": "Remplacer le rang de la borne inferieure par `ceil(q * n) + 1` au lieu de `ceil(q * n)`, sans toucher au rang de la borne superieure ni a aucun autre point du calcul (ni aux ratios, ni au tri).",
+      "expected_effect": "T33.A1 devient rouge ; T33.A6 (controle de capacite \"deux grappes\") devient rouge aussi, car il appelle le meme export sur la meme fixture — voir tue_aussi.",
+      "observation_qui_echoue": "Sur la liste triee des quatre ratios F-BOOTSTRAP `[1/2, 5/6, 5/6, 9/10]`, le rang correct de la borne inferieure (2,5 %) est `ceil(0,025*4) = 1` -> `sorted[0] = 1/2`. Sous la mutation, le rang devient `2` -> `sorted[1] = 5/6` (mesure exacte). A1 exige `band[\"lower\"] == Fraction(1, 2)` (importe de F-BOOTSTRAP) : l'assertion echoue avec `Fraction(5, 6) == Fraction(1, 2)` faux. La borne superieure (`9/10`) reste correcte et n'est pas affectee, isolant la panne au seul rang inferieur. Les ratios eux-memes (`result[\"ratios\"]`) restent EXACTEMENT `[1/2,5/6,5/6,9/10]`, ce que le test verifie AVANT le calcul de bande : la panne est donc localisee au seul mecanisme de quantile, pas au rechantillonneur. `T33.A6` echoue par le meme mecanisme : son controle de capacite (deux grappes, healthy[\"interval\"][\"lower\"]) appelle `empirical_inverse_quantile_interval` sur la meme fixture et observe la meme valeur fautive `5/6`.",
+      "pourquoi_cette_perturbation": "A1 est un cas `numeric` qui reproduit cahier:L117/L443 : les quatre ratios exacts ET l'intervalle exact `[1/2,9/10]`. C'est EXACTEMENT la perturbation nommee par verification/cases.lock.json pour ce cas (« ceil(q*n) remplace par ceil(q*n)+1 »). Le test construit explicitement le rang correct (`math.ceil(LOWER_Q * n) == 1`, controle) et la valeur off-by-one qui en resulterait (`sorted_ratios[1] == Fraction(5,6)`, controle) avant de comparer `band[\"lower\"]` aux deux : un test qui ne comparerait `band[\"lower\"]` qu'a la valeur correcte, sans jamais construire l'alternative off-by-one, survivrait a une implementation qui, par coincidence, retomberait sur `1/2` par un autre chemin fautif compense ailleurs.",
+      "doit_rester_vert": [
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A7"
+      ],
+      "tue_aussi": [
+        "T33.A6"
+      ]
+    },
+    {
+      "id": "T33.M2",
+      "kills_case": "T33.A2",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le point de `bootstrap.paired_parent_bootstrap` qui construit `draw_manifest[\"arm_b_parent_ids\"]` : doit reutiliser EXACTEMENT la meme liste de parents tires que `arm_a_parent_ids`, jamais une derivation independante (bootstrap APPARIE, cahier:L443).",
+      "mutation": "Construire `arm_b_parent_ids` par une derivation INDEPENDANTE de celle d'`arm_a_parent_ids` — trier chaque tirage (`sorted(draw)`) au lieu de recopier `draw` tel quel — tout en laissant le calcul reel de `mean_b` (qui utilise toujours l'ensemble correct de parents, la moyenne etant insensible a l'ordre) inchange, de sorte que seul le MANIFESTE, pas les ratios, soit affecte.",
+      "expected_effect": "T33.A2 devient rouge ; les ratios (T33.A1, A3, A4, A5, A6) restent corrects car la moyenne par parent est insensible a l'ordre des identifiants au sein d'un tirage.",
+      "observation_qui_echoue": "Sur le tirage force `[P2,P1]` (troisieme entree de F-BOOTSTRAP, cahier:L117), `arm_a_parent_ids[2] == [\"P2\",\"P1\"]` (recopie directe) tandis que, sous la mutation, `arm_b_parent_ids[2] == sorted([\"P2\",\"P1\"]) == [\"P1\",\"P2\"]` (mesure exacte) : `assert manifest[\"arm_a_parent_ids\"] == manifest[\"arm_b_parent_ids\"]` echoue a l'index 2. Le second jeu de tirages forces du test (`other_draws`, incluant `[\"P2\",\"P1\"]`) reproduit la meme divergence, fermant l'echappatoire d'une implementation qui ne serait fautive que sur le jeu de tirages canonique. `result[\"ratios\"]` reste egal a `[1/2,5/6,5/6,9/10]` sous cette mutation (verifie), ce qui confirme que la panne est localisee au manifeste, pas au calcul.",
+      "pourquoi_cette_perturbation": "A2 est un cas `behaviour` qui affirme une valeur produite — les deux bras suivent EXACTEMENT les memes indices parents — et c'est la forme ou la regle universelle du stub d'export est valide : verification/cases.lock.json prescrit precisement « stuber le reechantillonneur apparie pour que le bras B tire ses indices parents depuis son propre flux ». Un test A2 qui se contenterait de verifier qu'un manifeste existe (sans comparer `arm_a_parent_ids` a `arm_b_parent_ids`, ET sans comparer l'un des deux au `draws` d'entree) survivrait a une implementation qui journalise deux manifestes recalcules independamment mais fortuitement identiques sur UN jeu de tirages particulier ; le second jeu de tirages forces (`other_draws`) dans le test ferme cette echappatoire.",
+      "doit_rester_vert": [
+        "T33.A1",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A6",
+        "T33.A7"
+      ]
+    },
+    {
+      "id": "T33.M3",
+      "kills_case": "T33.A3",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point de `bootstrap.paired_parent_bootstrap` qui calcule le ratio d'un tirage a partir de `mean_a` et `mean_b` : doit etre un ratio PUR (invariant a toute mise a l'echelle uniforme des couts), jamais une expression avec un terme additif independant de l'echelle.",
+      "mutation": "Soustraire une constante absolue (mesuree : `1`, dans l'unite des couts de la fixture) a `mean_b` avant la division, sans toucher `mean_a` ni les fixtures d'entree — l'une des deux perturbations nommees par verification/cases.lock.json pour ce cas (« arrondir [...] ou soustraire une constante absolue »).",
+      "expected_effect": "T33.A3 devient rouge sur son assertion d'invariance ; T33.A1, A4, A5 et A6 deviennent rouges aussi car ils exercent le meme point de calcul sur les memes couts non nuls — voir tue_aussi.",
+      "observation_qui_echoue": "Sur le tirage `[P1,P1]` (couts F-CLUSTERS : cost_a=10, cost_b=20), `mean_b` mute vaut `20-1=19` : le ratio devient `10/19` (mesure exacte) au lieu de `1/2` -- deja suffisant pour faire tomber A1 (`result[\"ratios\"][0] != Fraction(1,2)`) et le controle `baseline[\"ratios\"] == _expected_ratios()` d'A3 lui-meme. Sur la version mise a l'echelle par 7 (cahier:L443, A3), le meme tirage donne `mean_a=70`, `mean_b=140-1=139`, ratio `70/139` (mesure exacte) -- DIFFERENT de `10/19` : `assert scaled[\"ratios\"] == baseline[\"ratios\"]` echoue avec `Fraction(70,139) != Fraction(10,19)`, ce qui est la panne CIBLEE par ce mutant (le facteur 7 ne s'annule plus, la constante soustraite ne s'echelonnant pas avec les couts). Sur la fixture A=B (A4), `mean_a=mean_b=10` a l'entree, mais `mean_b` mute devient `9` : ratio `10/9` (mesure exacte) au lieu de `1`. Sur A5 et A6, la meme formule mutee produit les memes valeurs fautives que sur A1 pour les tirages partages.",
+      "pourquoi_cette_perturbation": "A3 est un cas `behaviour` qui affirme une invariance de valeurs produites sans qu'aucune valeur exacte ne soit fixee par le cahier a ce point precis (au-dela du fait qu'elle doive rester identique) : « multiplier tous les couts par 7 ne change ni ratio ni intervalle ». Un ratio des moyennes est structurellement invariant a une mise a l'echelle uniforme ; seule une expression avec un terme NON proportionnel a l'echelle (ici une constante additive) peut casser cette propriete sans jamais toucher la fixture -- exactement la perturbation nommee par verification/cases.lock.json. Le test compare `scaled[\"ratios\"]` a `baseline[\"ratios\"]` (et non a une valeur litterale independante), ce qui rend la panne observable meme si `baseline` lui-meme est deja fautif -- un stub renvoyant une constante fixe pour le ratio, a l'inverse, laisserait l'egalite `scaled == baseline` vraie et ne serait PAS detecte par ce cas, ce que le commentaire du cas rappelle explicitement.",
+      "doit_rester_vert": [
+        "T33.A2",
+        "T33.A7"
+      ],
+      "tue_aussi": [
+        "T33.A1",
+        "T33.A4",
+        "T33.A5",
+        "T33.A6"
+      ]
+    },
+    {
+      "id": "T33.M4",
+      "kills_case": "T33.A4",
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point de `bootstrap.paired_parent_bootstrap` qui decide de la valeur du ratio lorsque `mean_a` et `mean_b` sont EGAUX (cas degenere A=B, cahier:L443) : doit rendre exactement `Fraction(1)`, jamais une valeur proche mais differente.",
+      "mutation": "Special-caser la branche `mean_a == mean_b` pour renvoyer `Fraction(1) + Fraction(1, 1000000)` (un epsilon constant) au lieu de `Fraction(1)` exactement, en laissant intacte la branche generale `mean_a / mean_b` utilisee par tous les autres tirages ou `mean_a != mean_b`.",
+      "expected_effect": "T33.A4 devient rouge ; aucun autre cas requis n'exerce de tirage ou `mean_a == mean_b` (verifie : aucun ratio de F-BOOTSTRAP ni de sa version mise a l'echelle par 7 n'est egal a 1).",
+      "observation_qui_echoue": "Sur la fixture A=B (chaque parent a cost_a == cost_b), le premier tirage `[P1,P1]` donne `mean_a == mean_b == 10` : sous la mutation, le ratio renvoye vaut EXACTEMENT `Fraction(1000001, 1000000)` (mesure exacte) au lieu de `Fraction(1)`. A4 exige `result[\"ratios\"] == [Fraction(1)] * 4` (cahier:L443) : l'assertion echoue des le premier element avec `Fraction(1000001, 1000000) != Fraction(1, 1)`. Le controle de capacite implicite -- A1, A3, A5, A6 utilisent tous des couts ou bras A et bras B ne sont JAMAIS numeriquement egaux pour un meme parent (10 != 20, 90 != 100, et leurs mises a l'echelle) -- confirme empiriquement qu'aucun de leurs tirages ne traverse la branche mutee : les 6 autres cas restent verts.",
+      "pourquoi_cette_perturbation": "A4 est un cas `numeric` qui reproduit exactement cahier:L443 : « A=B donne tous les ratios egaux a 1 ». C'est la seule fixture des 7 cas ou `mean_a == mean_b` se produit, ce qui permet une mutation CHIRURGICALEMENT isolee a ce seul cas, verifiee empiriquement plutot que supposee. Un test A4 qui ne comparerait qu'un SEUL ratio (par exemple `result[\"ratios\"][0] == 1`) suffirait deja a detecter cette mutation precise ; le test compare neanmoins les QUATRE ratios a `[Fraction(1)]*4` pour eviter qu'une implementation ne traite correctement qu'un tirage particulier.",
+      "doit_rester_vert": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A5",
+        "T33.A6",
+        "T33.A7"
+      ]
+    },
+    {
+      "id": "T33.M5",
+      "kills_case": "T33.A5",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "Le point de `bootstrap.paired_parent_bootstrap` qui calcule la moyenne d'un bras POUR UN TIRAGE : doit moyenner les moyennes PAR PARENT deja calculees (une valeur par parent distinct, cahier:L441 « strates »), jamais pooler directement les lignes de repetition brutes des parents presents dans le tirage.",
+      "mutation": "Remplacer le calcul de la moyenne d'un tirage par un pooling BRUT : pour un tirage donne, prendre l'ENSEMBLE des `project_id` qu'il contient (dedoublonne) et moyenner TOUTES les lignes de repetition de `rows` dont le `project_id` appartient a cet ensemble, plutot que de moyenner les DEUX moyennes-par-parent deja calculees. C'est la forme de stub prescrite explicitement par verification/cases.lock.json pour ce cas (« pooler les repetitions brutes [...] au lieu de moyenner d'abord par parent »).",
+      "expected_effect": "T33.A5 devient rouge sur son controle de duplication ; T33.A1 et A3 deviennent rouges aussi des que leurs tirages melangent P1 (dix repetitions) et P2 (une repetition) -- voir tue_aussi.",
+      "observation_qui_echoue": "Sur le tirage `[P1,P2]` (F-CLUSTERS : dix lignes P1 a cost_a=10, une ligne P2 a cost_a=90), le pooling brut donne `mean_a = (10*10+90)/11 = 190/11` et `mean_b = (10*20+100)/11 = 300/11`, ratio `19/30` (mesure exacte) au lieu de `5/6` -- deja suffisant pour faire tomber A1. Le point DECISIF pour A5 est la DUPLICATION : apres avoir duplique les dix repetitions de P1 (cahier:L443, meme construction que T32.A2), le MEME tirage `[P1,P2]` donne, sous la mutation, `mean_a = (20*10+90)/21 = 290/21`, ratio `29/50` (mesure exacte) -- DIFFERENT du ratio `19/30` obtenu AVANT duplication sur la MEME liste de tirages parents : `assert duplicated[\"ratios\"] == baseline[\"ratios\"]` echoue avec `Fraction(29, 50) != Fraction(19, 30)`. Sous une implementation correcte (moyenne par parent d'abord), dupliquer des repetitions IDENTIQUES ne change aucune moyenne par parent, donc aucun ratio -- exactement la garantie que cahier:L443 (A5) et cahier:L115 (F-CLUSTERS) exigent.",
+      "pourquoi_cette_perturbation": "A5 est un cas `behaviour` qui affirme une invariance de valeurs produites -- permuter les lignes ou dupliquer des repetitions identiques ne change pas les resultats a liste de tirages parents fixee -- et c'est la forme ou la regle universelle du stub d'export est valide : cases.lock.json prescrit EXACTEMENT cette perturbation, avec la meme justification que T32.M2 pour `aggregate_repetition_rows_by_project`. Le test compare `duplicated[\"ratios\"]` a `baseline[\"ratios\"]` (calcules tous deux dans le test, pas a une constante), ce qui detecte la sensibilite au NOMBRE de lignes independamment de la valeur finale ; un test qui ne verifierait que `duplicated[\"ratios\"] == _expected_ratios()` sans la comparaison directe a `baseline` resterait insuffisant si, par coincidence sur une autre fixture, le pooling et la moyenne par parent donnaient la meme valeur finale.",
+      "doit_rester_vert": [
+        "T33.A2",
+        "T33.A4",
+        "T33.A6",
+        "T33.A7"
+      ],
+      "tue_aussi": [
+        "T33.A1",
+        "T33.A3"
+      ]
+    },
+    {
+      "id": "T33.M6",
+      "kills_case": "T33.A6",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le point de `bootstrap.interproject_bootstrap_interval` qui refuse de produire un intervalle quand le nombre de grappes (parents distincts) est insuffisant pour l'inference interprojets (cahier:L443).",
+      "mutation": "Abaisser le seuil minimal de grappes requis de 2 a 1, de sorte qu'une seule grappe produise un intervalle (degenere) au lieu du refus `INSUFFICIENT_CLUSTERS` -- inverse de la garde attendue, comme prescrit par verification/cases.lock.json (« supprimer la garde sur le nombre de grappes »). Le reechantillonneur et le calcul de bande restent inchanges.",
+      "expected_effect": "T33.A6 devient rouge ; les six autres cas, qui exercent tous des fixtures a deux grappes distinctes (ou n'appellent pas cet export), restent verts.",
+      "observation_qui_echoue": "A6 construit une fixture a UNE seule grappe (P1 seul, ses dix repetitions F-CLUSTERS) avec des tirages `[[P1,P1],[P1,P1]]`, et exige `result[\"status\"] == \"INSUFFICIENT_CLUSTERS\"` et `result[\"interval\"] is None`. Sous la mutation, `interproject_bootstrap_interval` ne refuse plus (`1 < 1` est faux) et calcule un intervalle degenere (les deux tirages forces donnant le meme ratio, donc un intervalle a bornes egales) : `result[\"status\"]` vaut EXACTEMENT `\"OK\"` (mesure exacte) au lieu de `\"INSUFFICIENT_CLUSTERS\"` -- `assert result[\"status\"] == \"INSUFFICIENT_CLUSTERS\"` echoue avec `'OK' == 'INSUFFICIENT_CLUSTERS'` faux. Le controle de capacite du meme cas (deux grappes, F-CLUSTERS complet) reste vert car `2 < 1` est deja faux avant et apres la mutation : il ne peut PAS, a lui seul, distinguer la garde correcte de son absence, ce qui est precisement pourquoi le test exige aussi le cas a une seule grappe.",
+      "pourquoi_cette_perturbation": "A6 est un cas `refusal` : verification/cases.lock.json le constate explicitement (« un cas de refus est incomplet tant qu'il ne demontre pas l'existence d'un non-refus »). Un stub qui LEVERAIT une exception sur une grappe unique rendrait A6 vert SANS prouver que l'implementation applique reellement la regle du cahier plutot qu'un refus systematique par accident (crash sur un dictionnaire vide, par exemple) -- c'est pourquoi le test exige d'abord le controle de capacite `status == \"OK\"` sur DEUX grappes (F-CLUSTERS), qu'une implementation universellement refusante ferait tomber en meme temps que ce mutant, l'excluant comme explication valide de ce STATUS particulier.",
+      "doit_rester_vert": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A7"
+      ]
+    },
+    {
+      "id": "T33.M7",
+      "kills_case": "T33.A7",
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PRESENTE",
+      "target": "Le point de `bootstrap.empirical_inverse_quantile_interval` (l'etiqueteur de bandes) qui assigne le champ `simultaneous` d'une bande calculee ponctuellement : doit toujours valoir `False`, ce module ne calculant jamais de region de confiance jointe sur plusieurs quantites (cahier:L443).",
+      "mutation": "Faire emettre `simultaneous: True` inconditionnellement par `empirical_inverse_quantile_interval`, sans toucher au calcul des bornes `lower`/`upper` ni au champ `kind` -- exactement la perturbation prescrite par verification/cases.lock.json (« faire emettre [...] simultaneous: true [...] sur des bandes calculees ponctuellement »).",
+      "expected_effect": "T33.A7 devient rouge sur ses trois ancrages (bande directe, bande interprojets, bande sur la fixture A=B) ; aucun autre cas requis n'examine le champ `simultaneous`.",
+      "observation_qui_echoue": "A7 exige `direct_band[\"simultaneous\"] is False` sur la bande calculee a partir des ratios F-BOOTSTRAP. Sous la mutation, `direct_band[\"simultaneous\"]` vaut EXACTEMENT `True` (mesure exacte) : `assert direct_band[\"simultaneous\"] is False` echoue avec `True is False` faux. Les valeurs `lower`/`upper` (`1/2` et `9/10`) et `kind` (`\"pointwise\"`) restent corrects et inchanges, isolant la panne au seul champ d'etiquette. Le meme constat se reproduit sur `interproject_bootstrap_interval(...)['interval']['simultaneous']` et sur la bande calculee depuis la fixture A=B construite dans le test lui-meme, fermant l'echappatoire d'une implementation qui n'etiqueterait mal qu'un seul chemin d'appel.",
+      "pourquoi_cette_perturbation": "A7 est un cas `absence` : l'assertion decisive est qu'une etiquette N'EST PAS presente (« les bandes ponctuelles ne sont jamais etiquetees simultanees »), donc la perturbation qui mord est celle qui la rend PRESENTE -- un stub qui LEVERAIT une exception empecherait meme d'observer le champ et rendrait ce cas vert a tort pour une raison etrangere a l'etiquette elle-meme, ce que verification/cases.lock.json exclut explicitement pour ce type de cas. Le test verifie l'etiquette sur TROIS chemins d'appel distincts (bande directe, bande interprojets, bande sur une fixture differente) plutot qu'un seul, pour exclure qu'une etiquette correcte sur un unique appel soit un hasard de cette entree precise plutot qu'une regle du labelleur de bandes ; l'assertion finale `is not None` exclut de surcroit qu'un champ absent (au lieu d'explicitement `False`) soit pris a tort pour une preuve d'absence.",
+      "doit_rester_vert": [
+        "T33.A1",
+        "T33.A2",
+        "T33.A3",
+        "T33.A4",
+        "T33.A5",
+        "T33.A6"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,516 @@
+{
+  "schema": "bench.attestation/1",
+  "task": "T31",
+  "verdict": "PASS",
+  "commit": "56c858d2e5e6eb335befd94ce9d1aaff61fd4a1d",
+  "branch": "claude/gallant-fermi-51jlsx",
+  "dirty": false,
+  "clean_room": true,
+  "input_digest": "4e25f8d63cd9162419abbd3c5a4d29e927039e8b75570ff33afcf34a5849c44f",
+  "capabilities_used": [
+    "node22",
+    "postgres18",
+    "python312"
+  ],
+  "capabilities": {
+    "node22": {
+      "present": true,
+      "detail": "node 22.22.2"
+    },
+    "postgres18": {
+      "present": true,
+      "detail": "server_version_num=180006 (PostgreSQL 18)"
+    },
+    "python312": {
+      "present": true,
+      "detail": "Python 3.12.11"
+    }
+  },
+  "cases": [
+    {
+      "id": "T31.A1",
+      "status": "PASS"
+    },
+    {
+      "id": "T31.A2",
+      "status": "PASS"
+    },
+    {
+      "id": "T31.A3",
+      "status": "PASS"
+    },
+    {
+      "id": "T31.A4",
+      "status": "PASS"
+    },
+    {
+      "id": "T31.A5",
+      "status": "PASS"
+    },
+    {
+      "id": "T31.A6",
+      "status": "PASS"
+    },
+    {
+      "id": "T31.A7",
+      "status": "PASS"
+    }
+  ],
+  "proof_kinds": {
+    "numeric": 1,
+    "behaviour": 5,
+    "refusal": 1
+  },
+  "red_gate": {
+    "path": "red/T31/dc95b380122a80e7d8cec966ffabc2eeca09a95a.json",
+    "subject_commit": "dc95b380122a80e7d8cec966ffabc2eeca09a95a",
+    "verdict": "RED_RECORDED"
+  },
+  "two_key": {
+    "range": "dc95b380122a80e7d8cec966ffabc2eeca09a95a..HEAD",
+    "commits": [
+      {
+        "sha": "d5d32959065b",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "3da18b5b6366",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "57cf2dd09152",
+        "role": "implementer",
+        "phase": null,
+        "files": 7,
+        "problems": []
+      },
+      {
+        "sha": "74c237c65427",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "c54c4ea181b4",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "d7e73d90f70d",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "8e7dd5895734",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "7f4e75df2b59",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "05c7f5151c74",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "af726dadba82",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "dc20aef163e5",
+        "role": "implementer",
+        "phase": null,
+        "files": 7,
+        "problems": []
+      },
+      {
+        "sha": "436167de9eed",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "a4a619be7b4c",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "6bc089770f31",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "8e55a2deb86e",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "8b55755982cb",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "175895e76741",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "53e32b4402f2",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "b5cba4d16469",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "3ebdcf00974d",
+        "role": "implementer",
+        "phase": null,
+        "files": 10,
+        "problems": []
+      },
+      {
+        "sha": "1569280d281e",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "7706b91e7108",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "c627aef27dee",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "772319b26789",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "fcb9e3765cba",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "32d8ffe47cb8",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "39f3a33f73a2",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "a1e4b5e03654",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "56c858d2e5e6",
+        "role": "implementer",
+        "phase": null,
+        "files": 6,
+        "problems": []
+      }
+    ]
+  },
+  "clean_room_run": {
+    "nonce": "83479d72ed9e",
+    "rev": "56c858d2e5e6eb335befd94ce9d1aaff61fd4a1d",
+    "clean_room": true,
+    "pristine": true,
+    "stray_before": [],
+    "prepare": [
+      {
+        "command": "pnpm install --frozen-lockfile --reporter=silent",
+        "exit_code": 0
+      },
+      {
+        "command": "uv --project analysis sync --locked",
+        "exit_code": 0
+      },
+      {
+        "command": "pnpm build",
+        "exit_code": 0
+      }
+    ],
+    "command": "node tools/bench verify:task T31 --json",
+    "exit_code": 0,
+    "stdout_sha256": "f4e0b900e32dc56b10e6fdd0363480b32b3baafaf50055aa88d8518a85e0166e",
+    "run_dir": ".bench/run/83479d72ed9e"
+  },
+  "report": {
+    "schema": "bench.result/1",
+    "task_id": "T31",
+    "reason": "PASS",
+    "exit_code": 0,
+    "commit": "56c858d2e5e6eb335befd94ce9d1aaff61fd4a1d",
+    "branch": "HEAD",
+    "dirty": false,
+    "clean_room": false,
+    "registry": {
+      "kind": "repository",
+      "path": "verification/tasks.json",
+      "sha256": "8f2057db5ee83dbbd37c594053231ac51baac317e3fa43e2f3a07bd2281da7bf",
+      "problems": []
+    },
+    "fixtures_digest": "48d4b8f09a8b54a97d4777b60e1bf4124974cfe4512393dd3181580d0b16e463",
+    "fixtures": {
+      "schema": "bench.fixtures/1",
+      "scope": [
+        "acceptance/reference",
+        "analysis",
+        "apps/cli",
+        "packages/storage"
+      ],
+      "file_count": 48,
+      "digest_before": "48d4b8f09a8b54a97d4777b60e1bf4124974cfe4512393dd3181580d0b16e463",
+      "digest_after": "48d4b8f09a8b54a97d4777b60e1bf4124974cfe4512393dd3181580d0b16e463",
+      "stable": true,
+      "moved": [],
+      "frozen_roots_head": {
+        "acceptance/reference": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91"
+      }
+    },
+    "references": {
+      "schema": "bench.references/1",
+      "source": "docs/FROZEN_ROOTS.json",
+      "roots": [
+        "acceptance/reference"
+      ],
+      "observed": [
+        {
+          "root": "acceptance/reference",
+          "state": "GELEE",
+          "head_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+          "files": 10,
+          "worktree_diff": [],
+          "fixtures": [
+            {
+              "fixture": "F-MONEY",
+              "cahier": "L103",
+              "state": "CONFORME",
+              "expected_integers": [
+                340,
+                680
+              ],
+              "missing_integers": [],
+              "files": [
+                "acceptance/reference/F-MONEY.json"
+              ]
+            }
+          ]
+        }
+      ],
+      "problems": []
+    },
+    "input_digest": "4e25f8d63cd9162419abbd3c5a4d29e927039e8b75570ff33afcf34a5849c44f",
+    "versions": {
+      "declared": {
+        "node": ">=22.22.2 <23",
+        "pnpm": "pnpm@10.33.0",
+        "typescript": "6.0.3",
+        "jest": "30.5.1",
+        "ts-jest": "29.4.12",
+        "python": "==3.12.*",
+        "pytest": "9.1.1"
+      },
+      "observed": {
+        "node": "22.22.2",
+        "v8": "12.4.254.21-node.39"
+      }
+    },
+    "lockfiles": {
+      "pnpm-lock.yaml": "74d87960a8354af9c8edec0e122d83a50aca002043d2dcd2c4fcbf03c57ecff1",
+      "analysis/uv.lock": "5bea4ea56815d13e72680ee4533010fbeeb7f8285728d42c9a33f2c5b17f3148"
+    },
+    "commands": [
+      {
+        "command": "uv --project analysis run pytest \"analysis/tests/test_T31.py\" --junitxml=\"/home/user/swe-ai-benchmark/.bench/scratch/83479d72ed9e/.bench/run/32de447a4f4b/junit.xml\" -p no:cacheprovider -p bench_assert_counts",
+        "exit_code": 0
+      }
+    ],
+    "chain": "pytest",
+    "acceptance_entry": "analysis/tests/test_T31.py",
+    "suite_loaded": true,
+    "suite_exit_code": 0,
+    "tests_observed": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "expected_cases": [
+      "T31.A1",
+      "T31.A2",
+      "T31.A3",
+      "T31.A4",
+      "T31.A5",
+      "T31.A6",
+      "T31.A7"
+    ],
+    "executed_cases": [
+      "T31.A1",
+      "T31.A2",
+      "T31.A3",
+      "T31.A4",
+      "T31.A5",
+      "T31.A6",
+      "T31.A7"
+    ],
+    "assertions_expected": 7,
+    "assertions_executed": 7,
+    "assertions_observed": 42,
+    "case_statuses": [
+      {
+        "id": "T31.A1",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 5,
+        "asserts_observable": true
+      },
+      {
+        "id": "T31.A2",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 5,
+        "asserts_observable": true
+      },
+      {
+        "id": "T31.A3",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 4,
+        "asserts_observable": true
+      },
+      {
+        "id": "T31.A4",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 7,
+        "asserts_observable": true
+      },
+      {
+        "id": "T31.A5",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 7,
+        "asserts_observable": true
+      },
+      {
+        "id": "T31.A6",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 12,
+        "asserts_observable": true
+      },
+      {
+        "id": "T31.A7",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 2,
+        "asserts_observable": true
+      }
+    ],
+    "skipped_cases": [],
+    "missing_cases": [],
+    "vacuous_cases": [],
+    "proof_files": [
+      ".bench/run/32de447a4f4b/junit.xml"
+    ],
+    "requires": [
+      "node22",
+      "postgres18",
+      "python312"
+    ],
+    "blocked_by": [],
+    "requires_live_credentials": false,
+    "depends_on": [
+      "T04",
+      "T12",
+      "T16"
+    ],
+    "detail": [],
+    "limitations": [
+      "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+      "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+      "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+      "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+      "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+    ]
+  },
+  "depends_on": [
+    "T04",
+    "T12",
+    "T16"
+  ],
+  "limitations": [
+    "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+    "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+    "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+    "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+    "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+  ],
+  "boot_id": "340fba6f-d145-47d9-aefa-86b9031bfef1",
+  "produced_at": "2026-09-14T18:39:04.726Z",
+  "duration_ms": 6728
+}

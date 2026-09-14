@@ -2,7 +2,7 @@
   "schema": "bench.red/1",
   "task": "T20",
   "subject_commit": "32d8ffe47cb89464c29c660814ad287a80654a89",
-  "dirty": false,
+  "dirty": true,
   "input_digest": "cdf45279a82006dc17d1060c36c00a458bb393f55cd2317136322b6377c0c5cd",
   "suite_loaded": true,
   "suite_exit_code": 1,

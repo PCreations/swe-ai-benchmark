@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T14",
+  "subject_commit": "7e9147253f55903eaecfb27194eb722b644ac438",
+  "dirty": false,
+  "input_digest": "119a7275fee405a9eba003d697cf055b56849cece2c0de38164bd84ba3ddf93f",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T14.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "stub reel applique a packages/storage/src/index.ts (les 8 roles + artifactSizeLimit remplaces par des fonctions qui LEVENT) ; pnpm test observe : A1 ROUGE (toBe attend coordonnees-du-service-resolues, recoit SERVICE-S3-DE-TEST-NON-DECLARE / role s3TestServiceConfig a LEVE T14.M1) ; fichier restaure a HEAD, re-execution : 6/6 VERT."
+    },
+    {
+      "id": "T14.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A2 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    {
+      "id": "T14.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A3 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    {
+      "id": "T14.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A4 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    {
+      "id": "T14.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A5 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    {
+      "id": "T14.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A6 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    }
+  ],
+  "mutation_proof": {
+    "T14.A1": {
+      "killed_by": "T14.M1",
+      "note": "stub reel applique a packages/storage/src/index.ts (les 8 roles + artifactSizeLimit remplaces par des fonctions qui LEVENT) ; pnpm test observe : A1 ROUGE (toBe attend coordonnees-du-service-resolues, recoit SERVICE-S3-DE-TEST-NON-DECLARE / role s3TestServiceConfig a LEVE T14.M1) ; fichier restaure a HEAD, re-execution : 6/6 VERT."
+    },
+    "T14.A2": {
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A2 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    "T14.A3": {
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A3 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    "T14.A4": {
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A4 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    "T14.A5": {
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A5 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    },
+    "T14.A6": {
+      "killed_by": "T14.M1",
+      "note": "meme stub reel ; pnpm test observe : A6 ROUGE (meme refus SERVICE-S3-DE-TEST-NON-DECLARE) ; restaure, re-execution VERT."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

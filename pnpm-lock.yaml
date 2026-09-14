@@ -58,9 +58,15 @@ importers:
 
   packages/gateway:
     dependencies:
+      '@bench/billing':
+        specifier: workspace:*
+        version: link:../billing
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/storage':
+        specifier: workspace:*
+        version: link:../storage
 
   packages/oracle:
     dependencies:

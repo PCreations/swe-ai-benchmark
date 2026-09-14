@@ -1,0 +1,85 @@
+{
+  "schema": "bench.red/1",
+  "task": "T20",
+  "subject_commit": "8beb0a3975da748b49e6c80e10a437f6c4e51c48",
+  "dirty": false,
+  "input_digest": "3fafc0dec849fab7326691283868df446a8a0838467fdc5e25f7544d0040091c",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T20.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M1",
+      "note": "Applique T20.M1 (journal runner.log ecrivant chaque commande hiddenTest, sentinelle incluse, dans developerLogsDir apres execShell) dans packages/evaluation/src/private-run.ts ; bench red T20 a alors rapporte T20.A1 ROUGE ASSERTION_FAILED (sentinel-presente-a-tort-dans-les-logs). Mutation retiree ensuite, fichier revert a HEAD (git diff vide)."
+    },
+    {
+      "id": "T20.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M2",
+      "note": "Applique T20.M2 (passed = candidateClaim?.passed ?? reelASucce, candidateReportedVerdicts fait autorite) dans runPrivateEvaluation ; bench red T20 a alors rapporte T20.A2 ROUGE ASSERTION_FAILED (echec-reel-preserve tombe, le run forge inverse le verdict reel). Mutation retiree, fichier revert a HEAD."
+    },
+    {
+      "id": "T20.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M3",
+      "note": "Applique T20.M3 (listEvaluationScenarioIds ignore kind, renvoie validation+audit concatenes) ; bench red T20 a alors rapporte T20.A3 ROUGE ASSERTION_FAILED (jeux-disjoints tombe, intersection non vide). Mutation retiree, fichier revert a HEAD."
+    },
+    {
+      "id": "T20.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M4",
+      "note": "Applique T20.M4 (boundedFeedback.cases porte un champ diagnosticPath repris de hiddenFilePath d un cas non operationnel) ; bench red T20 a alors rapporte T20.A4 ROUGE ASSERTION_FAILED (fichier-cache-non-revele tombe). Mutation retiree, fichier revert a HEAD."
+    },
+    {
+      "id": "T20.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M5",
+      "note": "Applique T20.M5 (verdicts toujours [] en sortie de runPrivateEvaluation) ; bench red T20 a alors rapporte T20.A5 ROUGE ASSERTION_FAILED (sept-verdicts-produits tombe, les sept caseId manquent). Mutation retiree, fichier revert a HEAD."
+    },
+    {
+      "id": "T20.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T20.M6",
+      "note": "Applique T20.M6 (simulateTruncatedExecution=true renvoie desormais status COMPLETED au lieu de EVALUATION_INCOMPLETE) ; bench red T20 a alors rapporte T20.A6 ROUGE ASSERTION_FAILED (execution-tronquee-non-declaree-complete tombe). Mutation retiree, fichier revert a HEAD."
+    },
+    {
+      "id": "T20.A7",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {
+    "T20.A1": {
+      "killed_by": "T20.M1",
+      "note": "Applique T20.M1 (journal runner.log ecrivant chaque commande hiddenTest, sentinelle incluse, dans developerLogsDir apres execShell) dans packages/evaluation/src/private-run.ts ; bench red T20 a alors rapporte T20.A1 ROUGE ASSERTION_FAILED (sentinel-presente-a-tort-dans-les-logs). Mutation retiree ensuite, fichier revert a HEAD (git diff vide)."
+    },
+    "T20.A2": {
+      "killed_by": "T20.M2",
+      "note": "Applique T20.M2 (passed = candidateClaim?.passed ?? reelASucce, candidateReportedVerdicts fait autorite) dans runPrivateEvaluation ; bench red T20 a alors rapporte T20.A2 ROUGE ASSERTION_FAILED (echec-reel-preserve tombe, le run forge inverse le verdict reel). Mutation retiree, fichier revert a HEAD."
+    },
+    "T20.A3": {
+      "killed_by": "T20.M3",
+      "note": "Applique T20.M3 (listEvaluationScenarioIds ignore kind, renvoie validation+audit concatenes) ; bench red T20 a alors rapporte T20.A3 ROUGE ASSERTION_FAILED (jeux-disjoints tombe, intersection non vide). Mutation retiree, fichier revert a HEAD."
+    },
+    "T20.A4": {
+      "killed_by": "T20.M4",
+      "note": "Applique T20.M4 (boundedFeedback.cases porte un champ diagnosticPath repris de hiddenFilePath d un cas non operationnel) ; bench red T20 a alors rapporte T20.A4 ROUGE ASSERTION_FAILED (fichier-cache-non-revele tombe). Mutation retiree, fichier revert a HEAD."
+    },
+    "T20.A5": {
+      "killed_by": "T20.M5",
+      "note": "Applique T20.M5 (verdicts toujours [] en sortie de runPrivateEvaluation) ; bench red T20 a alors rapporte T20.A5 ROUGE ASSERTION_FAILED (sept-verdicts-produits tombe, les sept caseId manquent). Mutation retiree, fichier revert a HEAD."
+    },
+    "T20.A6": {
+      "killed_by": "T20.M6",
+      "note": "Applique T20.M6 (simulateTruncatedExecution=true renvoie desormais status COMPLETED au lieu de EVALUATION_INCOMPLETE) ; bench red T20 a alors rapporte T20.A6 ROUGE ASSERTION_FAILED (execution-tronquee-non-declaree-complete tombe). Mutation retiree, fichier revert a HEAD."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

@@ -23,10 +23,8 @@
       "depends_on": [],
       "source_paths": [
         "verification/tasks.json",
-        "verification",
         "docs/toolchain.json",
-        "docs",
-        "analysis",
+        "docs/specs/T00.by-case.md",
         "packages/contracts"
       ],
       "acceptance_entry": "acceptance/T00.spec.ts",

@@ -16,12 +16,12 @@
 //     un mutant nommé doit le tuer. Faute de quoi il est indistinguable d'un
 //     cas vide.
 // ─────────────────────────────────────────────────────────────────────────────
-import { execSync } from 'node:child_process'
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { repoRoot, git, headSha, isClean } from './git.mjs'
 import { loadRegistry } from './registry.mjs'
 import { inputDigest } from './input-digest.mjs'
 import { ledgerRef, appendToLedger } from './ledger.mjs'
+import { runAcceptance, TEST_STATUS } from './chains.mjs'
 
 const R = repoRoot()
 
@@ -30,28 +30,44 @@ export const RED_REASONS = {
   INVALID: ['MODULE_NOT_FOUND', 'TYPE_ERROR', 'SUITE_FAILED_TO_RUN'],
 }
 
-/** Exécute la suite et rend l'état observé par cas — sans l'interpréter. */
+/**
+ * Exécute la suite et rend l'état observé par cas — sans l'interpréter.
+ *
+ * La chaîne (Jest ou pytest) se déduit de `acceptance_entry`, exactement comme
+ * `verify:task` (chains.mjs) : coder en dur `pnpm test` ici ferait tourner
+ * Jest sur une tâche pytest, ne trouverait jamais ses cas, et transformerait
+ * silencieusement « pas encore implémenté » en CASES_NOT_OBSERVED — un refus
+ * qui punirait la mauvaise raison. `runAcceptance` lit en outre le rapport
+ * MACHINE (JSON Jest / JUnit pytest), jamais la sortie console — la même règle
+ * que chains.mjs impose à `verify:task`, que cette fonction violait jusqu'ici.
+ *
+ * L'identifiant d'un cas ('Txx.Ay') ne peut pas apparaître littéralement dans
+ * un nom de fonction pytest : le point y est syntaxiquement interdit en Python,
+ * donc un test honnête l'écrit 'Txx_Ay'. Le séparateur accepté est donc '.' OU
+ * '_', jamais un troisième sens — un test Jest garde 'Txx.Ay' au mot.
+ */
 export function observeSuite(taskId) {
-  let out = '',
-    code = 0
-  try {
-    out = execSync('pnpm test 2>&1', { cwd: R, encoding: 'utf8', timeout: 20 * 60 * 1000, maxBuffer: 64e6 })
-  } catch (e) {
-    code = e.status ?? 1
-    out = String(e.stdout ?? '') + String(e.stderr ?? '')
-  }
+  const reg = loadRegistry()
+  const task = reg.byId?.get(taskId)
+  if (!task)
+    return { suite_loaded: false, exit_code: 1, cases: [], raw_tail: `tache inconnue : ${taskId}` }
 
-  if (/Test suite failed to run/.test(out)) {
-    return { suite_loaded: false, exit_code: code, cases: [], raw_tail: out.slice(-2000) }
+  const run = runAcceptance(task.acceptance_entry)
+  if (!run.loaded) {
+    const tail = `${run.why ?? ''}\n${(run.stderr_tail ?? '').slice(-1500)}`.trim()
+    return { suite_loaded: false, exit_code: run.exit_code ?? 1, cases: [], raw_tail: tail.slice(-2000) }
   }
 
   const cases = []
-  const re = new RegExp(`(✓|✕|√|×)\\s+(${taskId}\\.A\\d+)`, 'g')
-  let m
-  while ((m = re.exec(out)) !== null) {
-    cases.push({ id: m[2], green: m[1] === '✓' || m[1] === '√' })
+  for (const id of task.required_cases ?? []) {
+    const re = new RegExp(id.replace(/\./g, '[._]'))
+    const mine = (run.tests ?? []).filter((t) => re.test(t.name))
+    if (mine.length === 0) continue // jamais observe -> CASES_NOT_OBSERVED, plus bas
+    const skipped = mine.some((t) => t.status === TEST_STATUS.SKIPPED)
+    if (skipped) continue // §G refuse les cas sautes : ni vert, ni rouge legitime
+    cases.push({ id, green: mine.every((t) => t.status === TEST_STATUS.PASS) })
   }
-  return { suite_loaded: true, exit_code: code, cases, raw_tail: out.slice(-4000) }
+  return { suite_loaded: true, exit_code: run.exit_code, cases, raw_tail: (run.stderr_tail ?? '').slice(-4000) }
 }
 
 /**

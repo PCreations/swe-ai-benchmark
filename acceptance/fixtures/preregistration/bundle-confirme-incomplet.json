@@ -1,0 +1,40 @@
+{
+  "schema": "bench.preregistration.bundle/1",
+  "campaign_id": "PRE-T30-CONFIRME-INCOMPLET",
+  "registration_mode": "confirmed",
+  "seeds": {
+    "scenario": "S-T30-CI",
+    "workload": "W-T30-CI",
+    "assignment": "A-T30-CI",
+    "bootstrap": "B-T30-CI"
+  },
+  "margins": {
+    "non_inferiority": 0.02
+  },
+  "metrics": [],
+  "sample_size": 0,
+  "budgets": [],
+  "stopping_rules": [],
+  "calibration": {
+    "entries": [
+      {
+        "parent_project_id": "PRJ-CAL-1",
+        "scenario_id": "SCN-CAL-1",
+        "qualified": true,
+        "model": "agent-scripted-v1",
+        "tariff_micro_usd": "340"
+      }
+    ]
+  },
+  "test": {
+    "entries": [
+      {
+        "parent_project_id": "PRJ-TEST-1",
+        "scenario_id": "SCN-TEST-1",
+        "qualified": true,
+        "model": "agent-scripted-v1",
+        "tariff_micro_usd": "340"
+      }
+    ]
+  }
+}

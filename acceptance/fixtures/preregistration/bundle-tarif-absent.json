@@ -1,0 +1,42 @@
+{
+  "schema": "bench.preregistration.bundle/1",
+  "campaign_id": "PRE-T30-TARIF-ABSENT",
+  "registration_mode": "confirmed",
+  "seeds": {
+    "scenario": "S-T30-TA",
+    "workload": "W-T30-TA",
+    "assignment": "A-T30-TA",
+    "bootstrap": "B-T30-TA"
+  },
+  "margins": {
+    "non_inferiority": 0.02
+  },
+  "metrics": ["Q", "R", "G"],
+  "sample_size": 6,
+  "budgets": [
+    { "budget_id": "BUD-T30-TA", "limit_micro_usd": "1000" }
+  ],
+  "stopping_rules": ["max_periods_reached", "budget_exhausted"],
+  "calibration": {
+    "entries": [
+      {
+        "parent_project_id": "PRJ-CAL-1",
+        "scenario_id": "SCN-CAL-1",
+        "qualified": true,
+        "model": "",
+        "tariff_micro_usd": ""
+      }
+    ]
+  },
+  "test": {
+    "entries": [
+      {
+        "parent_project_id": "PRJ-TEST-1",
+        "scenario_id": "SCN-TEST-1",
+        "qualified": true,
+        "model": "agent-scripted-v1",
+        "tariff_micro_usd": "340"
+      }
+    ]
+  }
+}

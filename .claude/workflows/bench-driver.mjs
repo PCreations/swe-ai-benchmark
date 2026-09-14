@@ -575,6 +575,18 @@ Interdit, sans exception : remplacer un service reel declare dans \`requires\` p
 un mock pour clore une tache bloquee. Un prerequis absent produit BLOCKED,
 jamais PASS.
 
+VERIFIER LA OU CA COMPTE. \`verify:task\` dans TON arbre ne prouve rien.
+Mesure du tour precedent sur T14 : 6/6 cas VERTS dans l'arbre de travail, 6/6
+ROUGES en clean-room — trois executions independantes, meme commit. Cause :
+la configuration du service etait lue depuis un fichier GITIGNORE, donc absent
+d'un worktree neuf. \`bench accept\` a refuse, et il avait raison.
+Avant de rendre ok=true, refais la suite dans un worktree DETACHE au commit que
+tu viens de pousser :
+  git worktree add --detach /tmp/cr-${T} HEAD
+  cd /tmp/cr-${T} && pnpm install --frozen-lockfile && node tools/bench verify:task ${T}
+Si elle rougit la-bas, ton etage N'EST PAS FINI. La dependance a un fichier non
+suivi EST le defaut a corriger — ce n'est pas une particularite de l'environnement.
+
 Boucle : implemente, \`node tools/bench verify:task ${T}\`, corrige, recommence.
 ok=true seulement quand la commande sort en 0 avec reason=PASS et les six cas
 verts. Commit Bench-Role: implementer, puis push.`

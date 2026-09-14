@@ -142,10 +142,27 @@ const AUDIT = {
  * agents rendent `null` — et il ne faut SURTOUT pas que ca ressemble a un audit
  * clair.
  */
+/**
+ * LES DEUX MODELES DE LA BOUCLE, nommes ici et nulle part ailleurs.
+ *
+ * Choix de l'humain responsable du cahier, le 2026-09-14, apres avoir heurte la
+ * limite hebdomadaire. Ce qu'il coute, dit sans le maquiller :
+ *  - les etages qui ont produit les decouvertes de fond (le cas vide de T12.A2,
+ *    la dependance de T14 a un fichier gitignore) passent d'Opus 5 a Sonnet 5 ;
+ *  - les auditeurs passent de Fable 5.1 — le modele le plus capable — a
+ *    Opus 4.8, soit deux paliers en dessous. Sous block-only un auditeur plus
+ *    faible ne peut que RATER un blocage legitime, jamais en inventer un : la
+ *    perte est une perte de capacite de blocage, pas un risque de faux positif.
+ * La decorrelation coder/reviewer SURVIT : les auditeurs restent d'une famille
+ * differente de celle des etages qu'ils relisent, ce qui etait l'objet d'ADR-001.
+ */
+const MODELE = 'claude-sonnet-5'
+const MODELE_AUDIT = 'claude-opus-4-8'
+
 const AUDITORS = [
-  { lens: 'provenance', model: 'fable' },
-  { lens: 'partition', model: 'fable' },
-  { lens: 'vacuite', model: 'fable' },
+  { lens: 'provenance', model: MODELE_AUDIT },
+  { lens: 'partition', model: MODELE_AUDIT },
+  { lens: 'vacuite', model: MODELE_AUDIT },
 ]
 
 /* ──────────────────────────────────────────────────────────────── le socle */
@@ -629,7 +646,7 @@ ni suppression d'un cas.
 /* ─────────────────────────────────────────────────────────────────── corps */
 
 phase('Preflight')
-const world = await agent(preflightPrompt, { label: 'preflight', phase: 'Preflight', schema: WORLD })
+const world = await agent(preflightPrompt, { label: 'preflight', phase: 'Preflight', schema: WORLD, model: MODELE })
 
 if (!world) return { halted: 'PREFLIGHT_FAILED', detail: "l'etage preflight n'a rien rendu" }
 if (world.halt) {
@@ -668,7 +685,7 @@ if (world.unclassified_tasks.length) {
 
   const classified = await parallel(
     batches.map((b, i) => () =>
-      agent(classifyPrompt(b), { label: `classify:${b[0]}..${b[b.length - 1]}`, phase: 'Classify', schema: CLASSIFICATION })
+      agent(classifyPrompt(b), { label: `classify:${b[0]}..${b[b.length - 1]}`, phase: 'Classify', schema: CLASSIFICATION, model: MODELE })
     )
   )
   const cases = classified.filter(Boolean).flatMap((c) => c.cases)
@@ -680,6 +697,7 @@ if (world.unclassified_tasks.length) {
     label: 'classify:ecriture',
     phase: 'Classify',
     schema: OUTCOME,
+    model: MODELE,
   })
   if (!classification?.ok) {
     return { halted: 'CLASSIFY_FAILED', detail: classification?.detail ?? 'aucun retour', world }
@@ -702,7 +720,7 @@ log(`Frontiere : ${frontier.join(', ')}`)
 // pendant que l'autre est encore en Tests.
 const results = await pipeline(
   frontier,
-  (T) => agent(specPrompt(T), { label: `spec:${T}`, phase: 'Spec', schema: OUTCOME }),
+  (T) => agent(specPrompt(T), { label: `spec:${T}`, phase: 'Spec', schema: OUTCOME, model: MODELE }),
   // FIXTURES. Les deux transcripteurs en parallele — ils n'ecrivent que dans
   // .bench/, donc aucune course sur l'index — puis le scellement, qui refuse de
   // materialiser si leurs valeurs divergent. Sans cet etage, T01.A6 (« F-MONEY
@@ -711,7 +729,7 @@ const results = await pipeline(
   (prev, T) =>
     prev?.ok === false
       ? null
-      : agent(fixtureGuardPrompt(T), { label: `fixtures:${T}:gel`, phase: 'Fixtures', schema: OUTCOME }).then((g) => {
+      : agent(fixtureGuardPrompt(T), { label: `fixtures:${T}:gel`, phase: 'Fixtures', schema: OUTCOME, model: MODELE }).then((g) => {
           // COURT-CIRCUIT. Racine deja gelee et intacte : il n'y a rien a
           // fabriquer, et surtout rien qui puisse etre ecrit. Retranscrire
           // couterait quatre agents par tour et pourrait bloquer la chaine sur
@@ -720,7 +738,7 @@ const results = await pipeline(
           if (g?.ok === false) return g // racine deplacee : alarme, on s'arrete
           return parallel(
           ['A', 'B'].map((side) => () =>
-            agent(fixturePrompt(T, side), { label: `fixtures:${T}:${side}`, phase: 'Fixtures', schema: OUTCOME })
+            agent(fixturePrompt(T, side), { label: `fixtures:${T}:${side}`, phase: 'Fixtures', schema: OUTCOME, model: MODELE })
           )
         ).then((sides) => {
           const dead = ['A', 'B'].filter((_, i) => !sides[i])
@@ -728,13 +746,13 @@ const results = await pipeline(
             return { ok: false, state: 'FIXTURES_TRANSCRIPTION_ABSENTE', detail: `transcripteur(s) sans rendu : ${dead.join(', ')} — une seule transcription ne vaut rien, c'est la CONCORDANCE qui prouve`, pushed: false }
           const ko = sides.filter((v) => v.ok === false)
           if (ko.length) return { ok: false, state: 'FIXTURES_TRANSCRIPTION_ECHOUEE', detail: ko.map((v) => v.state).join(' | '), pushed: false }
-          return agent(fixtureSealPrompt(T), { label: `fixtures:${T}:scellement`, phase: 'Fixtures', schema: OUTCOME })
+          return agent(fixtureSealPrompt(T), { label: `fixtures:${T}:scellement`, phase: 'Fixtures', schema: OUTCOME, model: MODELE })
         })
         }),
-  (prev, T) => (prev?.ok === false ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME })),
-  (prev, T) => (prev?.ok === false ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME })),
-  (prev, T) => (prev?.ok === false ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME })),
-  (prev, T) => (prev?.ok === false ? null : agent(gatesPrompt(T), { label: `gates:${T}`, phase: 'Audit', schema: OUTCOME })),
+  (prev, T) => (prev?.ok === false ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE })),
+  (prev, T) => (prev?.ok === false ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME, model: MODELE })),
+  (prev, T) => (prev?.ok === false ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME, model: MODELE })),
+  (prev, T) => (prev?.ok === false ? null : agent(gatesPrompt(T), { label: `gates:${T}`, phase: 'Audit', schema: OUTCOME, model: MODELE })),
   (prev, T) =>
     prev?.ok === false
       ? null
@@ -782,7 +800,7 @@ const results = await pipeline(
             ? { ok: false, state: 'AUDIT_BLOCKED', detail: blocking.flatMap((v) => v.violations).join(' | '), auditors: who, pushed: true }
             : { ok: true, state: 'AUDIT_CLEAR', detail: `${votes.length} auditeurs (${who}), aucun blocage citable`, auditors: who, pushed: true }
         }),
-  (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME }))
+  (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME, model: MODELE }))
 )
 
 /**
@@ -859,7 +877,7 @@ que \`bench resume\`, \`bench accept\` et \`git push\`.
 Rends : le nombre d'iterations, les taches re-attestees, celles qui ont refuse
 avec leur motif, et l'etat final de \`resume\` (nombre de [H] sur 44).`
 
-const settle = await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME })
+const settle = await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME, model: MODELE })
 
 // L'issue rendue ici est un COMPTE RENDU, pas une preuve. La seule preuve est
 // ce que `bench resume` recalcule depuis les objets git au prochain appel.

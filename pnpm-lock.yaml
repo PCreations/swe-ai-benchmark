@@ -35,6 +35,9 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/storage':
+        specifier: workspace:*
+        version: link:../storage
 
   packages/contracts: {}
 

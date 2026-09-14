@@ -92,3 +92,20 @@ export type { DemoVariant, ScriptedAction, ScriptedPeriod } from './demo-script.
 
 export { CONTROL_BY_REQUIREMENT, CONTROL_IDS } from './demo-controls.js'
 export type { ControlId, ControlOutcome, ControlStatus, ForeignReadProbe } from './demo-controls.js'
+
+// ── T30 : geler et préenregistrer les campagnes (cahier L415-L421). SQUELETTE
+//    à cet étage — les cinq rôles lèvent `NotImplemented` (voir preregistration.ts).
+export {
+  freezeCampaign,
+  issueLocalTestReceipt,
+  preflightCampaign,
+  verifyFreezeIntegrity,
+  verifyRegistrationReceipt,
+} from './preregistration.js'
+export type {
+  FrozenCampaign,
+  PreregistrationBundle,
+  PreregistrationVerdict,
+  RegistrationReceipt,
+  VerificationReport,
+} from './preregistration.js'

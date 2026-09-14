@@ -1,0 +1,12 @@
+{
+  "name": "@bench/activities",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Effets externes des workflows : admission des livraisons, migrations protegees et reprise de bascule (cahier §C, L36-L94, tache T21).",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "dependencies": { "@bench/contracts": "workspace:*" }
+}

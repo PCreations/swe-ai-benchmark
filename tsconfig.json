@@ -22,6 +22,7 @@
     { "path": "./packages/evaluation" },
     { "path": "./packages/storage" },
     { "path": "./packages/sandbox" },
+    { "path": "./packages/activities" },
     { "path": "./apps/cli" }
   ]
 }

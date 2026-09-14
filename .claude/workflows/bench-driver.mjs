@@ -190,6 +190,14 @@ n'existe pas (le conteneur est ephemere) :
   git push -u origin ${BRANCH}
 En cas d'echec reseau du push : reessaie 4 fois (2s, 4s, 8s, 16s).
 
+TIC D'AVANCEMENT — une ligne, a la toute fin, APRES le push :
+  node tools/tic.mjs <etage> <Txx> <ok|refus-nomme> "<ce que tu as observe, court>"
+C'est le seul fil d'avancement visible pendant un tour long. Il est ecrit par
+l'agent qui vient de finir son etage, donc il ne tire que quand quelque chose
+s'est reellement passe — contrairement a une horloge, qui tire aussi dans le
+vide. N'emets PAS de tic si tu n'as rien change : un tic qui affirme une
+activite inexistante est pire qu'un silence.
+
 CE QUI TE FERA REFUSER PLUS TARD, MECANIQUEMENT :
 - melanger dans UN commit une zone d'implementation (IMPL, HARNESS) et une zone
   de jugement (ACCEPTANCE, REFERENCE, MUTANT, GENERATOR) -> PROOF_TAINTED.

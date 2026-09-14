@@ -299,11 +299,36 @@ const probes = {
       : ABSENT(`creation veth impossible : ${r.out.slice(0, 80)}`, 'noyau sans support veth ou droits insuffisants')
   },
 
+  /**
+   * SONDE, PAS CONSTANTE. Elle rendait ABSENT en dur — donc meme une fois T17
+   * livree, T19/T20/T24 et onze autres seraient restees BLOCKED pour toujours.
+   * Une capacite qui ne peut pas basculer n'est pas une capacite, c'est un mur.
+   *
+   * Elle EXECUTE maintenant, comme toutes les autres : elle charge le paquet et
+   * exerce le fournisseur. Tant que packages/gateway n'existe pas, elle rend
+   * ABSENT — mais pour la bonne raison, et elle basculera d'elle-meme.
+   *
+   * LE CONTRAT EST ICI, ET IL VIENT DU CAHIER L301 (« fournisseur factice avec
+   * COMPTEURS ») et de T17.A6, qui exige d'observer « le fournisseur factice a
+   * recu zero appel ». Le compteur n'est donc pas une invention de la sonde :
+   * sans lui, A6 est inecrivable.
+   */
   'fake-provider'() {
-    return ABSENT(
-      'fournisseur factice pas encore implemente (livrable T17)',
-      'implementer packages/gateway (T17)'
+    const REMEDE =
+      'T17 : packages/gateway doit exporter createFakeProvider() rendant un objet ' +
+      '{ complete(), calls } — reponse scriptee sans reseau, `calls` entier qui ' +
+      'incremente a chaque appel (cahier L301 « avec compteurs », requis par T17.A6)'
+    const r = trySh(
+      `node --input-type=module -e ` +
+        `"import {createFakeProvider} from '${repoRoot()}/packages/gateway/dist/index.js';` +
+        `const p=createFakeProvider({responses:['ok']});` +
+        `const avant=p.calls; await p.complete({prompt:'x'});` +
+        `if (typeof avant!=='number'||p.calls!==avant+1) throw new Error('compteur absent ou inerte');` +
+        `console.log('calls',avant,'->',p.calls)" 2>&1`
     )
+    return r.ok
+      ? PRESENT(`fournisseur factice repond hors reseau, compteur vivant (${r.out.trim().slice(0, 60)})`)
+      : ABSENT(`fournisseur factice absent ou sans compteur : ${((r.out ?? '').split('\n').find((l) => /Error|error:/.test(l)) ?? (r.out ?? '').trim().split('\n')[0] ?? '').trim().slice(0, 130)}`, REMEDE)
   },
 
   'live-credentials'() {

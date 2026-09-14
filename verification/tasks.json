@@ -651,7 +651,6 @@
         "T17"
       ],
       "requires": [
-        "fake-provider",
         "node22",
         "postgres18"
       ],

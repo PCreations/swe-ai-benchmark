@@ -21,6 +21,7 @@
     { "path": "./packages/workload" },
     { "path": "./packages/evaluation" },
     { "path": "./packages/storage" },
+    { "path": "./packages/sandbox" },
     { "path": "./apps/cli" }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "name": "@bench/sandbox",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SandboxRunner Linux : profil d'execution borne, reseau du candidat et procedure de destruction (cahier L317-L326, tache T19).",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@bench/contracts": "workspace:*"
+  }
+}

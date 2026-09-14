@@ -1,0 +1,21 @@
+{
+  "name": "@bench/agents",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Contrat AgentRunner avec un agent scripte : start, observe, submit, stop, resume et evenements de session (cahier L307-L316, tache T18).",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@bench/contracts": "workspace:*"
+  }
+}

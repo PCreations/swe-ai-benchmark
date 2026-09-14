@@ -30,6 +30,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/scenario
 
+  packages/agents:
+    dependencies:
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/billing:
     dependencies:
       '@bench/contracts':

@@ -124,3 +124,14 @@ export type { ConfirmatoryManifest, ExclusionShare, ManifestCase } from './manif
 /* ── matrice témoin/mutant/contrôle (L243) ──────────────────────────────── */
 export { qualificationMatrix } from './matrix.js'
 export type { MatrixRow } from './matrix.js'
+
+/* ── évaluateur sur copies privées jetables (cahier L327-L336, tâche T20) ── */
+export { listEvaluationScenarioIds, runPrivateEvaluation } from './private-run.js'
+export type {
+  AllowedEgressEntry,
+  CandidateReportedVerdict,
+  EvaluationResult,
+  EvaluationVerdict,
+  HiddenTestCase,
+  PrivateEvaluationInput,
+} from './private-run.js'

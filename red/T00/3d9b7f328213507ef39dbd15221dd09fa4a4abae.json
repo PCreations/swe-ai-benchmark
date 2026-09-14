@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T00",
+  "subject_commit": "3d9b7f328213507ef39dbd15221dd09fa4a4abae",
+  "dirty": false,
+  "input_digest": "15134c906e39fc898dbd24d9e8748965a25bf70ca371a1ed3ab73f9733d55fc8",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T00.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M10",
+      "note": "strictNullChecks:false ajoute dans packages/contracts/tsconfig.json ; pnpm verify:task T00 -> ASSERTION_FAILED, ROUGE T00.A1 (3 assertions au lieu de 12, --showConfig rapporte strictNullChecks DESACTIVE), A2-A6 verts. Restaure ensuite."
+    },
+    {
+      "id": "T00.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M2",
+      "note": "verify-task.mjs adjudicate(): dernier retour force a REASON.ASSERTION_FAILED au lieu de PASS quand tous les cas sont verts ; pnpm verify:task T00 -> ROUGE T00.A2, T00.A4, T00.A5 (effet documente tue_aussi), A1/A3/A6 verts. Restaure ensuite."
+    },
+    {
+      "id": "T00.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M3",
+      "note": "verify-task.mjs adjudicate(): condition du refus (failed/skipped/missing/vacuous) neutralisee par `false &&`, agregation rendue permissive ; pnpm verify:task T00 -> verdict de tache PASS a tort, mais case_statuses montre ROUGE T00.A3 (3 assertions), A1/A2/A4/A5/A6 verts. Restaure ensuite."
+    },
+    {
+      "id": "T00.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M4",
+      "note": "verify-task.mjs decide(): branche `if (!task)` remplacee pour accepter un id inconnu comme tache vide et renvoyer PASS ; pnpm verify:task T00 -> ROUGE T00.A4 (1 assertion, exit attendu 2/UNKNOWN_TASK obtenu 0/PASS), A1/A2/A3/A5/A6 verts. Restaure ensuite."
+    },
+    {
+      "id": "T00.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M5",
+      "note": "verify-task.mjs adjudicate(): branche NOT_IMPLEMENTED (executed.length===0 && vacuous.length===0) changee pour renvoyer REASON.PASS ; pnpm verify:task T00 -> ROUGE T00.A5 (1 assertion, exit attendu 2/NOT_IMPLEMENTED obtenu 0/PASS), A1/A2/A3/A4/A6 verts. Restaure ensuite."
+    },
+    {
+      "id": "T00.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M9",
+      "note": "acceptance/T00.spec.ts: PNPM_FROZEN_INSTALL retire son --frozen-lockfile (regle vers [\"install\"]) ; pnpm verify:task T00 -> ROUGE T00.A6 (20/22 assertions, la branche manifeste-desynchronise du controle negatif Node sort en 0 au lieu de refuser), A1-A5 verts. Restaure ensuite."
+    }
+  ],
+  "mutation_proof": {
+    "T00.A1": {
+      "killed_by": "T00.M10",
+      "note": "strictNullChecks:false ajoute dans packages/contracts/tsconfig.json ; pnpm verify:task T00 -> ASSERTION_FAILED, ROUGE T00.A1 (3 assertions au lieu de 12, --showConfig rapporte strictNullChecks DESACTIVE), A2-A6 verts. Restaure ensuite."
+    },
+    "T00.A2": {
+      "killed_by": "T00.M2",
+      "note": "verify-task.mjs adjudicate(): dernier retour force a REASON.ASSERTION_FAILED au lieu de PASS quand tous les cas sont verts ; pnpm verify:task T00 -> ROUGE T00.A2, T00.A4, T00.A5 (effet documente tue_aussi), A1/A3/A6 verts. Restaure ensuite."
+    },
+    "T00.A3": {
+      "killed_by": "T00.M3",
+      "note": "verify-task.mjs adjudicate(): condition du refus (failed/skipped/missing/vacuous) neutralisee par `false &&`, agregation rendue permissive ; pnpm verify:task T00 -> verdict de tache PASS a tort, mais case_statuses montre ROUGE T00.A3 (3 assertions), A1/A2/A4/A5/A6 verts. Restaure ensuite."
+    },
+    "T00.A4": {
+      "killed_by": "T00.M4",
+      "note": "verify-task.mjs decide(): branche `if (!task)` remplacee pour accepter un id inconnu comme tache vide et renvoyer PASS ; pnpm verify:task T00 -> ROUGE T00.A4 (1 assertion, exit attendu 2/UNKNOWN_TASK obtenu 0/PASS), A1/A2/A3/A5/A6 verts. Restaure ensuite."
+    },
+    "T00.A5": {
+      "killed_by": "T00.M5",
+      "note": "verify-task.mjs adjudicate(): branche NOT_IMPLEMENTED (executed.length===0 && vacuous.length===0) changee pour renvoyer REASON.PASS ; pnpm verify:task T00 -> ROUGE T00.A5 (1 assertion, exit attendu 2/NOT_IMPLEMENTED obtenu 0/PASS), A1/A2/A3/A4/A6 verts. Restaure ensuite."
+    },
+    "T00.A6": {
+      "killed_by": "T00.M9",
+      "note": "acceptance/T00.spec.ts: PNPM_FROZEN_INSTALL retire son --frozen-lockfile (regle vers [\"install\"]) ; pnpm verify:task T00 -> ROUGE T00.A6 (20/22 assertions, la branche manifeste-desynchronise du controle negatif Node sort en 0 au lieu de refuser), A1-A5 verts. Restaure ensuite."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

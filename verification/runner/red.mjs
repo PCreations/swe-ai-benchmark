@@ -21,7 +21,7 @@ import { repoRoot, git, headSha, isClean } from './git.mjs'
 import { loadRegistry } from './registry.mjs'
 import { inputDigest } from './input-digest.mjs'
 import { ledgerRef, appendToLedger } from './ledger.mjs'
-import { runAcceptance, TEST_STATUS } from './chains.mjs'
+import { runAcceptance, TEST_STATUS, caseMatcher } from './chains.mjs'
 
 const R = repoRoot()
 
@@ -60,7 +60,7 @@ export function observeSuite(taskId) {
 
   const cases = []
   for (const id of task.required_cases ?? []) {
-    const re = new RegExp(id.replace(/\./g, '[._]'))
+    const re = caseMatcher(id) // MEME matcheur que la verification — voir chains.mjs
     const mine = (run.tests ?? []).filter((t) => re.test(t.name))
     if (mine.length === 0) continue // jamais observe -> CASES_NOT_OBSERVED, plus bas
     const skipped = mine.some((t) => t.status === TEST_STATUS.SKIPPED)

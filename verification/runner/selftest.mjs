@@ -14,6 +14,7 @@ import { repoRoot } from './git.mjs'
 import { decide, DEFAULT_TTL_S } from '../../tools/lease.mjs'
 import { render as renderResume, EXIT } from './resume.mjs'
 import { ledgerOrder } from './ledger.mjs'
+import { projectCases, caseMatcher, TEST_STATUS } from './chains.mjs'
 
 const R = repoRoot()
 const results = []
@@ -309,6 +310,50 @@ export function testLedgerRecency() {
   }
 }
 
+/**
+ * S05 — LA PORTE ROUGE ET LA VERIFICATION DOIVENT PARLER DU MEME CAS.
+ *
+ * Il a existe DEUX matcheurs de cas divergents :
+ *   red.mjs      `id.replace(/\./g, '[._]')`  -> `test_T31_A1` OBSERVE
+ *   chains.mjs   `id.replace(/\./g, '\\.')`    -> `test_T31_A1` NON OBSERVE
+ * Consequence mesuree sur T31 : les 7 cas requis franchissaient la porte ROUGE
+ * (RED_RECORDED, sept ASSERTION_FAILED) puis restaient NOT_RUN a la
+ * verification. La tache etait structurellement improuvable, et l'echec ne se
+ * revelait qu'apres spec, tests, red et impl.
+ *
+ * Un faux-gate est pire qu'une porte absente : il consomme quatre etages avant
+ * de refuser, et il accuse l'implementeur d'un defaut de nommage qu'il n'a meme
+ * pas le droit de corriger (le test est en zone ACCEPTANCE).
+ *
+ * Le controle porte sur la PROPRIETE, pas sur le texte du regex : les deux
+ * chemins doivent classer identiquement les memes noms de tests.
+ */
+export function testMatcheurUnique() {
+  const noms = [
+    { name: 'test_T99_A1_quelque_chose', status: TEST_STATUS.PASS, asserts: 3 }, // pytest
+    { name: 'T99.A2 fait la chose', status: TEST_STATUS.PASS, asserts: 2 },      // jest
+  ]
+
+  // Chemin VERIFICATION.
+  const vus = projectCases(['T99.A1', 'T99.A2'], noms)
+  check('S05.1', vus[0].status === TEST_STATUS.PASS, 'pytest `test_T99_A1_x` est OBSERVE par la verification')
+  check('S05.2', vus[1].status === TEST_STATUS.PASS, 'jest `T99.A2 ...` est OBSERVE par la verification')
+
+  // Chemin PORTE ROUGE — meme fonction, donc meme classement par construction.
+  const commeRed = ['T99.A1', 'T99.A2'].map((id) => noms.filter((t) => caseMatcher(id).test(t.name)).length)
+  check('S05.3', commeRed[0] === 1 && commeRed[1] === 1, 'la porte rouge observe exactement les memes cas que la verification')
+
+  // Un cas JAMAIS present doit rester NOT_RUN : le matcheur permissif ne doit
+  // pas devenir un matcheur qui accorde.
+  const absent = projectCases(['T99.A9'], noms)
+  check('S05.4', absent[0].status === 'NOT_RUN', 'un cas absent reste NOT_RUN — permissif n est pas complaisant')
+
+  // Alias latent : `A1` ne doit pas matcher `A10`. Aucune tache n a dix cas
+  // aujourd hui ; ce controle empeche la regression le jour ou ca arrive.
+  const dix = [{ name: 'test_T99_A10_autre_chose', status: TEST_STATUS.PASS, asserts: 1 }]
+  check('S05.5', projectCases(['T99.A1'], dix)[0].status === 'NOT_RUN', 'T99.A1 ne capture pas T99.A10')
+}
+
 export function run() {
   testDistParasite()
   testDirtyCleanRoomRefused()
@@ -316,6 +361,7 @@ export function run() {
   testPushIsTheLock()
   testStaleIsActionable()
   testLedgerRecency()
+  testMatcheurUnique()
   const failed = results.filter((r) => !r.ok)
   return { results, failed, ok: failed.length === 0 }
 }

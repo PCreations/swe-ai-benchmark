@@ -355,10 +355,35 @@ export function runAcceptance(entry) {
  *     compte pour zéro : c'est la seule lecture qui ne récompense pas la panne
  *     du compteur.
  */
+/**
+ * LE MATCHEUR DE CAS — UN SEUL, PARTAGE.
+ *
+ * Il a existe en DEUX exemplaires divergents, et ca a produit exactement le
+ * faux-gate que ce depot existe pour rendre impossible :
+ *   red.mjs      `id.replace(/\./g, '[._]')`   -> `test_T31_A1` OBSERVE
+ *   chains.mjs   `id.replace(/\./g, '\\.')`     -> `test_T31_A1` NON OBSERVE
+ * Mesure sur les vrais noms de analysis/tests/test_T31.py : les 7 cas requis
+ * franchissaient la porte ROUGE et restaient NOT_RUN a la verification. T31
+ * etait donc structurellement improuvable, et l'echec ne se revelait qu'apres
+ * spec, tests, red et impl — a la charge d'un implementeur qui n'a meme pas le
+ * droit de toucher au test qui le juge.
+ *
+ * LE SEPARATEUR EST PERMISSIF, ET C'EST LE BON SENS : un identifiant Python ne
+ * peut pas contenir de point, donc exiger `T31.A1` litteral interdirait toute
+ * suite d'acceptation pytest — or T31 a T36 le sont toutes.
+ *
+ * LE GARDE `(?![0-9])` ferme un alias latent : sans lui `T18.A1` matcherait
+ * `T18.A10`. Aucune tache n'a dix cas aujourd'hui (mesure : 0), donc il ne
+ * change rien maintenant — il empeche la regression le jour ou ca arrive.
+ */
+export function caseMatcher(id) {
+  return new RegExp(id.replace(/\./g, '[._]') + '(?![0-9])')
+}
+
 export function projectCases(requiredCases, tests) {
   const statuses = []
   for (const id of requiredCases) {
-    const re = new RegExp(id.replace(/\./g, '\\.'))
+    const re = caseMatcher(id)
     const mine = tests.filter((t) => re.test(t.name))
     if (mine.length === 0) {
       statuses.push({ id, status: 'NOT_RUN', observed: 0, asserts: 0, asserts_observable: false })

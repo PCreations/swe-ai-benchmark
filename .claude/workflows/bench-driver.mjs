@@ -528,6 +528,17 @@ lance, je vois ce que ca donne, je fige ».
 Un cas qui n'observe rien ne vaut rien : pas de test a zero assertion, pas de
 tautologie, pas de retour anticipe conditionne par l'environnement.
 
+SI LA CHAINE EST PYTEST, DEUX CONTRAINTES MESUREES SUR T31 :
+- Un identifiant Python ne peut pas contenir de point : nomme le test
+  \`test_${T}_A1_...\` (underscore). Le runner accepte le point ET l'underscore.
+- Le compteur d'assertions est le hook \`pytest_assertion_pass\`, qui ne se
+  declenche que sur une instruction \`assert\`. Un cas dont la seule verification
+  est \`with pytest.raises(...)\` compte ZERO assertion et sort CREUX (VACUOUS),
+  meme s'il passe. Observe sur ${T === 'T31' ? 'ce cas' : 'T31.A7'}. Ajoute une
+  assertion explicite sur l'exception (son type, son message, son champ), ce qui
+  vaut mieux de toute facon : \`pytest.raises\` seul n'affirme pas ce qui est
+  refuse, seulement que quelque chose a leve.
+
 ACCEPTANCE et MUTANT sont deux zones de jugement : elles peuvent entrer dans le
 meme commit, mais JAMAIS avec IMPL ou HARNESS. Bench-Role: test-author. Puis push.`
 

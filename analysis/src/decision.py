@@ -2,21 +2,18 @@
 Regle de decision economique et ses limites -- T34 (docs/cahier.md L447-L456 ;
 docs/specs/T34.md).
 
-ROLE : implementer, ETAGE RED. Zone IMPL (verification/ownership.json). Le
+ROLE : implementer, ETAGE IMPL. Zone IMPL (verification/ownership.json). Le
 contrat de ce module (noms de fonctions, forme des entrees/sorties) est fixe
 par analysis/tests/test_T34.py (zone ACCEPTANCE, ADR-001) : ce fichier
-satisfait ce contrat, il ne le redefinit pas -- aucun des deux exports
-ci-dessous n'existait avant que la suite T34 les pose.
+satisfait ce contrat, il ne le redefinit pas.
 
-A ce stade, chaque export est un SQUELETTE : il leve `NotImplemented_`
-immediatement, sans calculer quoi que ce soit. C'est le rouge legitime que
-`bench red T34` attend (STUB_NOT_IMPLEMENTED / ASSERTION_FAILED), a
-distinguer d'un rouge illegitime (ModuleNotFoundError avant que ce fichier
-n'existe, TypeError d'une signature qui ne correspond pas a l'appel du test) :
-verification/runner/red.mjs classe ces deux dernieres formes comme
-SUITE_FAILED_TO_RUN, qui n'est pas une preuve.
+Regle (cahier:L451) : superiorite cout si borne superieure du ratio <1 ;
+non-inferiorite V/U si leurs bornes inferieures >-marge ; aucune violation
+critique interdite ; comptabilite resolue et donnees admissibles.
 """
 from __future__ import annotations
+
+from fractions import Fraction
 
 
 class NotImplemented_(Exception):
@@ -51,13 +48,57 @@ def evaluate_contrast(
     """Applique la regle de decision de cahier:L451 a un contraste deja
     borne : porte d'admissibilite (comptabilite resolue ET >=2 grappes),
     puis trois criteres independants (cost_superior, v_non_inferior,
-    u_non_inferior) et le blocage par violation critique. Squelette : non
-    implemente."""
-    raise NotImplemented_("decision.evaluate_contrast")
+    u_non_inferior) et le blocage par violation critique.
+
+    Porte d'admissibilite : `accounting_status == "RESOLVED"` ET
+    `distinct_parent_count >= 2`. Si non admissible, le contraste est
+    INCONCLUSIVE quels que soient les autres criteres (les trois criteres ne
+    sont alors pas calcules a partir des bornes -- ils restent `False`, sans
+    signification puisque `admissible` est `False`).
+
+    Frontieres strictes (cahier:L451) : `<1` pour le ratio, `>-margin` pour
+    les deltas V et U -- pas `<=`/`>=`.
+    """
+    admissible = accounting_status == "RESOLVED" and distinct_parent_count >= 2
+
+    if admissible:
+        cost_superior = ratio_upper_bound < 1
+        v_non_inferior = delta_v_lower_bound > -margin
+        u_non_inferior = delta_u_lower_bound > -margin
+        critical_violation_blocks = has_critical_violation
+        superior = (
+            cost_superior
+            and v_non_inferior
+            and u_non_inferior
+            and not has_critical_violation
+        )
+        status = "SUPERIOR" if superior else "NOT_SUPERIOR"
+    else:
+        cost_superior = False
+        v_non_inferior = False
+        u_non_inferior = False
+        critical_violation_blocks = has_critical_violation
+        superior = False
+        status = "INCONCLUSIVE"
+
+    return {
+        "status": status,
+        "superior": superior,
+        "admissible": admissible,
+        "cost_superior": cost_superior,
+        "v_non_inferior": v_non_inferior,
+        "u_non_inferior": u_non_inferior,
+        "critical_violation_blocks": critical_violation_blocks,
+    }
 
 
 def bonferroni_family(num_contrasts: int) -> dict:
     """Correction de Bonferroni de cahier:L451 : pour J contrastes et trois
     criteres inferentiels, la famille contient 3J intervalles ; niveau
-    marginal 1-0,05/(3J). Squelette : non implemente."""
-    raise NotImplemented_("decision.bonferroni_family")
+    marginal 1-0,05/(3J)."""
+    interval_count = 3 * num_contrasts
+    marginal_level = Fraction(1) - Fraction(5, 100) / interval_count
+    return {
+        "interval_count": interval_count,
+        "marginal_level": marginal_level,
+    }

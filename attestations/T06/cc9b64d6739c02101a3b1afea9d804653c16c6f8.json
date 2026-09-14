@@ -1,0 +1,769 @@
+{
+  "schema": "bench.attestation/1",
+  "task": "T06",
+  "verdict": "PASS",
+  "commit": "cc9b64d6739c02101a3b1afea9d804653c16c6f8",
+  "branch": "claude/gallant-fermi-51jlsx",
+  "dirty": false,
+  "clean_room": true,
+  "input_digest": "0e4c070d7cd7d68a0d5d800d3fefb236eb2fe3c72da9cffd0ed19ea43f06377d",
+  "capabilities_used": [
+    "node22"
+  ],
+  "capabilities": {
+    "node22": {
+      "present": true,
+      "detail": "node 22.22.2"
+    }
+  },
+  "cases": [
+    {
+      "id": "T06.A1",
+      "status": "PASS"
+    },
+    {
+      "id": "T06.A2",
+      "status": "PASS"
+    },
+    {
+      "id": "T06.A3",
+      "status": "PASS"
+    },
+    {
+      "id": "T06.A4",
+      "status": "PASS"
+    },
+    {
+      "id": "T06.A5",
+      "status": "PASS"
+    },
+    {
+      "id": "T06.A6",
+      "status": "PASS"
+    }
+  ],
+  "proof_kinds": {
+    "absence": 1,
+    "refusal": 3,
+    "behaviour": 2
+  },
+  "red_gate": {
+    "path": "red/T06/73d7d8dff13fdeaca20c9374293832ddcafab540.json",
+    "subject_commit": "73d7d8dff13fdeaca20c9374293832ddcafab540",
+    "verdict": "RED_RECORDED"
+  },
+  "two_key": {
+    "range": "73d7d8dff13fdeaca20c9374293832ddcafab540..HEAD",
+    "commits": [
+      {
+        "sha": "3a9528f84b2c",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "5b9a75ad5708",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "0b383c9c4df2",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "577ae92e889b",
+        "role": "implementer",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "75bd073cdfb9",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "12afd66c5798",
+        "role": "integrator",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "9cf05a9dd542",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "03ddcdbd15c4",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 0,
+        "problems": []
+      },
+      {
+        "sha": "1443228b4084",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "5dc3c3bbde28",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "6e24ae099f5f",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "94d4ac1d4d5d",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "5643eb6b51b6",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "5c1d561c6935",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "93f4fb1931fb",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "1ff1c94e00a3",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "70e5b8c569ba",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "2fc7db9eb113",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "121f58aa9885",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "0d5df9e8c9ae",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "1ecca4643229",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "06eefecd4609",
+        "role": "implementer",
+        "phase": null,
+        "files": 7,
+        "problems": []
+      },
+      {
+        "sha": "af17dce92ce0",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "64e8ac460d29",
+        "role": "implementer",
+        "phase": null,
+        "files": 7,
+        "problems": []
+      },
+      {
+        "sha": "329f5a541523",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "9f9b5be98490",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "7ac121c4d183",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "84cb7857c1aa",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "ebba728e4871",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "fd3db78830a4",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "c745bb35b8b9",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "5c1d81be4ec8",
+        "role": "implementer",
+        "phase": null,
+        "files": 14,
+        "problems": []
+      },
+      {
+        "sha": "28c2c7f41282",
+        "role": "implementer",
+        "phase": null,
+        "files": 10,
+        "problems": []
+      },
+      {
+        "sha": "eb210958acb9",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "ca3b47c245a1",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "fd8054683d9d",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "9ea7d5e4228b",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "cfbdaceb64ae",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "4d7fa64cd336",
+        "role": "implementer",
+        "phase": null,
+        "files": 12,
+        "problems": []
+      },
+      {
+        "sha": "fb7f117f3d92",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "5fc26659c598",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "6c6bbe0257d1",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 0,
+        "problems": []
+      },
+      {
+        "sha": "395264478651",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "8e0a3221b3c8",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "e6e0229ac41e",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "1c61fb86d27f",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "8be70b093d4d",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "0a97ffee827f",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "c79862c3fc1c",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "a1e80153d5e1",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "6d4d8fc02f16",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "5133a4691e6e",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "43e681968459",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "8bf2ce2d4905",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "61ae87e03a87",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "9f987f3bb0a7",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "282eb211ba53",
+        "role": "implementer",
+        "phase": null,
+        "files": 7,
+        "problems": []
+      },
+      {
+        "sha": "0a1658f67b4b",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "7e9147253f55",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "3b554a0b9934",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "5062f29a33da",
+        "role": "implementer",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "1f89e5153de7",
+        "role": "integrator",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "47bb965caf54",
+        "role": "implementer",
+        "phase": null,
+        "files": 7,
+        "problems": []
+      },
+      {
+        "sha": "10fdfdc23dbd",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "1fd467c59292",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "e4de1b357b19",
+        "role": "test-author",
+        "phase": null,
+        "files": 9,
+        "problems": []
+      },
+      {
+        "sha": "aeb027a7c087",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "865dd0c64e7b",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "398733f6dd79",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "cc9b64d6739c",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      }
+    ]
+  },
+  "clean_room_run": {
+    "nonce": "3da027a9cfcd",
+    "rev": "cc9b64d6739c02101a3b1afea9d804653c16c6f8",
+    "clean_room": true,
+    "pristine": true,
+    "stray_before": [],
+    "prepare": [
+      {
+        "command": "pnpm install --frozen-lockfile --reporter=silent",
+        "exit_code": 0
+      },
+      {
+        "command": "uv --project analysis sync --locked",
+        "exit_code": 0
+      }
+    ],
+    "command": "node tools/bench verify:task T06 --json",
+    "exit_code": 0,
+    "stdout_sha256": "962b2d75b46a5bf12dad9c333c1a0d3faadefb6a853c0f81d629d77dc6efc564",
+    "run_dir": ".bench/run/3da027a9cfcd"
+  },
+  "report": {
+    "schema": "bench.result/1",
+    "task_id": "T06",
+    "reason": "PASS",
+    "exit_code": 0,
+    "commit": "cc9b64d6739c02101a3b1afea9d804653c16c6f8",
+    "branch": "HEAD",
+    "dirty": false,
+    "clean_room": false,
+    "registry": {
+      "kind": "repository",
+      "path": "verification/tasks.json",
+      "sha256": "cfb8e1d9fe0bdd88bf5cbf608e55a7134030adf124a71dc00f647543fa282e61",
+      "problems": []
+    },
+    "fixtures_digest": "5cca37e8058a602f5b04d6e85e825779fb197efd31d218db5109adcd4dfc0381",
+    "fixtures": {
+      "schema": "bench.fixtures/1",
+      "scope": [
+        "acceptance/reference",
+        "fixtures",
+        "packages/scenario"
+      ],
+      "file_count": 22,
+      "digest_before": "5cca37e8058a602f5b04d6e85e825779fb197efd31d218db5109adcd4dfc0381",
+      "digest_after": "5cca37e8058a602f5b04d6e85e825779fb197efd31d218db5109adcd4dfc0381",
+      "stable": true,
+      "moved": [],
+      "frozen_roots_head": {
+        "acceptance/reference": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91"
+      }
+    },
+    "references": {
+      "schema": "bench.references/1",
+      "source": "docs/FROZEN_ROOTS.json",
+      "roots": [
+        "acceptance/reference"
+      ],
+      "observed": [
+        {
+          "root": "acceptance/reference",
+          "state": "GELEE",
+          "head_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+          "files": 10,
+          "worktree_diff": [],
+          "fixtures": [
+            {
+              "fixture": "F-MONEY",
+              "cahier": "L103",
+              "state": "CONFORME",
+              "expected_integers": [
+                340,
+                680
+              ],
+              "missing_integers": [],
+              "files": [
+                "acceptance/reference/F-MONEY.json"
+              ]
+            }
+          ]
+        }
+      ],
+      "problems": []
+    },
+    "input_digest": "0e4c070d7cd7d68a0d5d800d3fefb236eb2fe3c72da9cffd0ed19ea43f06377d",
+    "versions": {
+      "declared": {
+        "node": ">=22.22.2 <23",
+        "pnpm": "pnpm@10.33.0",
+        "typescript": "6.0.3",
+        "jest": "30.5.1",
+        "ts-jest": "29.4.12",
+        "python": "==3.12.*",
+        "pytest": "9.1.1"
+      },
+      "observed": {
+        "node": "22.22.2",
+        "v8": "12.4.254.21-node.39"
+      }
+    },
+    "lockfiles": {
+      "pnpm-lock.yaml": "471ff2eadb8204f2f6d7309c4349daa99f049bc9957c451262b4671e226288ae",
+      "analysis/uv.lock": "5bea4ea56815d13e72680ee4533010fbeeb7f8285728d42c9a33f2c5b17f3148"
+    },
+    "commands": [
+      {
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T06.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/3da027a9cfcd/.bench/run/565ffcf6037d/jest.json\"",
+        "exit_code": 0
+      }
+    ],
+    "chain": "jest",
+    "acceptance_entry": "acceptance/T06.spec.ts",
+    "suite_loaded": true,
+    "suite_exit_code": 0,
+    "tests_observed": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "expected_cases": [
+      "T06.A1",
+      "T06.A2",
+      "T06.A3",
+      "T06.A4",
+      "T06.A5",
+      "T06.A6"
+    ],
+    "executed_cases": [
+      "T06.A1",
+      "T06.A2",
+      "T06.A3",
+      "T06.A4",
+      "T06.A5",
+      "T06.A6"
+    ],
+    "assertions_expected": 6,
+    "assertions_executed": 6,
+    "assertions_observed": 243,
+    "case_statuses": [
+      {
+        "id": "T06.A1",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 17,
+        "asserts_observable": true
+      },
+      {
+        "id": "T06.A2",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 70,
+        "asserts_observable": true
+      },
+      {
+        "id": "T06.A3",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 45,
+        "asserts_observable": true
+      },
+      {
+        "id": "T06.A4",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 74,
+        "asserts_observable": true
+      },
+      {
+        "id": "T06.A5",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 17,
+        "asserts_observable": true
+      },
+      {
+        "id": "T06.A6",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 20,
+        "asserts_observable": true
+      }
+    ],
+    "skipped_cases": [],
+    "missing_cases": [],
+    "vacuous_cases": [],
+    "proof_files": [
+      ".bench/run/565ffcf6037d/jest.json"
+    ],
+    "requires": [
+      "node22"
+    ],
+    "blocked_by": [],
+    "requires_live_credentials": false,
+    "depends_on": [
+      "T03"
+    ],
+    "detail": [],
+    "limitations": [
+      "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+      "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+      "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+      "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+      "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+    ]
+  },
+  "depends_on": [
+    "T03"
+  ],
+  "limitations": [
+    "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+    "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+    "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+    "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+    "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+  ],
+  "boot_id": "340fba6f-d145-47d9-aefa-86b9031bfef1",
+  "produced_at": "2026-09-14T10:02:52.437Z",
+  "duration_ms": 5944
+}

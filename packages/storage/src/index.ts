@@ -28,7 +28,9 @@
 // décrit le port, src/artifact-local.ts son adaptateur sur un répertoire,
 // src/artifact-s3.ts son adaptateur sur un service objet réel, et
 // src/s3-test-service.ts le service de test local et ses identités limitées
-// par usage.
+// par usage. LES SIX RÔLES DE T15 (L281-L290, src/checkpoint.ts) sont publiés
+// à la suite de T14 : eux LÈVENT `NotImplemented` — c'est le squelette ROUGE
+// de la tâche en cours, pas encore rempli de règles.
 //
 // CE QUE CE PAQUET NE PRÉTEND PAS FAIRE. Une transaction garantit les effets
 // LOCAUX ; elle ne rend pas une requête fournisseur distante exactement unique
@@ -119,6 +121,33 @@ export type {
   ReadQuery,
   StoreTarget,
 } from './envelope.js'
+
+// ── T15 — checkpoints coherents (L281-L290). SQUELETTE : les six roles
+//    ci-dessous levent `NotImplemented` (aucune regle metier n'est ecrite).
+//    Ils reutilisent le port ArtifactStore de T13/T14 (ci-dessus) sans le
+//    redeclarer.
+//
+//    openCheckpointCoordinator({ admin_dsn, app_database, artifact_store })
+//    applyOperation(h, { operation_sequence, fact })
+//    beginCheckpoint(h, { after_operation })
+//    finishCheckpoint(h, token, { components })
+//    listCheckpoints(h)
+//    restoreCheckpoint(h, { checkpoint_id })
+export {
+  openCheckpointCoordinator,
+  applyOperation,
+  beginCheckpoint,
+  finishCheckpoint,
+  listCheckpoints,
+  restoreCheckpoint,
+} from './checkpoint.js'
+export type {
+  BeginCheckpointRequest,
+  CheckpointCoordinatorTarget,
+  CheckpointOperation,
+  FinishCheckpointRequest,
+  RestoreCheckpointRequest,
+} from './checkpoint.js'
 
 /**
  * Ouvre un repository sur le schéma central (L257).

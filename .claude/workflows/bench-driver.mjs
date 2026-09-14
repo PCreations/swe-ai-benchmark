@@ -676,8 +676,82 @@ ni suppression d'un cas.
 
 /* ─────────────────────────────────────────────────────────────────── corps */
 
+/**
+ * ETAGE SETTLE — CONVERGENCE.
+ *
+ * Observe en vrai, et c'est structurel, pas accidentel : T00 et T01 partagent
+ * des source_paths (verification/, acceptance/). Travailler T01 fait donc bouger
+ * les entrees de T00, dont la preuve tombe PERIMEE ; or T01 depend de T00, donc
+ * T01 accepte et poussee reste affichee « W attend ». Le tour se termine avec
+ * une attestation valide et un tableau qui dit le contraire.
+ *
+ * L'agent d'acceptation avait raison de ne pas rejouer T00 lui-meme — son etage
+ * est nomme T01, et franchir cette frontiere est exactement ce que la partition
+ * interdit. Le rejeu appartient a un etage propre, et c'est celui-ci.
+ *
+ * CE N'EST PAS UNE BOUCLE INFINIE : `bench accept` n'ecrit que sur la branche
+ * ORPHELINE de ledger, dont les commits ne changent jamais le tree hash des
+ * sources. Re-attester ne modifie donc aucun input_digest, et le point fixe est
+ * atteint en un tour. La borne a 5 iterations est une ceinture, pas la garantie.
+ *
+ * AUCUN AFFAIBLISSEMENT POSSIBLE ICI : `bench accept` reste la seule fabrique
+ * d'attestations et refait TOUTE la porte — clean-room vierge, deux cles, porte
+ * rouge, capacites du boot. Cet etage ne fait que la RAPPELER sur des taches que
+ * le tour a perimees ; il ne peut pas en fabriquer le verdict.
+ */
+const settlePrompt = `${BASE}
+
+ROLE : integrator. ETAGE SETTLE — le dernier du tour. TU N'ECRIS AUCUN CODE.
+
+Le travail du tour a pu PERIMER des taches deja prouvees : plusieurs taches
+partagent des source_paths, donc avancer l'une fait bouger les entrees de
+l'autre, dont la preuve est alors recalculee contre HEAD et tombe STALE. Une
+tache dont une dependance est STALE reste affichee « W attend » meme si sa
+propre attestation vient d'etre poussee. Ton etage ramene le tableau a son point
+fixe.
+
+BOUCLE, 44 ITERATIONS AU PLUS, et ce plafond n'est pas un chiffre rond.
+
+Ce qu'il faut comprendre du rythme de convergence : tu ne vois comme STALE que
+les taches dont TOUTES les dependances sont deja prouvees. Les autres sont
+WAITING derriere elles. Une iteration regle donc un NIVEAU de profondeur du
+graphe — plusieurs taches soeurs se reglent ensemble — et il faut autant
+d'iterations que la chaine de dependances est PROFONDE, pas autant qu'il y a de
+taches. Mesure : une cascade T00->T01->T02->T03 a demande 4 iterations ; T05 et
+T07, soeurs, se sont reglees en une seule.
+
+44 est donc une borne large et sure : la profondeur ne peut pas exceder le
+nombre de taches. Un plafond de 5 a fonctionne tant que la chaine etait courte,
+puis a echoue (SETTLE_NON_CONVERGENT observe) — et il aurait echoue de plus en
+plus tot a mesure que le graphe s'approfondit. Chaque \`accept\` coute ~14 s,
+mesure sur les premieres attestations du ledger : boucler large est bon marche,
+s'arreter trop tot ne l'est pas.
+  1. \`node tools/bench resume --json\`. Lis le champ \`stale\`.
+  2. S'il est vide : termine, ok=true, dis combien d'iterations il a fallu.
+  3. Sinon, pour CHAQUE tache de \`stale\`, dans l'ordre :
+     \`node tools/bench accept <Txx>\`.
+     - sortie 0 : l'attestation est refaite, continue.
+     - sortie non nulle : NE FORCE RIEN. Note le refus nomme tel quel et passe
+       a la suivante. Un refus ici est une information, pas un obstacle a
+       contourner : il veut dire que la tache demande du VRAI travail (code,
+       porte rouge, capacite absente), ce qui est l'affaire d'un prochain tour.
+  4. \`git push --atomic origin ${BRANCH} ${LEDGER}\` (4 reprises, 2s/4s/8s/16s).
+  5. Recommence.
+
+Si apres 44 iterations \`stale\` n'est toujours pas vide, rends ok=false avec
+l'etat \`SETTLE_NON_CONVERGENT\`, la liste des taches restantes ET le refus exact
+de chacune. Ne cherche pas a resoudre plus loin : une non-convergence est un fait
+a rapporter, pas a contourner.
+
+INTERDITS, comme partout : pas de --no-verify, aucune edition du registre ni des
+cartes, aucun cas retire ou affaibli, aucune ecriture hors zone. Tu n'appelles
+que \`bench resume\`, \`bench accept\` et \`git push\`.
+
+Rends : le nombre d'iterations, les taches re-attestees, celles qui ont refuse
+avec leur motif, et l'etat final de \`resume\` (nombre de [H] sur 44).`
+
 phase('Preflight')
-const world = await agent(preflightPrompt, { label: 'preflight', phase: 'Preflight', schema: WORLD, model: MODELE })
+let world = await agent(preflightPrompt, { label: 'preflight', phase: 'Preflight', schema: WORLD, model: MODELE })
 
 if (!world) return { halted: 'PREFLIGHT_FAILED', detail: "l'etage preflight n'a rien rendu" }
 if (world.halt) {
@@ -695,6 +769,43 @@ if (world.resume_exit === 3) {
 // dans resume sans corriger SON CONSOMMATEUR laissait la boucle s'arreter sur
 // NO_READY_TASK des qu'une entree GLOBALE bougeait — c'est-a-dire a chaque tour,
 // puisque chaque etage touche le registre ou le runner. Observe en vrai.
+// SETTLE D'ABORD QUAND LA RACINE EST PERIMEE — sinon le tour entier y passe.
+//
+// MESURE, deux tours consecutifs (wn10qcob3 puis wk0hxjdj6) : un commit sur un
+// chemin GLOBAL perime T00 ; T00 perimee rend T01..T16 WAITING (dependance non
+// prouvee), donc T17 et T31 aussi. `actionable` ne contient plus que T00, la
+// frontiere se reduit a [T00], et l'iteration entiere — ~46 min — ne fait que
+// re-attester. Le travail reel n'a pu commencer qu'au tour suivant. Deux fois.
+//
+// Le settle ne fabrique aucun verdict : `bench accept` refait toute la porte en
+// clean-room, et il n'ecrit que sur la branche ORPHELINE de ledger, dont les
+// commits ne changent jamais le tree hash des sources. Le faire AVANT plutot
+// qu'APRES ne change donc rien a ce qui est prouve — seulement le moment ou on
+// l'apprend, et donc ce que le tour peut encore accomplir.
+//
+// PERIMEES = actionable \ ready : c'est la definition meme d'`actionable`
+// (READY *plus* les perimees dont les dependances tiennent), donc rien a
+// ajouter au schema pour le savoir.
+const perimeesAuDepart = (world.actionable ?? []).filter((T) => !(world.ready ?? []).includes(T))
+if (perimeesAuDepart.length) {
+  log(`Perimees au depart : ${perimeesAuDepart.join(', ')} — settle avant de choisir la frontiere.`)
+  phase('Settle')
+  const prealable = await agent(settlePrompt, { label: 'settle:prealable', phase: 'Settle', schema: OUTCOME, model: MODELE })
+  log(`settle prealable : ${prealable?.state ?? 'AUCUN RETOUR'}`)
+  // On RELIT le monde. Ne jamais croire l'etage precedent sur parole : c'est
+  // l'axiome de la boucle, et il vaut aussi pour un etage que je viens de lancer.
+  const relu = await agent(preflightPrompt, { label: 'preflight:relecture', phase: 'Preflight', schema: WORLD, model: MODELE })
+  if (relu && !relu.halt) {
+    world = relu
+    if (world.resume_exit === 3) {
+      log('Les 44 taches sont prouvees a HEAD apres settle.')
+      return { done: true, world }
+    }
+  } else {
+    log('Relecture du monde indisponible — on continue sur la lecture du preflight initial.')
+  }
+}
+
 const todo = world.actionable?.length ? world.actionable : world.ready
 log(`HEAD ${world.head.slice(0, 8)} · prouvees ${world.proven.length}/44 · actionnables ${todo.length} · bloquees ${world.blocked.length}`)
 if (world.capabilities_absent?.length) log(`capacites absentes apres bootstrap : ${world.capabilities_absent.join(', ')}`)
@@ -833,80 +944,6 @@ const results = await pipeline(
         }),
   (prev, T) => (prev?.ok === false ? null : agent(acceptPrompt(T), { label: `accept:${T}`, phase: 'Accept', schema: OUTCOME, model: MODELE }))
 )
-
-/**
- * ETAGE SETTLE — CONVERGENCE.
- *
- * Observe en vrai, et c'est structurel, pas accidentel : T00 et T01 partagent
- * des source_paths (verification/, acceptance/). Travailler T01 fait donc bouger
- * les entrees de T00, dont la preuve tombe PERIMEE ; or T01 depend de T00, donc
- * T01 accepte et poussee reste affichee « W attend ». Le tour se termine avec
- * une attestation valide et un tableau qui dit le contraire.
- *
- * L'agent d'acceptation avait raison de ne pas rejouer T00 lui-meme — son etage
- * est nomme T01, et franchir cette frontiere est exactement ce que la partition
- * interdit. Le rejeu appartient a un etage propre, et c'est celui-ci.
- *
- * CE N'EST PAS UNE BOUCLE INFINIE : `bench accept` n'ecrit que sur la branche
- * ORPHELINE de ledger, dont les commits ne changent jamais le tree hash des
- * sources. Re-attester ne modifie donc aucun input_digest, et le point fixe est
- * atteint en un tour. La borne a 5 iterations est une ceinture, pas la garantie.
- *
- * AUCUN AFFAIBLISSEMENT POSSIBLE ICI : `bench accept` reste la seule fabrique
- * d'attestations et refait TOUTE la porte — clean-room vierge, deux cles, porte
- * rouge, capacites du boot. Cet etage ne fait que la RAPPELER sur des taches que
- * le tour a perimees ; il ne peut pas en fabriquer le verdict.
- */
-const settlePrompt = `${BASE}
-
-ROLE : integrator. ETAGE SETTLE — le dernier du tour. TU N'ECRIS AUCUN CODE.
-
-Le travail du tour a pu PERIMER des taches deja prouvees : plusieurs taches
-partagent des source_paths, donc avancer l'une fait bouger les entrees de
-l'autre, dont la preuve est alors recalculee contre HEAD et tombe STALE. Une
-tache dont une dependance est STALE reste affichee « W attend » meme si sa
-propre attestation vient d'etre poussee. Ton etage ramene le tableau a son point
-fixe.
-
-BOUCLE, 44 ITERATIONS AU PLUS, et ce plafond n'est pas un chiffre rond.
-
-Ce qu'il faut comprendre du rythme de convergence : tu ne vois comme STALE que
-les taches dont TOUTES les dependances sont deja prouvees. Les autres sont
-WAITING derriere elles. Une iteration regle donc un NIVEAU de profondeur du
-graphe — plusieurs taches soeurs se reglent ensemble — et il faut autant
-d'iterations que la chaine de dependances est PROFONDE, pas autant qu'il y a de
-taches. Mesure : une cascade T00->T01->T02->T03 a demande 4 iterations ; T05 et
-T07, soeurs, se sont reglees en une seule.
-
-44 est donc une borne large et sure : la profondeur ne peut pas exceder le
-nombre de taches. Un plafond de 5 a fonctionne tant que la chaine etait courte,
-puis a echoue (SETTLE_NON_CONVERGENT observe) — et il aurait echoue de plus en
-plus tot a mesure que le graphe s'approfondit. Chaque \`accept\` coute ~14 s,
-mesure sur les premieres attestations du ledger : boucler large est bon marche,
-s'arreter trop tot ne l'est pas.
-  1. \`node tools/bench resume --json\`. Lis le champ \`stale\`.
-  2. S'il est vide : termine, ok=true, dis combien d'iterations il a fallu.
-  3. Sinon, pour CHAQUE tache de \`stale\`, dans l'ordre :
-     \`node tools/bench accept <Txx>\`.
-     - sortie 0 : l'attestation est refaite, continue.
-     - sortie non nulle : NE FORCE RIEN. Note le refus nomme tel quel et passe
-       a la suivante. Un refus ici est une information, pas un obstacle a
-       contourner : il veut dire que la tache demande du VRAI travail (code,
-       porte rouge, capacite absente), ce qui est l'affaire d'un prochain tour.
-  4. \`git push --atomic origin ${BRANCH} ${LEDGER}\` (4 reprises, 2s/4s/8s/16s).
-  5. Recommence.
-
-Si apres 44 iterations \`stale\` n'est toujours pas vide, rends ok=false avec
-l'etat \`SETTLE_NON_CONVERGENT\`, la liste des taches restantes ET le refus exact
-de chacune. Ne cherche pas a resoudre plus loin : une non-convergence est un fait
-a rapporter, pas a contourner.
-
-INTERDITS, comme partout : pas de --no-verify, aucune edition du registre ni des
-cartes, aucun cas retire ou affaibli, aucune ecriture hors zone. Tu n'appelles
-que \`bench resume\`, \`bench accept\` et \`git push\`.
-
-Rends : le nombre d'iterations, les taches re-attestees, celles qui ont refuse
-avec leur motif, et l'etat final de \`resume\` (nombre de [H] sur 44).`
 
 const settle = await agent(settlePrompt, { label: 'settle', phase: 'Settle', schema: OUTCOME, model: MODELE })
 

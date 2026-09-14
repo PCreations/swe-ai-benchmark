@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T00",
+  "subject_commit": "2864a940729e01664054d749fef49d17412e3bee",
+  "dirty": false,
+  "input_digest": "1a2ccb531e340c64d4e166fe9a6bf99f32905c46bd6a9ff290246cccc0cab172",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T00.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M1",
+      "note": "Ajout dune declaration exportee mal typee (export const __t00_m1_mutant: number = \"oops-not-a-number\") dans packages/contracts/src/index.ts. pnpm verify:task T00 rejoue : T00.A1 ROUGE (3 assertions au lieu de 12, ASSERTION_FAILED), A2..A6 restes OK. Fichier restaure ensuite (git status propre, sha256 identique)."
+    },
+    {
+      "id": "T00.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M2",
+      "note": "verification/runner/verify-task.mjs : EXIT_FOR_REASON[REASON.PASS] force a 1 au lieu de 0. pnpm verify:task T00 rejoue : T00.A2 ROUGE, ainsi que A4 et A5 (effet tue_aussi documente dans le mutant). A1, A3, A6 restes OK. Fichier restaure (git status propre)."
+    },
+    {
+      "id": "T00.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M3",
+      "note": "verification/runner/verify-task.mjs : la branche d agregation qui renvoie ASSERTION_FAILED (failed/skipped/missing/vacuous) neutralisee en `if (false)`, rendant l agregation permissive. pnpm verify:task T00 rejoue : T00.A3 ROUGE (la sonde T43/T13 a assertion volontairement fausse redevient GREEN a tort dans l agregation, mais jest observe reellement le cas A3 qui verifie le rapport et tombe). A1,A2,A4,A5,A6 restes OK. Fichier restaure (git status propre)."
+    },
+    {
+      "id": "T00.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M4",
+      "note": "verification/runner/verify-task.mjs decide() : resolution d id inconnu rendue permissive (reg.byId.get(taskId) ?? tache-vide, le retour UNKNOWN_TASK neutralise). pnpm verify:task T00 rejoue : T00.A4 ROUGE (1 assertion sur 21), A5 tombe aussi (meme mecanisme). A1,A2,A3,A6 restes OK. Fichier restaure (git status propre)."
+    },
+    {
+      "id": "T00.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M5",
+      "note": "verification/runner/verify-task.mjs adjudicate() : la branche NOT_IMPLEMENTED (aucun cas execute) changee pour renvoyer REASON.PASS au lieu de REASON.NOT_IMPLEMENTED (variante a - PASS a vide). pnpm verify:task T00 rejoue : T00.A5 seul ROUGE (1 assertion sur 9), A1,A2,A3,A4,A6 restes OK. Fichier restaure (git status propre)."
+    },
+    {
+      "id": "T00.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T00.M6",
+      "note": "Mutation directe de l artefact analysis/uv.lock (ligne 1: version=1 -> version=999, schema de lock incompatible). pnpm verify:task T00 rejoue : `uv sync --locked` sort en exit 2 (schema non supporte), T00.A6 ROUGE (5 assertions sur 22), et par ricochet A1,A2,A3 (memes sondes dependant de la meme installation figee) ; A4,A5 restes OK — coherent avec doit_rester_vert de T00.M6 qui n exige pas A1 vert. sha256 avant=5bea4ea5..., apres mutation=<schema invalide>, restaure a l identique (sha256 5bea4ea5... confirme, git status propre)."
+    }
+  ],
+  "mutation_proof": {
+    "T00.A1": {
+      "killed_by": "T00.M1",
+      "note": "Ajout dune declaration exportee mal typee (export const __t00_m1_mutant: number = \"oops-not-a-number\") dans packages/contracts/src/index.ts. pnpm verify:task T00 rejoue : T00.A1 ROUGE (3 assertions au lieu de 12, ASSERTION_FAILED), A2..A6 restes OK. Fichier restaure ensuite (git status propre, sha256 identique)."
+    },
+    "T00.A2": {
+      "killed_by": "T00.M2",
+      "note": "verification/runner/verify-task.mjs : EXIT_FOR_REASON[REASON.PASS] force a 1 au lieu de 0. pnpm verify:task T00 rejoue : T00.A2 ROUGE, ainsi que A4 et A5 (effet tue_aussi documente dans le mutant). A1, A3, A6 restes OK. Fichier restaure (git status propre)."
+    },
+    "T00.A3": {
+      "killed_by": "T00.M3",
+      "note": "verification/runner/verify-task.mjs : la branche d agregation qui renvoie ASSERTION_FAILED (failed/skipped/missing/vacuous) neutralisee en `if (false)`, rendant l agregation permissive. pnpm verify:task T00 rejoue : T00.A3 ROUGE (la sonde T43/T13 a assertion volontairement fausse redevient GREEN a tort dans l agregation, mais jest observe reellement le cas A3 qui verifie le rapport et tombe). A1,A2,A4,A5,A6 restes OK. Fichier restaure (git status propre)."
+    },
+    "T00.A4": {
+      "killed_by": "T00.M4",
+      "note": "verification/runner/verify-task.mjs decide() : resolution d id inconnu rendue permissive (reg.byId.get(taskId) ?? tache-vide, le retour UNKNOWN_TASK neutralise). pnpm verify:task T00 rejoue : T00.A4 ROUGE (1 assertion sur 21), A5 tombe aussi (meme mecanisme). A1,A2,A3,A6 restes OK. Fichier restaure (git status propre)."
+    },
+    "T00.A5": {
+      "killed_by": "T00.M5",
+      "note": "verification/runner/verify-task.mjs adjudicate() : la branche NOT_IMPLEMENTED (aucun cas execute) changee pour renvoyer REASON.PASS au lieu de REASON.NOT_IMPLEMENTED (variante a - PASS a vide). pnpm verify:task T00 rejoue : T00.A5 seul ROUGE (1 assertion sur 9), A1,A2,A3,A4,A6 restes OK. Fichier restaure (git status propre)."
+    },
+    "T00.A6": {
+      "killed_by": "T00.M6",
+      "note": "Mutation directe de l artefact analysis/uv.lock (ligne 1: version=1 -> version=999, schema de lock incompatible). pnpm verify:task T00 rejoue : `uv sync --locked` sort en exit 2 (schema non supporte), T00.A6 ROUGE (5 assertions sur 22), et par ricochet A1,A2,A3 (memes sondes dependant de la meme installation figee) ; A4,A5 restes OK — coherent avec doit_rester_vert de T00.M6 qui n exige pas A1 vert. sha256 avant=5bea4ea5..., apres mutation=<schema invalide>, restaure a l identique (sha256 5bea4ea5... confirme, git status propre)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

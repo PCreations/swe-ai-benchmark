@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T14",
+  "subject_commit": "1fd467c59292f29299ea9c7a53b4383cffb8ae6b",
+  "dirty": true,
+  "input_digest": "1e8db938b406fbcb7b9e2abf7c7373f5e6ebbfffd7d042e40b08d3f594d75ff3",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T14.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M1",
+      "note": "module-stub: openS3ArtifactStore leve des l entree. pnpm test acceptance/T14.spec.ts rejoue : 6/6 cas rouges, dont A1 sur REFUS-INATTENDU ouverture du magasin S3. Mutation appliquee puis restauree (git checkout)."
+    },
+    {
+      "id": "T14.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M6",
+      "note": "transferAndPublish(): les deux throw interrupted(...) des points d injection INTERRUPT_DURING_UPLOAD et INTERRUPT_BEFORE_PUBLISH sont neutralises (le transfert continue). Suite rejouee : A1 et A2 rouges (TRANSFERT-NON-INTERROMPU / OBJET-PUBLIE-MALGRE-L-INTERRUPTION), A3/A4/A5/A6 verts, conforme a doit_rester_vert. Mutation restauree."
+    },
+    {
+      "id": "T14.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M7",
+      "note": "manifestOf() derive ref d un suffixe Math.random() au lieu du seul contenu. Suite rejouee : A1,A2,A3 rouges (A3 sur REFERENCES-DIFFERENTES-POUR-DEUX-UPLOADS-SIMULTANES), A6 vert. Mutation restauree."
+    },
+    {
+      "id": "T14.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M8",
+      "note": "provisionIdentity() (s3-test-service.ts) accorde en plus l identite candidate sur le seau de l evaluation (ensureBucket(base.bucket)+allowKeyOnBucket) et rend bucket: base.bucket. Suite rejouee : A4 seul rouge (PREFIXE-PRIVE-LU-PAR-L-IDENTITE-CANDIDATE), A1/A2/A3/A5/A6 verts. Mutation restauree."
+    },
+    {
+      "id": "T14.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M9",
+      "note": "checkAuthorization(): la comparaison d echeance est neutralisee (if(false && at<=Date.now())). Suite rejouee : A5 seul rouge (ACCEPTE-A-TORT sous autorisation perimee), A1/A2/A3/A4/A6 verts. Mutation restauree."
+    },
+    {
+      "id": "T14.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T14.M10",
+      "note": "refuse() recopie access_key_id et secret_access_key du magasin dans le message ARTIFACT_MISSING. Suite rejouee : A6 seul rouge (SECRET-PUBLIE-DANS-UN-RAPPORT-D-ERREUR sur la lecture d un artefact absent), A1-A5 verts. Mutation restauree."
+    }
+  ],
+  "mutation_proof": {
+    "T14.A1": {
+      "killed_by": "T14.M1",
+      "note": "module-stub: openS3ArtifactStore leve des l entree. pnpm test acceptance/T14.spec.ts rejoue : 6/6 cas rouges, dont A1 sur REFUS-INATTENDU ouverture du magasin S3. Mutation appliquee puis restauree (git checkout)."
+    },
+    "T14.A2": {
+      "killed_by": "T14.M6",
+      "note": "transferAndPublish(): les deux throw interrupted(...) des points d injection INTERRUPT_DURING_UPLOAD et INTERRUPT_BEFORE_PUBLISH sont neutralises (le transfert continue). Suite rejouee : A1 et A2 rouges (TRANSFERT-NON-INTERROMPU / OBJET-PUBLIE-MALGRE-L-INTERRUPTION), A3/A4/A5/A6 verts, conforme a doit_rester_vert. Mutation restauree."
+    },
+    "T14.A3": {
+      "killed_by": "T14.M7",
+      "note": "manifestOf() derive ref d un suffixe Math.random() au lieu du seul contenu. Suite rejouee : A1,A2,A3 rouges (A3 sur REFERENCES-DIFFERENTES-POUR-DEUX-UPLOADS-SIMULTANES), A6 vert. Mutation restauree."
+    },
+    "T14.A4": {
+      "killed_by": "T14.M8",
+      "note": "provisionIdentity() (s3-test-service.ts) accorde en plus l identite candidate sur le seau de l evaluation (ensureBucket(base.bucket)+allowKeyOnBucket) et rend bucket: base.bucket. Suite rejouee : A4 seul rouge (PREFIXE-PRIVE-LU-PAR-L-IDENTITE-CANDIDATE), A1/A2/A3/A5/A6 verts. Mutation restauree."
+    },
+    "T14.A5": {
+      "killed_by": "T14.M9",
+      "note": "checkAuthorization(): la comparaison d echeance est neutralisee (if(false && at<=Date.now())). Suite rejouee : A5 seul rouge (ACCEPTE-A-TORT sous autorisation perimee), A1/A2/A3/A4/A6 verts. Mutation restauree."
+    },
+    "T14.A6": {
+      "killed_by": "T14.M10",
+      "note": "refuse() recopie access_key_id et secret_access_key du magasin dans le message ARTIFACT_MISSING. Suite rejouee : A6 seul rouge (SECRET-PUBLIE-DANS-UN-RAPPORT-D-ERREUR sur la lecture d un artefact absent), A1-A5 verts. Mutation restauree."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

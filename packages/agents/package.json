@@ -16,6 +16,8 @@
     "dist"
   ],
   "dependencies": {
-    "@bench/contracts": "workspace:*"
+    "@bench/contracts": "workspace:*",
+    "@bench/storage": "workspace:*",
+    "@bench/scenario": "workspace:*"
   }
 }

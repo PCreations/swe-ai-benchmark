@@ -29,8 +29,11 @@
 // src/artifact-s3.ts son adaptateur sur un service objet réel, et
 // src/s3-test-service.ts le service de test local et ses identités limitées
 // par usage. LES SIX RÔLES DE T15 (L281-L290, src/checkpoint.ts) sont publiés
-// à la suite de T14 : eux LÈVENT `NotImplemented` — c'est le squelette ROUGE
-// de la tâche en cours, pas encore rempli de règles.
+// à la suite de T14 : ils capturent et restaurent des checkpoints cohérents
+// (barrière d'écriture, export/import de la base applicative par `pg_dump`,
+// composants opaques, manifeste canonique publié dans le magasin d'artefacts
+// de T13/T14) et lèvent un `CheckpointRefusal` qui nomme sa cause — aucun des
+// dix-huit rôles de T12 à T15 ne lève plus `NotImplemented`.
 //
 // CE QUE CE PAQUET NE PRÉTEND PAS FAIRE. Une transaction garantit les effets
 // LOCAUX ; elle ne rend pas une requête fournisseur distante exactement unique
@@ -122,15 +125,13 @@ export type {
   StoreTarget,
 } from './envelope.js'
 
-// ── T15 — checkpoints coherents (L281-L290). SQUELETTE : les six roles
-//    ci-dessous levent `NotImplemented` (aucune regle metier n'est ecrite).
-//    Ils reutilisent le port ArtifactStore de T13/T14 (ci-dessus) sans le
-//    redeclarer.
+// ── T15 — checkpoints coherents (L281-L290). Reutilise le port ArtifactStore
+//    de T13/T14 (ci-dessus) sans le redeclarer.
 //
 //    openCheckpointCoordinator({ admin_dsn, app_database, artifact_store })
 //    applyOperation(h, { operation_sequence, fact })
 //    beginCheckpoint(h, { after_operation })
-//    finishCheckpoint(h, token, { components })
+//    finishCheckpoint(h, token, { components, fault? })
 //    listCheckpoints(h)
 //    restoreCheckpoint(h, { checkpoint_id })
 export {
@@ -143,11 +144,22 @@ export {
 } from './checkpoint.js'
 export type {
   BeginCheckpointRequest,
+  CheckpointComponents,
   CheckpointCoordinatorTarget,
+  CheckpointFault,
   CheckpointOperation,
+  CheckpointSummary,
   FinishCheckpointRequest,
+  FinishCheckpointResult,
   RestoreCheckpointRequest,
+  RestoreCheckpointResult,
 } from './checkpoint.js'
+export {
+  CHECKPOINT_REFUSAL_CODES,
+  CheckpointRefusal,
+  isCheckpointRefusal,
+} from './checkpoint-errors.js'
+export type { CheckpointRefusalCode } from './checkpoint-errors.js'
 
 /**
  * Ouvre un repository sur le schéma central (L257).

@@ -1083,8 +1083,26 @@ describe("T20 — executer l'evaluateur sur des copies privees jetables", () => 
       const dev = nouvelEtatDeveloppeur('a7');
       const SENTINEL = sentinelle('a7');
 
+      // `script` traverse un `/bin/sh -c "$2"` interne (packages/sandbox/src/
+      // runtime.ts, execIn) qui REPARSE tout son texte comme du code shell —
+      // ce n'est pas une simple substitution positionnelle a ce niveau-la.
+      // `JSON.stringify(data)` emet des guillemets DOUBLES non echappes ; des
+      // lors qu'ils atterrissent dans un bloc deja englobe par des guillemets
+      // doubles (`python3 -c "..."`), ce sh les interprete comme la fin (puis
+      // la reouverture) de la chaine englobante : les guillemets disparaissent
+      // du texte reconstruit et l'argument python obtenu n'est plus le
+      // litteral JSON voulu, mais du code python NU (`send(h, p, <SENTINEL
+      // sans guillemets>)`), qui leve un NameError avant le moindre appel
+      // socket — y compris pour le service AUTORISE, rendant le CONTROLE
+      // (censé prouver que le reseau n'est pas totalement bloque) inconcluant
+      // pour une mauvaise raison : un bug de construction de fixture, pas une
+      // politique reseau. Encoder host/data en hexadecimal (alphabet
+      // 0-9a-f, aucun caractere de guillemet a aucun niveau) et les decoder
+      // cote python retire ce risque de reinterpretation quel que soit le
+      // contenu, sans changer ce que le cas verifie.
+      const versHex = (s: string): string => Buffer.from(s, 'utf8').toString('hex');
       const envoyer = (host: string, port: number, data: string): string =>
-        `send('${host}', ${port}, ${JSON.stringify(data)})`;
+        `send(bytes.fromhex('${versHex(host)}').decode(), ${port}, bytes.fromhex('${versHex(data)}').decode())`;
       const script =
         'python3 -c "\n' +
         'import socket\n' +

@@ -217,6 +217,20 @@ export function accept(taskId, { dryRun = false } = {}) {
       // equivalent de `pnpm install --frozen-lockfile` (exit 1). Faux amis :
       // meme mot, garantie opposee, et c'est la preparation du CLEAN-ROOM.
       'uv --project analysis sync --locked',
+      // BUILD DEPUIS LES SOURCES. Le plan l'exigeait — « installe
+      // --frozen-lockfile, BUILD DEPUIS LES SOURCES, execute les sondes » — et
+      // il manquait. Consequence mesuree sur T18 : `accept` rendait
+      // reason=BLOCKED avec les sept cas non verts, alors que le tableau
+      // affichait T18 READY. La sonde `fake-provider` charge
+      // packages/gateway/dist/index.js ; `dist/` est gitignore, donc absent
+      // d'un worktree neuf, donc la capacite manquait — dans le clean-room
+      // seulement. Exactement le defaut que T14 avait deja montre : un vert (ou
+      // ici un rouge) qui depend d'un artefact hors du graphe d'objets.
+      //
+      // Les suites Jest compilent le TS a la volee et n'avaient donc jamais
+      // eu besoin de dist/ ; c'est ce qui a masque le trou jusqu'a ce qu'une
+      // sonde charge un artefact construit. Cout mesure : 2,7 s.
+      'pnpm build',
     ],
     // `node tools/bench` et non `pnpm verify:task` : pnpm prefixe sa sortie de
     // deux lignes de banniere, et le rapport adjuge doit etre la SEULE chose

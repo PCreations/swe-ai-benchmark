@@ -1,0 +1,100 @@
+{
+  "schema": "bench.red/1",
+  "task": "T21",
+  "subject_commit": "330e59e019e6ac90426b0af491823af629e77dbc",
+  "dirty": false,
+  "input_digest": "40ee7c33f1c3690ab53501220c51a8da9fd0b4e6728057b737cc879b2ce2aa01",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T21.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M1",
+      "note": "Applique sur packages/activities/src/index.ts : la relecture apres migration_sql sur le clone jetable passe de readIdentities(cloneDsn, read_identities_sql) a readIdentities(cloneDsn, `${read_identities_sql} LIMIT 99`). Jest -t T21.A1 -> 1 failed : expect(r.verdict).toBe('MIGRATED') recoit 'MIGRATION_REJECTED' (before.length=100 != after.length=99 sous sameIdentitySet). Fichier restaure par `git checkout -- packages/activities/src/index.ts`, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M2",
+      "note": "Applique sur packages/activities/src/index.ts : `if (!sameIdentitySet(before, after))` remplace par `if (after.length === 0)`. Jest -t T21.A2 -> 1 failed : le controle positif (migration no-op) reste MIGRATED, mais le cas reel (DELETE d'une ligne sur 100) recoit 'MIGRATED' au lieu de 'MIGRATION_REJECTED' attendu a la ligne expect(r.verdict).toBe(MIGRATION_REJECTED). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M3",
+      "note": "Applique sur packages/activities/src/index.ts : la branche `else { ... }` qui verifie la regression F-REGRESSION et les invariants critiques est neutralisee par `else if (false) { ... }` (code mort, jamais execute). Jest -t T21.A3 -> 1 failed : le volet regression (isolation@1 devenue non satisfaite) recoit verdict='ADMITTED' au lieu de 'REJECTED' attendu. Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M4",
+      "note": "Applique sur packages/activities/src/index.ts : corps de admitDelivery remplace par `throw new Error('NOT_IMPLEMENTED')`. Jest -t T21.A4 -> 1 failed : expect(res.ok ? 'admission-executee' : ...) recoit 'ADMISSION-EN-ECHEC Error: NOT_IMPLEMENTED' au lieu de 'admission-executee'. Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M5",
+      "note": "Applique sur packages/activities/src/index.ts : `if (attempt > SUBMISSION_LIMIT_ATTEMPTS)` remplace par `if (false)`. Jest -t T21.A5 -> 1 failed : les tentatives 1-3 restent ADMITTED (controle), mais la 4e tentative recoit verdict='ADMITTED' au lieu de 'REJECTED' attendu (expect(r4.verdict).toBe('REJECTED')). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M6",
+      "note": "Applique sur packages/activities/src/index.ts : resumeDeploymentSwitch renvoie systematiquement `{ active_version_id: input.active_version_id }`, sans jamais lire switch_committed ni promouvoir prepared_version_id. Jest -t T21.A6 -> 1 failed : apres panne avec switch_committed=true, active_version_id recu = version active d'origine au lieu de la version preparee attendue ('BASCULE-NON-FINALISEE'). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A7",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M7",
+      "note": "Applique sur packages/activities/src/index.ts : l'INSERT dans ledger_entries est conditionne a `verdict === 'ADMITTED'` (equivalent a un rollback systematique sur REJECTED). Jest -t T21.A7 -> 1 failed : la ligne ADMISE (controle, cout 4242) reste lisible, mais la ligne REJECTED (cout 1357) est absente du registre, lu=null au lieu du cout attendu ('COUT-REFUSE-NON-CONSERVE'). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    {
+      "id": "T21.A8",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T21.M8",
+      "note": "Applique sur packages/activities/src/index.ts : le bloc qui calcule deployment_coverage/backlog/q a partir de due_requirements est remplace par des valeurs figees (ACCEPTED, [], {num:1,den:1}) des que verdict==='ADMITTED'. Jest -t T21.A8 -> 1 failed : deployment_coverage recu='ACCEPTED' au lieu de 'PARTIAL' attendu (cahier:L97), pour une soumission qui ne satisfait que 2 des 3 exigences dues. Fichier restaure, suite re-verifiee verte (8/8)."
+    }
+  ],
+  "mutation_proof": {
+    "T21.A1": {
+      "killed_by": "T21.M1",
+      "note": "Applique sur packages/activities/src/index.ts : la relecture apres migration_sql sur le clone jetable passe de readIdentities(cloneDsn, read_identities_sql) a readIdentities(cloneDsn, `${read_identities_sql} LIMIT 99`). Jest -t T21.A1 -> 1 failed : expect(r.verdict).toBe('MIGRATED') recoit 'MIGRATION_REJECTED' (before.length=100 != after.length=99 sous sameIdentitySet). Fichier restaure par `git checkout -- packages/activities/src/index.ts`, suite re-verifiee verte (8/8)."
+    },
+    "T21.A2": {
+      "killed_by": "T21.M2",
+      "note": "Applique sur packages/activities/src/index.ts : `if (!sameIdentitySet(before, after))` remplace par `if (after.length === 0)`. Jest -t T21.A2 -> 1 failed : le controle positif (migration no-op) reste MIGRATED, mais le cas reel (DELETE d'une ligne sur 100) recoit 'MIGRATED' au lieu de 'MIGRATION_REJECTED' attendu a la ligne expect(r.verdict).toBe(MIGRATION_REJECTED). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    "T21.A3": {
+      "killed_by": "T21.M3",
+      "note": "Applique sur packages/activities/src/index.ts : la branche `else { ... }` qui verifie la regression F-REGRESSION et les invariants critiques est neutralisee par `else if (false) { ... }` (code mort, jamais execute). Jest -t T21.A3 -> 1 failed : le volet regression (isolation@1 devenue non satisfaite) recoit verdict='ADMITTED' au lieu de 'REJECTED' attendu. Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    "T21.A4": {
+      "killed_by": "T21.M4",
+      "note": "Applique sur packages/activities/src/index.ts : corps de admitDelivery remplace par `throw new Error('NOT_IMPLEMENTED')`. Jest -t T21.A4 -> 1 failed : expect(res.ok ? 'admission-executee' : ...) recoit 'ADMISSION-EN-ECHEC Error: NOT_IMPLEMENTED' au lieu de 'admission-executee'. Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    "T21.A5": {
+      "killed_by": "T21.M5",
+      "note": "Applique sur packages/activities/src/index.ts : `if (attempt > SUBMISSION_LIMIT_ATTEMPTS)` remplace par `if (false)`. Jest -t T21.A5 -> 1 failed : les tentatives 1-3 restent ADMITTED (controle), mais la 4e tentative recoit verdict='ADMITTED' au lieu de 'REJECTED' attendu (expect(r4.verdict).toBe('REJECTED')). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    "T21.A6": {
+      "killed_by": "T21.M6",
+      "note": "Applique sur packages/activities/src/index.ts : resumeDeploymentSwitch renvoie systematiquement `{ active_version_id: input.active_version_id }`, sans jamais lire switch_committed ni promouvoir prepared_version_id. Jest -t T21.A6 -> 1 failed : apres panne avec switch_committed=true, active_version_id recu = version active d'origine au lieu de la version preparee attendue ('BASCULE-NON-FINALISEE'). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    "T21.A7": {
+      "killed_by": "T21.M7",
+      "note": "Applique sur packages/activities/src/index.ts : l'INSERT dans ledger_entries est conditionne a `verdict === 'ADMITTED'` (equivalent a un rollback systematique sur REJECTED). Jest -t T21.A7 -> 1 failed : la ligne ADMISE (controle, cout 4242) reste lisible, mais la ligne REJECTED (cout 1357) est absente du registre, lu=null au lieu du cout attendu ('COUT-REFUSE-NON-CONSERVE'). Fichier restaure, suite re-verifiee verte (8/8)."
+    },
+    "T21.A8": {
+      "killed_by": "T21.M8",
+      "note": "Applique sur packages/activities/src/index.ts : le bloc qui calcule deployment_coverage/backlog/q a partir de due_requirements est remplace par des valeurs figees (ACCEPTED, [], {num:1,den:1}) des que verdict==='ADMITTED'. Jest -t T21.A8 -> 1 failed : deployment_coverage recu='ACCEPTED' au lieu de 'PARTIAL' attendu (cahier:L97), pour une soumission qui ne satisfait que 2 des 3 exigences dues. Fichier restaure, suite re-verifiee verte (8/8)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

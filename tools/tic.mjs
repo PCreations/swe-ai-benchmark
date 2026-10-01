@@ -14,9 +14,20 @@
  * a chaque fois qu'il s'est reellement passe quelque chose.
  *
  * LA MESURE EST LUE SUR LE LEDGER, JAMAIS SUR LE TABLEAU VIVANT. « PROUVE A
- * HEAD » tombe a 0/44 des qu'un commit perime T00 (qui revendique `verification`
- * et `docs` en entier) ; ce n'est pas une regression. Le ledger, lui, ne
- * decroit jamais : une attestation ecrite ne s'efface pas.
+ * HEAD » tombe a 0/44 des qu'un commit perime T00 ; ce n'est pas une
+ * regression. Le ledger, lui, ne decroit jamais : une attestation ecrite ne
+ * s'efface pas.
+ *
+ * CE QUI PERIME T00, MESURE : `pnpm-lock.yaml` et `tsconfig.json`, deux chemins
+ * de GLOBAL_PATHS que chaque nouveau paquet touche. PAS `docs/specs/Txx.md` ni
+ * `verification/mutants/Txx.json` : ceux-la sont sortis du perimetre de T00 au
+ * commit 398733f, qui a resserre `T00.source_paths`.
+ *
+ * Ce commentaire disait le contraire — « T00 revendique verification et docs en
+ * entier » — et c'etait vrai jusqu'a ce resserrement. Un agent d'acceptation l'a
+ * lu, l'a cite, et a produit un diagnostic faux a partir de lui. Un commentaire
+ * perime dans un outil que les agents lisent n'est pas une imprecision : c'est
+ * une source d'erreur active.
  *
  *   node tools/tic.mjs <etage> <tache> <issue> [detail]   -> ajoute une ligne
  *   node tools/tic.mjs --show [n]                          -> affiche l'etat

@@ -13,6 +13,7 @@
     "@bench/contracts": "workspace:*",
     "@bench/gateway": "workspace:*",
     "@bench/scenario": "workspace:*",
-    "@bench/storage": "workspace:*"
+    "@bench/storage": "workspace:*",
+    "@bench/workflows": "workspace:*"
   }
 }

@@ -13,6 +13,7 @@
     { "path": "../contracts" },
     { "path": "../gateway" },
     { "path": "../scenario" },
-    { "path": "../storage" }
+    { "path": "../storage" },
+    { "path": "../workflows" }
   ]
 }

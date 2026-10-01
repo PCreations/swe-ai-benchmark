@@ -8,5 +8,10 @@
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "references": [{ "path": "../contracts" }, { "path": "../storage" }, { "path": "../billing" }]
+  "references": [
+    { "path": "../contracts" },
+    { "path": "../storage" },
+    { "path": "../billing" },
+    { "path": "../workflows" }
+  ]
 }

@@ -18,6 +18,7 @@
   "dependencies": {
     "@bench/contracts": "workspace:*",
     "@bench/billing": "workspace:*",
-    "@bench/storage": "workspace:*"
+    "@bench/storage": "workspace:*",
+    "@bench/workflows": "workspace:*"
   }
 }

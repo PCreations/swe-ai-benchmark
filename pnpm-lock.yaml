@@ -62,6 +62,9 @@ importers:
       '@bench/storage':
         specifier: workspace:*
         version: link:../storage
+      '@bench/workflows':
+        specifier: workspace:*
+        version: link:../workflows
 
   packages/agents:
     dependencies:
@@ -115,6 +118,9 @@ importers:
       '@bench/storage':
         specifier: workspace:*
         version: link:../storage
+      '@bench/workflows':
+        specifier: workspace:*
+        version: link:../workflows
 
   packages/oracle:
     dependencies:
@@ -127,6 +133,9 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/workflows':
+        specifier: workspace:*
+        version: link:../workflows
 
   packages/scenario:
     dependencies:

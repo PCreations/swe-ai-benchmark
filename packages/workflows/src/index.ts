@@ -47,9 +47,11 @@ export {
   closeAdmissionQueue,
   getCallTimings,
   getQueueSnapshot,
+  isProviderBackedOff,
   openAdmissionQueue,
   pumpAdmission,
   releaseCall,
+  setProviderBackoffUntil,
   submitReadyCall,
 } from './admission-queue.js'
 export type {

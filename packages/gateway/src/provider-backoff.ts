@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/gateway — ADDITIFS DE RECUL FOURNISSEUR (cahier L379-L386, tâche T26).
 //
-// ÉTAGE ROUGE. Ce fichier ajoute DEUX rôles fixés par la section III de
+// ÉTAGE VERT. Ce fichier ajoute DEUX rôles fixés par la section III de
 // l'en-tête d'`acceptance/T26.spec.ts` : `recordProviderBackoff` et
 // `isProviderAdmissible`. Il ne touche ni ne réouvre `dispatchModelCall`,
 // `getModelCall`, `reconcileModelCall` (déjà fixés par
@@ -9,11 +9,20 @@
 // fixés par `acceptance/T25.spec.ts`) — ce fichier est SÉPARÉ pour que le
 // diff de ce commit le montre : aucun contrat T17/T25 n'est modifié par T26.
 //
-// SQUELETTE : les deux exports lèvent `NotImplemented`, ce qui fait échouer
-// `T26.A4` pour la raison attendue à cet étage.
+// L'ÉTAT VIT DANS LE `QueueHandle` DE `packages/workflows`, PAS ICI. Même
+// geste que `dispatchModelCallFenced` déléguant le contrôle de bail à
+// `assertLeaseAdmitted` (`@bench/workflows`, T25) : ces deux rôles ne font que
+// CALCULER (l'instant limite, l'inversion du booléen) puis DÉLÉGUER la lecture
+// et l'écriture à `setProviderBackoffUntil`/`isProviderBackedOff`
+// (`@bench/workflows`), qui opèrent sur le MÊME `QueueHandle` que
+// `submitReadyCall`/`releaseCall`/`pumpAdmission` — « UN HANDLE UNIQUE,
+// PARTAGÉ ENTRE LES TROIS PAQUETS » (section III de l'en-tête de la suite).
+// Dupliquer cet état ici créerait deux sources de vérité qui pourraient
+// diverger silencieusement.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { NotImplemented } from '@bench/contracts'
+import { ContractViolation } from '@bench/contracts'
+import { isProviderBackedOff, setProviderBackoffUntil } from '@bench/workflows'
 
 /** Entrée de `recordProviderBackoff` (section III.9, cahier L383 :
  * « Retry-After=4 »). */
@@ -29,31 +38,52 @@ export interface IsProviderAdmissibleParams {
   readonly now: number
 }
 
+function requireNonEmptyString(v: unknown, path: string): string {
+  if (typeof v !== 'string' || v.length === 0) {
+    throw new ContractViolation('TYPE_MISMATCH', path, 'chaîne non vide attendue')
+  }
+  return v
+}
+
+function requireNumber(v: unknown, path: string): number {
+  if (typeof v !== 'number' || !Number.isFinite(v)) {
+    throw new ContractViolation('TYPE_MISMATCH', path, 'nombre fini attendu')
+  }
+  return v
+}
+
 /**
  * Enregistre qu'à l'instant `now`, `providerId` a signalé un recul de
- * `retryAfterSeconds` secondes (section III.9, cahier L383). SQUELETTE : lève
- * `NotImplemented`, sans jamais rendre `providerId` inadmissible.
+ * `retryAfterSeconds` secondes (section III.9, cahier L383). `providerId`
+ * devient inadmissible jusqu'à `now + retryAfterSeconds * 1000` MILLISECONDES
+ * (unité fixée par `acceptance/T26.spec.ts`, section II) — borne EXCLUSIVE :
+ * (III.10) rend `true` dès cet instant précis, pas seulement après (contrôle
+ * positif d'A4 : « fournisseur-redevient-admissible-a-4s-pile »).
  */
 export async function recordProviderBackoff(
   handle: unknown,
   params: RecordProviderBackoffParams,
 ): Promise<void> {
-  void handle
-  void params
-  throw new NotImplemented('gateway.recordProviderBackoff')
+  const p = (params ?? {}) as Partial<RecordProviderBackoffParams>
+  const providerId = requireNonEmptyString(p.providerId, 'recordProviderBackoff.providerId')
+  const retryAfterSeconds = requireNumber(p.retryAfterSeconds, 'recordProviderBackoff.retryAfterSeconds')
+  const now = requireNumber(p.now, 'recordProviderBackoff.now')
+
+  setProviderBackoffUntil(handle, providerId, now + retryAfterSeconds * 1000)
 }
 
 /**
- * `providerId` est-il, EN CE MOMENT, admissible (section III.10) ? SQUELETTE :
- * lève `NotImplemented` au lieu de ne JAMAIS lever (contrat final) — c'est
- * cette levée, interceptée par `essayer()` côté suite, qui produit l'échec
- * attendu à cet étage.
+ * `providerId` est-il, EN CE MOMENT, admissible (section III.10) ? NE LÈVE
+ * JAMAIS : un refus d'admission est une valeur rendue (`false`), jamais une
+ * exception.
  */
 export async function isProviderAdmissible(
   handle: unknown,
   params: IsProviderAdmissibleParams,
 ): Promise<boolean> {
-  void handle
-  void params
-  throw new NotImplemented('gateway.isProviderAdmissible')
+  const p = (params ?? {}) as Partial<IsProviderAdmissibleParams>
+  const providerId = requireNonEmptyString(p.providerId, 'isProviderAdmissible.providerId')
+  const now = requireNumber(p.now, 'isProviderAdmissible.now')
+
+  return !isProviderBackedOff(handle, providerId, now)
 }

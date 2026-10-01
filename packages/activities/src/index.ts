@@ -415,3 +415,8 @@ export type {
   PublishCheckpointActivityRequest,
   PublishCheckpointActivityResult,
 } from './checkpoint-fencing.js'
+
+/* ───────────────────────────────── l'effet externe admis (T26, cahier L365) */
+
+export { runAdmittedEffect } from './admitted-effect.js'
+export type { RunAdmittedEffectParams } from './admitted-effect.js'

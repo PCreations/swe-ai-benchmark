@@ -38,3 +38,29 @@ export type {
   RevokeLeaseParams,
   RevokeLeaseResult,
 } from './lease-authority.js'
+
+// La file d'admission (cahier L379-L386, tâche T26) : fichier séparé de
+// trajectory-workflow.ts et de lease-authority.ts, même raison que ci-dessus
+// (ce premier reste le seul bundlé dans le bac à sable Temporal).
+export {
+  announceAssignmentOrder,
+  closeAdmissionQueue,
+  getCallTimings,
+  getQueueSnapshot,
+  openAdmissionQueue,
+  pumpAdmission,
+  releaseCall,
+  submitReadyCall,
+} from './admission-queue.js'
+export type {
+  CallTimings,
+  OpenAdmissionQueueOptions,
+  PumpAdmissionParams,
+  PumpAdmissionResult,
+  QueueHandle,
+  QueueSnapshot,
+  ReleaseCallParams,
+  ReleaseCallResult,
+  SubmitReadyCallParams,
+  SubmitReadyCallResult,
+} from './admission-queue.js'

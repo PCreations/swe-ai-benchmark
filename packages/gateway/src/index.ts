@@ -608,3 +608,11 @@ export type {
   StopSessionRequest,
   StopSessionResult,
 } from './fencing.js'
+
+/* ────────────────────────────────────────── additifs de recul fournisseur, T26 */
+
+export { isProviderAdmissible, recordProviderBackoff } from './provider-backoff.js'
+export type {
+  IsProviderAdmissibleParams,
+  RecordProviderBackoffParams,
+} from './provider-backoff.js'

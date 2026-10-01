@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Contrat AgentRunner avec un agent scripte : start, observe, submit, stop, resume et evenements de session (cahier L307-L316, tache T18).",
+  "description": "Contrat AgentRunner avec un agent scripte (cahier L307-L316, tache T18) et premier adaptateur de modele reel Anthropic Messages (cahier L395-L404, tache T28).",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -18,6 +18,7 @@
   "dependencies": {
     "@bench/contracts": "workspace:*",
     "@bench/storage": "workspace:*",
-    "@bench/scenario": "workspace:*"
+    "@bench/scenario": "workspace:*",
+    "@bench/gateway": "workspace:*"
   }
 }

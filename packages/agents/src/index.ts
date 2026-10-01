@@ -11,11 +11,13 @@
 // de `@bench/scenario` (T06 — le chemin d'acces au service client qu'ASK_CLIENT
 // ouvre, section III.2/A6 de acceptance/T18.spec.ts : « le runner resout
 // LUI-MEME answerCustomerQuestion(pack, period_index, question) »). Il
-// n'importe PAS `@bench/billing` ni `@bench/gateway` : L313.A5 exige qu'une
-// reponse invalide « conserve la depense deja engagee », et la maniere la
-// plus sure de garantir cette absence de mutation est de ne JAMAIS toucher au
-// budget depuis ce paquet — dispatchModelCall (T17) reste le seul chemin qui
-// regle une reservation.
+// n'importe PAS `@bench/billing` : L313.A5 exige qu'une reponse invalide
+// « conserve la depense deja engagee », et la maniere la plus sure de
+// garantir cette absence de mutation est de ne JAMAIS toucher au budget
+// depuis la surface AgentRunner de T18 — dispatchModelCall (T17) reste le
+// seul chemin qui regle une reservation. La section T28 plus bas IMPORTE
+// `dispatchModelCall` de `@bench/gateway` (et seulement cet export) : c'est
+// exactement le meme chemin, jamais recontourne (voir son en-tete).
 //
 // DEUX REGISTRES, POUR DEUX NATURES DE DONNEES. Le schema central
 // (`packages/storage/migrations/0004_agent_runs.sql`, NOUVEAU FICHIER) porte
@@ -47,10 +49,13 @@
 // elle-meme.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import * as http from 'node:http'
+import * as https from 'node:https'
 import { isCentralStore } from '@bench/storage'
 import { answerCustomerQuestion } from '@bench/scenario'
 import type { ScenarioPack } from '@bench/scenario'
-import { NotImplemented } from '@bench/contracts'
+import { dispatchModelCall } from '@bench/gateway'
+import type { DispatchModelCallResult } from '@bench/gateway'
 import { AgentsRefusal } from './errors.js'
 import { runScript } from './psql.js'
 import type { ScriptResult } from './psql.js'
@@ -714,17 +719,12 @@ export async function getSubmissions(handle: unknown, session_id: string): Promi
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * SQUELETTE T28 — connecteur Anthropic Messages reel (cahier L395-L404).
+ * T28 — connecteur Anthropic Messages reel (cahier L395-L404).
  *
- * Etage ROUGE : aucune regle metier n'est ecrite ici. Ni appel HTTP reel, ni
- * execution de sandbox, ni validation de schema, ni delegation au journal
- * durable. Les cinq roles ci-dessous LEVENT `NotImplemented`
- * (@bench/contracts), message prefixe `NOT_IMPLEMENTED` que
- * `verification/runner/red.mjs` sait lire.
- *
- * Noms et formes FIXES PAR `acceptance/T28.spec.ts` (section III de son
- * en-tete) — le cahier ne nomme aucun export pour ce connecteur, exactement
- * comme T18 et T19 avant lui. Noms primaires sans alias.
+ * ETAGE VERT. Les cinq roles ci-dessous sont IMPLEMENTES. Noms et formes
+ * FIXES PAR `acceptance/T28.spec.ts` (section III de son en-tete) — le
+ * cahier ne nomme aucun export pour ce connecteur, exactement comme T18 et
+ * T19 avant lui. Noms primaires sans alias.
  *
  *   createAnthropicMessagesProvider(config) -> AnthropicProvider
  *   normalizeAnthropicUsage(rawUsage)       -> NormalizedAnthropicUsage  (PURE)
@@ -732,11 +732,33 @@ export async function getSubmissions(handle: unknown, session_id: string): Promi
  *   executeToolInSandbox(sandboxHandle, name, args) -> Promise<ToolExecutionResult>
  *   dispatchAnthropicModelCall(handle, params, hooks?) -> Promise<DispatchAnthropicModelCallResult>
  *
- * Ce squelette ne redeclare aucun role d'un autre paquet et n'importe rien de
- * `@bench/gateway`, `@bench/billing` ni `@bench/sandbox` : a l'etage VERT,
- * `dispatchAnthropicModelCall` delegue a `dispatchModelCall` (T17, meme
- * journal durable) ; a l'etage ROUGE il leve avant tout appel, donc aucune
- * dependance supplementaire n'est necessaire pour l'instant.
+ * UNE SEULE REQUETE HTTP, JAMAIS UNE RELANCE SILENCIEUSE (L399, section
+ * III.1). `createAnthropicMessagesProvider(...).complete()` emet UN `POST
+ * <baseURL>/v1/messages` via `node:http`/`node:https` (choisi par le
+ * protocole de `baseURL`, jamais un client tiers) et CLASSE la reponse :
+ * 429 -> `RATE_LIMITED`, 401/403 -> `AUTHENTICATION_ERROR`, corps tronque au
+ * niveau transport (deconnexion avant reception complete, independamment du
+ * code HTTP) -> `TRUNCATED_RESPONSE`. Aucune de ces trois classes n'est
+ * absorbee par une politique de retry : chacune est un REFUS type, rendu a
+ * l'appelant (section III.1, A5).
+ *
+ * LA TRONCATURE SE DETECTE AU TRANSPORT, PAS AU CODE HTTP. Le serveur factice
+ * d'A5 annonce un `content-length` COMPLET puis detruit la socket apres un
+ * PREFIXE du corps : Node emet alors `aborted` sur la reponse (jamais `end`)
+ * — c'est ce signal, et lui seul, qui distingue un corps tronque d'une fin de
+ * reponse normale ; un JSON.parse qui echouerait sur un corps vide/partiel
+ * est traite de la meme facon, en aval.
+ *
+ * `dispatchAnthropicModelCall` DELEGUE A `dispatchModelCall` DE
+ * `@bench/gateway` (T17, meme journal durable) — c'est le SEUL export de
+ * `@bench/gateway` que ce fichier importe. `dispatchModelCall` attend un
+ * `provider.complete(request) -> {text, usage}` (sa forme historique, celle
+ * du fournisseur factice de T17) ; comme l'`AnthropicProvider` reel rend
+ * `{content[], stop_reason, usage}`, un adaptateur local traduit l'un vers
+ * l'autre a l'INTERIEUR de `dispatchAnthropicModelCall`, SANS jamais appeler
+ * `provider.complete()` par un autre chemin (T28.M6 : court-circuiter cette
+ * delegation ferait perdre DISPATCH_STARTED, les hooks et la reprise
+ * idempotente que T17 a deja prouves).
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 /** Configuration du connecteur — SANS IDENTIFIANT INVENTE (L397, section III.1). */
@@ -851,25 +873,177 @@ export interface DispatchAnthropicModelCallResult {
   readonly response?: unknown
 }
 
+/* ───────────────────────────────────────────────────────── T28.1 : transport */
+
+interface RawAnthropicHttpResponse {
+  readonly statusCode: number
+  readonly bodyText: string
+  readonly truncated: boolean
+}
+
 /**
- * Construit le connecteur Anthropic Messages reel (section III.1). `complete`
- * emettra UNE requete HTTP `POST <baseURL>/v1/messages`, header
- * `x-api-key: <apiKey>`, et classera 429/401/troncature en refus types —
- * jamais une relance silencieuse. Rien de tout cela n'est ecrit a cet etage.
+ * Emet UNE requete HTTP `POST <baseURL>/v1/messages`. Ne relance JAMAIS : la
+ * classification des statuts et des corps tronques est a la charge de
+ * l'appelant (`complete`, ci-dessous) — ce point n'absorbe rien.
+ */
+function postAnthropicMessages(
+  baseURL: string,
+  apiKey: string,
+  payload: Record<string, unknown>,
+): Promise<RawAnthropicHttpResponse> {
+  return new Promise((resolve, reject) => {
+    let target: URL
+    try {
+      target = new URL('/v1/messages', baseURL)
+    } catch (e) {
+      reject(new AgentsRefusal('INVALID_PARAMETER', `baseURL invalide : ${(e as Error).message}`))
+      return
+    }
+    const mod = target.protocol === 'https:' ? https : http
+    const body = Buffer.from(JSON.stringify(payload), 'utf8')
+    const req = mod.request(
+      target,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': String(body.length),
+          'x-api-key': apiKey,
+        },
+      },
+      (res) => {
+        const chunks: Buffer[] = []
+        res.on('data', (chunk: Buffer) => chunks.push(chunk))
+        // Fin NORMALE : tout le corps declare a ete recu.
+        res.on('end', () => {
+          resolve({ statusCode: res.statusCode ?? 0, bodyText: Buffer.concat(chunks).toString('utf8'), truncated: false })
+        })
+        // `aborted` : la connexion a ete fermee AVANT `end` — le signal de
+        // troncature au niveau transport (independant du code HTTP recu).
+        res.on('aborted', () => {
+          resolve({ statusCode: res.statusCode ?? 0, bodyText: Buffer.concat(chunks).toString('utf8'), truncated: true })
+        })
+        res.on('error', () => {
+          resolve({ statusCode: res.statusCode ?? 0, bodyText: Buffer.concat(chunks).toString('utf8'), truncated: true })
+        })
+      },
+    )
+    req.on('error', (e) => {
+      reject(
+        new AgentsRefusal(
+          'PROVIDER_UNAVAILABLE',
+          `connexion au fournisseur Anthropic impossible (${target.toString()}) : ${(e as Error).message}`,
+        ),
+      )
+    })
+    req.write(body)
+    req.end()
+  })
+}
+
+/**
+ * Construit le connecteur Anthropic Messages reel (section III.1). `model` et
+ * `max_tokens` transmis sur le fil sont EXACTEMENT ceux de `config` — jamais
+ * un identifiant invente ou une valeur par defaut codee en dur (L397).
  */
 export function createAnthropicMessagesProvider(config: AnthropicProviderConfig): AnthropicProvider {
-  void config
-  throw new NotImplemented('agents.createAnthropicMessagesProvider')
+  const { baseURL, apiKey, model, maxTokens } = config
+
+  return {
+    async complete(request: AnthropicCompletionRequest): Promise<AnthropicCompletionResponse> {
+      const payload: Record<string, unknown> = {
+        model,
+        max_tokens: maxTokens,
+        messages: request.messages,
+      }
+      if (request.tools !== undefined) payload['tools'] = request.tools
+      if (request.system !== undefined) payload['system'] = request.system
+
+      const raw = await postAnthropicMessages(baseURL, apiKey, payload)
+
+      if (raw.truncated) {
+        throw new AgentsRefusal(
+          'TRUNCATED_RESPONSE',
+          'corps de reponse tronque avant reception complete (connexion fermee avant la fin annoncee)',
+        )
+      }
+      if (raw.statusCode === 429) {
+        throw new AgentsRefusal('RATE_LIMITED', 'HTTP 429 recu du fournisseur Anthropic')
+      }
+      if (raw.statusCode === 401 || raw.statusCode === 403) {
+        throw new AgentsRefusal('AUTHENTICATION_ERROR', `HTTP ${raw.statusCode} recu du fournisseur Anthropic`)
+      }
+      if (raw.statusCode < 200 || raw.statusCode >= 300) {
+        throw new AgentsRefusal('PROVIDER_ERROR', `HTTP ${raw.statusCode} inattendu du fournisseur Anthropic`)
+      }
+
+      let parsed: unknown
+      try {
+        parsed = raw.bodyText.length > 0 ? JSON.parse(raw.bodyText) : {}
+      } catch {
+        // Un 200 dont le corps ne parse pas est, par construction, un corps
+        // recu incomplet : meme classe que la troncature detectee au transport.
+        throw new AgentsRefusal('TRUNCATED_RESPONSE', 'corps de reponse illisible (JSON invalide ou incomplet)')
+      }
+
+      const body = (parsed !== null && typeof parsed === 'object' ? parsed : {}) as {
+        readonly content?: unknown
+        readonly stop_reason?: unknown
+        readonly usage?: unknown
+      }
+      const content = Array.isArray(body.content) ? (body.content as readonly AnthropicContentBlock[]) : []
+      const stopReason = typeof body.stop_reason === 'string' ? body.stop_reason : 'end_turn'
+      const usage = normalizeAnthropicUsage(body.usage)
+
+      return { content, stop_reason: stopReason, usage }
+    },
+  }
+}
+
+/* ───────────────────────────────────────────────────────── T28.2 : usage */
+
+function toNonNegativeInt(v: unknown): number {
+  if (typeof v === 'number' && Number.isFinite(v) && v >= 0) return Math.trunc(v)
+  return 0
 }
 
 /**
  * Normalise l'usage brut du Messages API — PURE, aucune E/S (section III.2).
- * `input_cached_tokens` devra sommer LES DEUX compteurs de cache ; rien de
- * cela n'est ecrit a cet etage.
+ * `input_cached_tokens` SOMME les deux compteurs de cache reels du fournisseur
+ * (`cache_creation_input_tokens` + `cache_read_input_tokens`) : lire un seul
+ * des deux sous-compterait le cache (cahier:L103, F-MONEY, regle 2).
  */
 export function normalizeAnthropicUsage(rawUsage: unknown): NormalizedAnthropicUsage {
-  void rawUsage
-  throw new NotImplemented('agents.normalizeAnthropicUsage')
+  const raw = (rawUsage !== null && typeof rawUsage === 'object' ? rawUsage : {}) as Record<string, unknown>
+  const inputUncachedTokens = toNonNegativeInt(raw['input_tokens'])
+  const cacheCreation = toNonNegativeInt(raw['cache_creation_input_tokens'])
+  const cacheRead = toNonNegativeInt(raw['cache_read_input_tokens'])
+  const outputTokens = toNonNegativeInt(raw['output_tokens'])
+  return {
+    input_uncached_tokens: inputUncachedTokens,
+    input_cached_tokens: cacheCreation + cacheRead,
+    output_tokens: outputTokens,
+  }
+}
+
+/* ───────────────────────────────────────────────────── T28.3 : validation */
+
+function jsonSchemaTypeMatches(expected: string, value: unknown): boolean {
+  switch (expected) {
+    case 'string':
+      return typeof value === 'string'
+    case 'number':
+    case 'integer':
+      return typeof value === 'number' && Number.isFinite(value)
+    case 'boolean':
+      return typeof value === 'boolean'
+    case 'object':
+      return value !== null && typeof value === 'object' && !Array.isArray(value)
+    case 'array':
+      return Array.isArray(value)
+    default:
+      return true
+  }
 }
 
 /**
@@ -881,40 +1055,173 @@ export function validateAndNormalizeToolCall(
   toolDefs: readonly AnthropicToolDef[],
   block: AnthropicContentBlock,
 ): ValidatedAnthropicToolCall {
-  void toolDefs
-  void block
-  throw new NotImplemented('agents.validateAndNormalizeToolCall')
+  const b = block as { readonly name?: unknown; readonly input?: unknown }
+  const name = typeof b.name === 'string' ? b.name : ''
+  const def = toolDefs.find((t) => t.name === name)
+  if (def === undefined) {
+    throw new AgentsRefusal('UNKNOWN_TOOL', `outil inconnu : ${JSON.stringify(name)}`)
+  }
+
+  const input: Record<string, unknown> =
+    b.input !== null && typeof b.input === 'object' ? (b.input as Record<string, unknown>) : {}
+
+  for (const requiredKey of def.input_schema.required) {
+    if (!Object.prototype.hasOwnProperty.call(input, requiredKey)) {
+      throw new AgentsRefusal('INVALID_TOOL_ARGUMENTS', `argument requis absent : ${requiredKey} (outil ${name})`)
+    }
+  }
+  for (const [key, propSchema] of Object.entries(def.input_schema.properties)) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue
+    if (!jsonSchemaTypeMatches(propSchema.type, input[key])) {
+      throw new AgentsRefusal(
+        'INVALID_TOOL_ARGUMENTS',
+        `type invalide pour l'argument ${key} (outil ${name}) : ${propSchema.type} attendu`,
+      )
+    }
+  }
+
+  return { name, args: input }
+}
+
+/* ────────────────────────────────────────────────── T28.4 : execution outils */
+
+/** Un seul guillemet simple : on echappe les guillemets simples internes. */
+function shellQuoteSingle(value: string): string {
+  return `'${value.split("'").join(`'\\''`)}'`
+}
+
+function execResultToToolOutcome(res: {
+  readonly exitCode: number
+  readonly stdout: string
+  readonly stderr: string
+  readonly terminated: boolean
+  readonly terminationReason: string | null
+}): AnthropicToolExecutionResult {
+  const isError = res.exitCode !== 0 || res.terminated
+  if (!isError) return { content: res.stdout, is_error: false }
+  const detail = `${res.stdout}${res.stderr}`.trim()
+  return { content: detail.length > 0 ? detail : (res.terminationReason ?? `exitCode=${res.exitCode}`), is_error: true }
+}
+
+async function execRunCommandTool(
+  sandboxHandle: AnthropicSandboxExecHandle,
+  args: unknown,
+): Promise<AnthropicToolExecutionResult> {
+  const a = (args !== null && typeof args === 'object' ? args : {}) as { readonly command?: unknown }
+  const command = typeof a.command === 'string' ? a.command : ''
+  const res = await sandboxHandle.execShell(command)
+  return execResultToToolOutcome(res)
+}
+
+async function execWriteFileTool(
+  sandboxHandle: AnthropicSandboxExecHandle,
+  args: unknown,
+): Promise<AnthropicToolExecutionResult> {
+  const a = (args !== null && typeof args === 'object' ? args : {}) as {
+    readonly path?: unknown
+    readonly content?: unknown
+  }
+  const filePath = typeof a.path === 'string' ? a.path : ''
+  const content = typeof a.content === 'string' ? a.content : ''
+  const quotedPath = shellQuoteSingle(filePath)
+  const quotedB64 = shellQuoteSingle(Buffer.from(content, 'utf8').toString('base64'))
+  // Rend le fichier immediatement relisible par `read_file` au meme chemin
+  // (section III.4) : le repertoire parent est cree s'il manque.
+  const command = `mkdir -p "$(dirname -- ${quotedPath})" && printf '%s' ${quotedB64} | base64 -d > ${quotedPath}`
+  const res = await sandboxHandle.execShell(command)
+  return execResultToToolOutcome(res)
+}
+
+async function execReadFileTool(
+  sandboxHandle: AnthropicSandboxExecHandle,
+  args: unknown,
+): Promise<AnthropicToolExecutionResult> {
+  const a = (args !== null && typeof args === 'object' ? args : {}) as { readonly path?: unknown }
+  const filePath = typeof a.path === 'string' ? a.path : ''
+  const res = await sandboxHandle.execShell(`cat ${shellQuoteSingle(filePath)}`)
+  return execResultToToolOutcome(res)
 }
 
 /**
  * Execute un outil DEJA VALIDE dans le sandbox reel via
- * `sandboxHandle.execShell` (contrat T19, section III.4).
+ * `sandboxHandle.execShell` (contrat T19, section III.4) — jamais de throw,
+ * `is_error` porte l'echec.
  */
 export function executeToolInSandbox(
   sandboxHandle: AnthropicSandboxExecHandle,
   name: string,
   args: unknown,
 ): Promise<AnthropicToolExecutionResult> {
-  void sandboxHandle
-  void name
-  void args
-  throw new NotImplemented('agents.executeToolInSandbox')
+  switch (name) {
+    case 'run_command':
+      return execRunCommandTool(sandboxHandle, args)
+    case 'write_file':
+      return execWriteFileTool(sandboxHandle, args)
+    case 'read_file':
+      return execReadFileTool(sandboxHandle, args)
+    default:
+      throw new AgentsRefusal('UNKNOWN_TOOL', `outil inconnu pour execution : ${name}`)
+  }
 }
+
+/* ────────────────────────────────────────────────── T28.5 : journal durable */
 
 /**
  * Delegue a `dispatchModelCall` de `@bench/gateway` (T17, meme journal
  * durable d'appel) avec `params.provider` un `AnthropicProvider` (section
- * III.5) — le journal durable d'A6 ne doit jamais etre recontourne en
- * appelant `provider.complete()` directement hors de ce chemin. Rien de cela
- * n'est cable a cet etage.
+ * III.5). `dispatchModelCall` appelle `provider.complete(request)` et lit
+ * `{text, usage}` sur le resultat (sa forme historique) ; l'adaptateur
+ * ci-dessous traduit la reponse REELLE (`content[]`, `usage` deja normalise)
+ * vers cette forme, SANS jamais appeler `provider.complete()` par un autre
+ * chemin (T28.M6) — le journal durable d'A6 n'est donc jamais recontourne.
  */
-export function dispatchAnthropicModelCall(
+export async function dispatchAnthropicModelCall(
   handle: unknown,
   params: DispatchAnthropicModelCallParams,
   hooks?: DispatchAnthropicModelCallHooks,
 ): Promise<DispatchAnthropicModelCallResult> {
-  void handle
-  void params
-  void hooks
-  throw new NotImplemented('agents.dispatchAnthropicModelCall')
+  const provider = params.provider
+  if (provider === null || provider === undefined || typeof provider.complete !== 'function') {
+    throw new AgentsRefusal(
+      'INVALID_PARAMETER',
+      'dispatchAnthropicModelCall.params.provider : AnthropicProvider attendu (createAnthropicMessagesProvider)',
+    )
+  }
+
+  let lastResponse: AnthropicCompletionResponse | undefined
+
+  const gatewayProvider = {
+    async complete(request: unknown): Promise<{ readonly text: string; readonly usage: NormalizedAnthropicUsage }> {
+      const response = await provider.complete(request as AnthropicCompletionRequest)
+      lastResponse = response
+      const textBlock = response.content.find(
+        (b): b is { readonly type: 'text'; readonly text: string } => b.type === 'text',
+      )
+      return { text: textBlock !== undefined ? textBlock.text : '', usage: response.usage }
+    },
+  }
+
+  const result = (await dispatchModelCall(
+    handle,
+    {
+      model_call_id: params.model_call_id,
+      idempotency_key: params.idempotency_key,
+      budget_id: params.budget_id,
+      reservation_id: params.reservation_id,
+      provider: gatewayProvider,
+      request: params.request,
+      tariff: params.tariff,
+    },
+    hooks,
+  )) as DispatchModelCallResult
+
+  const response: unknown = lastResponse !== undefined ? lastResponse : result.response
+
+  return {
+    model_call_id: result.model_call_id,
+    status: result.status,
+    ...(result.cost !== undefined ? { cost: result.cost } : {}),
+    ...(result.usage !== undefined ? { usage: result.usage as NormalizedAnthropicUsage } : {}),
+    ...(response !== undefined ? { response } : {}),
+  }
 }

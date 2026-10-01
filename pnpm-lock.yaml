@@ -71,6 +71,9 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/gateway':
+        specifier: workspace:*
+        version: link:../gateway
       '@bench/scenario':
         specifier: workspace:*
         version: link:../scenario

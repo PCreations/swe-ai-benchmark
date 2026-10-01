@@ -12,6 +12,16 @@
 // acceptance/T18.spec.ts §II) : le cahier dit « réponses invalides donnent
 // erreur typée » (L313.A5) sans nommer son code, exactement comme
 // `IDEMPOTENCY_KEY_CONFLICT` a été fixé avant `packages/gateway`.
+//
+// LES CINQ CODES T28 SONT FIXÉS PAR `acceptance/T28.spec.ts` (section II de
+// son en-tête), PAS PAR LE CAHIER : L401 nomme les trois classes de refus
+// d'A5 et les deux d'A3 en toutes lettres, mais jamais leur code machine.
+// `UNKNOWN_TOOL` / `INVALID_TOOL_ARGUMENTS` (A3), `RATE_LIMITED` /
+// `AUTHENTICATION_ERROR` / `TRUNCATED_RESPONSE` (A5) reprennent donc, mot
+// pour mot, les constantes que la suite compare (`codeDe(err) === '...'`).
+// `PROVIDER_ERROR` et `PROVIDER_UNAVAILABLE` ne sont exercés par aucun cas
+// requis ; ils couvrent les statuts HTTP et les pannes de connexion qu'A5 ne
+// nomme pas, sans jamais laisser une telle réponse passer pour acceptée.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const AGENTS_REFUSAL_CODES = [
@@ -23,6 +33,20 @@ export const AGENTS_REFUSAL_CODES = [
   'STORAGE_UNAVAILABLE',
   /** Un paramètre requis manque ou a un type incorrect (§E). */
   'INVALID_PARAMETER',
+  /** T28.A3 — `validateAndNormalizeToolCall` : nom absent de `toolDefs`. */
+  'UNKNOWN_TOOL',
+  /** T28.A3 — `validateAndNormalizeToolCall` : argument requis absent ou mal typé. */
+  'INVALID_TOOL_ARGUMENTS',
+  /** T28.A5 — `AnthropicProvider.complete` : HTTP 429 reçu du fournisseur. */
+  'RATE_LIMITED',
+  /** T28.A5 — `AnthropicProvider.complete` : HTTP 401/403 reçu du fournisseur. */
+  'AUTHENTICATION_ERROR',
+  /** T28.A5 — `AnthropicProvider.complete` : corps de réponse tronqué au niveau transport. */
+  'TRUNCATED_RESPONSE',
+  /** `AnthropicProvider.complete` : statut HTTP inattendu, hors des trois classes ci-dessus. */
+  'PROVIDER_ERROR',
+  /** `AnthropicProvider.complete` : connexion au fournisseur impossible (réseau). */
+  'PROVIDER_UNAVAILABLE',
 ] as const
 
 export type AgentsRefusalCode = (typeof AGENTS_REFUSAL_CODES)[number]

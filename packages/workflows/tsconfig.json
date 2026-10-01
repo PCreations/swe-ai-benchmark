@@ -1,0 +1,18 @@
+{
+  "$comment": [
+    "Comme les paquets de domaine (ADR-005 §3) : `types: []`. Le coeur de ce",
+    "paquet (src/trajectory-workflow.ts) s'execute dans le bac a sable",
+    "deterministe du SDK Temporal, qui N'EXPOSE PAS les globals/typings Node —",
+    "un `types: [\"node\"]` ici inviterait a y importer `node:fs`/`node:crypto`",
+    "sans qu'aucun controle ne le remarque avant l'execution reelle du worker."
+  ],
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

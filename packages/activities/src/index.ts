@@ -403,3 +403,7 @@ export async function resumeDeploymentSwitch(
 /* ── T23 : assembler une période persistante complète (L353-L359) ────────── */
 export { RUN_PERIOD_MODE, RUN_PERIOD_PHASES, RUN_PERIOD_VARIANTS, runPeriodOnce } from './run-period.js'
 export type { RunPeriodInput, RunPeriodOutcome } from './run-period.js'
+
+/* ── T24 : les Activities du workflow de trajectoire (L361-L370) ─────────── */
+export { fakeProviderCallsTotal, getPeriodCount, modelCallActivity } from './trajectory-activities.js'
+export type { ModelCallActivityInput, ModelCallActivityResult } from './trajectory-activities.js'

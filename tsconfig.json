@@ -23,6 +23,7 @@
     { "path": "./packages/storage" },
     { "path": "./packages/sandbox" },
     { "path": "./packages/activities" },
+    { "path": "./packages/workflows" },
     { "path": "./apps/cli" }
   ]
 }

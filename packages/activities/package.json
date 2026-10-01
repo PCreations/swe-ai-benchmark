@@ -3,13 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Effets externes des workflows : admission des livraisons, migrations protegees et reprise de bascule (cahier §C, L36-L94, tache T21).",
+  "description": "Effets externes des workflows : admission des livraisons, migrations protegees, reprise de bascule (T21), assemblage d'une periode persistante (T23) et Activities de trajectoire -- 'model-call'/'getPeriodCount' (T24, cahier L361-L370).",
   "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],
   "dependencies": {
+    "@bench/billing": "workspace:*",
     "@bench/contracts": "workspace:*",
+    "@bench/gateway": "workspace:*",
     "@bench/scenario": "workspace:*",
     "@bench/storage": "workspace:*"
   }

@@ -41,8 +41,9 @@
 import process from 'node:process'
 
 import { runPeriodOnce } from '@bench/activities'
-import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
+
+import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
 
 const USAGE = `bench — commandes de campagne
 
@@ -75,9 +76,10 @@ const USAGE = `bench — commandes de campagne
                  [--test-reorder-commands]
                  [--test-duplicate-activity <nom>]
                  [--test-continue-as-new-after <n>]
-        SQUELETTE (etage ROUGE, T24, cahier L361-L370) : orchestration
-        Temporal d'une trajectoire COMPLETE. Leve NotImplemented tant que le
-        workflow de campagne / workflow de trajectoire n'est pas ecrit.
+        Orchestration Temporal REELLE d'une trajectoire COMPLETE (T24, cahier
+        L361-L370) : workflow de campagne/trajectoire (@bench/workflows),
+        Activities 'model-call' et 'run-period' (@bench/activities), serveur
+        Temporal reel (127.0.0.1:7233 par defaut, TEMPORAL_ADDRESS).
 
         --mode                       recorded
         --campaign-id                identite de la trajectoire (L78)
@@ -89,9 +91,10 @@ const USAGE = `bench — commandes de campagne
         --test-continue-as-new-after point d'injection nomme (cahier:L141)
 
   replay-trajectory --history <chemin> --block-external
-        SQUELETTE (etage ROUGE, T24, cahier L361-L370) : rejoue un historique
-        exporte par run-trajectory contre le code actuel. Leve NotImplemented
-        tant que le replay n'est pas ecrit.
+        Rejoue un historique exporte par run-trajectory contre le CODE ACTUEL
+        du workflow (T24, cahier L361-L370), via Worker.runReplayHistory :
+        aucune connexion Temporal, aucune Activity enregistree -- aucun
+        adaptateur externe n'est joignable PAR CONSTRUCTION.
 
         --history         chemin de l'historique a rejouer
         --block-external  aucun adaptateur externe reel ne doit etre joignable
@@ -217,10 +220,13 @@ function parseFlagsAvecBooleens(
 }
 
 /**
- * `run-trajectory` — SQUELETTE (etage ROUGE de T24). Lit les drapeaux
- * requis, refuse si l'un manque (meme discipline que `commandRunPeriod`),
- * puis leve `NotImplemented` : ni workflow de campagne, ni workflow de
- * trajectoire, ni Activities ne sont encore ecrits.
+ * `run-trajectory` (T24, cahier L361-L370). Lit les drapeaux requis, refuse si
+ * l'un manque (meme discipline que `commandRunPeriod`), puis delegue la
+ * totalite de l'orchestration a `runTrajectoryForked` (`./trajectory.ts`) : un
+ * processus forke qui heberge le workflow de campagne/trajectoire reel, les
+ * Activities reelles, et l'export d'historique -- sa sortie standard est
+ * ignoree (`./trajectory.ts`, en-tete) pour que rien d'autre que le JSON final
+ * n'atteigne la sortie standard de `bench`.
  */
 async function commandRunTrajectory(argv: readonly string[]): Promise<number> {
   const flags = parseFlagsAvecBooleens(argv, new Set(['test-reorder-commands']))
@@ -241,13 +247,32 @@ async function commandRunTrajectory(argv: readonly string[]): Promise<number> {
     )
     return 1
   }
-  throw new NotImplemented('cli.run-trajectory')
+  const testDuplicateActivity = flags.get('test-duplicate-activity')
+  const testContinueAsNewAfterRaw = flags.get('test-continue-as-new-after')
+  const testContinueAsNewAfter =
+    testContinueAsNewAfterRaw === undefined ? undefined : Number(testContinueAsNewAfterRaw)
+  const result = await runTrajectoryForked({
+    mode,
+    campaignId,
+    postgresDatabase,
+    s3Bucket,
+    exportHistoryPath: exportHistory,
+    testReorderCommands: flags.has('test-reorder-commands'),
+    testDuplicateActivity,
+    testContinueAsNewAfter,
+  })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 
 /**
- * `replay-trajectory` — SQUELETTE (etage ROUGE de T24). Lit les drapeaux
- * requis, refuse si l'un manque, puis leve `NotImplemented` : le controle de
- * determinisme du replay n'est pas encore ecrit.
+ * `replay-trajectory` (T24, cahier L361-L370). Lit `--history` (refuse si
+ * absent, meme discipline que les autres commandes), puis delegue a
+ * `replayTrajectoryForked` (`./trajectory.ts`) : un processus forke (sortie
+ * standard ignoree) qui appelle `Worker.runReplayHistory` contre le code
+ * ACTUEL du workflow, sans connexion Temporal ni Activity enregistree.
+ * Un historique illisible/absent REMONTE (refus, pas un verdict) : seul un
+ * replay reellement execute produit `determinism`.
  */
 async function commandReplayTrajectory(argv: readonly string[]): Promise<number> {
   const flags = parseFlagsAvecBooleens(argv, new Set(['block-external']))
@@ -256,7 +281,9 @@ async function commandReplayTrajectory(argv: readonly string[]): Promise<number>
     process.stderr.write('bench replay-trajectory exige --history\n')
     return 1
   }
-  throw new NotImplemented('cli.replay-trajectory')
+  const result = await replayTrajectoryForked(history)
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return result.determinism === 'OK' ? 0 : 1
 }
 
 async function main(): Promise<number> {

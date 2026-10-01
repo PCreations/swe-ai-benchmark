@@ -16,7 +16,7 @@
   "include": ["src/**/*.ts"],
   "references": [
     { "path": "../../packages/activities" },
-    { "path": "../../packages/contracts" },
-    { "path": "../../packages/scenario" }
+    { "path": "../../packages/scenario" },
+    { "path": "../../packages/workflows" }
   ]
 }

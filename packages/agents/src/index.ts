@@ -50,6 +50,7 @@
 import { isCentralStore } from '@bench/storage'
 import { answerCustomerQuestion } from '@bench/scenario'
 import type { ScenarioPack } from '@bench/scenario'
+import { NotImplemented } from '@bench/contracts'
 import { AgentsRefusal } from './errors.js'
 import { runScript } from './psql.js'
 import type { ScriptResult } from './psql.js'
@@ -710,4 +711,210 @@ export async function getSessionEvents(handle: unknown, session_id: string): Pro
 export async function getSubmissions(handle: unknown, session_id: string): Promise<readonly Submission[]> {
   const dsn = dsnOf(handle)
   return readSubmissionsList(dsn, session_id)
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * SQUELETTE T28 — connecteur Anthropic Messages reel (cahier L395-L404).
+ *
+ * Etage ROUGE : aucune regle metier n'est ecrite ici. Ni appel HTTP reel, ni
+ * execution de sandbox, ni validation de schema, ni delegation au journal
+ * durable. Les cinq roles ci-dessous LEVENT `NotImplemented`
+ * (@bench/contracts), message prefixe `NOT_IMPLEMENTED` que
+ * `verification/runner/red.mjs` sait lire.
+ *
+ * Noms et formes FIXES PAR `acceptance/T28.spec.ts` (section III de son
+ * en-tete) — le cahier ne nomme aucun export pour ce connecteur, exactement
+ * comme T18 et T19 avant lui. Noms primaires sans alias.
+ *
+ *   createAnthropicMessagesProvider(config) -> AnthropicProvider
+ *   normalizeAnthropicUsage(rawUsage)       -> NormalizedAnthropicUsage  (PURE)
+ *   validateAndNormalizeToolCall(toolDefs, block) -> ValidatedToolCall   (PURE)
+ *   executeToolInSandbox(sandboxHandle, name, args) -> Promise<ToolExecutionResult>
+ *   dispatchAnthropicModelCall(handle, params, hooks?) -> Promise<DispatchAnthropicModelCallResult>
+ *
+ * Ce squelette ne redeclare aucun role d'un autre paquet et n'importe rien de
+ * `@bench/gateway`, `@bench/billing` ni `@bench/sandbox` : a l'etage VERT,
+ * `dispatchAnthropicModelCall` delegue a `dispatchModelCall` (T17, meme
+ * journal durable) ; a l'etage ROUGE il leve avant tout appel, donc aucune
+ * dependance supplementaire n'est necessaire pour l'instant.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Configuration du connecteur — SANS IDENTIFIANT INVENTE (L397, section III.1). */
+export interface AnthropicProviderConfig {
+  readonly baseURL: string
+  readonly apiKey: string
+  readonly model: string
+  readonly maxTokens: number
+}
+
+/** Bloc de contenu du Messages API (L658, section III.1). */
+export type AnthropicContentBlock =
+  | { readonly type: 'text'; readonly text: string }
+  | { readonly type: 'tool_use'; readonly id: string; readonly name: string; readonly input: unknown }
+  | {
+      readonly type: 'tool_result'
+      readonly tool_use_id: string
+      readonly content: string
+      readonly is_error?: boolean
+    }
+
+/** Les trois `ToolDef` que L399 nomme (lecture/ecriture/execution), section III.4. */
+export interface AnthropicToolDef {
+  readonly name: string
+  readonly description: string
+  readonly input_schema: {
+    readonly type: 'object'
+    readonly properties: Record<string, { readonly type: string }>
+    readonly required: readonly string[]
+  }
+}
+
+/** Requete envoyee par `AnthropicProvider.complete` (section III.1). */
+export interface AnthropicCompletionRequest {
+  readonly messages: ReadonlyArray<{
+    readonly role: 'user' | 'assistant'
+    readonly content: readonly AnthropicContentBlock[]
+  }>
+  readonly tools?: readonly AnthropicToolDef[]
+  readonly system?: string
+}
+
+/** Usage normalise — jamais une recopie directe du corps brut (section III.2). */
+export interface NormalizedAnthropicUsage {
+  readonly input_uncached_tokens: number
+  readonly input_cached_tokens: number
+  readonly output_tokens: number
+}
+
+/** Reponse rendue par `AnthropicProvider.complete` (section III.1). */
+export interface AnthropicCompletionResponse {
+  readonly content: readonly AnthropicContentBlock[]
+  readonly stop_reason: string
+  readonly usage: NormalizedAnthropicUsage
+}
+
+/** Connecteur rendu par `createAnthropicMessagesProvider` (section III.1). */
+export interface AnthropicProvider {
+  complete(request: AnthropicCompletionRequest): Promise<AnthropicCompletionResponse>
+}
+
+/** Appel d'outil valide et normalise, rendu par `validateAndNormalizeToolCall`. */
+export interface ValidatedAnthropicToolCall {
+  readonly name: string
+  readonly args: unknown
+}
+
+/** Le sous-ensemble du `SandboxHandle` (T19) que `executeToolInSandbox` consomme. */
+export interface AnthropicSandboxExecHandle {
+  execShell(
+    command: string,
+    opts?: { readonly timeoutMs?: number },
+  ): Promise<{
+    readonly exitCode: number
+    readonly stdout: string
+    readonly stderr: string
+    readonly terminated: boolean
+    readonly terminationReason: string | null
+  }>
+}
+
+/** Rendu de `executeToolInSandbox` — jamais de throw, `is_error` porte l'echec (section III.4). */
+export interface AnthropicToolExecutionResult {
+  readonly content: string
+  readonly is_error: boolean
+}
+
+/** Points d'injection de `dispatchModelCall` (T17), repris tels quels (section III.5). */
+export interface DispatchAnthropicModelCallHooks {
+  readonly beforeDispatchStarted?: () => void
+  readonly afterDispatchStarted?: () => void
+  readonly afterProviderResponse?: () => void
+}
+
+/** Parametres de `dispatchAnthropicModelCall` — meme forme que T17 (section III.5). */
+export interface DispatchAnthropicModelCallParams {
+  readonly model_call_id: string
+  readonly idempotency_key: string
+  readonly budget_id: string
+  readonly reservation_id: string
+  readonly provider: AnthropicProvider
+  readonly request: AnthropicCompletionRequest
+  readonly tariff: unknown
+}
+
+/** Ce que rend `dispatchAnthropicModelCall`, premier envoi ou reprise. */
+export interface DispatchAnthropicModelCallResult {
+  readonly model_call_id: string
+  readonly status: string
+  readonly cost?: string
+  readonly usage?: NormalizedAnthropicUsage
+  readonly response?: unknown
+}
+
+/**
+ * Construit le connecteur Anthropic Messages reel (section III.1). `complete`
+ * emettra UNE requete HTTP `POST <baseURL>/v1/messages`, header
+ * `x-api-key: <apiKey>`, et classera 429/401/troncature en refus types —
+ * jamais une relance silencieuse. Rien de tout cela n'est ecrit a cet etage.
+ */
+export function createAnthropicMessagesProvider(config: AnthropicProviderConfig): AnthropicProvider {
+  void config
+  throw new NotImplemented('agents.createAnthropicMessagesProvider')
+}
+
+/**
+ * Normalise l'usage brut du Messages API — PURE, aucune E/S (section III.2).
+ * `input_cached_tokens` devra sommer LES DEUX compteurs de cache ; rien de
+ * cela n'est ecrit a cet etage.
+ */
+export function normalizeAnthropicUsage(rawUsage: unknown): NormalizedAnthropicUsage {
+  void rawUsage
+  throw new NotImplemented('agents.normalizeAnthropicUsage')
+}
+
+/**
+ * Valide un bloc `tool_use` REÇU contre `toolDefs` — PURE, n'execute rien
+ * (section III.3). Separe de l'execution (section III.4) pour qu'un refus
+ * puisse etre prouve sans toucher au sandbox.
+ */
+export function validateAndNormalizeToolCall(
+  toolDefs: readonly AnthropicToolDef[],
+  block: AnthropicContentBlock,
+): ValidatedAnthropicToolCall {
+  void toolDefs
+  void block
+  throw new NotImplemented('agents.validateAndNormalizeToolCall')
+}
+
+/**
+ * Execute un outil DEJA VALIDE dans le sandbox reel via
+ * `sandboxHandle.execShell` (contrat T19, section III.4).
+ */
+export function executeToolInSandbox(
+  sandboxHandle: AnthropicSandboxExecHandle,
+  name: string,
+  args: unknown,
+): Promise<AnthropicToolExecutionResult> {
+  void sandboxHandle
+  void name
+  void args
+  throw new NotImplemented('agents.executeToolInSandbox')
+}
+
+/**
+ * Delegue a `dispatchModelCall` de `@bench/gateway` (T17, meme journal
+ * durable d'appel) avec `params.provider` un `AnthropicProvider` (section
+ * III.5) — le journal durable d'A6 ne doit jamais etre recontourne en
+ * appelant `provider.complete()` directement hors de ce chemin. Rien de cela
+ * n'est cable a cet etage.
+ */
+export function dispatchAnthropicModelCall(
+  handle: unknown,
+  params: DispatchAnthropicModelCallParams,
+  hooks?: DispatchAnthropicModelCallHooks,
+): Promise<DispatchAnthropicModelCallResult> {
+  void handle
+  void params
+  void hooks
+  throw new NotImplemented('agents.dispatchAnthropicModelCall')
 }

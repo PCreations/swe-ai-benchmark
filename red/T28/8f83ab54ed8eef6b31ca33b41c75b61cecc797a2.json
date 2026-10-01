@@ -1,0 +1,90 @@
+{
+  "schema": "bench.red/1",
+  "task": "T28",
+  "subject_commit": "8f83ab54ed8eef6b31ca33b41c75b61cecc797a2",
+  "dirty": false,
+  "input_digest": "b358b71cb85c4d2611dcdce8d6e3347c31b0c5269fdf3a0c5b50be31ccfb2f7b",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T28.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M1",
+      "note": "complete() mute en no-op reseau (retour fabrique sans appel HTTP) : A1 ROUGE (serveur.requetes.length=0, attendu 1), observe puis restaure (git checkout)."
+    },
+    {
+      "id": "T28.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M2",
+      "note": "execRunCommandTool mute en resultat fabrique sans sandboxHandle.execShell : A2 ROUGE (sentinel absent de toolResult.content), A1/A3/A4/A5/A6 restes VERTS, observe puis restaure."
+    },
+    {
+      "id": "T28.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M3",
+      "note": "validateAndNormalizeToolCall mute en permissif (nom/schema jamais verifies) : A3 ROUGE (delete_everything accepte a tort), A1/A4/A5 restes VERTS, observe puis restaure."
+    },
+    {
+      "id": "T28.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M4",
+      "note": "normalizeAnthropicUsage mute en recopie brute (cache inclus dans le total non cache, cache_read_input_tokens ignore) : A4 ROUGE, A1/A3/A5 restes VERTS, observe puis restaure."
+    },
+    {
+      "id": "T28.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M5",
+      "note": "classification de complete() mutee en permissive (429/401/403 acceptes, corps tronque avale) : A5 ROUGE (limite/auth/troncature a tort acceptees), A1/A3/A4 restes VERTS, observe puis restaure."
+    },
+    {
+      "id": "T28.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M6",
+      "note": "dispatchAnthropicModelCall mute en court-circuit direct de provider.complete (dispatchModelCall jamais appele, hooks jamais invoques) : A6 ROUGE (panne non observee), A1/A3/A4/A5 restes VERTS, observe puis restaure."
+    },
+    {
+      "id": "T28.A7",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T28.M7",
+      "note": "cle API rendue presente : payload JSON de complete() porte desormais debug_api_key, et createAnthropicMessagesProvider ecrit la cle dans un relai module-global lu par executeToolInSandbox : A7 ROUGE sur la clause corps publiable (CLE-PRESENTE-DANS-LE-CORPS), A1-A6 restes VERTS, observe puis restaure."
+    }
+  ],
+  "mutation_proof": {
+    "T28.A1": {
+      "killed_by": "T28.M1",
+      "note": "complete() mute en no-op reseau (retour fabrique sans appel HTTP) : A1 ROUGE (serveur.requetes.length=0, attendu 1), observe puis restaure (git checkout)."
+    },
+    "T28.A2": {
+      "killed_by": "T28.M2",
+      "note": "execRunCommandTool mute en resultat fabrique sans sandboxHandle.execShell : A2 ROUGE (sentinel absent de toolResult.content), A1/A3/A4/A5/A6 restes VERTS, observe puis restaure."
+    },
+    "T28.A3": {
+      "killed_by": "T28.M3",
+      "note": "validateAndNormalizeToolCall mute en permissif (nom/schema jamais verifies) : A3 ROUGE (delete_everything accepte a tort), A1/A4/A5 restes VERTS, observe puis restaure."
+    },
+    "T28.A4": {
+      "killed_by": "T28.M4",
+      "note": "normalizeAnthropicUsage mute en recopie brute (cache inclus dans le total non cache, cache_read_input_tokens ignore) : A4 ROUGE, A1/A3/A5 restes VERTS, observe puis restaure."
+    },
+    "T28.A5": {
+      "killed_by": "T28.M5",
+      "note": "classification de complete() mutee en permissive (429/401/403 acceptes, corps tronque avale) : A5 ROUGE (limite/auth/troncature a tort acceptees), A1/A3/A4 restes VERTS, observe puis restaure."
+    },
+    "T28.A6": {
+      "killed_by": "T28.M6",
+      "note": "dispatchAnthropicModelCall mute en court-circuit direct de provider.complete (dispatchModelCall jamais appele, hooks jamais invoques) : A6 ROUGE (panne non observee), A1/A3/A4/A5 restes VERTS, observe puis restaure."
+    },
+    "T28.A7": {
+      "killed_by": "T28.M7",
+      "note": "cle API rendue presente : payload JSON de complete() porte desormais debug_api_key, et createAnthropicMessagesProvider ecrit la cle dans un relai module-global lu par executeToolInSandbox : A7 ROUGE sur la clause corps publiable (CLE-PRESENTE-DANS-LE-CORPS), A1-A6 restes VERTS, observe puis restaure."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

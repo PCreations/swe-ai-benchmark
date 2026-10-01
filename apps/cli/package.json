@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Commandes de campagne et de verification (cahier §C, L52). A ce jalon : `bench demo` (T11, L247).",
+  "description": "Commandes de campagne et de verification (cahier §C, L52). A ce jalon : `bench demo` (T11, L247) et le squelette rouge de `bench run-period` (T23, L355).",
   "bin": {
     "bench": "./dist/index.js"
   },
@@ -13,6 +13,7 @@
     "dist"
   ],
   "dependencies": {
+    "@bench/contracts": "workspace:*",
     "@bench/scenario": "workspace:*"
   }
 }

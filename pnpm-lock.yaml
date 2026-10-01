@@ -26,6 +26,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@bench/scenario':
         specifier: workspace:*
         version: link:../../packages/scenario

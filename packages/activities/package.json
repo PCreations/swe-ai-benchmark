@@ -8,5 +8,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],
-  "dependencies": { "@bench/contracts": "workspace:*" }
+  "dependencies": {
+    "@bench/contracts": "workspace:*",
+    "@bench/scenario": "workspace:*",
+    "@bench/storage": "workspace:*"
+  }
 }

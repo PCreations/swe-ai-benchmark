@@ -13,6 +13,7 @@
     "dist"
   ],
   "dependencies": {
+    "@bench/activities": "workspace:*",
     "@bench/contracts": "workspace:*",
     "@bench/scenario": "workspace:*"
   }

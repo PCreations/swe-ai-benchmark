@@ -1,7 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/activities : effets externes de l'admission des livraisons, de la
-// migration protégée et de la reprise de bascule (cahier L337-L343, T21).
+// migration protégée et de la reprise de bascule (cahier L337-L343, T21) ; et,
+// depuis T23 (L353-L359, `src/run-period.ts`), l'assemblage d'une période
+// persistante complète pour `bench run-period`. Les deux tâches partagent ce
+// paquet parce que L84 le décrit comme « effets externes des workflows » :
+// aucune règle métier n'est dupliquée entre les deux fichiers, et T23 importe
+// T21 pour rien — ils vivent côte à côte, pas l'un sur l'autre.
 //
+
 // LES TROIS RÔLES, ET D'OÙ VIENNENT LEURS NOMS. Ils ne sont pas choisis ici :
 // la section III de l'en-tête de `acceptance/T21.spec.ts` les fixe (le cahier
 // ne nomme aucun export pour T21), et `verification/mutants/T21.json` les
@@ -393,3 +399,7 @@ export async function resumeDeploymentSwitch(
     active_version_id: input.switch_committed ? input.prepared_version_id : input.active_version_id,
   }
 }
+
+/* ── T23 : assembler une période persistante complète (L353-L359) ────────── */
+export { RUN_PERIOD_MODE, RUN_PERIOD_PHASES, RUN_PERIOD_VARIANTS, runPeriodOnce } from './run-period.js'
+export type { RunPeriodInput, RunPeriodOutcome } from './run-period.js'

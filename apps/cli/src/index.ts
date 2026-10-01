@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// `bench` — les commandes de campagne (§C, L52). À ce jalon : `demo`, et le
-// SQUELETTE rouge de `run-period` (T23, cahier L355).
+// `bench` — les commandes de campagne (§C, L52) : `demo` (T11) et
+// `run-period` (T23, cahier L353-L359).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -21,21 +21,25 @@
 //     c'est ce que `bench demo` est censé fournir : « résultats JSON » (L247).
 //
 // (3) AUCUNE RÈGLE MÉTIER ICI. Cette entrée ne calcule ni période, ni métrique,
-//     ni contrôle : elle lit une ligne de commande et appelle `runDemo`. Le
-//     domaine vit dans `@bench/scenario` ; le dupliquer ici donnerait deux
-//     vérités, dont une seule serait testée.
+//     ni contrôle : elle lit une ligne de commande et appelle `runDemo` ou
+//     `runPeriodOnce`. Le domaine vit dans `@bench/scenario` et
+//     `@bench/activities` ; le dupliquer ici donnerait deux vérités, dont une
+//     seule serait testée.
 //
 // `run-period` (T23, L355 : « services d'application et commande `bench
-// run-period` utilisant les adaptateurs reels locaux ») N'EST ENCORE QU'UN
-// SQUELETTE : elle lit ses drapeaux (jamais ne les ignore — meme regle (1)
-// ci-dessus) puis leve `NotImplemented('cli.run-period')`. Aucune regle
-// metier n'est ecrite ici — ni phase, ni checkpoint, ni cout — c'est tout
-// l'objet de l'etage ROUGE : acceptance/T23.spec.ts doit echouer par cette
-// absence nommee, jamais par un module introuvable.
+// run-period` utilisant les adaptateurs réels locaux ») délègue la totalité de
+// son travail à `runPeriodOnce` (`@bench/activities`, src/run-period.ts) :
+// PostgreSQL et S3 réels pour la persistance de la trajectoire, `@bench/
+// scenario` (T11) pour la trajectoire nominale. Cette entrée se limite à lire
+// les drapeaux (même règle (1) ci-dessus), traduire le point d'injection
+// `--test-stop-after-phase` (cahier:L141), et à n'écrire sur la sortie
+// standard QUE lorsque la période s'est réellement achevée — une période
+// interrompue par ce point d'injection n'imprime rien (A5, cahier L355 :
+// « une période incomplète ne publie pas un faux état final »).
 // ─────────────────────────────────────────────────────────────────────────────
 import process from 'node:process'
 
-import { NotImplemented } from '@bench/contracts'
+import { runPeriodOnce } from '@bench/activities'
 import { runDemo } from '@bench/scenario'
 
 const USAGE = `bench — commandes de campagne
@@ -52,8 +56,10 @@ const USAGE = `bench — commandes de campagne
              --s3-bucket <bucket> [--variant <variante>]
              [--test-stop-after-phase <phase>]
         Assemble une periode persistante complete avec les adaptateurs reels
-        locaux (T23, cahier L353-L359). PAS ENCORE IMPLEMENTEE : leve
-        NOT_IMPLEMENTED apres lecture des drapeaux.
+        locaux (T23, cahier L353-L359) et ecrit son resultat JSON sur la
+        sortie standard. Chaque appel ne porte que sur la PERIODE SUIVANTE de
+        la trajectoire --campaign-id : l'etat persistant (PostgreSQL + S3)
+        est lu par la commande elle-meme.
 
         --mode                     recorded
         --campaign-id              identite de la trajectoire (L78)
@@ -106,9 +112,12 @@ async function commandDemo(argv: readonly string[]): Promise<number> {
 }
 
 /**
- * `run-period` — SQUELETTE (etage ROUGE de T23). Lit les drapeaux requis,
- * refuse si l'un manque (meme discipline que `commandDemo`), puis leve
- * `NotImplemented` : aucune regle metier n'est encore ecrite.
+ * `run-period` (T23, cahier L353-L359). Lit les drapeaux requis, refuse si
+ * l'un manque (meme discipline que `commandDemo`), puis delegue a
+ * `runPeriodOnce` (`@bench/activities`). N'ecrit le resultat JSON que si la
+ * periode s'est reellement achevee : une interruption par
+ * `--test-stop-after-phase` (cahier:L141) n'ecrit rien sur la sortie standard
+ * (A5).
  */
 async function commandRunPeriod(argv: readonly string[]): Promise<number> {
   const flags = parseFlags(argv)
@@ -127,7 +136,22 @@ async function commandRunPeriod(argv: readonly string[]): Promise<number> {
     )
     return 1
   }
-  throw new NotImplemented('cli.run-period')
+  const variant = flags.get('variant')
+  const testStopAfterPhase = flags.get('test-stop-after-phase')
+  const outcome = await runPeriodOnce({
+    mode,
+    campaignId,
+    postgresDatabase,
+    s3Bucket,
+    variant,
+    testStopAfterPhase,
+  })
+  if (!outcome.ok) {
+    process.stderr.write(`bench run-period : ${outcome.reason}\n`)
+    return 1
+  }
+  process.stdout.write(`${JSON.stringify(outcome.result, null, 2)}\n`)
+  return 0
 }
 
 async function main(): Promise<number> {

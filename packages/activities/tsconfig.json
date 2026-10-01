@@ -8,5 +8,9 @@
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "references": [{ "path": "../contracts" }]
+  "references": [
+    { "path": "../contracts" },
+    { "path": "../scenario" },
+    { "path": "../storage" }
+  ]
 }

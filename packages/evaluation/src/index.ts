@@ -135,3 +135,22 @@ export type {
   HiddenTestCase,
   PrivateEvaluationInput,
 } from './private-run.js'
+
+/* ── incidents et backlog (cahier L345-L352, tâche T22) ──────────────────── */
+export {
+  applyCriticalViolationPolicy,
+  classifyDefectOrigin,
+  ingestObservations,
+  sortBacklog,
+} from './incidents.js'
+export type {
+  ApplyCriticalViolationPolicyInput,
+  BacklogItem,
+  ClassifyDefectOriginInput,
+  Incident,
+  IncidentObservation,
+  IncidentTicket,
+  IngestObservationsInput,
+  IngestResult,
+  PolicyResult,
+} from './incidents.js'

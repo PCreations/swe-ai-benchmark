@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// `bench` — les commandes de campagne (§C, L52) : `demo` (T11) et
-// `run-period` (T23, cahier L353-L359).
+// `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
+// `run-period` (T23, cahier L353-L359) et, SQUELETTE seulement a ce stade,
+// `run-trajectory` / `replay-trajectory` (T24, cahier L361-L370).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -40,6 +41,7 @@
 import process from 'node:process'
 
 import { runPeriodOnce } from '@bench/activities'
+import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
 const USAGE = `bench — commandes de campagne
@@ -67,6 +69,32 @@ const USAGE = `bench — commandes de campagne
         --s3-bucket                bucket S3 (ou compatible) reel a utiliser
         --variant                  nominal | invalid-candidate | ...
         --test-stop-after-phase    point d'injection nomme (cahier:L141)
+
+  run-trajectory --mode <mode> --campaign-id <id> --postgres-database <db>
+                 --s3-bucket <bucket> --export-history <chemin>
+                 [--test-reorder-commands]
+                 [--test-duplicate-activity <nom>]
+                 [--test-continue-as-new-after <n>]
+        SQUELETTE (etage ROUGE, T24, cahier L361-L370) : orchestration
+        Temporal d'une trajectoire COMPLETE. Leve NotImplemented tant que le
+        workflow de campagne / workflow de trajectoire n'est pas ecrit.
+
+        --mode                       recorded
+        --campaign-id                identite de la trajectoire (L78)
+        --postgres-database          base PostgreSQL reelle a utiliser
+        --s3-bucket                  bucket S3 (ou compatible) reel a utiliser
+        --export-history             chemin ou ecrire l'historique rejouable
+        --test-reorder-commands      point d'injection nomme (cahier:L141)
+        --test-duplicate-activity    point d'injection nomme (cahier:L141)
+        --test-continue-as-new-after point d'injection nomme (cahier:L141)
+
+  replay-trajectory --history <chemin> --block-external
+        SQUELETTE (etage ROUGE, T24, cahier L361-L370) : rejoue un historique
+        exporte par run-trajectory contre le code actuel. Leve NotImplemented
+        tant que le replay n'est pas ecrit.
+
+        --history         chemin de l'historique a rejouer
+        --block-external  aucun adaptateur externe reel ne doit etre joignable
 
   Sorties : 0 la trajectoire a produit un resultat · 1 refus ou erreur
             2 commande inconnue
@@ -154,10 +182,89 @@ async function commandRunPeriod(argv: readonly string[]): Promise<number> {
   return 0
 }
 
+/**
+ * Comme `parseFlags`, mais certains drapeaux de `run-trajectory` et
+ * `replay-trajectory` (T24, cahier L361-L370) sont des BOOLEENS sans valeur —
+ * `--test-reorder-commands`, `--block-external` : le drapeau est present des
+ * qu'il apparait dans argv, jamais suivi d'un token de valeur. Fonction
+ * separee de `parseFlags` pour ne rien changer au comportement deja accepte
+ * de `demo`/`run-period` (T11/T23), dont AUCUN drapeau n'est booleen.
+ */
+function parseFlagsAvecBooleens(
+  argv: readonly string[],
+  booleens: ReadonlySet<string>
+): Map<string, string> {
+  const out = new Map<string, string>()
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i]
+    if (token === undefined) continue
+    if (!token.startsWith('--')) {
+      throw new Error(`argument inattendu : ${token}`)
+    }
+    const nom = token.slice(2)
+    if (booleens.has(nom)) {
+      out.set(nom, 'true')
+      continue
+    }
+    const value = argv[i + 1]
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(`le drapeau ${token} attend une valeur`)
+    }
+    out.set(nom, value)
+    i += 1
+  }
+  return out
+}
+
+/**
+ * `run-trajectory` — SQUELETTE (etage ROUGE de T24). Lit les drapeaux
+ * requis, refuse si l'un manque (meme discipline que `commandRunPeriod`),
+ * puis leve `NotImplemented` : ni workflow de campagne, ni workflow de
+ * trajectoire, ni Activities ne sont encore ecrits.
+ */
+async function commandRunTrajectory(argv: readonly string[]): Promise<number> {
+  const flags = parseFlagsAvecBooleens(argv, new Set(['test-reorder-commands']))
+  const mode = flags.get('mode')
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  const exportHistory = flags.get('export-history')
+  if (
+    mode === undefined ||
+    campaignId === undefined ||
+    postgresDatabase === undefined ||
+    s3Bucket === undefined ||
+    exportHistory === undefined
+  ) {
+    process.stderr.write(
+      'bench run-trajectory exige --mode, --campaign-id, --postgres-database, --s3-bucket et --export-history\n'
+    )
+    return 1
+  }
+  throw new NotImplemented('cli.run-trajectory')
+}
+
+/**
+ * `replay-trajectory` — SQUELETTE (etage ROUGE de T24). Lit les drapeaux
+ * requis, refuse si l'un manque, puis leve `NotImplemented` : le controle de
+ * determinisme du replay n'est pas encore ecrit.
+ */
+async function commandReplayTrajectory(argv: readonly string[]): Promise<number> {
+  const flags = parseFlagsAvecBooleens(argv, new Set(['block-external']))
+  const history = flags.get('history')
+  if (history === undefined) {
+    process.stderr.write('bench replay-trajectory exige --history\n')
+    return 1
+  }
+  throw new NotImplemented('cli.replay-trajectory')
+}
+
 async function main(): Promise<number> {
   const [command = '', ...rest] = process.argv.slice(2)
   if (command === 'demo') return commandDemo(rest)
   if (command === 'run-period') return commandRunPeriod(rest)
+  if (command === 'run-trajectory') return commandRunTrajectory(rest)
+  if (command === 'replay-trajectory') return commandReplayTrajectory(rest)
   if (command === '' || command === '--help' || command === 'help') {
     process.stdout.write(USAGE)
     return command === '' ? 2 : 0

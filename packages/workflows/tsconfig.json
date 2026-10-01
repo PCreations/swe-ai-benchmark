@@ -14,5 +14,6 @@
     "tsBuildInfoFile": "dist/.tsbuildinfo",
     "types": []
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../contracts" }]
 }

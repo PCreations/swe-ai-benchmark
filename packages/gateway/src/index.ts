@@ -598,3 +598,13 @@ export async function reconcileModelCall(
 
   return { model_call_id: modelCallId, status: 'SETTLED', cost }
 }
+
+/* ───────────────────────────────────────────────── additifs de fencing, T25 */
+
+export { dispatchModelCallFenced, stopSession } from './fencing.js'
+export type {
+  DispatchFencing,
+  PendingOrDispatchedCallRef,
+  StopSessionRequest,
+  StopSessionResult,
+} from './fencing.js'

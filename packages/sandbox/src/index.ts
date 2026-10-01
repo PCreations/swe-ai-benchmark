@@ -215,3 +215,8 @@ export function verifyTrajectoryClaim(
 ): Promise<TrajectoryClaimResult> {
   return Promise.resolve(gatewayVerify(claimedTrajectoryId, token))
 }
+
+/* ───────────────────────────────────── additif de fencing sur volume, T25 */
+
+export { writeToRestoredVolume } from './restored-volume.js'
+export type { WriteToRestoredVolumeRequest, WriteToRestoredVolumeResult } from './restored-volume.js'

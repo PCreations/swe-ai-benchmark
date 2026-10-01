@@ -407,3 +407,11 @@ export type { RunPeriodInput, RunPeriodOutcome } from './run-period.js'
 /* ── T24 : les Activities du workflow de trajectoire (L361-L370) ─────────── */
 export { fakeProviderCallsTotal, getPeriodCount, modelCallActivity } from './trajectory-activities.js'
 export type { ModelCallActivityInput, ModelCallActivityResult } from './trajectory-activities.js'
+
+/* ───────────────────────────────── publication de checkpoint fencée, T25 */
+
+export { listPublishedCheckpoints, publishCheckpointActivity } from './checkpoint-fencing.js'
+export type {
+  PublishCheckpointActivityRequest,
+  PublishCheckpointActivityResult,
+} from './checkpoint-fencing.js'

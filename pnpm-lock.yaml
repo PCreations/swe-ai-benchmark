@@ -151,6 +151,9 @@ importers:
 
   packages/workflows:
     dependencies:
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       '@temporalio/workflow':
         specifier: 1.24.0
         version: 1.24.0

@@ -16,6 +16,7 @@
     "dist"
   ],
   "dependencies": {
+    "@bench/billing": "workspace:*",
     "@bench/contracts": "workspace:*",
     "@temporalio/workflow": "1.24.0"
   }

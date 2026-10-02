@@ -1,0 +1,62 @@
+[
+  {
+    "point": "avant-upload",
+    "scenario": "Le worker est interrompu juste avant que l'upload du livrable candidat vers le stockage d'objets ne commence.",
+    "expected": "La reprise relance l'upload depuis zéro : aucun objet partiel n'est jamais exposé comme un livrable complet."
+  },
+  {
+    "point": "apres-upload",
+    "scenario": "Le worker est interrompu juste après la fin de l'upload de l'artefact, avant toute écriture de métadonnée associée.",
+    "expected": "La reprise retrouve l'objet déjà présent par son empreinte et ne le retéléverse pas une seconde fois inutilement."
+  },
+  {
+    "point": "avant-commit-resultat",
+    "scenario": "Le processus s'arrête juste avant que le résultat de la période ne soit committé dans le registre central.",
+    "expected": "La reprise retrouve l'état précédent intact et recommence le commit du même résultat, sans jamais le dupliquer."
+  },
+  {
+    "point": "apres-commit-resultat",
+    "scenario": "Le processus s'arrête juste après le commit du résultat, avant le nettoyage de la copie privée d'évaluation déjà utilisée.",
+    "expected": "La reprise détruit toute ancienne copie privée d'évaluation et ne laisse fuiter aucune sentinelle vers le développeur."
+  },
+  {
+    "point": "avant-dispatch-started",
+    "scenario": "Le worker tombe avant même que l'écriture durable DISPATCH_STARTED n'ait été journalisée pour cet appel modèle.",
+    "expected": "La reprise relance l'appel sans aucune ambiguïté : aucune réception n'a pu se produire avant cette écriture durable."
+  },
+  {
+    "point": "apres-dispatch-started",
+    "scenario": "Le worker tombe juste après l'écriture durable DISPATCH_STARTED, avant que la réponse du fournisseur ne soit reçue.",
+    "expected": "La reprise rapporte UNKNOWN sans relancer l'appel, ou mène une réconciliation prouvée à un coût non nul si un reçu arrive."
+  },
+  {
+    "point": "apres-reception-fournisseur-avant-sauvegarde-reponse",
+    "scenario": "Le fournisseur a répondu mais le worker s'arrête avant que cette réponse ne soit sauvegardée durablement en base.",
+    "expected": "La reprise retrouve un état UNKNOWN jusqu'à réconciliation, sans jamais inventer le texte de la réponse perdue."
+  },
+  {
+    "point": "apres-sauvegarde-avant-reglement",
+    "scenario": "La réponse du fournisseur est sauvegardée mais le règlement de la réservation budgétaire associée n'a pas encore eu lieu.",
+    "expected": "La reprise détecte tout reçu perdu ou dupliqué dans le lot de règlement et rejette la réconciliation en bloc, jamais à moitié."
+  },
+  {
+    "point": "apres-deploiement-avant-accuse",
+    "scenario": "Le déploiement de la nouvelle version candidate a réussi mais l'accusé de réception du déploiement n'a pas été écrit.",
+    "expected": "La reprise retrouve la version déjà déployée active et republie l'accusé, sans jamais redéployer inutilement."
+  },
+  {
+    "point": "pendant-checkpoint",
+    "scenario": "Le processus s'arrête au beau milieu de la capture du checkpoint, entre deux composants de l'instantané métier.",
+    "expected": "La reprise constate un checkpoint incomplet et en recapture un nouveau, plutôt que d'en publier un partiel."
+  },
+  {
+    "point": "avant-publication-periode",
+    "scenario": "Le processus s'arrête juste avant la publication finale de la période courante dans le calendrier de la campagne.",
+    "expected": "La reprise rejoue la publication sans jamais la dupliquer et conserve intégralement le calendrier des périodes."
+  },
+  {
+    "point": "bail-expire",
+    "scenario": "Le bail de fencing du worker courant expire en plein milieu de son exécution, avant la fin de sa période en cours.",
+    "expected": "Un nouveau worker porteur d'un jeton plus récent prend le relais sans collision d'écriture avec l'ancien détenteur."
+  }
+]

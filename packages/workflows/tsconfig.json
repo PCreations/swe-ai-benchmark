@@ -4,7 +4,15 @@
     "paquet (src/trajectory-workflow.ts) s'execute dans le bac a sable",
     "deterministe du SDK Temporal, qui N'EXPOSE PAS les globals/typings Node —",
     "un `types: [\"node\"]` ici inviterait a y importer `node:fs`/`node:crypto`",
-    "sans qu'aucun controle ne le remarque avant l'execution reelle du worker."
+    "sans qu'aucun controle ne le remarque avant l'execution reelle du worker.",
+    "",
+    "T37 (fault-drill.ts) A BESOIN DE `node:fs` (journal de reprise sur disque,",
+    "nettoyage de copie d'evaluation) SANS ROUVRIR CETTE PORTE : ce fichier",
+    "charge `node:fs` par un `import()` DYNAMIQUE dont le specificateur est une",
+    "variable, pas un litteral — TypeScript ne peut alors PAS resoudre le module",
+    "(son resultat est type `any`), donc `types: []` reste la seule source de",
+    "typage Node pour TOUT le paquet, trajectory-workflow.ts y compris. Voir",
+    "l'en-tete de fault-drill.ts pour le detail et sa verification."
   ],
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
@@ -15,5 +23,5 @@
     "types": []
   },
   "include": ["src/**/*.ts"],
-  "references": [{ "path": "../contracts" }]
+  "references": [{ "path": "../contracts" }, { "path": "../billing" }]
 }

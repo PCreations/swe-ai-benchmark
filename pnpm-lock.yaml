@@ -169,6 +169,9 @@ importers:
 
   packages/workflows:
     dependencies:
+      '@bench/billing':
+        specifier: workspace:*
+        version: link:../billing
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts

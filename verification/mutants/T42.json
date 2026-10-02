@@ -1,0 +1,160 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T42 — une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.lock.json.",
+    "",
+    "A quoi sert ce fichier. Chaque mutant ci-dessous decrit une modification de",
+    "CETTE SUITE (acceptance/T42.spec.ts) ou du point qu'elle interroge, qui la",
+    "ferait passer au VERT a tort : appliquer la mutation, relancer",
+    "`pnpm verify:task T42`, exiger que le cas nomme par kills_case devienne",
+    "ROUGE. Un mutant qui laisse le cas vert denonce un cas creux (cahier L139 :",
+    "« un programme qui ecrit seulement passed=true [...] ne satisfait pas le",
+    "contrat »), pas une implementation correcte.",
+    "",
+    "LA PORTE « NECESSITE » N'EST PAS UNIVERSELLE (meme regle que T00/T06/T16) :",
+    "stuber un export est la bonne perturbation pour un cas `behaviour`. Pour un",
+    "cas `refusal` (A3), un stub qui leve laisserait le cas VERT — la",
+    "perturbation correcte est donc INVERSE, rendre PERMISSIF. Pour le cas",
+    "`artifact` (A1), aucun export metier n'est appele : seule la mutation de",
+    "l'archive de preuves mord. Pour le cas `absence` (A6), rendre la chose",
+    "PRESENTE est la perturbation qui mord.",
+    "",
+    "T42 N'A PAS DE LIVRABLE SOUS packages/**/apps/** (cahier:L525 : « jeu",
+    "d'acceptation final, scripts de rejeu, rapport d'audit »). Les cibles ci-",
+    "dessous sont donc, pour l'essentiel, des points DEJA REELS et DEJA PROUVES",
+    "d'autres taches (T00/T01 pour A1, T38 pour A2, T16/T06/T04/T33/T17 pour",
+    "A3) que T42 reinterroge a HEAD, ou des commandes NON ENCORE IMPLEMENTEES",
+    "(checkpoint inspect, analysis export/run, report build — T41, squelette",
+    "seul) dont cette suite fixe elle-meme le contrat de sortie (section II de",
+    "son en-tete). Muter une commande non encore implementee n'a pas de sens :",
+    "les mutants M4/M5/M6 portent donc sur le point, dans CETTE SUITE, qui",
+    "consommerait une sortie alteree de cette commande sans la detecter —",
+    "exactement la discipline deja suivie par T04.M*/T06.M* pour les cas",
+    "`behaviour`/`absence` dont la cible n'est pas encore celle d'un paquet",
+    "implemente au moment de l'ecriture des mutants."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T42",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T42"
+  ],
+  "acceptance_entry": "acceptance/T42.spec.ts",
+  "mutant_count": 6,
+  "mutants": [
+    {
+      "id": "T42.M1",
+      "kills_case": "T42.A1",
+      "proof_kind": "artifact",
+      "necessity": "artifact-mutation",
+      "direction": "muter l'artefact",
+      "target": "L'archive d'attestations sur la branche de ledger orpheline (`<branche>-ledger`, `attestations/<Txx>/<commit>.json`, verification/runner/ledger.mjs#attestationsByTask) pour UNE des 42 taches T00..T41 — jamais un export metier.",
+      "mutation": "Retirer l'attestation COURANTE d'une des 42 taches a HEAD (supprimer son fichier `attestations/<Txx>/<sha-courant>.json` sur le ledger), OU la PERIMER sans la retirer en alterant son `input_digest` ou son `commit` pour qu'il ne corresponde plus a HEAD. Dans les deux cas, aucune source de `packages/**`, `apps/**` ni `analysis/src/**` n'est touchee : la tache reste reellement implementee et correcte, seule sa PREUVE COURANTE disparait ou se perime.",
+      "expected_effect": "T42.A1 devient rouge pour la tache visee (et SEULEMENT elle).",
+      "observation_qui_echoue": "A1 invoque `node tools/bench resume --json` (la seule autorite du depot, CLAUDE.md) et exige, pour CHACUNE des 42 taches de `verification/tasks.json#T42.depends_on` (elles-memes verifiees contre cahier:L525 avant tout usage), sa presence dans `proven` et son absence de `waiting`/`blocked`/`stale`/`contested` — boucle tache par tache, avec un message qui NOMME l'identifiant en cause. Sous la mutation, la tache visee bascule en `STALE` (digest perime) ou `WAITING`/`READY` (aucune attestation) : son identifiant apparait dans `manquantes`, et l'egalite de chaine tombe. Les 41 autres taches restent couvertes par leur propre attestation intacte : SEULE la tache visee est nommee, ce qu'exige la boucle plutot qu'une simple egalite d'ensemble.",
+      "pourquoi_cette_perturbation": "A1 est un cas `artifact` : aucun export metier n'est exerce, cases.lock.json prescrit exactement « muter l'archive d'attestations [...] sans toucher aucun export metier : rouge exige ». Un cas A1 qui se contenterait de verifier le CODE DE SORTIE de `bench resume` (0/3/4/11, qui depend aussi de l'etat `pushed`/`clean` sans rapport avec l'attestation d'UNE tache precise) survivrait a cette mutation sur une tache deja prouvee par ailleurs — c'est precisement ce que la boucle tache-par-tache interdit.",
+      "doit_rester_vert": [
+        "T42.A2",
+        "T42.A3",
+        "T42.A4",
+        "T42.A5",
+        "T42.A6"
+      ]
+    },
+    {
+      "id": "T42.M2",
+      "kills_case": "T42.A2",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export de calcul qui agrege les resultats de `bench campaign fixtures/golden-six.json` en `trajectory_count`, `period_count`, `model_calls_settled_count`, `total_cost_micro_usd`, `Q`/`R`/`V`/`U`/`G` publies sur stdout (T38, cahier:L487-L496, deja PROUVE).",
+      "mutation": "Remplacer cet export par un stub qui renvoie des agregats nuls, vides ou decales (par exemple `trajectory_count: 0`, `total_cost_micro_usd: \"0\"`, ou `Q: 0`) independamment des six trajectoires reellement persistees par l'installation vierge (base et seau crees pour cette suite seule).",
+      "expected_effect": "T42.A2 devient rouge.",
+      "observation_qui_echoue": "A2 exige l'EGALITE DE CHAINE (lecon T31.A2, pas seulement numerique) entre `total_cost_micro_usd` et `String(16320)`, entre `trajectory_count`/`period_count`/`model_calls_settled_count` et 6/24/48, et entre `Q`/`R`/`V`/`U`/`G` et 1/1/1/1/0 — valeurs reprises de cahier:L493 via `acceptance/reference/F-MONEY.json` et croisees avec `fixtures/golden-six.json` avant tout usage (controles de coherence interne, en tete de fichier). Elle somme en outre `cost_micro_usd` trajectoire par trajectoire et exige que la somme REELLE vaille aussi 16320, un controle independant du champ `total_cost_micro_usd` global. Sous la mutation, au moins une de ces egalites tombe.",
+      "pourquoi_cette_perturbation": "A2 est un cas `behaviour` : il exerce un export metier reel (la commande CLI deja implementee et PROUVEE par T38) et observe son resultat. Stuber ce point de calcul est donc la porte de necessite standard. Un cas A2 qui se contenterait de `exit === 0` survivrait a cette mutation — c'est exactement ce que l'egalite de chaine sur CHAQUE champ, plus le controle de somme independant, interdit.",
+      "doit_rester_vert": [
+        "T42.A1",
+        "T42.A4",
+        "T42.A5",
+        "T42.A6"
+      ]
+    },
+    {
+      "id": "T42.M3",
+      "kills_case": "T42.A3",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le point, dans CHACUN des cinq sous-cas reutilises par cette suite (T16.A1 calcul de cout, T06.A2 garde de revelation, T04.A5 denominateur R, T33.A2 appariement statistique, T17.A2 etat UNKNOWN), qui distingue une version SAINE d'une version ALTEREE de la propriete nommee — c'est-a-dire le gate deja documente par verification/mutants/{T16,T06,T04,T33,T17}.json.",
+      "mutation": "Elargir la tolerance ou neutraliser la garde sur AU MOINS UN de ces cinq points (par exemple : accepter 341 comme equivalent de 340 pour F-MONEY ; lever la garde `NOT_RELEASED` sur une lecture anticipee ; confondre R=null et R=0 dans le denominateur ; desapparer les deux bras du bootstrap aux memes indices parents ; faire retomber un appel ambigu sur un etat autre qu'`UNKNOWN`), de sorte que le mutant deja nomme par le fichier de mutants correspondant SURVIVE au lieu d'etre tue par le cas requis reutilise.",
+      "expected_effect": "T42.A3 devient rouge (un seul des cinq sous-cas suffit).",
+      "observation_qui_echoue": "A3 fait tourner REELLEMENT, en sous-processus, les cinq suites deja PROUVEES (`acceptance/T16.spec.ts`, `T06.spec.ts`, `T04.spec.ts`, `analysis/tests/test_T33.py`, `T17.spec.ts`), filtrees sur le SEUL cas nomme par une regex identique a `verification/runner/chains.mjs#caseMatcher` (`Txx[._]Ay(?!\\d)`), et exige par le RAPPORT MACHINE (jamais le seul code de sortie) : exactement un test ATTEINT et PASSE, nommement celui attendu. Sous la mutation, le test filtre correspondant a la propriete alteree echoue reellement (passed=0 ou failed=1) : l'egalite `${cas}-gate-tient` tombe pour CE sous-cas precis, et le message nomme laquelle des cinq proprietes est en cause.",
+      "pourquoi_cette_perturbation": "A3 est un cas `refusal`, et c'est le defaut decisif documente par cases.lock.json : « un stub qui leve ferait echouer TOUS les mutants et garderait ce cas vert a tort ». Cette suite ne stube donc rien et ne reimplemente rien : elle RE-EXECUTE le gate deja prouve de chaque dependance. La seule perturbation qui morde est l'inverse d'un stub qui leve — rendre l'implementation REELLE plus permissive sur une des cinq proprietes — exactement ce que cases.lock.json prescrit (« rendre les gates PERMISSIFS [...] de sorte qu'au moins un mutant survive »).",
+      "doit_rester_vert": [
+        "T42.A1",
+        "T42.A2",
+        "T42.A4",
+        "T42.A5",
+        "T42.A6"
+      ]
+    },
+    {
+      "id": "T42.M4",
+      "kills_case": "T42.A4",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export consomme par `analysis export`/`analysis run` (les lignes trajectoire/periode exportees depuis PostgreSQL vers le fichier d'export, puis reagregees en `trajectory_count`/`period_count`/`model_calls_settled_count`/`total_cost_micro_usd`/`Q`/`R`/`V`/`U`/`G`).",
+      "mutation": "Stuber cet export (ou l'agregation qui le consomme) pour qu'il renvoie des lignes nulles, vides ou decalees d'une unite, alors que le rapport de campagne PUBLIE par `campaign fixtures/golden-six.json` (memoire du processus campagne, jamais relu depuis PostgreSQL) reste celui de l'installation vierge nominale : les valeurs RECONSTRUITES par `analysis run` ne coincident plus avec le rapport publie.",
+      "expected_effect": "T42.A4 devient rouge.",
+      "observation_qui_echoue": "A4 compare, champ par champ (`trajectory_count`, `period_count`, `model_calls_settled_count`, `total_cost_micro_usd`, `Q`, `R`, `V`, `U`, `G`), le JSON reconstruit par `analysis run <export.json>` (execute avec PostgreSQL et S3 DELIBEREMENT injoignables, `analysis run` ne portant de toute facon ni `--postgres-database` ni `--s3-bucket`) au JSON PUBLIE par la campagne nominale d'A2 — DEUX CHEMINS DE CODE independants, jamais une valeur comparee a elle-meme. Elle exige en outre que les deux cotes valent AUSSI les totaux du cahier (6/24/48/16320/1/1/1/1/0), pour qu'une divergence identique des deux cotes ne passe pas inapercue. Sous la mutation, au moins une des neuf egalites tombe, ou l'un des deux controles de conformite cahier tombe.",
+      "pourquoi_cette_perturbation": "A4 est un cas `behaviour` : il exerce un export metier reel et observe son resultat, la porte de necessite standard s'applique. cases.lock.json prescrit exactement « stuber les exports consommes par la reconstruction [...] alors que le rapport de reference reste celui de la fixture : les valeurs reconstruites ne coincident plus ». Un cas A4 qui ne comparerait que `analysis run` a lui-meme (sans le rapport de campagne independant) survivrait a cette mutation — c'est exactement ce que la comparaison a DEUX CHEMINS DE CODE distincts interdit.",
+      "doit_rester_vert": [
+        "T42.A1",
+        "T42.A2",
+        "T42.A3",
+        "T42.A5",
+        "T42.A6"
+      ]
+    },
+    {
+      "id": "T42.M5",
+      "kills_case": "T42.A5",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export de `checkpoint inspect` qui restaure les faits metier (horloge, version active, Q, R, exigences actives/satisfaites) depuis un checkpoint publie par `run-period` (T23, cahier:L353-L359, deja PROUVE).",
+      "mutation": "Stuber cet export pour qu'il renvoie un ensemble de faits metier VIDE ou FIGE (par exemple toujours `period_index: 0`, `requirements: []`), independamment du `--checkpoint-id` effectivement demande, de sorte qu'aucun des deux checkpoints de l'echantillon fixe (apres periode 1, apres periode 4) ne soit reellement verifie.",
+      "expected_effect": "T42.A5 devient rouge pour au moins un des deux checkpoints de l'echantillon.",
+      "observation_qui_echoue": "A5 construit d'abord sa PROPRE trajectoire a quatre periodes via quatre appels REELS et SEQUENTIELS a `run-period` (golden-six ne publiant aucun checkpoint par ce chemin, verifie directement en base), capture le `checkpoint.checkpoint_id` publie par chacun, puis INSPECTE, dans un PROCESSUS NEUF par checkpoint (invocation `node` separee de celle qui a produit le checkpoint), l'horloge metier, la version active, Q, R et l'ENSEMBLE des identifiants `id@version` des exigences SATISFAITES restaures — compares un par un aux memes champs du rapport SOURCE de `run-period` pour cette periode precise. Sous la mutation, au moins une de ces comparaisons (horloge, version, Q, R, ensemble d'exigences) diverge pour le checkpoint de periode 1 ET/OU celui de periode 4.",
+      "pourquoi_cette_perturbation": "A5 est un cas `behaviour` : il exerce un export metier reel (la restauration d'un checkpoint) et observe son resultat. cases.lock.json prescrit exactement « stuber [...] pour qu'il renvoie un ensemble vide, donc aucun checkpoint [...] reellement verifie [...] rouge exige ». Comparer seulement le COMPTE d'exigences satisfaites (plutot que l'ENSEMBLE de leurs identifiants) laisserait un melange d'exigences differentes de meme cardinal verdir le cas a tort — c'est pourquoi la comparaison porte sur l'ensemble, pas sur sa taille.",
+      "doit_rester_vert": [
+        "T42.A1",
+        "T42.A2",
+        "T42.A3",
+        "T42.A4",
+        "T42.A6"
+      ]
+    },
+    {
+      "id": "T42.M6",
+      "kills_case": "T42.A6",
+      "proof_kind": "absence",
+      "necessity": "make-present",
+      "direction": "rendre PRESENT",
+      "target": "Le point de `report build` qui decide de publier l'etat `LIVE_VALIDATED` (cahier:L26, attestation supplementaire « seulement si un smoke test reel a effectivement ete execute avec modele, date, budgets et factures identifies »).",
+      "mutation": "Faire publier `LIVE_VALIDATED` (champ `states.LIVE_VALIDATED.published`) independamment des recus fournis par `--live-receipts` : soit en traitant l'ABSENCE du drapeau comme un drapeau `live` implicitement vrai, soit en acceptant un ensemble de recus VIDE (`[]`) ou INCOMPLET (par exemple sans `invoice_id`) comme suffisant.",
+      "expected_effect": "T42.A6 devient rouge (au moins un des trois controles negatifs).",
+      "observation_qui_echoue": "A6 invoque `report build <analysis.json>` quatre fois sur le MEME rapport d'analyse : (a) sans aucun drapeau `--live-receipts`, (b) avec un fichier de recus `[]`, (c) avec un recu INCOMPLET (`invoice_id` absent), et (d) avec un recu COMPLET (`model`, `date`, `budget_micro_usd`, `invoice_id` tous presents — les quatre identifiants de cahier:L26, mot pour mot). Elle exige `published === false` pour (a), (b) et (c), ET `published === true` pour (d) — ce dernier etant le CONTROLE DE CAPACITE sans lequel un refus UNIVERSEL de `LIVE_VALIDATED` verdirait (a)/(b)/(c) a tort (meme garde-fou que T06.M1 et T00.A4/A5). Sous la mutation, `published` devient `true` pour (a) et/ou (b) et/ou (c) : l'egalite `absente-...` tombe pour le controle touche, sans que (d) soit affecte.",
+      "pourquoi_cette_perturbation": "A6 est un cas `absence` : cases.lock.json prescrit exactement « rendre la chose PRESENTE [...] rouge exige », et nomme les deux variantes degenerees (drapeau par defaut a vrai ; ensemble de recus vide accepte) que cette suite couvre chacune par un controle NEGATIF distinct, plus le controle d'un recu INCOMPLET qu'aucune des deux variantes nommees ne couvre seule. Sans le controle POSITIF (d), un stub qui refuserait `LIVE_VALIDATED` en TOUTE circonstance — y compris face a un recu complet — satisferait trivialement (a)/(b)/(c) sans qu'aucune distinction ne soit jamais exercee : c'est exactement le defaut qu'un cas `absence` sans controle positif ne peut pas detecter.",
+      "doit_rester_vert": [
+        "T42.A1",
+        "T42.A2",
+        "T42.A3",
+        "T42.A4",
+        "T42.A5"
+      ]
+    }
+  ]
+}

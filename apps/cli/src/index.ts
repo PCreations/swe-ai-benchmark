@@ -1,8 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
 // `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
-// (T24, cahier L361-L370), `fork` (T27, cahier L387-L394) et le SQUELETTE rouge
-// de `campaign` (T38, cahier L487-L496).
+// (T24, cahier L361-L370), `fork` (T27, cahier L387-L394), `campaign` (T38,
+// cahier L487-L496) et le SQUELETTE rouge de `plan-distribution` /
+// `distribution-run-bounded` / `distribution-resume` (T40, cahier L505-L512).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -48,6 +49,7 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 
 import { runCampaign, runPeriodOnce } from '@bench/activities'
+import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
@@ -134,6 +136,57 @@ const USAGE = `bench — commandes de campagne
         --workers                            nombre de workers paralleles
         --test-force-unavailable-period      point d'injection nomme (cahier:L141)
         --test-inject-failure                point d'injection nomme (cahier:L141)
+
+  plan-distribution --campaign-id <id> --mode <mode> --parents <N>
+                     --scenarios <N> --configurations <N> --repetitions <N>
+                     --budgets <N> --periods-per-trajectory <N>
+                     --postgres-database <db> --plan-id <id>
+        Valide un profil de charge de distribution (T40, cahier L505-L512) :
+        compte les trajectoires et periodes qu'il produirait, SANS demarrer,
+        planifier ni executer aucune trajectoire reelle. PAS ENCORE
+        IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des drapeaux.
+
+        --campaign-id               identite de la campagne (L78)
+        --mode                      recorded
+        --parents                   nombre de projets
+        --scenarios                 nombre de scenarios par projet
+        --configurations            nombre de configurations par scenario
+        --repetitions                nombre de repetitions par configuration
+        --budgets                   nombre de budgets par repetition
+        --periods-per-trajectory    periodes par trajectoire
+        --postgres-database         base PostgreSQL reelle a utiliser
+        --plan-id                   identite du plan valide (controle A2)
+
+  distribution-run-bounded --campaign-id <id> --mode <mode> --jobs <N>
+                            --postgres-database <db>
+                            [--max-concurrent <N>]
+                            [--test-activity-barrier-url <url>]
+                            [--test-stop-after-completions <K>]
+                            [--test-large-artifact-bytes <N>]
+                            [--export-history <chemin>]
+        Demarre <N> jobs courts portes chacun par une seule Activity factice
+        (T40, cahier L505-L512). PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED
+        apres lecture des drapeaux.
+
+        --campaign-id                     identite de la campagne (L78)
+        --mode                            recorded
+        --jobs                            nombre de jobs a soumettre
+        --postgres-database               base PostgreSQL reelle a utiliser
+        --max-concurrent                  plafond de jobs actifs simultanement
+        --test-activity-barrier-url       point d'injection nomme (cahier:L141)
+        --test-stop-after-completions     point d'injection nomme (cahier:L141)
+        --test-large-artifact-bytes       point d'injection nomme (cahier:L141)
+        --export-history                  chemin ou ecrire l'historique exporte
+
+  distribution-resume --campaign-id <id> --postgres-database <db>
+                       [--export-history <chemin>]
+        Reprend, depuis l'etat persiste sous --campaign-id, un run interrompu
+        par distribution-run-bounded (T40, cahier L505-L512). PAS ENCORE
+        IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des drapeaux.
+
+        --campaign-id          identite de la campagne (L78)
+        --postgres-database    base PostgreSQL reelle a utiliser
+        --export-history       chemin ou ecrire l'historique exporte
 
   Sorties : 0 la trajectoire a produit un resultat · 1 refus ou erreur
             2 commande inconnue
@@ -535,6 +588,96 @@ async function commandCampaign(argv: readonly string[]): Promise<number> {
   }
 }
 
+/* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */
+//
+// SQUELETTE (étage ROUGE de T40). Lit les dix drapeaux requis, refuse si l'un
+// manque (même discipline que `commandRunPeriod`/`commandFork`/
+// `commandCampaign`), puis lève `NotImplemented` : aucune règle métier n'est
+// encore écrite ici — ni calcul du produit trajectoires/périodes, ni
+// validation du plan, ni aucun appel au fournisseur de modèle.
+
+async function commandPlanDistribution(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const mode = flags.get('mode')
+  const parents = flags.get('parents')
+  const scenarios = flags.get('scenarios')
+  const configurations = flags.get('configurations')
+  const repetitions = flags.get('repetitions')
+  const budgets = flags.get('budgets')
+  const periodsPerTrajectory = flags.get('periods-per-trajectory')
+  const postgresDatabase = flags.get('postgres-database')
+  const planId = flags.get('plan-id')
+  if (
+    campaignId === undefined ||
+    mode === undefined ||
+    parents === undefined ||
+    scenarios === undefined ||
+    configurations === undefined ||
+    repetitions === undefined ||
+    budgets === undefined ||
+    periodsPerTrajectory === undefined ||
+    postgresDatabase === undefined ||
+    planId === undefined
+  ) {
+    process.stderr.write(
+      'bench plan-distribution exige --campaign-id, --mode, --parents, --scenarios, ' +
+        '--configurations, --repetitions, --budgets, --periods-per-trajectory, ' +
+        '--postgres-database et --plan-id\n'
+    )
+    return 1
+  }
+  throw new NotImplemented('cli.plan-distribution')
+}
+
+/* ───────────────────────── `distribution-run-bounded` (T40, L505-L512) */
+//
+// SQUELETTE (étage ROUGE de T40). Lit les quatre drapeaux requis (les cinq
+// points d'injection nommés `--max-concurrent`/`--test-activity-barrier-url`/
+// `--test-stop-after-completions`/`--test-large-artifact-bytes`/
+// `--export-history` restent optionnels, comme `--variant` ailleurs), refuse
+// si l'un des requis manque, puis lève `NotImplemented` : aucune règle
+// métier n'est encore écrite ici — ni soumission de job, ni Activity
+// factice, ni plafond d'admission, ni arrêt simulé, ni export d'historique.
+
+async function commandDistributionRunBounded(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const mode = flags.get('mode')
+  const jobs = flags.get('jobs')
+  const postgresDatabase = flags.get('postgres-database')
+  if (
+    campaignId === undefined ||
+    mode === undefined ||
+    jobs === undefined ||
+    postgresDatabase === undefined
+  ) {
+    process.stderr.write(
+      'bench distribution-run-bounded exige --campaign-id, --mode, --jobs et --postgres-database\n'
+    )
+    return 1
+  }
+  throw new NotImplemented('cli.distribution-run-bounded')
+}
+
+/* ──────────────────────────────── `distribution-resume` (T40, L505-L512) */
+//
+// SQUELETTE (étage ROUGE de T40). Lit les deux drapeaux requis
+// (`--export-history` reste optionnel), refuse si l'un manque, puis lève
+// `NotImplemented` : aucune règle métier n'est encore écrite ici — ni lecture
+// de l'état persisté, ni reprise des jobs restants.
+
+async function commandDistributionResume(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  if (campaignId === undefined || postgresDatabase === undefined) {
+    process.stderr.write('bench distribution-resume exige --campaign-id et --postgres-database\n')
+    return 1
+  }
+  throw new NotImplemented('cli.distribution-resume')
+}
+
 async function main(): Promise<number> {
   const [command = '', ...rest] = process.argv.slice(2)
   if (command === 'demo') return commandDemo(rest)
@@ -543,6 +686,9 @@ async function main(): Promise<number> {
   if (command === 'replay-trajectory') return commandReplayTrajectory(rest)
   if (command === 'fork') return commandFork(rest)
   if (command === 'campaign') return commandCampaign(rest)
+  if (command === 'plan-distribution') return commandPlanDistribution(rest)
+  if (command === 'distribution-run-bounded') return commandDistributionRunBounded(rest)
+  if (command === 'distribution-resume') return commandDistributionResume(rest)
   if (command === '' || command === '--help' || command === 'help') {
     process.stdout.write(USAGE)
     return command === '' ? 2 : 0

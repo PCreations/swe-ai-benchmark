@@ -643,14 +643,36 @@ const gatesPrompt = (T) => `${BASE}
 
 ETAGE GATES, tache ${T}. Tu n'implementes rien, tu executes les portes.
 
-1. PORTE MUTATION. Pour chaque mutant de verification/mutants/${T}.json :
-   applique-le REELLEMENT, relance \`node tools/bench verify:task ${T}\`, exige que
-   le cas nomme par kills_case devienne ROUGE, puis restaure l'arbre exactement
-   (\`git checkout --\` sur les fichiers touches ; verifie par \`git status --porcelain\`).
+1. PORTE MUTATION — DANS UN WORKTREE JETABLE, JAMAIS DANS L'ARBRE PRINCIPAL.
+
+   git worktree add --detach /tmp/mut-${T} HEAD
+   cd /tmp/mut-${T} && pnpm install --frozen-lockfile && pnpm build
+
+   Tu mutes LA-BAS, tu mesures LA-BAS, et a la fin :
+   cd ${REPO} && git worktree remove --force /tmp/mut-${T}
+
+   POURQUOI C'EST IMPERATIF, ET MESURE TROIS FOIS : des mutants ont ete
+   retrouves non restaures dans l'arbre principal — T14.M1 et T14.M2, puis un
+   residu sur T21, puis T29.M8 dans packages/scenario/src/generation.ts, trouve
+   par l'etage ACCEPT de T26 qui a du le restaurer avant de pouvoir travailler.
+   Un etage tue au mauvais instant (le conteneur a redemarre trois fois dans
+   cette session) laisse la version DEGRADEE sur le disque. Si quelqu'un la
+   committe, la preuve est silencieusement affaiblie — c'est le pire defaut que
+   ce depot puisse produire. Un \`git checkout --\` discipline ne suffit pas :
+   il ne s'execute pas si le processus meurt avant. Le worktree jetable, lui,
+   rend la fuite IMPOSSIBLE au lieu de la rendre improbable.
+
+   Pour chaque mutant de verification/mutants/${T}.json : applique-le REELLEMENT,
+   relance \`node tools/bench verify:task ${T}\`, exige que le cas nomme par
+   kills_case devienne ROUGE.
    Un mutant qui laisse la suite verte denonce un CAS CREUX, pas une
    implementation correcte : rapporte-le comme violation, n'essaie pas de le
    « reparer » en touchant le test.
    Casser au build ne compte pas comme tuer un cas.
+
+   AVANT DE RENDRE, verifie que l'arbre principal est intact :
+   \`git status --porcelain\` doit etre VIDE. S'il ne l'est pas, dis-le et nomme
+   les fichiers — un residu non explique est un incident, pas un detail.
 
 2. PORTES QUI N'EXISTENT PAS ENCORE. \`bench necessity\` et \`bench mutate\` sont
    des livrables de T01. Verifie s'ils existent (\`node tools/bench help\`).
@@ -658,8 +680,8 @@ ETAGE GATES, tache ${T}. Tu n'implementes rien, tu executes les portes.
    - sinon : NE SIMULE RIEN. Rapporte-les comme portes absentes. Elles seront
      nommees dans les limitations de l'attestation, pas masquees.
 
-Ne committe que si tu as du restaurer quelque chose. Rends le tableau
-mutant -> cas tue -> observe.`
+Tu ne committes RIEN : tout ce que tu as mute vivait dans un worktree jetable
+qui n'existe plus. Rends le tableau mutant -> cas tue -> observe.`
 
 const auditPrompt = (T, lens) => `${BASE}
 

@@ -35,30 +35,36 @@ const trySh = (cmd, opts = {}) => {
 }
 
 /**
- * BENCH_HOME — RESOLU SUR LA RACINE GIT PARTAGEE, pas sur le worktree.
- *
- * Il valait `process.env.BENCH_HOME ?? '/bench'` : le chemin du devcontainer,
- * alors que `infra/bootstrap/lib.sh` et `tools/svc.mjs` posent les binaires
- * dans `<racine>/.bench/home`. La sonde `temporal-timeskip` cherchait donc son
- * binaire la ou personne ne l'ecrit — mesure : bootstrap OK, sonde ABSENT.
+ * RACINE GIT PARTAGEE — pas le worktree courant.
  *
  * `--git-common-dir` et non `--show-toplevel` : dans le clean-room, `bench
- * doctor` tourne depuis un worktree DETACHE, qui n'a pas de `.bench/`. Les
+ * doctor`/`bench resume` tournent depuis un worktree DETACHE (`git worktree
+ * add --detach`, voir cleanroom.mjs), qui n'a pas de `.bench/` a lui — les
  * capacites sont des proprietes de l'HOTE (binaires telecharges, services
- * demarres), pas du worktree. C'est exactement la correction que T14 a du
- * faire pour son service S3 (commit aeb027a) ; le meme piege etait ici.
+ * demarres, EVIDENCE DEJA SONDEE ce boot), pas du worktree. C'est exactement
+ * la correction que T14 a du faire pour son service S3 (commit aeb027a) ;
+ * le meme piege existait ici pour `benchHome()`.
+ *
+ * `readEvidence`/`writeEvidence` partagent DELIBEREMENT cette racine (et non
+ * `repoRoot()`) pour la meme raison : sans elle, un `bench resume` invoque
+ * DEPUIS l'interieur d'un clean-room neuf (ce que `acceptance/T42.spec.ts`
+ * fait litteralement, verification exterieure au candidat) ne trouve jamais
+ * `.bench/doctor.json` — le worktree neuf n'a encore rien ecrit sous ce nom
+ * — et traite alors TOUTE capacite comme absente, donc toute tache comme
+ * BLOCKED, meme quand l'hote les possede reellement et que ce meme boot les
+ * a deja sondees PRESENTES dans le depot principal.
  */
-const benchHome = () => {
-  const declare = process.env.BENCH_HOME
-  if (declare) return declare
+const sharedRoot = () => {
   const commun = trySh('git rev-parse --git-common-dir')
   if (commun.ok && commun.out.trim()) {
     const g = commun.out.trim()
     const abs = g.startsWith('/') ? g : `${R}/${g}`
-    return `${abs.replace(/\/\.git\/?$/, '')}/.bench/home`
+    return abs.replace(/\/\.git\/?$/, '')
   }
-  return `${R}/.bench/home`
+  return R
 }
+
+const benchHome = () => process.env.BENCH_HOME ?? `${sharedRoot()}/.bench/home`
 
 export function bootId() {
   try {
@@ -428,14 +434,15 @@ export function writeEvidence(results) {
     })(),
     capabilities: results,
   }
-  mkdirSync(`${R}/.bench`, { recursive: true })
-  writeFileSync(`${R}/.bench/doctor.json`, JSON.stringify(doc, null, 2))
+  const base = sharedRoot()
+  mkdirSync(`${base}/.bench`, { recursive: true })
+  writeFileSync(`${base}/.bench/doctor.json`, JSON.stringify(doc, null, 2))
   return doc
 }
 
 export function readEvidence() {
   try {
-    const doc = JSON.parse(readFileSync(`${R}/.bench/doctor.json`, 'utf8'))
+    const doc = JSON.parse(readFileSync(`${sharedRoot()}/.bench/doctor.json`, 'utf8'))
     // Aucun cache entre deux boots : une preuve de capacite d'un autre boot
     // n'est pas une preuve de capacite.
     return doc.boot_id === bootId() ? doc : null

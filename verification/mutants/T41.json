@@ -27,7 +27,7 @@
     "l'absence (lire une cle reelle, supprimer un artefact, elargir un",
     "selecteur). Pour A7 (`artifact`), aucun export n'est appele : seule la",
     "mutation d'un des DEUX artefacts compares (texte de `--help`, document",
-    "`docs/cli-reference.md`) mord.",
+    "`apps/cli/README.md`) mord.",
     "",
     "LIMITE ASSUMEE SUR A4 ET A6 (cases.lock.json le dit explicitement pour",
     "les deux) : une implementation qui NE FAIT RIEN DU TOUT (campaign",
@@ -129,10 +129,10 @@
       "proof_kind": "artifact",
       "necessity": "artifact-mutation",
       "direction": "muter l'artefact",
-      "target": "Les DEUX artefacts qu'A7 compare — le texte imprime par `bench --help` (apps/cli) et le document `docs/cli-reference.md` — PAS le parseur qui route reellement chaque sous-commande vers son implementation.",
-      "mutation": "Ajouter (ou retirer) une ligne de commande dans UN SEUL des deux artefacts : par exemple supprimer la ligne `  checkpoint fork` du texte imprime par `--help` (ou, variante symetrique, du document `docs/cli-reference.md`), SANS toucher au point du parseur qui continue d'accepter et de router `checkpoint fork` exactement comme avant.",
+      "target": "Les DEUX artefacts qu'A7 compare — le texte imprime par `bench --help` (apps/cli) et le document `apps/cli/README.md` — PAS le parseur qui route reellement chaque sous-commande vers son implementation.",
+      "mutation": "Ajouter (ou retirer) une ligne de commande dans UN SEUL des deux artefacts : par exemple supprimer la ligne `  checkpoint fork` du texte imprime par `--help` (ou, variante symetrique, du document `apps/cli/README.md`), SANS toucher au point du parseur qui continue d'accepter et de router `checkpoint fork` exactement comme avant.",
       "expected_effect": "T41.A7 devient rouge.",
-      "observation_qui_echoue": "A7 extrait, par deux regles de lecture INDEPENDANTES, l'ensemble des commandes imprimees par `--help` (lignes a exactement deux espaces d'indentation) et l'ensemble des commandes documentees par des spans de code `` `bench <commande>` `` dans `docs/cli-reference.md`, puis exige a la fois que les 14 commandes minimales (cahier:L517) soient couvertes par CHAQUE ensemble et que les deux ensembles soient EGAUX. Sous la mutation, l'ensemble ampute (ou augmente) d'un seul cote fait tomber l'une de ces egalites — jamais un export metier n'est appele, donc stuber un point d'execution n'y change rien, seule la mutation de l'artefact mord.",
+      "observation_qui_echoue": "A7 extrait, par deux regles de lecture INDEPENDANTES, l'ensemble des commandes imprimees par `--help` (lignes a exactement deux espaces d'indentation) et l'ensemble des commandes documentees par des spans de code `` `bench <commande>` `` dans `apps/cli/README.md`, puis exige a la fois que les 14 commandes minimales (cahier:L517) soient couvertes par CHAQUE ensemble et que les deux ensembles soient EGAUX. Sous la mutation, l'ensemble ampute (ou augmente) d'un seul cote fait tomber l'une de ces egalites — jamais un export metier n'est appele, donc stuber un point d'execution n'y change rien, seule la mutation de l'artefact mord.",
       "pourquoi_cette_perturbation": "A7 est un cas `artifact` ; cases.lock.json : « aucun export metier n'est en jeu, stuber n'y changerait rien ». La porte de necessite usuelle ne s'applique donc pas (comme pour T00.M6/M9) : seule une mutation d'ARTEFACT, jamais du comportement, peut tuer ce cas.",
       "doit_rester_vert": ["T41.A1", "T41.A2", "T41.A3", "T41.A4", "T41.A5", "T41.A6"]
     }

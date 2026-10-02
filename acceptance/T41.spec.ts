@@ -179,14 +179,33 @@
  *        depot), et RIEN d'autre : aucune base sans ce prefixe exact, aucune
  *        base d'un AUTRE `test_run_id`, meme prefixee `bench_`.
  *
- * 5. `docs/cli-reference.md` (zone DOCS, livrable L517 « figes dans le
- *    help ») : un document contenant, pour chacune des 14 commandes de
+ * 5. `apps/cli/README.md` (zone IMPL, livrable L517 « figes dans le help »)
+ *    : un document contenant, pour chacune des 14 commandes de
  *    REQUIRED_COMMANDS, un span de code `` `bench <commande>` ``.
  *    `bench --help` doit lister, chacune sur sa PROPRE ligne a exactement
  *    DEUX espaces d'indentation (meme convention textuelle que `tools/bench`
  *    — voir sa constante `USAGE` — une discipline deja en vigueur dans ce
  *    depot, pas inventee ici), la forme complete de chaque commande
  *    effectivement parsee.
+ *
+ *    CORRECTION (etage ARBITRAGE, refus de l'implementeur sur ce commit) :
+ *    cette suite fixait a l'origine `docs/cli-reference.md` (zone DOCS,
+ *    verification/ownership.json). DOCS n'est ecrivable, dans la partition
+ *    des roles, QUE par `integrator` ; or le pipeline qui fait progresser une
+ *    tache (.claude/workflows/bench-driver.mjs) ne fait jamais ecrire de code
+ *    a `integrator` — ses seules etapes ecrivantes sont IMPL (role
+ *    `implementer`, zones IMPL/HARNESS/INFRA) et ARBITRAGE (role
+ *    `test-author`, zones ACCEPTANCE/MUTANT/GENERATOR). Fixer le document de
+ *    reference dans DOCS rendait donc A7 structurellement IMPOSSIBLE a
+ *    satisfaire : aucun role de la boucle n'a jamais le droit d'ecrire ce
+ *    fichier, quelle que soit la qualite de l'implementation. Ce n'est pas le
+ *    cahier qui impose `docs/cli-reference.md` — section II(d) ci-dessus est
+ *    explicite : le nom du document est une CONVENTION que cette suite FIXE,
+ *    pas un literal du cahier. La convention est donc corrigee vers
+ *    `apps/cli/README.md`, a l'interieur de la zone IMPL (`apps/**`) que le
+ *    role `implementer` peut deja ecrire en travaillant sur `apps/cli` — sans
+ *    toucher a une seule assertion, a l'egalite ensembliste exigee, ni a
+ *    l'ensemble des 14 commandes minimales.
  *
  * ─────────────────────────────────────────────────────────────────────── IV
  * LE REFUS N'EST PAS UNE COMPETENCE — DANGERS PROPRES A CHAQUE CAS
@@ -263,7 +282,7 @@
  * (A7) cases.lock.json : « aucun export metier n'est en jeu, stuber n'y
  *      changerait rien » — cette suite n'importe donc RIEN de business ; elle
  *      extrait DEUX ensembles (texte de `--help`, spans de code de
- *      `docs/cli-reference.md`) par deux regles de lecture INDEPENDANTES et
+ *      `apps/cli/README.md`) par deux regles de lecture INDEPENDANTES et
  *      exige leur EGALITE ENSEMBLISTE (pas seulement une inclusion), pour
  *      detecter aussi bien l'ajout d'une commande non parsee que le retrait
  *      d'une commande non documentee.
@@ -1125,9 +1144,10 @@ describe('T41 — livrer les commandes operationnelles et la CI de qualification
         if (m) commandesParsees.add(m[1] as string);
       }
 
-      // (2) COMMANDES DOCUMENTEES ET FIGEES — docs/cli-reference.md, spans
-      // de code `` `bench <commande>` `` (section III.5).
-      const docPath = path.join(REPO, 'docs', 'cli-reference.md');
+      // (2) COMMANDES DOCUMENTEES ET FIGEES — apps/cli/README.md (zone IMPL,
+      // corrige depuis docs/cli-reference.md : section III.5), spans de code
+      // `` `bench <commande>` ``.
+      const docPath = path.join(REPO, 'apps', 'cli', 'README.md');
       const docExiste = fs.existsSync(docPath);
       const docTexte = docExiste ? fs.readFileSync(docPath, 'utf8') : '';
       const motifSpanDoc = /`bench ((?:[a-z][a-z-]*)(?: (?:[a-z][a-z-]*))?)(?:[ `]|$)/g;

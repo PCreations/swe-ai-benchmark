@@ -54,7 +54,41 @@ export function headSha() {
 }
 
 export function branchName() {
-  return git(['rev-parse', '--abbrev-ref', 'HEAD'])
+  const name = git(['rev-parse', '--abbrev-ref', 'HEAD'])
+  return name === 'HEAD' ? branchNameFromDetachedHead() : name
+}
+
+/**
+ * HEAD détachée — notamment le clean-room de `bench accept`/`bench
+ * verify:task`, qui checkout TOUJOURS via `git worktree add --detach` (voir
+ * cleanroom.mjs). Ce worktree partage l'object store ET les refs du dépôt
+ * principal ; si ce commit est EXACTEMENT la pointe d'une branche de travail
+ * (locale, ou à défaut distante sur origin), c'est elle la réponse — jamais
+ * une branche de ledger (`*-ledger`, orpheline, sur un historique disjoint :
+ * sa pointe ne peut de toute façon jamais coïncider avec un commit de code).
+ *
+ * Sans ceci, `bench resume` lancé depuis l'intérieur d'un tel clean-room (ce
+ * que T42.A1 fait littéralement, pour une vérification « extérieure au
+ * candidat ») renvoie la branche littérale `HEAD`, donc un ledger
+ * `HEAD-ledger` absent, donc 0 tâche prouvée — alors que rien, côté
+ * objets git, n'a changé.
+ */
+function branchNameFromDetachedHead() {
+  const sha = git(['rev-parse', 'HEAD'])
+  const refs = (gitOrNull(['for-each-ref', '--points-at', sha, '--format=%(refname)']) ?? '')
+    .split('\n')
+    .filter(Boolean)
+  const stripped = (prefix) =>
+    refs.filter((r) => r.startsWith(prefix) && !r.endsWith('-ledger')).map((r) => r.slice(prefix.length))
+  const locals = stripped('refs/heads/')
+  if (locals.length === 1) return locals[0]
+  const remotes = stripped('refs/remotes/origin/').filter((r) => r !== 'HEAD')
+  if (locals.length === 0 && remotes.length === 1) return remotes[0]
+  throw new Error(
+    `HEAD detachee a ${sha.slice(0, 12)} sans branche de travail univoque ` +
+      `(locales=${JSON.stringify(locals)} distantes=${JSON.stringify(remotes)}) — ` +
+      `clean-room attendu via 'git worktree add --detach <dir> HEAD' depuis une branche unique`
+  )
 }
 
 /**

@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T26",
+  "subject_commit": "6090288e94b060cef83f35a7219fb471f7b834a6",
+  "dirty": false,
+  "input_digest": "cdf537af91fe226cf813671eae5c278264f13e21dcb35117119e7bbf94c44375",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T26.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M1",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : condition d'admission fraiche de submitReadyCall changee de (active<cap) a (active<=cap), boucle de reprise (admitNextWaiting) inchangee. Rejoue T26.A1 seul (jest -t T26.A1) : FAIL observe, assertion fournisseur-reellement-contacte-2-fois a recu calls=3 (au lieu de 2). Egalement observe tue_aussi A2/A3/A6 (comme documente), A4/A5 restes verts. Fichier restaure a l'identique (md5 2d0f652053cc11c10907d1ac4eff930f) et suite complete re-executee verte avant d'enregistrer la porte."
+    },
+    {
+      "id": "T26.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M2",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : releaseCall force une admission supplementaire non eligible apres l'admission normale (boucle de reprise admitted<=freed au lieu de admitted<freed, freed=1 -> deux admissions). Rejoue T26.A2 seul : FAIL observe, actif-inchange-apres-une-liberation a recu active avant=2 apres=3 (au lieu de egal). tue_aussi A3 confirme ; A1/A4/A5/A6 restes verts. Fichier restaure (md5 2d0f652053cc11c10907d1ac4eff930f), suite complete re-verte avant enregistrement."
+    },
+    {
+      "id": "T26.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M3",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : announceAssignmentOrder renvoie l'ordre d'arrivee brut du tableau recu au lieu du tri par assignmentRank(seed, callId). Rejoue T26.A3 seul : FAIL observe, ordre-observe-egal-a-l-ordre-annonce a divergent (annonce != observe). A1/A2/A4/A6 restes verts (verifie). Fichier restaure (md5 2d0f652053cc11c10907d1ac4eff930f), suite complete re-verte avant enregistrement."
+    },
+    {
+      "id": "T26.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M4",
+      "note": "Applique dans packages/gateway/src/provider-backoff.ts : recordProviderBackoff ignore retryAfterSeconds et enregistre now+0 au lieu de now+retryAfterSeconds*1000 (limiteur rendu permissif). Rejoue T26.A4 seul : FAIL observe, fournisseur-inadmissible-a-t0 a recu true (admissible immediatement). A1/A2/A3/A5/A6 restes verts (verifie). Fichier restaure (md5 1dab64e0fe6b41b0ba528314ce5e4018), suite complete re-verte avant enregistrement."
+    },
+    {
+      "id": "T26.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M5",
+      "note": "Applique dans packages/activities/src/admitted-effect.ts : runAdmittedEffect lit getQueueSnapshot(handle) juste apres admission et saute l'invocation de effect() (sans facturer) des que plus de deux appels sont simultanement actifs pour ce handle -- dependance directe au nombre de workers concurrents dans la comptabilite, sans toucher dispatchModelCall/reserveBudget. Seuil fixe a >2 pour ne pas croiser le plafond de 2 utilise par A1 (meme role runAdmittedEffect). Rejoue T26.A5 seul : FAIL observe, consommation-identique-a-1-2-et-6-workers a recu totaux={1:54,2:54,6:18} (depense-totale-strictement-positive=54 restee vraie). A1/A2/A4/A6 restes verts (verifie individuellement, y compris A1 qui partage runAdmittedEffect). Fichier restaure (md5 05b03517a0561df5f1d12ec33907d043), suite complete re-verte avant enregistrement."
+    },
+    {
+      "id": "T26.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M6",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : getCallTimings fusionne timeInQueue et timeActive en une seule duree totale (releasedAt-queuedAt) au lieu de deux champs distincts. Rejoue T26.A6 seul : FAIL observe, B-timeInQueue=2500 a recu 7500 (duree totale fusionnee). A1/A2/A3/A4/A5 restes verts (verifie). Fichier restaure (md5 2d0f652053cc11c10907d1ac4eff930f), suite complete re-verte (6/6 PASS) avant enregistrement de la porte."
+    }
+  ],
+  "mutation_proof": {
+    "T26.A1": {
+      "killed_by": "T26.M1",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : condition d'admission fraiche de submitReadyCall changee de (active<cap) a (active<=cap), boucle de reprise (admitNextWaiting) inchangee. Rejoue T26.A1 seul (jest -t T26.A1) : FAIL observe, assertion fournisseur-reellement-contacte-2-fois a recu calls=3 (au lieu de 2). Egalement observe tue_aussi A2/A3/A6 (comme documente), A4/A5 restes verts. Fichier restaure a l'identique (md5 2d0f652053cc11c10907d1ac4eff930f) et suite complete re-executee verte avant d'enregistrer la porte."
+    },
+    "T26.A2": {
+      "killed_by": "T26.M2",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : releaseCall force une admission supplementaire non eligible apres l'admission normale (boucle de reprise admitted<=freed au lieu de admitted<freed, freed=1 -> deux admissions). Rejoue T26.A2 seul : FAIL observe, actif-inchange-apres-une-liberation a recu active avant=2 apres=3 (au lieu de egal). tue_aussi A3 confirme ; A1/A4/A5/A6 restes verts. Fichier restaure (md5 2d0f652053cc11c10907d1ac4eff930f), suite complete re-verte avant enregistrement."
+    },
+    "T26.A3": {
+      "killed_by": "T26.M3",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : announceAssignmentOrder renvoie l'ordre d'arrivee brut du tableau recu au lieu du tri par assignmentRank(seed, callId). Rejoue T26.A3 seul : FAIL observe, ordre-observe-egal-a-l-ordre-annonce a divergent (annonce != observe). A1/A2/A4/A6 restes verts (verifie). Fichier restaure (md5 2d0f652053cc11c10907d1ac4eff930f), suite complete re-verte avant enregistrement."
+    },
+    "T26.A4": {
+      "killed_by": "T26.M4",
+      "note": "Applique dans packages/gateway/src/provider-backoff.ts : recordProviderBackoff ignore retryAfterSeconds et enregistre now+0 au lieu de now+retryAfterSeconds*1000 (limiteur rendu permissif). Rejoue T26.A4 seul : FAIL observe, fournisseur-inadmissible-a-t0 a recu true (admissible immediatement). A1/A2/A3/A5/A6 restes verts (verifie). Fichier restaure (md5 1dab64e0fe6b41b0ba528314ce5e4018), suite complete re-verte avant enregistrement."
+    },
+    "T26.A5": {
+      "killed_by": "T26.M5",
+      "note": "Applique dans packages/activities/src/admitted-effect.ts : runAdmittedEffect lit getQueueSnapshot(handle) juste apres admission et saute l'invocation de effect() (sans facturer) des que plus de deux appels sont simultanement actifs pour ce handle -- dependance directe au nombre de workers concurrents dans la comptabilite, sans toucher dispatchModelCall/reserveBudget. Seuil fixe a >2 pour ne pas croiser le plafond de 2 utilise par A1 (meme role runAdmittedEffect). Rejoue T26.A5 seul : FAIL observe, consommation-identique-a-1-2-et-6-workers a recu totaux={1:54,2:54,6:18} (depense-totale-strictement-positive=54 restee vraie). A1/A2/A4/A6 restes verts (verifie individuellement, y compris A1 qui partage runAdmittedEffect). Fichier restaure (md5 05b03517a0561df5f1d12ec33907d043), suite complete re-verte avant enregistrement."
+    },
+    "T26.A6": {
+      "killed_by": "T26.M6",
+      "note": "Applique dans packages/workflows/src/admission-queue.ts : getCallTimings fusionne timeInQueue et timeActive en une seule duree totale (releasedAt-queuedAt) au lieu de deux champs distincts. Rejoue T26.A6 seul : FAIL observe, B-timeInQueue=2500 a recu 7500 (duree totale fusionnee). A1/A2/A3/A4/A5 restes verts (verifie). Fichier restaure (md5 2d0f652053cc11c10907d1ac4eff930f), suite complete re-verte (6/6 PASS) avant enregistrement de la porte."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

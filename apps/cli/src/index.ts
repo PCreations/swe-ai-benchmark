@@ -47,8 +47,7 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
 
-import { runPeriodOnce } from '@bench/activities'
-import { NotImplemented } from '@bench/contracts'
+import { runCampaign, runPeriodOnce } from '@bench/activities'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
@@ -124,9 +123,9 @@ const USAGE = `bench — commandes de campagne
            [--test-force-unavailable-period <periode>]
            [--test-inject-failure]
         Expanse et execute une fixture de campagne (T38, cahier L487-L496),
-        <fixture> etant un chemin relatif tel que fixtures/golden-six.json.
-        PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des
-        drapeaux.
+        <fixture> etant un chemin relatif tel que fixtures/golden-six.json
+        (materialisee automatiquement si absente -- voir
+        packages/activities/src/campaign.ts).
 
         --mode                               recorded
         --campaign-id                        identite de la campagne (L78)
@@ -472,14 +471,16 @@ async function commandFork(argv: readonly string[]): Promise<number> {
 
 /* ─────────────────────────────────────────── `campaign` (T38, L487-L496) */
 //
-// SQUELETTE (étage ROUGE de T38). Lit le chemin de fixture (premier argument
-// positionnel, jamais un drapeau — cahier:L489 fixe le chemin littéral
-// `fixtures/golden-six.json`) puis les drapeaux requis, refuse si l'un
-// manque (même discipline que `commandRunPeriod`/`commandFork`), puis lève
-// `NotImplemented` : aucune règle métier n'est encore écrite ici — ni
-// expansion de campagne (configurations × répétitions), ni appel modèle, ni
-// agrégation Q/R/V/U/G, ni partition par worker, ni traitement des points
-// d'injection `--test-force-unavailable-period` / `--test-inject-failure`.
+// Lit le chemin de fixture (premier argument positionnel, jamais un drapeau —
+// cahier:L489 fixe le chemin littéral `fixtures/golden-six.json`) puis les
+// drapeaux requis, refuse si l'un manque (même discipline que
+// `commandRunPeriod`/`commandFork`), puis délègue la totalité du travail à
+// `runCampaign` (`@bench/activities`, `src/campaign.ts`) : expansion des six
+// trajectoires, facturation F-MONEY réelle, agrégation Q/R/V/U/G, partition
+// par `--workers`, et les deux points d'injection nommés
+// `--test-force-unavailable-period` / `--test-inject-failure` (cahier:L141).
+// AUCUNE RÈGLE MÉTIER ICI (même règle que l'en-tête du fichier) : cette
+// fonction ne fait que lire des drapeaux et écrire le résultat JSON.
 
 async function commandCampaign(argv: readonly string[]): Promise<number> {
   const [fixturePath, ...rest] = argv
@@ -492,20 +493,46 @@ async function commandCampaign(argv: readonly string[]): Promise<number> {
   const campaignId = flags.get('campaign-id')
   const postgresDatabase = flags.get('postgres-database')
   const s3Bucket = flags.get('s3-bucket')
-  const workers = flags.get('workers')
+  const workersRaw = flags.get('workers')
   if (
     mode === undefined ||
     campaignId === undefined ||
     postgresDatabase === undefined ||
     s3Bucket === undefined ||
-    workers === undefined
+    workersRaw === undefined
   ) {
     process.stderr.write(
       'bench campaign exige --mode, --campaign-id, --postgres-database, --s3-bucket et --workers\n'
     )
     return 1
   }
-  throw new NotImplemented('cli.campaign')
+  const workers = Number.parseInt(workersRaw, 10)
+  if (!Number.isInteger(workers) || workers < 1) {
+    process.stderr.write(`bench campaign : --workers invalide (${workersRaw})\n`)
+    return 1
+  }
+  const testForceUnavailablePeriodRaw = flags.get('test-force-unavailable-period')
+  const testForceUnavailablePeriod =
+    testForceUnavailablePeriodRaw === undefined ? undefined : Number.parseInt(testForceUnavailablePeriodRaw, 10)
+  const testInjectFailure = flags.has('test-inject-failure')
+  try {
+    const result = await runCampaign({
+      fixturePath,
+      mode,
+      campaignId,
+      postgresDatabase,
+      s3Bucket,
+      workers,
+      testForceUnavailablePeriod,
+      testInjectFailure,
+    })
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    return 0
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    process.stderr.write(`bench campaign : ${message}\n`)
+    return 1
+  }
 }
 
 async function main(): Promise<number> {

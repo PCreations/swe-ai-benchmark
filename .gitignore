@@ -12,6 +12,15 @@
 verification/results/
 .bench/
 
+# Artefact auto-materialise par `bench campaign` (T38, cahier:L489) : le
+# chemin litteral `fixtures/golden-six.json` n'appartient a aucune zone de
+# verification/ownership.json (seul acceptance/fixtures/** y est declare).
+# Son contenu canonique est fixe et versionne dans
+# packages/activities/src/campaign.ts (zone IMPL) ; ce fichier est ecrit sur
+# disque par `bench campaign` lui-meme a chaque invocation ou il est absent
+# (arbre de travail comme worktree detache neuf), jamais commite.
+/fixtures/golden-six.json
+
 # Dépendances et sorties de build. Motif : la résolution de modules peut
 # atteindre un dist/ périmé invisible à `git status --porcelain` ; c'est
 # pourquoi toute vérification probante s'exécute dans un worktree détaché neuf

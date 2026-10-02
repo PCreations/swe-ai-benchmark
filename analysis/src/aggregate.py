@@ -227,5 +227,36 @@ def aggregate_across_parents(trajectory_rows: list[dict]) -> dict:
     """Agregation inter-projets a partir de lignes de trajectoire portant
     chacune un `parent_project_id` (T38.A8, cahier:L493) : refuse une entree
     a un seul parent malgre plusieurs trajectoires, accepte une entree a
-    plusieurs parents distincts. Squelette : non implemente."""
-    raise NotImplemented_("aggregate.aggregate_across_parents")
+    plusieurs parents distincts.
+
+    La regle qui decide QUAND refuser (fixee a l'etage VERT, forme deja
+    scellee par CrossProjectInferenceError ci-dessus) : le nombre de
+    `parent_project_id` DISTINCTS observes, jamais le nombre de trajectoires
+    -- golden-six porte six trajectoires pour un seul parent (cahier:L491,
+    « un projet ») et doit rester refuse malgre ce compte (T38.A8, « malgre
+    six trajectoires », cahier:L493). Un jeu a deux parents distincts ou plus
+    n'est PAS refuse (controle de capacite, T38.A8 section III.5) : il produit
+    une agregation reelle, groupee par parent, plutot qu'un stub qui leverait
+    systematiquement.
+    """
+    distinct_parents: list[str] = []
+    seen: set[str] = set()
+    for row in trajectory_rows:
+        parent_id = row["parent_project_id"]
+        if parent_id not in seen:
+            seen.add(parent_id)
+            distinct_parents.append(parent_id)
+
+    if len(distinct_parents) <= 1:
+        single_parent = distinct_parents[0] if distinct_parents else None
+        raise CrossProjectInferenceError(single_parent, len(trajectory_rows))
+
+    per_parent: dict[str, list[str]] = {parent_id: [] for parent_id in distinct_parents}
+    for row in trajectory_rows:
+        per_parent[row["parent_project_id"]].append(row["trajectory_id"])
+
+    return {
+        "parent_project_ids": distinct_parents,
+        "trajectory_count": len(trajectory_rows),
+        "trajectory_ids_by_parent": per_parent,
+    }

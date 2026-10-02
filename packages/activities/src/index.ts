@@ -420,3 +420,8 @@ export type {
 
 export { runAdmittedEffect } from './admitted-effect.js'
 export type { RunAdmittedEffectParams } from './admitted-effect.js'
+
+/* ── T38 : expansion et exécution de `golden-six` (L487-L496) ────────────── */
+
+export { CAMPAIGN_MODE, GOLDEN_SIX_FIXTURE_PATH, runCampaign } from './campaign.js'
+export type { RunCampaignInput } from './campaign.js'

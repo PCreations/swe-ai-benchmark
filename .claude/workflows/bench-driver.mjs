@@ -849,8 +849,35 @@ const perimeesAuDepart = (world.actionable ?? []).filter((T) => !(world.ready ??
 if (perimeesAuDepart.length) {
   log(`Perimees au depart : ${perimeesAuDepart.join(', ')} — settle avant de choisir la frontiere.`)
   phase('Settle')
-  const prealable = await agent(settlePrompt, { label: 'settle:prealable', phase: 'Settle', schema: OUTCOME, model: MODELE })
-  log(`settle prealable : ${prealable?.state ?? 'AUCUN RETOUR'}`)
+
+  // SETTLE EN PLUSIEURS RELAIS, PARCE QU'UN SEUL AGENT N'Y SUFFIT PLUS.
+  //
+  // MESURE, tour wi3bp4r5t : l'agent de settle a rendu
+  // INTERROMPU_AVANT_POINT_FIXE — explicitement PAS le plafond de 44
+  // iterations, donc son propre budget de tour. A 36 taches prouvees, chacune
+  // demandant un clean-room complet contre PostgreSQL, S3 et Temporal reels,
+  // la re-attestation ne tient plus dans un seul agent. Consequence observee :
+  // la frontiere a ete choisie sur un tableau A MOITIE reconverge et a designe
+  // T08 et T09, deja prouvees. Les six etages ont tous refuse correctement
+  // (« T08 deja prouve a HEAD, etage RED non applicable ») — rien de faux n'a
+  // ete produit, mais le tour entier a ete perdu.
+  //
+  // SEQUENTIEL, PAS PARALLELE, ET C'EST DELIBERE. `bench accept` ne depend
+  // d'aucune dependance prouvee (verification/runner/accept.mjs n'enregistre
+  // `depends_on` que dans l'attestation, ligne 280 ; c'est `resume` qui calcule
+  // la propagation transitive). On POURRAIT donc sharder en parallele. On ne le
+  // fait pas : deux acceptations simultanees lancent deux suites completes
+  // contre les MEMES services reels, et une interference entre elles produirait
+  // un resultat faux — dans un sens ou dans l'autre. Le gain serait du temps,
+  // le risque serait la preuve.
+  const RELAIS_MAX = 4
+  for (let relais = 1; relais <= RELAIS_MAX; relais += 1) {
+    const r = await agent(settlePrompt, { label: `settle:relais-${relais}`, phase: 'Settle', schema: OUTCOME, model: MODELE })
+    log(`settle relais ${relais}/${RELAIS_MAX} : ${r?.state ?? 'AUCUN RETOUR'}`)
+    if (r?.ok) break
+    if (relais === RELAIS_MAX) log('Settle non converge apres tous les relais.')
+  }
+
   // On RELIT le monde. Ne jamais croire l'etage precedent sur parole : c'est
   // l'axiome de la boucle, et il vaut aussi pour un etage que je viens de lancer.
   const relu = await agent(preflightPrompt, { label: 'preflight:relecture', phase: 'Preflight', schema: WORLD, model: MODELE })
@@ -859,6 +886,15 @@ if (perimeesAuDepart.length) {
     if (world.resume_exit === 3) {
       log('Les 44 taches sont prouvees a HEAD apres settle.')
       return { done: true, world }
+    }
+    // UN TABLEAU A MOITIE RECONVERGE N'EST PAS UNE BASE POUR CHOISIR DU TRAVAIL.
+    // C'est exactement ce qui a fait designer T08 et T09 au tour wi3bp4r5t. On
+    // arrete le tour : le prealable du tour suivant reprend la convergence la
+    // ou celui-ci l'a laissee, et les attestations deja ecrites sont durables.
+    const encorePerimees = (world.actionable ?? []).filter((T) => !(world.ready ?? []).includes(T))
+    if (encorePerimees.length) {
+      log(`Toujours perimees apres les relais : ${encorePerimees.join(', ')} — on ne choisit pas de frontiere sur un tableau partiel.`)
+      return { halted: 'SETTLE_NON_CONVERGE', perimees: encorePerimees, world }
     }
   } else {
     log('Relecture du monde indisponible — on continue sur la lecture du preflight initial.')

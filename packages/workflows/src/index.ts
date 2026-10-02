@@ -66,3 +66,9 @@ export type {
   SubmitReadyCallParams,
   SubmitReadyCallResult,
 } from './admission-queue.js'
+
+// Le balayage des points de panne (cahier L477-L486, tâche T37) : fichier
+// séparé, même raison que lease-authority.ts et admission-queue.ts ci-dessus
+// (trajectory-workflow.ts reste le seul bundlé dans le bac à sable Temporal).
+export { runFaultDrill } from './fault-drill.js'
+export type { FaultDrillPoint, FaultDrillResult, RunFaultDrillOptions } from './fault-drill.js'

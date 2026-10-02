@@ -2,8 +2,10 @@
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
 // `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
 // (T24, cahier L361-L370), `fork` (T27, cahier L387-L394), `campaign` (T38,
-// cahier L487-L496), `pilot` (T39, cahier L497-L504) et `plan-distribution` /
-// `distribution-run-bounded` / `distribution-resume` (T40, cahier L505-L512).
+// cahier L487-L496), `pilot` (T39, cahier L497-L504), `plan-distribution` /
+// `distribution-run-bounded` / `distribution-resume` (T40, cahier L505-L512)
+// et le SQUELETTE rouge de `doctor` / `campaign preflight` / `campaign run` /
+// `campaign cancel` (T41, cahier L513-L521).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -56,6 +58,7 @@ import {
   runPeriodOnce,
   runPilot,
 } from '@bench/activities'
+import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
@@ -217,6 +220,45 @@ const USAGE = `bench — commandes de campagne
         --campaign-id          identite de la campagne (L78)
         --postgres-database    base PostgreSQL reelle a utiliser
         --export-history       chemin ou ecrire l'historique exporte
+
+  doctor [--json]
+        Identifie chaque dependance absente de verification/tasks.json#T41.requires
+        (T41, cahier L513-L521) : node22, postgres18, s3, temporal,
+        containers.runc, containers.userns, fake-provider. PAS ENCORE
+        IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des drapeaux.
+
+        --json    imprime le rapport sur la sortie standard
+
+  campaign preflight <manifest.json> --mode recorded|live --campaign-id <id>
+        Controle lecture-seule des prerequis d'une campagne operationnelle
+        (T41, cahier L513-L521), <manifest.json> respectant la convention
+        bench.campaign.manifest/1. PAS ENCORE IMPLEMENTEE : leve
+        NOT_IMPLEMENTED apres lecture des drapeaux.
+
+        --mode           recorded | live
+        --campaign-id    identite de la campagne (L78)
+
+  campaign run <manifest.json> --campaign-id <id> --postgres-database <db>
+               --s3-bucket <bucket> --mode recorded|live --provider fake
+        Execute reellement une campagne operationnelle via le fournisseur
+        FACTICE (T41, cahier L513-L521). PAS ENCORE IMPLEMENTEE : leve
+        NOT_IMPLEMENTED apres lecture des drapeaux.
+
+        --campaign-id           identite de la campagne (L78)
+        --postgres-database     base PostgreSQL reelle a utiliser
+        --s3-bucket             bucket S3 (ou compatible) reel
+        --mode                  recorded | live
+        --provider              fake
+
+  campaign cancel --campaign-id <id> --postgres-database <db>
+                  --s3-bucket <bucket>
+        Annule une campagne SANS supprimer ses artefacts ni ceux d'une autre
+        campagne (T41, cahier L513-L521). PAS ENCORE IMPLEMENTEE : leve
+        NOT_IMPLEMENTED apres lecture des drapeaux.
+
+        --campaign-id           identite de la campagne (L78)
+        --postgres-database     base PostgreSQL reelle a utiliser
+        --s3-bucket             bucket S3 (ou compatible) reel
 
   Sorties : 0 la trajectoire a produit un resultat · 1 refus ou erreur
             2 commande inconnue
@@ -618,6 +660,116 @@ async function commandCampaign(argv: readonly string[]): Promise<number> {
   }
 }
 
+/* ────────────────────────────── `doctor` (T41, SQUELETTE, L513-L521) */
+//
+// SQUELETTE (étage ROUGE de T41). Lit `--json` (seul drapeau connu, optionnel
+// — `doctor` n'a aucun drapeau REQUIS), puis lève `NotImplemented` : aucune
+// sonde de capacité n'est encore exécutée ici, ni PostgreSQL, ni S3, ni
+// Temporal, ni `runc`/`unshare`, ni la présence de node22/fake-provider
+// (verification/tasks.json#T41.requires). Ce squelette ne réutilise jamais
+// `verification/runner/doctor.mjs` (HARNESS) : ce serait prouver une capacité
+// du vérificateur, pas celle du produit que T41 doit livrer.
+
+async function commandDoctor(argv: readonly string[]): Promise<number> {
+  parseFlagsAvecBooleens(argv, new Set(['json']))
+  throw new NotImplemented('cli.doctor')
+}
+
+/* ───────────────────── `campaign preflight` (T41, SQUELETTE, L513-L521) */
+//
+// SQUELETTE (étage ROUGE de T41). Lecture seule par contrat (section III.3 de
+// acceptance/T41.spec.ts) : lit le chemin de manifeste (premier argument
+// positionnel, jamais un drapeau — même discipline que `commandCampaign`/
+// `commandPilot` pour leur chemin de fixture/manifeste) puis les deux
+// drapeaux requis, refuse si l'un manque, puis lève `NotImplemented` : aucune
+// décision `ready`/`missing_prerequisites` n'est encore écrite ici.
+
+async function commandCampaignPreflight(argv: readonly string[]): Promise<number> {
+  const [manifestPath, ...rest] = argv
+  if (manifestPath === undefined || manifestPath.startsWith('--')) {
+    process.stderr.write('bench campaign preflight exige un chemin de manifeste en premier argument\n')
+    return 1
+  }
+  const flags = parseFlags(rest)
+  const mode = flags.get('mode')
+  const campaignId = flags.get('campaign-id')
+  if (mode === undefined || campaignId === undefined) {
+    process.stderr.write('bench campaign preflight exige --mode et --campaign-id\n')
+    return 1
+  }
+  throw new NotImplemented('cli.campaign.preflight')
+}
+
+/* ──────────────────────────── `campaign run` (T41, SQUELETTE, L513-L521) */
+//
+// SQUELETTE (étage ROUGE de T41). Lit le chemin de manifeste (premier
+// argument positionnel) puis les cinq drapeaux requis, refuse si l'un
+// manque, puis lève `NotImplemented` : aucune exécution réelle via le
+// fournisseur FACTICE n'est encore écrite ici, ni aucun gate
+// model/budget/credential.
+
+async function commandCampaignRun(argv: readonly string[]): Promise<number> {
+  const [manifestPath, ...rest] = argv
+  if (manifestPath === undefined || manifestPath.startsWith('--')) {
+    process.stderr.write('bench campaign run exige un chemin de manifeste en premier argument\n')
+    return 1
+  }
+  const flags = parseFlags(rest)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  const mode = flags.get('mode')
+  const provider = flags.get('provider')
+  if (
+    campaignId === undefined ||
+    postgresDatabase === undefined ||
+    s3Bucket === undefined ||
+    mode === undefined ||
+    provider === undefined
+  ) {
+    process.stderr.write(
+      'bench campaign run exige --campaign-id, --postgres-database, --s3-bucket, --mode et --provider\n'
+    )
+    return 1
+  }
+  throw new NotImplemented('cli.campaign.run')
+}
+
+/* ─────────────────────────── `campaign cancel` (T41, SQUELETTE, L513-L521) */
+//
+// SQUELETTE (étage ROUGE de T41). Lit les trois drapeaux requis, refuse si
+// l'un manque, puis lève `NotImplemented` : aucune décision de suppression
+// (ou de non-suppression) n'est encore écrite ici.
+
+async function commandCampaignCancel(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  if (campaignId === undefined || postgresDatabase === undefined || s3Bucket === undefined) {
+    process.stderr.write('bench campaign cancel exige --campaign-id, --postgres-database et --s3-bucket\n')
+    return 1
+  }
+  throw new NotImplemented('cli.campaign.cancel')
+}
+
+/* ──────────────────────── dispatch `campaign` (T38 verte + T41 squelette) */
+//
+// `campaign preflight|run|cancel` (T41, SQUELETTE ci-dessus) sont des
+// SOUS-COMMANDES distinctes de `campaign <fixture>` (T38, déjà verte) : le
+// premier argument positionnel de `campaign <fixture>` est toujours un
+// CHEMIN de fixture (p. ex. `fixtures/golden-six.json`), jamais l'un des
+// trois mots réservés `preflight`/`run`/`cancel` — la distinction est donc
+// sans ambiguïté et ne touche à aucune règle déjà verte de T38.
+
+async function commandCampaignDispatch(argv: readonly string[]): Promise<number> {
+  const [sub, ...rest] = argv
+  if (sub === 'preflight') return commandCampaignPreflight(rest)
+  if (sub === 'run') return commandCampaignRun(rest)
+  if (sub === 'cancel') return commandCampaignCancel(rest)
+  return commandCampaign(argv)
+}
+
 /* ────────────────────────────────────── `pilot` (T39, L497-L504) */
 //
 // Lit le chemin de manifeste (premier argument positionnel, jamais un
@@ -846,7 +998,8 @@ async function main(): Promise<number> {
   if (command === 'run-trajectory') return commandRunTrajectory(rest)
   if (command === 'replay-trajectory') return commandReplayTrajectory(rest)
   if (command === 'fork') return commandFork(rest)
-  if (command === 'campaign') return commandCampaign(rest)
+  if (command === 'doctor') return commandDoctor(rest)
+  if (command === 'campaign') return commandCampaignDispatch(rest)
   if (command === 'pilot') return commandPilot(rest)
   if (command === 'plan-distribution') return commandPlanDistribution(rest)
   if (command === 'distribution-run-bounded') return commandDistributionRunBounded(rest)

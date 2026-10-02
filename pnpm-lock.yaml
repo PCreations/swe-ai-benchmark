@@ -148,6 +148,9 @@ importers:
       '@bench/domain':
         specifier: workspace:*
         version: link:../domain
+      '@bench/evaluation':
+        specifier: workspace:*
+        version: link:../evaluation
       '@bench/oracle':
         specifier: workspace:*
         version: link:../oracle

@@ -18,6 +18,7 @@
   "dependencies": {
     "@bench/contracts": "workspace:*",
     "@bench/domain": "workspace:*",
+    "@bench/evaluation": "workspace:*",
     "@bench/oracle": "workspace:*",
     "@bench/workload": "workspace:*"
   }

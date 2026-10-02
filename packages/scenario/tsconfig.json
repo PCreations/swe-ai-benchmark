@@ -18,6 +18,9 @@
       "path": "../domain"
     },
     {
+      "path": "../evaluation"
+    },
+    {
       "path": "../oracle"
     },
     {

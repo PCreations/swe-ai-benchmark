@@ -1,0 +1,70 @@
+{
+  "schema": "bench.red/1",
+  "task": "T26",
+  "subject_commit": "8f83ab54ed8eef6b31ca33b41c75b61cecc797a2",
+  "dirty": false,
+  "input_digest": "4b9dcd2ed412b47e5a74241d73e6530cafc903f26d90979e262a781ca8720f7c",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T26.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T26.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M2",
+      "note": "Mutation appliquee et restauree : dans releaseCall (packages/workflows/src/admission-queue.ts), ajout d'une seconde admission directe (sans revalider le plafond) apres l'appel normal a admitNextWaiting -- boucle de reprise affaiblie en admitted<=freed au lieu de admitted<freed. Observe (bench verify:task T26, suite complete) : T26.A2 FAIL -- exige('actif-inchange-apres-une-liberation (vu avant=2)') recoit 'active avant=2 apres=3' (Error, acceptance/T26.spec.ts:885). Collateral attendu et documente (tue_aussi) : T26.A3 tombe aussi (ordre annonce != ordre observe, acceptance/T26.spec.ts:968). T26.A5 et T26.A6 restent verts (97 et 17 assertions)."
+    },
+    {
+      "id": "T26.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M3",
+      "note": "Mutation appliquee et restauree : announceAssignmentOrder (packages/workflows/src/admission-queue.ts) renvoie l'ordre d'arrivee brut du tableau recu au lieu de trier par assignmentRank(seed, callId). Observe (bench verify:task T26, suite complete) : T26.A3 FAIL -- exige('ordre-observe-egal-a-l-ordre-annonce (decisif, cahier:L381/L383)') recoit annonce=[...] observe=[...] divergents (Error, acceptance/T26.spec.ts:968). T26.A2, T26.A5, T26.A6 restent verts (18, 97, 17 assertions) : pas de collateral, conforme a doit_rester_vert."
+    },
+    {
+      "id": "T26.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T26.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M5",
+      "note": "Mutation appliquee et restauree : runAdmittedEffect (packages/activities/src/admitted-effect.ts) tient un compteur partage de travailleurs concurremment actifs ; un appel admis PENDANT qu'un autre est deja actif voit son effect() saute (cout jamais reellement facture/reserve -- equivalent au 'compteur partage par worker remis a zero' cite par verification/mutants/T26.json). Observe (bench verify:task T26, suite complete) : T26.A5 FAIL -- exige('depense-totale-strictement-positive (controle, IV.5)') recoit totaux={1:0,2:0,6:0} (Error, acceptance/T26.spec.ts:1135). Diagnostic prealable (run isole -t T26.A5, sans contamination d'un autre cas) : le compteur de concurrence atteint reellement 2 sous deux workers et jusqu'a 6 sous six workers, jamais plus de 1 sous un seul worker -- confirmant que la mutation cible bien une dependance reelle au parallelisme, et non un stub constant. T26.A2, T26.A3, T26.A6 restent verts (18, 25, 17 assertions)."
+    },
+    {
+      "id": "T26.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T26.M6",
+      "note": "Mutation appliquee et restauree : getCallTimings (packages/workflows/src/admission-queue.ts) renvoie la meme valeur (duree totale releasedAt-queuedAt) pour timeInQueue ET timeActive au lieu des deux mesures distinctes. Observe (bench verify:task T26, suite complete) : T26.A6 FAIL -- exige('B-timeInQueue=2500 (decisif)') recoit 'vu 7500' (Error, acceptance/T26.spec.ts:1193). T26.A2, T26.A3, T26.A5 restent verts (18, 25, 97 assertions)."
+    }
+  ],
+  "mutation_proof": {
+    "T26.A2": {
+      "killed_by": "T26.M2",
+      "note": "Mutation appliquee et restauree : dans releaseCall (packages/workflows/src/admission-queue.ts), ajout d'une seconde admission directe (sans revalider le plafond) apres l'appel normal a admitNextWaiting -- boucle de reprise affaiblie en admitted<=freed au lieu de admitted<freed. Observe (bench verify:task T26, suite complete) : T26.A2 FAIL -- exige('actif-inchange-apres-une-liberation (vu avant=2)') recoit 'active avant=2 apres=3' (Error, acceptance/T26.spec.ts:885). Collateral attendu et documente (tue_aussi) : T26.A3 tombe aussi (ordre annonce != ordre observe, acceptance/T26.spec.ts:968). T26.A5 et T26.A6 restent verts (97 et 17 assertions)."
+    },
+    "T26.A3": {
+      "killed_by": "T26.M3",
+      "note": "Mutation appliquee et restauree : announceAssignmentOrder (packages/workflows/src/admission-queue.ts) renvoie l'ordre d'arrivee brut du tableau recu au lieu de trier par assignmentRank(seed, callId). Observe (bench verify:task T26, suite complete) : T26.A3 FAIL -- exige('ordre-observe-egal-a-l-ordre-annonce (decisif, cahier:L381/L383)') recoit annonce=[...] observe=[...] divergents (Error, acceptance/T26.spec.ts:968). T26.A2, T26.A5, T26.A6 restent verts (18, 97, 17 assertions) : pas de collateral, conforme a doit_rester_vert."
+    },
+    "T26.A5": {
+      "killed_by": "T26.M5",
+      "note": "Mutation appliquee et restauree : runAdmittedEffect (packages/activities/src/admitted-effect.ts) tient un compteur partage de travailleurs concurremment actifs ; un appel admis PENDANT qu'un autre est deja actif voit son effect() saute (cout jamais reellement facture/reserve -- equivalent au 'compteur partage par worker remis a zero' cite par verification/mutants/T26.json). Observe (bench verify:task T26, suite complete) : T26.A5 FAIL -- exige('depense-totale-strictement-positive (controle, IV.5)') recoit totaux={1:0,2:0,6:0} (Error, acceptance/T26.spec.ts:1135). Diagnostic prealable (run isole -t T26.A5, sans contamination d'un autre cas) : le compteur de concurrence atteint reellement 2 sous deux workers et jusqu'a 6 sous six workers, jamais plus de 1 sous un seul worker -- confirmant que la mutation cible bien une dependance reelle au parallelisme, et non un stub constant. T26.A2, T26.A3, T26.A6 restent verts (18, 25, 17 assertions)."
+    },
+    "T26.A6": {
+      "killed_by": "T26.M6",
+      "note": "Mutation appliquee et restauree : getCallTimings (packages/workflows/src/admission-queue.ts) renvoie la meme valeur (duree totale releasedAt-queuedAt) pour timeInQueue ET timeActive au lieu des deux mesures distinctes. Observe (bench verify:task T26, suite complete) : T26.A6 FAIL -- exige('B-timeInQueue=2500 (decisif)') recoit 'vu 7500' (Error, acceptance/T26.spec.ts:1193). T26.A2, T26.A3, T26.A5 restent verts (18, 25, 97 assertions)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

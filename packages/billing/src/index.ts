@@ -28,6 +28,7 @@
 import { randomUUID } from 'node:crypto'
 import {
   ContractViolation,
+  NotImplemented,
   addMicroUsd,
   microUsd,
   mulMicroUsd,
@@ -701,4 +702,99 @@ $bench$;`)
   }
   const entries = r.payload?.['entries']
   return Array.isArray(entries) ? entries : []
+}
+
+/* ─────────────────────────────────────────────────────────────── T27 */
+//
+// Les trois rôles suivants sont NOUVEAUX pour @bench/billing (cahier
+// L387-L394, tâche T27) : aucune ligne du cahier ne les nomme, ils sont
+// fixés par acceptance/T27.spec.ts (section III-c de son en-tête), qui en
+// fait le contrat public exact (noms, formes, PUR sans stockage pour les
+// deux premiers). SQUELETTE ROUGE : chacun lève `NotImplemented` avant toute
+// règle métier — ni agrégation de coûts, ni politique de maintenance, ni
+// contrôle d'éligibilité n'est encore écrit ici.
+
+/** `{ A, B }` — mêmes lettres que le cahier (L391 : « branches à 300 et 500 »). */
+export interface LineageBranchCosts {
+  readonly A: string | number
+  readonly B: string | number
+}
+
+export interface ComputeLineagePhysicalCostRequest {
+  readonly ancestor_cost: string | number
+  readonly fork_overhead_cost: string | number
+  readonly branch_costs: LineageBranchCosts
+}
+
+export interface ComputeLineagePhysicalCostResult {
+  readonly total_physical_cost: string | number
+  readonly marginal_cost_by_branch: LineageBranchCosts
+}
+
+/**
+ * Agrège le préfixe ancestral (compté une seule fois), la dépense
+ * supplémentaire partagée par la famille (comptée une seule fois) et les
+ * coûts de branche en un total physique unique (T27.A3, T27.A4). PUR : ne
+ * prend pas de `handle`, ne touche pas au stockage.
+ */
+export function computeLineagePhysicalCost(
+  _request: ComputeLineagePhysicalCostRequest,
+): ComputeLineagePhysicalCostResult {
+  throw new NotImplemented('billing.computeLineagePhysicalCost')
+}
+
+export interface PlanMaintenanceReserveRequest {
+  readonly budget_limit: string | number
+  /** Fraction (0.15 pour 15 %, cahier L391). */
+  readonly reserve_rate: number
+}
+
+export interface PlanMaintenanceReserveResult {
+  /** ÉCHO, INCHANGÉ (L391 : « sans porter le budget à 1150 »). */
+  readonly budget_limit: string | number
+  readonly reserved_for_maintenance: string | number
+}
+
+/**
+ * Identifie la part d'un budget réservée à la maintenance, SANS l'ajouter au
+ * `budget_limit` rendu (T27.A5, cahier L391). PUR, sans stockage.
+ */
+export function planMaintenanceReserve(
+  _request: PlanMaintenanceReserveRequest,
+): PlanMaintenanceReserveResult {
+  throw new NotImplemented('billing.planMaintenanceReserve')
+}
+
+/** Porte au moins `phase` — une des valeurs d'état de L97. */
+export interface PeriodStateForEligibility {
+  readonly phase: string
+  readonly [key: string]: unknown
+}
+
+export interface CheckMaintenanceEligibilityRequest {
+  readonly period_state: PeriodStateForEligibility
+}
+
+export interface MaintenanceEligibilitySignal {
+  readonly code: string
+  readonly reason?: string
+}
+
+export interface CheckMaintenanceEligibilityResult {
+  readonly eligible: boolean
+  readonly signal?: MaintenanceEligibilitySignal
+}
+
+/**
+ * Décide si un `period_state` est éligible au contrôle de maintenance
+ * (T27.A6). Un état inéligible (ex. `BUDGET_EXHAUSTED`, cahier L97) doit être
+ * SIGNALÉ — `eligible:false` et un code nommant la cause — jamais un
+ * plantage ; un état éligible (ex. `DEVELOPING`) ne doit, symétriquement, pas
+ * être signalé à tort. `period_state` n'est ni muté ni effacé par cet appel
+ * (L391 : « pas effacé »).
+ */
+export function checkMaintenanceEligibility(
+  _request: CheckMaintenanceEligibilityRequest,
+): CheckMaintenanceEligibilityResult {
+  throw new NotImplemented('billing.checkMaintenanceEligibility')
 }

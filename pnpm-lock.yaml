@@ -29,6 +29,9 @@ importers:
       '@bench/activities':
         specifier: workspace:*
         version: link:../../packages/activities
+      '@bench/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@bench/scenario':
         specifier: workspace:*
         version: link:../../packages/scenario

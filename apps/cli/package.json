@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Commandes de campagne et de verification (cahier §C, L52) : `bench demo` (T11), `bench run-period` (T23) et `bench run-trajectory`/`replay-trajectory` (T24, orchestration Temporal reelle, L361-L370).",
+  "description": "Commandes de campagne et de verification (cahier §C, L52) : `bench demo` (T11), `bench run-period` (T23), `bench run-trajectory`/`replay-trajectory` (T24, orchestration Temporal reelle, L361-L370) et, squelette rouge, `bench fork` (T27, L387-L394).",
   "bin": {
     "bench": "./dist/index.js"
   },
@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "@bench/activities": "workspace:*",
+    "@bench/contracts": "workspace:*",
     "@bench/scenario": "workspace:*",
     "@bench/workflows": "workspace:*",
     "@temporalio/client": "1.24.0",

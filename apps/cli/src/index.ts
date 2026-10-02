@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
-// `run-period` (T23, cahier L353-L359) et, SQUELETTE seulement a ce stade,
-// `run-trajectory` / `replay-trajectory` (T24, cahier L361-L370).
+// `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
+// (T24, cahier L361-L370) et, SQUELETTE seulement a ce stade, `fork` (T27,
+// cahier L387-L394).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -41,6 +42,7 @@
 import process from 'node:process'
 
 import { runPeriodOnce } from '@bench/activities'
+import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
@@ -98,6 +100,16 @@ const USAGE = `bench — commandes de campagne
 
         --history         chemin de l'historique a rejouer
         --block-external  aucun adaptateur externe reel ne doit etre joignable
+
+  fork --admin-database <db> --parent-database <db> --branch-ids <idA>,<idB>
+        Cree des branches experimentales a partir d'un etat metier parent (T27,
+        cahier L387-L394) et ecrit son resultat JSON sur la sortie standard.
+        PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des
+        drapeaux (etage ROUGE).
+
+        --admin-database    base PostgreSQL admin, habilitee a CREATE DATABASE
+        --parent-database   base PostgreSQL du parent dont on part
+        --branch-ids        deux identifiants de branche, separes par une virgule
 
   Sorties : 0 la trajectoire a produit un resultat · 1 refus ou erreur
             2 commande inconnue
@@ -286,12 +298,33 @@ async function commandReplayTrajectory(argv: readonly string[]): Promise<number>
   return result.determinism === 'OK' ? 0 : 1
 }
 
+/**
+ * `fork` (T27, cahier L387-L394) — SQUELETTE (étage ROUGE). Lit les trois
+ * drapeaux requis, refuse si l'un manque (même discipline que
+ * `commandDemo`), puis lève `NotImplemented` : ni provisionnement de
+ * branche, ni clonage, ni identité ne sont encore écrits ici.
+ */
+async function commandFork(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const adminDatabase = flags.get('admin-database')
+  const parentDatabase = flags.get('parent-database')
+  const branchIds = flags.get('branch-ids')
+  if (adminDatabase === undefined || parentDatabase === undefined || branchIds === undefined) {
+    process.stderr.write(
+      'bench fork exige --admin-database, --parent-database et --branch-ids\n'
+    )
+    return 1
+  }
+  throw new NotImplemented('cli.fork')
+}
+
 async function main(): Promise<number> {
   const [command = '', ...rest] = process.argv.slice(2)
   if (command === 'demo') return commandDemo(rest)
   if (command === 'run-period') return commandRunPeriod(rest)
   if (command === 'run-trajectory') return commandRunTrajectory(rest)
   if (command === 'replay-trajectory') return commandReplayTrajectory(rest)
+  if (command === 'fork') return commandFork(rest)
   if (command === '' || command === '--help' || command === 'help') {
     process.stdout.write(USAGE)
     return command === '' ? 2 : 0

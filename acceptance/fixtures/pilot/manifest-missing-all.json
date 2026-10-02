@@ -1,0 +1,11 @@
+{
+  "schema": "bench.pilot.manifest/1",
+  "corpus": { "groups": [] },
+  "model": {},
+  "price": {},
+  "exposure": {},
+  "budget": {},
+  "configurations": ["cfg-scripted-a", "cfg-scripted-b"],
+  "repetitions": 3,
+  "periods_per_trajectory": 12
+}

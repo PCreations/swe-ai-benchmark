@@ -1,0 +1,22 @@
+{
+  "schema": "bench.pilot.manifest/1",
+  "corpus": {
+    "groups": [
+      {
+        "source_parent_project_id": "PRJ-PILOT-SMALL-LIVE-A",
+        "source_scenario_id": "SCN-PILOT-SMALL-LIVE",
+        "clone_instance_ids": [
+          "PRJ-PILOT-SMALL-LIVE-A-clone-1",
+          "PRJ-PILOT-SMALL-LIVE-A-clone-2"
+        ]
+      }
+    ]
+  },
+  "model": { "name": "agent-scripted-v1" },
+  "price": { "tariff_micro_usd": "340" },
+  "exposure": { "predefined": true, "value": "1" },
+  "budget": { "cap_micro_usd": "100000" },
+  "configurations": ["cfg-scripted-a"],
+  "repetitions": 1,
+  "periods_per_trajectory": 2
+}

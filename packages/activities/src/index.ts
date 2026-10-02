@@ -452,3 +452,25 @@ export type {
   RunDistributionBoundedInput,
   RunDistributionBoundedResult,
 } from './distribution.js'
+
+/* ── T41 : sondes de capacité de `bench doctor` (L513-L521) ──────────────── */
+
+export { runDoctorProbes } from './doctor.js'
+export type { DoctorReport } from './doctor.js'
+
+/* ── T41 : `campaign preflight|run|cancel` opérationnels (L513-L521) ─────── */
+
+export {
+  campaignOpsPreflight,
+  cancelCampaignOps,
+  computeCampaignOpsPreflight,
+  CREDENTIAL_ENV_VAR,
+  loadCampaignOpsManifest,
+  missingCampaignOpsPrerequisites,
+  runCampaignOps,
+} from './campaign-ops.js'
+export type {
+  CampaignOpsPreflightInput,
+  CancelCampaignOpsInput,
+  RunCampaignOpsInput,
+} from './campaign-ops.js'

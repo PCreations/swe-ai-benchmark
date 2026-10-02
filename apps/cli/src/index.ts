@@ -2,9 +2,8 @@
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
 // `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
 // (T24, cahier L361-L370), `fork` (T27, cahier L387-L394), `campaign` (T38,
-// cahier L487-L496), `pilot` (T39, cahier L497-L504) et le SQUELETTE rouge de
-// `plan-distribution` / `distribution-run-bounded` / `distribution-resume`
-// (T40, cahier L505-L512).
+// cahier L487-L496), `pilot` (T39, cahier L497-L504) et `plan-distribution` /
+// `distribution-run-bounded` / `distribution-resume` (T40, cahier L505-L512).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -49,8 +48,14 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
 
-import { runCampaign, runPeriodOnce, runPilot } from '@bench/activities'
-import { NotImplemented } from '@bench/contracts'
+import {
+  planDistribution,
+  resumeDistribution,
+  runCampaign,
+  runDistributionBounded,
+  runPeriodOnce,
+  runPilot,
+} from '@bench/activities'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
@@ -171,8 +176,7 @@ const USAGE = `bench — commandes de campagne
                      --postgres-database <db> --plan-id <id>
         Valide un profil de charge de distribution (T40, cahier L505-L512) :
         compte les trajectoires et periodes qu'il produirait, SANS demarrer,
-        planifier ni executer aucune trajectoire reelle. PAS ENCORE
-        IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des drapeaux.
+        planifier ni executer aucune trajectoire reelle.
 
         --campaign-id               identite de la campagne (L78)
         --mode                      recorded
@@ -193,8 +197,7 @@ const USAGE = `bench — commandes de campagne
                             [--test-large-artifact-bytes <N>]
                             [--export-history <chemin>]
         Demarre <N> jobs courts portes chacun par une seule Activity factice
-        (T40, cahier L505-L512). PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED
-        apres lecture des drapeaux.
+        (T40, cahier L505-L512).
 
         --campaign-id                     identite de la campagne (L78)
         --mode                            recorded
@@ -209,8 +212,7 @@ const USAGE = `bench — commandes de campagne
   distribution-resume --campaign-id <id> --postgres-database <db>
                        [--export-history <chemin>]
         Reprend, depuis l'etat persiste sous --campaign-id, un run interrompu
-        par distribution-run-bounded (T40, cahier L505-L512). PAS ENCORE
-        IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des drapeaux.
+        par distribution-run-bounded (T40, cahier L505-L512).
 
         --campaign-id          identite de la campagne (L78)
         --postgres-database    base PostgreSQL reelle a utiliser
@@ -666,33 +668,37 @@ async function commandPilot(argv: readonly string[]): Promise<number> {
 
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */
 //
-// SQUELETTE (étage ROUGE de T40). Lit les dix drapeaux requis, refuse si l'un
-// manque (même discipline que `commandRunPeriod`/`commandFork`/
-// `commandCampaign`), puis lève `NotImplemented` : aucune règle métier n'est
-// encore écrite ici — ni calcul du produit trajectoires/périodes, ni
-// validation du plan, ni aucun appel au fournisseur de modèle.
+// Lit les dix drapeaux requis, refuse si l'un manque (même discipline que
+// `commandRunPeriod`/`commandFork`/`commandCampaign`), puis délègue la
+// totalité du calcul à `planDistribution` (`@bench/activities`,
+// `src/distribution.ts`) : AUCUNE RÈGLE MÉTIER ICI (même règle que l'en-tête
+// du fichier) — `--postgres-database` est lu et validé présent (le contrat le
+// liste) mais jamais transmis à une fonction qui écrirait quoi que ce soit ;
+// `--plan-id` n'est lu que pour exiger sa présence (le contrôle A2 de la
+// suite le fabrique lui-même pour vérifier, de l'extérieur, qu'aucune trace
+// n'est attribuable à ce jeton).
 
 async function commandPlanDistribution(argv: readonly string[]): Promise<number> {
   const flags = parseFlags(argv)
   const campaignId = flags.get('campaign-id')
   const mode = flags.get('mode')
-  const parents = flags.get('parents')
-  const scenarios = flags.get('scenarios')
-  const configurations = flags.get('configurations')
-  const repetitions = flags.get('repetitions')
-  const budgets = flags.get('budgets')
-  const periodsPerTrajectory = flags.get('periods-per-trajectory')
+  const parentsRaw = flags.get('parents')
+  const scenariosRaw = flags.get('scenarios')
+  const configurationsRaw = flags.get('configurations')
+  const repetitionsRaw = flags.get('repetitions')
+  const budgetsRaw = flags.get('budgets')
+  const periodsPerTrajectoryRaw = flags.get('periods-per-trajectory')
   const postgresDatabase = flags.get('postgres-database')
   const planId = flags.get('plan-id')
   if (
     campaignId === undefined ||
     mode === undefined ||
-    parents === undefined ||
-    scenarios === undefined ||
-    configurations === undefined ||
-    repetitions === undefined ||
-    budgets === undefined ||
-    periodsPerTrajectory === undefined ||
+    parentsRaw === undefined ||
+    scenariosRaw === undefined ||
+    configurationsRaw === undefined ||
+    repetitionsRaw === undefined ||
+    budgetsRaw === undefined ||
+    periodsPerTrajectoryRaw === undefined ||
     postgresDatabase === undefined ||
     planId === undefined
   ) {
@@ -703,29 +709,69 @@ async function commandPlanDistribution(argv: readonly string[]): Promise<number>
     )
     return 1
   }
-  throw new NotImplemented('cli.plan-distribution')
+  const parseCount = (raw: string, flag: string): number | null => {
+    const n = Number.parseInt(raw, 10)
+    if (!Number.isInteger(n) || n < 0) {
+      process.stderr.write(`bench plan-distribution : --${flag} invalide (${raw})\n`)
+      return null
+    }
+    return n
+  }
+  const parents = parseCount(parentsRaw, 'parents')
+  const scenarios = parseCount(scenariosRaw, 'scenarios')
+  const configurations = parseCount(configurationsRaw, 'configurations')
+  const repetitions = parseCount(repetitionsRaw, 'repetitions')
+  const budgets = parseCount(budgetsRaw, 'budgets')
+  const periodsPerTrajectory = parseCount(periodsPerTrajectoryRaw, 'periods-per-trajectory')
+  if (
+    parents === null ||
+    scenarios === null ||
+    configurations === null ||
+    repetitions === null ||
+    budgets === null ||
+    periodsPerTrajectory === null
+  ) {
+    return 1
+  }
+  const result = await planDistribution({
+    campaignId,
+    mode,
+    parents,
+    scenarios,
+    configurations,
+    repetitions,
+    budgets,
+    periodsPerTrajectory,
+  })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 
 /* ───────────────────────── `distribution-run-bounded` (T40, L505-L512) */
 //
-// SQUELETTE (étage ROUGE de T40). Lit les quatre drapeaux requis (les cinq
-// points d'injection nommés `--max-concurrent`/`--test-activity-barrier-url`/
+// Lit les quatre drapeaux requis (les cinq points d'injection nommés
+// `--max-concurrent`/`--test-activity-barrier-url`/
 // `--test-stop-after-completions`/`--test-large-artifact-bytes`/
 // `--export-history` restent optionnels, comme `--variant` ailleurs), refuse
-// si l'un des requis manque, puis lève `NotImplemented` : aucune règle
-// métier n'est encore écrite ici — ni soumission de job, ni Activity
-// factice, ni plafond d'admission, ni arrêt simulé, ni export d'historique.
+// si l'un des requis manque, puis délègue la totalité du travail à
+// `runDistributionBounded` (`@bench/activities`, `src/distribution.ts`) :
+// soumission des jobs, Activity factice, plafond d'admission (même file que
+// T26), arrêt simulé et export d'historique. AUCUNE RÈGLE MÉTIER ICI (même
+// règle que l'en-tête du fichier). Un arrêt simulé (`--test-stop-after-
+// completions`) termine le PROCESSUS depuis l'intérieur de
+// `runDistributionBounded` lui-même (`crashExit`, cahier L371-377) : cette
+// fonction ne rend alors jamais la main.
 
 async function commandDistributionRunBounded(argv: readonly string[]): Promise<number> {
   const flags = parseFlags(argv)
   const campaignId = flags.get('campaign-id')
   const mode = flags.get('mode')
-  const jobs = flags.get('jobs')
+  const jobsRaw = flags.get('jobs')
   const postgresDatabase = flags.get('postgres-database')
   if (
     campaignId === undefined ||
     mode === undefined ||
-    jobs === undefined ||
+    jobsRaw === undefined ||
     postgresDatabase === undefined
   ) {
     process.stderr.write(
@@ -733,15 +779,47 @@ async function commandDistributionRunBounded(argv: readonly string[]): Promise<n
     )
     return 1
   }
-  throw new NotImplemented('cli.distribution-run-bounded')
+  const jobs = Number.parseInt(jobsRaw, 10)
+  if (!Number.isInteger(jobs) || jobs < 0) {
+    process.stderr.write(`bench distribution-run-bounded : --jobs invalide (${jobsRaw})\n`)
+    return 1
+  }
+  const maxConcurrentRaw = flags.get('max-concurrent')
+  const maxConcurrent = maxConcurrentRaw === undefined ? undefined : Number.parseInt(maxConcurrentRaw, 10)
+  if (maxConcurrent !== undefined && (!Number.isInteger(maxConcurrent) || maxConcurrent < 1)) {
+    process.stderr.write(`bench distribution-run-bounded : --max-concurrent invalide (${String(maxConcurrentRaw)})\n`)
+    return 1
+  }
+  const testStopAfterCompletionsRaw = flags.get('test-stop-after-completions')
+  const testStopAfterCompletions =
+    testStopAfterCompletionsRaw === undefined ? undefined : Number.parseInt(testStopAfterCompletionsRaw, 10)
+  const testLargeArtifactBytesRaw = flags.get('test-large-artifact-bytes')
+  const testLargeArtifactBytes =
+    testLargeArtifactBytesRaw === undefined ? undefined : Number.parseInt(testLargeArtifactBytesRaw, 10)
+  const testActivityBarrierUrl = flags.get('test-activity-barrier-url')
+  const exportHistory = flags.get('export-history')
+  const result = await runDistributionBounded({
+    campaignId,
+    mode,
+    jobs,
+    postgresDatabase,
+    ...(maxConcurrent === undefined ? {} : { maxConcurrent }),
+    ...(testActivityBarrierUrl === undefined ? {} : { testActivityBarrierUrl }),
+    ...(testStopAfterCompletions === undefined ? {} : { testStopAfterCompletions }),
+    ...(testLargeArtifactBytes === undefined ? {} : { testLargeArtifactBytes }),
+    ...(exportHistory === undefined ? {} : { exportHistoryPath: exportHistory }),
+  })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 
 /* ──────────────────────────────── `distribution-resume` (T40, L505-L512) */
 //
-// SQUELETTE (étage ROUGE de T40). Lit les deux drapeaux requis
-// (`--export-history` reste optionnel), refuse si l'un manque, puis lève
-// `NotImplemented` : aucune règle métier n'est encore écrite ici — ni lecture
-// de l'état persisté, ni reprise des jobs restants.
+// Lit les deux drapeaux requis (`--export-history` reste optionnel), refuse
+// si l'un manque, puis délègue la totalité du travail à `resumeDistribution`
+// (`@bench/activities`, `src/distribution.ts`) : lecture de l'état persisté
+// sous `--campaign-id` et achèvement des jobs restants. AUCUNE RÈGLE MÉTIER
+// ICI (même règle que l'en-tête du fichier).
 
 async function commandDistributionResume(argv: readonly string[]): Promise<number> {
   const flags = parseFlags(argv)
@@ -751,7 +829,14 @@ async function commandDistributionResume(argv: readonly string[]): Promise<numbe
     process.stderr.write('bench distribution-resume exige --campaign-id et --postgres-database\n')
     return 1
   }
-  throw new NotImplemented('cli.distribution-resume')
+  const exportHistory = flags.get('export-history')
+  const result = await resumeDistribution({
+    campaignId,
+    postgresDatabase,
+    ...(exportHistory === undefined ? {} : { exportHistoryPath: exportHistory }),
+  })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 
 async function main(): Promise<number> {

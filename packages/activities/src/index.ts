@@ -439,3 +439,16 @@ export {
   runPilot,
 } from './pilot.js'
 export type { RunPilotInput } from './pilot.js'
+
+/* ── T40 : capacité de distribution sans facture IA massive (L505-L512) ──── */
+
+export { planDistribution, resumeDistribution, runDistributionBounded } from './distribution.js'
+export type {
+  DistributionJobResult,
+  PlanDistributionInput,
+  PlanDistributionResult,
+  ResumeDistributionInput,
+  ResumeDistributionResult,
+  RunDistributionBoundedInput,
+  RunDistributionBoundedResult,
+} from './distribution.js'

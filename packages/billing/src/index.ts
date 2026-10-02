@@ -28,11 +28,11 @@
 import { randomUUID } from 'node:crypto'
 import {
   ContractViolation,
-  NotImplemented,
   addMicroUsd,
   microUsd,
   mulMicroUsd,
   signedMicroUsd,
+  toBigInt,
 } from '@bench/contracts'
 import type { MicroUsd } from '@bench/contracts'
 import { isCentralStore } from '@bench/storage'
@@ -162,6 +162,11 @@ function amountText(v: unknown, path: string): string {
   if (typeof v === 'number' && Number.isInteger(v) && v >= 0) return microUsd(String(v), path)
   if (typeof v === 'string') return microUsd(v, path)
   throw new ContractViolation('TYPE_MISMATCH', path, `montant non négatif attendu (reçu ${JSON.stringify(v)})`)
+}
+
+/** Comme `amountText`, mais typé `MicroUsd` pour alimenter `addMicroUsd` (T27). */
+function toMicroUsd(v: unknown, path: string): MicroUsd {
+  return amountText(v, path) as MicroUsd
 }
 
 /** Un montant signé (L80 : écriture d'ajustement) — nombre entier ou chaîne. */
@@ -710,9 +715,7 @@ $bench$;`)
 // L387-L394, tâche T27) : aucune ligne du cahier ne les nomme, ils sont
 // fixés par acceptance/T27.spec.ts (section III-c de son en-tête), qui en
 // fait le contrat public exact (noms, formes, PUR sans stockage pour les
-// deux premiers). SQUELETTE ROUGE : chacun lève `NotImplemented` avant toute
-// règle métier — ni agrégation de coûts, ni politique de maintenance, ni
-// contrôle d'éligibilité n'est encore écrit ici.
+// deux premiers).
 
 /** `{ A, B }` — mêmes lettres que le cahier (L391 : « branches à 300 et 500 »). */
 export interface LineageBranchCosts {
@@ -727,20 +730,43 @@ export interface ComputeLineagePhysicalCostRequest {
 }
 
 export interface ComputeLineagePhysicalCostResult {
-  readonly total_physical_cost: string | number
-  readonly marginal_cost_by_branch: LineageBranchCosts
+  readonly total_physical_cost: string
+  readonly marginal_cost_by_branch: { readonly A: string; readonly B: string }
 }
 
 /**
  * Agrège le préfixe ancestral (compté une seule fois), la dépense
  * supplémentaire partagée par la famille (comptée une seule fois) et les
  * coûts de branche en un total physique unique (T27.A3, T27.A4). PUR : ne
- * prend pas de `handle`, ne touche pas au stockage.
+ * prend pas de `handle`, ne touche pas au stockage. Les QUATRE termes
+ * (`ancestor_cost`, `fork_overhead_cost`, `branch_costs.A`,
+ * `branch_costs.B`) sont additionnés une seule fois chacun via
+ * `@bench/contracts` (`addMicroUsd`) — `bigint`, jamais de flottant (cahier
+ * invariant 9, L71). `marginal_cost_by_branch` reprend `branch_costs` tel
+ * quel : il EXCLUT le préfixe ancestral et la dépense partagée (L391).
  */
 export function computeLineagePhysicalCost(
-  _request: ComputeLineagePhysicalCostRequest,
+  request: ComputeLineagePhysicalCostRequest,
 ): ComputeLineagePhysicalCostResult {
-  throw new NotImplemented('billing.computeLineagePhysicalCost')
+  const branchCosts = request.branch_costs
+  if (branchCosts === null || typeof branchCosts !== 'object') {
+    throw new ContractViolation(
+      'TYPE_MISMATCH',
+      'computeLineagePhysicalCost.branch_costs',
+      'objet plat { A, B } attendu',
+    )
+  }
+  const ancestor = toMicroUsd(request.ancestor_cost, 'computeLineagePhysicalCost.ancestor_cost')
+  const overhead = toMicroUsd(request.fork_overhead_cost, 'computeLineagePhysicalCost.fork_overhead_cost')
+  const a = toMicroUsd(branchCosts.A, 'computeLineagePhysicalCost.branch_costs.A')
+  const b = toMicroUsd(branchCosts.B, 'computeLineagePhysicalCost.branch_costs.B')
+  // Chaque terme compte UNE SEULE fois : pas de boucle par branche qui
+  // réinjecterait le préfixe ancestral ou la dépense partagée (T27.A3/A4).
+  const total = addMicroUsd(ancestor, overhead, a, b)
+  return {
+    total_physical_cost: total,
+    marginal_cost_by_branch: { A: a, B: b },
+  }
 }
 
 export interface PlanMaintenanceReserveRequest {
@@ -751,18 +777,48 @@ export interface PlanMaintenanceReserveRequest {
 
 export interface PlanMaintenanceReserveResult {
   /** ÉCHO, INCHANGÉ (L391 : « sans porter le budget à 1150 »). */
-  readonly budget_limit: string | number
-  readonly reserved_for_maintenance: string | number
+  readonly budget_limit: string
+  readonly reserved_for_maintenance: string
+}
+
+/**
+ * Décompose un `reserve_rate` décimal (0.15 pour 15 %) en fraction EXACTE
+ * `num/den` à partir de sa représentation décimale (`"0.15"` -> 15/100) :
+ * aucune multiplication flottante n'entre dans le calcul de la réserve
+ * (cahier invariant 9, L71) — seule une DIVISION ENTIÈRE finale (troncature,
+ * jamais un arrondi qui dérape vers 151 comme L391 l'interdit).
+ */
+function reserveRateFraction(rate: unknown, path: string): { num: bigint; den: bigint } {
+  if (typeof rate !== 'number' || !Number.isFinite(rate) || rate < 0) {
+    throw new ContractViolation('TYPE_MISMATCH', path, `fraction non négative attendue (reçu ${JSON.stringify(rate)})`)
+  }
+  const m = /^([0-9]+)(?:\.([0-9]+))?$/.exec(rate.toString())
+  if (m === null) {
+    throw new ContractViolation('TYPE_MISMATCH', path, `fraction décimale attendue (reçu ${rate.toString()})`)
+  }
+  const intPart = m[1] as string
+  const fracPart = m[2] ?? ''
+  const den = 10n ** BigInt(fracPart.length)
+  const num = BigInt(`${intPart}${fracPart}`)
+  return { num, den }
 }
 
 /**
  * Identifie la part d'un budget réservée à la maintenance, SANS l'ajouter au
- * `budget_limit` rendu (T27.A5, cahier L391). PUR, sans stockage.
+ * `budget_limit` rendu (T27.A5, cahier L391). PUR, sans stockage. La réserve
+ * est `floor(budget_limit * reserve_rate)` en arithmétique ENTIÈRE exacte
+ * (`bigint`), jamais une multiplication flottante arrondie.
  */
 export function planMaintenanceReserve(
-  _request: PlanMaintenanceReserveRequest,
+  request: PlanMaintenanceReserveRequest,
 ): PlanMaintenanceReserveResult {
-  throw new NotImplemented('billing.planMaintenanceReserve')
+  const limit = toMicroUsd(request.budget_limit, 'planMaintenanceReserve.budget_limit')
+  const { num, den } = reserveRateFraction(request.reserve_rate, 'planMaintenanceReserve.reserve_rate')
+  const reserved = (toBigInt(limit) * num) / den
+  return {
+    budget_limit: limit, // ÉCHO, INCHANGÉ — jamais gonflé par la réserve (L391)
+    reserved_for_maintenance: reserved.toString(),
+  }
 }
 
 /** Porte au moins `phase` — une des valeurs d'état de L97. */
@@ -786,15 +842,53 @@ export interface CheckMaintenanceEligibilityResult {
 }
 
 /**
+ * Les trois états d'arrêt de calcul de L97 : ils « n'effacent pas la période
+ * de l'analyse », mais ils SONT, mot pour mot, les phases inéligibles au
+ * contrôle de maintenance (c'est le sens exact que l'en-tête de
+ * acceptance/T27.spec.ts donne à L391/A6).
+ */
+const MAINTENANCE_INELIGIBLE_PHASES: ReadonlySet<string> = new Set([
+  'BUDGET_EXHAUSTED',
+  'RUNNER_BLOCKED',
+  'CANCELLED',
+])
+
+/**
  * Décide si un `period_state` est éligible au contrôle de maintenance
  * (T27.A6). Un état inéligible (ex. `BUDGET_EXHAUSTED`, cahier L97) doit être
  * SIGNALÉ — `eligible:false` et un code nommant la cause — jamais un
  * plantage ; un état éligible (ex. `DEVELOPING`) ne doit, symétriquement, pas
  * être signalé à tort. `period_state` n'est ni muté ni effacé par cet appel
- * (L391 : « pas effacé »).
+ * (L391 : « pas effacé ») : ce rôle ne fait que LIRE `phase`, jamais écrire
+ * sur l'objet reçu.
  */
 export function checkMaintenanceEligibility(
-  _request: CheckMaintenanceEligibilityRequest,
+  request: CheckMaintenanceEligibilityRequest,
 ): CheckMaintenanceEligibilityResult {
-  throw new NotImplemented('billing.checkMaintenanceEligibility')
+  const periodState = request.period_state
+  if (periodState === null || typeof periodState !== 'object') {
+    throw new ContractViolation(
+      'TYPE_MISMATCH',
+      'checkMaintenanceEligibility.period_state',
+      'objet plat { phase, ... } attendu',
+    )
+  }
+  const phase = periodState.phase
+  if (typeof phase !== 'string' || phase.length === 0) {
+    throw new ContractViolation(
+      'TYPE_MISMATCH',
+      'checkMaintenanceEligibility.period_state.phase',
+      `chaîne non vide attendue (reçu ${JSON.stringify(phase)})`,
+    )
+  }
+  if (MAINTENANCE_INELIGIBLE_PHASES.has(phase)) {
+    return {
+      eligible: false,
+      signal: {
+        code: 'MAINTENANCE_INELIGIBLE_PHASE',
+        reason: `phase ${phase} : état d'arrêt de calcul (cahier L97), inéligible au contrôle de maintenance`,
+      },
+    }
+  }
+  return { eligible: true }
 }

@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
 // `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
-// (T24, cahier L361-L370) et, SQUELETTE seulement a ce stade, `fork` (T27,
-// cahier L387-L394).
+// (T24, cahier L361-L370) et `fork` (T27, cahier L387-L394).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -39,13 +38,20 @@
 // interrompue par ce point d'injection n'imprime rien (A5, cahier L355 :
 // « une période incomplète ne publie pas un faux état final »).
 // ─────────────────────────────────────────────────────────────────────────────
+import { execFile as execFileCb } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import process from 'node:process'
+import { promisify } from 'node:util'
 
 import { runPeriodOnce } from '@bench/activities'
-import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
+
+const execFileP = promisify(execFileCb)
 
 const USAGE = `bench — commandes de campagne
 
@@ -103,9 +109,9 @@ const USAGE = `bench — commandes de campagne
 
   fork --admin-database <db> --parent-database <db> --branch-ids <idA>,<idB>
         Cree des branches experimentales a partir d'un etat metier parent (T27,
-        cahier L387-L394) et ecrit son resultat JSON sur la sortie standard.
-        PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des
-        drapeaux (etage ROUGE).
+        cahier L387-L394) : une base PostgreSQL neuve par branche, clonee
+        depuis --parent-database, puis ecrit son resultat JSON sur la sortie
+        standard.
 
         --admin-database    base PostgreSQL admin, habilitee a CREATE DATABASE
         --parent-database   base PostgreSQL du parent dont on part
@@ -298,24 +304,151 @@ async function commandReplayTrajectory(argv: readonly string[]): Promise<number>
   return result.determinism === 'OK' ? 0 : 1
 }
 
+/* ───────────────────────────────────────────────── `fork` (T27, L387-L394) */
+//
+// PROVISIONNEMENT + CLONAGE, PAS UNE TRANSACTION DISTRIBUÉE MAGIQUE (L34).
+// Chaque branche demandée reçoit une base PostgreSQL FRAÎCHEMENT CRÉÉE
+// (`CREATE DATABASE`, via `--admin-database`, habilitée à le faire), puis son
+// contenu est CLONÉ depuis `--parent-database` par `pg_dump` / `psql -f` —
+// le même mécanisme d'export/import que `@bench/storage` (T15,
+// `src/checkpoint.ts`) emploie pour restaurer un checkpoint sur un
+// environnement vierge, repris ici sans dépendre des internes non exportés
+// de ce paquet. Un `CREATE DATABASE ... TEMPLATE` aurait exigé qu'aucune
+// AUTRE session ne soit connectée au parent au moment du fork (ce que ce
+// paquet ne peut pas garantir côté appelant) ; `pg_dump` n'a pas cette
+// contrainte, puisqu'il lit un instantané cohérent sans exclure les autres
+// connexions.
+//
+// `identity` (parent ET chaque branche) est GÉNÉRÉE ICI (`randomUUID`),
+// jamais fournie par l'appelant : c'est l'axe, avec le nom de base, que
+// T27.A1 exige deux à deux distinct entre le parent et les deux branches.
+// `database` du parent est un ÉCHO de `--parent-database` : ce rôle ne
+// touche jamais la base du parent (invariant D.4, L66 — « un rollback de
+// l'application ne restaure jamais le registre central des coûts », même
+// logique de non-ingérence côté fork).
+
+interface ForkBranchResult {
+  readonly branch_id: string
+  readonly database: string
+  readonly identity: string
+}
+
+interface ForkResult {
+  readonly parent: { readonly database: string; readonly identity: string }
+  readonly branches: readonly ForkBranchResult[]
+}
+
+const FORK_EXEC_TIMEOUT_MS = 120_000
+const FORK_MAX_BUFFER = 256 * 1024 * 1024
+
+function execDetail(e: unknown): string {
+  const err = e as { stderr?: unknown; message?: string }
+  const stderrText = Buffer.isBuffer(err.stderr) ? err.stderr.toString('utf8') : String(err.stderr ?? '')
+  return (stderrText || String(err.message ?? e)).trim()
+}
+
+/** `CREATE DATABASE "<database>"`, exécuté contre `adminDatabase` (habilitée à le faire). */
+async function createBranchDatabase(adminDatabase: string, database: string): Promise<void> {
+  try {
+    await execFileP(
+      'psql',
+      ['-v', 'ON_ERROR_STOP=1', '-d', adminDatabase, '-c', `CREATE DATABASE "${database}"`],
+      { encoding: 'utf8', timeout: FORK_EXEC_TIMEOUT_MS, maxBuffer: FORK_MAX_BUFFER },
+    )
+  } catch (e) {
+    throw new Error(`CREATE DATABASE "${database}" refusé via ${adminDatabase} : ${execDetail(e)}`)
+  }
+}
+
+/** Exporte `database` en octets SQL (`pg_dump`), sans toucher à son contenu. */
+async function dumpDatabase(database: string): Promise<Buffer> {
+  try {
+    const { stdout } = await execFileP('pg_dump', ['-d', database], {
+      encoding: 'buffer',
+      timeout: FORK_EXEC_TIMEOUT_MS,
+      maxBuffer: FORK_MAX_BUFFER,
+    })
+    return Buffer.isBuffer(stdout) ? stdout : Buffer.from(stdout as unknown as Uint8Array)
+  } catch (e) {
+    throw new Error(`pg_dump de ${database} refusé : ${execDetail(e)}`)
+  }
+}
+
+/** Rejoue un export `pg_dump` sur `database` (déjà créée, vierge). */
+async function restoreDump(database: string, bytes: Buffer): Promise<void> {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-fork-'))
+  const file = path.join(dir, 'dump.sql')
+  try {
+    fs.writeFileSync(file, bytes)
+    await execFileP('psql', ['-v', 'ON_ERROR_STOP=1', '-d', database, '-f', file], {
+      encoding: 'utf8',
+      timeout: FORK_EXEC_TIMEOUT_MS,
+      maxBuffer: FORK_MAX_BUFFER,
+    })
+  } catch (e) {
+    throw new Error(`restauration de ${database} refusée : ${execDetail(e)}`)
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+}
+
+/** Nom de base d'une branche : généré ici, jamais dérivé de `branch_id` (pas d'injection SQL via un drapeau appelant). */
+function newBranchDatabaseName(): string {
+  return `fork_${randomUUID().replace(/-/g, '')}`.slice(0, 63)
+}
+
+async function forkLineage(
+  adminDatabase: string,
+  parentDatabase: string,
+  branchIds: readonly string[],
+): Promise<ForkResult> {
+  const branches: ForkBranchResult[] = []
+  for (const branchId of branchIds) {
+    const database = newBranchDatabaseName()
+    await createBranchDatabase(adminDatabase, database)
+    const dump = await dumpDatabase(parentDatabase)
+    await restoreDump(database, dump)
+    branches.push({ branch_id: branchId, database, identity: randomUUID() })
+  }
+  return {
+    parent: { database: parentDatabase, identity: randomUUID() },
+    branches,
+  }
+}
+
 /**
- * `fork` (T27, cahier L387-L394) — SQUELETTE (étage ROUGE). Lit les trois
- * drapeaux requis, refuse si l'un manque (même discipline que
- * `commandDemo`), puis lève `NotImplemented` : ni provisionnement de
- * branche, ni clonage, ni identité ne sont encore écrits ici.
+ * `fork` (T27, cahier L387-L394). Lit les trois drapeaux requis, refuse si
+ * l'un manque (même discipline que `commandDemo`), puis délègue à
+ * `forkLineage` : provisionnement + clonage réels, un par branche demandée.
  */
 async function commandFork(argv: readonly string[]): Promise<number> {
   const flags = parseFlags(argv)
   const adminDatabase = flags.get('admin-database')
   const parentDatabase = flags.get('parent-database')
-  const branchIds = flags.get('branch-ids')
-  if (adminDatabase === undefined || parentDatabase === undefined || branchIds === undefined) {
+  const branchIdsRaw = flags.get('branch-ids')
+  if (adminDatabase === undefined || parentDatabase === undefined || branchIdsRaw === undefined) {
     process.stderr.write(
       'bench fork exige --admin-database, --parent-database et --branch-ids\n'
     )
     return 1
   }
-  throw new NotImplemented('cli.fork')
+  const branchIds = branchIdsRaw
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+  if (branchIds.length === 0) {
+    process.stderr.write('bench fork exige au moins un identifiant de branche dans --branch-ids\n')
+    return 1
+  }
+  try {
+    const result = await forkLineage(adminDatabase, parentDatabase, branchIds)
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    return 0
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    process.stderr.write(`bench fork : ${message}\n`)
+    return 1
+  }
 }
 
 async function main(): Promise<number> {

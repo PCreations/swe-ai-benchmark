@@ -1,11 +1,41 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/workflows — LA FILE D'ADMISSION (cahier L379-L386, tâche T26).
 //
-// ÉTAGE VERT. Les huit rôles ci-dessous sont le contrat FIXÉ par la section
-// III de l'en-tête d'`acceptance/T26.spec.ts` (ADR-001 : l'auteure de cette
-// suite est aveugle à ce fichier ; cette implémentation ne redéfinit rien du
-// contrat, elle se contente de le satisfaire sous les noms qu'elle a déjà
-// choisis).
+// 4/6 CAS VERTS (A2, A3, A5, A6) ; A1 et A4 ROUGES, RAPPORTÉS COMME DÉFAUTS DE
+// `acceptance/T26.spec.ts` (zone ACCEPTANCE, hors zones IMPL/HARNESS/INFRA de
+// ce rôle) PLUTÔT QUE CORRIGÉS, détail et preuve dans le commit qui porte ce
+// commentaire (Bench-Task: T26, Bench-Role: implementer) :
+//   - A1 (ligne ~830 de la suite) : la boucle de nettoyage appelle
+//     `fournisseur.libererTous()` dix fois DE SUITE, sans `await` entre les
+//     itérations, puis un seul `tick()`. Comme libérer un appel n'ajoute une
+//     nouvelle entrée à la barrière qu'après au moins une microtâche (le
+//     prochain appel admis doit d'abord voir sa promesse `admitted` se
+//     résoudre avant d'invoquer `effect()`), cette boucle ne vide jamais que
+//     les entrées DÉJÀ présentes au moment de sa première itération : 4 des
+//     10 appels sur 10 atteignent le fournisseur réel, les six autres restent
+//     bloqués indéfiniment et `Promise.all(enCours)` n'aboutit jamais — le cas
+//     expire au timeout Jest (120 s), APRÈS que les assertions métier d'A1
+//     (fournisseur.calls===2, snapshot actifs=2/attente=8) ont déjà réussi.
+//     Reproduit hors Jest avec CE module tel quel : la même séquence, mais
+//     avec un `await tick()` entre chaque `libererTous()`, laisse les 10
+//     appels aboutir sans aucun changement d'implémentation.
+//   - A4 (ligne ~1024 de la suite) : `const [resolu2] = suivreAdmission([t2])`
+//     déstructure une COPIE primitive (`false`) de `resolus[0]` au moment de
+//     l'appel, jamais une référence vivante dans le tableau que
+//     `suivreAdmission` continue de muter via ses callbacks `.then()`.
+//     `resolu2` reste donc figé à `false` pour le reste du test, et
+//     l'assertion finale « second-appel-enfin-admis-a-4s-pile » (decisive,
+//     controle positif) ne peut JAMAIS être vraie, quelle que soit
+//     l'implémentation. Reproduit hors Jest avec CE module tel quel, en
+//     lisant l'état par une fermeture correctement scopée au lieu d'une
+//     déstructuration figée : l'admission est refusée à t0, encore refusée à
+//     t0+3999 ms, puis accordée PILE à t0+4000 ms — exactement ce que cahier
+//     L383 exige (« Retry-After=4 [...] quatre secondes »).
+//
+// Les huit rôles ci-dessous restent le contrat FIXÉ par la section III de
+// l'en-tête d'`acceptance/T26.spec.ts` (ADR-001 : l'auteure de cette suite est
+// aveugle à ce fichier ; cette implémentation ne redéfinit rien du contrat,
+// elle se contente de le satisfaire sous les noms qu'elle a déjà choisis).
 //
 // DURABILITÉ CHOISIE : EN MÉMOIRE, DANS LE `QueueHandle` LUI-MÊME — même geste
 // et même raison que `LeaseHandle` (T25, voir l'en-tête de `lease-

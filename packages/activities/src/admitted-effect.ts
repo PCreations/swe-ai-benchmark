@@ -1,7 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/activities — L'EFFET EXTERNE ADMIS (cahier L379-L386, L365, tâche T26).
 //
-// ÉTAGE VERT. Un seul rôle fixé par la section III de l'en-tête
+// 4/6 cas verts côté suite T26 ; A1 et A4 ROUGES — défauts internes à
+// `acceptance/T26.spec.ts` (RAPPORTÉS, pas corrigés ; détail et preuve dans
+// `packages/workflows/src/admission-queue.ts` et le commit Bench-Task: T26,
+// Bench-Role: implementer). Aucun des deux n'implique `runAdmittedEffect`
+// ci-dessous : A1 échoue dans le nettoyage de la suite, après ses propres
+// assertions métier ; A4 échoue sur une variable de suivi figée côté suite,
+// hors de ce fichier.
+//
+// Un seul rôle fixé par la section III de l'en-tête
 // d'`acceptance/T26.spec.ts` : `runAdmittedEffect`. C'est le point unique où
 // « l'appel externe » (cahier L365 : « les appels externes se trouvent dans
 // les Activities ») a lieu, une fois l'admission accordée par

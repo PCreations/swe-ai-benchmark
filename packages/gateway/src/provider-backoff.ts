@@ -1,7 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/gateway — ADDITIFS DE RECUL FOURNISSEUR (cahier L379-L386, tâche T26).
 //
-// ÉTAGE VERT. Ce fichier ajoute DEUX rôles fixés par la section III de
+// 4/6 cas verts côté suite T26 ; A1 et A4 ROUGES — défauts internes à
+// `acceptance/T26.spec.ts` (RAPPORTÉS, pas corrigés ; détail et preuve dans
+// `packages/workflows/src/admission-queue.ts` et le commit Bench-Task: T26,
+// Bench-Role: implementer). A4 en particulier n'implique PAS les deux rôles
+// ci-dessous : `recordProviderBackoff`/`isProviderAdmissible` se comportent
+// correctement (vérifié hors Jest) — l'assertion finale d'A4 échoue à cause
+// d'une variable de suivi figée côté suite, jamais lue depuis ce fichier.
+//
+// Ce fichier ajoute DEUX rôles fixés par la section III de
 // l'en-tête d'`acceptance/T26.spec.ts` : `recordProviderBackoff` et
 // `isProviderAdmissible`. Il ne touche ni ne réouvre `dispatchModelCall`,
 // `getModelCall`, `reconcileModelCall` (déjà fixés par

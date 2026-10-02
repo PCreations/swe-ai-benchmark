@@ -1,0 +1,18 @@
+{
+  "schema": "bench.campaign.manifest/1",
+  "corpus": {
+    "groups": [
+      {
+        "source_parent_project_id": "PRJ-OPS-1",
+        "source_scenario_id": "SCN-OPS-1",
+        "clone_instance_ids": ["PRJ-OPS-1-clone-1"]
+      }
+    ]
+  },
+  "model": { "name": "agent-scripted-v1" },
+  "price": { "tariff_micro_usd": "340" },
+  "budget": { "cap_micro_usd": "1000" },
+  "configurations": ["agent-scripted-v1"],
+  "repetitions": 1,
+  "periods_per_trajectory": 1
+}

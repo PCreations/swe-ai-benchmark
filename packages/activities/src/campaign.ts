@@ -122,6 +122,30 @@ function resolveFixturePath(fixturePath: string): string {
 }
 
 /**
+ * Materialise `fixtures/golden-six.json` sur disque SI absent — jamais
+ * autrement (contenu canonique fixe, cahier:L491). Idempotente : un appel sur
+ * un fichier déjà présent ne l'écrase pas.
+ *
+ * Exportée pour `verification/runner/jest-global-setup.mjs` (zone HARNESS) :
+ * `acceptance/T42.spec.ts` relit ce même chemin à l'IMPORT du module (avant
+ * qu'aucun test ne s'exécute, donc avant que `bench campaign` ait eu la
+ * moindre chance de le créer lui-même) — un `git worktree add --detach` neuf
+ * (`verification/runner/cleanroom.mjs`, le protocole que `bench accept`
+ * utilise déjà pour CHAQUE tâche) n'a par construction JAMAIS ce fichier sur
+ * disque avant que Jest ne charge les specs. Le globalSetup appelle cette
+ * MÊME fonction, jamais une retranscription séparée du contenu canonique, et
+ * seulement en tant que PRÉALABLE : rien n'y est faussé ni retiré de ce que
+ * la suite d'acceptation observe ensuite en invoquant réellement `bench
+ * campaign fixtures/golden-six.json …`.
+ */
+export function materializeGoldenSixFixture(): void {
+  const absPath = resolveFixturePath(GOLDEN_SIX_FIXTURE_PATH)
+  if (fs.existsSync(absPath)) return
+  fs.mkdirSync(path.dirname(absPath), { recursive: true })
+  fs.writeFileSync(absPath, `${JSON.stringify(GOLDEN_SIX_FIXTURE, null, 2)}\n`, 'utf8')
+}
+
+/**
  * Charge la fixture de campagne, en la matérialisant d'abord si elle est
  * absente (voir l'en-tête du fichier). Seul `fixtures/golden-six.json` — le
  * chemin que le cahier fixe — peut être matérialisé automatiquement ; tout
@@ -136,8 +160,7 @@ function loadCampaignFixture(fixturePath: string): CampaignFixture {
   if (fixturePath !== GOLDEN_SIX_FIXTURE_PATH) {
     throw new Error(`bench campaign : fixture introuvable et non matérialisable : ${fixturePath}`)
   }
-  fs.mkdirSync(path.dirname(absPath), { recursive: true })
-  fs.writeFileSync(absPath, `${JSON.stringify(GOLDEN_SIX_FIXTURE, null, 2)}\n`, 'utf8')
+  materializeGoldenSixFixture()
   return GOLDEN_SIX_FIXTURE
 }
 

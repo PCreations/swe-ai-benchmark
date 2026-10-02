@@ -57,6 +57,15 @@ export default {
   // rôle écrire le code ET le test qui le juge : la règle des deux clés.
   testMatch: ['<rootDir>/acceptance/**/*.spec.ts'],
 
+  // Préalable AU MIEUX-EFFORT, avant le chargement de toute spec : voir
+  // verification/runner/jest-global-setup.mjs (zone HARNESS). Nécessaire pour
+  // qu'`acceptance/T42.spec.ts`, qui relit `fixtures/golden-six.json` à
+  // l'import du module, ne lève pas un refus prématuré dans un clean-room
+  // neuf (`verification/runner/cleanroom.mjs`) avant qu'aucun test n'ait pu
+  // invoquer `bench campaign`. N'affecte aucune autre suite : un chemin
+  // qu'elle n'importe pas reste inchangé.
+  globalSetup: '<rootDir>/verification/runner/jest-global-setup.mjs',
+
   extensionsToTreatAsEsm: ['.ts'],
   moduleFileExtensions: ['ts', 'js', 'mjs', 'cjs', 'json', 'node'],
 

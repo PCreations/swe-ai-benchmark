@@ -427,7 +427,13 @@ export type { RunAdmittedEffectParams } from './admitted-effect.js'
 
 /* ── T38 : expansion et exécution de `golden-six` (L487-L496) ────────────── */
 
-export { aggregateCampaignQuality, CAMPAIGN_MODE, GOLDEN_SIX_FIXTURE_PATH, runCampaign } from './campaign.js'
+export {
+  aggregateCampaignQuality,
+  CAMPAIGN_MODE,
+  GOLDEN_SIX_FIXTURE_PATH,
+  materializeGoldenSixFixture,
+  runCampaign,
+} from './campaign.js'
 export type { CampaignQuality, PeriodReport, RunCampaignInput, TrajectoryReport } from './campaign.js'
 
 /* ── T42 : `analysis export|run` depuis/vers un fichier (section II.2) ───── */

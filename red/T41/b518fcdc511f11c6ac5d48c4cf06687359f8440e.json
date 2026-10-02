@@ -1,0 +1,85 @@
+{
+  "schema": "bench.red/1",
+  "task": "T41",
+  "subject_commit": "b518fcdc511f11c6ac5d48c4cf06687359f8440e",
+  "dirty": false,
+  "input_digest": "87f829145a1a58520ca3f596f70728b28a95f19083b55e9b9d6a4a331c6c7d65",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T41.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T41.M1",
+      "note": "runDoctorProbes() remplace par un rapport fige (chaque capacite present:true sans sonder) dans packages/activities/src/doctor.ts, pnpm build, puis jest -t T41.A1 : la suite a bascule rouge (ABSENCE-NON-NOMMEE(postgres18) sous PGHOST casse). Fichier restaure a l'identique (diff vide contre HEAD) et pnpm build relance avant la suite complete."
+    },
+    {
+      "id": "T41.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T41.M2",
+      "note": "missingCampaignOpsPrerequisites() modifie pour exiger ANTHROPIC_API_KEY meme en mode recorded (packages/activities/src/campaign-ops.ts), pnpm build, jest -t T41.A2 : rouge (PREFLIGHT-RECORDED-REFUSE-SANS-CLE, missing_prerequisites=[credential]). Fichier restaure a l'identique et pnpm build relance."
+    },
+    {
+      "id": "T41.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T41.M3",
+      "note": "Gate de runCampaignOps() retire (early return sur preflight.ready!==true supprime) dans packages/activities/src/campaign-ops.ts, pnpm build, jest -t T41.A3 : rouge (CODE-DE-SORTIE-ZERO-A-TORT(model), exit 0 au lieu d'un refus). Fichier restaure a l'identique et pnpm build relance."
+    },
+    {
+      "id": "T41.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T41.M4",
+      "note": "cancelCampaignOps() modifie pour executer un DELETE FROM budgets WHERE budget_id=... (artefact reel de la campagne) dans packages/activities/src/campaign-ops.ts, pnpm build, jest -t T41.A4 : rouge (ARTEFACTS-X-ALTERES avant=5 apres=4). Note : une premiere tentative visait model_calls directement, bloquee par une contrainte FK (model_call_idempotency) qui rend le DELETE sans effet -- la mutation a donc ete deplacee sur budgets, sans contrainte entrante, pour produire un contre-exemple reel. Fichier restaure a l'identique et pnpm build relance."
+    },
+    {
+      "id": "T41.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T41.M5",
+      "note": "infra/ci/qualify.sh modifie : le chemin avec arguments avale l'echec (pnpm exec jest \"$@\" || true; exit 0) au lieu d'exec. jest -t T41.A5 : rouge (CI-PERMISSIVE exit=0 sur fail.probe.cjs). Script restaure a l'identique (diff vide contre HEAD)."
+    },
+    {
+      "id": "T41.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T41.M6",
+      "note": "infra/ci/cleanup.sh modifie : filtre d'identite retire, motif bench_* au lieu de bench_<test_run_id>_* . jest -t T41.A6 : rouge (ISOLATION-TEST_RUN_ID-ROMPUE, la base d'un AUTRE test_run_id prefixee bench_ a ete supprimee a tort). Script restaure a l'identique (diff vide contre HEAD)."
+    },
+    {
+      "id": "T41.A7",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {
+    "T41.A1": {
+      "killed_by": "T41.M1",
+      "note": "runDoctorProbes() remplace par un rapport fige (chaque capacite present:true sans sonder) dans packages/activities/src/doctor.ts, pnpm build, puis jest -t T41.A1 : la suite a bascule rouge (ABSENCE-NON-NOMMEE(postgres18) sous PGHOST casse). Fichier restaure a l'identique (diff vide contre HEAD) et pnpm build relance avant la suite complete."
+    },
+    "T41.A2": {
+      "killed_by": "T41.M2",
+      "note": "missingCampaignOpsPrerequisites() modifie pour exiger ANTHROPIC_API_KEY meme en mode recorded (packages/activities/src/campaign-ops.ts), pnpm build, jest -t T41.A2 : rouge (PREFLIGHT-RECORDED-REFUSE-SANS-CLE, missing_prerequisites=[credential]). Fichier restaure a l'identique et pnpm build relance."
+    },
+    "T41.A3": {
+      "killed_by": "T41.M3",
+      "note": "Gate de runCampaignOps() retire (early return sur preflight.ready!==true supprime) dans packages/activities/src/campaign-ops.ts, pnpm build, jest -t T41.A3 : rouge (CODE-DE-SORTIE-ZERO-A-TORT(model), exit 0 au lieu d'un refus). Fichier restaure a l'identique et pnpm build relance."
+    },
+    "T41.A4": {
+      "killed_by": "T41.M4",
+      "note": "cancelCampaignOps() modifie pour executer un DELETE FROM budgets WHERE budget_id=... (artefact reel de la campagne) dans packages/activities/src/campaign-ops.ts, pnpm build, jest -t T41.A4 : rouge (ARTEFACTS-X-ALTERES avant=5 apres=4). Note : une premiere tentative visait model_calls directement, bloquee par une contrainte FK (model_call_idempotency) qui rend le DELETE sans effet -- la mutation a donc ete deplacee sur budgets, sans contrainte entrante, pour produire un contre-exemple reel. Fichier restaure a l'identique et pnpm build relance."
+    },
+    "T41.A5": {
+      "killed_by": "T41.M5",
+      "note": "infra/ci/qualify.sh modifie : le chemin avec arguments avale l'echec (pnpm exec jest \"$@\" || true; exit 0) au lieu d'exec. jest -t T41.A5 : rouge (CI-PERMISSIVE exit=0 sur fail.probe.cjs). Script restaure a l'identique (diff vide contre HEAD)."
+    },
+    "T41.A6": {
+      "killed_by": "T41.M6",
+      "note": "infra/ci/cleanup.sh modifie : filtre d'identite retire, motif bench_* au lieu de bench_<test_run_id>_* . jest -t T41.A6 : rouge (ISOLATION-TEST_RUN_ID-ROMPUE, la base d'un AUTRE test_run_id prefixee bench_ a ete supprimee a tort). Script restaure a l'identique (diff vide contre HEAD)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

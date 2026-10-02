@@ -188,6 +188,106 @@ function writeTrajectoryPointer(db: string, campaignId: string, periodIndex: num
   )
 }
 
+/* ══════════════════ manifeste inspectable de checkpoint (T42, cahier L157) */
+
+// `bench checkpoint inspect` (T42, section II.3) ne reçoit ni `--s3-bucket`
+// (absent du squelette T41) ni mémoire partagée avec le processus qui a
+// produit le checkpoint (A5 : « processus NEUF »). Cette table ad hoc, sur le
+// MÊME PostgreSQL que `--postgres-database` (jamais S3), publie donc les
+// champs minimaux du `CheckpointManifest` (cahier:L157 : horloge, exigences,
+// version active) pour CE `checkpointRef` précis — une deuxième écriture,
+// à côté du pointeur ci-dessus, jamais à sa place.
+const CHECKPOINT_MANIFEST_TABLE = 'bench_checkpoint_manifests'
+
+function ensureCheckpointManifestTable(db: string): void {
+  runPsql(
+    db,
+    `CREATE TABLE IF NOT EXISTS ${CHECKPOINT_MANIFEST_TABLE} (
+       checkpoint_id text PRIMARY KEY,
+       campaign_id text NOT NULL,
+       period_index integer NOT NULL,
+       manifest jsonb NOT NULL,
+       created_at timestamptz NOT NULL DEFAULT now()
+     )`,
+  )
+}
+
+function writeCheckpointManifest(
+  db: string,
+  checkpointId: string,
+  campaignId: string,
+  periodIndex: number,
+  manifest: Readonly<Record<string, unknown>>,
+): void {
+  ensureCheckpointManifestTable(db)
+  runPsql(
+    db,
+    `INSERT INTO ${CHECKPOINT_MANIFEST_TABLE}(checkpoint_id, campaign_id, period_index, manifest)
+       VALUES (${sqlLit(checkpointId)}, ${sqlLit(campaignId)}, ${String(periodIndex)}, ${sqlLit(JSON.stringify(manifest))}::jsonb)
+     ON CONFLICT (checkpoint_id) DO UPDATE SET
+       campaign_id = EXCLUDED.campaign_id,
+       period_index = EXCLUDED.period_index,
+       manifest = EXCLUDED.manifest`,
+  )
+}
+
+export interface InspectCheckpointInput {
+  readonly campaignId: string
+  readonly postgresDatabase: string
+  readonly checkpointId: string
+}
+
+export interface CheckpointInspection {
+  readonly checkpoint_id: string
+  readonly campaign_id: string
+  readonly period_index: number
+  readonly business_clock: string | null
+  readonly active_version_id: string | null
+  readonly Q: number | null
+  readonly R: number | null
+  readonly requirements: readonly unknown[]
+}
+
+/**
+ * `bench checkpoint inspect --campaign-id <id> --postgres-database <db>
+ *  --checkpoint-id <id>` (T42, section II.3) : relit le manifeste publié par
+ * `runPeriodOnce` ci-dessus, depuis un PROCESSUS NEUF (A5) — jamais une
+ * valeur gardée en mémoire par l'appel qui a produit ce checkpoint. Rend
+ * `null` si `checkpointId` est absent de `campaignId`, un refus NOMMÉ plutôt
+ * qu'une valeur inventée.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function inspectCheckpoint(input: InspectCheckpointInput): Promise<CheckpointInspection | null> {
+  const db = input.postgresDatabase
+  ensureCheckpointManifestTable(db)
+  const out = runPsql(
+    db,
+    `SELECT campaign_id, period_index, manifest::text FROM ${CHECKPOINT_MANIFEST_TABLE} WHERE checkpoint_id = ${sqlLit(input.checkpointId)}`,
+  )
+  if (out === '') return null
+  const firstSep = out.indexOf('|')
+  const secondSep = firstSep === -1 ? -1 : out.indexOf('|', firstSep + 1)
+  if (firstSep === -1 || secondSep === -1) return null
+  const campaignId = out.slice(0, firstSep)
+  const periodRaw = out.slice(firstSep + 1, secondSep)
+  const manifestJson = out.slice(secondSep + 1)
+  if (campaignId !== input.campaignId) return null
+  const periodIndex = Number.parseInt(periodRaw, 10)
+  if (!Number.isInteger(periodIndex)) return null
+  const manifest = JSON.parse(manifestJson) as Record<string, unknown>
+  return {
+    checkpoint_id: input.checkpointId,
+    campaign_id: campaignId,
+    period_index: periodIndex,
+    business_clock: typeof manifest['business_clock'] === 'string' ? (manifest['business_clock'] as string) : null,
+    active_version_id:
+      typeof manifest['active_version_id'] === 'string' ? (manifest['active_version_id'] as string) : null,
+    Q: typeof manifest['Q'] === 'number' ? (manifest['Q'] as number) : null,
+    R: typeof manifest['R'] === 'number' ? (manifest['R'] as number) : null,
+    requirements: Array.isArray(manifest['requirements']) ? (manifest['requirements'] as unknown[]) : [],
+  }
+}
+
 /* ══════════════════════════════════ stockage S3 réel ═════════════════════ */
 
 /** Le CONTENU substantiel d'un checkpoint (T15) : ce que PostgreSQL ne porte pas. */
@@ -503,6 +603,13 @@ export async function runPeriodOnce(input: RunPeriodInput): Promise<RunPeriodOut
   }
   const checkpointRef = await writeCheckpoint(input.s3Bucket, campaignId, checkpointPayload)
   writeTrajectoryPointer(db, campaignId, periodIndex, checkpointRef)
+  writeCheckpointManifest(db, checkpointRef, campaignId, periodIndex, {
+    business_clock: built['business_clock'],
+    requirements: built['requirements'],
+    active_version_id: activeVersionId,
+    Q: built['Q'],
+    R: built['R'],
+  })
 
   // ── COMPLETED ────────────────────────────────────────────────────────────
   const identity = identityOf(campaignId, variant)

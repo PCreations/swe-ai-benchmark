@@ -404,6 +404,10 @@ export async function resumeDeploymentSwitch(
 export { RUN_PERIOD_MODE, RUN_PERIOD_PHASES, RUN_PERIOD_VARIANTS, runPeriodOnce } from './run-period.js'
 export type { RunPeriodInput, RunPeriodOutcome } from './run-period.js'
 
+/* ── T42 : `checkpoint inspect` depuis un processus neuf (section II.3) ──── */
+export { inspectCheckpoint } from './run-period.js'
+export type { CheckpointInspection, InspectCheckpointInput } from './run-period.js'
+
 /* ── T24 : les Activities du workflow de trajectoire (L361-L370) ─────────── */
 export { fakeProviderCallsTotal, getPeriodCount, modelCallActivity } from './trajectory-activities.js'
 export type { ModelCallActivityInput, ModelCallActivityResult } from './trajectory-activities.js'
@@ -423,8 +427,16 @@ export type { RunAdmittedEffectParams } from './admitted-effect.js'
 
 /* ── T38 : expansion et exécution de `golden-six` (L487-L496) ────────────── */
 
-export { CAMPAIGN_MODE, GOLDEN_SIX_FIXTURE_PATH, runCampaign } from './campaign.js'
-export type { RunCampaignInput } from './campaign.js'
+export { aggregateCampaignQuality, CAMPAIGN_MODE, GOLDEN_SIX_FIXTURE_PATH, runCampaign } from './campaign.js'
+export type { CampaignQuality, PeriodReport, RunCampaignInput, TrajectoryReport } from './campaign.js'
+
+/* ── T42 : `analysis export|run` depuis/vers un fichier (section II.2) ───── */
+export { exportAnalysis, runAnalysisFromExport } from './analysis.js'
+export type { AnalysisExport, AnalysisExportCampaign, ExportAnalysisInput, RunAnalysisInput } from './analysis.js'
+
+/* ── T42 : `report build` et les quatre etats de cahier:L26 ───────────────── */
+export { buildReport } from './report.js'
+export type { BuildReportInput, BuildReportResult, LiveValidatedState, ReportState } from './report.js'
 
 /* ── T39 : préflight et exécution du pilote complet (L497-L504) ──────────── */
 

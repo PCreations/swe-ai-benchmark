@@ -51,10 +51,14 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 
 import {
+  buildReport,
   campaignOpsPreflight,
   cancelCampaignOps,
+  exportAnalysis,
+  inspectCheckpoint,
   planDistribution,
   resumeDistribution,
+  runAnalysisFromExport,
   runCampaign,
   runCampaignOps,
   runDistributionBounded,
@@ -284,8 +288,15 @@ const USAGE = `bench — commandes de campagne
         NOT_IMPLEMENTED.
 
   checkpoint inspect --campaign-id <id> --postgres-database <db>
-        Inspecte un checkpoint publie (T41, cahier L513-L521 -- commande
-        minimale). PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED.
+                     --checkpoint-id <id>
+        Inspecte un checkpoint publie par run-period (T23/T42, cahier L157 :
+        horloge, exigences, version active). Relit SEULEMENT PostgreSQL --
+        aucun --s3-bucket, aucune memoire partagee avec le processus qui a
+        produit le checkpoint.
+
+        --campaign-id       identite de la campagne (L78)
+        --postgres-database base PostgreSQL reelle a utiliser
+        --checkpoint-id     identite du checkpoint (ref publiee par run-period)
 
   checkpoint fork --campaign-id <id> --postgres-database <db>
         Cree une branche experimentale depuis un checkpoint publie (T41,
@@ -298,19 +309,26 @@ const USAGE = `bench — commandes de campagne
         commande minimale). PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED.
 
   analysis export --postgres-database <db>
-        Exporte les resultats pour l'analyse hors-ligne (T41, cahier
-        L513-L521 -- commande minimale). PAS ENCORE IMPLEMENTEE : leve
-        NOT_IMPLEMENTED.
+        Exporte, depuis PostgreSQL SEUL, les trajectoires deja publiees par
+        bench campaign (T38/T42) sur cette base -- aucun --campaign-id :
+        toutes les campagnes ecrites sur <db> sont enumerees.
+
+        --postgres-database base PostgreSQL reelle a lire
 
   analysis run <export.json>
-        Execute les agregats et tests statistiques sur un export (T41,
-        cahier L513-L521 -- commande minimale). PAS ENCORE IMPLEMENTEE :
-        leve NOT_IMPLEMENTED.
+        Recalcule trajectory_count/period_count/model_calls_settled_count/
+        total_cost_micro_usd et Q/R/V/U/G depuis le SEUL fichier d'export
+        (T42) -- aucun --postgres-database, aucun --s3-bucket : cette
+        commande ne lit jamais autre chose que <export.json>.
 
-  report build <analysis.json>
-        Construit le rapport final a partir d'un resultat d'analyse (T41,
-        cahier L513-L521 -- commande minimale). PAS ENCORE IMPLEMENTEE :
-        leve NOT_IMPLEMENTED.
+  report build <analysis.json> [--live-receipts <recus.json>]
+        Construit les quatre etats de cahier:L26 (CORE_VERIFIED, PILOT_READY,
+        HANDOFF_COMPLETE, LIVE_VALIDATED) a partir d'un resultat d'analyse.
+        LIVE_VALIDATED n'est publiee que si --live-receipts designe au moins
+        un recu COMPLET (model, date, budget_micro_usd, invoice_id).
+
+        --live-receipts     fichier JSON de recus { model, date,
+                             budget_micro_usd, invoice_id } (optionnel)
 
   Sorties : 0 la trajectoire a produit un resultat · 1 refus ou erreur
             2 commande inconnue
@@ -875,8 +893,30 @@ async function commandCampaignResume(_argv: readonly string[]): Promise<number> 
   throw new NotImplemented('cli.campaign.resume')
 }
 
-async function commandCheckpointInspect(_argv: readonly string[]): Promise<number> {
-  throw new NotImplemented('cli.checkpoint.inspect')
+/**
+ * `checkpoint inspect` (T42, section II.3) : AJOUTE `--checkpoint-id` au
+ * squelette T41 (`--campaign-id`/`--postgres-database`) — sans ce drapeau,
+ * deux checkpoints publiés sous la même campagne seraient indiscernables.
+ * Relit le manifeste depuis PostgreSQL SEUL (`inspectCheckpoint`,
+ * `@bench/activities`) : aucun `--s3-bucket` requis, aucune mémoire partagée
+ * avec le processus qui a produit le checkpoint (A5).
+ */
+async function commandCheckpointInspect(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const checkpointId = flags.get('checkpoint-id')
+  if (campaignId === undefined || postgresDatabase === undefined || checkpointId === undefined) {
+    process.stderr.write('bench checkpoint inspect exige --campaign-id, --postgres-database et --checkpoint-id\n')
+    return 1
+  }
+  const result = await inspectCheckpoint({ campaignId, postgresDatabase, checkpointId })
+  if (result === null) {
+    process.stderr.write(`bench checkpoint inspect : checkpoint introuvable pour campaign-id=${campaignId} checkpoint-id=${checkpointId}\n`)
+    return 1
+  }
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 async function commandCheckpointFork(_argv: readonly string[]): Promise<number> {
   throw new NotImplemented('cli.checkpoint.fork')
@@ -899,11 +939,38 @@ async function commandBillingDispatch(argv: readonly string[]): Promise<number> 
   return 2
 }
 
-async function commandAnalysisExport(_argv: readonly string[]): Promise<number> {
-  throw new NotImplemented('cli.analysis.export')
+/**
+ * `analysis export --postgres-database <db>` (T42, section II.2) : relit la
+ * table ad hoc que `bench campaign` (T38, `@bench/activities/campaign.ts`)
+ * écrit déjà sur ce même PostgreSQL, sans jamais rouvrir le processus qui a
+ * exécuté la campagne.
+ */
+async function commandAnalysisExport(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const postgresDatabase = flags.get('postgres-database')
+  if (postgresDatabase === undefined) {
+    process.stderr.write('bench analysis export exige --postgres-database\n')
+    return 1
+  }
+  const result = await exportAnalysis({ postgresDatabase })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
-async function commandAnalysisRun(_argv: readonly string[]): Promise<number> {
-  throw new NotImplemented('cli.analysis.run')
+
+/**
+ * `analysis run <export.json>` (T42, section II.2) : AUCUN `--postgres-database`
+ * ni `--s3-bucket` dans le squelette T41 — cette commande ne lit QUE le
+ * fichier désigné (A4 : « depuis les SEULS exports »).
+ */
+async function commandAnalysisRun(argv: readonly string[]): Promise<number> {
+  const [exportPath] = argv
+  if (exportPath === undefined) {
+    process.stderr.write("bench analysis run exige un chemin de fichier d'export en premier argument\n")
+    return 1
+  }
+  const result = await runAnalysisFromExport({ exportPath })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 async function commandAnalysisDispatch(argv: readonly string[]): Promise<number> {
   const [sub, ...rest] = argv
@@ -913,8 +980,23 @@ async function commandAnalysisDispatch(argv: readonly string[]): Promise<number>
   return 2
 }
 
-async function commandReportBuild(_argv: readonly string[]): Promise<number> {
-  throw new NotImplemented('cli.report.build')
+/**
+ * `report build <analysis.json> [--live-receipts <recus.json>]` (T42, section
+ * II.4) : AJOUTE `--live-receipts` au squelette T41 (un chemin positionnel
+ * seul) — sans lui, LIVE_VALIDATED (cahier:L26) ne pourrait jamais être
+ * exercée côté présent.
+ */
+async function commandReportBuild(argv: readonly string[]): Promise<number> {
+  const [analysisPath, ...rest] = argv
+  if (analysisPath === undefined) {
+    process.stderr.write("bench report build exige un chemin de fichier d'analyse en premier argument\n")
+    return 1
+  }
+  const restFlags = parseFlags(rest)
+  const liveReceiptsPath = restFlags.get('live-receipts')
+  const result = await buildReport({ analysisPath, liveReceiptsPath })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 async function commandReportDispatch(argv: readonly string[]): Promise<number> {
   const [sub, ...rest] = argv

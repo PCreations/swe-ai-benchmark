@@ -39,6 +39,7 @@
 // redéfinition de règle métier déjà publiée par une suite d'acceptation — T24
 // et T23 restent intacts, aucun de leurs exports n'est modifié.
 // ─────────────────────────────────────────────────────────────────────────────
+import { execFileSync } from 'node:child_process'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
@@ -154,6 +155,51 @@ function dsnFor(db: string): string {
   return `postgresql://${encodeURIComponent(pgUser())}@/${encodeURIComponent(db)}?host=${encodeURIComponent(socketDir())}`
 }
 
+function runPsql(db: string, sql: string): string {
+  try {
+    return execFileSync('psql', ['-tAqX', '-v', 'ON_ERROR_STOP=1', '-d', dsnFor(db), '-c', sql], {
+      encoding: 'utf8',
+      timeout: 60_000,
+      maxBuffer: 32 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim()
+  } catch (e) {
+    const err = e as { stdout?: string; stderr?: string; message?: string }
+    throw new Error(
+      `campaign.psql(${db}) a échoué : ${(err.stdout ?? '') + (err.stderr ?? '') + (err.message ?? '')}`.slice(0, 800),
+    )
+  }
+}
+
+const sqlLit = (s: string): string => `'${s.replace(/'/g, "''")}'`
+
+/**
+ * Table ad hoc de T42 (cahier L523-L529) : miroir, sur PostgreSQL RÉEL, du
+ * rapport déjà retourné par cette fonction — même convention que le pointeur
+ * `bench_run_period_trajectories` de `./run-period.ts` (T23). `./analysis.ts`
+ * (commande `bench analysis export`) la relit dans un PROCESSUS SÉPARÉ : la
+ * reconstruction (`bench analysis run`) recalcule alors Q/R/V/U/G et les
+ * totaux par une AGRÉGATION INDÉPENDANTE (`aggregateCampaignQuality` rejouée
+ * sur des données relues, jamais le même objet mémoire comparé à lui-même).
+ */
+const CAMPAIGN_ANALYSIS_TABLE = 'bench_campaign_analysis'
+
+function persistCampaignAnalysis(db: string, campaignId: string, report: Readonly<Record<string, unknown>>): void {
+  runPsql(
+    db,
+    `CREATE TABLE IF NOT EXISTS ${CAMPAIGN_ANALYSIS_TABLE} (
+       campaign_id text PRIMARY KEY,
+       report jsonb NOT NULL,
+       updated_at timestamptz NOT NULL DEFAULT now()
+     )`,
+  )
+  runPsql(
+    db,
+    `INSERT INTO ${CAMPAIGN_ANALYSIS_TABLE}(campaign_id, report) VALUES (${sqlLit(campaignId)}, ${sqlLit(JSON.stringify(report))}::jsonb)
+     ON CONFLICT (campaign_id) DO UPDATE SET report = EXCLUDED.report, updated_at = now()`,
+  )
+}
+
 /* ══════════════════════════ concurrence bornée par `--workers` ═══════════ */
 
 /**
@@ -256,7 +302,7 @@ function planTrajectories(fixture: CampaignFixture, campaignId: string): Traject
   return plans
 }
 
-interface PeriodReport {
+export interface PeriodReport {
   readonly period_index: number
   readonly Q: number
   /** Jamais `null` ici : golden-six ne propose que des périodes exposées
@@ -268,7 +314,7 @@ interface PeriodReport {
   readonly intents_succeeded: number
 }
 
-interface TrajectoryReport {
+export interface TrajectoryReport {
   readonly campaign_id: string
   readonly parent_project_id: string
   readonly scenario_id: string
@@ -308,7 +354,7 @@ function countOpenRegressions(trajectories: readonly TrajectoryReport[]): number
   return openCount
 }
 
-interface CampaignQuality {
+export interface CampaignQuality {
   readonly Q: number
   readonly R: number
   readonly V: number
@@ -316,7 +362,14 @@ interface CampaignQuality {
   readonly G: number
 }
 
-function aggregateCampaignQuality(trajectories: readonly TrajectoryReport[]): CampaignQuality {
+/**
+ * Exportée pour `./analysis.ts` (T42, cahier L523-L529) : « reconstruction du
+ * rapport depuis les SEULS exports donne les memes valeurs » (A4) recalcule
+ * cette MÊME agrégation sur des trajectoires relues depuis PostgreSQL, plutôt
+ * que de redéfinir une seconde formule qui pourrait diverger silencieusement
+ * de celle-ci sans qu'aucun cas requis ne le détecte.
+ */
+export function aggregateCampaignQuality(trajectories: readonly TrajectoryReport[]): CampaignQuality {
   const allPeriods = trajectories.flatMap((t) => t.periods)
   const Q = mean(allPeriods.map((p) => p.Q))
   const R = mean(allPeriods.map((p) => p.R))
@@ -475,7 +528,9 @@ export async function runCampaign(input: RunCampaignInput): Promise<Readonly<Rec
     }
 
     const auditRef = await archiveCampaignResult(input.s3Bucket, input.campaignId, report)
-    return { ...report, audit_artifact_ref: auditRef }
+    const fullReport = { ...report, audit_artifact_ref: auditRef }
+    persistCampaignAnalysis(input.postgresDatabase, input.campaignId, fullReport)
+    return fullReport
   } finally {
     await closeStore(handle)
   }

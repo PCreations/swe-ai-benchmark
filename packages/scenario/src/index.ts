@@ -109,3 +109,22 @@ export type {
   RegistrationReceipt,
   VerificationReport,
 } from './preregistration.js'
+
+// ── T29 : automatiser la fabrique de scénarios sans auto-certification libre
+//    (cahier L405-L414). SQUELETTE à cet étage — les deux rôles lèvent
+//    `NotImplemented` (voir generation.ts).
+export { buildRevelationPackage, generateScenarioFromModel } from './generation.js'
+export type {
+  GenerationRevelationPackage,
+  RevelationPackageInput,
+  RevelationRuleCatalogEntry,
+  ScenarioDslDocument,
+  ScenarioDslRule,
+  ScenarioDslRuleExpect,
+  ScenarioDslSlot,
+  ScenarioGenerationRefusal,
+  ScenarioGenerationRequest,
+  ScenarioGenerationResult,
+  ScenarioGenerationSuccess,
+  ScenarioModelResponse,
+} from './generation.js'

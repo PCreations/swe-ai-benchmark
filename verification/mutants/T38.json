@@ -1,0 +1,201 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T38 -- une par cas requis, conformes au mode de",
+    "preuve fixe par verification/cases.lock.json (proof_kind par cas : A1-A4",
+    "numeric, A5-A7 behaviour, A8 refusal).",
+    "",
+    "CONTEXTE PROPRE A T38. Contrairement a T00/T37, aucun export de paquet",
+    "n'est importe pour A1-A7 : analysis/tests/test_T38.py observe",
+    "`bench campaign fixtures/golden-six.json` comme un PROCESSUS en",
+    "sous-commande de apps/cli (jamais un import), et compare les chiffres",
+    "produits au litteraux scelles du cahier (L493) ou importes des racines",
+    "gelees F-MONEY/F-FAILURE. Les mutants ci-dessous visent donc le POINT DU",
+    "PROGRAMME qui REMPLIT LE ROLE decrit -- le calcul d'expansion de",
+    "campagne, le compteur d'appels regles, le tarif applique, l'agregation",
+    "Q/R/V/U/G, la partition par worker, le traitement de l'indisponibilite",
+    "forcee, le traitement d'un echec de candidat, et la garde inter-projets",
+    "-- et non un chemin de fichier d'implementation, puisque l'auteur des",
+    "tests n'a lu aucune source de T38 (ADR-001) et qu'aucune implementation",
+    "n'existe au moment ou ce fichier est ecrit.",
+    "",
+    "SEUL A8 EST UN CAS `refusal` : LA PORTE DECISIVE. Un stub qui leve",
+    "rendrait A8 vert sans rien prouver -- la perturbation correcte est",
+    "INVERSE, rendre l'inference PERMISSIVE. C'est pourquoi A8 porte, dans la",
+    "suite elle-meme, un CONTROLE DE CAPACITE (deux parents distincts ne sont",
+    "PAS refuses) : T38.M8 doit laisser ce controle vert tout en faisant",
+    "tomber le refus sur l'entree a parent unique.",
+    "",
+    "A5, A6 et A7 sont des cas `behaviour` : chacun observe un resultat",
+    "PRODUIT par une execution reelle du moteur (comptes, Q/R, attempt_outcome),",
+    "jamais une simple absence -- la porte `module-stub` y est donc valide :",
+    "degrader le point de calcul vise suffit a faire tomber le cas, sans",
+    "qu'aucune inversion de direction ne soit necessaire.",
+    "",
+    "A1-A4 sont des cas `numeric` : chacun reproduit une valeur exacte",
+    "enoncee par cahier:L493 pour la fixture golden-six (6 trajectoires, 24",
+    "periodes, 48 appels, 2720/16320 micro-USD, Q=R=V=U=1, G=0). La",
+    "perturbation `off-by-one` fausse la REGLE DE CALCUL sans toucher a la",
+    "fixture golden-six elle-meme : un cas qui n'encoderait que le litteral",
+    "attendu, sans le confronter a une sortie reellement recalculee par le",
+    "programme, resterait vert sous ces mutations -- exactement ce que",
+    "cahier:L139 interdit."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T38",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T38"
+  ],
+  "acceptance_entry": "analysis/tests/test_T38.py",
+  "mutant_count": 8,
+  "mutants": [
+    {
+      "id": "T38.M1",
+      "kills_case": "T38.A1",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser la regle de calcul (off-by-one)",
+      "target": "Le point de `bench campaign` qui deroule le scenario de golden-six en periodes par trajectoire -- la boucle d'expansion periode (K) x configuration x repetition.",
+      "mutation": "Faire deployer chaque trajectoire sur 3 periodes au lieu de 4 (par exemple en arretant la boucle d'expansion a `period_index < K - 1`, ou en lisant une longueur de scenario fausse), sans toucher a `fixtures/golden-six.json` ni au nombre de trajectoires (6 configurations x repetitions reste intact).",
+      "expected_effect": "T38.A1 devient rouge : 18 periodes rapportees (6 x 3) au lieu de 24, et chaque trajectoire porte 3 entrees `periods` au lieu de K=4.",
+      "observation_qui_echoue": "A1 (analysis/tests/test_T38.py::test_T38_A1_six_trajectories_and_24_periods) exige `len(trajectories) == 6` (inchange sous cette mutation), PUIS pour CHAQUE trajectoire `len(_periods_sorted(t)) == K` avec K=4 importe de acceptance/reference/F-FAILURE.json (cahier:L121) -- cette egalite tombe des la premiere trajectoire inspectee. Le cas verifie en outre independamment `total_periods == EXPECTED_PERIODS` (24, cahier:L493) et `report['period_count'] == EXPECTED_PERIODS` : les TROIS assertions (longueur par trajectoire, somme reelle, champ declare) doivent concorder, de sorte qu'une mutation qui ne romprait que l'un des trois chemins (par exemple un `period_count` menteur mais des tableaux `periods` complets) serait deja detectee par un AUTRE des trois.",
+      "pourquoi_cette_perturbation": "A1 est `numeric` (cases.lock.json) et la perturbation prescrite est explicitement « produire 3 periodes par trajectoire (18 periodes au lieu de 24) » SANS toucher golden-six : c'est la regle d'expansion elle-meme qui doit etre fautive, pas la fixture qui la pilote. Une suite qui comparerait seulement un total de 24 sans redescendre au nombre de periodes PAR trajectoire laisserait passer une implementation qui compense (par exemple 5 trajectoires a 4 periodes et une a 4, ou un total correct obtenu par un autre biais) ; A1 verifie donc le compte local (par trajectoire) ET le compte global.",
+      "doit_rester_vert": [
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M2",
+      "kills_case": "T38.A2",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser la regle de calcul (off-by-one)",
+      "target": "Le point de `bench campaign` qui compte les appels modele RECUS ET REGLES par periode, avant agregation dans `model_calls_settled_count`.",
+      "mutation": "Omettre le DERNIER appel regle du decompte de chaque periode (par exemple en bornant la boucle de reglement a `calls.length - 1`, ou en ne comptant que les appels dont l'index est pair), sans toucher a `fixtures/golden-six.json` ni au nombre reel d'appels effectivement dispatches/regles par le moteur (qui reste 2 par periode).",
+      "expected_effect": "T38.A2 devient rouge : `model_calls_settled` rapporte 1 par periode au lieu de 2, et `model_calls_settled_count` rapporte 24 (ou 47 selon la borne exacte de l'omission) au lieu de 48.",
+      "observation_qui_echoue": "A2 (test_T38_A2_forty_eight_model_calls_received_and_settled) exige `int(p['model_calls_settled']) == EXPECTED_CALLS_PER_PERIOD` (2, cahier:L491) pour CHAQUE periode de CHAQUE trajectoire, PUIS que leur somme reelle (`observed_total`) et le champ declare `model_calls_settled_count` valent tous deux EXPECTED_TOTAL_CALLS=48 (cahier:L493, controle de coherence interne verifie a l'import : `48 == 6*4*2`). La premiere periode inspectee dont le compte local vaut 1 fait deja tomber le cas, avant meme d'atteindre la somme globale.",
+      "pourquoi_cette_perturbation": "A2 est `numeric` et la perturbation prescrite est « omettre le dernier appel du decompte [...] (47 au lieu de 48) [...] sans toucher la fixture » : c'est le COMPTEUR qui doit mentir, pas l'activite reelle du moteur (qui continue d'emettre et de regler 2 appels par periode). Verifier le compte PAR PERIODE en plus du total interdit une implementation qui redistribuerait l'omission ailleurs (par exemple un total correct par un double-comptage compensatoire sur une autre periode).",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M3",
+      "kills_case": "T38.A3",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser la regle de calcul (off-by-one)",
+      "target": "Le tarif applique par `bench campaign` a chaque appel F-MONEY (cahier:L103), au point ou le cout d'un appel est calcule a partir de la grille tarifaire et de l'usage de l'appel de reference.",
+      "mutation": "Appliquer 339 micro-USD par appel au lieu de 340 (par exemple un tarif de sortie fausse a 4 au lieu de 5 micro-USD/token sur les 20 tokens de sortie -- `100*2 + 40*1 + 20*4 = 320` n'est PAS 339 ; la mutation CIBLE precisement un decalage constant de -1 par appel, quelle que soit la ligne de la grille qu'elle touche), sans modifier `fixtures/golden-six.json` ni le nombre d'appels (qui reste 2 par periode, 48 au total).",
+      "expected_effect": "T38.A3 devient rouge : chaque appel vaut 339, chaque periode 678, chaque trajectoire 2712 (678*4) et le total 16272 (2712*6) au lieu de 2720/16320.",
+      "observation_qui_echoue": "A3 (test_T38_A3_each_trajectory_costs_2720_total_16320) exige, PAR PERIODE, `p['cost_micro_usd'] == str(TWO_CALLS_COST)` ou TWO_CALLS_COST=680 est IMPORTE de acceptance/reference/F-MONEY.json (cahier:L103, jamais retranscrit a la main) ; PUIS, par trajectoire, `t['cost_micro_usd'] == str(EXPECTED_COST_PER_TRAJECTORY)` (2720) ; PUIS `sum(...) == EXPECTED_TOTAL_COST` (16320) ET `report['total_cost_micro_usd'] == str(16320)`. L'egalite de CHAINE (pas seulement numerique, lecon T31.A2) empeche en outre un arrondi silencieux de masquer le decalage : '678' et '680' different des le premier caractere comparé.",
+      "pourquoi_cette_perturbation": "A3 est `numeric` et la perturbation prescrite nomme EXACTEMENT ce resultat degrade : « 339 micro-USD par appel [...] 2712 par trajectoire et 16272 au total [...] sans toucher la fixture ». A3 verifie le cout a TROIS granularites (par periode, par trajectoire, total) de sorte qu'une implementation qui ne fausserait le tarif que pour certains appels (compensation partielle) tombe deja au niveau le plus fin.",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M4",
+      "kills_case": "T38.A4",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "fausser un denominateur (off-by-one)",
+      "target": "L'agregation de campagne qui calcule Q (exigences actives dues satisfaites) et G (regressions actuellement ouvertes, cahier:L189) a partir des periodes de golden-six -- ou TOUTES les exigences actives sont, par construction de la fixture (cahier:L491), satisfaites.",
+      "mutation": "Deux variantes equivalentes, l'une suffit : (a) inclure dans le denominateur de Q une exigence qui n'est pas encore DUE a la periode consideree (Q tombe sous 1, par exemple 0.9, sans qu'aucune exigence due ne soit reellement insatisfaite) ; (b) compter une exigence remplacee (versionnee) comme une regression OUVERTE au lieu de close, de sorte que `G` rapporte 1 au lieu de 0.",
+      "expected_effect": "T38.A4 devient rouge : `Q` (ou `G`) ne vaut plus respectivement 1 et 0 au niveau de la campagne, alors que golden-six ne contient reellement aucune exigence insatisfaite ni aucune regression.",
+      "observation_qui_echoue": "A4 (test_T38_A4_q_r_v_u_equal_one_and_g_zero) exige `report[champ] == 1` pour CHACUN de `Q, R, V, U`, PUIS `report['G'] == 0` (cahier:L189), PUIS, independamment, que CHAQUE periode de CHAQUE trajectoire porte elle-meme `Q == 1` et `R == 1` -- ce dernier controle empeche qu'une moyenne de campagne compense une periode degradee par une autre periode artificiellement gonflee. La variante (a) fait tomber l'assertion `report['Q'] == 1` (et la verification par-periode si le denominateur fautif s'y reflete) ; la variante (b) fait tomber `report['G'] == 0`.",
+      "pourquoi_cette_perturbation": "A4 est `numeric` et cases.lock.json prescrit EXACTEMENT ces deux variantes de denominateur fautif, « sans toucher la fixture » -- golden-six reste la meme, seule la regle qui compte ce qui est « du » ou ce qui est une « regression ouverte » est faussee. Verifier Q/R/V/U/G au niveau de la campagne ET au niveau de chaque periode empeche qu'une implementation masque le defaut dans l'agregat seul.",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M5",
+      "kills_case": "T38.A5",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser l'invariance au parallelisme",
+      "target": "Le point de `bench campaign` qui agrege les resultats produits par les workers paralleles en un seul rapport de campagne (comptes, couts, Q/R/V/U/G).",
+      "mutation": "Faire dependre l'agregation du nombre de workers : partitionner les totaux PAR WORKER sans jamais les fusionner correctement -- par exemple diviser `total_cost_micro_usd` par le nombre de workers (une erreur de partition classique quand chaque worker rapporte sa part et que la fusion la redivise), ou ne retenir que les trajectoires traitees par le worker n0. Le resultat reste correct a `--workers 1` (ou la partition degenere en l'identite) mais diverge des `--workers 2`.",
+      "expected_effect": "T38.A5 devient rouge : la projection canonique (comptes, couts par trajectoire, Q/R/V/U/G) differe entre l'execution a 1 worker et celles a 2 et 6 workers.",
+      "observation_qui_echoue": "A5 (test_T38_A5_one_two_six_workers_give_identical_business_results) lance TROIS PROCESSUS distincts (`--workers 1`, `--workers 2`, `--workers 6`), chacun avec son propre `--campaign-id`/base/bucket, projette chaque rapport via `_canonical_projection` (comptes de campagne +, par trajectoire appariee par `repetition_index`, `attempt_outcome`/`cost_micro_usd`/periodes) et exige l'EGALITE STRICTE de dictionnaire entre la projection a 1 worker et celles a 2 et 6 workers. Une partition par worker qui reste correcte au cas degenere `--workers 1` (ou tout tourne sur un seul worker) mais diverge des que `--workers > 1` fait tomber `proj1 == proj2` et/ou `proj1 == proj6` -- exactement la mutation que cases.lock.json nomme (« totaux partitionnes par worker et jamais fusionnes »).",
+      "pourquoi_cette_perturbation": "A5 est `behaviour` (cases.lock.json) : elle affirme un resultat PRODUIT -- l'identite des resultats metier a 1/2/6 workers -- et observe trois executions reelles, jamais un stub. Le danger propre a ce cas (docstring de la suite, III.2) est qu'une comparaison faite a partir de LA MEME execution serait triviale ; les trois invocations sont des PROCESSUS independants, chacun avec sa propre base/bucket/campaign-id, ce qui rend la mutation reellement observable.",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A4",
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M6",
+      "kills_case": "T38.A6",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser l'enregistrement des intentions pendant l'indisponibilite",
+      "target": "Le point du workload (EXERCISING) qui enregistre une intention emise pendant une periode ou l'application deployee est FORCEE indisponible (`--test-force-unavailable-period`).",
+      "mutation": "Faire JETER (dropper) les intentions emises pendant la fenetre d'indisponibilite forcee au lieu de les enregistrer comme offertes-mais-non-servies : `intents_offered` chute (au lieu de rester identique au nominal) pour la periode visee, ET, variante conjointe possible, `R` cesse de baisser (reste a 1, ou devient `null` au lieu de 0) parce que la periode est traitee comme hors-mesure plutot que comme un echec de disponibilite reel.",
+      "expected_effect": "T38.A6 devient rouge : soit `intents_offered` differe entre le run nominal et le run force a la periode visee, soit `R` n'y vaut plus 0.",
+      "observation_qui_echoue": "A6 (test_T38_A6_forced_unavailability_keeps_intents_and_lowers_r) compare, periode FORCED_PERIOD_INDEX=2, DEUX PROCESSUS distincts (nominal et `--test-force-unavailable-period 2`), apparies par `(configuration_id, repetition_index)` sur les SIX trajectoires. Elle exige d'abord un CONTROLE (III.3) sur le run nominal (`R==1`, `intents_offered>0`), PUIS, sur le run force : `R == 0` (cahier:L111, jamais `null`) et `intents_offered` IDENTIQUE au nominal (cahier:L493 « conserve toutes ses intentions ») et `intents_succeeded == 0`. La mutation fait tomber soit l'egalite des intentions offertes (si elles sont jetees), soit `R == 0` (si la periode est exclue de la mesure plutot que comptee comme un echec de disponibilite).",
+      "pourquoi_cette_perturbation": "A6 est `behaviour` : cases.lock.json prescrit EXACTEMENT « faire jeter les intentions emises pendant l'indisponibilite forcee au lieu de les enregistrer : le compte d'intentions chute et R cesse de baisser ». Le controle positif sur le run nominal (R=1, intentions>0 avant comparaison) empeche qu'une implementation qui ne genererait jamais d'intention nulle part rende le cas vert par defaut.",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A4",
+        "T38.A5",
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M7",
+      "kills_case": "T38.A7",
+      "proof_kind": "behaviour",
+      "necessity": "module-stub",
+      "direction": "casser la distinction BLOCKED/FAILED (cahier:L28)",
+      "target": "Le point de `bench campaign` qui traite l'issue d'une trajectoire dont le candidat scripte ne deploie jamais (profil F-FAILURE, `--test-inject-failure`) : la frontiere entre « le moteur echoue a executer » et « le moteur produit un resultat candidat FAILED ».",
+      "mutation": "Deux variantes, l'une suffit (cases.lock.json les nomme toutes deux) : (a) faire REMONTER l'echec du candidat comme une erreur MOTEUR qui interrompt tout le processus `bench campaign` (exit non nul, aucun rapport JSON produit) ; (b) AVALER l'echec silencieusement -- la trajectoire injectee apparait avec `attempt_outcome` absent ou egal a `SUCCESS`, sans qu'aucun resultat FAILED ne soit enregistre.",
+      "expected_effect": "T38.A7 devient rouge : soit le processus se termine en erreur (exit != 0, pas de JSON exploitable), soit aucune trajectoire du rapport ne porte `attempt_outcome == 'FAILED'`.",
+      "observation_qui_echoue": "A7 (test_T38_A7_f_failure_profile_yields_a_recorded_failed_outcome_in_a_completed_run) exige D'ABORD `run['exit'] == 0` (le PROCESSUS termine normalement, cahier:L28/L493) -- la variante (a) tombe ici. PUIS elle exige `len(failed) == 1` ou `failed` filtre les trajectoires a `attempt_outcome == 'FAILED'` (litteral L97) -- la variante (b) tombe ici, puisqu'aucune trajectoire ne correspond. Le cas verifie en outre que la trajectoire FAILED conserve EXACTEMENT F_FAILURE_ROWS_KEPT=4 periodes (importe de F-FAILURE, cahier:L121) avec Q_par_periode et R_par_periode EGAUX aux series importees [0,0,0,0], et que les 5 autres trajectoires restent `Q==1`/`R==1` (non contaminees).",
+      "pourquoi_cette_perturbation": "A7 est `behaviour` : cases.lock.json prescrit « faire remonter l'echec F-FAILURE comme erreur moteur qui interrompt l'execution (ou l'avaler sans enregistrer d'echec produit) ». C'est precisement la distinction de cahier:L28 entre BLOCKED (prerequis absent, jamais PASS) et un resultat candidat FAILED produit par une execution moteur par ailleurs valide -- une suite qui ne verifierait que la presence d'un code d'erreur SANS verifier aussi le cas « avale silencieusement » (b) manquerait la moitie de la garantie.",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A4",
+        "T38.A5",
+        "T38.A6",
+        "T38.A8"
+      ]
+    },
+    {
+      "id": "T38.M8",
+      "kills_case": "T38.A8",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "`aggregate.aggregate_across_parents` (analysis/src/aggregate.py, fonction FIXEE par cette suite -- aucun contrat anterieur de T32 ne la couvre) : le point qui doit comparer le nombre de `parent_project_id` DISTINCTS presents dans les lignes de trajectoire avant de produire une estimation inter-projets.",
+      "mutation": "Rendre l'inference PERMISSIVE : traiter CHAQUE trajectoire comme un projet independant (ou ignorer purement `parent_project_id` et calculer une estimation sur les lignes brutes), de sorte qu'un jeu de six trajectoires partageant UN SEUL `parent_project_id` produise quand meme un resultat d'estimation inter-projets au lieu de lever `CrossProjectInferenceError`.",
+      "expected_effect": "T38.A8 devient rouge : `aggregate.aggregate_across_parents(rows)` sur les six trajectoires a parent unique de golden-six RESOUT un dictionnaire au lieu de lever.",
+      "observation_qui_echoue": "A8 (test_T38_A8_cross_project_inference_is_refused_on_a_single_parent_fixture) construit `rows` a partir des SIX trajectoires reelles de l'execution nominale de golden-six (toutes au MEME `parent_project_id`, controle explicite `len(parent_ids) == 1` avant l'appel), puis attend `pytest.raises(aggregate.CrossProjectInferenceError)` autour de `aggregate.aggregate_across_parents(rows)`. Sous la mutation, aucune exception n'est levee : le bloc `with pytest.raises(...)` lui-meme echoue (`DID NOT RAISE`), avant meme les assertions explicites sur `error.parent_project_id`/`error.trajectory_count`/le message (lecon T31.A7 : ces `assert` seraient de toute facon restes INATTEIGNABLES si l'exception n'etait jamais levee, ce qui est precisement le signal recherche).",
+      "pourquoi_cette_perturbation": "A8 est le SEUL cas `refusal` de T38 : cases.lock.json avertit que « rendre l'implementation PERMISSIVE » est la seule perturbation informative ici -- un stub qui leve INCONDITIONNELLEMENT rendrait A8 vert sans rien prouver. C'est pourquoi A8 porte, dans son propre corps, un CONTROLE DE CAPACITE prealable : `aggregate.aggregate_across_parents` appele sur les six lignes PLUS deux lignes synthetiques a un second `parent_project_id` ad hoc DOIT reussir et renvoyer un dict -- ce controle doit rester VERT sous T38.M8 (la mutation rend tout permissif, donc le cas a deux parents continue de reussir), ce qui prouve que T38.M8 cible bien la DETECTION du parent unique et non la disponibilite generale de la fonction.",
+      "doit_rester_vert": [
+        "T38.A1",
+        "T38.A2",
+        "T38.A3",
+        "T38.A4",
+        "T38.A5",
+        "T38.A6",
+        "T38.A7"
+      ]
+    }
+  ]
+}

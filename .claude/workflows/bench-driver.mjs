@@ -639,6 +639,43 @@ Zones : ACCEPTANCE, MUTANT, GENERATOR. Commit Bench-Role: test-author, puis push
 Rends ok=true si tu as CORRIGE (la tache repartira a l'implementation au tour
 suivant), ok=false si tu REFUTES — avec la citation qui le prouve.`
 
+/**
+ * ARBITRAGE — UN REFUS QUI NOMME UNE AUTRE ZONE DOIT AVOIR UNE SORTIE.
+ *
+ * Observe cinq fois : T12.A2, T31 (ACCEPTANCE_ID_MISMATCH), T20.A7 (fixture
+ * cassee), T26.A1/A4 (deux bugs de suite), T41.A7 (artefact en zone DOCS que
+ * personne dans la boucle ne peut ecrire). Chaque fois le refus etait JUSTE et
+ * n'allait nulle part : l'etage suivant mourait, et l'etage TESTS du tour
+ * suivant, idempotent, voyait le fichier present et ne le rouvrait pas.
+ *
+ * APPELE DEPUIS DEUX ENDROITS, et c'est le sixieme cas qui l'a impose : la
+ * porte ROUGE de T42 a refuse sur INVALID_RED/VACUOUS_CASES — un probleme de
+ * zone de jugement (le mutant T42.M1 exige de perimer une attestation du
+ * ledger REEL, ce que le classifieur de permission bloque, a raison, comme une
+ * falsification de piste d'audit). L'arbitrage ne couvrait que les refus de
+ * l'etage IMPL, donc ce refus-la mourait aussi.
+ *
+ * NE PEUT PAS AFFAIBLIR : le test-author ne peut que corriger un defaut ou
+ * REFUTER. La monotonie des cas et des empreintes reste verifiee
+ * mecaniquement, et `bench accept` refait toute la porte en clean-room.
+ */
+const arbitrer = (prev, T, etage) => {
+  if (!prev) return null
+  if (prev.ok) return prev
+  const cause = `${prev.state ?? ''} ${prev.detail ?? ''}`
+  const zoneDeJugement = /ACCEPTANCE|MUTANT|REFERENCE|GENERATOR|\.spec\.|analysis\/tests\/|VACUOUS|CREUX|INVALID_RED/i.test(cause)
+  if (!zoneDeJugement) return prev
+  log(`ARBITRAGE ${T} (refus venu de ${etage}) : la cause nomme une zone de jugement, elle est renvoyee a son proprietaire.`)
+  return agent(arbitragePrompt(T, prev), { label: `arbitrage:${T}:${etage}`, phase: 'Tests', schema: OUTCOME, model: MODELE }).then(
+    (a) => ({
+      ok: false, // la tache n'est PAS finie : elle repartira du bon etage au tour suivant
+      state: a?.ok ? 'ARBITRE_RELANCER' : 'ARBITRAGE_SANS_ISSUE',
+      detail: `${etage} : ${prev.state} -> ${a?.state ?? 'aucun retour de l arbitre'} | ${a?.detail ?? ''}`.slice(0, 900),
+      pushed: a?.pushed ?? false,
+    })
+  )
+}
+
 const gatesPrompt = (T) => `${BASE}
 
 ETAGE GATES, tache ${T}. Tu n'implementes rien, tu executes les portes.
@@ -988,39 +1025,9 @@ const results = await pipeline(
         }),
   (prev, T) => (!prev?.ok ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE })),
   (prev, T) => (!prev?.ok ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME, model: MODELE })),
+  (prev, T) => arbitrer(prev, T, 'red'),
   (prev, T) => (!prev?.ok ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME, model: MODELE })),
-  // ARBITRAGE — UN REFUS QUI NOMME UNE AUTRE ZONE DOIT AVOIR UNE SORTIE.
-  //
-  // Observe trois fois : T31 (ACCEPTANCE_ID_MISMATCH), T20.A7 (« defaut dans le
-  // script fixture d'acceptance/T20.spec.ts »), et avant elles T12.A2. Dans les
-  // trois cas l'implementeur a eu RAISON de refuser — le test qui le juge n'est
-  // pas sa zone — mais son refus n'allait nulle part : l'etage suivant est mort,
-  // et l'etage TESTS du tour suivant, idempotent, voit le fichier present et ne
-  // le rouvre pas. La tache restait bloquee indefiniment sur un defaut identifie.
-  //
-  // Cet etage ne se declenche QUE si la cause nommee tombe dans une zone de
-  // JUGEMENT. Un refus d'implementation ordinaire (service absent, cas rouge de
-  // son propre fait) passe tout droit et reste un echec.
-  //
-  // IL NE PEUT PAS AFFAIBLIR : le test-author ne peut que corriger un defaut ou
-  // REFUTER la reclamation, jamais retirer ni assouplir un cas — la monotonie
-  // reste verifiee mecaniquement, et `bench accept` refait toute la porte.
-  (prev, T) => {
-    if (!prev) return null
-    if (prev.ok) return prev
-    const cause = `${prev.state ?? ''} ${prev.detail ?? ''}`
-    const zoneDeJugement = /ACCEPTANCE|MUTANT|REFERENCE|GENERATOR|\.spec\.|analysis\/tests\//i.test(cause)
-    if (!zoneDeJugement) return prev
-    log(`ARBITRAGE ${T} : le refus nomme une zone de jugement, il est renvoye a son proprietaire.`)
-    return agent(arbitragePrompt(T, prev), { label: `arbitrage:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE }).then(
-      (a) => ({
-        ok: false, // la tache n'est PAS finie : elle repartira a l'etage IMPL au tour suivant
-        state: a?.ok ? 'ARBITRE_RELANCER_IMPL' : 'ARBITRAGE_SANS_ISSUE',
-        detail: `${prev.state} -> ${a?.state ?? 'aucun retour de l arbitre'} | ${a?.detail ?? ''}`.slice(0, 900),
-        pushed: a?.pushed ?? false,
-      })
-    )
-  },
+  (prev, T) => arbitrer(prev, T, 'impl'),
   (prev, T) => (!prev?.ok ? null : agent(gatesPrompt(T), { label: `gates:${T}`, phase: 'Audit', schema: OUTCOME, model: MODELE })),
   (prev, T) =>
     !prev?.ok

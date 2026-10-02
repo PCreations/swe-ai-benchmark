@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
 // `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
-// (T24, cahier L361-L370) et `fork` (T27, cahier L387-L394).
+// (T24, cahier L361-L370), `fork` (T27, cahier L387-L394) et le SQUELETTE rouge
+// de `campaign` (T38, cahier L487-L496).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -47,6 +48,7 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 
 import { runPeriodOnce } from '@bench/activities'
+import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
 import { replayTrajectoryForked, runTrajectoryForked } from './trajectory.js'
@@ -116,6 +118,23 @@ const USAGE = `bench — commandes de campagne
         --admin-database    base PostgreSQL admin, habilitee a CREATE DATABASE
         --parent-database   base PostgreSQL du parent dont on part
         --branch-ids        deux identifiants de branche, separes par une virgule
+
+  campaign <fixture> --mode <mode> --campaign-id <id> --postgres-database <db>
+           --s3-bucket <bucket> --workers <1|2|6>
+           [--test-force-unavailable-period <periode>]
+           [--test-inject-failure]
+        Expanse et execute une fixture de campagne (T38, cahier L487-L496),
+        <fixture> etant un chemin relatif tel que fixtures/golden-six.json.
+        PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED apres lecture des
+        drapeaux.
+
+        --mode                               recorded
+        --campaign-id                        identite de la campagne (L78)
+        --postgres-database                  base PostgreSQL reelle a utiliser
+        --s3-bucket                          bucket S3 (ou compatible) reel
+        --workers                            nombre de workers paralleles
+        --test-force-unavailable-period      point d'injection nomme (cahier:L141)
+        --test-inject-failure                point d'injection nomme (cahier:L141)
 
   Sorties : 0 la trajectoire a produit un resultat · 1 refus ou erreur
             2 commande inconnue
@@ -451,6 +470,44 @@ async function commandFork(argv: readonly string[]): Promise<number> {
   }
 }
 
+/* ─────────────────────────────────────────── `campaign` (T38, L487-L496) */
+//
+// SQUELETTE (étage ROUGE de T38). Lit le chemin de fixture (premier argument
+// positionnel, jamais un drapeau — cahier:L489 fixe le chemin littéral
+// `fixtures/golden-six.json`) puis les drapeaux requis, refuse si l'un
+// manque (même discipline que `commandRunPeriod`/`commandFork`), puis lève
+// `NotImplemented` : aucune règle métier n'est encore écrite ici — ni
+// expansion de campagne (configurations × répétitions), ni appel modèle, ni
+// agrégation Q/R/V/U/G, ni partition par worker, ni traitement des points
+// d'injection `--test-force-unavailable-period` / `--test-inject-failure`.
+
+async function commandCampaign(argv: readonly string[]): Promise<number> {
+  const [fixturePath, ...rest] = argv
+  if (fixturePath === undefined || fixturePath.startsWith('--')) {
+    process.stderr.write('bench campaign exige un chemin de fixture en premier argument\n')
+    return 1
+  }
+  const flags = parseFlagsAvecBooleens(rest, new Set(['test-inject-failure']))
+  const mode = flags.get('mode')
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  const workers = flags.get('workers')
+  if (
+    mode === undefined ||
+    campaignId === undefined ||
+    postgresDatabase === undefined ||
+    s3Bucket === undefined ||
+    workers === undefined
+  ) {
+    process.stderr.write(
+      'bench campaign exige --mode, --campaign-id, --postgres-database, --s3-bucket et --workers\n'
+    )
+    return 1
+  }
+  throw new NotImplemented('cli.campaign')
+}
+
 async function main(): Promise<number> {
   const [command = '', ...rest] = process.argv.slice(2)
   if (command === 'demo') return commandDemo(rest)
@@ -458,6 +515,7 @@ async function main(): Promise<number> {
   if (command === 'run-trajectory') return commandRunTrajectory(rest)
   if (command === 'replay-trajectory') return commandReplayTrajectory(rest)
   if (command === 'fork') return commandFork(rest)
+  if (command === 'campaign') return commandCampaign(rest)
   if (command === '' || command === '--help' || command === 'help') {
     process.stdout.write(USAGE)
     return command === '' ? 2 : 0

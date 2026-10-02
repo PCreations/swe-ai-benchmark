@@ -183,3 +183,49 @@ def aggregate_scenarios_then_projects(parents: list[dict]) -> dict:
     grand_mean = grand_weighted_sum / grand_total_weight
 
     return {"per_parent": per_parent, "grand_mean": grand_mean}
+
+
+# ============================================================================
+# T38 -- inference inter-projets (docs/cahier.md L487-L496 ; docs/specs/T38.md)
+#
+# ETAGE ROUGE pour cette section : `aggregate_across_parents` et
+# `CrossProjectInferenceError` sont le SEUL nouveau contrat qu'analysis/tests/
+# test_T38.py (zone ACCEPTANCE, ADR-001) fixe sur ce module (T38.A8, section
+# III.5 de la suite) -- aucun export de T32 ci-dessus n'est touche. La forme
+# (nom de la fonction, nom et attributs de l'exception) est fixee par cette
+# suite ; la regle qui decide QUAND refuser (un seul parent_project_id parmi
+# les lignes) reste a ecrire a l'etage VERT. `aggregate_across_parents` leve
+# donc immediatement `NotImplemented_`, meme convention que les six exports
+# T32 ci-dessus a leur propre etage rouge.
+# ============================================================================
+
+
+class CrossProjectInferenceError(Exception):
+    """Refus nomme d'une inference inter-projets (T38.A8, cahier:L493).
+
+    Fixee ici par la forme que la suite exige (section III.5, IV) : deux
+    attributs nommes -- `parent_project_id` (le parent unique de l'entree
+    refusee) et `trajectory_count` (son nombre de trajectoires) -- et un
+    message qui les nomme tous les deux en texte, pour qu'un `str(error)`
+    seul suffise a diagnostiquer le refus. La regle qui decide QUAND lever
+    cette exception n'est pas encore ecrite (etage ROUGE) : seule la forme
+    est fixee, exactement comme `packages/workflows/src/fault-drill.ts` a
+    fixe `RunFaultDrillOptions`/`FaultDrillResult` sans implementer
+    `runFaultDrill`.
+    """
+
+    def __init__(self, parent_project_id: str, trajectory_count: int) -> None:
+        super().__init__(
+            f"CROSS_PROJECT_INFERENCE_REJECTED parent_project_id={parent_project_id} "
+            f"trajectory_count={trajectory_count}"
+        )
+        self.parent_project_id = parent_project_id
+        self.trajectory_count = trajectory_count
+
+
+def aggregate_across_parents(trajectory_rows: list[dict]) -> dict:
+    """Agregation inter-projets a partir de lignes de trajectoire portant
+    chacune un `parent_project_id` (T38.A8, cahier:L493) : refuse une entree
+    a un seul parent malgre plusieurs trajectoires, accepte une entree a
+    plusieurs parents distincts. Squelette : non implemente."""
+    raise NotImplemented_("aggregate.aggregate_across_parents")

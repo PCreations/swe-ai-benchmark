@@ -425,3 +425,17 @@ export type { RunAdmittedEffectParams } from './admitted-effect.js'
 
 export { CAMPAIGN_MODE, GOLDEN_SIX_FIXTURE_PATH, runCampaign } from './campaign.js'
 export type { RunCampaignInput } from './campaign.js'
+
+/* ── T39 : préflight et exécution du pilote complet (L497-L504) ──────────── */
+
+export {
+  computePilotPreflight,
+  loadPilotManifest,
+  missingPilotPrerequisites,
+  PILOT_PREREQUISITES,
+  pilotParentProjectIds,
+  pilotPeriodCount,
+  pilotTrajectoryCount,
+  runPilot,
+} from './pilot.js'
+export type { RunPilotInput } from './pilot.js'

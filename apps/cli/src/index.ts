@@ -2,8 +2,9 @@
 // `bench` — les commandes de campagne (§C, L52) : `demo` (T11),
 // `run-period` (T23, cahier L353-L359), `run-trajectory` / `replay-trajectory`
 // (T24, cahier L361-L370), `fork` (T27, cahier L387-L394), `campaign` (T38,
-// cahier L487-L496) et le SQUELETTE rouge de `plan-distribution` /
-// `distribution-run-bounded` / `distribution-resume` (T40, cahier L505-L512).
+// cahier L487-L496), `pilot` (T39, cahier L497-L504) et le SQUELETTE rouge de
+// `plan-distribution` / `distribution-run-bounded` / `distribution-resume`
+// (T40, cahier L505-L512).
 //
 // LA COMMANDE QUE L247 NOMME, MOT POUR MOT :
 //
@@ -48,7 +49,7 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
 
-import { runCampaign, runPeriodOnce } from '@bench/activities'
+import { runCampaign, runPeriodOnce, runPilot } from '@bench/activities'
 import { NotImplemented } from '@bench/contracts'
 import { runDemo } from '@bench/scenario'
 
@@ -136,6 +137,33 @@ const USAGE = `bench — commandes de campagne
         --workers                            nombre de workers paralleles
         --test-force-unavailable-period      point d'injection nomme (cahier:L141)
         --test-inject-failure                point d'injection nomme (cahier:L141)
+
+  pilot <manifest.json> --campaign-id <id> --postgres-database <db>
+        --s3-bucket <bucket>
+        [--execute --mode recorded|live --provider fake
+          [--test-force-all-candidates-fail]]
+        Recette d'un pilote complet et son preflight (T39, cahier L497-L504),
+        <manifest.json> etant un chemin de fichier respectant la convention
+        bench.pilot.manifest/1 (voir acceptance/fixtures/pilot/README.md).
+
+        SANS --execute : PREFLIGHT lecture seule -- aucun appel modele, aucune
+        ecriture de trajectoire. Imprime ready, missing_prerequisites,
+        trajectory_count, period_count, parent_project_ids et
+        execution_started (toujours false).
+
+        AVEC --execute : lance reellement les trajectoires compilees via le
+        fournisseur factice (T17/T28), sous un plafond budgetaire reel partage
+        par toute la campagne. Imprime execution_mode, cost_origin,
+        corpus_provenance, trajectory_count, period_count,
+        total_cost_micro_usd et trajectories[].
+
+        --campaign-id                         identite de la campagne (L78)
+        --postgres-database                   base PostgreSQL reelle a utiliser
+        --s3-bucket                           bucket S3 (ou compatible) reel
+        --execute                             lance reellement la campagne
+        --mode                                recorded | live
+        --provider                            fake
+        --test-force-all-candidates-fail      point d'injection nomme (cahier:L141)
 
   plan-distribution --campaign-id <id> --mode <mode> --parents <N>
                      --scenarios <N> --configurations <N> --repetitions <N>
@@ -588,6 +616,54 @@ async function commandCampaign(argv: readonly string[]): Promise<number> {
   }
 }
 
+/* ────────────────────────────────────── `pilot` (T39, L497-L504) */
+//
+// Lit le chemin de manifeste (premier argument positionnel, jamais un
+// drapeau — même discipline que `commandCampaign` pour son chemin de
+// fixture), puis les drapeaux requis, refuse si l'un manque, puis délègue la
+// totalité du travail à `runPilot` (`@bench/activities`, `src/pilot.ts`) :
+// préflight pur (sans `--execute`) ou exécution réelle bornée par un plafond
+// budgétaire réel (avec `--execute`). AUCUNE RÈGLE MÉTIER ICI (même règle que
+// l'en-tête du fichier).
+
+async function commandPilot(argv: readonly string[]): Promise<number> {
+  const [manifestPath, ...rest] = argv
+  if (manifestPath === undefined || manifestPath.startsWith('--')) {
+    process.stderr.write('bench pilot exige un chemin de manifeste en premier argument\n')
+    return 1
+  }
+  const flags = parseFlagsAvecBooleens(rest, new Set(['execute', 'test-force-all-candidates-fail']))
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  if (campaignId === undefined || postgresDatabase === undefined || s3Bucket === undefined) {
+    process.stderr.write('bench pilot exige --campaign-id, --postgres-database et --s3-bucket\n')
+    return 1
+  }
+  const execute = flags.has('execute')
+  const mode = flags.get('mode')
+  const provider = flags.get('provider')
+  const testForceAllCandidatesFail = flags.has('test-force-all-candidates-fail')
+  try {
+    const result = await runPilot({
+      manifestPath,
+      campaignId,
+      postgresDatabase,
+      s3Bucket,
+      execute,
+      testForceAllCandidatesFail,
+      ...(mode === undefined ? {} : { mode }),
+      ...(provider === undefined ? {} : { provider }),
+    })
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    return 0
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    process.stderr.write(`bench pilot : ${message}\n`)
+    return 1
+  }
+}
+
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */
 //
 // SQUELETTE (étage ROUGE de T40). Lit les dix drapeaux requis, refuse si l'un
@@ -686,6 +762,7 @@ async function main(): Promise<number> {
   if (command === 'replay-trajectory') return commandReplayTrajectory(rest)
   if (command === 'fork') return commandFork(rest)
   if (command === 'campaign') return commandCampaign(rest)
+  if (command === 'pilot') return commandPilot(rest)
   if (command === 'plan-distribution') return commandPlanDistribution(rest)
   if (command === 'distribution-run-bounded') return commandDistributionRunBounded(rest)
   if (command === 'distribution-resume') return commandDistributionResume(rest)

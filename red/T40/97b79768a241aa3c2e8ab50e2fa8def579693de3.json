@@ -1,0 +1,49 @@
+{
+  "schema": "bench.red/1",
+  "task": "T40",
+  "subject_commit": "97b79768a241aa3c2e8ab50e2fa8def579693de3",
+  "dirty": false,
+  "input_digest": "ce1fd099c690d22ba2b6862eb711dff67155fa7bc80b9c6ad20dea66d8c84f57",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T40.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T40.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T40.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T40.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T40.A5",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T40.A6",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {},
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

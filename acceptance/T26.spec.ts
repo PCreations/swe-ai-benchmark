@@ -827,8 +827,19 @@ describe('T26 — reguler le parallelisme et les quotas equitablement', () => {
 
       // Nettoyage : liberer la barriere pour laisser les dix appels se
       // terminer (meme si T26.A1 n'exige rien de plus au-dela de ce point).
-      for (let i = 0; i < DIX_APPELS_PRETS; i += 1) fournisseur.libererTous();
-      await tick();
+      // CORRECTIF (bug de suite, pas d'IMPL — voir commit) : liberer un appel
+      // ne fait progresser la chaine (resolution de `admitted` -> invocation
+      // de `effect()` -> nouvelle entree dans la barriere) qu'apres au moins
+      // une microtache. Boucler sur `libererTous()` SANS `await` entre les
+      // iterations ne videait donc que les entrees DEJA presentes a la
+      // premiere iteration (les 8 autres appels n'atteignent jamais le
+      // fournisseur et `Promise.all(enCours)` n'aboutit jamais, au timeout
+      // Jest). Un `await tick()` entre chaque iteration laisse chaque vague
+      // d'admission se propager avant la liberation suivante.
+      for (let i = 0; i < DIX_APPELS_PRETS; i += 1) {
+        fournisseur.libererTous();
+        await tick();
+      }
       await Promise.all(enCours);
     },
     CASE_TIMEOUT_MS,
@@ -1021,12 +1032,21 @@ describe('T26 — reguler le parallelisme et les quotas equitablement', () => {
       const sub2 = await essayer(() => submitReadyCall(handle, { callId: c2, providerId, now: t0 }));
       exige(sub2.ok, 'second-appel-soumis', messageDe((sub2 as { err: unknown }).err));
       const t2 = (sub2 as { ok: true; value: { callId: string; admitted: Promise<unknown> } }).value;
-      const [resolu2] = suivreAdmission([t2]);
+      // CORRECTIF (bug de suite, pas d'IMPL — voir commit) : `suivreAdmission`
+      // rend un TABLEAU qu'elle continue de muter via ses callbacks `.then()`
+      // (`resolus[i] = true`) ; destructurer `const [resolu2] = ...` en
+      // extrayait une COPIE primitive (`false`) figee au moment de l'appel,
+      // jamais une reference vivante — l'assertion decisive plus bas ne
+      // pouvait alors JAMAIS devenir vraie, quelle que soit l'implementation.
+      // On garde le tableau lui-meme et on relit `resolus2[0]` a chaque
+      // controle, comme le fait deja `suivreAdmission` ailleurs dans ce
+      // fichier (A1/A2/A3).
+      const resolus2 = suivreAdmission([t2]);
       await tick();
       exige(
-        resolu2 === false,
+        resolus2[0] === false,
         'second-appel-non-admis-malgre-slot-libre (decisif, cahier:L383)',
-        `resolu=${rendu(resolu2)}`,
+        `resolu=${rendu(resolus2[0])}`,
       );
 
       // A t0 + 3999 ms (juste avant 4 s) : toujours refuse.
@@ -1041,7 +1061,7 @@ describe('T26 — reguler le parallelisme et les quotas equitablement', () => {
         `vu ${rendu((adm1 as { ok: true; value: unknown }).value)}`,
       );
       await tick();
-      exige(resolu2 === false, 'second-appel-encore-non-admis-juste-avant-4s', `resolu=${rendu(resolu2)}`);
+      exige(resolus2[0] === false, 'second-appel-encore-non-admis-juste-avant-4s', `resolu=${rendu(resolus2[0])}`);
 
       // CONTROLE POSITIF (IV.4) : au terme exact des 4 secondes, l'admission
       // redevient possible — une implementation qui refuserait indefiniment
@@ -1058,9 +1078,9 @@ describe('T26 — reguler le parallelisme et les quotas equitablement', () => {
       );
       await tick();
       exige(
-        resolu2 === true,
+        resolus2[0] === true,
         'second-appel-enfin-admis-a-4s-pile (controle positif, decisif)',
-        `resolu=${rendu(resolu2)}`,
+        `resolu=${rendu(resolus2[0])}`,
       );
     },
     CASE_TIMEOUT_MS,

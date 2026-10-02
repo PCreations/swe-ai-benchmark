@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T42",
+  "subject_commit": "4b1352ce64ec1414e03b6c38f7fbc7973be34082",
+  "dirty": false,
+  "input_digest": "0b21ad88fd55c6978083ce81d3add18af8807a15e6c3fa2067f17068263f78b4",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T42.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M1",
+      "note": "Fork jetable execute sur HEAD=4b1352c (procedure verification/mutants/T42.json#M1) : git branch t42-m1-fork-src 4b1352c ; git branch t42-m1-fork-src-ledger a7922e5 (tip reel du ledger) ; avec GIT_INDEX_FILE dedie (.bench/t42-m1-fork.index), git read-tree t42-m1-fork-src-ledger puis git update-index --force-remove sur les QUATRE fichiers attestations/T41/{26e841b1ae661edf21429bdfa8f6435fcc875f1a,6acb4d8d84aab19dc567d80c3b4f2bbb89f51272,ccf2e4948811970121a9458eed85257a5fc79783,dd83f0abea5f53f6e114be42b00986edd332f528}.json (git ls-tree a montre 4 digests historiques pour T41, les quatre retires), git write-tree -> 22a13ee3, git commit-tree -p a7922e5 -> 02632b35, git update-ref refs/heads/t42-m1-fork-src-ledger 02632b35 ; la ref reelle claude/gallant-fermi-51jlsx-ledger est restee a a7922e5 (verifie par git rev-parse avant/apres, et re-verifie apres nettoyage). git worktree add /tmp/t42-m1-fork-wt sur la branche t42-m1-fork-src (pas de HEAD detachee), copie de .bench/doctor.json (sondes deja executees ce boot, simple copie de fichier, aucune sonde rejouee) dans le worktree. node tools/bench resume --json execute DEPUIS ce worktree : exit=4, branch=t42-m1-fork-src, head=4b1352c (coherent avec git), proven a 40 elements (T00..T40 MOINS T41), ready=[T41], waiting=[T42,T43], blocked=[], stale=[], contested=[] -- les 40 autres taches de DEPENDS_ON_T42 restent verbatim dans proven, seul T41 bascule en ready faute d'attestation. Nettoyage : git worktree remove --force /tmp/t42-m1-fork-wt, git branch -D t42-m1-fork-src t42-m1-fork-src-ledger ; git rev-parse claude/gallant-fermi-51jlsx-ledger re-verifie = a7922e5 (inchange), git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M2",
+      "note": "total_cost_micro_usd force a la chaine litterale '0' dans packages/activities/src/campaign.ts (ligne agregat du rapport de campagne, pres de trajectory_count/period_count) ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A2 observe FAIL reel : TOTAL_COST-INATTENDU attendu=16320 vu=\"0\" (acceptance/T42.spec.ts:632). Mutation restauree (total_cost_micro_usd: totalCost), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M3",
+      "note": "Garde de revelation elargie de `cible > curseur` a `cible > curseur + 999` dans packages/scenario/src/pack.ts#revealPeriod ; pnpm build ; jest acceptance/T06.spec.ts -t T06.A2 observe FAIL reel (ACCEPTE-A-TORT lecture de P2 depuis P1, acceptance/T06.spec.ts:686) puis jest acceptance/T42.spec.ts -t T42.A3 observe FAIL reel via le meme sous-cas reutilise : GATE-EN-ECHEC propriete=\"garde de revelation (T06, cahier:L203-L209)\" cas=T06.A2 (acceptance/T42.spec.ts:727). Mutation restauree (cible > curseur), pnpm build relance, jest acceptance/T06.spec.ts -t T06.A2 revert a PASS (reverifie), git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M4",
+      "note": "Export consomme par `analysis export` force a renvoyer des trajectoires VIDES dans packages/activities/src/analysis.ts#exportAnalysis (campaigns.push({ campaign_id: campaignId, trajectories: [] }) au lieu des trajectoires relues depuis PostgreSQL), alors que le rapport de campagne publie par `bench campaign fixtures/golden-six.json` (chemin independant) reste celui de l'installation vierge nominale ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A4 observe FAIL reel : trajectory_count-DIVERGE reconstruit=0 publie=6 (acceptance/T42.spec.ts:769). Mutation restauree (campaigns.push({ campaign_id: campaignId, trajectories })), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M5",
+      "note": "Export de `checkpoint inspect` fige dans packages/activities/src/run-period.ts#inspectCheckpoint : period_index force a 0 et requirements force a [] independamment du manifeste reellement lu en base ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A5 observe FAIL reel : PERIOD_INDEX-RESTAURE-DIVERGE restaure=0 source=1 (acceptance/T42.spec.ts:828). Mutation restauree (period_index: periodIndex, requirements: Array.isArray(...) ? ... : []), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M6",
+      "note": "Gate LIVE_VALIDATED neutralise dans packages/activities/src/report.ts#buildReport : `liveValidatedPublished` force a `true` independamment du drapeau --live-receipts et du contenu des recus ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A6 observe FAIL reel sur le controle (a) sans drapeau : LIVE_VALIDATED-PUBLIEE-A-TORT(sans-drapeau) {\"published\":true,\"reason\":\"aucun --live-receipts fourni : aucun smoke test reel atteste\",\"receipts_count\":0} (acceptance/T42.spec.ts:877). Mutation restauree (liveValidatedPublished = receiptsFileRead && completeReceipts.length > 0), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    }
+  ],
+  "mutation_proof": {
+    "T42.A1": {
+      "killed_by": "T42.M1",
+      "note": "Fork jetable execute sur HEAD=4b1352c (procedure verification/mutants/T42.json#M1) : git branch t42-m1-fork-src 4b1352c ; git branch t42-m1-fork-src-ledger a7922e5 (tip reel du ledger) ; avec GIT_INDEX_FILE dedie (.bench/t42-m1-fork.index), git read-tree t42-m1-fork-src-ledger puis git update-index --force-remove sur les QUATRE fichiers attestations/T41/{26e841b1ae661edf21429bdfa8f6435fcc875f1a,6acb4d8d84aab19dc567d80c3b4f2bbb89f51272,ccf2e4948811970121a9458eed85257a5fc79783,dd83f0abea5f53f6e114be42b00986edd332f528}.json (git ls-tree a montre 4 digests historiques pour T41, les quatre retires), git write-tree -> 22a13ee3, git commit-tree -p a7922e5 -> 02632b35, git update-ref refs/heads/t42-m1-fork-src-ledger 02632b35 ; la ref reelle claude/gallant-fermi-51jlsx-ledger est restee a a7922e5 (verifie par git rev-parse avant/apres, et re-verifie apres nettoyage). git worktree add /tmp/t42-m1-fork-wt sur la branche t42-m1-fork-src (pas de HEAD detachee), copie de .bench/doctor.json (sondes deja executees ce boot, simple copie de fichier, aucune sonde rejouee) dans le worktree. node tools/bench resume --json execute DEPUIS ce worktree : exit=4, branch=t42-m1-fork-src, head=4b1352c (coherent avec git), proven a 40 elements (T00..T40 MOINS T41), ready=[T41], waiting=[T42,T43], blocked=[], stale=[], contested=[] -- les 40 autres taches de DEPENDS_ON_T42 restent verbatim dans proven, seul T41 bascule en ready faute d'attestation. Nettoyage : git worktree remove --force /tmp/t42-m1-fork-wt, git branch -D t42-m1-fork-src t42-m1-fork-src-ledger ; git rev-parse claude/gallant-fermi-51jlsx-ledger re-verifie = a7922e5 (inchange), git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A2": {
+      "killed_by": "T42.M2",
+      "note": "total_cost_micro_usd force a la chaine litterale '0' dans packages/activities/src/campaign.ts (ligne agregat du rapport de campagne, pres de trajectory_count/period_count) ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A2 observe FAIL reel : TOTAL_COST-INATTENDU attendu=16320 vu=\"0\" (acceptance/T42.spec.ts:632). Mutation restauree (total_cost_micro_usd: totalCost), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A3": {
+      "killed_by": "T42.M3",
+      "note": "Garde de revelation elargie de `cible > curseur` a `cible > curseur + 999` dans packages/scenario/src/pack.ts#revealPeriod ; pnpm build ; jest acceptance/T06.spec.ts -t T06.A2 observe FAIL reel (ACCEPTE-A-TORT lecture de P2 depuis P1, acceptance/T06.spec.ts:686) puis jest acceptance/T42.spec.ts -t T42.A3 observe FAIL reel via le meme sous-cas reutilise : GATE-EN-ECHEC propriete=\"garde de revelation (T06, cahier:L203-L209)\" cas=T06.A2 (acceptance/T42.spec.ts:727). Mutation restauree (cible > curseur), pnpm build relance, jest acceptance/T06.spec.ts -t T06.A2 revert a PASS (reverifie), git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A4": {
+      "killed_by": "T42.M4",
+      "note": "Export consomme par `analysis export` force a renvoyer des trajectoires VIDES dans packages/activities/src/analysis.ts#exportAnalysis (campaigns.push({ campaign_id: campaignId, trajectories: [] }) au lieu des trajectoires relues depuis PostgreSQL), alors que le rapport de campagne publie par `bench campaign fixtures/golden-six.json` (chemin independant) reste celui de l'installation vierge nominale ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A4 observe FAIL reel : trajectory_count-DIVERGE reconstruit=0 publie=6 (acceptance/T42.spec.ts:769). Mutation restauree (campaigns.push({ campaign_id: campaignId, trajectories })), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A5": {
+      "killed_by": "T42.M5",
+      "note": "Export de `checkpoint inspect` fige dans packages/activities/src/run-period.ts#inspectCheckpoint : period_index force a 0 et requirements force a [] independamment du manifeste reellement lu en base ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A5 observe FAIL reel : PERIOD_INDEX-RESTAURE-DIVERGE restaure=0 source=1 (acceptance/T42.spec.ts:828). Mutation restauree (period_index: periodIndex, requirements: Array.isArray(...) ? ... : []), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A6": {
+      "killed_by": "T42.M6",
+      "note": "Gate LIVE_VALIDATED neutralise dans packages/activities/src/report.ts#buildReport : `liveValidatedPublished` force a `true` independamment du drapeau --live-receipts et du contenu des recus ; pnpm build ; jest acceptance/T42.spec.ts -t T42.A6 observe FAIL reel sur le controle (a) sans drapeau : LIVE_VALIDATED-PUBLIEE-A-TORT(sans-drapeau) {\"published\":true,\"reason\":\"aucun --live-receipts fourni : aucun smoke test reel atteste\",\"receipts_count\":0} (acceptance/T42.spec.ts:877). Mutation restauree (liveValidatedPublished = receiptsFileRead && completeReceipts.length > 0), pnpm build relance, git status --porcelain vide avant cet enregistrement."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

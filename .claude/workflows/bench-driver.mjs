@@ -1026,6 +1026,34 @@ const results = await pipeline(
   (prev, T) => (!prev?.ok ? null : agent(testsPrompt(T), { label: `tests:${T}`, phase: 'Tests', schema: OUTCOME, model: MODELE })),
   (prev, T) => (!prev?.ok ? null : agent(redPrompt(T), { label: `red:${T}`, phase: 'Red', schema: OUTCOME, model: MODELE })),
   (prev, T) => arbitrer(prev, T, 'red'),
+  // RECONVERGER APRES L'ETAGE QUI PERTURBE EXPRES LE DEPOT.
+  //
+  // MESURE sur T42, deux tours de suite : le tableau etait CONVERGE au debut du
+  // tour (aucun settle prealable n'a eu lieu : le label de fin est `settle`, pas
+  // `settle:relais-N`), spec/fixtures/tests etaient des no-op, et pourtant
+  // l'etage IMPL a trouve T42.A1 ROUGE avec le motif « T00..T41 sont PERIMES ».
+  // Entre les deux, un seul etage a tourne : RED — qui applique REELLEMENT ses
+  // mutants, reconstruit, restaure, et forke le ledger pour M1. C'est son
+  // travail, et il perturbe l'etat prouve global le temps de le faire.
+  //
+  // T42 est la seule tache dont un cas d'acceptation LIT cet etat global
+  // (A1 : « les 42 taches sont prouvees »). Pour toutes les autres, la
+  // perturbation est invisible. Pour elle, elle est fatale — et la boucle
+  // tournait en rond : impl refuse a juste titre, le test-author refute a juste
+  // titre, le settle de fin reconverge, le tour suivant recommence.
+  //
+  // Un settle ici ne cree aucun verdict : `bench accept` refait toute la porte
+  // en clean-room. Et il ne coute presque rien quand il n'y a rien a faire —
+  // l'etage commence par `bench resume` et rend immediatement si stale est vide.
+  (prev, T) =>
+    !prev?.ok
+      ? prev ?? null
+      : agent(settlePrompt, { label: `settle:apres-red:${T}`, phase: 'Settle', schema: OUTCOME, model: MODELE }).then((r) => {
+          log(`settle apres red ${T} : ${r?.state ?? 'AUCUN RETOUR'}`)
+          // Un settle qui echoue n'invalide pas l'etage ROUGE : on continue avec
+          // son issue, et c'est `accept` qui refusera si l'etat ne tient pas.
+          return prev
+        }),
   (prev, T) => (!prev?.ok ? null : agent(implPrompt(T), { label: `impl:${T}`, phase: 'Impl', schema: OUTCOME, model: MODELE })),
   (prev, T) => arbitrer(prev, T, 'impl'),
   (prev, T) => (!prev?.ok ? null : agent(gatesPrompt(T), { label: `gates:${T}`, phase: 'Audit', schema: OUTCOME, model: MODELE })),

@@ -1,0 +1,60 @@
+{
+  "schema": "bench.red/1",
+  "task": "T43",
+  "subject_commit": "d9d6533247565389b700b6338c23a48cb3a3e2fe",
+  "dirty": false,
+  "input_digest": "62e6464d67cdbafde8248fc2e7dff9eb0df535d81d697cc267592121a03708f0",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T43.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T43.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T43.M2",
+      "note": "Sandbox isole (copie complete acceptance/+analysis/tests/+verification/tasks.json+reference, git init local, sous /tmp hors depot) : T07.verification_command supprime. node --experimental-vm-modules jest --runTestsByPath acceptance/T43.spec.ts -t T43.A2 observe alors FAIL avec defauts=[T07:verification_command-absente-ou-non-conforme(undefined)] ; T43.A3 reste vert sous la meme mutation (verifie separement). Restauration verification_command puis git checkout -- verification/tasks.json : git status --porcelain vide."
+    },
+    {
+      "id": "T43.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T43.M3",
+      "note": "Meme sandbox isole, apres restauration/commit baseline verte : (a) ajout verification/scratch-mutant-marker.ts (// TODO: regler plus tard) + git add -> A3 FAIL (MARQUEURS-DE-TACHE-NON-RESOLUS verification/scratch-mutant-marker.ts:1), T43.A2 reste vert ; (b) apres retrait du marqueur (git rm --cached + rm), ajout independant de it.skip(scratch-mutant-marker-T43-M3) dans acceptance/T00.spec.ts -> A3 FAIL seul (SUITES-AVEC-TEST-SAUTE acceptance/T00.spec.ts), confirmant les deux volets independamment. Sandbox jetable sous /tmp, jamais le depot reel ; depot reel verifie git status --porcelain vide avant et apres (aucune mutation appliquee au tree reel, seulement a la copie sandbox)."
+    },
+    {
+      "id": "T43.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T43.A5",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T43.A6",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {
+    "T43.A2": {
+      "killed_by": "T43.M2",
+      "note": "Sandbox isole (copie complete acceptance/+analysis/tests/+verification/tasks.json+reference, git init local, sous /tmp hors depot) : T07.verification_command supprime. node --experimental-vm-modules jest --runTestsByPath acceptance/T43.spec.ts -t T43.A2 observe alors FAIL avec defauts=[T07:verification_command-absente-ou-non-conforme(undefined)] ; T43.A3 reste vert sous la meme mutation (verifie separement). Restauration verification_command puis git checkout -- verification/tasks.json : git status --porcelain vide."
+    },
+    "T43.A3": {
+      "killed_by": "T43.M3",
+      "note": "Meme sandbox isole, apres restauration/commit baseline verte : (a) ajout verification/scratch-mutant-marker.ts (// TODO: regler plus tard) + git add -> A3 FAIL (MARQUEURS-DE-TACHE-NON-RESOLUS verification/scratch-mutant-marker.ts:1), T43.A2 reste vert ; (b) apres retrait du marqueur (git rm --cached + rm), ajout independant de it.skip(scratch-mutant-marker-T43-M3) dans acceptance/T00.spec.ts -> A3 FAIL seul (SUITES-AVEC-TEST-SAUTE acceptance/T00.spec.ts), confirmant les deux volets independamment. Sandbox jetable sous /tmp, jamais le depot reel ; depot reel verifie git status --porcelain vide avant et apres (aucune mutation appliquee au tree reel, seulement a la copie sandbox)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "bench.red/1",
+  "task": "T42",
+  "subject_commit": "f0fd1e53cb9e49753c33bd39531bfdc4351e85a7",
+  "dirty": false,
+  "input_digest": "ac62f97a44580143679c2cc56e168a8b7a613b17a1e45aa3865aaa6fd2b2799c",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T42.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M1",
+      "note": "Fork jetable execute sur HEAD=f0fd1e5 (procedure verification/mutants/T42.json#M1, cible T41) : git branch t42-m1-fork-src f0fd1e5 ; git branch t42-m1-fork-src-ledger 1496d91 (tip reel du ledger) ; avec GIT_INDEX_FILE dedie (/tmp/t42-m1-fork.index), git read-tree t42-m1-fork-src-ledger puis git update-index --force-remove sur les CINQ fichiers attestations/T41/{26e841b1,6acb4d8d,ccf2e494,dd83f0ab,f0fd1e53}...json (git ls-tree en montrait cinq, tous retires), git write-tree -> 2f8e105a, git commit-tree -p 1496d91 -> 6c81d3c, git update-ref refs/heads/t42-m1-fork-src-ledger 6c81d3c ; la ref reelle claude/gallant-fermi-51jlsx-ledger verifiee a 1496d91 avant ET apres (inchangee). git worktree add /tmp/t42-m1-fork-wt t42-m1-fork-src, copie de .bench/doctor.json (sondes deja executees ce boot) vers le worktree. node tools/bench resume --json execute DEPUIS /tmp/t42-m1-fork-wt : exit=4, head=f0fd1e53cb9e49753c33bd39531bfdc4351e85a7 (coherent avec git), proven = [T00..T40] (40 elements, T41 ABSENT), ready=[T41], waiting=[T42,T43], blocked=[], stale=[], contested=[] -- les 40 autres taches de DEPENDS_ON_T42 restent verbatim dans proven, seul T41 bascule hors de proven. Nettoyage : git worktree remove --force /tmp/t42-m1-fork-wt, git branch -D t42-m1-fork-src t42-m1-fork-src-ledger ; git rev-parse claude/gallant-fermi-51jlsx-ledger re-verifie = 1496d9115af9f8ec41de912d9dbaaaf6924a3e67 (inchange), git status --porcelain vide avant cet enregistrement. Aucun refus du classifieur de permission rencontre cette fois (contrairement a SC-002) : les trois commandes git (branch, update-index, worktree add) sont passees sans interruption."
+    },
+    {
+      "id": "T42.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M2",
+      "note": "total_cost_micro_usd force a la chaine litterale '0' dans packages/activities/src/campaign.ts (ligne `total_cost_micro_usd: totalCost,` remplacee par `total_cost_micro_usd: '0',`) ; pnpm build (exit 0) ; node --experimental-vm-modules node_modules/jest/bin/jest.js acceptance/T42.spec.ts --runInBand -t 'T42[._]A2(?![0-9])' observe FAIL reel : Expected \"total-cost-ok\" Received \"TOTAL_COST-INATTENDU attendu=16320 vu=\\\"0\\\"\" (acceptance/T42.spec.ts:632). Mutation restauree (total_cost_micro_usd: totalCost), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A2] trajectoires=6 total_cost=16320 Q=R=V=U=1 G=0. git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M3",
+      "note": "Garde de revelation elargie de `cible > curseur` a `cible > curseur + 999` dans packages/scenario/src/pack.ts#revealPeriod ; pnpm build (exit 0) ; jest acceptance/T06.spec.ts -t 'T06[._]A2(?![0-9])' observe FAIL reel : ACCEPTE-A-TORT lecture de P2 depuis P1 (acceptance/T06.spec.ts:686) ; puis jest acceptance/T42.spec.ts -t 'T42[._]A3(?![0-9])' observe FAIL reel via le meme sous-cas reutilise : GATE-EN-ECHEC propriete=\"garde de revelation (T06, cahier:L203-L209)\" cas=T06.A2 : JEST-INATTENDU passed=0 failed=1 (acceptance/T42.spec.ts:727). Mutation restauree (cible > curseur), pnpm build relance (exit 0), jest acceptance/T06.spec.ts -t T06.A2 revert a PASS (reverifie), jest acceptance/T42.spec.ts -t T42.A3 revert a PASS (reverifie, [T42.A3] T16.A1:OK T06.A2:OK T04.A5:OK T33.A2:OK T17.A2:OK). git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M4",
+      "note": "Export consomme par `analysis export` force a renvoyer des trajectoires VIDES dans packages/activities/src/analysis.ts#exportAnalysis (`campaigns.push({ campaign_id: campaignId, trajectories })` remplace par `campaigns.push({ campaign_id: campaignId, trajectories: [] })`) ; pnpm build (exit 0) ; jest acceptance/T42.spec.ts -t 'T42[._]A4(?![0-9])' observe FAIL reel : Expected \"trajectory_count-coincide\" Received \"trajectory_count-DIVERGE reconstruit=0 publie=6\" (acceptance/T42.spec.ts:769). Mutation restauree (campaigns.push({ campaign_id: campaignId, trajectories })), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A4] reconstruit total_cost=\"16320\" Q=R=V=U=1 G=0. git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M5",
+      "note": "Export de `checkpoint inspect` fige dans packages/activities/src/run-period.ts#inspectCheckpoint : `period_index: periodIndex` remplace par `period_index: 0` et `requirements: Array.isArray(...) ? ... : []` remplace par `requirements: []` ; pnpm build (exit 0) ; jest acceptance/T42.spec.ts -t 'T42[._]A5(?![0-9])' observe FAIL reel : Expected \"period_index-restaure-ok\" Received \"PERIOD_INDEX-RESTAURE-DIVERGE restaure=0 source=1\" (acceptance/T42.spec.ts:828). Mutation restauree (period_index: periodIndex, requirements: Array.isArray(manifest['requirements']) ? (manifest['requirements'] as unknown[]) : []), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A5] echantillon=1,4 sur 4 periodes publiees. git status --porcelain vide avant cet enregistrement."
+    },
+    {
+      "id": "T42.A6",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T42.M6",
+      "note": "Gate LIVE_VALIDATED neutralise dans packages/activities/src/report.ts#buildReport : `const liveValidatedPublished = receiptsFileRead && completeReceipts.length > 0` remplace par `const liveValidatedPublished = true` ; pnpm build (exit 0) ; jest acceptance/T42.spec.ts -t 'T42[._]A6(?![0-9])' observe FAIL reel sur le controle (a) sans drapeau : Expected \"absente-sans-drapeau\" Received \"LIVE_VALIDATED-PUBLIEE-A-TORT(sans-drapeau) {\\\"published\\\":true,\\\"reason\\\":\\\"aucun --live-receipts fourni : aucun smoke test reel atteste\\\",\\\"receipts_count\\\":0}\" (acceptance/T42.spec.ts:877). Mutation restauree (liveValidatedPublished = receiptsFileRead && completeReceipts.length > 0), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A6] sans-drapeau=false vides=false incomplet=false complet=true. git status --porcelain vide avant cet enregistrement."
+    }
+  ],
+  "mutation_proof": {
+    "T42.A1": {
+      "killed_by": "T42.M1",
+      "note": "Fork jetable execute sur HEAD=f0fd1e5 (procedure verification/mutants/T42.json#M1, cible T41) : git branch t42-m1-fork-src f0fd1e5 ; git branch t42-m1-fork-src-ledger 1496d91 (tip reel du ledger) ; avec GIT_INDEX_FILE dedie (/tmp/t42-m1-fork.index), git read-tree t42-m1-fork-src-ledger puis git update-index --force-remove sur les CINQ fichiers attestations/T41/{26e841b1,6acb4d8d,ccf2e494,dd83f0ab,f0fd1e53}...json (git ls-tree en montrait cinq, tous retires), git write-tree -> 2f8e105a, git commit-tree -p 1496d91 -> 6c81d3c, git update-ref refs/heads/t42-m1-fork-src-ledger 6c81d3c ; la ref reelle claude/gallant-fermi-51jlsx-ledger verifiee a 1496d91 avant ET apres (inchangee). git worktree add /tmp/t42-m1-fork-wt t42-m1-fork-src, copie de .bench/doctor.json (sondes deja executees ce boot) vers le worktree. node tools/bench resume --json execute DEPUIS /tmp/t42-m1-fork-wt : exit=4, head=f0fd1e53cb9e49753c33bd39531bfdc4351e85a7 (coherent avec git), proven = [T00..T40] (40 elements, T41 ABSENT), ready=[T41], waiting=[T42,T43], blocked=[], stale=[], contested=[] -- les 40 autres taches de DEPENDS_ON_T42 restent verbatim dans proven, seul T41 bascule hors de proven. Nettoyage : git worktree remove --force /tmp/t42-m1-fork-wt, git branch -D t42-m1-fork-src t42-m1-fork-src-ledger ; git rev-parse claude/gallant-fermi-51jlsx-ledger re-verifie = 1496d9115af9f8ec41de912d9dbaaaf6924a3e67 (inchange), git status --porcelain vide avant cet enregistrement. Aucun refus du classifieur de permission rencontre cette fois (contrairement a SC-002) : les trois commandes git (branch, update-index, worktree add) sont passees sans interruption."
+    },
+    "T42.A2": {
+      "killed_by": "T42.M2",
+      "note": "total_cost_micro_usd force a la chaine litterale '0' dans packages/activities/src/campaign.ts (ligne `total_cost_micro_usd: totalCost,` remplacee par `total_cost_micro_usd: '0',`) ; pnpm build (exit 0) ; node --experimental-vm-modules node_modules/jest/bin/jest.js acceptance/T42.spec.ts --runInBand -t 'T42[._]A2(?![0-9])' observe FAIL reel : Expected \"total-cost-ok\" Received \"TOTAL_COST-INATTENDU attendu=16320 vu=\\\"0\\\"\" (acceptance/T42.spec.ts:632). Mutation restauree (total_cost_micro_usd: totalCost), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A2] trajectoires=6 total_cost=16320 Q=R=V=U=1 G=0. git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A3": {
+      "killed_by": "T42.M3",
+      "note": "Garde de revelation elargie de `cible > curseur` a `cible > curseur + 999` dans packages/scenario/src/pack.ts#revealPeriod ; pnpm build (exit 0) ; jest acceptance/T06.spec.ts -t 'T06[._]A2(?![0-9])' observe FAIL reel : ACCEPTE-A-TORT lecture de P2 depuis P1 (acceptance/T06.spec.ts:686) ; puis jest acceptance/T42.spec.ts -t 'T42[._]A3(?![0-9])' observe FAIL reel via le meme sous-cas reutilise : GATE-EN-ECHEC propriete=\"garde de revelation (T06, cahier:L203-L209)\" cas=T06.A2 : JEST-INATTENDU passed=0 failed=1 (acceptance/T42.spec.ts:727). Mutation restauree (cible > curseur), pnpm build relance (exit 0), jest acceptance/T06.spec.ts -t T06.A2 revert a PASS (reverifie), jest acceptance/T42.spec.ts -t T42.A3 revert a PASS (reverifie, [T42.A3] T16.A1:OK T06.A2:OK T04.A5:OK T33.A2:OK T17.A2:OK). git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A4": {
+      "killed_by": "T42.M4",
+      "note": "Export consomme par `analysis export` force a renvoyer des trajectoires VIDES dans packages/activities/src/analysis.ts#exportAnalysis (`campaigns.push({ campaign_id: campaignId, trajectories })` remplace par `campaigns.push({ campaign_id: campaignId, trajectories: [] })`) ; pnpm build (exit 0) ; jest acceptance/T42.spec.ts -t 'T42[._]A4(?![0-9])' observe FAIL reel : Expected \"trajectory_count-coincide\" Received \"trajectory_count-DIVERGE reconstruit=0 publie=6\" (acceptance/T42.spec.ts:769). Mutation restauree (campaigns.push({ campaign_id: campaignId, trajectories })), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A4] reconstruit total_cost=\"16320\" Q=R=V=U=1 G=0. git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A5": {
+      "killed_by": "T42.M5",
+      "note": "Export de `checkpoint inspect` fige dans packages/activities/src/run-period.ts#inspectCheckpoint : `period_index: periodIndex` remplace par `period_index: 0` et `requirements: Array.isArray(...) ? ... : []` remplace par `requirements: []` ; pnpm build (exit 0) ; jest acceptance/T42.spec.ts -t 'T42[._]A5(?![0-9])' observe FAIL reel : Expected \"period_index-restaure-ok\" Received \"PERIOD_INDEX-RESTAURE-DIVERGE restaure=0 source=1\" (acceptance/T42.spec.ts:828). Mutation restauree (period_index: periodIndex, requirements: Array.isArray(manifest['requirements']) ? (manifest['requirements'] as unknown[]) : []), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A5] echantillon=1,4 sur 4 periodes publiees. git status --porcelain vide avant cet enregistrement."
+    },
+    "T42.A6": {
+      "killed_by": "T42.M6",
+      "note": "Gate LIVE_VALIDATED neutralise dans packages/activities/src/report.ts#buildReport : `const liveValidatedPublished = receiptsFileRead && completeReceipts.length > 0` remplace par `const liveValidatedPublished = true` ; pnpm build (exit 0) ; jest acceptance/T42.spec.ts -t 'T42[._]A6(?![0-9])' observe FAIL reel sur le controle (a) sans drapeau : Expected \"absente-sans-drapeau\" Received \"LIVE_VALIDATED-PUBLIEE-A-TORT(sans-drapeau) {\\\"published\\\":true,\\\"reason\\\":\\\"aucun --live-receipts fourni : aucun smoke test reel atteste\\\",\\\"receipts_count\\\":0}\" (acceptance/T42.spec.ts:877). Mutation restauree (liveValidatedPublished = receiptsFileRead && completeReceipts.length > 0), pnpm build relance (exit 0), meme commande jest rejouee : PASS reel, [T42.A6] sans-drapeau=false vides=false incomplet=false complet=true. git status --porcelain vide avant cet enregistrement."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

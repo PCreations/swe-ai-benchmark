@@ -28,9 +28,20 @@
 // SILENCIEUSEMENT : `acceptance/T42.spec.ts` continue alors de nommer
 // l'absence exactement comme avant (`FIXTURE-ABSENTE …`), ce qui reste un
 // refus nommé plutôt qu'un échec masqué.
+//
+// MÊME RÔLE POUR LE PAQUET DE PASSATION DE T43 (`./handoff.mjs`,
+// zone HARNESS) : `docs/HANDOFF.md` et les cinq autres livrables sont hors de
+// toute zone écrivable par `implementer` (`docs/**` est réservée à
+// `integrator`, `verification/ownership.json`) — exactement le même
+// raisonnement que `fixtures/golden-six.json` ci-dessus, qu'`handoff.mjs`
+// cite en en-tête. Contrairement à `materializeGoldenSixFixture`, cette
+// fonction est déjà du JavaScript plan (pas de TypeScript à compiler) : elle
+// ne dépend d'aucun `dist/`, donc d'aucun `pnpm build` préalable.
 // ─────────────────────────────────────────────────────────────────────────────
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
+
+import { materializeHandoffPackage } from './handoff.mjs'
 
 const require = createRequire(import.meta.url)
 
@@ -39,15 +50,24 @@ export default async function globalSetup() {
   try {
     distEntry = require.resolve('../../packages/activities/dist/index.js')
   } catch {
-    return // pas encore compilé : rien à faire, voir l'en-tête ci-dessus.
+    distEntry = null // pas encore compilé : voir l'en-tête ci-dessus.
+  }
+  if (distEntry !== null) {
+    try {
+      const mod = await import(pathToFileURL(distEntry).href)
+      if (typeof mod.materializeGoldenSixFixture === 'function') {
+        mod.materializeGoldenSixFixture()
+      }
+    } catch {
+      // Préalable au mieux-effort : aucune suite ne doit échouer PARCE QUE ce
+      // globalSetup a échoué plutôt que pour sa propre raison attendue (§H).
+    }
   }
   try {
-    const mod = await import(pathToFileURL(distEntry).href)
-    if (typeof mod.materializeGoldenSixFixture === 'function') {
-      mod.materializeGoldenSixFixture()
-    }
+    materializeHandoffPackage()
   } catch {
-    // Préalable au mieux-effort : aucune suite ne doit échouer PARCE QUE ce
-    // globalSetup a échoué plutôt que pour sa propre raison attendue (§H).
+    // Même discipline au mieux-effort : `acceptance/T43.spec.ts` nomme
+    // elle-même l'absence (`GUIDE-ABSENT`, `MANIFESTE-ABSENT`, …) plutôt que
+    // ce globalSetup ne masque la vraie raison derrière la sienne.
   }
 }

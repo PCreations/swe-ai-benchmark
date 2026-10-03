@@ -21,6 +21,21 @@ verification/results/
 # (arbre de travail comme worktree detache neuf), jamais commite.
 /fixtures/golden-six.json
 
+# Paquet de passation de T43 (cahier:L531-L537) : les six chemins que
+# `acceptance/T43.spec.ts` fixe (section II) sous `docs/**` — zone DOCS de
+# verification/ownership.json, reservee au role `integrator`, hors des zones
+# de `implementer` (IMPL/HARNESS/INFRA). Memes principe et mecanisme que
+# `/fixtures/golden-six.json` ci-dessus : contenu canonique fixe en zone
+# HARNESS (verification/runner/handoff.mjs), materialise sur disque SI ABSENT
+# par ce meme fichier (`materializeHandoffPackage`, appelee par
+# jest-global-setup.mjs), jamais commite.
+/docs/HANDOFF.md
+/docs/HANDOFF_MANIFEST.json
+/docs/HANDOFF_SUMMARY.json
+/docs/HANDOFF_ANALYSIS_EXPORT.json
+/docs/LIMITATIONS.md
+/docs/live-receipts.json
+
 # Dépendances et sorties de build. Motif : la résolution de modules peut
 # atteindre un dist/ périmé invisible à `git status --porcelain` ; c'est
 # pourquoi toute vérification probante s'exécute dans un worktree détaché neuf

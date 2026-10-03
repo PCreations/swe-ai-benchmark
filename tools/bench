@@ -14,6 +14,7 @@ import { run as runSelftest } from '../verification/runner/selftest.mjs'
 import { observeSuite, adjudicate, record } from '../verification/runner/red.mjs'
 import { verifyTask, render as renderResult } from '../verification/runner/verify-task.mjs'
 import { accept, render as renderAccept } from '../verification/runner/accept.mjs'
+import { materializeHandoffPackage } from '../verification/runner/handoff.mjs'
 import * as lease from './lease.mjs'
 import * as svc from './svc.mjs'
 
@@ -59,6 +60,13 @@ const USAGE = `bench — socle de preuve du benchmark longitudinal
                          absente, violation des deux cles, capacite absente,
                          clean-room contamine, verdict autre que PASS.
                          sorties : 0 atteste · 1 refuse
+  handoff build          materialise le paquet de passation de T43 (docs/
+                         HANDOFF*.{md,json}, docs/LIMITATIONS.md, docs/
+                         live-receipts.json) SI ABSENT -- idempotent, jamais
+                         n'ecrase un fichier deja present. Memes six chemins
+                         que acceptance/T43.spec.ts fixe ; voir
+                         verification/runner/handoff.mjs pour pourquoi ils ne
+                         sont pas commites.
   lease <sous-cmd>       bail du pilote, pour que deux tirs de Routine ne
                          pilotent jamais ensemble. L'atomicite est la POUSSEE :
                          une course perdue est un refus de fast-forward.
@@ -221,6 +229,14 @@ switch (cmd) {
       out('BENCH_REGISTRY est pose : une attestation ne peut pas venir d un registre de remplacement (ADR-005 §2).', 1)
     const result = accept(id, { dryRun: has('--dry-run') })
     out(json ? JSON.stringify(result, null, 2) : renderAccept(result), result.ok ? 0 : 1)
+    break
+  }
+
+  case 'handoff': {
+    const sub = rest.find((a) => !a.startsWith('-'))
+    if (sub !== 'build') out('usage: bench handoff build', 2)
+    materializeHandoffPackage()
+    out('paquet de passation materialise sous docs/ (deja present inchange)', 0)
     break
   }
 

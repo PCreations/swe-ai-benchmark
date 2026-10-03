@@ -707,6 +707,24 @@ ETAGE GATES, tache ${T}. Tu n'implementes rien, tu executes les portes.
    « reparer » en touchant le test.
    Casser au build ne compte pas comme tuer un cas.
 
+   UN SEUL CAS OU UN MUTANT NON EXECUTE N'EST PAS BLOQUANT — arbitrage SC-002,
+   tranche par le mandant (option A). Les TROIS conditions sont exigees ensemble :
+     (a) le refus vient du CLASSIFIEUR DE PERMISSION, pas du mutant lui-meme
+         (un mutant qui laisse son cas vert reste une violation bloquante) ;
+     (b) le registre ROUGE du ledger porte DEJA ce cas en
+         GREEN_PROVEN_BY_MUTATION tue par CE mutant — va le lire, cite le
+         chemin et la note ;
+     (c) tu NOMMES la limitation dans ton compte rendu, code
+         MUTANT_RE_EXECUTION_REFUSEE_PAR_SECURITE, avec le mutant, le cas, et le
+         motif du refus mot pour mot.
+   Alors ok=true. Sinon ok=false. Tu ne reformules JAMAIS une demande pour
+   qu'elle passe le classifieur, et tu ne cherches pas un autre outil, un autre
+   encodage ou un autre hote : un refus de securite se respecte, il ne se
+   contourne pas. C'est la garde que le registre de mutants porte lui-meme.
+   L'attestation nommera de son cote RED_SUBSTITUTED_BY_MUTATION pour tout cas
+   jamais observe rouge — \`bench accept\` le calcule seul, tu n'as rien a faire
+   pour ca.
+
    AVANT DE RENDRE, verifie que l'arbre principal est intact :
    \`git status --porcelain\` doit etre VIDE. S'il ne l'est pas, dis-le et nomme
    les fichiers — un residu non explique est un incident, pas un detail.

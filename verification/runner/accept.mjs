@@ -308,18 +308,59 @@ export function accept(taskId, { dryRun = false } = {}) {
  * l'affiche : un lecteur voit ce que la preuve ne couvre pas.
  */
 export function driftLimitations(task, gate) {
+  const out = []
   const entry = task.acceptance_entry
-  if (!entry || !gate?.doc?.subject_commit) return []
-  const atRed = oidAt(gate.doc.subject_commit, entry)
-  const atHead = oidAt('HEAD', entry)
-  if (atRed === atHead) return []
+  if (entry && gate?.doc?.subject_commit) {
+    const atRed = oidAt(gate.doc.subject_commit, entry)
+    const atHead = oidAt('HEAD', entry)
+    if (atRed !== atHead)
+      out.push({
+        code: 'RED_GATE_PREDATES_ACCEPTANCE_EDIT',
+        detail:
+          `${entry} a change depuis la porte rouge ${gate.doc.subject_commit.slice(0, 12)} ` +
+          `(${atRed.slice(0, 12)} -> ${atHead.slice(0, 12)}). Le rouge observe ne porte pas ` +
+          `sur les assertions actuelles : ce qui a ete ajoute depuis n'a jamais ete vu echouer.`,
+      })
+  }
+  out.push(...mutationSubstitutedRed(task, gate))
+  return out
+}
+
+/**
+ * UN CAS JAMAIS VU ROUGE N'EST PAS UN CAS VU ROUGE, MEME S'IL EST LEGITIME.
+ *
+ * `bench red` admet un cas DEJA VERT avant implementation a condition qu'un
+ * mutant le tue : c'est l'etat GREEN_PROVEN_BY_MUTATION, et c'est la seule
+ * lecture correcte pour un cas qui n'exerce aucun export de sa tache (T42.A1
+ * relit l'etat prouve du depot ; T42.A2/A3 rejouent des portes deja prouvees).
+ * La contre-epreuve vaut, mais elle ne vaut pas la MEME chose qu'un rouge
+ * observe : elle repose sur une mutation, donc sur le jugement de celui qui l'a
+ * ecrite, la ou un rouge observe ne repose sur rien.
+ *
+ * Cette difference n'etait lisible que dans le registre rouge du ledger, jamais
+ * dans l'attestation — qui n'en garde que le `verdict`. On la fait donc
+ * remonter, exactement comme RED_GATE_PREDATES_ACCEPTANCE_EDIT : DETECTER ET
+ * NOMMER plutot que pretendre.
+ *
+ * ORIGINE : arbitrage SC-002 (docs/spec-conflicts/). Le mutant T42.M1 doit
+ * perimer une attestation du ledger pour montrer qu'A1 n'est pas creux ; le
+ * classifieur de permission l'a execute une fois (etage ROUGE, trace dans le
+ * registre) et refuse une autre (etage GATES), motif « Logging/Audit
+ * Tampering ». Le mandant a tranche l'option A : la trace de l'etage ROUGE
+ * suffit, et la limitation est NOMMEE. Cette fonction est ce nommage.
+ */
+export function mutationSubstitutedRed(task, gate) {
+  const rows = gate?.doc?.cases ?? []
+  const parMutation = rows.filter((c) => c.state === 'GREEN_PROVEN_BY_MUTATION')
+  if (!parMutation.length) return []
   return [
     {
-      code: 'RED_GATE_PREDATES_ACCEPTANCE_EDIT',
+      code: 'RED_SUBSTITUTED_BY_MUTATION',
       detail:
-        `${entry} a change depuis la porte rouge ${gate.doc.subject_commit.slice(0, 12)} ` +
-        `(${atRed.slice(0, 12)} -> ${atHead.slice(0, 12)}). Le rouge observe ne porte pas ` +
-        `sur les assertions actuelles : ce qui a ete ajoute depuis n'a jamais ete vu echouer.`,
+        `${parMutation.length}/${rows.length} cas requis n'ont JAMAIS ete observes rouges : ` +
+        parMutation.map((c) => `${c.id} (tue par ${c.killed_by ?? '?'})`).join(', ') +
+        `. Leur non-vacuite repose sur une contre-epreuve par mutation, pas sur un echec ` +
+        `observe avant implementation. Porte rouge : ${gate?.path ?? '?'}.`,
     },
   ]
 }

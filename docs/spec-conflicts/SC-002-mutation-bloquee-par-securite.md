@@ -1,6 +1,6 @@
 # SC-002 — Une mutation que la sécurité refuse d'exécuter prouve-t-elle quelque chose ?
 
-    statut : OUVERT — arbitrage demandé au mandant
+    statut : RESOLU — option A, arbitrée par le mandant le 2026-10-03
     ouvert : 2026-10-02
     porte  : T42.M1 / T42.A1, et par extension tout mutant de `proof_kind:
              artifact` dont la cible est la piste d'audit elle-même
@@ -75,6 +75,37 @@ fin de parcours ; et il **exige** la garde symétrique de celle qui protège le
 registre — `accept` refuse une attestation appuyée sur un registre de
 remplacement. Sans cette garde, un ledger substituable serait un contournement
 de tout le système de preuve.
+
+## Arbitrage
+
+**Le mandant a tranché : option A**, le 2026-10-03, sur présentation des trois
+options et de leurs coûts.
+
+La trace de l'étage ROUGE suffit. Mise en œuvre, en deux endroits :
+
+1. **L'attestation nomme la limitation, et `bench accept` la calcule seul.**
+   `mutationSubstitutedRed()` (`verification/runner/accept.mjs`) émet
+   `RED_SUBSTITUTED_BY_MUTATION` pour **tout** cas requis que le registre rouge
+   porte en `GREEN_PROVEN_BY_MUTATION`, en citant le cas, le mutant et le chemin
+   de la porte rouge. Ce n'est pas une exception taillée pour T42 : la
+   distinction entre « vu rouge » et « prouvé non vacueux par mutation »
+   n'était lisible que dans le registre du ledger, jamais dans l'attestation.
+   Elle l'est désormais pour les 44 tâches.
+
+2. **L'étage GATES peut rendre `ok=true` sur un mutant non exécuté**, aux trois
+   conditions cumulatives : le refus vient du classifieur de permission et non
+   du mutant ; le registre rouge porte déjà ce cas en
+   `GREEN_PROVEN_BY_MUTATION` tué par ce mutant, chemin et note cités ; la
+   limitation `MUTANT_RE_EXECUTION_REFUSEE_PAR_SECURITE` est nommée dans le
+   compte rendu. Un mutant qui laisse son cas vert reste une violation
+   bloquante, sans exception.
+
+**Ce que cet arbitrage concède, dit en clair** : l'attestation de T42 reposera
+sur six cas dont aucun n'a été observé rouge avant implémentation — A1 parce
+qu'il relit l'état prouvé du dépôt, A2 à A6 parce qu'ils rejouent des portes
+déjà prouvées — et dont un mutant sur six n'a pas été re-exécuté à l'étage
+prévu pour cela. C'est un affaiblissement réel. Il est borné à une tâche, et il
+est écrit dans l'attestation plutôt que dans un commentaire.
 
 ## Ce que je ne fais pas
 

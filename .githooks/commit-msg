@@ -28,8 +28,17 @@ phase=$(trailer Bench-Phase); role=$(trailer Bench-Role); task=$(trailer Bench-T
 [ -n "$role" ] || die "trailer 'Bench-Role:' manquant" \
   "Roles : spec-extractor | fixture-transcriber | test-author | implementer | integrator"
 [ -n "$task" ] || die "trailer 'Bench-Task:' manquant" "Exemple : Bench-Task: T04"
-printf '%s' "$task" | grep -qE '^T([0-3][0-9]|4[0-3])$' \
-  || die "Bench-Task invalide : '$task'" "Attendu T00..T43."
+# T00..T43 : le cahier. Au-dela : seulement un identifiant DECLARE dans le
+# registre d'extensions (issu d'un ADR accepte, cf. registry.mjs#loadExtensions).
+# Un identifiant plausible mais non declare (T99) reste refuse.
+ext_declared() {
+  printf '%s' "$task" | grep -qE '^T(4[4-9]|[5-9][0-9])$' || return 1
+  [ -f verification/tasks.extensions.json ] || return 1
+  grep -qE "\"id\"[[:space:]]*:[[:space:]]*\"$task\"" verification/tasks.extensions.json
+}
+printf '%s' "$task" | grep -qE '^T([0-3][0-9]|4[0-3])$' || ext_declared \
+  || die "Bench-Task invalide : '$task'" \
+         "Attendu T00..T43, ou une extension declaree dans verification/tasks.extensions.json."
 
 if ! command -v node >/dev/null 2>&1; then
   echo "node absent : partition non verifiee ici - 'bench accept' la verifiera" >&2

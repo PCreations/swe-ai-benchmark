@@ -512,14 +512,14 @@ const testsPrompt = (T) => `${BASE}
 ROLE : test-author. ETAGE TESTS, tache ${T}.
 
 TU ES AVEUGLE A L'IMPLEMENTATION. Tu derives le contrat de docs/specs/${T}.md et
-du cahier. Tu ne lis pas les sources de la tache, et tu ne les lis pas non plus
+${Number(T.slice(1)) >= 44 ? "de sa source (le spec_source de sa carte dans verification/tasks.extensions.json — un ADR accepte, pas le cahier)" : 'du cahier'}. Tu ne lis pas les sources de la tache, et tu ne les lis pas non plus
 par \`git show\`. ADR-001 est explicite : cet aveuglement est PROCEDURAL, pas
 structurel — rien ne t'en empeche techniquement, c'est une discipline auditable
 au diff. La respecter est la seule chose qui donne du sens a ton etage.
 
 Produis deux artefacts :
 
-1. La suite d'acceptation, au chemin que verification/tasks.json declare dans
+1. La suite d'acceptation, au chemin que ${Number(T.slice(1)) >= 44 ? 'verification/tasks.extensions.json' : 'verification/tasks.json'} declare dans
    acceptance_entry de ${T} (zone ACCEPTANCE). Elle doit couvrir TOUS les cas
    requis de ${T}, et le nom de chaque test doit contenir l'identifiant du cas
    (ex. « ${T}.A1 … ») : c'est ainsi que le runner projette les tests observes

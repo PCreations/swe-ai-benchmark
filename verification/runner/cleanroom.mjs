@@ -29,10 +29,22 @@ function nonce(tag) {
 }
 
 /**
+ * Borne de la commande adjugee. C'est un garde-fou contre un processus PENDU,
+ * pas un objectif de performance : elle ne change rien a ce qui est affirme.
+ *
+ * MESURE. Elle valait 15 min. verify:task T01 relance `pnpm verify:task` en
+ * cascade, une session Jest par sonde : 760 s a c41f061, 888 s a 78a0feb
+ * (12 s sous la borne), puis TUEE deux fois de suite a ac140a5 — le settle
+ * d'apres RED tournait en parallele des etages de l'autre tache, sur 4 coeurs.
+ * Le PASS de T01 dependait donc de la charge de la machine.
+ */
+export const CLEANROOM_TIMEOUT_MS = 60 * 60 * 1000
+
+/**
  * Exécute `command` sur un checkout neuf de `rev`, et rend ce qui a été
  * réellement observé. N'interprète rien : l'adjudication appartient à l'appelant.
  */
-export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgnored = [], prepare = [] }) {
+export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgnored = [], prepare = [], timeoutMs = CLEANROOM_TIMEOUT_MS }) {
   const id = nonce(tag)
   const dir = `${R}/.bench/scratch/${id}`
   const runDir = `${R}/.bench/run/${id}`
@@ -109,7 +121,7 @@ export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgn
       stdout = execSync(command, {
         cwd: dir,
         encoding: 'utf8',
-        timeout: 15 * 60 * 1000,
+        timeout: timeoutMs,
         maxBuffer: 64 * 1024 * 1024,
         stdio: ['ignore', 'pipe', 'pipe'],
       })
@@ -117,10 +129,26 @@ export function runInCleanRoom({ rev = 'HEAD', command, tag = 'accept', allowIgn
       code = e.status ?? 1
       stdout = String(e.stdout ?? '')
       stderr = String(e.stderr ?? '')
+      // UN PROCESSUS TUE N'A PAS ECRIT UN RAPPORT ILLISIBLE : IL N'EN A ECRIT
+      // AUCUN. Sans ce nom, la borne atteinte sortait en `exit 1` + stdout vide,
+      // que l'appelant adjugeait NO_REPORT — et deux agents ont diagnostique
+      // une fuite de JSON imbrique qui n'existait pas.
+      // Mesure (node 22, execSync) : borne atteinte -> code ETIMEDOUT, status
+      // null, SIGTERM ; signal exterieur (OOM, kill) -> code absent, status
+      // null, signal pose. Deux causes, deux noms : on ne dit pas « trop lent »
+      // d'un processus que le noyau a tue.
+      if (e.code === 'ETIMEDOUT') {
+        observed.verdict = 'CLEANROOM_TIMEOUT'
+        observed.reason = `la commande adjugee a atteint la borne de ${Math.round(timeoutMs / 60000)} min et a ete tuee : aucun rapport n'a ete produit`
+      } else if (e.status == null && e.signal) {
+        observed.verdict = 'CLEANROOM_KILLED'
+        observed.reason = `la commande adjugee a ete tuee par ${e.signal} avant la borne : aucun rapport n'a ete produit`
+      }
     }
 
     observed.command = command
     observed.exit_code = code
+    observed.timeout_ms = timeoutMs
     observed.stdout = stdout
     observed.stderr = stderr
     observed.stdout_sha256 = createHash('sha256').update(stdout).digest('hex')

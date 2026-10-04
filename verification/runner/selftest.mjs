@@ -101,6 +101,22 @@ export function testDirtyCleanRoomRefused() {
     clean.pristine === true && clean.verdict !== 'DIRTY_CLEANROOM',
     `un checkout neuf de HEAD est vierge (verdict=${clean.verdict ?? 'aucun'})`
   )
+
+  // S01.7/S01.8 — UN PROCESSUS TUE EST NOMME, PAS MAQUILLE EN RAPPORT ILLISIBLE.
+  // Avant : borne atteinte -> exit 1 + stdout vide -> `accept` rendait
+  // NO_REPORT, et deux agents ont cherche une fuite de JSON qui n'existait pas.
+  const lent = runInCleanRoom({ command: 'sleep 5', tag: 'selftest-timeout', timeoutMs: 500 })
+  check(
+    'S01.7',
+    lent.verdict === 'CLEANROOM_TIMEOUT',
+    `borne de 0,5 s sur \`sleep 5\` -> verdict=${lent.verdict ?? 'aucun'} (attendu CLEANROOM_TIMEOUT)`
+  )
+  const tue = runInCleanRoom({ command: 'kill -9 $$', tag: 'selftest-killed' })
+  check(
+    'S01.8',
+    tue.verdict === 'CLEANROOM_KILLED',
+    `SIGKILL exterieur avant la borne -> verdict=${tue.verdict ?? 'aucun'} (attendu CLEANROOM_KILLED, pas TIMEOUT)`
+  )
 }
 
 /**

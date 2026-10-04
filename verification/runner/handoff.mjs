@@ -237,7 +237,48 @@ ils ne sont pas rouverts ici et ne doivent pas l'être silencieusement :
 - [docs/spec-conflicts/SC-001-poids-des-exigences.md](spec-conflicts/SC-001-poids-des-exigences.md)
 - [docs/spec-conflicts/SC-002-mutation-bloquee-par-securite.md](spec-conflicts/SC-002-mutation-bloquee-par-securite.md)
 
-## 7. Reprise du calcul en salle blanche
+## 7. Dettes connues du socle, non couvertes par une preuve
+
+Trois manques sont connus, mesures, et **ne sont couverts par aucun cas requis**.
+Ils sont listes ici parce que c'est le role de ce document : dire ce que la
+preuve ne couvre pas.
+
+**7.1 \`verification/limitations.lock.json\` n'existe pas.** Le chemin est declare
+dans \`GLOBAL_PATHS\` (\`verification/runner/input-digest.mjs\`) et dans la zone
+REGISTRY (\`verification/ownership.json\`), mais aucun cas requis ne l'exige et il
+n'a jamais ete cree. Il devait etre la **liste blanche des limitations
+citables**. Consequence : \`bench accept\` recopie les limitations sans verifier
+qu'elles appartiennent a un ensemble arrete — un role pourrait en inventer une
+plutot que d'echouer. Mesure de l'etat reel : sur le ledger, 2 limitations
+portent un code (\`RED_GATE_PREDATES_ACCEPTANCE_EDIT\`,
+\`RED_SUBSTITUTED_BY_MUTATION\`, toutes deux calculees par \`accept\` lui-meme) et
+les autres sont des **phrases en texte libre** produites par \`verify-task\`.
+Faire appliquer une liste blanche exige donc d'abord de **coder** ces phrases,
+tache par tache. Livrer le fichier sans ce travail produirait une regle qui ne
+contraint rien — exactement le defaut que R08 a revele sur \`merge=union\`
+(voir [docs/reviews/R06-R07-R08.md](reviews/R06-R07-R08.md)).
+
+**7.2 \`T01.source_paths\` revendique \`acceptance\` en entier.** Toute nouvelle
+suite d'acceptation perime donc T01, qui est la racine de la chaine de preuve :
+le ledger porte **32 attestations de T01** pour cette seule raison. Le perimetre
+est *trop large*, pas trop etroit — il ne cache aucun defaut, il coute du temps.
+Le resserrer reduirait un perimetre de preuve et exige donc un arbitrage
+explicite, comme celui qui a resserre \`T00.source_paths\`.
+
+**7.3 L'aveuglement reste procedural pour la plupart des etages.** Revue R07,
+documentee dans [docs/reviews/R06-R07-R08.md](reviews/R06-R07-R08.md) : seuls les
+transcripteurs de fixtures et la porte de mutation sont structurellement
+aveugles. Les autres roles reposent sur une partition verifiee *apres coup*. Une
+violation est detectable dans le diff du ledger ; elle n'est pas impossible.
+
+**7.4 La garde verbatim des cartes de spec a ete ajoutee APRES les 44 preuves.**
+\`node tools/bench spec-lint\` compare les 2201 blocs des 44 cartes aux lignes
+citees du cahier epingle, byte a byte (revue R06, fermee). Elle rend VERBATIM sur
+l'etat livre — les extracteurs n'avaient pas falsifie — mais elle n'etait pas en
+place pendant que les cartes etaient ecrites. Ce qu'elle garantit desormais :
+aucune carte ne peut plus deriver sans etre vue.
+
+## 8. Reprise du calcul en salle blanche
 
 [docs/HANDOFF_ANALYSIS_EXPORT.json](HANDOFF_ANALYSIS_EXPORT.json) permet de
 rejouer \`bench analysis run\` sans PostgreSQL, sans S3, sans clé API et sans

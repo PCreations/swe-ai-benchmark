@@ -5,16 +5,17 @@
 // papier : on fabrique la condition dangereuse, on observe le comportement, on
 // compare à ce qui est attendu.
 // ─────────────────────────────────────────────────────────────────────────────
-import { mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
+import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { runInCleanRoom, runInWorkingTree } from './cleanroom.mjs'
-import { repoRoot } from './git.mjs'
+import { repoRoot, branchName, gitOrNull } from './git.mjs'
 import { decide, DEFAULT_TTL_S } from '../../tools/lease.mjs'
 import { render as renderResume, EXIT } from './resume.mjs'
 import { ledgerOrder } from './ledger.mjs'
 import { projectCases, caseMatcher, TEST_STATUS } from './chains.mjs'
+import { lintSpecCard } from './spec-lint.mjs'
 
 const R = repoRoot()
 const results = []
@@ -354,6 +355,106 @@ export function testMatcheurUnique() {
   check('S05.5', projectCases(['T99.A1'], dix)[0].status === 'NOT_RUN', 'T99.A1 ne capture pas T99.A10')
 }
 
+/**
+ * S06 — LA CARTE DE SPEC EST-ELLE VRAIMENT VERBATIM ?
+ *
+ * Le plan nommait le spec-card poisoning « l'attaque la plus probable » : sept
+ * roles independants lisant une paraphrase ecrite par un seul agent. Il
+ * prescrivait une garde byte-a-byte contre le cahier epingle. Elle n'avait
+ * jamais ete ecrite : `input-digest.mjs` ne fait que HACHER la carte, et un
+ * hachage detecte un CHANGEMENT, jamais une falsification INITIALE. La
+ * verification verbatim etait donc faite par l'extracteur lui-meme, c'est-a-dire
+ * par celui dont le travail etait en cause.
+ *
+ * LE CONTROLE NEGATIF EST L'EXEMPLE DU PLAN, MOT POUR MOT : retirer « et Q
+ * inferieur a 1 » de la fin du bloc de T21.A8. C'est une TRONCATURE, donc le
+ * bloc reste byte-egal a un PREFIXE des lignes citees — la forme exacte qu'une
+ * comparaison naive laisse passer (R06).
+ */
+export function testSpecCardVerbatim() {
+  const dir = mkdtempSync(`${tmpdir()}/bench-spec-`)
+  try {
+    const cahier = `${repoRoot()}/docs/cahier.md`
+    const carte = `${repoRoot()}/docs/specs/T21.md`
+    if (!existsSync(carte) || !existsSync(cahier)) {
+      check('S06.1', false, 'carte T21 ou cahier absent : le controle ne peut pas conclure')
+      return
+    }
+
+    // Positif : la carte reelle doit passer.
+    const vrai = lintSpecCard('T21', { cahierPath: cahier, cardPath: carte })
+    check('S06.1', vrai.blocks > 0, `la carte T21 porte ${vrai.blocks} bloc(s) clos a verifier`)
+    check('S06.2', vrai.problems.length === 0, `carte T21 verbatim (${vrai.problems.length} probleme)`)
+
+    // NEGATIF 1 — TRONCATURE, l'exemple du plan.
+    const brut = readFileSync(carte, 'utf8')
+    const cible = ' et Q inferieur a 1'.replace('inferieur a', 'inférieur à')
+    const tronque = `${dir}/tronque.md`
+    writeFileSync(tronque, brut.replace(cible, ''))
+    const t = lintSpecCard('T21', { cahierPath: cahier, cardPath: tronque })
+    check(
+      'S06.3',
+      brut.includes(cible) && t.problems.some((p) => /RACCOURCI/.test(p)),
+      'retirer « et Q inferieur a 1 » (au MILIEU d un bloc de 7 lignes) est detecte RACCOURCI (R06)'
+    )
+
+    // NEGATIF 2 — PROSE DE L'EXTRACTEUR glissee entre deux citations exactes.
+    const prose = `${dir}/prose.md`
+    writeFileSync(prose, brut.replace('<!-- cahier:', 'En resume, la tache demande ceci.\n<!-- cahier:'))
+    const pr = lintSpecCard('T21', { cahierPath: cahier, cardPath: prose })
+    check('S06.4', pr.problems.some((p) => /prose propre/.test(p)), 'une phrase de l extracteur est refusee')
+
+    // NEGATIF 3 — la garde ne doit pas se contenter d'un prefixe dans l'autre sens.
+    const ajout = `${dir}/ajout.md`
+    writeFileSync(ajout, brut.replace('\n````\n\n<!-- cahier:', ' ET CECI EST AJOUTE.\n````\n\n<!-- cahier:'))
+    const aj = lintSpecCard('T21', { cahierPath: cahier, cardPath: ajout })
+    check('S06.5', aj.problems.length > 0, 'un ajout apres la citation est refuse')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+}
+
+/**
+ * S07 — UNE REGLE QUI NE MATCHE RIEN DONNE UN FAUX SENTIMENT DE PROTECTION.
+ *
+ * R08 craignait que `merge=union` fusionne deux attestations concurrentes en
+ * JSON invalide. La mesure dit l'inverse : la regle du ledger ne couvre que
+ * `**!/*.jsonl`, et le ledger ne contient QUE du `.json` (1369 contre 0). Elle ne
+ * protege donc rien, et ne casse rien non plus — les attestations divergentes au
+ * meme chemin produisent un conflit git normal, detecte.
+ *
+ * Le jour ou un journal `.jsonl` apparaitra sur le ledger, l'union-merge sera
+ * correct pour lui. Le jour ou quelqu'un l'etendrait au `.json`, les
+ * attestations fusionneraient en JSON invalide SANS conflit. Ce controle existe
+ * pour que ce jour-la soit un echec de test, pas une decouverte tardive.
+ */
+export function testLedgerNeFusionnePasLeJson() {
+  const ref = `${branchName()}-ledger`
+  const attrs = gitOrNull(['show', `${ref}:.gitattributes`])
+  if (attrs === null) {
+    check('S07.1', true, 'le ledger ne porte aucun .gitattributes : aucune regle de fusion a verifier')
+    return
+  }
+  const fautives = attrs
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith('#'))
+    .filter((l) => /merge\s*=\s*union/.test(l))
+    .filter((l) => {
+      const motif = l.split(/\s+/)[0]
+      // Une regle est fautive si elle couvre `.json` : soit explicitement, soit
+      // par un motif assez large pour l'attraper (`*`, `*.js*`, `**/*`...).
+      return /\.json\s*$|\.json[^l]|^\*+$|^\*\*\/\*$|\*\.js\*/.test(motif)
+    })
+  check(
+    'S07.1',
+    fautives.length === 0,
+    fautives.length
+      ? `union-merge couvre le JSON du ledger : ${fautives.join(' | ')} — deux attestations divergentes fusionneraient sans conflit`
+      : 'aucune regle d union-merge ne couvre *.json sur le ledger (R08)'
+  )
+}
+
 export function run() {
   testDistParasite()
   testDirtyCleanRoomRefused()
@@ -362,6 +463,8 @@ export function run() {
   testStaleIsActionable()
   testLedgerRecency()
   testMatcheurUnique()
+  testSpecCardVerbatim()
+  testLedgerNeFusionnePasLeJson()
   const failed = results.filter((r) => !r.ok)
   return { results, failed, ok: failed.length === 0 }
 }

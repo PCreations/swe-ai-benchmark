@@ -160,6 +160,33 @@ switch (cmd) {
     break
   }
 
+  case 'spec-lint': {
+    const reg = loadRegistry()
+    if (reg.problems.length) out(['REGISTRE INVALIDE', ...reg.problems].join('\n'), EXIT.REGISTRY_INVALID)
+    const { lintAllSpecCards } = await import('../verification/runner/spec-lint.mjs')
+    const ids = rest.filter((a) => /^T\d\d$/.test(a))
+    const cibles = ids.length ? ids : [...reg.byId.keys()]
+    const { results, ok } = lintAllSpecCards(cibles)
+    const blocs = results.reduce((a, r) => a + r.blocks, 0)
+    const casses = results.filter((r) => r.problems.length)
+    const L = []
+    for (const r of casses) {
+      L.push(`  ${r.task} — ${r.problems.length} probleme(s)`)
+      for (const pb of r.problems) L.push(`      ${pb}`)
+    }
+    out(
+      [
+        ok ? 'CARTES DE SPEC VERBATIM' : 'CARTE DE SPEC FALSIFIEE',
+        `  ${cibles.length} carte(s), ${blocs} bloc(s) compares byte a byte aux lignes citees du cahier epingle`,
+        ...(ok
+          ? ['  aucune troncature, aucun ajout, aucune prose propre a l extracteur']
+          : ['', ...L, '', '  Un bloc TRONQUE est byte-egal a un PREFIXE des lignes citees :', '  c est la falsification que le hachage de la carte ne peut pas voir.']),
+      ].join('\n'),
+      ok ? 0 : 2
+    )
+    break
+  }
+
   case 'verify:task': {
     const id = rest.find((a) => !a.startsWith('-'))
     if (!id) {

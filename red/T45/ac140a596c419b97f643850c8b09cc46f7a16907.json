@@ -1,0 +1,45 @@
+{
+  "schema": "bench.red/1",
+  "task": "T45",
+  "subject_commit": "ac140a596c419b97f643850c8b09cc46f7a16907",
+  "dirty": false,
+  "input_digest": "519bb1763263b1935dfabf32d30d568fbfd1a6f5ee0707ac5a991c5081237dec",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T45.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T45.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T45.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T45.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T45.M4",
+      "note": "mutant applique a packages/activities/dist/run-period.js:288 (identityOf) : scenario_id par defaut remplace par SCN-T45-M4-MUTANT (variant != invalid-candidate). T45.A4 observe rouge (jest -t T45.A4) : assertion p1-scenario_id-par-defaut=SCN-F-RESERVATION recoit SCN-T45-M4-MUTANT. Mutation restauree depuis copie sauvegardee avant ce run officiel ; git status --porcelain vide apres restauration (dist/ non suivi)."
+    }
+  ],
+  "mutation_proof": {
+    "T45.A4": {
+      "killed_by": "T45.M4",
+      "note": "mutant applique a packages/activities/dist/run-period.js:288 (identityOf) : scenario_id par defaut remplace par SCN-T45-M4-MUTANT (variant != invalid-candidate). T45.A4 observe rouge (jest -t T45.A4) : assertion p1-scenario_id-par-defaut=SCN-F-RESERVATION recoit SCN-T45-M4-MUTANT. Mutation restauree depuis copie sauvegardee avant ce run officiel ; git status --porcelain vide apres restauration (dist/ non suivi)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

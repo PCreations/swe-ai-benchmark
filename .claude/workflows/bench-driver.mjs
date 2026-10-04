@@ -316,9 +316,15 @@ ROLE : spec-extractor. ETAGE SPEC, tache ${T}.
 Produis docs/specs/${T}.md : la carte de specification de ${T}.
 
 REGLE UNIQUE ET NON NEGOCIABLE — extraction VERBATIM. Chaque affirmation de la
-carte est un bloc copie octet a octet depuis docs/cahier.md, accompagne de sa
-plage de lignes, de sorte que \`sed -n '<a>,<b>p' docs/cahier.md\` la reproduise
-exactement. AUCUNE prose propre a l'extracteur.
+carte est un bloc copie octet a octet depuis SA SOURCE EPINGLEE, accompagne de sa
+plage de lignes. AUCUNE prose propre a l'extracteur.
+
+${Number(T.slice(1)) >= 44 ? `${T} EST UNE TACHE D'EXTENSION : elle ne vient PAS du cahier. Sa source est
+le champ \`spec_source\` de sa carte dans verification/tasks.extensions.json (un
+ADR accepte et epingle par sha256). Chaque bloc se marque
+  <!-- source:<chemin de l'ADR>:L<a>-L<b> -->
+et non <!-- cahier:... -->. Citer le cahier pour cette tache est refuse
+mecaniquement, meme par une citation exacte.` : `Source : docs/cahier.md. Chaque bloc se marque <!-- cahier:L<a>-L<b> -->.`}
 
 POURQUOI CETTE SEVERITE. L'attaque la plus probable contre ce dispositif est le
 spec-card poisoning : sept roles « independants » lisant tous une paraphrase
@@ -327,8 +333,11 @@ d'un cas suffit a corrompre toute la chaine en aval, silencieusement. Une
 paraphrase fidele est indistinguable d'une paraphrase empoisonnee ; un bloc
 verbatim, non.
 
-Verifie ton propre travail : pour chaque bloc, relance le \`sed\` et compare.
-Rapporte le nombre de blocs et le resultat de cette comparaison.
+VERIFICATION MECANIQUE, PLUS AUTO-DECLAREE : \`node tools/bench spec-lint ${T}\`.
+Elle compare chaque bloc a sa source, byte a byte, et refuse troncature, ajout
+et prose. Elle doit sortir 0. Jusqu'au 04/10/2026 cette garde n'existait pas et
+les extracteurs verifiaient eux-memes leur travail (revue R06) ; elle existe
+maintenant, c'est son verdict qui compte, pas le tien. Rapporte sa sortie.
 
 Commit zone SPEC, Bench-Role: spec-extractor. Puis push.`
 
@@ -517,7 +526,7 @@ Produis deux artefacts :
    sur les cas requis.
 
 2. verification/mutants/${T}.json (zone MUTANT) : un mutant par cas requis,
-   conforme au proof_kind fixe par verification/cases.lock.json. Prends
+   conforme au proof_kind fixe par ${Number(T.slice(1)) >= 44 ? 'verification/cases.extensions.lock.json' : 'verification/cases.lock.json'}. Prends
    verification/mutants/T00.json comme modele de forme et de rigueur.
 
 PROVENANCE DES LITTERAUX. Tout litteral compare dans une assertion provient soit

@@ -209,6 +209,10 @@ export function render(board, { json = false } = {}) {
   )
   L.push(`SOURCE         ${board.srcPush.pushed ? 'poussee' : `NON POUSSEE (${board.srcPush.ahead ?? '?'} commit(s))`}`)
   L.push(`CAHIER         ${oidAt('HEAD', 'docs/cahier.md').slice(0, 12)}  (${board.reg.tasks.task_count} taches, ${board.reg.tasks.required_case_count} cas)`)
+  // Les extensions viennent d'un ADR, pas du cahier : on les montre A PART, pour
+  // que la provenance de chaque tache reste lisible d'un coup d'oeil.
+  if (board.reg.extensions)
+    L.push(`EXTENSIONS     ${board.reg.extensions.task_count} tache(s), ${board.reg.extensions.required_case_count} cas — ${Object.keys(board.reg.extensions.spec_sources ?? {}).join(', ')}`)
   L.push('')
 
   if (board.caps) {
@@ -261,7 +265,7 @@ export function render(board, { json = false } = {}) {
     L.push(`  -> pnpm bench red ${id}        (porte rouge, avant toute implementation)`)
     L.push(`  -> pnpm bench accept ${id}     (clean-room + attestation, une fois vert)`)
   } else if (proven.length === total) {
-    L.push('  Les 44 taches sont prouvees a HEAD.')
+    L.push(`  Les ${total} taches sont prouvees a HEAD.`)
   } else {
     // §K : un blocage nomme le prerequis manquant ET toutes les taches
     // independantes encore realisables.

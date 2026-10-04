@@ -166,9 +166,10 @@ switch (cmd) {
     const { lintAllSpecCards } = await import('../verification/runner/spec-lint.mjs')
     const ids = rest.filter((a) => /^T\d\d$/.test(a))
     const cibles = ids.length ? ids : [...reg.byId.keys()]
-    const { results, ok } = lintAllSpecCards(cibles)
+    const { results, ok } = lintAllSpecCards(cibles, {}, (id) => reg.byId.get(id)?.spec_source?.path ?? null)
     const blocs = results.reduce((a, r) => a + r.blocks, 0)
     const casses = results.filter((r) => r.problems.length)
+    const absentes = results.filter((r) => r.absent).map((r) => r.task)
     const L = []
     for (const r of casses) {
       L.push(`  ${r.task} — ${r.problems.length} probleme(s)`)
@@ -177,7 +178,8 @@ switch (cmd) {
     out(
       [
         ok ? 'CARTES DE SPEC VERBATIM' : 'CARTE DE SPEC FALSIFIEE',
-        `  ${cibles.length} carte(s), ${blocs} bloc(s) compares byte a byte aux lignes citees du cahier epingle`,
+        `  ${cibles.length - absentes.length} carte(s), ${blocs} bloc(s) compares byte a byte a leur source epinglee (cahier ou ADR accepte)`,
+        ...(absentes.length ? [`  ${absentes.length} carte(s) pas encore extraite(s) — etat normal avant l etage SPEC : ${absentes.join(' ')}`] : []),
         ...(ok
           ? ['  aucune troncature, aucun ajout, aucune prose propre a l extracteur']
           : ['', ...L, '', '  Un bloc TRONQUE est byte-egal a un PREFIXE des lignes citees :', '  c est la falsification que le hachage de la carte ne peut pas voir.']),

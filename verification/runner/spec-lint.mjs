@@ -43,14 +43,18 @@ function lignesDuCahier(cahier, a, b) {
  * Analyse une carte. Rend les problemes, jamais une exception : un lint qui
  * plante sur une carte mal formee ne dit pas si les AUTRES sont bonnes.
  */
-export function lintSpecCard(taskId, { cahierPath = `${R}/docs/cahier.md`, cardPath } = {}) {
+export function lintSpecCard(taskId, { cahierPath = `${R}/docs/cahier.md`, cardPath, sourceAttendue = null } = {}) {
   const chemin = cardPath ?? `${R}/docs/specs/${taskId}.md`
-  if (!existsSync(chemin)) return { task: taskId, blocks: 0, problems: [`carte absente : ${chemin}`] }
+  // ABSENTE n'est pas FALSIFIEE. Une tache dont l'etage SPEC n'a pas encore
+  // tourne n'a pas de carte, et c'est son etat normal ; la confondre avec une
+  // carte trafiquee ferait crier au loup sur chaque tache neuve.
+  if (!existsSync(chemin)) return { task: taskId, blocks: 0, absent: true, problems: [] }
   if (!existsSync(cahierPath)) return { task: taskId, blocks: 0, problems: [`cahier absent : ${cahierPath}`] }
 
   const cahier = readFileSync(cahierPath, 'utf8').split('\n')
   const lignes = readFileSync(chemin, 'utf8').split('\n')
   const problems = []
+  const sources = new Map()
   let blocks = 0
 
   let i = 0
@@ -58,7 +62,33 @@ export function lintSpecCard(taskId, { cahierPath = `${R}/docs/cahier.md`, cardP
   while (i < lignes.length) {
     const l = lignes[i]
     const m = /^<!--\s*cahier:L(\d+)(?:-L(\d+))?\s*-->\s*$/.exec(l)
+    const ms = /^<!--\s*source:([^\s:]+):L(\d+)(?:-L(\d+))?\s*-->\s*$/.exec(l)
+    if (ms) {
+      // Les cartes des taches d'EXTENSION citent leur ADR, pas le cahier. La
+      // comparaison est la meme, byte a byte ; seul le texte de reference change.
+      // Une carte ne peut citer QUE la source declaree par sa tache : sinon une
+      // extension pourrait se reclamer d'un autre document que celui epingle.
+      const fichier = ms[1]
+      if (sourceAttendue && fichier !== sourceAttendue) {
+        problems.push(`carte ligne ${i + 1} cite ${fichier}, mais la tache declare ${sourceAttendue}`)
+        plage = null
+      } else if (!existsSync(`${R}/${fichier}`)) {
+        problems.push(`source citee introuvable : ${fichier}`)
+        plage = null
+      } else {
+        if (!sources.has(fichier)) sources.set(fichier, readFileSync(`${R}/${fichier}`, 'utf8').split('\n'))
+        plage = { a: Number(ms[2]), b: Number(ms[3] ?? ms[2]), ligne: i + 1, ref: sources.get(fichier) }
+      }
+      i += 1
+      continue
+    }
     if (m) {
+      if (sourceAttendue) {
+        problems.push(`carte ligne ${i + 1} cite le cahier, mais cette tache d'extension declare ${sourceAttendue}`)
+        plage = null
+        i += 1
+        continue
+      }
       plage = { a: Number(m[1]), b: Number(m[2] ?? m[1]), ligne: i + 1 }
       i += 1
       continue
@@ -80,7 +110,7 @@ export function lintSpecCard(taskId, { cahierPath = `${R}/docs/cahier.md`, cardP
       if (!plage) {
         problems.push(`bloc ligne ${i + 1} sans marqueur <!-- cahier:L… --> qui le precede`)
       } else {
-        const attendu = lignesDuCahier(cahier, plage.a, plage.b)
+        const attendu = lignesDuCahier(plage.ref ?? cahier, plage.a, plage.b)
         if (cite !== attendu) {
           // On NOMME la forme de l'ecart, parce qu'un « DIFFERENT » sec ne dit pas
           // ou regarder. Et surtout : une suppression INTERNE est aussi une
@@ -113,7 +143,7 @@ export function lintSpecCard(taskId, { cahierPath = `${R}/docs/cahier.md`, cardP
 }
 
 /** Lint de toutes les cartes du registre. */
-export function lintAllSpecCards(taskIds, opts = {}) {
-  const results = taskIds.map((id) => lintSpecCard(id, opts))
+export function lintAllSpecCards(taskIds, opts = {}, sourceDe = () => null) {
+  const results = taskIds.map((id) => lintSpecCard(id, { ...opts, sourceAttendue: sourceDe(id) }))
   return { results, ok: results.every((r) => r.problems.length === 0) }
 }

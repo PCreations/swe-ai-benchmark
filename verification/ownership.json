@@ -34,7 +34,9 @@
       "verification/tasks.json",
       "verification/cases.lock.json",
       "verification/limitations.lock.json",
-      "verification/ownership.json"
+      "verification/ownership.json",
+      "verification/tasks.extensions.json",
+      "verification/cases.extensions.lock.json"
     ],
     "HARNESS": [
       "verification/runner/**",

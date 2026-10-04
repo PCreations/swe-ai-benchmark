@@ -1,6 +1,7 @@
 # ADR-007 — Pilote longitudinal réel, et le token comme seule unité enregistrée
 
-    statut : PROPOSÉ — attend l'arbitrage du mandant
+    statut : ACCEPTÉ — par le mandant le 04/10/2026 (« oui vas-y, étends le
+             registre et lance T44 et T45 »)
     ouvert : 04/10/2026
     porte  : `bench campaign` / `bench pilot` (orchestration), §E `ModelCall`
              (ce qui est enregistré), `verification/runner/registry.mjs`
@@ -107,3 +108,56 @@ par le pilote héritera de cette réserve.
 Je ne recommande pas cette voie pour A, B et D, qui sont le chemin de mesure.
 Elle est défendable pour C seul, l'orchestrateur n'étant qu'une boucle au-dessus
 de `run-period`, qui est lui prouvé (T23).
+
+## Arbitrage
+
+Le mandant a retenu la voie prouvée pour les trois pièces, le 04/10/2026, après
+la correction suivante : l'orchestrateur n'est **pas** « une simple boucle au-dessus
+de `run-period` ». `packages/activities/src/run-period.ts` code en dur
+`scenario_id: 'SCN-F-RESERVATION'` et `configuration_id: 'CFG-RECORDED-LOCAL'`
+(lignes 445-446) : une boucle produirait N trajectoires du même scénario sous la
+même configuration, et ne pourrait rien comparer. L'orchestrateur exige donc de
+paramétrer `run-period`, qui est dans le chemin de mesure.
+
+## Où vivent ces tâches, et pourquoi pas dans `verification/tasks.json`
+
+`acceptance/T43.spec.ts` lève une exception **au chargement** si
+`verification/tasks.json` ne contient pas exactement 44 tâches (« cahier:L8 —
+Il comporte 44 taches, T00 a T43 »). Y ajouter T44 casserait T43 et ferait
+perdre `HANDOFF_COMPLETE` — pour une raison juste : ce fichier **est** le
+registre du cahier, et le cahier compte 44 tâches.
+
+Les tâches issues de cet ADR vivent donc dans `verification/tasks.extensions.json`
+et leurs cas dans `verification/cases.extensions.lock.json`. La frontière de
+provenance devient structurelle : on sait au nom du fichier si une tâche vient
+du cahier épinglé ou d'un ADR accepté. `bench resume` les fusionne.
+
+## Spécification des tâches T44 à T46
+
+Format calqué sur le cahier. Ces blocs sont la source verbatim des cartes de
+spec de T44 à T46, et `bench spec-lint` les vérifie contre ce fichier comme il
+vérifie les 44 autres contre le cahier.
+
+**T44 — Enregistrer le modèle et le vecteur de tokens de chaque appel**
+
+Dépendances : T17 et T28. Livrables : chaque appel modèle réglé porte le fournisseur, le modèle effectivement appelé et le vecteur de tokens à cinq catégories d'ADR-002 ; un usage plus grossier que ces cinq catégories est enregistré tel quel et marqué non ventilé, jamais redistribué.
+
+Acceptation : `T44.A1` chaque appel réglé porte un `provider` et un `model` non vides, égaux à ceux que le fournisseur a déclarés pour cet appel ; `A2` le vecteur d'usage porte exactement `input_fresh`, `cache_write_5m`, `cache_write_1h`, `cache_read` et `output`, en entiers non négatifs ; `A3` deux fournisseurs factices déclarant deux modèles distincts produisent deux valeurs de `model` distinctes ; `A4` un usage qui ne distingue pas lecture et écriture de cache est conservé dans une catégorie explicitement non ventilée, et aucune de ses unités n'est attribuée à `cache_read`, `cache_write_5m` ou `cache_write_1h`.
+
+Commande : `pnpm verify:task T44`. Aucun accès à une API réelle n'est nécessaire.
+
+**T45 — Paramétrer une période par scénario et par configuration**
+
+Dépendances : T23. Livrables : `run-period` accepte un scénario et une configuration ; la première période d'une trajectoire fixe son scénario et sa configuration, que chaque période suivante relit depuis l'état persistant.
+
+Acceptation : `T45.A1` deux trajectoires lancées avec deux configurations distinctes persistent chacune la sienne, relue à chaque période suivante ; `A2` deux scénarios distincts révèlent des exigences distinctes à la même période ; `A3` relancer une trajectoire existante avec une configuration différente de celle enregistrée est refusé avec `TRAJECTORY_IDENTITY_CONFLICT`, sans écrire de période ; `A4` sans scénario ni configuration fournis, le scénario et la configuration de T23 restent ceux utilisés.
+
+Commande : `pnpm verify:task T45`. PostgreSQL et le stockage objet réels sont requis.
+
+**T46 — Conduire un pilote longitudinal réel**
+
+Dépendances : T39, T44 et T45. Livrables : commande conduisant chaque trajectoire compilée d'un manifeste de pilote, période par période, à travers `run-period` ; reprise après interruption ; rapport de fin en tokens par modèle et par catégorie ; budget déclarable sans plafond.
+
+Acceptation : `T46.A1` un manifeste de N trajectoires sur P périodes produit exactement N×P périodes persistées, lues en base, chacune portant le scénario et la configuration de sa trajectoire ; `A2` une exécution interrompue après k périodes puis relancée reprend à la période k+1, sans période dupliquée ni sautée ; `A3` le rapport de fin agrège les tokens par modèle et par catégorie, et chaque total égale la somme des appels persistés correspondants ; `A4` un budget déclaré sans plafond ne refuse aucune trajectoire et est enregistré comme tel, tandis qu'un budget absent reste refusé comme l'exige T39 ; `A5` chaque période persistée est rattachée à une trajectoire et à une campagne existantes, sans période orpheline.
+
+Commande : `pnpm verify:task T46`. PostgreSQL, le stockage objet et le fournisseur factice sont requis ; aucune clé réelle n'est nécessaire.

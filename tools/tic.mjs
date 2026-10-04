@@ -63,6 +63,9 @@ const JALONS = [
   { nom: 'CORE_VERIFIED', ancres: ['T38'], cahier: 'L26' },
   { nom: 'PILOT_READY', ancres: ['T39', 'T40'], cahier: 'L26' },
   { nom: 'HANDOFF_COMPLETE', ancres: ['T43'], cahier: 'L26' },
+  // Pas un jalon du cahier : il vient d'ADR-007, accepte le 04/10/2026. Il est
+  // affiche a part pour que personne ne le confonde avec les trois du cahier.
+  { nom: 'PILOTE_LONGITUDINAL', ancres: ['T46'], cahier: 'ADR-007' },
 ]
 
 /** Taches attestees SUR LE LEDGER — la seule mesure qui ne decroit pas. */
@@ -90,8 +93,17 @@ function fermeture(ancres, parId) {
 }
 
 function mesure() {
-  const taches = lire('verification/tasks.json').tasks
-  const cas = lire('verification/cases.lock.json').cases
+  // Le registre du cahier ET ses extensions (ADR-007) : la barre MOTEUR mesure
+  // tout ce qui doit etre prouve, quelle que soit la provenance.
+  const ext = (p) => {
+    try {
+      return lire(p)
+    } catch {
+      return null
+    }
+  }
+  const taches = [...lire('verification/tasks.json').tasks, ...(ext('verification/tasks.extensions.json')?.tasks ?? [])]
+  const cas = [...lire('verification/cases.lock.json').cases, ...(ext('verification/cases.extensions.lock.json')?.cases ?? [])]
   const parId = new Map(taches.map((t) => [t.id, t]))
 
   // POIDS = CAS D'ACCEPTATION, pas nombre de taches. Compter les taches mettrait

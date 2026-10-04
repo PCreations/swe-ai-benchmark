@@ -1,0 +1,201 @@
+{
+  "$comment": [
+    "Cas des taches d'extension (ADR-007). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
+  ],
+  "schema": "bench.caseslock.extensions/1",
+  "spec_source_sha256": {
+    "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca"
+  },
+  "cases": [
+    {
+      "id": "T44.A1",
+      "task": "T44",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 145,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "stuber l'ecriture de l'appel pour qu'elle omette provider et model : le cas doit rougir"
+    },
+    {
+      "id": "T44.A2",
+      "task": "T44",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 145,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "rendre un vecteur a trois categories (output, cached, uncached) au lieu de cinq : le cas doit rougir"
+    },
+    {
+      "id": "T44.A3",
+      "task": "T44",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 145,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ecrire une constante de modele quel que soit le fournisseur : le cas doit rougir"
+    },
+    {
+      "id": "T44.A4",
+      "task": "T44",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 145,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "attribuer les tokens de cache non ventiles a cache_read : le cas doit rougir"
+    },
+    {
+      "id": "T45.A1",
+      "task": "T45",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 153,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "relire la configuration codee en dur au lieu de celle persistee : le cas doit rougir"
+    },
+    {
+      "id": "T45.A2",
+      "task": "T45",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 153,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ignorer le scenario fourni et reveler toujours SCN-F-RESERVATION : le cas doit rougir"
+    },
+    {
+      "id": "T45.A3",
+      "task": "T45",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 153,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "accepter une configuration differente de celle enregistree et ecrire la periode : le cas doit rougir"
+    },
+    {
+      "id": "T45.A4",
+      "task": "T45",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 153,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "changer le scenario par defaut quand aucun n'est fourni : le cas doit rougir"
+    },
+    {
+      "id": "T46.A1",
+      "task": "T46",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 161,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "persister N*P-1 periodes (une de moins) : le cas doit rougir"
+    },
+    {
+      "id": "T46.A2",
+      "task": "T46",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 161,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "reprendre a la periode 1 au lieu de k+1 : le cas doit rougir (periodes dupliquees)"
+    },
+    {
+      "id": "T46.A3",
+      "task": "T46",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 161,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "omettre les tokens d'un appel dans l'agregat par modele : le cas doit rougir"
+    },
+    {
+      "id": "T46.A4",
+      "task": "T46",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 161,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "traiter un budget absent comme sans plafond : le cas doit rougir"
+    },
+    {
+      "id": "T46.A5",
+      "task": "T46",
+      "source": "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md",
+      "source_line": 161,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ecrire une periode sans trajectoire rattachee : le cas doit rougir"
+    }
+  ],
+  "case_count": 13,
+  "classified_cases": 13
+}

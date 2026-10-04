@@ -157,7 +157,120 @@ export function loadRegistry() {
       problems.push(`ACCEPTANCE_WEAKENED : ${id} ne declare plus ${missing.join(', ')}`)
   }
 
-  return { problems, tasks, lock, byId, lockByTask }
+  // ── EXTENSIONS : taches issues d'un ADR accepte (ADR-007). Le registre du
+  // cahier reste intact — 44 taches, toutes les regles ci-dessus inchangees —
+  // et les extensions sont validees A PART, avec leurs propres gardes, avant
+  // d'etre fusionnees. Pourquoi a part : acceptance/T43.spec.ts leve au
+  // chargement si verification/tasks.json ne compte pas exactement 44 taches.
+  const ext = loadExtensions(byId)
+  problems.push(...ext.problems)
+  for (const [id, t] of ext.byId) byId.set(id, t)
+  for (const [task, ids] of ext.lockByTask) lockByTask.set(task, ids)
+  if (ext.byId.size) problems.push(...mergedGraphProblems(byId))
+  const mergedLock = { ...lock, cases: [...(lock.cases ?? []), ...ext.cases] }
+
+  return { problems, tasks, lock: mergedLock, byId, lockByTask, extensions: ext.doc }
+}
+
+/**
+ * LES TACHES D'EXTENSION ne viennent pas du cahier, donc aucune de ses gardes
+ * ne les couvre d'office. Chacune des regles ci-dessous remplace une garde que
+ * le cahier fournit aux 44 autres :
+ *
+ *   - ID au-dela de T43 SEULEMENT ici. Une T44 glissee dans tasks.json reste
+ *     refusee par `structuralProblems` (ID INCONNU) : la frontiere de
+ *     provenance ne se franchit pas par erreur de fichier.
+ *   - SOURCE EPINGLEE. `spec_source` doit exister, ne pas etre le cahier, et son
+ *     sha256 doit egaler l'empreinte declaree dans les DEUX fichiers d'extension
+ *     — exactement comme `cahier_sha256` epingle le cahier. Modifier l'ADR
+ *     invalide le registre jusqu'a mise a jour tracee.
+ *   - SOURCE ACCEPTEE. Un ADR seulement PROPOSE ne peut pas porter de tache :
+ *     sinon n'importe quel brouillon deviendrait une exigence.
+ *   - STATUS FIGE et MONOTONIE, comme pour les 44.
+ */
+export function loadExtensions(cahierById, root = R) {
+  const out = { problems: [], byId: new Map(), cases: [], lockByTask: new Map(), doc: null }
+  const tasksPath = `${root}/verification/tasks.extensions.json`
+  const lockPath = `${root}/verification/cases.extensions.lock.json`
+  if (!existsSync(tasksPath)) return out
+
+  let doc, lock
+  try {
+    doc = JSON.parse(readFileSync(tasksPath, 'utf8'))
+  } catch (e) {
+    out.problems.push(`verification/tasks.extensions.json illisible : ${e.message}`)
+    return out
+  }
+  try {
+    lock = JSON.parse(readFileSync(lockPath, 'utf8'))
+  } catch (e) {
+    out.problems.push(`verification/cases.extensions.lock.json illisible ou absent : ${e.message}`)
+    return out
+  }
+  out.doc = doc
+
+  const tasks = doc.tasks ?? []
+  if (doc.task_count !== tasks.length)
+    out.problems.push(`EXTENSIONS : task_count declare ${doc.task_count}, ${tasks.length} cartes presentes`)
+
+  const shaCache = new Map()
+  for (const t of tasks) {
+    if (!/^T(4[4-9]|[5-9]\d)$/.test(t.id ?? ''))
+      out.problems.push(`ID D'EXTENSION INVALIDE : ${t.id} (attendu T44 ou au-dela ; T00..T43 appartiennent au cahier)`)
+    if (cahierById.has(t.id) || out.byId.has(t.id)) out.problems.push(`DOUBLON : ${t.id}`)
+
+    const src = t.spec_source?.path
+    if (!src) {
+      out.problems.push(`EXTENSION SANS SOURCE : ${t.id} ne porte pas spec_source`)
+    } else if (src === 'docs/cahier.md') {
+      out.problems.push(`EXTENSION SUR LE CAHIER : ${t.id} cite docs/cahier.md — une tache du cahier vit dans tasks.json`)
+    } else if (!existsSync(`${root}/${src}`)) {
+      out.problems.push(`SOURCE ABSENTE : ${t.id} cite ${src}, introuvable`)
+    } else {
+      if (!shaCache.has(src)) shaCache.set(src, createHash('sha256').update(readFileSync(`${root}/${src}`)).digest('hex'))
+      const sha = shaCache.get(src)
+      if (doc.spec_sources?.[src] !== sha || lock.spec_source_sha256?.[src] !== sha)
+        out.problems.push(
+          `SOURCE_DIGEST_MISMATCH : ${src} vaut ${sha.slice(0, 12)}… mais les fichiers d'extension epinglent ` +
+            `${String(doc.spec_sources?.[src]).slice(0, 12)}… / ${String(lock.spec_source_sha256?.[src]).slice(0, 12)}…`
+        )
+      const entete = readFileSync(`${root}/${src}`, 'utf8').split('\n').slice(0, 12).join('\n')
+      if (!/statut\s*:\s*ACCEPT/i.test(entete))
+        out.problems.push(`SOURCE NON ACCEPTEE : ${src} ne porte pas « statut : ACCEPTÉ » — un brouillon ne cree pas d'exigence`)
+    }
+    if (t.status !== 'NOT_IMPLEMENTED')
+      out.problems.push(`STATUS NON FIGE : ${t.id} porte "${t.status}". DONE est derive, jamais stocke.`)
+    out.byId.set(t.id, t)
+  }
+
+  for (const c of lock.cases ?? []) {
+    if (!out.lockByTask.has(c.task)) out.lockByTask.set(c.task, [])
+    out.lockByTask.get(c.task).push(c.id)
+    out.cases.push(c)
+  }
+  for (const [id, t] of out.byId) {
+    const have = new Set(t.required_cases ?? [])
+    const missing = (out.lockByTask.get(id) ?? []).filter((c) => !have.has(c))
+    if (missing.length) out.problems.push(`ACCEPTANCE_WEAKENED : ${id} ne declare plus ${missing.join(', ')}`)
+  }
+  return out
+}
+
+/** Dependances et cycles sur le registre FUSIONNE : une extension depend du cahier. */
+export function mergedGraphProblems(byId) {
+  const problems = []
+  for (const [id, t] of byId)
+    for (const d of t.depends_on ?? []) if (!byId.has(d)) problems.push(`DEPENDANCE ABSENTE : ${id} -> ${d}`)
+  const color = new Map()
+  const walk = (id, stack) => {
+    if (color.get(id) === 2) return
+    if (color.get(id) === 1) return void problems.push(`CYCLE : ${[...stack, id].join(' -> ')}`)
+    color.set(id, 1)
+    for (const d of byId.get(id)?.depends_on ?? []) walk(d, [...stack, id])
+    color.set(id, 2)
+  }
+  for (const id of byId.keys()) walk(id, [])
+  return problems
 }
 
 /**

@@ -16,6 +16,7 @@ import { render as renderResume, EXIT } from './resume.mjs'
 import { ledgerOrder } from './ledger.mjs'
 import { projectCases, caseMatcher, TEST_STATUS } from './chains.mjs'
 import { lintSpecCard } from './spec-lint.mjs'
+import { loadExtensions, mergedGraphProblems, structuralProblems } from './registry.mjs'
 
 const R = repoRoot()
 const results = []
@@ -409,6 +410,24 @@ export function testSpecCardVerbatim() {
     writeFileSync(ajout, brut.replace('\n````\n\n<!-- cahier:', ' ET CECI EST AJOUTE.\n````\n\n<!-- cahier:'))
     const aj = lintSpecCard('T21', { cahierPath: cahier, cardPath: ajout })
     check('S06.5', aj.problems.length > 0, 'un ajout apres la citation est refuse')
+
+    // ── Cartes d'EXTENSION : meme garde, source = l'ADR epingle, pas le cahier.
+    const ADR = 'docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md'
+    const lignesAdr = readFileSync(`${repoRoot()}/${ADR}`, 'utf8').split('\n')
+    const bloc = (a, b) => `<!-- source:${ADR}:L${a}-L${b} -->\n<!-- applies: T44.A1 -->\n\`\`\`\`\n${lignesAdr.slice(a - 1, b).join('\n')}\n\`\`\`\`\n`
+    const ext = `${dir}/ext.md`
+    writeFileSync(ext, bloc(145, 145))
+    const e1 = lintSpecCard('T44', { cahierPath: cahier, cardPath: ext, sourceAttendue: ADR })
+    check('S06.6', e1.blocks === 1 && e1.problems.length === 0, `une carte d extension citant son ADR verbatim passe (${e1.problems.join(' | ') || 'ok'})`)
+
+    writeFileSync(ext, bloc(145, 145).replace(' et aucune de ses unités', ''))
+    const e2 = lintSpecCard('T44', { cahierPath: cahier, cardPath: ext, sourceAttendue: ADR })
+    check('S06.7', e2.problems.some((p) => /RACCOURCI/.test(p)), 'une troncature dans une carte d extension est detectee comme pour le cahier')
+
+    writeFileSync(ext, `<!-- cahier:L3-L5 -->\n\`\`\`\`\n${readFileSync(cahier, 'utf8').split('\n').slice(2, 5).join('\n')}\n\`\`\`\`\n`)
+    const e3 = lintSpecCard('T44', { cahierPath: cahier, cardPath: ext, sourceAttendue: ADR })
+    check('S06.8', e3.problems.some((p) => /cite le cahier/.test(p)),
+      'une extension ne peut pas se reclamer du cahier, meme par une citation exacte')
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }
@@ -455,6 +474,56 @@ export function testLedgerNeFusionnePasLeJson() {
   )
 }
 
+/**
+ * S08 — UNE TACHE D'EXTENSION NE PEUT PAS CONTOURNER LES GARDES DU CAHIER.
+ *
+ * Les taches T44+ viennent d'un ADR, pas du cahier epingle. Aucune garde du
+ * cahier ne les couvre d'office : chacune est remplacee dans `loadExtensions`,
+ * et chacune est verifiee ici PAR SON ECHEC, sur une copie isolee — jamais sur
+ * le depot. Une garde qu'on n'a pas vue echouer ne protege de rien.
+ */
+export function testExtensionsGardees() {
+  const dir = mkdtempSync(`${tmpdir()}/bench-ext-`)
+  const R0 = repoRoot()
+  try {
+    const ADR = 'docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md'
+    mkdirSync(`${dir}/verification`, { recursive: true })
+    mkdirSync(`${dir}/docs/adr`, { recursive: true })
+    const vraiAdr = readFileSync(`${R0}/${ADR}`, 'utf8')
+    const vraiTasks = readFileSync(`${R0}/verification/tasks.extensions.json`, 'utf8')
+    const vraiLock = readFileSync(`${R0}/verification/cases.extensions.lock.json`, 'utf8')
+    const cahier = new Map(['T17', 'T23', 'T28', 'T39'].map((id) => [id, { id }]))
+
+    const essai = ({ adr = vraiAdr, tasks = vraiTasks, lock = vraiLock } = {}) => {
+      writeFileSync(`${dir}/${ADR}`, adr)
+      writeFileSync(`${dir}/verification/tasks.extensions.json`, tasks)
+      writeFileSync(`${dir}/verification/cases.extensions.lock.json`, lock)
+      return loadExtensions(cahier, dir).problems.join(' | ')
+    }
+    const muter = (txt, f) => JSON.stringify(f(JSON.parse(txt)), null, 2)
+
+    check('S08.1', essai() === '', `les extensions reelles passent (${essai() || 'aucun probleme'})`)
+    check('S08.2', /SOURCE_DIGEST_MISMATCH/.test(essai({ adr: vraiAdr + '\n' })),
+      'un seul octet ajoute a l ADR invalide le registre (epinglage comme le cahier)')
+    check('S08.3', /SOURCE NON ACCEPTEE/.test(essai({ adr: vraiAdr.replace(/statut : ACCEPTÉ/, 'statut : PROPOSÉ') })),
+      'un ADR seulement PROPOSE ne porte aucune tache — un brouillon ne cree pas d exigence')
+    check('S08.4', /EXTENSION SUR LE CAHIER/.test(essai({ tasks: muter(vraiTasks, (d) => (d.tasks[0].spec_source.path = 'docs/cahier.md', d)) })),
+      'une extension qui cite le cahier est refusee : sa place est dans tasks.json')
+    check('S08.5', /ACCEPTANCE_WEAKENED : T44/.test(essai({ tasks: muter(vraiTasks, (d) => (d.tasks[0].required_cases.pop(), d)) })),
+      'retirer un cas requis d une extension leve ACCEPTANCE_WEAKENED (monotonie)')
+    check('S08.6', /ID D'EXTENSION INVALIDE : T43/.test(essai({ tasks: muter(vraiTasks, (d) => (d.tasks[0].id = 'T43', d)) })),
+      'une extension ne peut pas prendre un identifiant du cahier')
+    check('S08.7', /DEPENDANCE ABSENTE : T44 -> T99/.test(
+      mergedGraphProblems(new Map([['T44', { id: 'T44', depends_on: ['T99'] }]])).join(' | ')),
+      'une dependance d extension pendante est detectee sur le registre fusionne')
+    // La frontiere dans l'AUTRE sens : T44 glissee dans le registre du cahier.
+    check('S08.8', structuralProblems({ tasks: [{ id: 'T44', depends_on: [] }] }).problems.some((p) => /ID INCONNU : T44/.test(p)),
+      'T44 placee dans tasks.json reste ID INCONNU — la provenance ne se franchit pas par erreur de fichier')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+}
+
 export function run() {
   testDistParasite()
   testDirtyCleanRoomRefused()
@@ -465,6 +534,7 @@ export function run() {
   testMatcheurUnique()
   testSpecCardVerbatim()
   testLedgerNeFusionnePasLeJson()
+  testExtensionsGardees()
   const failed = results.filter((r) => !r.ok)
   return { results, failed, ok: failed.length === 0 }
 }

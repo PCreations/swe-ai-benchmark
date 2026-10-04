@@ -55,26 +55,52 @@ import type { ScriptResult } from './psql.js'
 export { GATEWAY_REFUSAL_CODES, GatewayRefusal, isGatewayRefusal } from './errors.js'
 export type { GatewayRefusalCode } from './errors.js'
 
+/**
+ * Usage brut d'une reponse de fournisseur factice, sous l'UNE OU L'AUTRE
+ * forme (T44, ADR-007 L143/L145 — cf. acceptance/T44.spec.ts III.2) :
+ *   - GROSSIERE (T17, reprise telle quelle) : trois categories, qui ne
+ *     distinguent PAS lecture et ecriture de cache.
+ *   - FINE (T44, nouvelle) : les cinq categories ADR-002 nommees par L145,
+ *     chacune a son propre compteur.
+ * Les deux peuvent cohabiter sur le meme objet (cf. acceptance/T44.spec.ts,
+ * cas A2 : les champs grossiers y sont un complement pour la facturation,
+ * deja fixee par T17, jamais pour le vecteur persiste).
+ */
+export interface FakeProviderUsage {
+  readonly input_uncached_tokens?: number
+  readonly input_cached_tokens?: number
+  readonly output_tokens?: number
+  readonly input_fresh_tokens?: number
+  readonly cache_write_5m_tokens?: number
+  readonly cache_write_1h_tokens?: number
+  readonly cache_read_tokens?: number
+}
+
 /** Reponse scriptee d'un appel de fournisseur factice (cf. III.1). */
 export interface FakeProviderResponse {
   readonly text: string
-  readonly usage?: {
-    readonly input_uncached_tokens: number
-    readonly input_cached_tokens: number
-    readonly output_tokens: number
-  }
+  readonly usage?: FakeProviderUsage
 }
 
 /** Cible de creation d'un fournisseur factice (L15, L301). */
 export interface CreateFakeProviderRequest {
   readonly responses: ReadonlyArray<string | FakeProviderResponse>
   readonly onRequest?: (request: unknown, index: number) => void
+  /** Identite declaree par CE fournisseur factice (T44, ADR-007 L145) —
+   * optionnelle : une suite qui ne la fournit pas (T17, T28) ne change rien a
+   * son propre comportement. */
+  readonly provider?: string
+  readonly model?: string
 }
 
 /** Fournisseur factice rendu : `complete()` scripte, `calls` un compteur vivant. */
 export interface FakeProvider {
   complete(request: unknown): Promise<unknown>
   readonly calls: number
+  /** Les memes valeurs que `createFakeProvider({ provider, model })` a reçues
+   * (T44) — lisibles, en plus de `.complete`/`.calls` deja fixes par T17. */
+  readonly provider?: string
+  readonly model?: string
 }
 
 /** Points d'injection nommes de `dispatchModelCall` (section III.2). */
@@ -102,6 +128,9 @@ export interface DispatchModelCallResult {
   readonly cost?: string
   readonly usage?: unknown
   readonly response?: unknown
+  /** Identite declaree par le fournisseur pour cet appel (T44, A1/A3). */
+  readonly provider?: string
+  readonly model?: string
 }
 
 /** Identite d'un appel modele, pour lecture directe (section III.3). */
@@ -119,6 +148,10 @@ export interface ModelCallRecord {
   readonly cost?: string
   readonly usage?: unknown
   readonly response: unknown
+  /** Identite declaree par le fournisseur au moment du reglement (T44,
+   * ADR-007 L143/L145) — absente avant SETTLED. */
+  readonly provider?: string
+  readonly model?: string
 }
 
 /** Un recu de facturation arrive hors bande pour un appel UNKNOWN (section III.4). */
@@ -210,6 +243,87 @@ function digestOfRequest(request: unknown): string {
   }
 }
 
+/* ────────────────────────────────────────────────────── T44 : vecteur d'usage */
+
+/** Les quatre champs qui, seuls, distinguent la forme FINE (T44) de la forme
+ * GROSSIERE (T17) — cf. acceptance/T44.spec.ts III.2. */
+const FINE_USAGE_MARKERS = [
+  'input_fresh_tokens',
+  'cache_write_5m_tokens',
+  'cache_write_1h_tokens',
+  'cache_read_tokens',
+] as const
+
+function isFineUsage(u: Record<string, unknown>): boolean {
+  return FINE_USAGE_MARKERS.some((k) => k in u)
+}
+
+function numOrZero(v: unknown): number {
+  return typeof v === 'number' && Number.isFinite(v) ? v : 0
+}
+
+/**
+ * Derive le vecteur d'usage PERSISTE depuis la reponse BRUTE du fournisseur
+ * (ADR-007 L141-L147, acceptance/T44.spec.ts III.2-3) :
+ *   - forme FINE  -> les cinq categories L145, recopiees UN A UN sans suffixe
+ *     `_tokens` (A2). Aucune ambiguite : pas de sixieme cle.
+ *   - forme GROSSIERE (T17, reprise telle quelle) -> `input_cached_tokens` ne
+ *     distingue PAS lecture et ecriture de cache (L143) : jamais redistribue
+ *     vers `cache_read`/`cache_write_5m`/`cache_write_1h` (qui restent a
+ *     zero, A4), conserve TEL QUEL dans une sixieme cle `cache_unresolved`
+ *     (FIXEE par acceptance/T44.spec.ts III.3, pas enoncee par l'ADR).
+ */
+function deriveUsageVector(raw: unknown): Record<string, number> {
+  const u = (raw ?? {}) as Record<string, unknown>
+  if (isFineUsage(u)) {
+    return {
+      input_fresh: numOrZero(u.input_fresh_tokens),
+      cache_write_5m: numOrZero(u.cache_write_5m_tokens),
+      cache_write_1h: numOrZero(u.cache_write_1h_tokens),
+      cache_read: numOrZero(u.cache_read_tokens),
+      output: numOrZero(u.output_tokens),
+    }
+  }
+  return {
+    input_fresh: numOrZero(u.input_uncached_tokens),
+    cache_write_5m: 0,
+    cache_write_1h: 0,
+    cache_read: 0,
+    output: numOrZero(u.output_tokens),
+    cache_unresolved: numOrZero(u.input_cached_tokens),
+  }
+}
+
+/**
+ * Usage GROSSIER (`ModelCallUsage`, T17) pour `computeModelCallCost` — la
+ * facturation n'est pas l'objet de T44 (deja fixee par T17, acceptance/
+ * T17.spec.ts) : cette fonction retrouve les champs grossiers deja presents
+ * (A1/A3/A4, et le complement grossier qu'A2 ajoute pour cette seule raison,
+ * cf. son commentaire), ou les derive de la forme fine quand elle seule est
+ * fournie (aucun cas de T44 n'exerce cette derniere branche, mais une
+ * reponse purement fine doit rester facturable plutot que de faire echouer
+ * tout le dispatch sur un champ que la facturation ne voit pas).
+ */
+function deriveCostUsage(raw: unknown): ModelCallUsage {
+  const u = (raw ?? {}) as Record<string, unknown>
+  if ('input_uncached_tokens' in u || 'input_cached_tokens' in u) {
+    return {
+      input_uncached_tokens: numOrZero(u.input_uncached_tokens),
+      input_cached_tokens: numOrZero(u.input_cached_tokens),
+      output_tokens: numOrZero(u.output_tokens),
+    }
+  }
+  if (isFineUsage(u)) {
+    return {
+      input_uncached_tokens: numOrZero(u.input_fresh_tokens),
+      input_cached_tokens:
+        numOrZero(u.cache_write_5m_tokens) + numOrZero(u.cache_write_1h_tokens) + numOrZero(u.cache_read_tokens),
+      output_tokens: numOrZero(u.output_tokens),
+    }
+  }
+  return { input_uncached_tokens: 0, input_cached_tokens: 0, output_tokens: 0 }
+}
+
 /* ───────────────────────────────────────────────────────────── T17.1 */
 
 /**
@@ -225,9 +339,17 @@ export function createFakeProvider(request: unknown): FakeProvider {
     ? req.responses
     : []
   const onRequest = req.onRequest
+  // T44 (ADR-007 L145) : options ADDITIONNELLES, jamais requises — une suite
+  // qui ne les fournit pas (T17, T28) ne change rien a son propre comportement.
+  const providerName = typeof req.provider === 'string' ? req.provider : undefined
+  const modelName = typeof req.model === 'string' ? req.model : undefined
 
   const provider = {
     calls: 0,
+    // `exactOptionalPropertyTypes` : la propriete n'existe QUE si declaree,
+    // jamais presente avec la valeur `undefined`.
+    ...(providerName !== undefined ? { provider: providerName } : {}),
+    ...(modelName !== undefined ? { model: modelName } : {}),
     async complete(r: unknown): Promise<unknown> {
       const index = provider.calls
       onRequest?.(r, index)
@@ -288,6 +410,9 @@ interface ModelCallRow {
   readonly cost: string | null
   readonly usage: unknown
   readonly response_text: string | null
+  /** T44 : identite declaree, ecrite au reglement — absente avant SETTLED. */
+  readonly provider: string | null
+  readonly model: string | null
 }
 
 async function readModelCallRow(dsn: string, callId: string): Promise<ModelCallRow | null> {
@@ -301,7 +426,8 @@ BEGIN
   SELECT j INTO p FROM _p;
   cid := p->>'call_id';
 
-  SELECT call_state, idempotency_key, budget_id, reservation_id, cost_micro_usd, usage, response_text
+  SELECT call_state, idempotency_key, budget_id, reservation_id, cost_micro_usd, usage, response_text,
+         provider, model
     INTO row
     FROM model_calls WHERE call_id = cid;
   IF NOT FOUND THEN
@@ -317,7 +443,9 @@ BEGIN
     'reservation_id', row.reservation_id,
     'cost', row.cost_micro_usd,
     'usage', row.usage,
-    'response_text', row.response_text
+    'response_text', row.response_text,
+    'provider', row.provider,
+    'model', row.model
   ));
 EXCEPTION WHEN OTHERS THEN
   INSERT INTO _r VALUES (jsonb_build_object('outcome', 'ERROR', 'detail', SQLERRM));
@@ -337,6 +465,8 @@ $bench$;`)
     cost: typeof p['cost'] === 'string' ? (p['cost'] as string) : null,
     usage: p['usage'] ?? null,
     response_text: typeof p['response_text'] === 'string' ? (p['response_text'] as string) : null,
+    provider: typeof p['provider'] === 'string' ? (p['provider'] as string) : null,
+    model: typeof p['model'] === 'string' ? (p['model'] as string) : null,
   }
 }
 
@@ -397,7 +527,10 @@ $bench$;`,
 }
 
 /** L'ECRITURE TERMINALE : SETTLED. `responseText` reste `null` depuis la
- * reconciliation (A4) — jamais fabriqué. */
+ * reconciliation (A4) — jamais fabriqué. `provider`/`model` (T44) sont
+ * `null` depuis la reconciliation : le recu hors-bande ne porte aucune
+ * identite, et la colonne n'a jamais été renseignée depuis DISPATCH_STARTED
+ * (NULL -> NULL, pas d'effacement d'une valeur déjà connue). */
 async function markSettled(
   dsn: string,
   args: {
@@ -405,11 +538,20 @@ async function markSettled(
     readonly cost: string
     readonly usage: unknown
     readonly responseText: string | null
+    readonly provider: string | null
+    readonly model: string | null
   },
 ): Promise<void> {
   const r = await runScript(
     dsn,
-    { call_id: args.callId, cost: args.cost, usage: args.usage, response_text: args.responseText },
+    {
+      call_id: args.callId,
+      cost: args.cost,
+      usage: args.usage,
+      response_text: args.responseText,
+      provider: args.provider,
+      model: args.model,
+    },
     `
 DO $bench$
 DECLARE
@@ -422,6 +564,8 @@ BEGIN
         cost_micro_usd = p->>'cost',
         usage = p->'usage',
         response_text = p->>'response_text',
+        provider = p->>'provider',
+        model = p->>'model',
         settled_at = now()
     WHERE call_id = p->>'call_id';
 
@@ -488,6 +632,8 @@ export async function dispatchModelCall(
         ...(existing.cost !== null ? { cost: existing.cost } : {}),
         ...(existing.usage !== null ? { usage: existing.usage } : {}),
         ...(existing.response_text !== null ? { response: existing.response_text } : {}),
+        ...(existing.provider !== null ? { provider: existing.provider } : {}),
+        ...(existing.model !== null ? { model: existing.model } : {}),
       }
     }
     // DISPATCH_STARTED present sans etat terminal (ou tout autre etat
@@ -520,14 +666,41 @@ export async function dispatchModelCall(
 
   h.afterProviderResponse?.()
 
-  const usage = (respObj.usage ?? { input_uncached_tokens: 0, input_cached_tokens: 0, output_tokens: 0 }) as ModelCallUsage
+  // T44 (ADR-007 L141-L147) : deux derivations DISJOINTES depuis la MEME
+  // reponse brute — `costUsage` (grossier, pour la facturation deja fixee
+  // par T17) et `usageVector` (le vecteur PERSISTE, cinq ou six categories,
+  // cf. III.2-3 de acceptance/T44.spec.ts).
+  const costUsage = deriveCostUsage(respObj.usage)
+  const usageVector = deriveUsageVector(respObj.usage)
   const responseText = typeof respObj.text === 'string' ? respObj.text : ''
-  const cost = computeModelCallCost({ tariff: tariff as Tariff, usage })
+  const cost = computeModelCallCost({ tariff: tariff as Tariff, usage: costUsage })
+
+  // T44 (A1, A3) : l'identite que CE fournisseur factice a declaree
+  // (`createFakeProvider({ provider, model })`), copiee au moment du
+  // reglement — jamais une valeur par defaut ou devinee.
+  const providerIdentity = p.provider as { readonly provider?: unknown; readonly model?: unknown } | undefined
+  const providerName = typeof providerIdentity?.provider === 'string' ? providerIdentity.provider : null
+  const modelName = typeof providerIdentity?.model === 'string' ? providerIdentity.model : null
 
   await settleReservation(handle, { reservation_id: reservationId, amount: cost })
-  await markSettled(dsn, { callId: modelCallId, cost, usage, responseText })
+  await markSettled(dsn, {
+    callId: modelCallId,
+    cost,
+    usage: usageVector,
+    responseText,
+    provider: providerName,
+    model: modelName,
+  })
 
-  return { model_call_id: modelCallId, status: 'SETTLED', cost, usage, response: responseText }
+  return {
+    model_call_id: modelCallId,
+    status: 'SETTLED',
+    cost,
+    usage: usageVector,
+    response: responseText,
+    ...(providerName !== null ? { provider: providerName } : {}),
+    ...(modelName !== null ? { model: modelName } : {}),
+  }
 }
 
 /* ───────────────────────────────────────────────────────────── T17.3 */
@@ -549,6 +722,8 @@ export async function getModelCall(handle: unknown, request: unknown): Promise<M
     ...(row.reservation_id !== null ? { reservation_id: row.reservation_id } : {}),
     ...(row.cost !== null ? { cost: row.cost } : {}),
     ...(row.usage !== null ? { usage: row.usage } : {}),
+    ...(row.provider !== null ? { provider: row.provider } : {}),
+    ...(row.model !== null ? { model: row.model } : {}),
     response: row.response_text,
   }
 }
@@ -594,7 +769,10 @@ export async function reconcileModelCall(
 
   await settleReservation(handle, { reservation_id: reservationId, amount: cost })
   // response_text: null — reconcileModelCall ne fabrique JAMAIS de reponse.
-  await markSettled(dsn, { callId: modelCallId, cost, usage, responseText: null })
+  // provider/model: null — le recu hors-bande (ReconcileModelCallRequest) ne
+  // porte aucune identite (T44) ; la colonne n'a jamais été renseignée depuis
+  // DISPATCH_STARTED, donc NULL -> NULL n'efface rien.
+  await markSettled(dsn, { callId: modelCallId, cost, usage, responseText: null, provider: null, model: null })
 
   return { model_call_id: modelCallId, status: 'SETTLED', cost }
 }

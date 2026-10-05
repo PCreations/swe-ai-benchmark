@@ -458,6 +458,11 @@ export {
 } from './pilot.js'
 export type { RunPilotInput } from './pilot.js'
 
+/* ── T46 : conduire un pilote longitudinal réel (ADR-007 L157-L163) ──────── */
+
+export { conductPilot, PILOT_CONDUCT_PREREQUISITES } from './pilot-conduct.js'
+export type { ConductPilotInput } from './pilot-conduct.js'
+
 /* ── T40 : capacité de distribution sans facture IA massive (L505-L512) ──── */
 
 export { planDistribution, resumeDistribution, runDistributionBounded } from './distribution.js'

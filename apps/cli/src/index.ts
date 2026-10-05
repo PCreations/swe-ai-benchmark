@@ -54,6 +54,7 @@ import {
   buildReport,
   campaignOpsPreflight,
   cancelCampaignOps,
+  conductPilot,
   exportAnalysis,
   inspectCheckpoint,
   planDistribution,
@@ -196,8 +197,7 @@ const USAGE = `bench — commandes de campagne
                 [--test-stop-after-periods <n>]
         Conduit chaque trajectoire compilee d'un manifeste de pilote, periode
         par periode, a travers run-period (T46, ADR-007 L157-L163 -- commande
-        NEUVE, distincte de pilot/T39 et campaign/T41). PAS ENCORE
-        IMPLEMENTEE : leve NOT_IMPLEMENTED.
+        NEUVE, distincte de pilot/T39 et campaign/T41).
 
         --campaign-id                   identite de la CAMPAGNE (superieure a
                                          la trajectoire run-period)
@@ -1109,16 +1109,60 @@ async function commandPilot(argv: readonly string[]): Promise<number> {
 }
 
 /**
- * `pilot-conduct` (T46, ADR-007 L157-L163 -- SQUELETTE rouge, meme geste que
- * `scenario validate`/`campaign plan|status|resume`/`checkpoint fork`/
- * `billing reconcile` ci-dessus : commande NEUVE, aucune regle metier a cet
- * etage, leve NOT_IMPLEMENTED). Elle conduira, periode par periode, chaque
+ * `pilot-conduct` (T46, ADR-007 L157-L163). Lit le chemin de manifeste
+ * (premier argument positionnel, jamais un drapeau -- meme discipline que
+ * `commandPilot`/`commandCampaign`), puis les drapeaux requis, refuse si l'un
+ * manque, puis delegue la totalite du travail a `conductPilot` (`@bench/
+ * activities`, `src/pilot-conduct.ts`) : conduit, periode par periode, chaque
  * trajectoire compilee d'un manifeste de pilote (T39) a travers `run-period`
  * (T45), sous une identite de CAMPAGNE superieure a celle de trajectoire que
  * `run-period` connait deja -- voir acceptance/T46.spec.ts pour le contrat.
+ * AUCUNE REGLE METIER ICI (meme regle que l'en-tete du fichier).
  */
-async function commandPilotConduct(_argv: readonly string[]): Promise<number> {
-  throw new NotImplemented('cli.pilot-conduct')
+async function commandPilotConduct(argv: readonly string[]): Promise<number> {
+  const [manifestPath, ...rest] = argv
+  if (manifestPath === undefined || manifestPath.startsWith('--')) {
+    process.stderr.write('bench pilot-conduct exige un chemin de manifeste en premier argument\n')
+    return 1
+  }
+  const flags = parseFlags(rest)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  const provider = flags.get('provider')
+  const mode = flags.get('mode')
+  if (
+    campaignId === undefined ||
+    postgresDatabase === undefined ||
+    s3Bucket === undefined ||
+    provider === undefined ||
+    mode === undefined
+  ) {
+    process.stderr.write(
+      'bench pilot-conduct exige --campaign-id, --postgres-database, --s3-bucket, --provider et --mode\n',
+    )
+    return 1
+  }
+  const testStopAfterPeriodsRaw = flags.get('test-stop-after-periods')
+  const testStopAfterPeriods =
+    testStopAfterPeriodsRaw === undefined ? undefined : Number.parseInt(testStopAfterPeriodsRaw, 10)
+  try {
+    const result = await conductPilot({
+      manifestPath,
+      campaignId,
+      postgresDatabase,
+      s3Bucket,
+      provider,
+      mode,
+      testStopAfterPeriods,
+    })
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    return 0
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    process.stderr.write(`bench pilot-conduct : ${message}\n`)
+    return 1
+  }
 }
 
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */

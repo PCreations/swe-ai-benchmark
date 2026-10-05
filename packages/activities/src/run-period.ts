@@ -84,6 +84,18 @@ export interface RunPeriodInput {
   readonly postgresDatabase: string
   readonly s3Bucket: string
   readonly variant?: string | undefined
+  /**
+   * Identité de trajectoire (T45, ADR-007:L151) : la PREMIÈRE période d'une
+   * trajectoire fixe son scénario et sa configuration ; chaque période
+   * SUIVANTE les relit depuis l'état persistant, jamais depuis ces champs —
+   * fournir ici une valeur qui DIVERGE de celle enregistrée à la première
+   * période (configuration ou scénario) est refusé avec
+   * `TRAJECTORY_IDENTITY_CONFLICT` (ADR-007:L153), sans écrire de période.
+   * Omis à la première période d'une trajectoire fraîche, chaque champ
+   * retombe sur le défaut hérité de T23 (ADR-007:L117).
+   */
+  readonly scenarioId?: string | undefined
+  readonly configurationId?: string | undefined
   /** Point d'injection nommé (cahier:L141) : arrêt volontaire après cette phase. */
   readonly testStopAfterPhase?: string | undefined
 }
@@ -146,10 +158,18 @@ const sqlLit = (s: string): string => `'${s.replace(/'/g, "''")}'`
 
 const TABLE = 'bench_run_period_trajectories'
 
-/** Le POINTEUR persistant d'une trajectoire : période dernièrement achevée et référence du checkpoint S3. */
+/**
+ * Le POINTEUR persistant d'une trajectoire : période dernièrement achevée,
+ * référence du checkpoint S3, et l'IDENTITÉ (scénario/configuration, T45,
+ * ADR-007:L151) fixée à la première période de cette trajectoire — jamais
+ * réécrite ensuite (voir `writeTrajectoryPointer`, qui exclut ces deux
+ * colonnes de sa clause `ON CONFLICT … DO UPDATE`).
+ */
 interface TrajectoryPointer {
   readonly lastCompletedPeriod: number
   readonly checkpointRef: string
+  readonly scenarioId: string
+  readonly configurationId: string
 }
 
 function ensureTrajectoryTable(db: string): void {
@@ -159,6 +179,8 @@ function ensureTrajectoryTable(db: string): void {
        campaign_id text PRIMARY KEY,
        last_completed_period integer NOT NULL,
        checkpoint_ref text NOT NULL,
+       scenario_id text NOT NULL,
+       configuration_id text NOT NULL,
        updated_at timestamptz NOT NULL DEFAULT now()
      )`,
   )
@@ -167,20 +189,45 @@ function ensureTrajectoryTable(db: string): void {
 function readTrajectoryPointer(db: string, campaignId: string): TrajectoryPointer | null {
   const out = runPsql(
     db,
-    `SELECT last_completed_period, checkpoint_ref FROM ${TABLE} WHERE campaign_id = ${sqlLit(campaignId)}`,
+    `SELECT last_completed_period, checkpoint_ref, scenario_id, configuration_id FROM ${TABLE} WHERE campaign_id = ${sqlLit(campaignId)}`,
   )
   if (out === '') return null
-  const [periodRaw, ref] = out.split('|')
+  const [periodRaw, ref, scenarioId, configurationId] = out.split('|')
   const period = Number.parseInt(periodRaw ?? '', 10)
-  if (!Number.isInteger(period) || ref === undefined || ref === '') return null
-  return { lastCompletedPeriod: period, checkpointRef: ref }
+  if (
+    !Number.isInteger(period) ||
+    ref === undefined ||
+    ref === '' ||
+    scenarioId === undefined ||
+    scenarioId === '' ||
+    configurationId === undefined ||
+    configurationId === ''
+  ) {
+    return null
+  }
+  return { lastCompletedPeriod: period, checkpointRef: ref, scenarioId, configurationId }
 }
 
-function writeTrajectoryPointer(db: string, campaignId: string, periodIndex: number, checkpointRef: string): void {
+/**
+ * Écrit le pointeur de période. `scenarioId`/`configurationId` ne sont
+ * INSÉRÉS qu'à la création de la ligne (première période) : la clause
+ * `ON CONFLICT … DO UPDATE` ci-dessous ne les liste PAS, donc une ré-écriture
+ * sur une trajectoire existante ne les modifie jamais — c'est ce qui rend
+ * l'identité FIXE après la première période (ADR-007:L151), par construction
+ * plutôt que par une vérification séparée.
+ */
+function writeTrajectoryPointer(
+  db: string,
+  campaignId: string,
+  periodIndex: number,
+  checkpointRef: string,
+  scenarioId: string,
+  configurationId: string,
+): void {
   runPsql(
     db,
-    `INSERT INTO ${TABLE}(campaign_id, last_completed_period, checkpoint_ref)
-       VALUES (${sqlLit(campaignId)}, ${String(periodIndex)}, ${sqlLit(checkpointRef)})
+    `INSERT INTO ${TABLE}(campaign_id, last_completed_period, checkpoint_ref, scenario_id, configuration_id)
+       VALUES (${sqlLit(campaignId)}, ${String(periodIndex)}, ${sqlLit(checkpointRef)}, ${sqlLit(scenarioId)}, ${sqlLit(configurationId)})
      ON CONFLICT (campaign_id) DO UPDATE SET
        last_completed_period = EXCLUDED.last_completed_period,
        checkpoint_ref = EXCLUDED.checkpoint_ref,
@@ -434,16 +481,75 @@ function invalidCandidatePeriod(
   }
 }
 
+/* ══════════════════ le second scénario de T45 (ADR-007:L153, A2) ═════════
+ * `SCN-F-FAILURE` : `acceptance/T45.spec.ts` (section II) ne fixe aucun
+ * contenu précis pour ses exigences — seulement qu'elles DIFFÈRENT de celles
+ * de `SCN-F-RESERVATION` (la trajectoire nominale, T11/@bench/scenario) à la
+ * même période. `@bench/scenario` ne compile qu'UN seul scénario
+ * (`demo-script.ts`, `SCN-F-RESERVATION`) : plutôt que d'y ajouter un second
+ * scénario inventé sans exigence de contenu à satisfaire (une
+ * sur-spécification que la suite elle-même refuse d'imposer), ce fichier
+ * assemble ici une période SYNTHÉTIQUE minimale, dans la forme déjà établie
+ * par `buildFromInvalidCandidate` ci-dessus (une seule exigence nommée par le
+ * scénario). Son seul rôle est de révéler un jeu d'exigences qui ne coïncide
+ * jamais avec celui de la trajectoire nominale. */
+function buildFromFailureScenario(periodIndex: number): Readonly<Record<string, unknown>> {
+  const requirementKey = `failure@${String(periodIndex)}`
+  return {
+    business_clock: `2032-01-0${String(periodIndex)}T00:00:00Z`,
+    requirements: [
+      {
+        id: requirementKey,
+        version: periodIndex,
+        capability_id: 'failure',
+        weight: 1,
+        due_at_period: periodIndex,
+        criticality: 'REQUIRED',
+        satisfied: false,
+        control: 'aucun',
+      },
+    ],
+    submission: {
+      artifact_digest: sha256Hex(Buffer.from(`failure-scenario#${requirementKey}`, 'utf8')),
+      satisfied_requirement_keys: [],
+    },
+    validation: { verdict: 'REJECTED' },
+    deployment: { deployment_coverage: 'NO_DEPLOYMENT', active_version_id: null },
+    deployment_coverage: 'NO_DEPLOYMENT',
+    observations: { intents_offered: 0, intents_succeeded: 0, facts: [] },
+    audit: { controls: [], incidents: [] },
+    spend: { developpement: 0, exploitation: 0, recherche: 0 },
+    Q: 0,
+    R: 0,
+    active_version_id: null,
+  }
+}
+
 /* ══════════════════════════════════════ assemblage du résultat JSON ══════ */
 
 const DEMO_IDENTITY_PREFIX = 'T23'
 
-function identityOf(campaignId: string, variant: string): Readonly<Record<string, string>> {
+/** Défauts hérités de T23 (ADR-007:L117), repris à la première période d'une
+ *  trajectoire fraîche quand `--scenario-id`/`--configuration-id` sont omis. */
+const SCENARIO_DEFAULT = 'SCN-F-RESERVATION'
+const CONFIGURATION_DEFAULT = 'CFG-RECORDED-LOCAL'
+/** Second scénario fixé par `acceptance/T45.spec.ts` (A2). */
+const SCENARIO_ALTERNATIF = 'SCN-F-FAILURE'
+
+function identityOf(
+  campaignId: string,
+  variant: string,
+  scenarioId: string,
+  configurationId: string,
+): Readonly<Record<string, string>> {
   return {
     campaign_id: campaignId,
     parent_project_id: `PRJ-${DEMO_IDENTITY_PREFIX}`,
-    scenario_id: variant === 'invalid-candidate' ? 'SCN-T23-INVALID-CANDIDATE' : 'SCN-F-RESERVATION',
-    configuration_id: 'CFG-RECORDED-LOCAL',
+    // La variante `invalid-candidate` (T23) garde son identité de scénario
+    // propre, hors de l'axe scénario/configuration de T45 : aucun cas requis
+    // de T45 ne combine `--variant invalid-candidate` avec `--scenario-id`.
+    scenario_id: variant === 'invalid-candidate' ? 'SCN-T23-INVALID-CANDIDATE' : scenarioId,
+    configuration_id: configurationId,
     repetition_id: 'REP-1',
     budget_id: `BDG-${DEMO_IDENTITY_PREFIX}`,
   }
@@ -571,11 +677,50 @@ export async function runPeriodOnce(input: RunPeriodInput): Promise<RunPeriodOut
   const priorCheckpoint =
     pointer === null ? null : await readCheckpoint(input.s3Bucket, campaignId, pointer.checkpointRef)
 
+  // ── IDENTITÉ DE TRAJECTOIRE (T45, ADR-007:L151/L153) ────────────────────
+  // Sur une trajectoire FRAÎCHE (`pointer === null`), le scénario et la
+  // configuration fournis (ou leurs défauts hérités de T23, ADR-007:L117) sont
+  // FIXÉS pour toute la trajectoire. Sur une trajectoire EXISTANTE, ils sont
+  // RELUS depuis l'état persistant — jamais depuis cette entrée — et toute
+  // valeur FOURNIE qui diverge de celle enregistrée est un refus NOMMÉ,
+  // AVANT toute écriture (REVEALING n'a même pas encore eu lieu ici).
+  const requestedScenarioId = input.scenarioId
+  const requestedConfigurationId = input.configurationId
+  let scenarioId: string
+  let configurationId: string
+  if (pointer === null) {
+    scenarioId = requestedScenarioId ?? SCENARIO_DEFAULT
+    configurationId = requestedConfigurationId ?? CONFIGURATION_DEFAULT
+  } else {
+    if (requestedConfigurationId !== undefined && requestedConfigurationId !== pointer.configurationId) {
+      return {
+        ok: false,
+        reason:
+          `TRAJECTORY_IDENTITY_CONFLICT : la trajectoire "${campaignId}" a enregistré ` +
+          `configuration_id="${pointer.configurationId}" à sa première période ; "${requestedConfigurationId}" ` +
+          `fourni ici diverge (ADR-007:L153)`,
+      }
+    }
+    if (requestedScenarioId !== undefined && requestedScenarioId !== pointer.scenarioId) {
+      return {
+        ok: false,
+        reason:
+          `TRAJECTORY_IDENTITY_CONFLICT : la trajectoire "${campaignId}" a enregistré ` +
+          `scenario_id="${pointer.scenarioId}" à sa première période ; "${requestedScenarioId}" ` +
+          `fourni ici diverge (ADR-007:L153)`,
+      }
+    }
+    scenarioId = pointer.scenarioId
+    configurationId = pointer.configurationId
+  }
+
   // ── REVEALING .. AUDITING ────────────────────────────────────────────────
   const built =
     variant === 'invalid-candidate'
       ? buildFromInvalidCandidate(invalidCandidatePeriod(periodIndex, priorCheckpoint, campaignId))
-      : buildFromNominal(periodIndex, await nominalPeriod(periodIndex))
+      : scenarioId === SCENARIO_ALTERNATIF
+        ? buildFromFailureScenario(periodIndex)
+        : buildFromNominal(periodIndex, await nominalPeriod(periodIndex))
 
   // ── LE POINT D'INJECTION NOMMÉ (cahier:L141, A5) ────────────────────────
   // Une période interrompue n'écrit NI le pointeur PostgreSQL NI le contenu
@@ -602,7 +747,7 @@ export async function runPeriodOnce(input: RunPeriodInput): Promise<RunPeriodOut
     completed_at: new Date().toISOString(),
   }
   const checkpointRef = await writeCheckpoint(input.s3Bucket, campaignId, checkpointPayload)
-  writeTrajectoryPointer(db, campaignId, periodIndex, checkpointRef)
+  writeTrajectoryPointer(db, campaignId, periodIndex, checkpointRef, scenarioId, configurationId)
   writeCheckpointManifest(db, checkpointRef, campaignId, periodIndex, {
     business_clock: built['business_clock'],
     requirements: built['requirements'],
@@ -612,7 +757,7 @@ export async function runPeriodOnce(input: RunPeriodInput): Promise<RunPeriodOut
   })
 
   // ── COMPLETED ────────────────────────────────────────────────────────────
-  const identity = identityOf(campaignId, variant)
+  const identity = identityOf(campaignId, variant, scenarioId, configurationId)
   const result: Record<string, unknown> = {
     schema: 'bench.t23.period_result/1',
     phase: 'COMPLETED',

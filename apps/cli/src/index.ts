@@ -85,6 +85,7 @@ const USAGE = `bench — commandes de campagne
 
   run-period --mode <mode> --campaign-id <id> --postgres-database <db>
              --s3-bucket <bucket> [--variant <variante>]
+             [--scenario-id <id>] [--configuration-id <id>]
              [--test-stop-after-phase <phase>]
         Assemble une periode persistante complete avec les adaptateurs reels
         locaux (T23, cahier L353-L359) et ecrit son resultat JSON sur la
@@ -97,6 +98,15 @@ const USAGE = `bench — commandes de campagne
         --postgres-database        base PostgreSQL reelle a utiliser
         --s3-bucket                bucket S3 (ou compatible) reel a utiliser
         --variant                  nominal | invalid-candidate | ...
+        --scenario-id              optionnel (T45, ADR-007:L151) ; fixe a la
+                                    1ere periode d'une trajectoire fraiche,
+                                    defaut SCN-F-RESERVATION ; relu ensuite
+                                    depuis l'etat persistant
+        --configuration-id         optionnel (T45, ADR-007:L151) ; meme
+                                    contrat, defaut CFG-RECORDED-LOCAL ;
+                                    diverger a une periode suivante est
+                                    refuse (TRAJECTORY_IDENTITY_CONFLICT,
+                                    ADR-007:L153)
         --test-stop-after-phase    point d'injection nomme (cahier:L141)
 
   run-trajectory --mode <mode> --campaign-id <id> --postgres-database <db>
@@ -400,12 +410,21 @@ async function commandRunPeriod(argv: readonly string[]): Promise<number> {
   }
   const variant = flags.get('variant')
   const testStopAfterPhase = flags.get('test-stop-after-phase')
+  // T45 (ADR-007:L151) : deux drapeaux optionnels, miroir des champs
+  // d'identité qu'ils alimentent (cahier:L78). Omis à la première période
+  // d'une trajectoire fraîche, chacun retombe sur le défaut hérité de T23
+  // (ADR-007:L117) ; fournis à une période suivante, une divergence avec la
+  // valeur enregistrée est refusée par `runPeriodOnce` lui-même.
+  const scenarioId = flags.get('scenario-id')
+  const configurationId = flags.get('configuration-id')
   const outcome = await runPeriodOnce({
     mode,
     campaignId,
     postgresDatabase,
     s3Bucket,
     variant,
+    scenarioId,
+    configurationId,
     testStopAfterPhase,
   })
   if (!outcome.ok) {

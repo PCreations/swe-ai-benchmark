@@ -1,0 +1,45 @@
+{
+  "schema": "bench.red/1",
+  "task": "T45",
+  "subject_commit": "cc4f823afa765747e51f424a42fa51b1cb674018",
+  "dirty": false,
+  "input_digest": "7435378dd95880b2fad00800dd482c1f113679a0fa9899dd96a73f197a6df3be",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T45.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T45.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T45.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T45.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T45.M4",
+      "note": "mutant applique a packages/activities/src/run-period.ts:445 (identityOf) -- scenario_id par defaut remplace par SCN-T45-M4-MUTATED-DEFAULT, pnpm build, jest -t T45.A4 observe rouge sur assertion p1-scenario_id-par-defaut=SCN-F-RESERVATION, puis mutation restauree et rebuild."
+    }
+  ],
+  "mutation_proof": {
+    "T45.A4": {
+      "killed_by": "T45.M4",
+      "note": "mutant applique a packages/activities/src/run-period.ts:445 (identityOf) -- scenario_id par defaut remplace par SCN-T45-M4-MUTATED-DEFAULT, pnpm build, jest -t T45.A4 observe rouge sur assertion p1-scenario_id-par-defaut=SCN-F-RESERVATION, puis mutation restauree et rebuild."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

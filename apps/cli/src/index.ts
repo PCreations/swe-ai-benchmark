@@ -191,6 +191,22 @@ const USAGE = `bench — commandes de campagne
         --provider                            fake
         --test-force-all-candidates-fail      point d'injection nomme (cahier:L141)
 
+  pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db>
+                --s3-bucket <bucket> --provider fake --mode recorded|live
+                [--test-stop-after-periods <n>]
+        Conduit chaque trajectoire compilee d'un manifeste de pilote, periode
+        par periode, a travers run-period (T46, ADR-007 L157-L163 -- commande
+        NEUVE, distincte de pilot/T39 et campaign/T41). PAS ENCORE
+        IMPLEMENTEE : leve NOT_IMPLEMENTED.
+
+        --campaign-id                   identite de la CAMPAGNE (superieure a
+                                         la trajectoire run-period)
+        --postgres-database             base PostgreSQL reelle a utiliser
+        --s3-bucket                     bucket S3 (ou compatible) reel
+        --provider                      fake
+        --mode                          recorded | live
+        --test-stop-after-periods       point d'injection nomme (cahier:L141)
+
   plan-distribution --campaign-id <id> --mode <mode> --parents <N>
                      --scenarios <N> --configurations <N> --repetitions <N>
                      --budgets <N> --periods-per-trajectory <N>
@@ -1092,6 +1108,19 @@ async function commandPilot(argv: readonly string[]): Promise<number> {
   }
 }
 
+/**
+ * `pilot-conduct` (T46, ADR-007 L157-L163 -- SQUELETTE rouge, meme geste que
+ * `scenario validate`/`campaign plan|status|resume`/`checkpoint fork`/
+ * `billing reconcile` ci-dessus : commande NEUVE, aucune regle metier a cet
+ * etage, leve NOT_IMPLEMENTED). Elle conduira, periode par periode, chaque
+ * trajectoire compilee d'un manifeste de pilote (T39) a travers `run-period`
+ * (T45), sous une identite de CAMPAGNE superieure a celle de trajectoire que
+ * `run-period` connait deja -- voir acceptance/T46.spec.ts pour le contrat.
+ */
+async function commandPilotConduct(_argv: readonly string[]): Promise<number> {
+  throw new NotImplemented('cli.pilot-conduct')
+}
+
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */
 //
 // Lit les dix drapeaux requis, refuse si l'un manque (même discipline que
@@ -1275,6 +1304,7 @@ async function main(): Promise<number> {
   if (command === 'doctor') return commandDoctor(rest)
   if (command === 'campaign') return commandCampaignDispatch(rest)
   if (command === 'pilot') return commandPilot(rest)
+  if (command === 'pilot-conduct') return commandPilotConduct(rest)
   if (command === 'plan-distribution') return commandPlanDistribution(rest)
   if (command === 'distribution-run-bounded') return commandDistributionRunBounded(rest)
   if (command === 'distribution-resume') return commandDistributionResume(rest)

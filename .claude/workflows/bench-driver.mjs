@@ -48,6 +48,12 @@ const LEDGER = 'claude/gallant-fermi-51jlsx-ledger'
 /** Cap du plan : 2 taches de front sur 4 coeurs, fermetures disjointes. */
 const MAX_CONCURRENT = 2
 
+// PERIMETRE DU MANDANT. `args.taches` restreint la frontiere aux taches
+// nommees ; `[]` = tour de settle SEUL, qui re-atteste sans ouvrir de travail
+// neuf. Absent : comportement inchange. Le settle n'est JAMAIS restreint —
+// une preuve perimee n'est pas du travail neuf, c'est le prealable de tout.
+const PERIMETRE = typeof args !== 'undefined' && Array.isArray(args?.taches) ? args.taches : null
+
 /* ────────────────────────────────────────────────────────────────── schemas */
 
 const OUTCOME = {
@@ -1008,7 +1014,12 @@ if (world.unclassified_tasks.length) {
 // ── FRONTIERE. Le plan impose un cap de 2 : les fermetures doivent etre
 // DISJOINTES, pas seulement les source_paths, et les schemas partages sont
 // serialises chez l'integrateur.
-const frontier = todo.slice(0, MAX_CONCURRENT)
+const frontier = (PERIMETRE ? todo.filter((T) => PERIMETRE.includes(T)) : todo).slice(0, MAX_CONCURRENT)
+if (PERIMETRE && !frontier.length) {
+  const horsPerimetre = todo.filter((T) => !PERIMETRE.includes(T))
+  log(`Perimetre [${PERIMETRE.join(', ')}] epuise. Actionnables hors perimetre, NON lancees : ${horsPerimetre.join(', ') || 'aucune'}`)
+  return { halted: 'PERIMETRE_ATTEINT', perimetre: PERIMETRE, hors_perimetre: horsPerimetre, world }
+}
 if (!frontier.length) {
   log(`Rien d'actionnable. Bloquees : ${world.blocked.join(', ') || 'aucune'}`)
   return { halted: 'NO_READY_TASK', blocked: world.blocked, capabilities_absent: world.capabilities_absent, world }

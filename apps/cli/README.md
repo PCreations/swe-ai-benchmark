@@ -75,6 +75,15 @@ seule. Avec `--execute` : lance reellement les trajectoires compilees via le
 fournisseur factice, sous un plafond budgetaire reel partage par toute la
 campagne.
 
+### `bench pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> --provider fake --mode recorded|live [--test-stop-after-periods <n>]`
+
+Pilote longitudinal reel (T46, ADR-007 L157-L163). Conduit chaque trajectoire
+compilee d'un manifeste `bench.pilot.manifest/1`, periode par periode, a
+travers `run-period`, avec le scenario et la configuration de la trajectoire
+(T45). Reprend apres interruption a la premiere periode non persistee, sans
+doublon ni trou, et produit un rapport des tokens par modele et par categorie
+egal aux sommes persistees. Commande distincte de `bench pilot` (T39).
+
 ### `bench plan-distribution --campaign-id <id> --mode <mode> --parents <N> --scenarios <N> --configurations <N> --repetitions <N> --budgets <N> --periods-per-trajectory <N> --postgres-database <db> --plan-id <id>`
 
 Valide un profil de charge de distribution (T40, cahier L505-L512) : compte

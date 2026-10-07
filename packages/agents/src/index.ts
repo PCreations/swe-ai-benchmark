@@ -59,6 +59,7 @@ import type { DispatchModelCallResult } from '@bench/gateway'
 import { AgentsRefusal } from './errors.js'
 import { runScript } from './psql.js'
 import type { ScriptResult } from './psql.js'
+import { NotImplemented } from '@bench/contracts'
 
 export { AGENTS_REFUSAL_CODES, AgentsRefusal, isAgentsRefusal } from './errors.js'
 export type { AgentsRefusalCode } from './errors.js'
@@ -1224,4 +1225,57 @@ export async function dispatchAnthropicModelCall(
     ...(result.usage !== undefined ? { usage: result.usage as NormalizedAnthropicUsage } : {}),
     ...(response !== undefined ? { response } : {}),
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * T47 — lancer une periode de candidat par une session `claude -p` reelle
+ * (ADR-008-candidat-reel-par-session-claude-p.md L131-L137,
+ * verification/tasks.extensions.json : T47 est une tache d'EXTENSION, pas du
+ * cahier).
+ *
+ * ETAGE ROUGE. SQUELETTE MINIMAL, meme geste que T28/T46 ci-dessus : SEUL
+ * export que acceptance/T47.spec.ts resout (section III.1 de son en-tete).
+ * Signature et formes FIXEES PAR CETTE SUITE, aucune regle metier a cet
+ * etage -- ni purge d'environnement, ni spawn de `claude`, ni lecture de
+ * `claude auth status`, ni derivation d'usage. `launchClaudeCliPeriod` leve
+ * `NotImplemented`.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Options de `launchClaudeCliPeriod` (acceptance/T47.spec.ts, section III.1). */
+export interface LaunchClaudeCliPeriodOptions {
+  readonly workspaceDir: string
+  readonly model: string
+  readonly env: Record<string, string | undefined>
+}
+
+/** Usage par modele declare par `modelUsage` (acceptance/T47.spec.ts, section III.1). */
+export interface ClaudeCliPeriodUsage {
+  readonly model: string
+  readonly input_fresh: number
+  readonly cache_read: number
+  readonly output: number
+  readonly cache_write_5m: number
+  readonly cache_write_1h: number
+  readonly cache_write_unresolved: number
+}
+
+/**
+ * Ce que rend `launchClaudeCliPeriod` -- une promesse qui, a l'etage VERT,
+ * RESOUT TOUJOURS (acceptance/T47.spec.ts, section III.1 : jamais de rejet
+ * pour un refus d'authentification ou une session en echec, qui sont des
+ * RESULTATS, pas des pannes). A cet etage ROUGE, la fonction leve
+ * `NotImplemented` -- voir l'en-tete de section.
+ */
+export type ClaudeCliPeriodResult =
+  | { readonly ok: true; readonly raw: string; readonly usage: readonly ClaudeCliPeriodUsage[] }
+  | { readonly ok: false; readonly reason: string; readonly raw: string | null }
+
+/**
+ * Lance, pour une periode, une session `claude -p` neuve dans l'espace de
+ * travail donne (ADR-008 L133). SQUELETTE ROUGE : aucune regle metier.
+ */
+export async function launchClaudeCliPeriod(
+  _options: LaunchClaudeCliPeriodOptions,
+): Promise<ClaudeCliPeriodResult> {
+  throw new NotImplemented('agents.launchClaudeCliPeriod')
 }

@@ -1,15 +1,16 @@
 {
   "$comment": [
-    "Taches ISSUES D'UN ADR ACCEPTE, pas du cahier.",
+    "Taches ISSUES D'ADR ACCEPTES (ADR-007 : T44-T46 ; ADR-008 : T47-T49), pas du cahier.",
     "verification/tasks.json reste le registre du cahier et garde ses 44 taches : acceptance/T43.spec.ts leve au chargement sinon.",
     "Chaque carte porte spec_source (ADR + plage de lignes) a la place de cahier_lines. bench resume fusionne les deux registres."
   ],
   "schema": "bench.tasks.extensions/1",
   "spec_sources": {
-    "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca"
+    "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca",
+    "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059"
   },
-  "task_count": 3,
-  "required_case_count": 13,
+  "task_count": 6,
+  "required_case_count": 29,
   "tasks": [
     {
       "id": "T44",
@@ -133,6 +134,131 @@
         "lines": [
           157,
           163
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T47",
+      "title": "Lancer une periode de candidat par une session claude -p",
+      "depends_on": [
+        "T44"
+      ],
+      "source_paths": [
+        "packages/agents",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md"
+      ],
+      "acceptance_entry": "acceptance/T47.spec.ts",
+      "required_cases": [
+        "T47.A1",
+        "T47.A2",
+        "T47.A3",
+        "T47.A4",
+        "T47.A5"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T47"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+        "lines": [
+          131,
+          137
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T48",
+      "title": "Donner au candidat un espace de travail et un contrat d'application",
+      "depends_on": [
+        "T11",
+        "T23"
+      ],
+      "source_paths": [
+        "packages/scenario",
+        "packages/activities",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md"
+      ],
+      "acceptance_entry": "acceptance/T48.spec.ts",
+      "required_cases": [
+        "T48.A1",
+        "T48.A2",
+        "T48.A3",
+        "T48.A4",
+        "T48.A5"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T48"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+        "lines": [
+          139,
+          145
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T49",
+      "title": "Conduire un pilote longitudinal avec un candidat reel",
+      "depends_on": [
+        "T46",
+        "T47",
+        "T48"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "apps/cli",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md"
+      ],
+      "acceptance_entry": "acceptance/T49.spec.ts",
+      "required_cases": [
+        "T49.A1",
+        "T49.A2",
+        "T49.A3",
+        "T49.A4",
+        "T49.A5",
+        "T49.A6"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T49"
+      ],
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+        "lines": [
+          147,
+          153
         ]
       },
       "status": "NOT_IMPLEMENTED"

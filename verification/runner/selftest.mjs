@@ -508,9 +508,20 @@ export function testExtensionsGardees() {
     const vraiAdr = readFileSync(`${R0}/${ADR}`, 'utf8')
     const vraiTasks = readFileSync(`${R0}/verification/tasks.extensions.json`, 'utf8')
     const vraiLock = readFileSync(`${R0}/verification/cases.extensions.lock.json`, 'utf8')
-    const cahier = new Map(['T17', 'T23', 'T28', 'T39'].map((id) => [id, { id }]))
+    // Derives du registre REEL, pas d'une liste figee : chaque ADR accepte
+    // ajoute ses sources et ses dependances au cahier. Une liste ecrite a la
+    // main a fait echouer S08.1 a l'arrivee d'ADR-008 (T48 depend de T11).
+    const reel = JSON.parse(vraiTasks)
+    const autresSources = Object.keys(reel.spec_sources ?? {}).filter((src) => src !== ADR)
+    const cahier = new Map(
+      reel.tasks
+        .flatMap((t) => t.depends_on ?? [])
+        .filter((id) => /^T([0-3]\d|4[0-3])$/.test(id))
+        .map((id) => [id, { id }])
+    )
 
     const essai = ({ adr = vraiAdr, tasks = vraiTasks, lock = vraiLock } = {}) => {
+      for (const src of autresSources) writeFileSync(`${dir}/${src}`, readFileSync(`${R0}/${src}`))
       writeFileSync(`${dir}/${ADR}`, adr)
       writeFileSync(`${dir}/verification/tasks.extensions.json`, tasks)
       writeFileSync(`${dir}/verification/cases.extensions.lock.json`, lock)

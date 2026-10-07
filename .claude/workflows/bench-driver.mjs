@@ -190,7 +190,7 @@ n'existe pas (le conteneur est ephemere) :
   Bench-Task: <Txx>
   Bench-Role: <ton role>
 
-  Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
   Claude-Session: https://claude.ai/code/session_01Qi32UrVNfvtYcyqYoWS1F1
   EOF
   git push -u origin ${BRANCH}
@@ -211,6 +211,11 @@ CE QUI TE FERA REFUSER PLUS TARD, MECANIQUEMENT :
 - ecrire hors des zones de ton role (verification/ownership.json) -> PARTITION_VIOLATION.
 - toucher acceptance/reference/** apres le gel sans ouvrir un SPEC_CONFLICT.
 - affaiblir un cas : les cas requis et les empreintes ne peuvent que CROITRE.
+- invoquer la VRAIE CLI \`claude\` en mode -p/--print (ADR-008) : un appel reel
+  consomme l'abonnement du mandant et n'a lieu que sur SA demande explicite.
+  Tests et verifications utilisent un faux executable \`claude\` place en tete
+  du PATH ; avant toute execution qui pourrait lancer \`claude\`, verifie que
+  \`command -v claude\` designe bien ce faux.
 
 N'INFERE JAMAIS l'avancement. \`node tools/bench resume\` est la seule autorite.
 Rends un compte rendu de ce qui a ete EXECUTE et OBSERVE. Si tu n'as pas pu

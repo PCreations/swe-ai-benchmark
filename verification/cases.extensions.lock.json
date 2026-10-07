@@ -1,11 +1,12 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007, ADR-008). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
   "spec_source_sha256": {
-    "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca"
+    "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca",
+    "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059"
   },
   "cases": [
     {
@@ -194,8 +195,228 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "ecrire une periode sans trajectoire rattachee : le cas doit rougir"
+    },
+    {
+      "id": "T47.A1",
+      "task": "T47",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 135,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "lancer la session avec ANTHROPIC_API_KEY herite de l'appelant : le cas doit rougir"
+    },
+    {
+      "id": "T47.A2",
+      "task": "T47",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 135,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "rendre output_tokens a la place de inputTokens pour input_fresh : le cas doit rougir"
+    },
+    {
+      "id": "T47.A3",
+      "task": "T47",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 135,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "verser l'ecriture de cache non ventilee dans cache_write_5m : le cas doit rougir"
+    },
+    {
+      "id": "T47.A4",
+      "task": "T47",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 135,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "rendre un usage reussi quand subtype vaut error_during_execution : le cas doit rougir"
+    },
+    {
+      "id": "T47.A5",
+      "task": "T47",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 135,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "ignorer authMethod api_key et lancer la session : le cas doit rougir"
+    },
+    {
+      "id": "T48.A1",
+      "task": "T48",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 143,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "restaurer la periode k+1 depuis un depot vierge au lieu du commit sauvegarde : le cas doit rougir"
+    },
+    {
+      "id": "T48.A2",
+      "task": "T48",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 143,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "partager un meme repertoire de travail entre deux trajectoires : le cas doit rougir"
+    },
+    {
+      "id": "T48.A3",
+      "task": "T48",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 143,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire repondre l'adaptateur de processus par l'application scriptee au lieu du processus : le cas doit rougir"
+    },
+    {
+      "id": "T48.A4",
+      "task": "T48",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 143,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "laisser un candidat qui ne demarre pas faire echouer la periode : le cas doit rougir"
+    },
+    {
+      "id": "T48.A5",
+      "task": "T48",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 143,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "jouer la sonde d'annulation sur l'etat principal du candidat : le cas doit rougir"
+    },
+    {
+      "id": "T49.A1",
+      "task": "T49",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 151,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "persister la periode sans reference a sa session ni a sa sortie brute : le cas doit rougir"
+    },
+    {
+      "id": "T49.A2",
+      "task": "T49",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 151,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "inclure les exigences de la periode suivante dans le prompt : le cas doit rougir"
+    },
+    {
+      "id": "T49.A3",
+      "task": "T49",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 151,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "persister la periode malgre une session en echec : le cas doit rougir"
+    },
+    {
+      "id": "T49.A4",
+      "task": "T49",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 151,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "omettre un modele secondaire de modelUsage dans le rapport : le cas doit rougir"
+    },
+    {
+      "id": "T49.A5",
+      "task": "T49",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 151,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire passer le fournisseur factice par la session claude -p : le cas doit rougir"
+    },
+    {
+      "id": "T49.A6",
+      "task": "T49",
+      "source": "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md",
+      "source_line": 151,
+      "requires": [
+        "fake-provider",
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "accepter claude-cli sans --live : le cas doit rougir"
     }
   ],
-  "case_count": 13,
-  "classified_cases": 13
+  "case_count": 29,
+  "classified_cases": 29
 }

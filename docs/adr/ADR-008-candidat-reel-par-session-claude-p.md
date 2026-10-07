@@ -1,6 +1,7 @@
 # ADR-008 — Le candidat réel : une session `claude -p` par période
 
-    statut : PROPOSÉ — en attente de la décision du mandant
+    statut : ACCEPTÉ — par le mandant le 07/10/2026 (« Oui », en réponse
+             à « Tu acceptes ADR-008 tel quel ? »)
     ouvert : 05/10/2026
     porte  : `run-period` (phase DEVELOPING), `pilot-conduct` (fournisseur),
              le candidat de période (aujourd'hui une application scriptée),

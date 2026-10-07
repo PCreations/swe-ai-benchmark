@@ -1,0 +1,106 @@
+#!/usr/bin/env node
+// acceptance/fixtures/claude-cli/bin/claude — FAUX EXECUTABLE, zone ACCEPTANCE.
+//
+// Remplace la vraie CLI `claude` pour acceptance/T47.spec.ts (et pour toute
+// autre suite qui la placerait en tete de PATH) : ADR-008 (L96-L100, L135
+// T47.A... /commande) "Un faux executable `claude` place en tete du PATH rend
+// des sorties enregistrees [...] Les verifications le passent avec le faux
+// executable ; l'essai reel, avec la vraie CLI, n'a lieu que sur demande du
+// mandant." Ce fichier est CE faux executable : il ne fait jamais de reseau,
+// jamais d'appel reel, et ne depend d'aucune authentification.
+//
+// Delibere : ni `import` ni `require` au niveau superieur, pour rester
+// valide que Node le charge en ESM ou en CJS (determine par le `type` du
+// package.json le plus proche, hors du controle de cette suite). Seuls des
+// globaux (`process`) et un `import()` dynamique (valide dans les deux
+// systemes de module) sont utilises.
+//
+// Pilotage PAR VARIABLE D'ENVIRONNEMENT (le canal que l'adaptateur sous test
+// doit laisser passer : seules ANTHROPIC_API_KEY et ANTHROPIC_AUTH_TOKEN sont
+// censees etre retirees par T47.A1) :
+//   BENCH_FAKE_CLAUDE_AUTH_MARKER_FILE  — ecrit quand l'argv contient
+//                                         "auth status" (preuve que le
+//                                         controle a reellement eu lieu).
+//   BENCH_FAKE_CLAUDE_AUTH_METHOD       — valeur de authMethod rendue
+//                                         (defaut 'oauth_token').
+//   BENCH_FAKE_CLAUDE_AUTH_PROVIDER     — valeur de apiProvider rendue
+//                                         (defaut 'firstParty').
+//   BENCH_FAKE_CLAUDE_RECORD_FILE       — ecrit pour tout appel qui N'EST PAS
+//                                         "auth status" (une session) : argv,
+//                                         cwd, et la PRESENCE (pas la valeur)
+//                                         de ANTHROPIC_API_KEY/
+//                                         ANTHROPIC_AUTH_TOKEN dans son propre
+//                                         environnement.
+//   BENCH_FAKE_CLAUDE_STDOUT_RAW        — ecrit tel quel sur stdout au lieu
+//                                         du JSON "success" par defaut.
+//   BENCH_FAKE_CLAUDE_EXIT_CODE         — code de sortie (defaut '0').
+
+const argv = process.argv.slice(2);
+
+function isAuthStatus(a) {
+  return a.includes('auth') && a.includes('status');
+}
+
+async function main() {
+  const fs = await import('node:fs');
+
+  if (isAuthStatus(argv)) {
+    const marker = process.env.BENCH_FAKE_CLAUDE_AUTH_MARKER_FILE;
+    if (marker) {
+      try {
+        fs.writeFileSync(marker, JSON.stringify({ argv, at: Date.now() }));
+      } catch {
+        /* la preuve d'invocation n'est pas l'objet de cette branche */
+      }
+    }
+    const authMethod = process.env.BENCH_FAKE_CLAUDE_AUTH_METHOD || 'oauth_token';
+    const apiProvider = process.env.BENCH_FAKE_CLAUDE_AUTH_PROVIDER || 'firstParty';
+    process.stdout.write(JSON.stringify({ authMethod, apiProvider }));
+    process.exitCode = 0;
+    return;
+  }
+
+  const recordFile = process.env.BENCH_FAKE_CLAUDE_RECORD_FILE;
+  if (recordFile) {
+    const record = {
+      argv,
+      cwd: process.cwd(),
+      hasApiKey: Object.prototype.hasOwnProperty.call(process.env, 'ANTHROPIC_API_KEY'),
+      hasAuthToken: Object.prototype.hasOwnProperty.call(process.env, 'ANTHROPIC_AUTH_TOKEN'),
+    };
+    try {
+      fs.writeFileSync(recordFile, JSON.stringify(record));
+    } catch {
+      /* la preuve d'invocation n'est pas l'objet de cette branche */
+    }
+  }
+
+  const rawOverride = process.env.BENCH_FAKE_CLAUDE_STDOUT_RAW;
+  const exitCodeRaw = process.env.BENCH_FAKE_CLAUDE_EXIT_CODE;
+  const exitCode = exitCodeRaw === undefined ? 0 : Number.parseInt(exitCodeRaw, 10);
+
+  if (rawOverride !== undefined) {
+    process.stdout.write(rawOverride);
+  } else {
+    process.stdout.write(
+      JSON.stringify({
+        type: 'result',
+        subtype: 'success',
+        is_error: false,
+        session_id: 'bench-fake-session',
+        num_turns: 1,
+        total_cost_usd: 0,
+        usage: {
+          input_tokens: 0,
+          output_tokens: 0,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+        },
+        modelUsage: {},
+      }),
+    );
+  }
+  process.exitCode = Number.isFinite(exitCode) ? exitCode : 0;
+}
+
+main();

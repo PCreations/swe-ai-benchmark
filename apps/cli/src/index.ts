@@ -207,6 +207,33 @@ const USAGE = `bench — commandes de campagne
         --mode                          recorded | live
         --test-stop-after-periods       point d'injection nomme (cahier:L141)
 
+  candidate-period --campaign-id <id> --postgres-database <db>
+                    --s3-bucket <bucket>
+                    [--candidate-workspace-root <dir>]
+                    [--candidate-command <json-argv>]
+                    [--candidate-timeout-ms <n>]
+                    [--candidate-ops <json>]
+        Avance la trajectoire d'UNE periode, en l'exposant au candidat comme
+        un espace de travail git reel et un contrat de processus (T48, ADR-008
+        L139-L145 -- commande NEUVE, distincte de run-period/T23 et
+        pilot-conduct/T46). PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED.
+
+        --campaign-id                   identite de la TRAJECTOIRE (meme
+                                         convention que run-period)
+        --postgres-database             base PostgreSQL reelle a utiliser
+        --s3-bucket                     bucket S3 (ou compatible) reel
+        --candidate-workspace-root      racine reelle sous laquelle le depot
+                                         git de la trajectoire est derive ;
+                                         omis -> mode scripted (aucun espace
+                                         de travail reel)
+        --candidate-command             tableau JSON argv qui lance le
+                                         processus-candidat ; omis -> mode
+                                         scripted
+        --candidate-timeout-ms          delai (ms) pour la probe de demarrage
+                                         et chaque echange protocolaire
+        --candidate-ops                 tableau JSON {op,args}[] des
+                                         operations a emettre cette periode
+
   plan-distribution --campaign-id <id> --mode <mode> --parents <N>
                      --scenarios <N> --configurations <N> --repetitions <N>
                      --budgets <N> --periods-per-trajectory <N>
@@ -1165,6 +1192,21 @@ async function commandPilotConduct(argv: readonly string[]): Promise<number> {
   }
 }
 
+/**
+ * `candidate-period` (T48, ADR-008 L139-L145 -- SQUELETTE rouge, meme geste
+ * que `pilot-conduct`/`scenario validate`/`campaign plan|status|resume`/
+ * `checkpoint fork`/`billing reconcile` ci-dessus : commande NEUVE, aucune
+ * regle metier a cet etage, leve NOT_IMPLEMENTED). Elle avancera, a terme,
+ * la trajectoire d'UNE periode en l'exposant au candidat soit comme un
+ * processus reel sous un espace de travail git derive (mode `process`), soit
+ * via l'application scriptee (mode `scripted`, quand `--candidate-workspace-
+ * root`/`--candidate-command` sont omis) -- voir acceptance/T48.spec.ts pour
+ * le contrat (section III de son en-tete).
+ */
+async function commandCandidatePeriod(_argv: readonly string[]): Promise<number> {
+  throw new NotImplemented('cli.candidate-period')
+}
+
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */
 //
 // Lit les dix drapeaux requis, refuse si l'un manque (même discipline que
@@ -1349,6 +1391,7 @@ async function main(): Promise<number> {
   if (command === 'campaign') return commandCampaignDispatch(rest)
   if (command === 'pilot') return commandPilot(rest)
   if (command === 'pilot-conduct') return commandPilotConduct(rest)
+  if (command === 'candidate-period') return commandCandidatePeriod(rest)
   if (command === 'plan-distribution') return commandPlanDistribution(rest)
   if (command === 'distribution-run-bounded') return commandDistributionRunBounded(rest)
   if (command === 'distribution-resume') return commandDistributionResume(rest)

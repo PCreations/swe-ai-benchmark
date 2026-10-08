@@ -1,0 +1,70 @@
+{
+  "schema": "bench.red/1",
+  "task": "T47",
+  "subject_commit": "7a162af39048b36be1b296212e4269c726c11e8e",
+  "dirty": false,
+  "input_digest": "b2d5355b3b36523b316b73bb4f220935910b9e893599a5e40d0d27224a7d0567",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T47.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T47.M1",
+      "note": "Purge ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN desarmee dans purgeAnthropicCredentials (worktree isole /tmp .../t47-mutwt) : A1 vire rouge (hasApiKey/hasAuthToken PRESENT-MALGRE-LA-PURGE), A2-A5 restent verts. Mutant restaure par git checkout."
+    },
+    {
+      "id": "T47.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T47.M2",
+      "note": "input_fresh derive depuis outputTokens au lieu de inputTokens (meme worktree) : A2 vire rouge (Expected 11, Received 7), A1/A3/A4/A5 restent verts. Mutant restaure par git checkout."
+    },
+    {
+      "id": "T47.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T47.M3",
+      "note": "cacheCreationInputTokens route vers cache_write_5m au lieu de cache_write_unresolved (meme worktree) : A3 vire rouge (Expected 0, Received 23), A1/A2/A4/A5 restent verts. Mutant restaure par git checkout."
+    },
+    {
+      "id": "T47.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T47.M4",
+      "note": "controle subtype/is_error supprime dans interpretClaudeSessionResult (meme worktree) : A4 vire rouge (ok:true rendu alors que subtype=error_during_execution/is_error=true), A1/A2/A3/A5 restent verts. Mutant restaure par git checkout."
+    },
+    {
+      "id": "T47.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T47.M5",
+      "note": "refus sur authMethod=api_key supprime avant la session -p (meme worktree) : A5 vire rouge (ok:true rendu malgre authMethod api_key declare), A1/A2/A3/A4 restent verts. Mutant restaure par git checkout."
+    }
+  ],
+  "mutation_proof": {
+    "T47.A1": {
+      "killed_by": "T47.M1",
+      "note": "Purge ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN desarmee dans purgeAnthropicCredentials (worktree isole /tmp .../t47-mutwt) : A1 vire rouge (hasApiKey/hasAuthToken PRESENT-MALGRE-LA-PURGE), A2-A5 restent verts. Mutant restaure par git checkout."
+    },
+    "T47.A2": {
+      "killed_by": "T47.M2",
+      "note": "input_fresh derive depuis outputTokens au lieu de inputTokens (meme worktree) : A2 vire rouge (Expected 11, Received 7), A1/A3/A4/A5 restent verts. Mutant restaure par git checkout."
+    },
+    "T47.A3": {
+      "killed_by": "T47.M3",
+      "note": "cacheCreationInputTokens route vers cache_write_5m au lieu de cache_write_unresolved (meme worktree) : A3 vire rouge (Expected 0, Received 23), A1/A2/A4/A5 restent verts. Mutant restaure par git checkout."
+    },
+    "T47.A4": {
+      "killed_by": "T47.M4",
+      "note": "controle subtype/is_error supprime dans interpretClaudeSessionResult (meme worktree) : A4 vire rouge (ok:true rendu alors que subtype=error_during_execution/is_error=true), A1/A2/A3/A5 restent verts. Mutant restaure par git checkout."
+    },
+    "T47.A5": {
+      "killed_by": "T47.M5",
+      "note": "refus sur authMethod=api_key supprime avant la session -p (meme worktree) : A5 vire rouge (ok:true rendu malgre authMethod api_key declare), A1/A2/A3/A4 restent verts. Mutant restaure par git checkout."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

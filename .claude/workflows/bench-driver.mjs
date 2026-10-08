@@ -211,11 +211,16 @@ CE QUI TE FERA REFUSER PLUS TARD, MECANIQUEMENT :
 - ecrire hors des zones de ton role (verification/ownership.json) -> PARTITION_VIOLATION.
 - toucher acceptance/reference/** apres le gel sans ouvrir un SPEC_CONFLICT.
 - affaiblir un cas : les cas requis et les empreintes ne peuvent que CROITRE.
+- ajouter une commande a l'aide de \`bench\` (apps/cli) sans son entree
+  \`### \`bench <commande> ...\`\` dans apps/cli/README.md, SQUELETTE COMPRIS :
+  T41.A7 exige l'egalite exacte entre commandes parsees et documentees, et un
+  oubli fait tomber T41, T42 et T43 (deja arrive deux fois : T46, puis T48).
 - invoquer la VRAIE CLI \`claude\` en mode -p/--print (ADR-008) : un appel reel
   consomme l'abonnement du mandant et n'a lieu que sur SA demande explicite.
   Tests et verifications utilisent un faux executable \`claude\` place en tete
   du PATH ; avant toute execution qui pourrait lancer \`claude\`, verifie que
-  \`command -v claude\` designe bien ce faux.
+  \`command -v claude\` designe bien ce faux. ATTENTION : \`/opt/node22/bin/claude\`
+  est la VRAIE CLI, pas un faux ; un agent l'a deja confondu.
 
 N'INFERE JAMAIS l'avancement. \`node tools/bench resume\` est la seule autorite.
 Rends un compte rendu de ce qui a ete EXECUTE et OBSERVE. Si tu n'as pas pu

@@ -497,3 +497,8 @@ export type {
   CancelCampaignOpsInput,
   RunCampaignOpsInput,
 } from './campaign-ops.js'
+
+/* ── T48 : espace de travail git réel + contrat d'application (ADR-008) ──── */
+
+export { CANDIDATE_NOT_DEPLOYED_REASON, candidatePeriodOnce } from './candidate-period.js'
+export type { CandidateOperation, CandidateOperationResult, CandidatePeriodInput, CandidatePeriodResult } from './candidate-period.js'

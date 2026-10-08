@@ -53,6 +53,7 @@ import { promisify } from 'node:util'
 import {
   buildReport,
   campaignOpsPreflight,
+  candidatePeriodOnce,
   cancelCampaignOps,
   conductPilot,
   exportAnalysis,
@@ -216,7 +217,10 @@ const USAGE = `bench — commandes de campagne
         Avance la trajectoire d'UNE periode, en l'exposant au candidat comme
         un espace de travail git reel et un contrat de processus (T48, ADR-008
         L139-L145 -- commande NEUVE, distincte de run-period/T23 et
-        pilot-conduct/T46). PAS ENCORE IMPLEMENTEE : leve NOT_IMPLEMENTED.
+        pilot-conduct/T46). Mode 'process' quand --candidate-command est
+        fourni (le moteur lance ce processus et echange NDJSON avec lui) ;
+        mode 'scripted' sinon (le moteur sert lui-meme les cinq operations,
+        meme semantique que le contrat de processus).
 
         --campaign-id                   identite de la TRAJECTOIRE (meme
                                          convention que run-period)
@@ -224,8 +228,8 @@ const USAGE = `bench — commandes de campagne
         --s3-bucket                     bucket S3 (ou compatible) reel
         --candidate-workspace-root      racine reelle sous laquelle le depot
                                          git de la trajectoire est derive ;
-                                         omis -> mode scripted (aucun espace
-                                         de travail reel)
+                                         omis -> aucun espace de travail reel
+                                         gere (workspace_dir rendu null)
         --candidate-command             tableau JSON argv qui lance le
                                          processus-candidat ; omis -> mode
                                          scripted
@@ -1193,18 +1197,71 @@ async function commandPilotConduct(argv: readonly string[]): Promise<number> {
 }
 
 /**
- * `candidate-period` (T48, ADR-008 L139-L145 -- SQUELETTE rouge, meme geste
- * que `pilot-conduct`/`scenario validate`/`campaign plan|status|resume`/
- * `checkpoint fork`/`billing reconcile` ci-dessus : commande NEUVE, aucune
- * regle metier a cet etage, leve NOT_IMPLEMENTED). Elle avancera, a terme,
- * la trajectoire d'UNE periode en l'exposant au candidat soit comme un
- * processus reel sous un espace de travail git derive (mode `process`), soit
- * via l'application scriptee (mode `scripted`, quand `--candidate-workspace-
- * root`/`--candidate-command` sont omis) -- voir acceptance/T48.spec.ts pour
- * le contrat (section III de son en-tete).
+ * `candidate-period` (T48, ADR-008 L139-L145). Lit les drapeaux requis (meme
+ * discipline que `commandRunPeriod`), traduit les trois drapeaux JSON
+ * (`--candidate-command`, `--candidate-ops`, `--candidate-timeout-ms`) puis
+ * delegue la totalite du travail a `candidatePeriodOnce` (`@bench/
+ * activities`, src/candidate-period.ts) : espace de travail git reel restaure
+ * depuis S3/PostgreSQL (A1/A2), contrat de processus NDJSON ou application
+ * scriptee equivalente (A3), motifs de non-deploiement nommes (A4), sonde
+ * d'annulation sans effet observable (A5). AUCUNE REGLE METIER ICI (meme
+ * regle que l'en-tete du fichier).
  */
-async function commandCandidatePeriod(_argv: readonly string[]): Promise<number> {
-  throw new NotImplemented('cli.candidate-period')
+async function commandCandidatePeriod(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  if (campaignId === undefined || postgresDatabase === undefined || s3Bucket === undefined) {
+    process.stderr.write('bench candidate-period exige --campaign-id, --postgres-database et --s3-bucket\n')
+    return 1
+  }
+  const candidateWorkspaceRoot = flags.get('candidate-workspace-root')
+  const candidateCommandRaw = flags.get('candidate-command')
+  const candidateTimeoutMsRaw = flags.get('candidate-timeout-ms')
+  const candidateOpsRaw = flags.get('candidate-ops')
+
+  let candidateCommand: readonly string[] | undefined
+  if (candidateCommandRaw !== undefined) {
+    const parsed = JSON.parse(candidateCommandRaw) as unknown
+    if (!Array.isArray(parsed) || !parsed.every((v) => typeof v === 'string')) {
+      process.stderr.write('bench candidate-period : --candidate-command attend un tableau JSON de chaines\n')
+      return 1
+    }
+    candidateCommand = parsed
+  }
+
+  let candidateTimeoutMs: number | undefined
+  if (candidateTimeoutMsRaw !== undefined) {
+    const n = Number.parseInt(candidateTimeoutMsRaw, 10)
+    if (!Number.isInteger(n) || n <= 0) {
+      process.stderr.write('bench candidate-period : --candidate-timeout-ms attend un entier positif\n')
+      return 1
+    }
+    candidateTimeoutMs = n
+  }
+
+  let candidateOps: ReadonlyArray<{ op: string; args?: Record<string, unknown> }> | undefined
+  if (candidateOpsRaw !== undefined) {
+    const parsed = JSON.parse(candidateOpsRaw) as unknown
+    if (!Array.isArray(parsed)) {
+      process.stderr.write('bench candidate-period : --candidate-ops attend un tableau JSON\n')
+      return 1
+    }
+    candidateOps = parsed as ReadonlyArray<{ op: string; args?: Record<string, unknown> }>
+  }
+
+  const result = await candidatePeriodOnce({
+    campaignId,
+    postgresDatabase,
+    s3Bucket,
+    candidateWorkspaceRoot,
+    candidateCommand,
+    candidateTimeoutMs,
+    candidateOps,
+  })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
 }
 
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */

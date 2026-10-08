@@ -1411,13 +1411,24 @@ function interpretClaudeSessionResult(result: ClaudeProcessResult): ClaudeCliPer
     return { ok: false, reason: REASON_SESSION_REPORTED_ERROR, raw: stdout }
   }
 
-  return { ok: true, raw: stdout, usage: usageFromModelUsage(parsed.modelUsage) }
+  const sessionId =
+    typeof (parsed as Record<string, unknown>)['session_id'] === 'string'
+      ? ((parsed as Record<string, unknown>)['session_id'] as string)
+      : ''
+
+  return { ok: true, raw: stdout, sessionId, usage: usageFromModelUsage(parsed.modelUsage) }
 }
 
-/** Options de `launchClaudeCliPeriod` (acceptance/T47.spec.ts, section III.1). */
+/** Options de `launchClaudeCliPeriod` (acceptance/T47.spec.ts, section III.1 ;
+ *  `prompt`, AJOUTE par acceptance/T49.spec.ts, section II.4 -- ADDITIF,
+ *  optionnel : omis, le comportement de T47 est inchange -- AUCUN argument
+ *  n'est insere apres `-p`). Quand fourni, c'est litteralement l'argument
+ *  d'argv qui suit IMMEDIATEMENT `-p` (meme convention shell que
+ *  `claude -p "<texte>"`). */
 export interface LaunchClaudeCliPeriodOptions {
   readonly workspaceDir: string
   readonly model: string
+  readonly prompt?: string | undefined
   readonly env: Record<string, string | undefined>
 }
 
@@ -1439,7 +1450,17 @@ export interface ClaudeCliPeriodUsage {
  * des pannes).
  */
 export type ClaudeCliPeriodResult =
-  | { readonly ok: true; readonly raw: string; readonly usage: readonly ClaudeCliPeriodUsage[] }
+  | {
+      readonly ok: true
+      readonly raw: string
+      /** `session_id` declare par la session (acceptance/T49.spec.ts, A1) --
+       *  chaine vide si la sortie, pourtant reconnue "success", ne le porte
+       *  pas (ne s'est jamais produit avec le faux executable ni la CLI
+       *  reelle documentee, mais aucune des quatre verifications de A4 ne
+       *  porte sur ce champ -- jamais un refus pour cette seule absence). */
+      readonly sessionId: string
+      readonly usage: readonly ClaudeCliPeriodUsage[]
+    }
   | { readonly ok: false; readonly reason: string; readonly raw: string | null }
 
 /**
@@ -1452,7 +1473,7 @@ export type ClaudeCliPeriodResult =
 export async function launchClaudeCliPeriod(
   options: LaunchClaudeCliPeriodOptions,
 ): Promise<ClaudeCliPeriodResult> {
-  const { workspaceDir, model } = options
+  const { workspaceDir, model, prompt } = options
   const env = purgeAnthropicCredentials(options.env)
 
   const authStatus = await runClaudeProcess(['auth', 'status'], workspaceDir, env)
@@ -1461,9 +1482,13 @@ export async function launchClaudeCliPeriod(
     return { ok: false, reason: REASON_AUTH_METHOD_API_KEY, raw: null }
   }
 
+  // `prompt`, AJOUTE par acceptance/T49.spec.ts (II.4) : litteralement
+  // l'argument qui suit `-p`, omis quand `prompt` est absent -- comportement
+  // de T47 inchange dans ce cas (AUCUN argument supplementaire).
   const session = await runClaudeProcess(
     [
       CLAUDE_FLAG_PRINT,
+      ...(prompt !== undefined ? [prompt] : []),
       CLAUDE_FLAG_OUTPUT_FORMAT,
       CLAUDE_VALUE_OUTPUT_FORMAT_JSON,
       CLAUDE_FLAG_NO_SESSION_PERSISTENCE,

@@ -401,7 +401,14 @@ export async function resumeDeploymentSwitch(
 }
 
 /* ── T23 : assembler une période persistante complète (L353-L359) ────────── */
-export { RUN_PERIOD_MODE, RUN_PERIOD_PHASES, RUN_PERIOD_VARIANTS, runPeriodOnce } from './run-period.js'
+export {
+  RUN_PERIOD_MODE,
+  RUN_PERIOD_PHASES,
+  RUN_PERIOD_VARIANTS,
+  revealedRequirementsForPeriod,
+  runPeriodOnce,
+  SCENARIO_DEFAULT,
+} from './run-period.js'
 export type { RunPeriodInput, RunPeriodOutcome } from './run-period.js'
 
 /* ── T42 : `checkpoint inspect` depuis un processus neuf (section II.3) ──── */
@@ -502,3 +509,20 @@ export type {
 
 export { CANDIDATE_NOT_DEPLOYED_REASON, candidatePeriodOnce } from './candidate-period.js'
 export type { CandidateOperation, CandidateOperationResult, CandidatePeriodInput, CandidatePeriodResult } from './candidate-period.js'
+
+/* ── T49 : fournisseur `claude-cli` de `run-period`/`pilot-conduct` (ADR-008) */
+
+export {
+  aggregateClaudeCliUsage,
+  countClaudeCliPeriods,
+  REASON_LIVE_FLAG_ABSENT,
+  REASON_NO_PERIOD_PERSISTED,
+  rereadClaudeCliPeriod,
+  runPeriodOnceClaudeCli,
+} from './run-period-claude-cli.js'
+export type {
+  ClaudeCliCandidate,
+  RereadClaudeCliPeriodInput,
+  RunPeriodClaudeCliInput,
+  RunPeriodClaudeCliOutcome,
+} from './run-period-claude-cli.js'

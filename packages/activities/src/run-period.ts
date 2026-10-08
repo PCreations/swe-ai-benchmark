@@ -648,6 +648,29 @@ function buildFromInvalidCandidate(p: InvalidCandidatePeriod): Readonly<Record<s
   }
 }
 
+/* ══════════ exigences révélées d'une période, réutilisables hors trajectoire
+ * (T49, ADR-008 L149/A2) — AUCUN effet de bord (ni PostgreSQL ni S3) : lit la
+ * MÊME fonction pure (`nominalPeriod`/`buildFromFailureScenario`) que
+ * `runPeriodOnce` ci-dessous emploie pour construire le champ `requirements`
+ * de son propre résultat, afin que les deux restent BIT-IDENTIQUES pour le
+ * même (scénario, période) — c'est cette identité, par construction plutôt
+ * que par coïncidence, que `acceptance/T49.spec.ts` (A2) compare entre une
+ * trajectoire de référence jouée en mode `fake` et le prompt d'une session
+ * `claude-cli`. */
+export async function revealedRequirementsForPeriod(
+  scenarioId: string,
+  periodIndex: number,
+): Promise<readonly unknown[]> {
+  if (scenarioId === SCENARIO_ALTERNATIF) {
+    const built = buildFromFailureScenario(periodIndex)
+    return (built['requirements'] as readonly unknown[] | undefined) ?? []
+  }
+  const demoPeriod = await nominalPeriod(periodIndex)
+  return demoPeriod.requirements
+}
+
+export { SCENARIO_DEFAULT }
+
 /* ══════════════════════════════════════════════════ l'orchestrateur ═════ */
 
 function normalizedVariant(raw: string | undefined): string {

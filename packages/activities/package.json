@@ -9,6 +9,7 @@
   "types": "./dist/index.d.ts",
   "files": ["dist"],
   "dependencies": {
+    "@bench/agents": "workspace:*",
     "@bench/billing": "workspace:*",
     "@bench/contracts": "workspace:*",
     "@bench/gateway": "workspace:*",

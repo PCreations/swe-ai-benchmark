@@ -59,13 +59,16 @@ import {
   exportAnalysis,
   inspectCheckpoint,
   planDistribution,
+  REASON_LIVE_FLAG_ABSENT,
   resumeDistribution,
+  rereadClaudeCliPeriod,
   runAnalysisFromExport,
   runCampaign,
   runCampaignOps,
   runDistributionBounded,
   runDoctorProbes,
   runPeriodOnce,
+  runPeriodOnceClaudeCli,
   runPilot,
 } from '@bench/activities'
 import { NotImplemented } from '@bench/contracts'
@@ -89,6 +92,9 @@ const USAGE = `bench — commandes de campagne
              --s3-bucket <bucket> [--variant <variante>]
              [--scenario-id <id>] [--configuration-id <id>]
              [--test-stop-after-phase <phase>]
+             [--provider claude-cli --live --model <id>
+               --candidate-workspace-root <dir>]
+             [--test-reread-period <n>]
         Assemble une periode persistante complete avec les adaptateurs reels
         locaux (T23, cahier L353-L359) et ecrit son resultat JSON sur la
         sortie standard. Chaque appel ne porte que sur la PERIODE SUIVANTE de
@@ -110,6 +116,21 @@ const USAGE = `bench — commandes de campagne
                                     refuse (TRAJECTORY_IDENTITY_CONFLICT,
                                     ADR-007:L153)
         --test-stop-after-phase    point d'injection nomme (cahier:L141)
+        --provider                 claude-cli (T49, ADR-008:L149) ; omis,
+                                    chemin nominal/invalid-candidate inchange
+        --live                     drapeau SANS VALEUR (T49, ADR-008:L98) ;
+                                    consentement explicite a invoquer le
+                                    binaire claude du PATH -- absent, le
+                                    fournisseur claude-cli est refuse avant
+                                    tout appel
+        --model                    modele de la configuration (T49) ; exige
+                                    avec --provider claude-cli
+        --candidate-workspace-root racine reelle sous laquelle le depot git
+                                    de la trajectoire est derive (T48/T49)
+        --test-reread-period       point d'injection nomme (T49, II.1) :
+                                    relit, depuis l'etat persistant, la
+                                    periode claude-cli <n> de cette
+                                    trajectoire -- aucune session invoquee
 
   run-trajectory --mode <mode> --campaign-id <id> --postgres-database <db>
                  --s3-bucket <bucket> --export-history <chemin>
@@ -194,19 +215,31 @@ const USAGE = `bench — commandes de campagne
         --test-force-all-candidates-fail      point d'injection nomme (cahier:L141)
 
   pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db>
-                --s3-bucket <bucket> --provider fake --mode recorded|live
+                --s3-bucket <bucket> --provider fake|claude-cli
+                --mode recorded|live
                 [--test-stop-after-periods <n>]
+                [--live --candidate-workspace-root <dir>]
         Conduit chaque trajectoire compilee d'un manifeste de pilote, periode
         par periode, a travers run-period (T46, ADR-007 L157-L163 -- commande
-        NEUVE, distincte de pilot/T39 et campaign/T41).
+        NEUVE, distincte de pilot/T39 et campaign/T41) ou, avec
+        --provider claude-cli, a travers une session claude -p reelle par
+        periode (T49, ADR-008 L147-L153).
 
         --campaign-id                   identite de la CAMPAGNE (superieure a
                                          la trajectoire run-period)
         --postgres-database             base PostgreSQL reelle a utiliser
         --s3-bucket                     bucket S3 (ou compatible) reel
-        --provider                      fake
+        --provider                      fake | claude-cli (T49)
         --mode                          recorded | live
         --test-stop-after-periods       point d'injection nomme (cahier:L141)
+        --live                          drapeau SANS VALEUR (T49, ADR-008:L98) ;
+                                         SEULEMENT avec --provider claude-cli --
+                                         sans lui, le fournisseur claude-cli est
+                                         refuse avant tout appel
+        --candidate-workspace-root      racine reelle sous laquelle le moteur
+                                         derive l'espace de travail git de
+                                         chaque trajectoire (T48/T49) ; exige
+                                         avec --provider claude-cli
 
   candidate-period --campaign-id <id> --postgres-database <db>
                     --s3-bucket <bucket>
@@ -431,15 +464,29 @@ async function commandDemo(argv: readonly string[]): Promise<number> {
 }
 
 /**
- * `run-period` (T23, cahier L353-L359). Lit les drapeaux requis, refuse si
- * l'un manque (meme discipline que `commandDemo`), puis delegue a
- * `runPeriodOnce` (`@bench/activities`). N'ecrit le resultat JSON que si la
- * periode s'est reellement achevee : une interruption par
+ * `run-period` (T23, cahier L353-L359 ; fournisseur `claude-cli` et
+ * `--test-reread-period` AJOUTES par T49, ADR-008 L147-L153). Lit les
+ * drapeaux requis, refuse si l'un manque (meme discipline que
+ * `commandDemo`), puis delegue a `runPeriodOnce`/`runPeriodOnceClaudeCli`/
+ * `rereadClaudeCliPeriod` (`@bench/activities`). N'ecrit le resultat JSON
+ * que si la periode s'est reellement achevee : une interruption par
  * `--test-stop-after-phase` (cahier:L141) n'ecrit rien sur la sortie standard
- * (A5).
+ * (A5 de T23).
+ *
+ * TROIS BRANCHES, DANS CET ORDRE DE PRIORITE (AUCUNE REGLE METIER ICI, meme
+ * regle que l'en-tete du fichier) :
+ *   1. `--test-reread-period <n>` (T49, II.1) : relecture PURE depuis l'etat
+ *      persistant, AUCUNE session, AUCUN drapeau `--provider`/`--live`/
+ *      `--model`/`--candidate-workspace-root` n'est exige.
+ *   2. `--provider claude-cli` (T49) : avance la trajectoire d'UNE periode
+ *      candidate REELLE (T47/T48) ; `--live` est un DRAPEAU SANS VALEUR
+ *      (ADR-008 L98) -- sans lui, `runPeriodOnceClaudeCli` refuse AVANT
+ *      TOUT APPEL.
+ *   3. SINON : le chemin NOMINAL/`invalid-candidate` de T23/T45/T46, INCHANGE
+ *      (A5 de T49 : aucune des lignes de ce chemin n'est touchee par 1/2).
  */
 async function commandRunPeriod(argv: readonly string[]): Promise<number> {
-  const flags = parseFlags(argv)
+  const flags = parseFlagsAvecBooleens(argv, new Set(['live']))
   const mode = flags.get('mode')
   const campaignId = flags.get('campaign-id')
   const postgresDatabase = flags.get('postgres-database')
@@ -455,6 +502,55 @@ async function commandRunPeriod(argv: readonly string[]): Promise<number> {
     )
     return 1
   }
+
+  // ── 1. `--test-reread-period <n>` (T49, II.1) : relecture pure, prioritaire. ──
+  const testRereadPeriodRaw = flags.get('test-reread-period')
+  if (testRereadPeriodRaw !== undefined) {
+    const periodIndex = Number.parseInt(testRereadPeriodRaw, 10)
+    if (!Number.isInteger(periodIndex) || periodIndex < 1) {
+      process.stderr.write('bench run-period : --test-reread-period attend un entier >= 1\n')
+      return 1
+    }
+    const reread = rereadClaudeCliPeriod({ campaignId, postgresDatabase, periodIndex })
+    process.stdout.write(`${JSON.stringify(reread, null, 2)}\n`)
+    return 0
+  }
+
+  // ── 2. `--provider claude-cli` (T49) : periode candidate reelle. ──
+  const provider = flags.get('provider')
+  if (provider === 'claude-cli') {
+    const model = flags.get('model')
+    const candidateWorkspaceRoot = flags.get('candidate-workspace-root')
+    if (model === undefined || candidateWorkspaceRoot === undefined) {
+      process.stderr.write(
+        'bench run-period --provider claude-cli exige --model et --candidate-workspace-root\n'
+      )
+      return 1
+    }
+    const live = flags.get('live') === 'true'
+    // A6 (ADR-008 L98) : refus AVANT TOUT APPEL, signale par un CODE DE
+    // SORTIE NON NUL -- jamais confondu avec un echec DE session (A3, qui
+    // accepte aussi bien un code non nul qu'un JSON `persisted:false`). Le
+    // refus lui-meme n'invoque jamais `runPeriodOnceClaudeCli` : aucune
+    // connexion PostgreSQL, aucun espace de travail, aucun appel.
+    if (!live) {
+      process.stderr.write(`bench run-period --provider claude-cli : ${REASON_LIVE_FLAG_ABSENT}\n`)
+      return 1
+    }
+    const scenarioId = flags.get('scenario-id')
+    const outcome = await runPeriodOnceClaudeCli({
+      campaignId,
+      postgresDatabase,
+      live,
+      model,
+      candidateWorkspaceRoot,
+      scenarioId,
+    })
+    process.stdout.write(`${JSON.stringify(outcome, null, 2)}\n`)
+    return 0
+  }
+
+  // ── 3. Chemin NOMINAL/`invalid-candidate` (T23/T45/T46), INCHANGE. ──
   const variant = flags.get('variant')
   const testStopAfterPhase = flags.get('test-stop-after-phase')
   // T45 (ADR-007:L151) : deux drapeaux optionnels, miroir des champs
@@ -1140,15 +1236,18 @@ async function commandPilot(argv: readonly string[]): Promise<number> {
 }
 
 /**
- * `pilot-conduct` (T46, ADR-007 L157-L163). Lit le chemin de manifeste
- * (premier argument positionnel, jamais un drapeau -- meme discipline que
- * `commandPilot`/`commandCampaign`), puis les drapeaux requis, refuse si l'un
- * manque, puis delegue la totalite du travail a `conductPilot` (`@bench/
- * activities`, `src/pilot-conduct.ts`) : conduit, periode par periode, chaque
- * trajectoire compilee d'un manifeste de pilote (T39) a travers `run-period`
- * (T45), sous une identite de CAMPAGNE superieure a celle de trajectoire que
- * `run-period` connait deja -- voir acceptance/T46.spec.ts pour le contrat.
- * AUCUNE REGLE METIER ICI (meme regle que l'en-tete du fichier).
+ * `pilot-conduct` (T46, ADR-007 L157-L163 ; fournisseur `claude-cli`,
+ * `--live` et `--candidate-workspace-root` AJOUTES par T49, ADR-008
+ * L147-L153). Lit le chemin de manifeste (premier argument positionnel,
+ * jamais un drapeau -- meme discipline que `commandPilot`/`commandCampaign`),
+ * puis les drapeaux requis, refuse si l'un manque, puis delegue la totalite
+ * du travail a `conductPilot` (`@bench/activities`, `src/pilot-conduct.ts`) :
+ * conduit, periode par periode, chaque trajectoire compilee d'un manifeste de
+ * pilote (T39) a travers `run-period` (T45) ou une session `claude-cli`
+ * reelle (T49), sous une identite de CAMPAGNE superieure a celle de
+ * trajectoire que `run-period` connait deja -- voir acceptance/T46.spec.ts et
+ * acceptance/T49.spec.ts pour le contrat. AUCUNE REGLE METIER ICI (meme
+ * regle que l'en-tete du fichier).
  */
 async function commandPilotConduct(argv: readonly string[]): Promise<number> {
   const [manifestPath, ...rest] = argv
@@ -1156,7 +1255,7 @@ async function commandPilotConduct(argv: readonly string[]): Promise<number> {
     process.stderr.write('bench pilot-conduct exige un chemin de manifeste en premier argument\n')
     return 1
   }
-  const flags = parseFlags(rest)
+  const flags = parseFlagsAvecBooleens(rest, new Set(['live']))
   const campaignId = flags.get('campaign-id')
   const postgresDatabase = flags.get('postgres-database')
   const s3Bucket = flags.get('s3-bucket')
@@ -1177,6 +1276,11 @@ async function commandPilotConduct(argv: readonly string[]): Promise<number> {
   const testStopAfterPeriodsRaw = flags.get('test-stop-after-periods')
   const testStopAfterPeriods =
     testStopAfterPeriodsRaw === undefined ? undefined : Number.parseInt(testStopAfterPeriodsRaw, 10)
+  // T49 (ADR-008) : SEULEMENT actifs sous `--provider claude-cli` -- `live`
+  // reste `undefined` (jamais `false`) sous `--provider fake`, pour ne rien
+  // changer au comportement de T46 (A5).
+  const live = flags.has('live') ? true : undefined
+  const candidateWorkspaceRoot = flags.get('candidate-workspace-root')
   try {
     const result = await conductPilot({
       manifestPath,
@@ -1186,6 +1290,8 @@ async function commandPilotConduct(argv: readonly string[]): Promise<number> {
       provider,
       mode,
       testStopAfterPeriods,
+      live,
+      candidateWorkspaceRoot,
     })
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
     return 0

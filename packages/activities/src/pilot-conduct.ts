@@ -62,6 +62,7 @@ import { createFakeProvider, dispatchModelCall, getModelCall } from '@bench/gate
 import type { ModelCallRecord } from '@bench/gateway'
 
 import { runPeriodOnce } from './run-period.js'
+import { aggregateClaudeCliUsage, countClaudeCliPeriods, runPeriodOnceClaudeCli } from './run-period-claude-cli.js'
 
 type Json = Record<string, unknown>
 
@@ -417,6 +418,105 @@ export interface ConductPilotInput {
    *  persisté exactement ce nombre de périodes au total pour la campagne
    *  (compte global, toutes trajectoires confondues). */
   readonly testStopAfterPeriods?: number | undefined
+  /** `--live` (T49, ADR-008 L98) — SEULEMENT quand `provider === 'claude-cli'` ;
+   *  ignoré sous `--provider fake` (A5 : le comportement de T46 est inchangé). */
+  readonly live?: boolean | undefined
+  /** `--candidate-workspace-root` (T49, même nom et même rôle que
+   *  `./candidate-period.ts`, T48) — EXIGÉ quand `provider === 'claude-cli'`. */
+  readonly candidateWorkspaceRoot?: string | undefined
+}
+
+/**
+ * Branche `--provider claude-cli` de `conductPilot` (T49, ADR-008
+ * L149/L151). Conduit chaque trajectoire compilee du manifeste, PERIODE PAR
+ * PERIODE, via `runPeriodOnceClaudeCli` (`./run-period-claude-cli.ts`,
+ * T47/T48) — jamais le fournisseur factice ni le budget reel de
+ * `@bench/billing` (voir l'en-tete du fichier, « Le modele appele »
+ * pour T46 : ce chemin ne s'applique qu'au fournisseur factice). Refuse
+ * AVANT TOUT APPEL si `--live` est absent (A6, meme discipline que
+ * `run-period --provider claude-cli`) ou si `--candidate-workspace-root`
+ * manque.
+ */
+async function conductPilotClaudeCli(
+  input: ConductPilotInput,
+  manifest: ConductManifest,
+  plans: readonly ConductTrajectoryPlan[],
+): Promise<Readonly<Json>> {
+  if (input.live !== true) {
+    throw new Error(
+      "bench pilot-conduct --provider claude-cli refusé : --live absent (ADR-008:L98) — le fournisseur claude-cli n'est jamais invoqué",
+    )
+  }
+  if (input.candidateWorkspaceRoot === undefined) {
+    throw new Error('bench pilot-conduct --provider claude-cli exige --candidate-workspace-root')
+  }
+  const modelName = manifest.model?.name
+  if (modelName === undefined || modelName.length === 0) {
+    throw new Error('bench pilot-conduct --provider claude-cli exige model.name dans le manifeste')
+  }
+
+  const db = input.postgresDatabase
+  const campaignId = input.campaignId
+  const periodsPerTrajectory = manifest.periods_per_trajectory ?? 0
+  let interrupted = false
+  let totalSoFar = plans.reduce((sum, p) => sum + countClaudeCliPeriods(db, p.trajectory_key), 0)
+
+  outer: for (const plan of plans) {
+    const already = countClaudeCliPeriods(db, plan.trajectory_key)
+    for (let i = already + 1; i <= periodsPerTrajectory; i += 1) {
+      if (input.testStopAfterPeriods !== undefined && totalSoFar >= input.testStopAfterPeriods) {
+        interrupted = true
+        break outer
+      }
+      const outcome = await runPeriodOnceClaudeCli({
+        campaignId: plan.trajectory_key,
+        postgresDatabase: db,
+        live: true,
+        model: modelName,
+        candidateWorkspaceRoot: input.candidateWorkspaceRoot,
+        scenarioId: plan.scenario_id,
+      })
+      if (!outcome.persisted) {
+        throw new Error(
+          `bench pilot-conduct : session claude-cli en échec pour ${plan.trajectory_key} période ${String(i)} : ${outcome.failure_reason ?? 'motif inconnu'}`,
+        )
+      }
+      totalSoFar += 1
+    }
+  }
+
+  const persistedTrajectories = readPersistedTrajectories(db, campaignId)
+  const periodsByTrajectory = new Map<string, number>()
+  for (const t of persistedTrajectories) {
+    periodsByTrajectory.set(t.trajectory_key, countClaudeCliPeriods(db, t.trajectory_key))
+  }
+  const totalPersisted = [...periodsByTrajectory.values()].reduce((sum, n) => sum + n, 0)
+  const candidateByModel = aggregateClaudeCliUsage(
+    db,
+    persistedTrajectories.map((t) => t.trajectory_key),
+  )
+
+  return {
+    schema: 'bench.pilot_conduct.result/1',
+    campaign_id: campaignId,
+    trajectory_count: trajectoryCount(manifest),
+    period_count: periodCount(manifest),
+    periods_persisted: totalPersisted,
+    ready: true,
+    missing_prerequisites: [],
+    interrupted,
+    budget: effectiveBudget(manifest),
+    trajectories: persistedTrajectories.map((t) => ({
+      trajectory_key: t.trajectory_key,
+      parent_project_id: t.parent_project_id,
+      scenario_id: t.scenario_id,
+      configuration_id: t.configuration_id,
+      periods_persisted: periodsByTrajectory.get(t.trajectory_key) ?? 0,
+    })),
+    periods: [],
+    token_report: { by_model: {} },
+    candidate_token_report: { by_model: candidateByModel },
+  }
 }
 
 /**
@@ -442,8 +542,8 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
   if (input.mode !== 'recorded' && input.mode !== 'live') {
     throw new Error(`bench pilot-conduct exige --mode recorded|live (reçu ${JSON.stringify(input.mode)})`)
   }
-  if (input.provider !== 'fake') {
-    throw new Error(`bench pilot-conduct exige --provider fake (reçu ${JSON.stringify(input.provider)})`)
+  if (input.provider !== 'fake' && input.provider !== 'claude-cli') {
+    throw new Error(`bench pilot-conduct exige --provider fake|claude-cli (reçu ${JSON.stringify(input.provider)})`)
   }
 
   const db = input.postgresDatabase
@@ -452,6 +552,14 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
 
   ensureConductTables(db)
   persistCompiledTrajectories(db, campaignId, plans)
+
+  // ── T49 (ADR-008 L149) : branche ENTIEREMENT SEPAREE du fournisseur
+  // `claude-cli`, qui ne traverse JAMAIS le fournisseur factice ni le budget
+  // reel ci-dessous (voir l'en-tete de ./run-period-claude-cli.ts) — c'est ce
+  // qui rend A5 (fournisseur factice inchange) vrai PAR CONSTRUCTION.
+  if (input.provider === 'claude-cli') {
+    return conductPilotClaudeCli(input, manifest, plans)
+  }
 
   const dsn = dsnFor(db)
   await applyMigrations({ dsn })

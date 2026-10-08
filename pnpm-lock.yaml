@@ -50,6 +50,9 @@ importers:
 
   packages/activities:
     dependencies:
+      '@bench/agents':
+        specifier: workspace:*
+        version: link:../agents
       '@bench/billing':
         specifier: workspace:*
         version: link:../billing

@@ -25,13 +25,19 @@ resultat JSON sur la sortie standard. `--mode recorded` (agent scripte,
 reponses et couts fictifs archives), `--storage memory` (aucune base, aucun
 stockage d'objets), `--variant nominal | F-FAILURE | cross-tenant-read`.
 
-### `bench run-period --mode <mode> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> [--variant <variante>] [--test-stop-after-phase <phase>]`
+### `bench run-period --mode <mode> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> [--variant <variante>] [--scenario-id <id>] [--configuration-id <id>] [--test-stop-after-phase <phase>] [--provider claude-cli --live --model <id> --candidate-workspace-root <dir>] [--test-reread-period <n>]`
 
 Assemble une periode persistante complete avec les adaptateurs reels locaux
 (T23, cahier L353-L359) et ecrit son resultat JSON sur la sortie standard.
 Chaque appel ne porte que sur la periode suivante de la trajectoire
 `--campaign-id` : l'etat persistant (PostgreSQL + S3) est lu par la commande
-elle-meme.
+elle-meme. Avec `--provider claude-cli` (T49, ADR-008 L147-L153) : avance la
+trajectoire d'une periode candidate reelle via une session `claude -p`
+(T47) dans un espace de travail git reel (T48) ; `--live` (drapeau sans
+valeur) est un consentement explicite a invoquer le `claude` du `PATH` —
+absent, le fournisseur `claude-cli` est refuse avant tout appel.
+`--test-reread-period <n>` relit, depuis l'etat persistant, la periode
+`claude-cli` `<n>` d'une trajectoire, sans invoquer aucune session.
 
 ### `bench run-trajectory --mode <mode> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> --export-history <chemin> [--test-reorder-commands] [--test-duplicate-activity <nom>] [--test-continue-as-new-after <n>]`
 
@@ -83,14 +89,20 @@ et un contrat de processus (JSON ligne a ligne) par lequel le moteur lance et
 exerce son code (T48, ADR-008 L139-L145). Commande distincte de
 `bench run-period` (T23).
 
-### `bench pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> --provider fake --mode recorded|live [--test-stop-after-periods <n>]`
+### `bench pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> --provider fake|claude-cli --mode recorded|live [--test-stop-after-periods <n>] [--live --candidate-workspace-root <dir>]`
 
 Pilote longitudinal reel (T46, ADR-007 L157-L163). Conduit chaque trajectoire
 compilee d'un manifeste `bench.pilot.manifest/1`, periode par periode, a
 travers `run-period`, avec le scenario et la configuration de la trajectoire
 (T45). Reprend apres interruption a la premiere periode non persistee, sans
 doublon ni trou, et produit un rapport des tokens par modele et par categorie
-egal aux sommes persistees. Commande distincte de `bench pilot` (T39).
+egal aux sommes persistees. Commande distincte de `bench pilot` (T39). Avec
+`--provider claude-cli` (T49, ADR-008 L147-L153) : conduit chaque trajectoire
+a travers une session `claude -p` reelle par periode (T47) dans un espace de
+travail git reel derive de `--candidate-workspace-root` (T48), sous `--live`
+(drapeau sans valeur, consentement explicite) ; produit en plus
+`candidate_token_report.by_model`, l'agregat cumulatif des tokens du
+candidat, distinct de `token_report` (fournisseur factice, ADR-008 L18-19).
 
 ### `bench plan-distribution --campaign-id <id> --mode <mode> --parents <N> --scenarios <N> --configurations <N> --repetitions <N> --budgets <N> --periods-per-trajectory <N> --postgres-database <db> --plan-id <id>`
 

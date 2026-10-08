@@ -75,6 +75,14 @@ seule. Avec `--execute` : lance reellement les trajectoires compilees via le
 fournisseur factice, sous un plafond budgetaire reel partage par toute la
 campagne.
 
+### `bench candidate-period --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> [--candidate-workspace-root <dir>] [--candidate-command <json-argv>] [--candidate-timeout-ms <n>] [--candidate-ops <json>]`
+
+Avance une trajectoire d'une periode en exposant au candidat un espace de
+travail git reel, restaure depuis l'etat persistant et sauvegarde a la fin,
+et un contrat de processus (JSON ligne a ligne) par lequel le moteur lance et
+exerce son code (T48, ADR-008 L139-L145). Commande distincte de
+`bench run-period` (T23).
+
 ### `bench pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> --provider fake --mode recorded|live [--test-stop-after-periods <n>]`
 
 Pilote longitudinal reel (T46, ADR-007 L157-L163). Conduit chaque trajectoire

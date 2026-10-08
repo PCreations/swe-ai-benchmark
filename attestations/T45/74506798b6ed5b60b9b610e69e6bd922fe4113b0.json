@@ -164,7 +164,7 @@
     ]
   },
   "clean_room_run": {
-    "nonce": "f2479ba9a2e6",
+    "nonce": "8f01dd02e405",
     "rev": "74506798b6ed5b60b9b610e69e6bd922fe4113b0",
     "clean_room": true,
     "pristine": true,
@@ -185,8 +185,8 @@
     ],
     "command": "node tools/bench verify:task T45 --json",
     "exit_code": 0,
-    "stdout_sha256": "7884be6da63a2686b8ca3da67ad7f4c294669f7769beba88c1ac489209e9f74a",
-    "run_dir": ".bench/run/f2479ba9a2e6"
+    "stdout_sha256": "874e3767da392c63556c5fd058b99f30bb6e3bff1cce699ddfbf83760e442136",
+    "run_dir": ".bench/run/8f01dd02e405"
   },
   "report": {
     "schema": "bench.result/1",
@@ -277,7 +277,7 @@
     },
     "commands": [
       {
-        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T45.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/f2479ba9a2e6/.bench/run/27da72ce1854/jest.json\"",
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T45.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/8f01dd02e405/.bench/run/15b9ecbbeddc/jest.json\"",
         "exit_code": 0
       }
     ],
@@ -339,7 +339,7 @@
     "missing_cases": [],
     "vacuous_cases": [],
     "proof_files": [
-      ".bench/run/27da72ce1854/jest.json"
+      ".bench/run/15b9ecbbeddc/jest.json"
     ],
     "requires": [
       "node22",
@@ -375,6 +375,6 @@
     }
   ],
   "boot_id": "cf0cfa45-a21f-4022-a72d-f0311e008b2a",
-  "produced_at": "2026-10-08T00:29:42.233Z",
-  "duration_ms": 90672
+  "produced_at": "2026-10-08T00:33:30.892Z",
+  "duration_ms": 91717
 }

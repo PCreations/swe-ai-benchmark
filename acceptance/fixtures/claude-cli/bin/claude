@@ -34,6 +34,24 @@
 //   BENCH_FAKE_CLAUDE_STDOUT_RAW        — ecrit tel quel sur stdout au lieu
 //                                         du JSON "success" par defaut.
 //   BENCH_FAKE_CLAUDE_EXIT_CODE         — code de sortie (defaut '0').
+//
+// AJOUTE PAR acceptance/T49.spec.ts (ADDITIF — ne change AUCUN comportement
+// par defaut existant pour acceptance/T47.spec.ts, qui ne pose jamais ces
+// deux variables) :
+//   BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_RELPATH   — chemin RELATIF (sous le cwd
+//                                         de CET appel, donc sous l'espace de
+//                                         travail que l'appelant a derive,
+//                                         ADR-008:L89-91) ou ecrire un fichier
+//                                         avant de repondre — simule le code
+//                                         qu'une VRAIE session `claude -p`
+//                                         aurait ecrit avec ses propres outils
+//                                         (lecture/edition de fichiers),
+//                                         jamais le protocole NDJSON (T48,
+//                                         hors de portee de ce fixture).
+//   BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_CONTENT   — contenu ecrit a ce chemin.
+//   Les deux DOIVENT etre fournies ensemble pour que l'ecriture ait lieu ;
+//   absence de l'une ou l'autre : aucune ecriture, comportement T47 inchange.
+//   N'a jamais lieu sur un appel "auth status" (seule une session en a besoin).
 
 const argv = process.argv.slice(2);
 
@@ -72,6 +90,19 @@ async function main() {
       fs.writeFileSync(recordFile, JSON.stringify(record));
     } catch {
       /* la preuve d'invocation n'est pas l'objet de cette branche */
+    }
+  }
+
+  const writeRelPath = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_RELPATH;
+  const writeContent = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_CONTENT;
+  if (writeRelPath !== undefined && writeContent !== undefined) {
+    try {
+      const path = await import('node:path');
+      const dest = path.resolve(process.cwd(), writeRelPath);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, writeContent);
+    } catch {
+      /* simulation d'ecriture du candidat : un echec ici n'est pas l'objet de cette branche */
     }
   }
 

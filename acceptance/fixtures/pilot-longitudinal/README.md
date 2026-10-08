@@ -1,4 +1,4 @@
-# acceptance/fixtures/pilot-longitudinal/ — manifestes de T46
+# acceptance/fixtures/pilot-longitudinal/ — manifestes de T46 (et T49)
 
 Fixtures de `acceptance/T46.spec.ts`, zone ACCEPTANCE (test-author). T46 réutilise
 VERBATIM le schéma `bench.pilot.manifest/1` déjà fixé par `acceptance/T39.spec.ts`
@@ -40,3 +40,17 @@ champs du manifeste (`model`, `price`, `exposure`, `corpus`, `configurations`,
   une mutation qui rendrait ce refus PERMISSIF (T46.M4, cf.
   `verification/mutants/T46.json`) — ne fasse pas réellement exécuter 432
   périodes avant que l'assertion de refus échoue.
+
+- `manifest-t49-claude-cli-small.json` — fixture de `acceptance/T49.spec.ts`
+  (ADR-008, T49.A4) : même schéma `bench.pilot.manifest/1`, UN groupe, UN
+  clone, UNE configuration, une répétition, DEUX périodes (1 trajectoire,
+  2 périodes) — assez petit pour exécuter deux sessions `claude -p` (fausses,
+  fixture `acceptance/fixtures/claude-cli/bin/claude`) sans que la taille du
+  manifeste masque le mutant visé (omission d'un modèle secondaire dans
+  l'agrégat, T49.M4). `budget: { unbounded: true }` pour la même raison que
+  `manifest-t46-small-budget-unbounded.json` : aucun refus de plafond
+  n'interfère avec ce que T49.A4 observe. `acceptance/T49.spec.ts` réutilise
+  en outre VERBATIM `manifest-t46-small.json` pour T49.A5 (« avec le
+  fournisseur factice, le comportement de T46 est inchangé ») : le même
+  manifeste, le même `--provider fake`, jamais un manifeste propre à T49 pour
+  ce cas précis — c'est la régression elle-même qui l'exige.

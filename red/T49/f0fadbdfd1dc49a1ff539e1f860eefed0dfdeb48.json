@@ -1,0 +1,55 @@
+{
+  "schema": "bench.red/1",
+  "task": "T49",
+  "subject_commit": "f0fadbdfd1dc49a1ff539e1f860eefed0dfdeb48",
+  "dirty": false,
+  "input_digest": "f4401c97428032c5c03411819c20fecfb8dab69f44d6132f7e5e7c57c2ed882f",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T49.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T49.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T49.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T49.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T49.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T49.M5",
+      "note": "Mutation du seul point de dispatch par provider existant a HEAD (packages/activities/src/pilot-conduct.ts:445, conductPilot) -- garde inversee de if (input.provider !== %27fake%27) vers if (input.provider !== %27claude-cli%27), observee reellement (edit, pnpm build OK sans erreur TS, pnpm test -- acceptance/T49.spec.ts -t T49.A5) : T49.A5 passe de VERT a ROUGE (exit non nul sur l appel --provider fake, refuse par bench pilot-conduct exige --provider fake), exactement la premiere branche de expected_effect de T49.M5 (appel REFUSE). Mutation restauree a l identique (git diff vide, pnpm build OK), puis re-verifiee VERTE (pnpm test -- acceptance/T49.spec.ts -t T49.A5 : T49.A5 passe) avant cet appel. Le point de dispatch reel vers launchClaudeCliPeriod/T47 et candidatePeriodOnce/T48 n existe pas encore (T49 est a l etage RED) : cette garde est le seul code qui discrimine aujourd hui fake de tout autre provider, donc la cible la plus proche et honnete de la description de T49.M5 au stade actuel."
+    },
+    {
+      "id": "T49.A6",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {
+    "T49.A5": {
+      "killed_by": "T49.M5",
+      "note": "Mutation du seul point de dispatch par provider existant a HEAD (packages/activities/src/pilot-conduct.ts:445, conductPilot) -- garde inversee de if (input.provider !== %27fake%27) vers if (input.provider !== %27claude-cli%27), observee reellement (edit, pnpm build OK sans erreur TS, pnpm test -- acceptance/T49.spec.ts -t T49.A5) : T49.A5 passe de VERT a ROUGE (exit non nul sur l appel --provider fake, refuse par bench pilot-conduct exige --provider fake), exactement la premiere branche de expected_effect de T49.M5 (appel REFUSE). Mutation restauree a l identique (git diff vide, pnpm build OK), puis re-verifiee VERTE (pnpm test -- acceptance/T49.spec.ts -t T49.A5 : T49.A5 passe) avant cet appel. Le point de dispatch reel vers launchClaudeCliPeriod/T47 et candidatePeriodOnce/T48 n existe pas encore (T49 est a l etage RED) : cette garde est le seul code qui discrimine aujourd hui fake de tout autre provider, donc la cible la plus proche et honnete de la description de T49.M5 au stade actuel."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

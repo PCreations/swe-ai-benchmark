@@ -554,7 +554,7 @@
     ]
   },
   "clean_room_run": {
-    "nonce": "84ad8ea5b22a",
+    "nonce": "4c1a57e1c556",
     "rev": "74506798b6ed5b60b9b610e69e6bd922fe4113b0",
     "clean_room": true,
     "pristine": true,
@@ -575,8 +575,8 @@
     ],
     "command": "node tools/bench verify:task T29 --json",
     "exit_code": 0,
-    "stdout_sha256": "2109957079cb4190921c9bdc9ae651238dd875d898e1f6bf18387da7963af0bc",
-    "run_dir": ".bench/run/84ad8ea5b22a"
+    "stdout_sha256": "ccddcb62aa65993cce359acee30cbe3edbf4434967bd69f0c78d385dd5ef8ae9",
+    "run_dir": ".bench/run/4c1a57e1c556"
   },
   "report": {
     "schema": "bench.result/1",
@@ -665,7 +665,7 @@
     },
     "commands": [
       {
-        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T29.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/84ad8ea5b22a/.bench/run/30381e5e8fc8/jest.json\"",
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T29.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/4c1a57e1c556/.bench/run/e6e78724260e/jest.json\"",
         "exit_code": 0
       }
     ],
@@ -745,7 +745,7 @@
     "missing_cases": [],
     "vacuous_cases": [],
     "proof_files": [
-      ".bench/run/30381e5e8fc8/jest.json"
+      ".bench/run/e6e78724260e/jest.json"
     ],
     "requires": [
       "containers.runc",
@@ -787,6 +787,6 @@
     "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
   ],
   "boot_id": "cf0cfa45-a21f-4022-a72d-f0311e008b2a",
-  "produced_at": "2026-10-08T00:30:11.191Z",
-  "duration_ms": 82419
+  "produced_at": "2026-10-08T00:32:32.653Z",
+  "duration_ms": 82700
 }

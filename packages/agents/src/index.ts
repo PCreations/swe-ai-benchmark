@@ -51,6 +51,7 @@
 
 import * as http from 'node:http'
 import * as https from 'node:https'
+import { spawn } from 'node:child_process'
 import { isCentralStore } from '@bench/storage'
 import { answerCustomerQuestion } from '@bench/scenario'
 import type { ScenarioPack } from '@bench/scenario'
@@ -59,7 +60,6 @@ import type { DispatchModelCallResult } from '@bench/gateway'
 import { AgentsRefusal } from './errors.js'
 import { runScript } from './psql.js'
 import type { ScriptResult } from './psql.js'
-import { NotImplemented } from '@bench/contracts'
 
 export { AGENTS_REFUSAL_CODES, AgentsRefusal, isAgentsRefusal } from './errors.js'
 export type { AgentsRefusalCode } from './errors.js'
@@ -1233,13 +1233,186 @@ export async function dispatchAnthropicModelCall(
  * verification/tasks.extensions.json : T47 est une tache d'EXTENSION, pas du
  * cahier).
  *
- * ETAGE ROUGE. SQUELETTE MINIMAL, meme geste que T28/T46 ci-dessus : SEUL
- * export que acceptance/T47.spec.ts resout (section III.1 de son en-tete).
- * Signature et formes FIXEES PAR CETTE SUITE, aucune regle metier a cet
- * etage -- ni purge d'environnement, ni spawn de `claude`, ni lecture de
- * `claude auth status`, ni derivation d'usage. `launchClaudeCliPeriod` leve
- * `NotImplemented`.
+ * ETAGE VERT. Signature et formes FIXEES PAR acceptance/T47.spec.ts (section
+ * III de son en-tete) : le cahier ne nomme aucun export pour cette tache
+ * d'extension, exactement comme T18/T19/T28 avant elle.
+ *
+ * `launchClaudeCliPeriod` ne leve JAMAIS pour les quatre conditions d'echec
+ * de A4 ni pour le refus de A5 (ce sont des RESULTATS, pas des pannes) : la
+ * promesse resout toujours vers `ClaudeCliPeriodResult`. Deroulement :
+ *   1. Purge ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN de l'environnement
+ *      AMBIANT recu (absence TOTALE, pas une valeur vide, meme quand
+ *      l'appelant les a definies -- A1).
+ *   2. Invoque `claude auth status` (meme executable resolu via le PATH de
+ *      cet environnement purge) AVANT toute session ; si `authMethod` vaut
+ *      `'api_key'`, rend un echec nomme SANS JAMAIS invoquer la session `-p`
+ *      (A5).
+ *   3. Sinon, lance `claude -p --output-format json
+ *      --no-session-persistence --model <model>` dans `workspaceDir`, et
+ *      classe sa sortie : code de sortie non nul, sortie illisible, forme
+ *      inconnue, ou session en erreur (`subtype`/`is_error`) produisent
+ *      chacun un echec nomme DISTINCT qui conserve la sortie brute (A4) ;
+ *      sinon, construit l'usage par modele depuis `modelUsage` (A2/A3).
  * ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Les deux cles d'authentification par API, retirees avant tout lancement
+ * (A1) -- memes noms que ceux que `acceptance/T47.spec.ts` compare. */
+const ENV_KEY_ANTHROPIC_API_KEY = 'ANTHROPIC_API_KEY'
+const ENV_KEY_ANTHROPIC_AUTH_TOKEN = 'ANTHROPIC_AUTH_TOKEN'
+
+/** Les quatre drapeaux et le nom d'option fixes par ADR-008 L135 (les trois
+ * premiers) et par acceptance/T47.spec.ts (section III.1, `--model`). */
+const CLAUDE_FLAG_PRINT = '-p'
+const CLAUDE_FLAG_OUTPUT_FORMAT = '--output-format'
+const CLAUDE_VALUE_OUTPUT_FORMAT_JSON = 'json'
+const CLAUDE_FLAG_NO_SESSION_PERSISTENCE = '--no-session-persistence'
+const CLAUDE_FLAG_MODEL = '--model'
+
+/** Motifs d'echec NOMMES, DISTINCTS entre causes (A4 exige quatre motifs
+ * distincts pour ses quatre volets ; aucune chaine exacte n'est imposee par
+ * la suite, seulement la distinction -- voir son en-tete, section III.1). */
+const REASON_AUTH_METHOD_API_KEY =
+  "refus : claude auth status declare authMethod='api_key' (periode refusee avant toute session)"
+const REASON_EXIT_CODE_NON_ZERO = 'echec : code de sortie non nul de la session claude -p'
+const REASON_UNREADABLE_OUTPUT = 'echec : sortie de la session claude -p illisible (JSON invalide)'
+const REASON_UNKNOWN_OUTPUT_SHAPE =
+  "echec : sortie de la session claude -p de forme inconnue (ni 'subtype' ni 'modelUsage' exploitables)"
+const REASON_SESSION_REPORTED_ERROR =
+  "echec : session claude -p terminee en erreur (is_error ou subtype != 'success')"
+
+/** Purge ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN de l'environnement AMBIANT
+ * recu -- les cles sont ABSENTES du resultat (pas presentes avec une valeur
+ * vide), meme lorsque l'appelant les a definies. Les entrees `undefined` de
+ * la source sont egalement omises : le resultat est un `ProcessEnv` passable
+ * directement a `spawn`. */
+function purgeAnthropicCredentials(src: Record<string, string | undefined>): NodeJS.ProcessEnv {
+  const out: NodeJS.ProcessEnv = {}
+  for (const [k, v] of Object.entries(src)) {
+    if (k === ENV_KEY_ANTHROPIC_API_KEY || k === ENV_KEY_ANTHROPIC_AUTH_TOKEN) continue
+    if (v !== undefined) out[k] = v
+  }
+  return out
+}
+
+interface ClaudeProcessResult {
+  readonly stdout: string
+  readonly exitCode: number
+}
+
+/**
+ * Lance `claude <args>` SANS SHELL dans `cwd`, avec `env` -- la resolution de
+ * l'executable via `PATH` revient donc a `env.PATH`, exactement ce qu'un
+ * `execvp` fait (c'est ce qui permet au faux executable de
+ * `acceptance/fixtures/claude-cli/bin/claude`, place en tete de ce `PATH`,
+ * de remplacer la vraie CLI pour les verifications). Ne rejette JAMAIS : un
+ * echec de spawn (executable introuvable, etc.) se replie sur un code de
+ * sortie non nul, classe en aval comme n'importe quel autre echec de
+ * processus -- aucune des quatre conditions d'A4 ne distingue un spawn
+ * impossible d'un code de sortie non nul.
+ */
+function runClaudeProcess(args: readonly string[], cwd: string, env: NodeJS.ProcessEnv): Promise<ClaudeProcessResult> {
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = (result: ClaudeProcessResult): void => {
+      if (settled) return
+      settled = true
+      resolve(result)
+    }
+
+    let child: ReturnType<typeof spawn>
+    try {
+      child = spawn('claude', [...args], { cwd, env })
+    } catch {
+      finish({ stdout: '', exitCode: -1 })
+      return
+    }
+
+    const chunks: Buffer[] = []
+    child.stdout?.on('data', (chunk: Buffer) => chunks.push(chunk))
+    child.on('error', () => {
+      finish({ stdout: Buffer.concat(chunks).toString('utf8'), exitCode: -1 })
+    })
+    child.on('close', (code) => {
+      finish({ stdout: Buffer.concat(chunks).toString('utf8'), exitCode: code ?? -1 })
+    })
+  })
+}
+
+/** Lit `authMethod` dans la sortie de `claude auth status` -- `undefined`
+ * (jamais `'api_key'`) si la sortie ne parse pas ou ne porte pas ce champ. */
+function extractAuthMethod(raw: string): string | undefined {
+  try {
+    const parsed = JSON.parse(raw) as { readonly authMethod?: unknown }
+    return typeof parsed.authMethod === 'string' ? parsed.authMethod : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/** La sortie porte-t-elle la forme documentee (ADR-008 L44-48) assez pour en
+ * tirer une decision success/echec ? Ni plus ni moins que `subtype` (chaine)
+ * et `modelUsage` (objet) -- les deux champs que la classification en aval
+ * lit effectivement. */
+function hasKnownClaudeResultShape(
+  v: unknown,
+): v is { readonly subtype: string; readonly is_error?: unknown; readonly modelUsage: Record<string, unknown> } {
+  if (v === null || typeof v !== 'object') return false
+  const o = v as Record<string, unknown>
+  return typeof o['subtype'] === 'string' && o['modelUsage'] !== null && typeof o['modelUsage'] === 'object'
+}
+
+/** Derive le vecteur d'usage a six categories (acceptance/T47.spec.ts,
+ * section III.1) depuis `modelUsage`, une entree par modele declare (A2).
+ * L'ecriture de cache, dont la duree n'est jamais declaree (ADR-008 L49),
+ * n'est JAMAIS ventilee entre `cache_write_5m`/`cache_write_1h` (TOUJOURS 0,
+ * A3) : ses unites vont integralement dans `cache_write_unresolved`. */
+function usageFromModelUsage(modelUsage: Record<string, unknown>): ClaudeCliPeriodUsage[] {
+  const out: ClaudeCliPeriodUsage[] = []
+  for (const [model, rawEntry] of Object.entries(modelUsage)) {
+    const entry = (rawEntry !== null && typeof rawEntry === 'object' ? rawEntry : {}) as Record<string, unknown>
+    out.push({
+      model,
+      input_fresh: toNonNegativeInt(entry['inputTokens']),
+      cache_read: toNonNegativeInt(entry['cacheReadInputTokens']),
+      output: toNonNegativeInt(entry['outputTokens']),
+      cache_write_5m: 0,
+      cache_write_1h: 0,
+      cache_write_unresolved: toNonNegativeInt(entry['cacheCreationInputTokens']),
+    })
+  }
+  return out
+}
+
+/** Classe la sortie de la session `claude -p` une fois le processus termine
+ * (A4) : code de sortie non nul, sortie illisible, forme inconnue, et
+ * session en erreur sont QUATRE verifications DISTINCTES, chacune produisant
+ * un motif different -- dans cet ordre, parce que (d) de A4 fournit une
+ * sortie par ailleurs parfaitement valide dont seul le code de sortie doit
+ * suffire a refuser. */
+function interpretClaudeSessionResult(result: ClaudeProcessResult): ClaudeCliPeriodResult {
+  const { stdout, exitCode } = result
+
+  if (exitCode !== 0) {
+    return { ok: false, reason: REASON_EXIT_CODE_NON_ZERO, raw: stdout }
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(stdout)
+  } catch {
+    return { ok: false, reason: REASON_UNREADABLE_OUTPUT, raw: stdout }
+  }
+
+  if (!hasKnownClaudeResultShape(parsed)) {
+    return { ok: false, reason: REASON_UNKNOWN_OUTPUT_SHAPE, raw: stdout }
+  }
+
+  if (parsed.is_error === true || parsed.subtype !== 'success') {
+    return { ok: false, reason: REASON_SESSION_REPORTED_ERROR, raw: stdout }
+  }
+
+  return { ok: true, raw: stdout, usage: usageFromModelUsage(parsed.modelUsage) }
+}
 
 /** Options de `launchClaudeCliPeriod` (acceptance/T47.spec.ts, section III.1). */
 export interface LaunchClaudeCliPeriodOptions {
@@ -1260,11 +1433,10 @@ export interface ClaudeCliPeriodUsage {
 }
 
 /**
- * Ce que rend `launchClaudeCliPeriod` -- une promesse qui, a l'etage VERT,
- * RESOUT TOUJOURS (acceptance/T47.spec.ts, section III.1 : jamais de rejet
- * pour un refus d'authentification ou une session en echec, qui sont des
- * RESULTATS, pas des pannes). A cet etage ROUGE, la fonction leve
- * `NotImplemented` -- voir l'en-tete de section.
+ * Ce que rend `launchClaudeCliPeriod` -- une promesse qui RESOUT TOUJOURS
+ * (acceptance/T47.spec.ts, section III.1 : jamais de rejet pour un refus
+ * d'authentification ou une session en echec, qui sont des RESULTATS, pas
+ * des pannes).
  */
 export type ClaudeCliPeriodResult =
   | { readonly ok: true; readonly raw: string; readonly usage: readonly ClaudeCliPeriodUsage[] }
@@ -1272,10 +1444,35 @@ export type ClaudeCliPeriodResult =
 
 /**
  * Lance, pour une periode, une session `claude -p` neuve dans l'espace de
- * travail donne (ADR-008 L133). SQUELETTE ROUGE : aucune regle metier.
+ * travail donne (ADR-008 L133), avec le modele de la configuration, et rend
+ * la sortie brute ainsi que l'usage par modele ; refuse avant tout appel si
+ * `claude auth status` declare une authentification par cle d'API (ADR-008
+ * L133, L135 A5).
  */
 export async function launchClaudeCliPeriod(
-  _options: LaunchClaudeCliPeriodOptions,
+  options: LaunchClaudeCliPeriodOptions,
 ): Promise<ClaudeCliPeriodResult> {
-  throw new NotImplemented('agents.launchClaudeCliPeriod')
+  const { workspaceDir, model } = options
+  const env = purgeAnthropicCredentials(options.env)
+
+  const authStatus = await runClaudeProcess(['auth', 'status'], workspaceDir, env)
+  const authMethod = extractAuthMethod(authStatus.stdout)
+  if (authMethod === 'api_key') {
+    return { ok: false, reason: REASON_AUTH_METHOD_API_KEY, raw: null }
+  }
+
+  const session = await runClaudeProcess(
+    [
+      CLAUDE_FLAG_PRINT,
+      CLAUDE_FLAG_OUTPUT_FORMAT,
+      CLAUDE_VALUE_OUTPUT_FORMAT_JSON,
+      CLAUDE_FLAG_NO_SESSION_PERSISTENCE,
+      CLAUDE_FLAG_MODEL,
+      model,
+    ],
+    workspaceDir,
+    env,
+  )
+
+  return interpretClaudeSessionResult(session)
 }

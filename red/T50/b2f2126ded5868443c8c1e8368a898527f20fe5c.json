@@ -1,0 +1,50 @@
+{
+  "schema": "bench.red/1",
+  "task": "T50",
+  "subject_commit": "b2f2126ded5868443c8c1e8368a898527f20fe5c",
+  "dirty": false,
+  "input_digest": "c1d351a81ed5e900256743aebf6d33eace15cac4fad6e4701acc5469fdbf782b",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T50.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T50.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T50.M2",
+      "note": "ajout reel de --add-dir /tmp a l argv de launchClaudeCliPeriod (packages/agents/src/index.ts), pnpm build, rejoue T50.A2 seul : rouge observe (aucun-repertoire-supplementaire a echoue, --add-dir TROUVE dans argv), puis mutation retiree et pnpm build refait avant cet enregistrement."
+    },
+    {
+      "id": "T50.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T50.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T50.M4",
+      "note": "deplacement reel de commitWorkspace() AVANT launchClaudeCliPeriod dans runPeriodOnceClaudeCli (packages/activities/src/run-period-claude-cli.ts), pnpm build, rejoue T50.A4 seul : rouge observe (git show sur commit_sha echoue car le fichier ecrit pendant la session n est pas dans l arbre pris trop tot), puis mutation retiree et pnpm build refait avant cet enregistrement."
+    }
+  ],
+  "mutation_proof": {
+    "T50.A2": {
+      "killed_by": "T50.M2",
+      "note": "ajout reel de --add-dir /tmp a l argv de launchClaudeCliPeriod (packages/agents/src/index.ts), pnpm build, rejoue T50.A2 seul : rouge observe (aucun-repertoire-supplementaire a echoue, --add-dir TROUVE dans argv), puis mutation retiree et pnpm build refait avant cet enregistrement."
+    },
+    "T50.A4": {
+      "killed_by": "T50.M4",
+      "note": "deplacement reel de commitWorkspace() AVANT launchClaudeCliPeriod dans runPeriodOnceClaudeCli (packages/activities/src/run-period-claude-cli.ts), pnpm build, rejoue T50.A4 seul : rouge observe (git show sur commit_sha echoue car le fichier ecrit pendant la session n est pas dans l arbre pris trop tot), puis mutation retiree et pnpm build refait avant cet enregistrement."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

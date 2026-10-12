@@ -1047,11 +1047,26 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
       const dir = workspaceDirDe(p1.resultat);
       exige(typeof dir === 'string' && dir.length > 0 && fs.existsSync(dir), 'repertoire-de-travail-reel', `vu ${rendu(dir)}`);
 
-      // Litteraux INTERDITS (III.6) : AUCUN n'est jamais ecrit par les
-      // fixtures de reference elles-memes (verifie par lecture de leur
-      // propre source, ci-dessous) — toute occurrence apres UNE SEULE
-      // periode prouve donc une fuite du MOTEUR.
-      const sourceCandidat = fs.readFileSync(REFERENCE_V2, 'utf8');
+      // Litteraux INTERDITS (III.6) : AUCUN n'est jamais ECRIT (stdout,
+      // state.json, ops-received.log) par les fixtures de reference
+      // elles-memes — verifie ci-dessous sur le CODE de la fixture, ses
+      // COMMENTAIRES exclus. Les commentaires de la fixture (zone
+      // ACCEPTANCE) citent legitimement le nom de la racine gelee
+      // F-RESERVATION et des echeances a des fins de documentation (voir
+      // l'en-tete de reservation-candidate-v2.mjs, section « SEMANTIQUE
+      // METIER ») ; ils ne sont jamais executes et ne sont donc jamais
+      // ecrits dans aucun fichier a l'execution — les inclure dans ce
+      // controle ferait echouer la precondition sur du texte qui ne
+      // s'execute jamais, independamment de toute implementation de T51, ce
+      // qui n'est pas la question que A5 pose. Toute occurrence apres cette
+      // exclusion, dans le CODE qui s'execute reellement, prouverait que le
+      // temoin lui-meme n'est pas probant ; toute occurrence dans l'espace
+      // de travail SCANNE plus bas prouve donc une fuite du MOTEUR, jamais
+      // du candidat.
+      function sansCommentairesJs(src: string): string {
+        return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+      }
+      const sourceCandidat = sansCommentairesJs(fs.readFileSync(REFERENCE_V2, 'utf8'));
       const interdits = [
         ...CONTROLES_FIXES, // identifiants de controle (ADR-009:L34)
         'F-RESERVATION', // nom de la fixture oracle (racine gelee)

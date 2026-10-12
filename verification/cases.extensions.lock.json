@@ -1,12 +1,13 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007, ADR-008). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007, ADR-008, ADR-009). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
   "spec_source_sha256": {
     "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca",
-    "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059"
+    "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059",
+    "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md": "7eee84045a656e382b91953110ce3aeeba802b846192c7246f4c4c9e58f6c601"
   },
   "cases": [
     {
@@ -415,8 +416,134 @@
       "blockable": false,
       "proof_kind": "refusal",
       "perturbation": "accepter claude-cli sans --live : le cas doit rougir"
+    },
+    {
+      "id": "T50.A1",
+      "task": "T50",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 88,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "lancer la session sans --allowedTools : le cas doit rougir"
+    },
+    {
+      "id": "T50.A2",
+      "task": "T50",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 88,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "ajouter --add-dir ou un mode bypassPermissions a la session : le cas doit rougir"
+    },
+    {
+      "id": "T50.A3",
+      "task": "T50",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 88,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre une operation du contrat bench.candidate/2 dans le prompt : le cas doit rougir"
+    },
+    {
+      "id": "T50.A4",
+      "task": "T50",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 88,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "commiter l'espace de travail avant la fin de la session : le cas doit rougir"
+    },
+    {
+      "id": "T51.A1",
+      "task": "T51",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 96,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire repondre l'adaptateur par l'application scriptee au lieu du processus : le cas doit rougir"
+    },
+    {
+      "id": "T51.A2",
+      "task": "T51",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 96,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "persister la periode sans les deux termes compares de chaque controle : le cas doit rougir"
+    },
+    {
+      "id": "T51.A3",
+      "task": "T51",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 96,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "omettre les controles d'un candidat non deploye : le cas doit rougir"
+    },
+    {
+      "id": "T51.A4",
+      "task": "T51",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 96,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "compter un controle viole comme satisfait dans le rapport : le cas doit rougir"
+    },
+    {
+      "id": "T51.A5",
+      "task": "T51",
+      "source": "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md",
+      "source_line": 96,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "ecrire les exigences de la periode suivante dans l'espace de travail : le cas doit rougir"
     }
   ],
-  "case_count": 29,
-  "classified_cases": 29
+  "case_count": 38,
+  "classified_cases": 38
 }

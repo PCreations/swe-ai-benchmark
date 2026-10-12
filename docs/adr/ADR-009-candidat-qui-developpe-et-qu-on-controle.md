@@ -1,6 +1,7 @@
 # ADR-009 — Un candidat qui peut développer, et dont on contrôle le code
 
-    statut : PROPOSÉ — en attente de la décision du mandant
+    statut : ACCEPTÉ — par le mandant le 12/10/2026 (« Oui », en réponse
+             à « Tu acceptes ADR-009 tel quel ? »)
     ouvert : 12/10/2026
     porte  : la session `claude -p` (T47), le contrat d'application (T48),
              le pilote à candidat réel (T49), les contrôles de période (T11)

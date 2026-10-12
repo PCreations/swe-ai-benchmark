@@ -335,10 +335,42 @@ function canonicalValue(v: unknown): unknown {
  *  est evite PAR CONSTRUCTION. */
 const CANDIDATE_PROTOCOL_MARKER = 'bench.candidate/1'
 
+/** T50 (ADR-009 L44-51, L86 ; spec_source L84-90) : contrat `bench.candidate/2`,
+ *  aligne sur `ScriptedApplication` (packages/scenario), AJOUTE au marqueur
+ *  v1 ci-dessus sans le remplacer (ADR-009 L62-64 : « v1 reste en place [...]
+ *  v2 s'y ajoute »). Le prompt et un futur adaptateur (T51) doivent lire LA
+ *  MEME description (ADR-009 L49-51) : nom de chaque operation, forme de ses
+ *  arguments et de sa reponse -- fixes ici une seule fois. */
+const CANDIDATE_PROTOCOL_MARKER_V2 = 'bench.candidate/2'
+
+interface OperationV2 {
+  readonly op: string
+  readonly args: readonly string[]
+  readonly reponse: readonly string[]
+}
+
+const OPERATIONS_V2: readonly OperationV2[] = [
+  { op: 'create_tenant', args: ['tenant_id'], reponse: [] },
+  { op: 'advance_clock', args: ['to'], reponse: [] },
+  { op: 'write', args: ['op', 'actor', 'tenant_id', 'admission_seq', 'operation_key'], reponse: ['decision'] },
+  { op: 'read', args: ['tenant_id', 'key'], reponse: ['value'] },
+  { op: 'probe_cancel', args: ['tenant_id', 'key'], reponse: ['decision'] },
+  { op: 'fingerprint', args: [], reponse: ['sha256'] },
+]
+
+function describeContractV2(): string {
+  const lignes = OPERATIONS_V2.map((o) => `- ${o.op}(${o.args.join(', ')}) -> {${o.reponse.join(', ')}}`)
+  return [
+    `Contrat d'application ${CANDIDATE_PROTOCOL_MARKER_V2} : le processus candidat echangera, plus tard, exactement les operations suivantes en JSON ligne a ligne sur son entree et sa sortie standard (write.op vaut 'reserve' ou 'cancel') :`,
+    ...lignes,
+  ].join('\n')
+}
+
 function buildPrompt(requirements: readonly unknown[]): string {
   const reqJson = JSON.stringify(canonicalValue(requirements))
   return [
     `Protocole d'application ${CANDIDATE_PROTOCOL_MARKER} (voir bench candidate-period) : developpe le code candidat de cette periode comme un processus qui echangera, plus tard, des operations {op,args} en JSON ligne a ligne sur son entree et sa sortie standard.`,
+    describeContractV2(),
     'Exigences revelees pour cette periode (JSON) :',
     reqJson,
   ].join('\n\n')

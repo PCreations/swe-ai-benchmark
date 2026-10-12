@@ -1268,6 +1268,20 @@ const CLAUDE_VALUE_OUTPUT_FORMAT_JSON = 'json'
 const CLAUDE_FLAG_NO_SESSION_PERSISTENCE = '--no-session-persistence'
 const CLAUDE_FLAG_MODEL = '--model'
 
+/** T50 (ADR-009 L86, L88 ; ADR-008:L108 cite par ADR-009:L24) -- un mode de
+ * permission NON INTERACTIF et une liste EXPLICITE d'outils autorises,
+ * ajoutes a TOUTE session (jamais `--add-dir`, jamais
+ * `--dangerously-skip-permissions`, jamais `bypassPermissions` -- T50.A2).
+ * `dontAsk` est la valeur LITTERALE citee par ADR-008:L108. La liste
+ * d'outils couvre les cinq categories que ADR-009:L58-61/L88 exige (lire,
+ * chercher, editer, creer des fichiers, lancer des commandes), par les noms
+ * REELS que le CLI `claude` documente pour ses propres outils (hors de
+ * portee de ce paquet -- il ne les invente ni ne les renomme). */
+const CLAUDE_FLAG_PERMISSION_MODE = '--permission-mode'
+const CLAUDE_VALUE_PERMISSION_MODE_NON_INTERACTIVE = 'dontAsk'
+const CLAUDE_FLAG_ALLOWED_TOOLS = '--allowedTools'
+const CLAUDE_VALUE_ALLOWED_TOOLS = 'Read,Grep,Glob,Edit,Write,Bash'
+
 /** Motifs d'echec NOMMES, DISTINCTS entre causes (A4 exige quatre motifs
  * distincts pour ses quatre volets ; aucune chaine exacte n'est imposee par
  * la suite, seulement la distinction -- voir son en-tete, section III.1). */
@@ -1492,6 +1506,10 @@ export async function launchClaudeCliPeriod(
       CLAUDE_FLAG_OUTPUT_FORMAT,
       CLAUDE_VALUE_OUTPUT_FORMAT_JSON,
       CLAUDE_FLAG_NO_SESSION_PERSISTENCE,
+      CLAUDE_FLAG_PERMISSION_MODE,
+      CLAUDE_VALUE_PERMISSION_MODE_NON_INTERACTIVE,
+      CLAUDE_FLAG_ALLOWED_TOOLS,
+      CLAUDE_VALUE_ALLOWED_TOOLS,
       CLAUDE_FLAG_MODEL,
       model,
     ],

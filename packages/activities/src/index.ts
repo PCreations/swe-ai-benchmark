@@ -526,3 +526,15 @@ export type {
   RunPeriodClaudeCliInput,
   RunPeriodClaudeCliOutcome,
 } from './run-period-claude-cli.js'
+
+/* ── T51 : exercer et contrôler le code du candidat à chaque période (ADR-009) */
+
+export { candidateControlPeriodOnce, candidateControlReport } from './candidate-control-period.js'
+export type {
+  CandidateControlEntry,
+  CandidateControlPeriodInput,
+  CandidateControlPeriodResult,
+  CandidateControlReportInput,
+  CandidateControlReportPeriod,
+  CandidateControlReportResult,
+} from './candidate-control-period.js'

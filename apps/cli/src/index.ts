@@ -53,6 +53,8 @@ import { promisify } from 'node:util'
 import {
   buildReport,
   campaignOpsPreflight,
+  candidateControlPeriodOnce,
+  candidateControlReport,
   candidatePeriodOnce,
   cancelCampaignOps,
   conductPilot,
@@ -270,6 +272,37 @@ const USAGE = `bench — commandes de campagne
                                          et chaque echange protocolaire
         --candidate-ops                 tableau JSON {op,args}[] des
                                          operations a emettre cette periode
+
+  candidate-control-period --campaign-id <id> --postgres-database <db>
+                            --s3-bucket <bucket>
+                            [--candidate-workspace-root <dir>]
+                            [--candidate-command <json-argv>]
+                            [--candidate-timeout-ms <n>]
+        Avance la trajectoire d'UNE periode candidate, en jouant le plan
+        d'usages INTERNE du scenario de demonstration contre le processus du
+        candidat (via bench.candidate/2) puis en appliquant les cinq
+        controles nommes par ADR-009:L34 (T51, ADR-009 L92-98 -- commande
+        NEUVE, distincte de candidate-period/T48 et de run-period
+        --provider claude-cli/T49-T50).
+
+        --campaign-id                   identite de la TRAJECTOIRE (meme
+                                         convention que candidate-period)
+        --postgres-database             base PostgreSQL reelle a utiliser
+        --s3-bucket                     bucket S3 (ou compatible) reel
+        --candidate-workspace-root      racine reelle sous laquelle le depot
+                                         git de la trajectoire est derive
+        --candidate-command             tableau JSON argv qui lance le
+                                         processus-candidat bench.candidate/2
+        --candidate-timeout-ms          delai (ms) pour la probe de demarrage
+                                         et chaque echange protocolaire
+
+  candidate-control-report --campaign-id <id> --postgres-database <db>
+        Lit l'etat persistant d'UNE trajectoire et rend l'agregat par
+        periode du nombre de controles satisfaits et violes (T51, ADR-009
+        L92-98).
+
+        --campaign-id                   identite de la TRAJECTOIRE
+        --postgres-database             base PostgreSQL reelle a utiliser
 
   plan-distribution --campaign-id <id> --mode <mode> --parents <N>
                      --scenarios <N> --configurations <N> --repetitions <N>
@@ -1370,6 +1403,84 @@ async function commandCandidatePeriod(argv: readonly string[]): Promise<number> 
   return 0
 }
 
+/**
+ * `candidate-control-period` (T51, ADR-009 L92-98, docs/specs/T51.md). Lit
+ * les drapeaux requis (même discipline que `commandCandidatePeriod`),
+ * traduit `--candidate-command`/`--candidate-timeout-ms`, puis délègue la
+ * totalité du travail à `candidateControlPeriodOnce` (`@bench/activities`,
+ * src/candidate-control-period.ts) : adaptateur de processus vers les cinq
+ * contrôles nommés par ADR-009:L34, statuts persistés avec la période.
+ * AUCUNE RÈGLE MÉTIER ICI (même règle que l'en-tête du fichier). Commande
+ * distincte de `bench candidate-period` (T48, contrat v1) et de
+ * `bench run-period --provider claude-cli` (T49/T50, développement).
+ */
+async function commandCandidateControlPeriod(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  const s3Bucket = flags.get('s3-bucket')
+  if (campaignId === undefined || postgresDatabase === undefined || s3Bucket === undefined) {
+    process.stderr.write('bench candidate-control-period exige --campaign-id, --postgres-database et --s3-bucket\n')
+    return 1
+  }
+  const candidateWorkspaceRoot = flags.get('candidate-workspace-root')
+  const candidateCommandRaw = flags.get('candidate-command')
+  const candidateTimeoutMsRaw = flags.get('candidate-timeout-ms')
+
+  let candidateCommand: readonly string[] | undefined
+  if (candidateCommandRaw !== undefined) {
+    const parsed = JSON.parse(candidateCommandRaw) as unknown
+    if (!Array.isArray(parsed) || !parsed.every((v) => typeof v === 'string')) {
+      process.stderr.write('bench candidate-control-period : --candidate-command attend un tableau JSON de chaines\n')
+      return 1
+    }
+    candidateCommand = parsed
+  }
+
+  let candidateTimeoutMs: number | undefined
+  if (candidateTimeoutMsRaw !== undefined) {
+    const n = Number.parseInt(candidateTimeoutMsRaw, 10)
+    if (!Number.isInteger(n) || n <= 0) {
+      process.stderr.write('bench candidate-control-period : --candidate-timeout-ms attend un entier positif\n')
+      return 1
+    }
+    candidateTimeoutMs = n
+  }
+
+  const result = await candidateControlPeriodOnce({
+    campaignId,
+    postgresDatabase,
+    s3Bucket,
+    candidateWorkspaceRoot,
+    candidateCommand,
+    candidateTimeoutMs,
+  })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
+}
+
+/**
+ * `candidate-control-report` (T51, ADR-009 L92-98, docs/specs/T51.md). Lit
+ * les deux drapeaux requis, puis délègue la totalité du travail à
+ * `candidateControlReport` (`@bench/activities`,
+ * src/candidate-control-period.ts) : agrégat par période du nombre de
+ * contrôles satisfaits et violés, lu depuis l'état persistant d'UNE
+ * trajectoire. AUCUNE RÈGLE MÉTIER ICI (même règle que l'en-tête du
+ * fichier).
+ */
+async function commandCandidateControlReport(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const campaignId = flags.get('campaign-id')
+  const postgresDatabase = flags.get('postgres-database')
+  if (campaignId === undefined || postgresDatabase === undefined) {
+    process.stderr.write('bench candidate-control-report exige --campaign-id et --postgres-database\n')
+    return 1
+  }
+  const result = await candidateControlReport({ campaignId, postgresDatabase })
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  return 0
+}
+
 /* ──────────────────────────────── `plan-distribution` (T40, L505-L512) */
 //
 // Lit les dix drapeaux requis, refuse si l'un manque (même discipline que
@@ -1555,6 +1666,8 @@ async function main(): Promise<number> {
   if (command === 'pilot') return commandPilot(rest)
   if (command === 'pilot-conduct') return commandPilotConduct(rest)
   if (command === 'candidate-period') return commandCandidatePeriod(rest)
+  if (command === 'candidate-control-period') return commandCandidateControlPeriod(rest)
+  if (command === 'candidate-control-report') return commandCandidateControlReport(rest)
   if (command === 'plan-distribution') return commandPlanDistribution(rest)
   if (command === 'distribution-run-bounded') return commandDistributionRunBounded(rest)
   if (command === 'distribution-resume') return commandDistributionResume(rest)

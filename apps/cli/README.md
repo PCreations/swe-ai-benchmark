@@ -89,6 +89,25 @@ et un contrat de processus (JSON ligne a ligne) par lequel le moteur lance et
 exerce son code (T48, ADR-008 L139-L145). Commande distincte de
 `bench run-period` (T23).
 
+### `bench candidate-control-period --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> [--candidate-workspace-root <dir>] [--candidate-command <json-argv>] [--candidate-timeout-ms <n>]`
+
+Avance la trajectoire `--campaign-id` d'une periode candidate : lance le code
+du commit de fin de la periode precedente comme un processus `bench.candidate/2`,
+joue le plan d'usages INTERNE du scenario de demonstration (le meme que
+`bench demo` joue) contre ce processus via l'adaptateur qui le presente aux
+controles existants, puis applique les cinq controles nommes par ADR-009:L34
+(`reserve@1`, `idempotence@1`, `cancel@1`, `fifo@1`, `isolation@1`), avec
+leurs identifiant, statut et les deux termes compares persistes avec la
+periode (T51, ADR-009 L92-98). Commande distincte de `bench candidate-period`
+(T48, contrat v1) et de `bench run-period --provider claude-cli` (T49/T50,
+developpement).
+
+### `bench candidate-control-report --campaign-id <id> --postgres-database <db>`
+
+Lit l'etat persistant d'une trajectoire et rend l'agregat, par periode, du
+nombre de controles satisfaits et violes, egal aux statuts persistes par
+`bench candidate-control-period` (T51, ADR-009 L92-98).
+
 ### `bench pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db> --s3-bucket <bucket> --provider fake|claude-cli --mode recorded|live [--test-stop-after-periods <n>] [--live --candidate-workspace-root <dir>]`
 
 Pilote longitudinal reel (T46, ADR-007 L157-L163). Conduit chaque trajectoire

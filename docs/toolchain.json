@@ -106,17 +106,17 @@
     },
     "temporal-cli": {
       "trust": "tofu",
-      "version": null,
-      "url": "https://temporal.download/cli/archive/latest?platform=linux&arch=amd64",
-      "sha256": "6f0afac1e9ddea71f480c43a49f5db5167a244c21db923707f069a79bcabdfea",
-      "note": "L'URL 'latest' n'est pas reproductible : le premier bootstrap fige la version resolue ET son sha256 ici."
+      "version": "1.9.1",
+      "url": "https://temporal.download/cli/archive/v1.9.1?platform=linux&arch=amd64",
+      "sha256": "09a0326a51db84d02735e53542b9ebd8c4758daf47482a9ab0abce15844e60d5",
+      "note": "URL VERSIONNEE depuis le 12/10/2026. L'ancien epinglage (url 'latest', sha256 6f0afac1...) n'etait pas reproductible : la publication de 1.9.1 l'a casse (PIN_MISMATCH), et aucune version publiee de 1.4.0 a 1.9.1 ne porte cette empreinte — l'artefact d'origine est irrecuperable. Re-epingle par TOFU sur 1.9.1, dont l'URL versionnee rend le meme octet que 'latest' ce jour."
     },
     "temporal-test-server": {
       "trust": "tofu",
       "version": "1.38.0",
       "sha256": "41df834fe8e1ac59619e13908f41b63e4d1054f37634a2f89033d8cf6af71b96",
-      "note": "PRE-TELECHARGE obligatoirement. Un telechargement paresseux depuis la suite de tests ferait passer T24.A2 pour la mauvaise raison et serait perdu au recyclage du conteneur. Meme hote officiel que temporal-cli ; les releases GitHub de temporalio/sdk-java sont inaccessibles depuis cet environnement (403 au proxy, mesure). L'URL 'latest' n'est pas reproductible : la version resolue et son sha256 sont figes ici des la premiere resolution. Binaire natif GraalVM : son premier argument est le PORT, pas une option.",
-      "url": "https://temporal.download/temporal-test-server/archive/latest?platform=linux&arch=amd64"
+      "note": "PRE-TELECHARGE obligatoirement. Un telechargement paresseux depuis la suite de tests ferait passer T24.A2 pour la mauvaise raison et serait perdu au recyclage du conteneur. Meme hote officiel que temporal-cli ; les releases GitHub de temporalio/sdk-java sont inaccessibles depuis cet environnement (403 au proxy, mesure). L'URL 'latest' n'est pas reproductible : la version resolue et son sha256 sont figes ici des la premiere resolution. Binaire natif GraalVM : son premier argument est le PORT, pas une option. | 12/10/2026 : URL 'latest' remplacee par l'URL VERSIONNEE de 1.38.0, qui rend exactement le sha256 epingle (verifie) ; 'latest' servait desormais un autre artefact (PIN_MISMATCH).",
+      "url": "https://temporal.download/temporal-test-server/archive/v1.38.0?platform=linux&arch=amd64"
     }
   },
   "moved_from": "infra/toolchain.lock.json",

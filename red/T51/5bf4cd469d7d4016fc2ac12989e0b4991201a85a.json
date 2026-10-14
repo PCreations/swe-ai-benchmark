@@ -1,0 +1,70 @@
+{
+  "schema": "bench.red/1",
+  "task": "T51",
+  "subject_commit": "5bf4cd469d7d4016fc2ac12989e0b4991201a85a",
+  "dirty": false,
+  "input_digest": "dcea7f95da287c0ba0fdb57f88c0ef696048d2c0b4a46c8a6767df825fe68530",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T51.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T51.M1",
+      "note": "Mutation appliquee (call() route les actions ecrites/lues vers le modele interne au lieu de la reponse reelle du processus) ; node tools/bench verify:task T51 (PostgreSQL reel) rend T51.A1 ROUGE (45 assertions) -- classe isolation du candidat fautif VERT au lieu de ROUGE attendu, T51.A3/A4/A5 restent VERTS comme exige. Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    {
+      "id": "T51.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T51.M2",
+      "note": "Mutation appliquee (candidateControlPeriodOnce persiste actual:null/expected:null pour chaque controle, status reste calcule correctement) ; node tools/bench verify:task T51 rend T51.A2 ROUGE (37 assertions), SEUL cas touche (A1/A3/A4/A5 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    {
+      "id": "T51.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T51.M3",
+      "note": "Mutation appliquee (candidat non deploye publie controls:[] au lieu des cinq entrees violees) ; node tools/bench verify:task T51 rend T51.A3 ROUGE (5 assertions), SEUL cas touche (A1/A2/A4/A5 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    {
+      "id": "T51.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T51.M4",
+      "note": "Mutation appliquee (candidateControlReport inverse les compteurs satisfied/violated dans l'agregation par periode) ; node tools/bench verify:task T51 rend T51.A4 ROUGE (13 assertions), SEUL cas touche (A1/A2/A3/A5 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    {
+      "id": "T51.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T51.M5",
+      "note": "Mutation appliquee (ecriture de .bench-plan.json -- identifiants de controle + horloges des quatre periodes -- dans l'espace de travail du candidat avant le lancement du processus) ; node tools/bench verify:task T51 rend T51.A5 ROUGE (14 assertions), SEUL cas touche (A1/A2/A3/A4 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    }
+  ],
+  "mutation_proof": {
+    "T51.A1": {
+      "killed_by": "T51.M1",
+      "note": "Mutation appliquee (call() route les actions ecrites/lues vers le modele interne au lieu de la reponse reelle du processus) ; node tools/bench verify:task T51 (PostgreSQL reel) rend T51.A1 ROUGE (45 assertions) -- classe isolation du candidat fautif VERT au lieu de ROUGE attendu, T51.A3/A4/A5 restent VERTS comme exige. Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    "T51.A2": {
+      "killed_by": "T51.M2",
+      "note": "Mutation appliquee (candidateControlPeriodOnce persiste actual:null/expected:null pour chaque controle, status reste calcule correctement) ; node tools/bench verify:task T51 rend T51.A2 ROUGE (37 assertions), SEUL cas touche (A1/A3/A4/A5 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    "T51.A3": {
+      "killed_by": "T51.M3",
+      "note": "Mutation appliquee (candidat non deploye publie controls:[] au lieu des cinq entrees violees) ; node tools/bench verify:task T51 rend T51.A3 ROUGE (5 assertions), SEUL cas touche (A1/A2/A4/A5 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    "T51.A4": {
+      "killed_by": "T51.M4",
+      "note": "Mutation appliquee (candidateControlReport inverse les compteurs satisfied/violated dans l'agregation par periode) ; node tools/bench verify:task T51 rend T51.A4 ROUGE (13 assertions), SEUL cas touche (A1/A2/A3/A5 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    },
+    "T51.A5": {
+      "killed_by": "T51.M5",
+      "note": "Mutation appliquee (ecriture de .bench-plan.json -- identifiants de controle + horloges des quatre periodes -- dans l'espace de travail du candidat avant le lancement du processus) ; node tools/bench verify:task T51 rend T51.A5 ROUGE (14 assertions), SEUL cas touche (A1/A2/A3/A4 verts). Mutation restauree par git checkout, build + verify:task re-confirmes PASS/199 assertions."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

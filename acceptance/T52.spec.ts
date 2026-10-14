@@ -599,20 +599,34 @@ function construireUneFois(tentatives: { label: string; argv: string[]; exit: nu
   }
 }
 
-type AppelCli = { resultat: Json | null; tentatives: { label: string; argv: string[]; exit: number | null; sortie: string }[] };
+type AppelCli = {
+  resultat: Json | null;
+  exit: number | null;
+  tentatives: { label: string; argv: string[]; exit: number | null; sortie: string }[];
+};
 
 function envDeBase(): NodeJS.ProcessEnv {
   return { ...process.env, PGHOST: SOCKET_DIR, PGUSER: PG_USER };
 }
 
-/** Une invocation `bench <sous-commande>`, PROCESSUS NEUF SYNCHRONE. */
+/** Une invocation `bench <sous-commande>`, PROCESSUS NEUF SYNCHRONE.
+ *  `exit` (code de sortie du DERNIER processus essaye) est porte au premier
+ *  niveau de `AppelCli`, pas seulement dans `tentatives` — meme forme que
+ *  acceptance/T49.spec.ts (II.1), dont les assertions `<appel>.exit === 0`
+ *  de ce fichier (A1-A5) dependent reellement : sans ce champ, la condition
+ *  lit `undefined === 0`, FAUX dans tous les cas, quelle que soit
+ *  l'implementation controlee (defaut ACCEPTANCE corrige ici, pas une
+ *  exigence affaiblie — aucun cas, aucune perturbation de
+ *  verification/cases.extensions.lock.json n'est touche). */
 function lancer(sousCommande: string, drapeaux: string[], envSupp: NodeJS.ProcessEnv = {}): AppelCli {
   const tentatives: AppelCli['tentatives'] = [];
   const env = { ...envDeBase(), ...envSupp };
+  let dernierExit: number | null = null;
   const essayer = (): Json | null => {
     for (const c of entreesCli()) {
       const argv = [...c.argv, sousCommande, ...drapeaux];
       const r = executer(argv, env);
+      dernierExit = r.exit;
       const j = jsonDeSortie(r.stdout);
       tentatives.push({ label: c.label, argv, exit: r.exit, sortie: court(r.sortie, 400) });
       if (j !== null) return j;
@@ -620,9 +634,10 @@ function lancer(sousCommande: string, drapeaux: string[], envSupp: NodeJS.Proces
     return null;
   };
   const premier = essayer();
-  if (premier !== null) return { resultat: premier, tentatives };
+  if (premier !== null) return { resultat: premier, exit: dernierExit, tentatives };
   construireUneFois(tentatives);
-  return { resultat: essayer(), tentatives };
+  const second = essayer();
+  return { resultat: second, exit: dernierExit, tentatives };
 }
 
 function messageEchec(label: string, appel: AppelCli): string {

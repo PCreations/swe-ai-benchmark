@@ -1,0 +1,70 @@
+{
+  "schema": "bench.red/1",
+  "task": "T52",
+  "subject_commit": "658b3fd3e81227c2368e717ddb7c1b1fc9b4dcbb",
+  "dirty": false,
+  "input_digest": "fea3d67da48e6bd5d42a8fe80c9eb5fe9bc2339c7ffea8c1ff6d2fceb42f62ff",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T52.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T52.M1",
+      "note": "Mutation appliquee et restauree (packages/activities/src/run-period-claude-cli.ts + pilot-conduct.ts, pnpm build entre chaque etape) : buildPrompt() du chemin pilot-conduct derive d'une copie locale (convention de lancement/entrypoint omise) au lieu de describeCandidateProtocolV2(). OBSERVE : jest acceptance/T52.spec.ts -> T52.A1 ROUGE sur 'prompt-pilot-conduct-enonce-contrat-et-transport-complets' (jetons manquants : bench.candidate/2, candidate.mjs, ok, result, error, create_tenant, ...). T52.A2-A5 restes VERTS sous cette mutation."
+    },
+    {
+      "id": "T52.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T52.M2",
+      "note": "Mutation appliquee et restauree (packages/activities/src/pilot-conduct.ts, pnpm build entre chaque etape) : l'appel a controlCandidateCommitOnce() apres chaque session+commit claude-cli est neutralise (bloc vide). OBSERVE : jest acceptance/T52.spec.ts -> T52.A2 ROUGE sur 'au-moins-deux-periodes-de-controle-persistees-correct' (candidate_control_report[].periods vide). T52.A1 reste VERT ; T52.A3/A5 tombent aussi en collateral (meme champ jamais alimente), ce qui ne change rien a l'adjudication du cas A2 lui-meme."
+    },
+    {
+      "id": "T52.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T52.M3",
+      "note": "Mutation appliquee et restauree (packages/activities/src/pilot-conduct.ts, pnpm build entre chaque etape) : le controle de chaque periode d'une trajectoire reutilise TOUJOURS le workspace_dir/commit_sha persistes a la PREMIERE periode (Map firstCandidateByTrajectory), au lieu de ceux de la periode courante. OBSERVE : jest acceptance/T52.spec.ts -> SEUL T52.A3 ROUGE, exactement sur 'periode-2-controlee-avec-le-candidat-fautif-ecrit-en-periode-2' (vu satisfied=5/violated=0 au lieu de 4/1) ; T52.A1,A2,A4,A5 restes VERTS (execution complete de la suite, isolation confirmee)."
+    },
+    {
+      "id": "T52.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T52.M4",
+      "note": "Mutation appliquee et restauree (packages/activities/src/run-period-claude-cli.ts, pnpm build entre chaque etape) : ensureWorkspace() efface et reinitialise (git init) l'espace de travail a CHAQUE periode au lieu de reprendre le commit de fin de la periode precedente. OBSERVE : jest acceptance/T52.spec.ts -> T52.A4 ROUGE sur 'le-commit-de-la-periode-1-est-un-ancetre-du-commit-de-la-periode-2' (git merge-base --is-ancestor echoue, aucun historique commun). T52.A1,A2,A5 restes VERTS ; T52.A3 tombe aussi en collateral (git show du commit periode1 rend candidate.mjs vide), sans affecter l'adjudication du cas A4 lui-meme."
+    },
+    {
+      "id": "T52.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T52.M5",
+      "note": "Mutation appliquee et restauree (packages/activities/src/pilot-conduct.ts, pnpm build entre chaque etape) : le rapport de fin de pilot-conduct publie candidate_control_report fige a periods:[] par trajectoire, alors que la persistance reelle (relue par candidateControlReport, T51) n'est pas touchee. OBSERVE : jest acceptance/T52.spec.ts -> T52.A5 ROUGE sur 'candidate_control_report-de-pilot-conduct-porte-au-moins-deux-periodes-a5'. T52.A1 reste VERT ; T52.A2/A3 tombent aussi en collateral (meme champ de sortie lu par ces deux cas), sans affecter l'adjudication du cas A5 lui-meme."
+    }
+  ],
+  "mutation_proof": {
+    "T52.A1": {
+      "killed_by": "T52.M1",
+      "note": "Mutation appliquee et restauree (packages/activities/src/run-period-claude-cli.ts + pilot-conduct.ts, pnpm build entre chaque etape) : buildPrompt() du chemin pilot-conduct derive d'une copie locale (convention de lancement/entrypoint omise) au lieu de describeCandidateProtocolV2(). OBSERVE : jest acceptance/T52.spec.ts -> T52.A1 ROUGE sur 'prompt-pilot-conduct-enonce-contrat-et-transport-complets' (jetons manquants : bench.candidate/2, candidate.mjs, ok, result, error, create_tenant, ...). T52.A2-A5 restes VERTS sous cette mutation."
+    },
+    "T52.A2": {
+      "killed_by": "T52.M2",
+      "note": "Mutation appliquee et restauree (packages/activities/src/pilot-conduct.ts, pnpm build entre chaque etape) : l'appel a controlCandidateCommitOnce() apres chaque session+commit claude-cli est neutralise (bloc vide). OBSERVE : jest acceptance/T52.spec.ts -> T52.A2 ROUGE sur 'au-moins-deux-periodes-de-controle-persistees-correct' (candidate_control_report[].periods vide). T52.A1 reste VERT ; T52.A3/A5 tombent aussi en collateral (meme champ jamais alimente), ce qui ne change rien a l'adjudication du cas A2 lui-meme."
+    },
+    "T52.A3": {
+      "killed_by": "T52.M3",
+      "note": "Mutation appliquee et restauree (packages/activities/src/pilot-conduct.ts, pnpm build entre chaque etape) : le controle de chaque periode d'une trajectoire reutilise TOUJOURS le workspace_dir/commit_sha persistes a la PREMIERE periode (Map firstCandidateByTrajectory), au lieu de ceux de la periode courante. OBSERVE : jest acceptance/T52.spec.ts -> SEUL T52.A3 ROUGE, exactement sur 'periode-2-controlee-avec-le-candidat-fautif-ecrit-en-periode-2' (vu satisfied=5/violated=0 au lieu de 4/1) ; T52.A1,A2,A4,A5 restes VERTS (execution complete de la suite, isolation confirmee)."
+    },
+    "T52.A4": {
+      "killed_by": "T52.M4",
+      "note": "Mutation appliquee et restauree (packages/activities/src/run-period-claude-cli.ts, pnpm build entre chaque etape) : ensureWorkspace() efface et reinitialise (git init) l'espace de travail a CHAQUE periode au lieu de reprendre le commit de fin de la periode precedente. OBSERVE : jest acceptance/T52.spec.ts -> T52.A4 ROUGE sur 'le-commit-de-la-periode-1-est-un-ancetre-du-commit-de-la-periode-2' (git merge-base --is-ancestor echoue, aucun historique commun). T52.A1,A2,A5 restes VERTS ; T52.A3 tombe aussi en collateral (git show du commit periode1 rend candidate.mjs vide), sans affecter l'adjudication du cas A4 lui-meme."
+    },
+    "T52.A5": {
+      "killed_by": "T52.M5",
+      "note": "Mutation appliquee et restauree (packages/activities/src/pilot-conduct.ts, pnpm build entre chaque etape) : le rapport de fin de pilot-conduct publie candidate_control_report fige a periods:[] par trajectoire, alors que la persistance reelle (relue par candidateControlReport, T51) n'est pas touchee. OBSERVE : jest acceptance/T52.spec.ts -> T52.A5 ROUGE sur 'candidate_control_report-de-pilot-conduct-porte-au-moins-deux-periodes-a5'. T52.A1 reste VERT ; T52.A2/A3 tombent aussi en collateral (meme champ de sortie lu par ces deux cas), sans affecter l'adjudication du cas A5 lui-meme."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

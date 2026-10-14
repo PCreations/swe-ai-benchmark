@@ -1,6 +1,7 @@
 # ADR-010 — Le pilote réel, de bout en bout
 
-    statut : PROPOSÉ — en attente de la décision du mandant
+    statut : ACCEPTÉ — par le mandant le 14/10/2026 (« Oui », en réponse
+             à « Tu acceptes ADR-010 tel quel ? »)
     ouvert : 13/10/2026
     porte  : `pilot-conduct --provider claude-cli` (T49, T50), le contrôle
              du code candidat (T51), le contrat `bench.candidate/2`

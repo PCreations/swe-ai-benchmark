@@ -1,13 +1,14 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007, ADR-008, ADR-009). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-010). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
   "spec_source_sha256": {
     "docs/adr/ADR-007-pilote-longitudinal-et-unite-token.md": "7d9dc71cd258a9c55b96d9fdeb8911e785844a500c8f7e6193cfe459992a6cca",
     "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059",
-    "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md": "7eee84045a656e382b91953110ce3aeeba802b846192c7246f4c4c9e58f6c601"
+    "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md": "7eee84045a656e382b91953110ce3aeeba802b846192c7246f4c4c9e58f6c601",
+    "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md": "49a465996f5bbc72cb435c5339947ba458e6a803f8c744afbc8e421e9bfe391c"
   },
   "cases": [
     {
@@ -542,8 +543,78 @@
       "blockable": false,
       "proof_kind": "absence",
       "perturbation": "ecrire les exigences de la periode suivante dans l'espace de travail : le cas doit rougir"
+    },
+    {
+      "id": "T52.A1",
+      "task": "T52",
+      "source": "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md",
+      "source_line": 64,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire deriver le prompt d'une copie locale du contrat au lieu de la description exportee : le cas doit rougir"
+    },
+    {
+      "id": "T52.A2",
+      "task": "T52",
+      "source": "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md",
+      "source_line": 64,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas appeler le controle apres la session dans pilot-conduct : le cas doit rougir"
+    },
+    {
+      "id": "T52.A3",
+      "task": "T52",
+      "source": "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md",
+      "source_line": 64,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "controler le code d'un espace de travail restaure ailleurs que celui de la session : le cas doit rougir"
+    },
+    {
+      "id": "T52.A4",
+      "task": "T52",
+      "source": "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md",
+      "source_line": 64,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "demarrer la session k+1 dans un espace de travail vierge : le cas doit rougir"
+    },
+    {
+      "id": "T52.A5",
+      "task": "T52",
+      "source": "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md",
+      "source_line": 64,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "omettre les statuts de controle du rapport de fin : le cas doit rougir"
     }
   ],
-  "case_count": 38,
-  "classified_cases": 38
+  "case_count": 43,
+  "classified_cases": 43
 }

@@ -52,6 +52,41 @@
 //   Les deux DOIVENT etre fournies ensemble pour que l'ecriture ait lieu ;
 //   absence de l'une ou l'autre : aucune ecriture, comportement T47 inchange.
 //   N'a jamais lieu sur un appel "auth status" (seule une session en a besoin).
+//
+// AJOUTE PAR acceptance/T52.spec.ts (ADDITIF — ne change AUCUN comportement
+// existant pour T47/T49/T50/T51, qui ne posent jamais ces deux variables ;
+// le PAIR RELPATH/CONTENT ci-dessus reste prioritaire si present) :
+//   BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_PLAN_FILE          — chemin d'un fichier
+//                                         JSON contenant un tableau
+//                                         `{relPath, content}[]`. Necessaire
+//                                         parce que l'environnement d'UN
+//                                         appel CLI est le MEME pour TOUTES
+//                                         les invocations de ce faux
+//                                         executable qu'il engendre pendant
+//                                         cet appel (une periode par
+//                                         invocation, plusieurs periodes par
+//                                         appel de `pilot-conduct`) : le pair
+//                                         RELPATH/CONTENT seul ne peut donc
+//                                         PAS faire ecrire un contenu
+//                                         DIFFERENT a la periode 2 de celui
+//                                         de la periode 1 au sein d'un MEME
+//                                         appel.
+//   BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_PLAN_COUNTER_FILE  — chemin d'un fichier
+//                                         compteur (entier decimal en texte,
+//                                         absent ou illisible == 0). Lu AVANT
+//                                         d'ecrire, pour choisir
+//                                         `plan[min(compteur, plan.length-1)]`,
+//                                         puis incremente de 1 et reecrit —
+//                                         de sorte que la Nieme invocation de
+//                                         CET appel CLI qui partage ce MEME
+//                                         fichier compteur applique le Nieme
+//                                         element du plan (le dernier element
+//                                         se repete au-dela de sa longueur,
+//                                         jamais une erreur).
+//   Les deux DOIVENT etre fournies ensemble ; absence de l'une ou l'autre,
+//   ou PRESENCE simultanee du pair RELPATH/CONTENT ci-dessus (qui reste
+//   prioritaire) : aucune ecriture par ce mecanisme, comportement T47/T49
+//   inchange.
 
 const argv = process.argv.slice(2);
 
@@ -103,6 +138,38 @@ async function main() {
       fs.writeFileSync(dest, writeContent);
     } catch {
       /* simulation d'ecriture du candidat : un echec ici n'est pas l'objet de cette branche */
+    }
+  } else {
+    // acceptance/T52.spec.ts (ADDITIF, voir en-tete) : un PLAN d'ecritures, une par
+    // invocation partageant le MEME fichier compteur — jamais engage si le pair
+    // RELPATH/CONTENT ci-dessus est present.
+    const planFile = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_PLAN_FILE;
+    const counterFile = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_PLAN_COUNTER_FILE;
+    if (planFile !== undefined && counterFile !== undefined) {
+      try {
+        const path = await import('node:path');
+        const plan = JSON.parse(fs.readFileSync(planFile, 'utf8'));
+        if (Array.isArray(plan) && plan.length > 0) {
+          let compteur = 0;
+          try {
+            compteur = Number.parseInt(fs.readFileSync(counterFile, 'utf8').trim(), 10);
+            if (!Number.isFinite(compteur) || compteur < 0) compteur = 0;
+          } catch {
+            compteur = 0;
+          }
+          const idx = Math.min(compteur, plan.length - 1);
+          const entree = plan[idx];
+          if (entree && typeof entree.relPath === 'string' && typeof entree.content === 'string') {
+            const dest = path.resolve(process.cwd(), entree.relPath);
+            fs.mkdirSync(path.dirname(dest), { recursive: true });
+            fs.writeFileSync(dest, entree.content);
+          }
+          fs.mkdirSync(path.dirname(path.resolve(counterFile)), { recursive: true });
+          fs.writeFileSync(counterFile, String(compteur + 1));
+        }
+      } catch {
+        /* simulation d'ecriture du candidat : un echec ici n'est pas l'objet de cette branche */
+      }
     }
   }
 

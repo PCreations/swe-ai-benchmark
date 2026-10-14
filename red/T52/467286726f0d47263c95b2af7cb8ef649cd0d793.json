@@ -2,7 +2,7 @@
   "schema": "bench.red/1",
   "task": "T52",
   "subject_commit": "467286726f0d47263c95b2af7cb8ef649cd0d793",
-  "dirty": false,
+  "dirty": true,
   "input_digest": "1c86110b763e61baf4cddcb38bfb1a847121771d0ebf46528fe5f18158d1295b",
   "suite_loaded": true,
   "suite_exit_code": 1,

@@ -55,6 +55,7 @@ import * as path from 'node:path'
 import { getArtifact, openS3ArtifactStore, putArtifact, s3TestServiceConfig } from '@bench/storage'
 import { RESERVATION_SETUP, SCRIPTED_PERIODS } from '@bench/scenario'
 import type { ScriptedAction, ScriptedPeriod } from '@bench/scenario'
+import { CANDIDATE_LAUNCH_COMMAND } from './candidate-protocol-v2.js'
 
 /* ══════════════════════════════════ formes du contrat ═══════════════════ */
 
@@ -652,6 +653,85 @@ function argsForAction(action: ScriptedAction, tenant: string): { readonly op: s
   return { op: 'read', args: { tenant_id: tenant, key: action.actor } }
 }
 
+type ControlStateMap = Record<ControlKey, { readonly actual: unknown; readonly expected: unknown }>
+
+/**
+ * Évalue UN usage scripté (une entrée de `scripted.actions`) contre le
+ * processus-candidat, et rend l'état (modèle + contrôles) qui en résulte --
+ * extrait, SANS CHANGEMENT DE COMPORTEMENT, du corps de boucle que
+ * `candidateControlPeriodOnce` (T51) exerçait déjà seul, pour que
+ * `controlCandidateCommitOnce` (T52, ci-dessous) le réutilise SANS LE
+ * RÉINVENTER sur la totalité de `SCRIPTED_PERIODS` en un seul passage.
+ * `call` porte déjà, par fermeture, la bascule `deployed` (voir les deux
+ * appelants) ; `isDeployed` la relit après un échange qui pourrait l'avoir
+ * fait basculer.
+ */
+async function applyScriptedUsage(
+  usageId: string,
+  action: ScriptedAction,
+  modelState: ModelState,
+  controlState: ControlStateMap,
+  call: (op: string, args: Readonly<Record<string, unknown>>) => Promise<RpcOutcome | null>,
+  isDeployed: () => boolean,
+): Promise<{ readonly modelState: ModelState; readonly controlState: ControlStateMap }> {
+  const tenant = action.tenant
+  const { op, args } = argsForAction(action, tenant)
+  const outcome = await call(op, args)
+  if (!isDeployed()) return { modelState, controlState }
+
+  if (action.kind === 'write') {
+    const r = modelWrite(modelState, action.operation, action.actor, action.sequence, action.idempotency_key)
+    const nextModelState = r.state
+    const expectedDecision = r.decision
+    const actualDecision =
+      outcome !== null && 'ok' in outcome && outcome.ok
+        ? ((outcome.result as { decision?: unknown } | undefined)?.decision ?? null)
+        : { error: outcome !== null && 'error' in outcome ? outcome.error.code : null }
+
+    let nextControlState = controlState
+    if (usageId === 'reserve-A') {
+      nextControlState = { ...nextControlState, 'reserve@1': { actual: actualDecision, expected: expectedDecision } }
+    } else if (usageId === 'replay-A') {
+      nextControlState = { ...nextControlState, 'idempotence@1': { actual: actualDecision, expected: expectedDecision } }
+    } else if (usageId === 'annulation-A') {
+      nextControlState = { ...nextControlState, 'cancel@1': { actual: actualDecision, expected: expectedDecision } }
+      // La PROMOTION FIFO qui résulte de cette annulation (le prochain de
+      // la file, ordonné par séquence d'admission — jamais un ordre
+      // d'arrivée implicite) : son statut, lu des deux côtés.
+      const promoted = nextModelState.holder
+      if (promoted !== null) {
+        const expectedPromoted = modelStatusOf(nextModelState, TENANT_ORIGIN, promoted)
+        const readOutcome = await call('read', { tenant_id: TENANT_ORIGIN, key: promoted })
+        if (isDeployed()) {
+          const actualPromoted =
+            readOutcome !== null && 'ok' in readOutcome && readOutcome.ok
+              ? ((readOutcome.result as { value?: unknown } | undefined)?.value ?? null)
+              : { error: readOutcome !== null && 'error' in readOutcome ? readOutcome.error.code : null }
+          nextControlState = { ...nextControlState, 'fifo@1': { actual: actualPromoted, expected: expectedPromoted.value } }
+        }
+      }
+    }
+    return { modelState: nextModelState, controlState: nextControlState }
+  }
+
+  // Lecture : `sonde-intertenant` (ADR-009:L34 isolation@1) compare
+  // directement le refus attendu (modèle, toujours fidèle à
+  // `ownerTenant`) à ce que le candidat a réellement répondu.
+  const expectedRead = modelStatusOf(modelState, tenant, action.actor)
+  const actualRead =
+    outcome !== null && 'ok' in outcome && outcome.ok
+      ? { ok: true, code: null }
+      : { ok: false, code: outcome !== null && 'error' in outcome ? outcome.error.code : null }
+  let nextControlState = controlState
+  if (usageId === 'sonde-intertenant') {
+    nextControlState = {
+      ...nextControlState,
+      'isolation@1': { actual: actualRead, expected: { ok: expectedRead.ok, code: expectedRead.code } },
+    }
+  }
+  return { modelState, controlState: nextControlState }
+}
+
 /* ══════════════════════════════════════════════════════════════════ l'orchestrateur */
 
 /**
@@ -737,62 +817,13 @@ export async function candidateControlPeriodOnce(
     if (periodIndex === 4) await call('create_tenant', { tenant_id: TENANT_OTHER })
     await call('advance_clock', { to: clock })
 
+    // Évaluation PARTAGÉE (T52, `applyScriptedUsage`, ci-dessus) — même
+    // comportement qu'avant l'extraction, jamais réinventé.
     for (const [usageId, action] of Object.entries(scripted.actions)) {
-      const tenant = action.tenant
-      const { op, args } = argsForAction(action, tenant)
-      const outcome = await call(op, args)
       if (!deployed) break
-
-      // Modèle de référence : REJOUE la même action, indépendamment du
-      // candidat (jamais interrogé par lui, jamais construit à partir de sa
-      // réponse).
-      if (action.kind === 'write') {
-        const r = modelWrite(modelState, action.operation, action.actor, action.sequence, action.idempotency_key)
-        modelState = r.state
-        const expectedDecision = r.decision
-        const actualDecision =
-          outcome !== null && 'ok' in outcome && outcome.ok
-            ? ((outcome.result as { decision?: unknown } | undefined)?.decision ?? null)
-            : { error: outcome !== null && 'error' in outcome ? outcome.error.code : null }
-
-        if (usageId === 'reserve-A') {
-          controlState['reserve@1'] = { actual: actualDecision, expected: expectedDecision }
-        } else if (usageId === 'replay-A') {
-          controlState['idempotence@1'] = { actual: actualDecision, expected: expectedDecision }
-        } else if (usageId === 'annulation-A') {
-          controlState['cancel@1'] = { actual: actualDecision, expected: expectedDecision }
-          // La PROMOTION FIFO qui résulte de cette annulation (le prochain de
-          // la file, ordonné par séquence d'admission — jamais un ordre
-          // d'arrivée implicite) : son statut, lu des deux côtés.
-          const promoted = modelState.holder
-          if (promoted !== null) {
-            const expectedPromoted = modelStatusOf(modelState, TENANT_ORIGIN, promoted)
-            const readOutcome = await call('read', { tenant_id: TENANT_ORIGIN, key: promoted })
-            const actualPromoted =
-              readOutcome !== null && 'ok' in readOutcome && readOutcome.ok
-                ? (readOutcome.result as { value?: unknown } | undefined)?.value ?? null
-                : { error: readOutcome !== null && 'error' in readOutcome ? readOutcome.error.code : null }
-            if (deployed) {
-              controlState['fifo@1'] = { actual: actualPromoted, expected: expectedPromoted.value }
-            }
-          }
-        }
-      } else {
-        // Lecture : `sonde-intertenant` (ADR-009:L34 isolation@1) compare
-        // directement le refus attendu (modèle, toujours fidèle à
-        // `ownerTenant`) à ce que le candidat a réellement répondu.
-        const expectedRead = modelStatusOf(modelState, tenant, action.actor)
-        const actualRead =
-          outcome !== null && 'ok' in outcome && outcome.ok
-            ? { ok: true, code: null }
-            : { ok: false, code: outcome !== null && 'error' in outcome ? outcome.error.code : null }
-        if (usageId === 'sonde-intertenant') {
-          controlState['isolation@1'] = {
-            actual: actualRead,
-            expected: { ok: expectedRead.ok, code: expectedRead.code },
-          }
-        }
-      }
+      const r = await applyScriptedUsage(usageId, action, modelState, controlState, call, () => deployed)
+      modelState = r.modelState
+      controlState = r.controlState
     }
   }
 
@@ -834,6 +865,176 @@ export async function candidateControlPeriodOnce(
       commit_sha: commitSha,
     },
     controls,
+  }
+}
+
+/* ═══════════════ contrôle direct du commit d'UNE période (T52, ADR-010) ═══
+ *
+ * CE QUE CE BLOC AJOUTE, ET POURQUOI JAMAIS `restoreWorkspace`/
+ * `candidateControlPeriodOnce` CI-DESSUS (destinés à `bench
+ * candidate-control-period`, T51, qui restaure SON PROPRE espace de travail
+ * depuis SON PROPRE préfixe S3 `t51/`) : ADR-010 (« Ce que la relecture a
+ * trouvé », point 2) nomme PRÉCISÉMENT ce danger pour `pilot-conduct` --
+ * contrôler un espace de travail SANS RAPPORT avec le commit de fin que la
+ * session claude-cli vient de produire (`./run-period-claude-cli.ts`, T49).
+ *
+ * `controlCandidateCommitOnce` contrôle donc le commit DONNÉ PAR L'APPELANT
+ * (`pilot-conduct`, `./pilot-conduct.ts`) -- jamais un pointeur relu depuis
+ * PostgreSQL, jamais une restauration S3 -- en matérialisant l'arbre EXACT de
+ * ce commit (`git archive`, hors de toute écriture dans le dépôt de la
+ * session) dans un répertoire JETABLE, distinct du dépôt de la session : le
+ * candidat contrôlé ne peut donc jamais laisser de fichier auxiliaire
+ * (`state.json`, `ops-received.log`) dans l'espace de travail que la période
+ * SUIVANTE committera (A4).
+ *
+ * UN VERDICT COMPLET, INDÉPENDANT, PAR PÉRIODE (A2/A3) -- jamais un pointeur
+ * qui avance de 1 à chaque appel (à la différence de
+ * `candidateControlPeriodOnce`/T51, qui avance une trajectoire de contrôle
+ * PROPRE période par période) : chaque appel rejoue la totalité de
+ * `SCRIPTED_PERIODS` (les quatre périodes métier F-RESERVATION) contre UN
+ * SEUL processus-candidat frais, pour que le relevé des cinq contrôles
+ * (ADR-009:L34) soit le même, qu'on contrôle le commit de la période 1 ou
+ * celui de la période 2 d'une MÊME trajectoire -- exactement la propriété
+ * qu'exige acceptance/T52.spec.ts (A2 : répartition nominale `(5,0)`/fautive
+ * `(4,1)` identique À CHAQUE période persistée).
+ *
+ * PERSISTANCE PARTAGÉE AVEC `candidate-control-report` (A5) : ce bloc écrit
+ * dans LA MÊME table (`writePeriodControls`, ci-dessus), sous l'identité de
+ * TRAJECTOIRE que `pilot-conduct` dérive déjà (`trajectory_key`) -- jamais
+ * une table propre à T52 -- pour qu'un appel ULTÉRIEUR et DIRECT de `bench
+ * candidate-control-report --campaign-id <trajectory_key>` (T51, DÉJÀ
+ * PROUVÉ) lise la MÊME trajectoire de contrôle que celle que `pilot-conduct`
+ * vient d'écrire.
+ */
+
+export interface ControlCandidateCommitInput {
+  /** L'identité de TRAJECTOIRE (`trajectory_key`), PARTAGÉE avec
+   *  `candidate-control-report` -- jamais l'identité de CAMPAGNE que
+   *  `pilot-conduct` connaît en plus (voir `./pilot-conduct.ts`). */
+  readonly campaignId: string
+  readonly postgresDatabase: string
+  /** L'indice de la période SESSION (T49) dont ce commit est la fin --
+   *  jamais un pointeur auto-incrémenté : fourni par l'appelant. */
+  readonly periodIndex: number
+  /** Le dépôt git de LA SESSION (T49/`./run-period-claude-cli.ts`) --
+   *  JAMAIS restauré ni ré-archivé ici ; seul `commitSha` y est lu, par
+   *  `git archive`, dans un répertoire jetable. */
+  readonly workspaceDir: string
+  readonly commitSha: string
+  /** Convention de lancement (ADR-010 L42-44, `./candidate-protocol-v2.ts`)
+   *  -- un défaut, jamais un nouveau drapeau `bench pilot-conduct`. */
+  readonly candidateCommand?: readonly string[] | undefined
+  readonly candidateTimeoutMs?: number | undefined
+}
+
+export interface ControlCandidateCommitResult {
+  readonly campaign_id: string
+  readonly period_index: number
+  readonly controls: readonly CandidateControlEntry[]
+}
+
+/** Matérialise l'arbre EXACT de `commitSha` (jamais l'état courant, non
+ *  committé, du dépôt) dans un répertoire JETABLE -- `git archive`, hors de
+ *  toute écriture dans `workspaceDir` lui-même (A4 : aucun fichier
+ *  auxiliaire du candidat contrôlé ne doit atteindre le dépôt de la
+ *  session). */
+function materializeCommitTree(workspaceDir: string, commitSha: string): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-candidate-control-commit-'))
+  const archive = execFileSync('git', ['-C', workspaceDir, 'archive', commitSha], {
+    maxBuffer: 256 * 1024 * 1024,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  execFileSync('tar', ['-xf', '-', '-C', dir], {
+    input: archive,
+    maxBuffer: 256 * 1024 * 1024,
+    stdio: ['pipe', 'ignore', 'pipe'],
+  })
+  return dir
+}
+
+/**
+ * Lance et contrôle, EN UN SEUL PROCESSUS CANDIDAT FRAIS, le code du commit
+ * `commitSha` (le commit de fin produit par la session de CETTE période,
+ * T49) -- rejoue la totalité du plan d'usages F-RESERVATION
+ * (`SCRIPTED_PERIODS`), évalue les cinq contrôles nommés par ADR-009:L34, et
+ * persiste le relevé sous `campaignId` (A2/A3/A5, voir l'en-tête du bloc).
+ * Un candidat NON DÉPLOYÉ (démarrage manqué, délai dépassé, format violé) NE
+ * LÈVE JAMAIS : les cinq contrôles sont publiés, TOUS violés (même
+ * discipline que `candidateControlPeriodOnce`, A3 de T51).
+ */
+export async function controlCandidateCommitOnce(
+  input: ControlCandidateCommitInput,
+): Promise<ControlCandidateCommitResult> {
+  const db = input.postgresDatabase
+  const campaignId = input.campaignId
+  const periodIndex = input.periodIndex
+  ensureTables(db)
+  const timeoutMs = input.candidateTimeoutMs ?? DEFAULT_TIMEOUT_MS
+  const command = input.candidateCommand ?? CANDIDATE_LAUNCH_COMMAND
+
+  const cwd = materializeCommitTree(input.workspaceDir, input.commitSha)
+  try {
+    let modelState: ModelState = { ...emptyModelState(), ownerTenant: TENANT_ORIGIN }
+    let controlState: ControlStateMap = emptyControlState()
+
+    let deployed = true
+    let candidateProcess: CandidateProcess | null = null
+
+    const started = await startCandidateProcess(command, cwd, timeoutMs)
+    if (!started.deployed) {
+      deployed = false
+    } else {
+      candidateProcess = started.process
+    }
+
+    const call = async (op: string, opArgs: Readonly<Record<string, unknown>>): Promise<RpcOutcome | null> => {
+      if (candidateProcess === null) return null
+      const r = await candidateProcess.call(op, opArgs)
+      if ('failure' in r) {
+        deployed = false
+        candidateProcess.kill()
+        candidateProcess = null
+        return null
+      }
+      return r
+    }
+
+    if (deployed) {
+      await call('create_tenant', { tenant_id: TENANT_ORIGIN })
+      for (const scripted of SCRIPTED_PERIODS) {
+        if (!deployed) break
+        const clock = clockForPeriod(scripted.period_index)
+        modelState = { ...modelState, clock }
+        if (scripted.period_index === 4) await call('create_tenant', { tenant_id: TENANT_OTHER })
+        await call('advance_clock', { to: clock })
+
+        for (const [usageId, action] of Object.entries(scripted.actions)) {
+          if (!deployed) break
+          const r = await applyScriptedUsage(usageId, action, modelState, controlState, call, () => deployed)
+          modelState = r.modelState
+          controlState = r.controlState
+        }
+      }
+    }
+
+    if (candidateProcess !== null) candidateProcess.kill()
+
+    // (A3 de T51, reprise à l'identique) : un candidat NON DÉPLOYÉ publie les
+    // cinq contrôles TOUS violés, jamais omis.
+    const controls: CandidateControlEntry[] = CONTROL_IDS.map((id) => {
+      if (!deployed) {
+        return { id, status: 'violated', actual: 'CANDIDATE_NOT_DEPLOYED', expected: controlState[id].expected }
+      }
+      const entry = controlState[id]
+      const satisfied = deepEqualCanonical(entry.actual, entry.expected)
+      return { id, status: satisfied ? 'satisfied' : 'violated', actual: entry.actual, expected: entry.expected }
+    })
+
+    writePeriodControls(db, campaignId, periodIndex, controls)
+
+    return { campaign_id: campaignId, period_index: periodIndex, controls }
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true })
   }
 }
 

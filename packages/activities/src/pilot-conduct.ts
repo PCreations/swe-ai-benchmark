@@ -63,6 +63,7 @@ import type { ModelCallRecord } from '@bench/gateway'
 
 import { runPeriodOnce } from './run-period.js'
 import { aggregateClaudeCliUsage, countClaudeCliPeriods, runPeriodOnceClaudeCli } from './run-period-claude-cli.js'
+import { candidateControlReport, controlCandidateCommitOnce } from './candidate-control-period.js'
 
 type Json = Record<string, unknown>
 
@@ -482,6 +483,27 @@ async function conductPilotClaudeCli(
         )
       }
       totalSoFar += 1
+
+      // ── T52 (ADR-010 L46-48, L62) : « une période à candidat réel [...]
+      // enchaîne la session, le commit, PUIS le lancement et le contrôle du
+      // code de ce commit, DANS LE MÊME espace de travail ». Jamais une
+      // commande séparée que l'appelant devrait enchaîner lui-même (voir
+      // ADR-010, « Ce que la relecture a trouvé », point 1) : ce contrôle
+      // porte EXACTEMENT le commit de fin que la session vient de produire
+      // (`outcome.candidate`), dans SON PROPRE espace de travail --
+      // `controlCandidateCommitOnce` (`./candidate-control-period.ts`) ne
+      // restaure RIEN depuis S3, jamais un espace de travail sans rapport
+      // (A3). Persisté sous `trajectory_key`, la MÊME identité qu'un appel
+      // DIRECT et ULTÉRIEUR de `candidate-control-report` (T51, A5).
+      if (outcome.candidate !== undefined) {
+        await controlCandidateCommitOnce({
+          campaignId: plan.trajectory_key,
+          postgresDatabase: db,
+          periodIndex: i,
+          workspaceDir: outcome.candidate.workspace_dir,
+          commitSha: outcome.candidate.commit_sha,
+        })
+      }
     }
   }
 
@@ -494,6 +516,18 @@ async function conductPilotClaudeCli(
   const candidateByModel = aggregateClaudeCliUsage(
     db,
     persistedTrajectories.map((t) => t.trajectory_key),
+  )
+
+  // ── T52 (A5) : rapport de fin, statuts de CONTRÔLE -- relu DIRECTEMENT par
+  // trajectoire via `candidateControlReport` (T51, DÉJÀ PROUVÉ, JAMAIS
+  // réinventé ici), pour que ce champ et une lecture INDÉPENDANTE ultérieure
+  // (`bench candidate-control-report --campaign-id <trajectory_key>`)
+  // portent EXACTEMENT les mêmes valeurs persistées.
+  const candidateControlReports = await Promise.all(
+    persistedTrajectories.map(async (t) => {
+      const report = await candidateControlReport({ campaignId: t.trajectory_key, postgresDatabase: db })
+      return { trajectory_key: t.trajectory_key, periods: report.periods }
+    }),
   )
 
   return {
@@ -516,6 +550,7 @@ async function conductPilotClaudeCli(
     periods: [],
     token_report: { by_model: {} },
     candidate_token_report: { by_model: candidateByModel },
+    candidate_control_report: candidateControlReports,
   }
 }
 

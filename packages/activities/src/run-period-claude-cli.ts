@@ -185,34 +185,52 @@ interface PersistedClaudeCliPeriod {
   readonly usage: readonly ClaudeCliPeriodUsage[]
 }
 
-function parseUsage(raw: string | undefined): ClaudeCliPeriodUsage[] {
-  if (raw === undefined || raw === '') return []
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    return Array.isArray(parsed) ? (parsed as ClaudeCliPeriodUsage[]) : []
-  } catch {
-    return []
+/** T54.A1 (ADR-011:L49-53/L111-117) — relit une ligne persistee SANS JAMAIS
+ *  decouper le texte brut de `psql` sur `\n`/`|` : `raw_output` (une sortie
+ *  `claude -p` reelle) peut legitimement contenir les deux octets, et cette
+ *  decoupe-la est PRECISEMENT le defaut que le premier essai reel a revele.
+ *  `row_to_json` rend CHAQUE ligne comme UN SEUL champ JSON, dont le texte
+ *  n'a plus aucun octet de controle non echappe (JSON echappe `\n` en deux
+ *  caracteres `\`+`n`) : le decoupage externe sur `\n` (entre LIGNES) et le
+ *  parsing JSON (a l'INTERIEUR d'une ligne) ne se melangent donc jamais,
+ *  quel que soit le contenu de `raw_output`. */
+interface PersistedClaudeCliPeriodRow {
+  readonly period_index: unknown
+  readonly session_id: unknown
+  readonly raw_output: unknown
+  readonly commit_sha: unknown
+  readonly workspace_dir: unknown
+  readonly usage: unknown
+}
+
+function rowToPersisted(row: PersistedClaudeCliPeriodRow): PersistedClaudeCliPeriod {
+  return {
+    period_index: typeof row.period_index === 'number' ? row.period_index : 0,
+    session_id: typeof row.session_id === 'string' ? row.session_id : '',
+    raw_output: typeof row.raw_output === 'string' ? row.raw_output : '',
+    commit_sha: typeof row.commit_sha === 'string' ? row.commit_sha : '',
+    workspace_dir: typeof row.workspace_dir === 'string' ? row.workspace_dir : '',
+    usage: Array.isArray(row.usage) ? (row.usage as ClaudeCliPeriodUsage[]) : [],
   }
 }
 
 function readClaudeCliPeriod(db: string, campaignId: string, periodIndex: number): PersistedClaudeCliPeriod | null {
   const out = runPsql(
     db,
-    `SELECT period_index, session_id, raw_output, commit_sha, workspace_dir, usage::text FROM ${TABLE}
-       WHERE campaign_id = ${sqlLit(campaignId)} AND period_index = ${String(periodIndex)}`,
+    `SELECT row_to_json(t) FROM (
+       SELECT period_index, session_id, raw_output, commit_sha, workspace_dir, usage FROM ${TABLE}
+         WHERE campaign_id = ${sqlLit(campaignId)} AND period_index = ${String(periodIndex)}
+     ) t`,
   )
   if (out === '') return null
-  const fields = out.split('|')
-  const period = Number.parseInt(fields[0] ?? '', 10)
-  if (!Number.isInteger(period)) return null
-  return {
-    period_index: period,
-    session_id: fields[1] ?? '',
-    raw_output: fields[2] ?? '',
-    commit_sha: fields[3] ?? '',
-    workspace_dir: fields[4] ?? '',
-    usage: parseUsage(fields[5]),
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(out)
+  } catch {
+    return null
   }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+  return rowToPersisted(parsed as PersistedClaudeCliPeriodRow)
 }
 
 function writeClaudeCliPeriod(
@@ -236,27 +254,35 @@ function writeClaudeCliPeriod(
 /** Toutes les periodes persistees pour un ensemble de trajectoires (T46,
  *  agregat cumulatif A4) — jamais un compteur tenu en memoire par le
  *  processus qui vient d'ecrire (voir l'en-tete). */
+/** Meme discipline que `readClaudeCliPeriod` ci-dessus (T54.A1) : UNE ligne
+ *  JSON `row_to_json` PAR ENREGISTREMENT -- le decoupage externe sur `\n`
+ *  (entre enregistrements) ne rencontre donc jamais un octet de controle
+ *  non echappe issu de `raw_output`, puisque chaque ligne est elle-meme un
+ *  texte JSON complet et auto-delimite. */
 function readAllClaudeCliPeriods(db: string, campaignIds: readonly string[]): PersistedClaudeCliPeriod[] {
   if (campaignIds.length === 0) return []
   const liste = campaignIds.map(sqlLit).join(', ')
   const out = runPsql(
     db,
-    `SELECT period_index, session_id, raw_output, commit_sha, workspace_dir, usage::text FROM ${TABLE}
-       WHERE campaign_id IN (${liste}) ORDER BY campaign_id, period_index`,
+    `SELECT row_to_json(t) FROM (
+       SELECT period_index, session_id, raw_output, commit_sha, workspace_dir, usage FROM ${TABLE}
+         WHERE campaign_id IN (${liste}) ORDER BY campaign_id, period_index
+     ) t`,
   )
   if (out === '') return []
-  return out.split('\n').map((line) => {
-    const fields = line.split('|')
-    const period = Number.parseInt(fields[0] ?? '', 10)
-    return {
-      period_index: Number.isInteger(period) ? period : 0,
-      session_id: fields[1] ?? '',
-      raw_output: fields[2] ?? '',
-      commit_sha: fields[3] ?? '',
-      workspace_dir: fields[4] ?? '',
-      usage: parseUsage(fields[5]),
+  const results: PersistedClaudeCliPeriod[] = []
+  for (const line of out.split('\n')) {
+    if (line === '') continue
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(line)
+    } catch {
+      continue
     }
-  })
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) continue
+    results.push(rowToPersisted(parsed as PersistedClaudeCliPeriodRow))
+  }
+  return results
 }
 
 /** Exportee pour `./pilot-conduct.ts` (T46/T49) : appelle elle-meme

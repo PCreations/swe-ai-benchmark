@@ -116,6 +116,31 @@ const DEFAULT_TIMEOUT_MS = 15_000
 const CONTROL_IDS = ['reserve@1', 'idempotence@1', 'cancel@1', 'fifo@1', 'isolation@1'] as const
 type ControlKey = (typeof CONTROL_IDS)[number]
 
+/** T54.A2 (ADR-011:L55-57/L115) — la période à laquelle chaque contrôle
+ *  devient dû, dérivée de l'usage scripté qui produit réellement son
+ *  `actual`/`expected` (`applyScriptedUsage` ci-dessous, et
+ *  `SCRIPTED_PERIODS` de `packages/scenario`) : `reserve@1`/`idempotence@1`
+ *  sont évalués par les usages `reserve-A`/`replay-A` de la période 1 ;
+ *  `cancel@1`/`fifo@1` par `annulation-A` (et la promotion qui en résulte)
+ *  à la période 2 ; `isolation@1` par `sonde-intertenant` à la période 4 —
+ *  exactement les trois identifiants qu'ADR-011:L55-57 nomme comme dus en
+ *  P2 à P4, jamais à la période 1. Un contrôle n'est ni évalué ni persisté
+ *  avant sa période due (ADR-011:L115 : « seuls les contrôles des exigences
+ *  dues à une période inférieure ou égale à k »). */
+const CONTROL_DUE_PERIOD: Readonly<Record<ControlKey, number>> = {
+  'reserve@1': 1,
+  'idempotence@1': 1,
+  'cancel@1': 2,
+  'fifo@1': 2,
+  'isolation@1': 4,
+}
+
+/** Les identifiants dus À OU AVANT `periodIndex`, dans l'ordre fixé par
+ *  `CONTROL_IDS` — jamais un ordre dérivé de l'itération d'un objet. */
+function controlIdsDueAt(periodIndex: number): readonly ControlKey[] {
+  return CONTROL_IDS.filter((id) => CONTROL_DUE_PERIOD[id] <= periodIndex)
+}
+
 /** Le locataire d'origine (`RESERVATION_SETUP.tenant`, F-RESERVATION) et celui que P4 révèle. */
 const TENANT_ORIGIN = RESERVATION_SETUP.tenant
 const TENANT_OTHER = 'other'
@@ -841,10 +866,12 @@ export async function candidateControlPeriodOnce(
 
   writePointer(db, campaignId, periodIndex, workspaceRef, commitSha, modelState, controlState)
 
-  // (A3) Un candidat NON DÉPLOYÉ : les cinq contrôles sont publiés, TOUS
-  // violés, jamais omis — quel que soit l'état porté depuis une période
-  // antérieure.
-  const controls: CandidateControlEntry[] = CONTROL_IDS.map((id) => {
+  // (A3) Un candidat NON DÉPLOYÉ : les contrôles DUS à cette période sont
+  // publiés, TOUS violés, jamais omis — quel que soit l'état porté depuis
+  // une période antérieure.
+  // (T54.A2) Seuls les contrôles DUS à une période <= periodIndex sont
+  // évalués ET persistés (ADR-011:L115) — jamais ceux d'une exigence future.
+  const controls: CandidateControlEntry[] = controlIdsDueAt(periodIndex).map((id) => {
     if (!deployed) {
       return { id, status: 'violated', actual: 'CANDIDATE_NOT_DEPLOYED', expected: controlState[id].expected }
     }

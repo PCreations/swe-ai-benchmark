@@ -1375,23 +1375,66 @@ function hasKnownClaudeResultShape(
   return typeof o['subtype'] === 'string' && o['modelUsage'] !== null && typeof o['modelUsage'] === 'object'
 }
 
+/** T54 (ADR-011:L61, « au niveau de la session, pas par modele ») — la
+ * ventilation de l'ecriture de cache entre 5 minutes et 1 heure, quand la
+ * session la declare dans `usage.cache_creation`. `null` quand ce champ est
+ * absent ou mal forme : la session ne declare alors aucune ventilation. */
+interface CacheCreationVentilation {
+  readonly fiveMinute: number
+  readonly oneHour: number
+}
+
+/** Lit `usage.cache_creation.{ephemeral_5m_input_tokens,ephemeral_1h_input_tokens}`
+ * (ADR-011:L61, SEUL endroit qui le nomme) depuis l'objet `usage` de LA
+ * SESSION (jamais une entree de `modelUsage`). Rend `null` si la session ne
+ * declare pas cette ventilation (champ absent, ou valeurs non numeriques). */
+function extractCacheCreationVentilation(sessionUsage: unknown): CacheCreationVentilation | null {
+  if (sessionUsage === null || typeof sessionUsage !== 'object') return null
+  const cacheCreation = (sessionUsage as Record<string, unknown>)['cache_creation']
+  if (cacheCreation === null || typeof cacheCreation !== 'object') return null
+  const c = cacheCreation as Record<string, unknown>
+  const fiveMinute = c['ephemeral_5m_input_tokens']
+  const oneHour = c['ephemeral_1h_input_tokens']
+  if (typeof fiveMinute !== 'number' || typeof oneHour !== 'number') return null
+  return { fiveMinute: toNonNegativeInt(fiveMinute), oneHour: toNonNegativeInt(oneHour) }
+}
+
 /** Derive le vecteur d'usage a six categories (acceptance/T47.spec.ts,
  * section III.1) depuis `modelUsage`, une entree par modele declare (A2).
  * L'ecriture de cache, dont la duree n'est jamais declaree (ADR-008 L49),
  * n'est JAMAIS ventilee entre `cache_write_5m`/`cache_write_1h` (TOUJOURS 0,
- * A3) : ses unites vont integralement dans `cache_write_unresolved`. */
-function usageFromModelUsage(modelUsage: Record<string, unknown>): ClaudeCliPeriodUsage[] {
+ * T47.A3) : ses unites vont integralement dans `cache_write_unresolved` --
+ * CE COMPORTEMENT RESTE INCHANGE (T54.A4, seconde moitie).
+ *
+ * T54 (ADR-011:L61/L84-88, A3/A4) : quand la session declare la ventilation
+ * ET n'emploie qu'UN SEUL modele, ses deux categories durees sont attribuees
+ * EXACTEMENT, et `cache_write_unresolved` ne porte que le reliquat (0 quand
+ * la ventilation epuise exactement l'ecriture totale). Avec PLUSIEURS
+ * modeles, l'ambiguite (quel modele a ecrit dans quelle fenetre ?) interdit
+ * toute attribution, pour TOUS les modeles (T54.A4, premiere moitie). */
+function usageFromModelUsage(
+  modelUsage: Record<string, unknown>,
+  ventilation: CacheCreationVentilation | null,
+): ClaudeCliPeriodUsage[] {
+  const entries = Object.entries(modelUsage)
+  const applyVentilation = ventilation !== null && entries.length === 1
   const out: ClaudeCliPeriodUsage[] = []
-  for (const [model, rawEntry] of Object.entries(modelUsage)) {
+  for (const [model, rawEntry] of entries) {
     const entry = (rawEntry !== null && typeof rawEntry === 'object' ? rawEntry : {}) as Record<string, unknown>
+    const totalCacheWrite = toNonNegativeInt(entry['cacheCreationInputTokens'])
+    const cacheWrite5m = applyVentilation ? ventilation.fiveMinute : 0
+    const cacheWrite1h = applyVentilation ? ventilation.oneHour : 0
+    const cacheWriteUnresolved = applyVentilation
+      ? Math.max(0, totalCacheWrite - (cacheWrite5m + cacheWrite1h))
+      : totalCacheWrite
     out.push({
       model,
       input_fresh: toNonNegativeInt(entry['inputTokens']),
       cache_read: toNonNegativeInt(entry['cacheReadInputTokens']),
       output: toNonNegativeInt(entry['outputTokens']),
-      cache_write_5m: 0,
-      cache_write_1h: 0,
-      cache_write_unresolved: toNonNegativeInt(entry['cacheCreationInputTokens']),
+      cache_write_5m: cacheWrite5m,
+      cache_write_1h: cacheWrite1h,
+      cache_write_unresolved: cacheWriteUnresolved,
     })
   }
   return out
@@ -1430,7 +1473,8 @@ function interpretClaudeSessionResult(result: ClaudeProcessResult): ClaudeCliPer
       ? ((parsed as Record<string, unknown>)['session_id'] as string)
       : ''
 
-  return { ok: true, raw: stdout, sessionId, usage: usageFromModelUsage(parsed.modelUsage) }
+  const ventilation = extractCacheCreationVentilation((parsed as Record<string, unknown>)['usage'])
+  return { ok: true, raw: stdout, sessionId, usage: usageFromModelUsage(parsed.modelUsage, ventilation) }
 }
 
 /** Options de `launchClaudeCliPeriod` (acceptance/T47.spec.ts, section III.1 ;

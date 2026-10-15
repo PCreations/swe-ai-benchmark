@@ -1,0 +1,296 @@
+{
+  "schema": "bench.attestation/1",
+  "task": "T54",
+  "verdict": "PASS",
+  "commit": "fdf9d5632a199b045b004f377ea9c196aa7fcd61",
+  "branch": "claude/gallant-fermi-51jlsx",
+  "dirty": false,
+  "clean_room": true,
+  "input_digest": "a59d2eaea910ec0e4af619851ba1d0e5ca90330519875ed1e5e1626997a6e270",
+  "capabilities_used": [
+    "node22",
+    "postgres18",
+    "s3"
+  ],
+  "capabilities": {
+    "node22": {
+      "present": true,
+      "detail": "node 22.22.0"
+    },
+    "postgres18": {
+      "present": true,
+      "detail": "server_version_num=180006 (PostgreSQL 18)"
+    },
+    "s3": {
+      "present": true,
+      "detail": "http://127.0.0.1:9000 repond 403"
+    }
+  },
+  "cases": [
+    {
+      "id": "T54.A1",
+      "status": "PASS"
+    },
+    {
+      "id": "T54.A2",
+      "status": "PASS"
+    },
+    {
+      "id": "T54.A3",
+      "status": "PASS"
+    },
+    {
+      "id": "T54.A4",
+      "status": "PASS"
+    }
+  ],
+  "proof_kinds": {
+    "numeric": 2,
+    "absence": 2
+  },
+  "red_gate": {
+    "path": "red/T54/cb03e25528c04f4b9ee607f8ff399f6c759e3324.json",
+    "subject_commit": "cb03e25528c04f4b9ee607f8ff399f6c759e3324",
+    "verdict": "RED_RECORDED"
+  },
+  "two_key": {
+    "range": "cb03e25528c04f4b9ee607f8ff399f6c759e3324..HEAD",
+    "commits": [
+      {
+        "sha": "4a2eee365ecf",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "ba4549747f27",
+        "role": "integrator",
+        "phase": null,
+        "files": 0,
+        "problems": []
+      },
+      {
+        "sha": "fdf9d5632a19",
+        "role": "implementer",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      }
+    ]
+  },
+  "clean_room_run": {
+    "nonce": "dd6218f0aabe",
+    "rev": "fdf9d5632a199b045b004f377ea9c196aa7fcd61",
+    "clean_room": true,
+    "pristine": true,
+    "stray_before": [],
+    "prepare": [
+      {
+        "command": "pnpm install --frozen-lockfile --reporter=silent",
+        "exit_code": 0
+      },
+      {
+        "command": "uv --project analysis sync --locked",
+        "exit_code": 0
+      },
+      {
+        "command": "pnpm build",
+        "exit_code": 0
+      }
+    ],
+    "command": "node tools/bench verify:task T54 --json",
+    "exit_code": 0,
+    "stdout_sha256": "aea71f38992fb4b13d42073aa1e786885a794d24aec9f83a90391c2a0cef8912",
+    "run_dir": ".bench/run/dd6218f0aabe"
+  },
+  "report": {
+    "schema": "bench.result/1",
+    "task_id": "T54",
+    "reason": "PASS",
+    "exit_code": 0,
+    "commit": "fdf9d5632a199b045b004f377ea9c196aa7fcd61",
+    "branch": "claude/gallant-fermi-51jlsx",
+    "dirty": false,
+    "clean_room": false,
+    "registry": {
+      "kind": "repository",
+      "path": "verification/tasks.json",
+      "sha256": "8f2057db5ee83dbbd37c594053231ac51baac317e3fa43e2f3a07bd2281da7bf",
+      "problems": []
+    },
+    "fixtures_digest": "6b127cd7ca897d2a1b6f63414facee05e5df765c03c0c80e9dc604aab1d1b9e5",
+    "fixtures": {
+      "schema": "bench.fixtures/1",
+      "scope": [
+        "acceptance/reference",
+        "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md",
+        "packages/activities",
+        "packages/agents",
+        "verification/cases.extensions.lock.json",
+        "verification/tasks.extensions.json"
+      ],
+      "file_count": 38,
+      "digest_before": "6b127cd7ca897d2a1b6f63414facee05e5df765c03c0c80e9dc604aab1d1b9e5",
+      "digest_after": "6b127cd7ca897d2a1b6f63414facee05e5df765c03c0c80e9dc604aab1d1b9e5",
+      "stable": true,
+      "moved": [],
+      "frozen_roots_head": {
+        "acceptance/reference": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91"
+      }
+    },
+    "references": {
+      "schema": "bench.references/1",
+      "source": "docs/FROZEN_ROOTS.json",
+      "roots": [
+        "acceptance/reference"
+      ],
+      "observed": [
+        {
+          "root": "acceptance/reference",
+          "state": "GELEE",
+          "head_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+          "files": 10,
+          "worktree_diff": [],
+          "fixtures": [
+            {
+              "fixture": "F-MONEY",
+              "cahier": "L103",
+              "state": "CONFORME",
+              "expected_integers": [
+                340,
+                680
+              ],
+              "missing_integers": [],
+              "files": [
+                "acceptance/reference/F-MONEY.json"
+              ]
+            }
+          ]
+        }
+      ],
+      "problems": []
+    },
+    "input_digest": "a59d2eaea910ec0e4af619851ba1d0e5ca90330519875ed1e5e1626997a6e270",
+    "versions": {
+      "declared": {
+        "node": ">=22.22.2 <23",
+        "pnpm": "pnpm@10.33.0",
+        "typescript": "6.0.3",
+        "jest": "30.5.1",
+        "ts-jest": "29.4.12",
+        "python": "==3.12.*",
+        "pytest": "9.1.1"
+      },
+      "observed": {
+        "node": "22.22.0",
+        "v8": "12.4.254.21-node.33"
+      }
+    },
+    "lockfiles": {
+      "pnpm-lock.yaml": "57384fff99b71382169d50b92e9cd0c49553403f4e4b2ef5854588cfe8ffc020",
+      "analysis/uv.lock": "5bea4ea56815d13e72680ee4533010fbeeb7f8285728d42c9a33f2c5b17f3148"
+    },
+    "commands": [
+      {
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T54.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/dd6218f0aabe/.bench/run/6814e9288595/jest.json\"",
+        "exit_code": 0
+      }
+    ],
+    "chain": "jest",
+    "acceptance_entry": "acceptance/T54.spec.ts",
+    "suite_loaded": true,
+    "suite_exit_code": 0,
+    "tests_observed": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "expected_cases": [
+      "T54.A1",
+      "T54.A2",
+      "T54.A3",
+      "T54.A4"
+    ],
+    "executed_cases": [
+      "T54.A1",
+      "T54.A2",
+      "T54.A3",
+      "T54.A4"
+    ],
+    "assertions_expected": 4,
+    "assertions_executed": 4,
+    "assertions_observed": 72,
+    "case_statuses": [
+      {
+        "id": "T54.A1",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 23,
+        "asserts_observable": true
+      },
+      {
+        "id": "T54.A2",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 15,
+        "asserts_observable": true
+      },
+      {
+        "id": "T54.A3",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 11,
+        "asserts_observable": true
+      },
+      {
+        "id": "T54.A4",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 23,
+        "asserts_observable": true
+      }
+    ],
+    "skipped_cases": [],
+    "missing_cases": [],
+    "vacuous_cases": [],
+    "proof_files": [
+      ".bench/run/6814e9288595/jest.json"
+    ],
+    "requires": [
+      "node22",
+      "postgres18",
+      "s3"
+    ],
+    "blocked_by": [],
+    "requires_live_credentials": false,
+    "depends_on": [
+      "T52"
+    ],
+    "detail": [],
+    "limitations": [
+      "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+      "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+      "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+      "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+      "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+    ]
+  },
+  "depends_on": [
+    "T52"
+  ],
+  "limitations": [
+    "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+    "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+    "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+    "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+    "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici.",
+    {
+      "code": "RED_SUBSTITUTED_BY_MUTATION",
+      "detail": "1/4 cas requis n'ont JAMAIS ete observes rouges : T54.A4 (tue par T54.M4). Leur non-vacuite repose sur une contre-epreuve par mutation, pas sur un echec observe avant implementation. Porte rouge : red/T54/cb03e25528c04f4b9ee607f8ff399f6c759e3324.json."
+    }
+  ],
+  "boot_id": "a8cada4f-e099-45fe-8328-0e0ff83ad8b8",
+  "produced_at": "2026-10-15T16:07:53.362Z",
+  "duration_ms": 97486
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "bench.red/1",
+  "task": "T53",
+  "subject_commit": "cf277a84a74e0403bcda2528c562850b07bf4048",
+  "dirty": false,
+  "input_digest": "d4d8f82a7a3c071e4570bb79ab7c1e5c343b402a40ac29f7d0726768f2d98c62",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T53.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T53.M1",
+      "note": "mutation appliquee (retrait de la phrase citant 2030-01-02T12:00:00Z dans l'enonce de P3 seulement) ; A1 a rougi sur P3-enonce-la-frontiere-d-annulation, A2/A3/A4/A5 restes verts ; restaure via git checkout -- packages/activities/src/candidate-requirements-statement.ts"
+    },
+    {
+      "id": "T53.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T53.M2",
+      "note": "mutation appliquee (STATUS_WAITING='waiting' remplace par 'en_file') ; A2 a rougi sur P2-enonce-contient-waiting (et A1 aussi, tue_aussi documente), A3/A4/A5 restes verts ; restaure via git checkout"
+    },
+    {
+      "id": "T53.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T53.M3",
+      "note": "mutation appliquee (sed remplace les 4 occurrences de debut ${SLOT_START} par debut de ce creneau, dans P1..P4) ; A3 a rougi sur P1-enonce-le-debut-du-creneau, A1/A2/A4/A5 restes verts ; restaure via git checkout"
+    },
+    {
+      "id": "T53.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T53.M4",
+      "note": "mutation appliquee (get prompt() des 4 periodes retourne this.statement + ' (satisfied=true)') ; A4 a rougi sur P1-prompt-sans-le-champ-satisfied, A1/A2/A3/A5 restes verts ; restaure via git checkout"
+    },
+    {
+      "id": "T53.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T53.M5",
+      "note": "mutation appliquee (CANDIDATE_REQUIREMENTS_STATEMENT_V2 reduit a {protocol,operations} ; periods deplace vers une const privee non exportee PERIODS_LOCAL_COPY_MUTANT_M5, buildCandidatePeriodPrompt lit cette copie privee) ; les CINQ cas ont rougi (DESCRIPTION-UNIFIEE-INTROUVABLE), exactement la variante 1 (export separe NON publie) decrite par verification/mutants/T53.json#T53.M5 ; restaure via git checkout"
+    }
+  ],
+  "mutation_proof": {
+    "T53.A1": {
+      "killed_by": "T53.M1",
+      "note": "mutation appliquee (retrait de la phrase citant 2030-01-02T12:00:00Z dans l'enonce de P3 seulement) ; A1 a rougi sur P3-enonce-la-frontiere-d-annulation, A2/A3/A4/A5 restes verts ; restaure via git checkout -- packages/activities/src/candidate-requirements-statement.ts"
+    },
+    "T53.A2": {
+      "killed_by": "T53.M2",
+      "note": "mutation appliquee (STATUS_WAITING='waiting' remplace par 'en_file') ; A2 a rougi sur P2-enonce-contient-waiting (et A1 aussi, tue_aussi documente), A3/A4/A5 restes verts ; restaure via git checkout"
+    },
+    "T53.A3": {
+      "killed_by": "T53.M3",
+      "note": "mutation appliquee (sed remplace les 4 occurrences de debut ${SLOT_START} par debut de ce creneau, dans P1..P4) ; A3 a rougi sur P1-enonce-le-debut-du-creneau, A1/A2/A4/A5 restes verts ; restaure via git checkout"
+    },
+    "T53.A4": {
+      "killed_by": "T53.M4",
+      "note": "mutation appliquee (get prompt() des 4 periodes retourne this.statement + ' (satisfied=true)') ; A4 a rougi sur P1-prompt-sans-le-champ-satisfied, A1/A2/A3/A5 restes verts ; restaure via git checkout"
+    },
+    "T53.A5": {
+      "killed_by": "T53.M5",
+      "note": "mutation appliquee (CANDIDATE_REQUIREMENTS_STATEMENT_V2 reduit a {protocol,operations} ; periods deplace vers une const privee non exportee PERIODS_LOCAL_COPY_MUTANT_M5, buildCandidatePeriodPrompt lit cette copie privee) ; les CINQ cas ont rougi (DESCRIPTION-UNIFIEE-INTROUVABLE), exactement la variante 1 (export separe NON publie) decrite par verification/mutants/T53.json#T53.M5 ; restaure via git checkout"
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

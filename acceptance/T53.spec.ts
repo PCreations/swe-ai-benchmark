@@ -84,6 +84,17 @@
  *    vocabulaire est declare dans un export SEPARE, « une copie locale
  *    divergente » — cette resolution echoue et A1-A5 le signalent tous
  *    nommement : c'est exactement le danger qu'A5 nomme.
+ *    LIMITE, ET CE QU'A5 Y AJOUTE. Cette resolution admet en dernier
+ *    recours l'UNION des exports comme un seul objet : si l'export separe
+ *    est lui-meme publie par le paquet, l'union porte contrat ET enonces et
+ *    A1-A4 restent verts (observe : mutation T53.M5 appliquee avec l'export
+ *    separe publie). A5 exige donc EN PLUS, sans s'appuyer sur l'union :
+ *    (a) que la description resolue soit UN export nomme ; (b) qu'un export
+ *    nomme porte le temoin du contrat ET enonce + vocabulaire non vide pour
+ *    CHACUNE de P1..P4 ; (c) que le prompt de chaque periode contienne
+ *    l'enonce et chaque valeur du vocabulaire de CET export ; (d) qu'aucun
+ *    autre export ne porte un noeud de periode enonce+vocabulaire qui ne
+ *    soit pas LE MEME objet (identite) que celui de cet export.
  * 2. LE PROMPT D'UNE PERIODE (A1-A4) : soit le retour d'une fonction
  *    exportee parmi `buildPeriodPrompt`, `buildCandidatePeriodPrompt`,
  *    `promptForPeriod`, `buildCandidatePromptForPeriod`, `periodPrompt`,
@@ -390,6 +401,9 @@ function noeudPeriode(racine: unknown, cle: Periode): Json | null {
 
 /* ═══════════════════ resolution de LA description unifiee (III.1, A5) ═══ */
 
+/** Nom du candidat-agregat de `candidatsDescription` (union des exports). */
+const NOM_AGREGAT_DES_EXPORTS = '(ensemble des exports aplatis)';
+
 /** Tous les objets candidats : chaque export top-level, PLUS la map
  * aplatie entiere consideree comme UN SEUL objet (cas d'un module qui
  * exporterait directement les champs au lieu d'un objet nomme). */
@@ -398,7 +412,7 @@ function candidatsDescription(): { nom: string; valeur: unknown }[] {
   for (const [k, v] of LOADED.flat.entries()) {
     if (v !== null && typeof v === 'object') out.push({ nom: k, valeur: v });
   }
-  out.push({ nom: '(ensemble des exports aplatis)', valeur: Object.fromEntries(LOADED.flat.entries()) });
+  out.push({ nom: NOM_AGREGAT_DES_EXPORTS, valeur: Object.fromEntries(LOADED.flat.entries()) });
   return out;
 }
 
@@ -427,6 +441,30 @@ function requireDescriptionUnifiee(): Json {
     `DESCRIPTION-UNIFIEE-INTROUVABLE : aucun export de packages/scenario ni packages/activities ne porte a la fois un temoin de ${MARQUEUR_CONTRAT} et au moins deux enonces de periode. Exports vus : ${rendu([...LOADED.flat.keys()])}`,
   );
   return (r as { valeur: Json }).valeur;
+}
+
+/** Le noeud de periode `p` de `racine`, s'il porte A LA FOIS un enonce et un
+ * vocabulaire non vide (memes alias que A2/A5) ; sinon null. */
+function enonceEtVocabulaire(racine: unknown, p: Periode): { noeud: Json; enonce: string; vocabulaire: string[] } | null {
+  const noeud = noeudPeriode(racine, p);
+  if (noeud === null) return null;
+  const enonce = champTexte(noeud, ['statement', 'enonce', 'narrative', 'prose', 'text']);
+  if (enonce === null) return null;
+  const vocab = tableauProfond(noeud, ['vocabulary', 'vocabulaire', 'responsevalues', 'valeursdereponse', 'expectedvalues', 'values']);
+  if (vocab === null || !Array.isArray(vocab.valeur) || vocab.valeur.length === 0) return null;
+  return { noeud, enonce, vocabulaire: vocab.valeur.filter((v): v is string => typeof v === 'string') };
+}
+
+/** Resolution STRICTE (A5) : parmi les seuls exports NOMMES — jamais l'union
+ * des exports — le premier objet qui porte un temoin de bench.candidate/2 ET,
+ * pour CHACUNE de P1..P4, un enonce et un vocabulaire non vide. */
+function resoudreDescriptionNommeeComplete(): { nom: string; valeur: Json } | null {
+  for (const [k, v] of LOADED.flat.entries()) {
+    if (v === null || typeof v !== 'object') continue;
+    if (!portecontratV2(v)) continue;
+    if (PERIODES.every((p) => enonceEtVocabulaire(v, p) !== null)) return { nom: k, valeur: v as Json };
+  }
+  return null;
 }
 
 /* ═══════════════════ le prompt d'une periode (III.2) ═══════════════════ */
@@ -775,4 +813,88 @@ test('T53.A5 — l enonce et le vocabulaire du modele attendu sont declares dans
       `${p}-SANS-VOCABULAIRE-DANS-LA-DESCRIPTION-UNIFIEE : ${rendu(node)}`,
     );
   }
+
+  // ── JOINTURE, PAS JUXTAPOSITION ─────────────────────────────────────────
+  // Les controles ci-dessus ne suffisent PAS : `resoudreDescriptionUnifiee`
+  // admet, en dernier recours, l'ENSEMBLE des exports aplatis comme un seul
+  // objet. Si le contrat est porte par un export et les enonces/vocabulaire
+  // par un AUTRE export (une « copie locale » au sens du registre, jamais
+  // rejointe au contrat), cet agregat porte les deux signaux a la fois et
+  // tout ce qui precede reste vert — c'est exactement la mutation T53.M5
+  // telle que l'etage GATES l'a appliquee (A1-A5 verts). Les assertions
+  // suivantes exigent donc que la jointure soit REELLE : un SEUL export nomme,
+  // le meme objet que celui dont derive le prompt de chaque periode, et
+  // aucune autre declaration d'enonce/vocabulaire hors de cet objet.
+
+  // (a) La description resolue est UN export nomme, pas l'union des exports.
+  exige(
+    (r as { nom: string }).nom !== NOM_AGREGAT_DES_EXPORTS,
+    'la-description-resolue-est-un-seul-export-nomme',
+    `LA-DESCRIPTION-N-EST-RESOLUE-QUE-PAR-L-UNION-DES-EXPORTS (contrat et enonces portes par des exports DISTINCTS, jamais rejoints) : exports vus ${rendu([...LOADED.flat.keys()])}`,
+  );
+
+  // (b) Resolution STRICTE, independante de (a) : parmi les seuls exports
+  // NOMMES, un objet porte a la fois le temoin de bench.candidate/2 ET, pour
+  // CHACUNE des quatre periodes, un enonce ET un vocabulaire non vide.
+  const stricte = resoudreDescriptionNommeeComplete();
+  exige(
+    stricte !== null,
+    'un-export-nomme-porte-contrat-enonces-et-vocabulaire-des-quatre-periodes',
+    `AUCUN-EXPORT-NOMME-NE-PORTE-A-LA-FOIS-LE-CONTRAT-ET-LES-ENONCES+VOCABULAIRES-DE-P1..P4 : ${rendu(
+      [...LOADED.flat.entries()]
+        .filter(([, v]) => v !== null && typeof v === 'object')
+        .map(([k, v]) => ({ export: k, contrat: portecontratV2(v), periodes: PERIODES.filter((p) => enonceEtVocabulaire(v, p) !== null) })),
+    )}`,
+  );
+  const { nom: nomStricte, valeur: descStricte } = stricte as { nom: string; valeur: Json };
+  exige(
+    portecontratV2(descStricte),
+    'la-description-nommee-porte-le-contrat-v2',
+    `LA-DESCRIPTION-NOMMEE ${nomStricte} NE PORTE PAS LE CONTRAT : ${rendu(descStricte)}`,
+  ); // acceptance/T50.spec.ts (III)
+
+  // (c) Le prompt de chaque periode DERIVE de cet objet-la : il contient
+  // l'enonce que CET export declare pour la periode, et chaque valeur du
+  // vocabulaire que CET export declare pour la periode — le vocabulaire est
+  // atteint DEPUIS la description qui porte le contrat, pas depuis un export
+  // voisin.
+  for (const p of PERIODES) {
+    const ev = enonceEtVocabulaire(descStricte, p) as { noeud: Json; enonce: string; vocabulaire: string[] };
+    const rp = await promptDePeriode(p, descStricte);
+    const texte = requirePromptNode(p, descStricte, rp);
+    exige(
+      texte.includes(ev.enonce),
+      `${p}-prompt-derive-de-l-enonce-de-${nomStricte}`,
+      `${p}-PROMPT-NE-CONTIENT-PAS-L-ENONCE-DECLARE-PAR ${nomStricte} (prompt via ${(rp as { via: string }).via}) : enonce=${court(ev.enonce, 300)} | prompt=${court(texte, 300)}`,
+    );
+    const bas = texte.toLowerCase();
+    const absentes = ev.vocabulaire.filter((v) => !bas.includes(v.toLowerCase()));
+    exige(
+      ev.vocabulaire.length > 0 && absentes.length === 0,
+      `${p}-vocabulaire-de-${nomStricte}-atteint-dans-le-prompt`,
+      `${p}-VOCABULAIRE-DE ${nomStricte} ABSENT-DU-PROMPT ${rendu(absentes)} (vocabulaire ${rendu(ev.vocabulaire)})`,
+    );
+  }
+
+  // (d) Aucune COPIE LOCALE : tout noeud de periode portant enonce +
+  // vocabulaire, dans N'IMPORTE QUEL export nomme, est LE MEME objet (meme
+  // identite) que le noeud de cette periode dans la description qui porte le
+  // contrat. Un export voisin qui re-declarerait l'enonce/le vocabulaire —
+  // meme textuellement identique — est la « copie locale » que le registre
+  // nomme (cases.extensions.lock.json#T53.A5).
+  const copies: string[] = [];
+  for (const [k, v] of LOADED.flat.entries()) {
+    if (v === null || typeof v !== 'object') continue;
+    for (const p of PERIODES) {
+      const ev = enonceEtVocabulaire(v, p);
+      if (ev === null) continue;
+      const reference = (enonceEtVocabulaire(descStricte, p) as { noeud: Json }).noeud;
+      if (ev.noeud !== reference) copies.push(`${k}.${p}`);
+    }
+  }
+  exige(
+    copies.length === 0,
+    'aucune-copie-locale-de-l-enonce-ou-du-vocabulaire-hors-de-la-description-du-contrat',
+    `COPIE-LOCALE-DE-L-ENONCE/VOCABULAIRE-NON-REJOINTE-AU-CONTRAT (description retenue : ${nomStricte}) : ${rendu(copies)}`,
+  );
 }, CASE_TIMEOUT_MS);

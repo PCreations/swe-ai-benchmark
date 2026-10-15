@@ -71,3 +71,21 @@ explicite, et la seule qui ne juge pas un candidat sur une règle future.
 période, au sens de T54.A2. Le test-author de T51 adapte A2, A3 et A4 en
 conséquence ; aucun cas requis n'est retiré, et chaque assertion porte sur
 l'ensemble dû, que T54.A2 fixe. Ce document est la trace exigée.
+
+## Écart constaté en appliquant l'arbitrage — dette nommée, non bloquante
+
+Le test-author de T51 a mesuré (`e924160`) que les métadonnées du scénario et
+les contrôles persistés divergent :
+
+- `revealedRequirementsForPeriod` déclare `isolation@1` due en **P3** et
+  remplace `cancel@1` par `cancel@2` en P3 — conforme au cahier
+  (F-REGRESSION, L129 : `isolation@1` « satisfaite en P3 puis violée en P4 ») ;
+- `candidate-control-period` ne contrôle `isolation@1` qu'en **P4**, et
+  contrôle encore `cancel@1` en P3.
+
+La suite de T51 suit les contrôles persistés (P4), cohérents avec l'énoncé de
+T53 et avec la racine gelée `F-RESERVATION.json`, où les locataires
+n'apparaissent qu'en P4. Effet sur le pilote : nul en pratique — en P3 aucun
+autre locataire n'existe, l'isolation y est trivialement satisfaite. Mais
+l'écart au cahier est réel : à aligner (une entrée dans `ECHEANCE_CONTROLE`
+de la suite, et le filtre de `candidate-control-period`) par un ADR ultérieur.

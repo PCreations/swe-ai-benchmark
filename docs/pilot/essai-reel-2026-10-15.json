@@ -1,0 +1,273 @@
+{
+ "schema": "bench.essai_reel/1",
+ "date": "2026-10-15",
+ "objet": "Premier essai reel d'une periode (ADR-008..010) : valider la mecanique, pas la qualite.",
+ "commit_moteur": "cc0ec293c3ce93819b6929a090b6c7bdbe9f7033",
+ "claude_cli_version": "2.1.300 (Claude Code)",
+ "auth": "abonnement du mandant (oauth_token, firstParty) ; aucune ANTHROPIC_API_KEY",
+ "manifeste": {
+  "schema": "bench.pilot.manifest/1",
+  "corpus": {
+   "groups": [
+    {
+     "source_parent_project_id": "PRJ-SMOKE-LIVE",
+     "source_scenario_id": "SCN-PILOT-SMALL",
+     "clone_instance_ids": [
+      "PRJ-SMOKE-LIVE-clone-1"
+     ]
+    }
+   ]
+  },
+  "model": {
+   "name": "claude-haiku-4-5-20251001"
+  },
+  "price": {
+   "tariff_micro_usd": "340"
+  },
+  "exposure": {
+   "predefined": true,
+   "value": "1"
+  },
+  "budget": {
+   "unbounded": true
+  },
+  "configurations": [
+   "cfg-smoke-live"
+  ],
+  "repetitions": 1,
+  "periods_per_trajectory": 1
+ },
+ "rapport_pilot_conduct": {
+  "schema": "bench.pilot_conduct.result/1",
+  "campaign_id": "smoke-live-1",
+  "trajectory_count": 1,
+  "period_count": 1,
+  "periods_persisted": 1,
+  "ready": true,
+  "missing_prerequisites": [],
+  "interrupted": false,
+  "budget": {
+   "unbounded": true
+  },
+  "trajectories": [
+   {
+    "trajectory_key": "smoke-live-1--g0--PRJ-SMOKE-LIVE-clone-1--cfg-smoke-live--rep1",
+    "parent_project_id": "PRJ-SMOKE-LIVE",
+    "scenario_id": "SCN-PILOT-SMALL",
+    "configuration_id": "cfg-smoke-live",
+    "periods_persisted": 1
+   }
+  ],
+  "periods": [],
+  "token_report": {
+   "by_model": {}
+  },
+  "candidate_token_report": {
+   "by_model": {}
+  },
+  "candidate_control_report": [
+   {
+    "trajectory_key": "smoke-live-1--g0--PRJ-SMOKE-LIVE-clone-1--cfg-smoke-live--rep1",
+    "periods": [
+     {
+      "period_index": 1,
+      "satisfied": 0,
+      "violated": 5
+     }
+    ]
+   }
+  ]
+ },
+ "usage_persiste": [
+  {
+   "model": "claude-haiku-4-5-20251001",
+   "output": 3059,
+   "cache_read": 32466,
+   "input_fresh": 18,
+   "cache_write_1h": 0,
+   "cache_write_5m": 0,
+   "cache_write_unresolved": 35022
+  }
+ ],
+ "controles_persistes": [
+  {
+   "id": "reserve@1",
+   "actual": null,
+   "status": "violated",
+   "expected": "confirmed"
+  },
+  {
+   "id": "idempotence@1",
+   "actual": null,
+   "status": "violated",
+   "expected": "confirmed"
+  },
+  {
+   "id": "cancel@1",
+   "actual": null,
+   "status": "violated",
+   "expected": "cancelled"
+  },
+  {
+   "id": "fifo@1",
+   "actual": null,
+   "status": "violated",
+   "expected": {
+    "status": "confirmed"
+   }
+  },
+  {
+   "id": "isolation@1",
+   "actual": {
+    "ok": true,
+    "code": null
+   },
+   "status": "violated",
+   "expected": {
+    "ok": false,
+    "code": "NOT_FOUND"
+   }
+  }
+ ],
+ "sortie_brute_claude_p": {
+  "duration_api_ms": 23311,
+  "stop_reason": "end_turn",
+  "session_id": "8d8aeedb-188c-5211-b26f-ececa95a4ede",
+  "total_cost_usd": 0.0886036,
+  "usage": {
+   "input_tokens": 18,
+   "cache_creation_input_tokens": 35022,
+   "cache_read_input_tokens": 32466,
+   "output_tokens": 3059,
+   "output_tokens_details": {
+    "thinking_tokens": 1005
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 35022,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "not_available",
+   "iterations": [
+    {
+     "input_tokens": 8,
+     "output_tokens": 644,
+     "cache_read_input_tokens": 32466,
+     "cache_creation_input_tokens": 2556,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 2556
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-haiku-4-5-20251001": {
+    "inputTokens": 18,
+    "outputTokens": 3059,
+    "cacheReadInputTokens": 32466,
+    "cacheCreationInputTokens": 35022,
+    "webSearchRequests": 0,
+    "costUSD": 0.0886036,
+    "contextWindow": 200000,
+    "maxOutputTokens": 32000,
+    "thinkingTokens": 1005,
+    "canonicalModel": "claude-haiku-4-5",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 2,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "J'ai créé `candidate.mjs` qui implémente le protocole bench.candidate/2 avec:\n\n**Opérations supportées:**\n- `create_tenant` - crée un tenant avec son état isolé\n- `advance_clock` - avance l'horloge système\n- `write` - gère les réservations (`reserve`/`cancel`) avec idempotence\n- `read` - récupère une valeur du tenant\n- `probe_cancel` - vérifie si une réservation active existe\n- `fingerprint` - génère un SHA256 de l'état complet\n\n**Exigences satisfaites:**\n1. **idempotence-reservation** (MAJOR): Chaque opération est cachée par clé `{actor}:{admissionSeq}:{operation_key}` - deux appels identiques retournent le même résultat\n2. **capacite-creneau** (BLOCKER): Limite de 10 réservations concurrentes par créneau (slot)\n\nLe processus écrira `{\"ready\":true}` au démarrage et répondra à chaque requête JSON ligne par ligne.",
+  "ttft_ms": 6161,
+  "type": "result",
+  "duration_ms": 26804,
+  "uuid": "dfea1c6b-196b-42da-a0da-8896bcbd54d4",
+  "ttft_stream_ms": 1665,
+  "time_to_request_ms": 244,
+  "time_to_request_phases_ms": {
+   "other": 44,
+   "system_prompt": 20,
+   "resume_other": 0,
+   "process_user_input": 8,
+   "input_attachments": 33,
+   "input_hooks": 7,
+   "tool_pool_refresh": 5,
+   "init_message": 9,
+   "engine_pickup": 1,
+   "message_prep": 2,
+   "model_config_wait": 2,
+   "autocompact": 1,
+   "query_setup": 1,
+   "model_gates": 0,
+   "tool_schema_build": 43,
+   "message_normalization": 5,
+   "client_creation": 21,
+   "request_build": 42
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 194,
+  "time_to_request_cpu_ms": 345,
+  "time_to_request_major_faults": 1,
+  "process_rss_mib_turn_start": 217,
+  "process_anon_mib_turn_start": 100,
+  "process_rss_mib_result": 251,
+  "process_anon_mib_result": 130,
+  "process_peak_rss_mib": 251,
+  "process_cpu_ms_turn": 1727,
+  "process_wall_ms_turn": 26803,
+  "input_attachments_detail": {
+   "slowest_producer": "queued_commands",
+   "slowest_producer_ms": 24,
+   "cpu_ms": 45,
+   "major_faults": 0
+  },
+  "first_content_frame_ms": 1666,
+  "time_to_request_from_spawn_ms": 91966,
+  "warm_spare_claimed": false,
+  "flag_fetch_kick": "not_asked_warm",
+  "time_origin_ms": 1792060857438.8613,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

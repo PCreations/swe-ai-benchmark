@@ -1,0 +1,45 @@
+{
+  "schema": "bench.red/1",
+  "task": "T54",
+  "subject_commit": "cb03e25528c04f4b9ee607f8ff399f6c759e3324",
+  "dirty": false,
+  "input_digest": "633c8269c14799c66b6d69db90aff5e908084a74358bb1b005e6d5d61d5b3488",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T54.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T54.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T54.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T54.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T54.M4",
+      "note": "mutation reelle appliquee a usageFromModelUsage (packages/agents/src/index.ts) : ventilation attribuee au premier modele rencontre meme avec deux modeles ; T54.A4 observe rouge (a4a-stub-model-t54-a4-alpha-cache-write-5m-zero : vu 30 attendu 0), restaure et reconstruit avant ce verdict."
+    }
+  ],
+  "mutation_proof": {
+    "T54.A4": {
+      "killed_by": "T54.M4",
+      "note": "mutation reelle appliquee a usageFromModelUsage (packages/agents/src/index.ts) : ventilation attribuee au premier modele rencontre meme avec deux modeles ; T54.A4 observe rouge (a4a-stub-model-t54-a4-alpha-cache-write-5m-zero : vu 30 attendu 0), restaure et reconstruit avant ce verdict."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

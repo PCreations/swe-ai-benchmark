@@ -1,6 +1,7 @@
 # ADR-011 — Un énoncé des exigences que le candidat peut lire
 
-    statut : PROPOSÉ — en attente de la décision du mandant
+    statut : ACCEPTÉ — par le mandant le 15/10/2026 (« Oui », en réponse
+             à « Tu acceptes ADR-011 tel quel ? »)
     ouvert : 15/10/2026
     porte  : le prompt d'une période à candidat réel (T49, T50, T52), le
              contrat `bench.candidate/2`, le modèle attendu des contrôles (T51)

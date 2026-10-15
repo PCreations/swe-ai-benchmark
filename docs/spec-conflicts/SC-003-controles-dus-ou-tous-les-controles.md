@@ -1,6 +1,7 @@
 # SC-003 — À la période k, contrôle-t-on les exigences dues ou toutes les exigences ?
 
-    statut : OUVERT — en attente de l'arbitrage du mandant
+    statut : RESOLU — option A, arbitrée par le mandant le 2026-10-16
+             (« Oui », en réponse à « Tu retiens l'option A ? »)
     ouvert : 2026-10-16
     porte  : T51.A2, T51.A3, T51.A4 (ADR-009) contre T54.A2 (ADR-011)
     origine : settle du tour wf_f0051268 — `bench accept T51` refusé à
@@ -62,3 +63,11 @@ rapport. *Coût* : une sémantique de plus, et une modification des deux suites.
 **A.** B est interdit par la monotonie et rétablit un défaut réel. C ajoute
 une complexité sans usage. A est la lecture que l'ADR le plus récent rend
 explicite, et la seule qui ne juge pas un candidat sur une règle future.
+
+## Arbitrage
+
+**Option A**, retenue par le mandant le 2026-10-16. « Chaque contrôle » et
+« aucun omis » (T51.A2, T51.A3) s'entendent des contrôles **dus** à la
+période, au sens de T54.A2. Le test-author de T51 adapte A2, A3 et A4 en
+conséquence ; aucun cas requis n'est retiré, et chaque assertion porte sur
+l'ensemble dû, que T54.A2 fixe. Ce document est la trace exigée.

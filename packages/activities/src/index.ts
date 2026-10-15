@@ -538,3 +538,16 @@ export type {
   CandidateControlReportPeriod,
   CandidateControlReportResult,
 } from './candidate-control-period.js'
+
+/* ── T53 : énoncé des exigences par période pour le candidat (ADR-011) ──── */
+
+export {
+  buildCandidatePeriodPrompt,
+  CANDIDATE_REQUIREMENTS_PERIOD_KEYS,
+  CANDIDATE_REQUIREMENTS_STATEMENT_V2,
+} from './candidate-requirements-statement.js'
+export type {
+  CandidatePeriodRequirementsStatement,
+  CandidateRequirementsPeriodKey,
+  CandidateRequirementsStatementV2,
+} from './candidate-requirements-statement.js'

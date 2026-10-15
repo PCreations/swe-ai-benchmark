@@ -211,6 +211,10 @@ CE QUI TE FERA REFUSER PLUS TARD, MECANIQUEMENT :
 - ecrire hors des zones de ton role (verification/ownership.json) -> PARTITION_VIOLATION.
 - toucher acceptance/reference/** apres le gel sans ouvrir un SPEC_CONFLICT.
 - affaiblir un cas : les cas requis et les empreintes ne peuvent que CROITRE.
+- faire un commit VIDE sur la branche de travail (journal, « convergence »,
+  relance) : le compte rendu va dans ta reponse et dans le tic, jamais dans
+  l'historique des sources. Le hook ne le voit pas (aucun fichier indexe) ;
+  c'est arrive une fois (ba45497, Bench-Task: SETTLE).
 - ajouter une commande a l'aide de \`bench\` (apps/cli) sans son entree
   \`### \`bench <commande> ...\`\` dans apps/cli/README.md, SQUELETTE COMPRIS :
   T41.A7 exige l'egalite exacte entre commandes parsees et documentees, et un

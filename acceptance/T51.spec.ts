@@ -152,8 +152,9 @@
  *    suite ne passe donc JAMAIS d'operations explicites : contrairement a
  *    `--candidate-ops` de `candidate-period` v1, AUCUN drapeau n'offre cette
  *    possibilite ici, pour que le MEME scenario soit exerce des deux cotes
- *    de la comparaison A1) puis applique les CINQ controles nommes par
- *    ADR-009:L34, un par un, contre le PROCESSUS candidat.
+ *    de la comparaison A1) puis applique, parmi les cinq controles nommes
+ *    par ADR-009:L34, ceux DUS a la periode (II.6), un par un, contre le
+ *    PROCESSUS candidat.
  *
  *      bench candidate-control-report --campaign-id <id> --postgres-database <db>
  *
@@ -180,10 +181,16 @@
  *                                de CETTE periode
  *      }
  *      controls: [ { id, status, actual, expected } ]
- *                               — TOUJOURS CINQ entrees, une par identifiant
- *                               de CONTROLES_FIXES (II.4), MEME quand
+ *                               — EXACTEMENT une entree par controle DU a la
+ *                               periode (II.6, SC-003 option A : deux a P1,
+ *                               quatre a P2 et P3, cinq a P4), aucune pour un
+ *                               controle non encore du, MEME quand
  *                               deployed===false (A3 : « sans qu'aucun soit
- *                               omis »). `status` ∈ {'satisfied','violated'}.
+ *                               omis », des controles dus). [Avant SC-003 :
+ *                               « toujours cinq entrees » — lecture que
+ *                               T54.A2 a rendue fausse et que le mandant a
+ *                               tranchee le 2026-10-16.]
+ *                               `status` ∈ {'satisfied','violated'}.
  *                               `actual`/`expected` : LES DEUX TERMES
  *                               COMPARES (A2) — `actual` ce que le candidat a
  *                               effectivement produit (ou un marqueur de
@@ -198,7 +205,7 @@
  * 3. SORTIE JSON DE `candidate-control-report` : { campaign_id, periods: [
  *    { period_index, satisfied, violated } ] }, une entree par periode
  *    REELLEMENT persistee, `satisfied`/`violated` etant le compte, PARMI
- *    LES CINQ controles de cette periode, de ceux a chaque statut.
+ *    LES CONTROLES DUS a cette periode (II.6), de ceux a chaque statut.
  *
  * 4. LES CINQ IDENTIFIANTS DE CONTROLE (ADR-009:L34, entre backticks) :
  *    `reserve@1`, `idempotence@1`, `cancel@1`, `fifo@1`, `isolation@1`.
@@ -214,6 +221,16 @@
  *    leur propre en-tete. FIXEE a partir des SEULS faits scelles par la
  *    racine gelee `acceptance/reference/F-RESERVATION.json`, jamais d'une
  *    implementation lue.
+ *
+ * 6. LES CONTROLES DUS A CHAQUE PERIODE (ajout tracé par docs/spec-
+ *    conflicts/SC-003-controles-dus-ou-tous-les-controles.md, option A) :
+ *    `reserve@1`/`idempotence@1` dus a P1, `cancel@1`/`fifo@1` a P2,
+ *    `isolation@1` a P4 — table `ECHEANCE_CONTROLE`, ancree ligne a ligne
+ *    dans la racine gelee F-RESERVATION (cahier L119/L123), dans ADR-011:
+ *    L55-57 et dans la suite acceptee T53 (isolation enoncee a P4 seulement),
+ *    et RELUE contre la racine gelee a chaque cas A2/A3/A4. Un controle DU
+ *    reste du aux periodes suivantes (« due a une periode inferieure ou egale
+ *    a k », T54.A2). A2, A3 et A4 portent sur cet ensemble, a CHAQUE periode.
  *
  * ─────────────────────────────────────────────────────────────────────── III
  * LES DANGERS PROPRES A T51, ET LEUR CONTROLE DANS CETTE SUITE
@@ -258,8 +275,9 @@
  *     preuve que le non-deploiement n'a PAS fait echouer la periode.
  *     cases.extensions.lock.json nomme en outre un second danger, DISTINCT :
  *     « omettre les controles d'un candidat non deploye » — cette suite
- *     exige donc, SEPAREMENT, que `controls.length===5` et que les CINQ
- *     statuts soient `'violated'`, MEME quand `deployed===false`.
+ *     exige donc, SEPAREMENT et a CHACUNE des quatre periodes, que
+ *     `controls` contienne EXACTEMENT les controles dus (II.6) et que
+ *     chacun soit `'violated'`, MEME quand `deployed===false`.
  * (5) A4 : LE DANGER EST DE NE CROIRE QUE LE RAPPORT SUR LUI-MEME —
  *     cases.extensions.lock.json : « compter un controle viole comme
  *     satisfait dans le rapport ». Cette suite calcule donc, de son propre
@@ -650,6 +668,103 @@ const RAISON = {
 
 /** II.4 — les cinq identifiants, ADR-009:L34, entre backticks. */
 const CONTROLES_FIXES = ['reserve@1', 'idempotence@1', 'cancel@1', 'fifo@1', 'isolation@1'] as const;
+type IdControle = (typeof CONTROLES_FIXES)[number];
+
+/**
+ * II.6 — LES CONTROLES DUS A LA PERIODE k (SC-003, option A, arbitree le
+ * 2026-10-16 : docs/spec-conflicts/SC-003-controles-dus-ou-tous-les-
+ * controles.md). « Chaque controle » (A2) et « sans qu'aucun soit omis »
+ * (A3) s'entendent des controles DUS a la periode, au sens de T54.A2
+ * (ADR-011:L115 : « a la periode k, seuls les controles des exigences dues a
+ * une periode inferieure ou egale a k sont evalues et persistes ») ; les
+ * comptes de A4 portent sur ce meme ensemble.
+ *
+ * La periode a partir de laquelle chaque controle est DU est FIXEE ICI a
+ * partir de sources INDEPENDANTES de toute implementation, jamais d'une
+ * sortie observee :
+ *   reserve@1, idempotence@1 -> P1  F-RESERVATION.json:valeurs.P1.faits
+ *                                   (cahier L119 : « reservation de A
+ *                                   acceptee, rejeu de sa cle idempotente ») ;
+ *                                   ADR-011:L55-57, par elimination (les trois
+ *                                   autres sont « dus en P2 a P4 ») — le seul
+ *                                   point que T54.A2 fixe deja
+ *   cancel@1, fifo@1         -> P2  F-RESERVATION.json:valeurs.P2.faits
+ *                                   (« annulation de A ») et
+ *                                   valeurs.P2.ordre_d_attente (« B puis C en
+ *                                   attente », cahier L119)
+ *   isolation@1              -> P4  F-RESERVATION.json:valeurs.P4.faits
+ *                                   (« creation d'un locataire `other` [...]
+ *                                   ne peuvent ni lire ni modifier »,
+ *                                   cahier L119) et valeurs.P4.
+ *                                   verdict_intertenant (cahier L123) ; la
+ *                                   suite ACCEPTEE acceptance/T53.spec.ts fixe
+ *                                   deja que l'isolation n'est enoncee au
+ *                                   candidat qu'a P4, jamais a P1/P2/P3 — la
+ *                                   controler avant serait juger le candidat
+ *                                   sur une regle qu'il n'a pas recue
+ *                                   (ADR-011:L55-57, defaut n°5).
+ * `echeancesAncreesDansLaRacineGelee` relit la racine gelee a chaque cas et
+ * ROUGIT si cette table cessait de lui correspondre.
+ */
+const ECHEANCE_CONTROLE: Record<IdControle, number> = {
+  'reserve@1': 1,
+  'idempotence@1': 1,
+  'cancel@1': 2,
+  'fifo@1': 2,
+  'isolation@1': 4,
+};
+/** Les identifiants de controle DUS a la periode k, dans l'ordre de CONTROLES_FIXES. */
+function controlesDus(k: number): IdControle[] {
+  return CONTROLES_FIXES.filter((id) => ECHEANCE_CONTROLE[id] <= k);
+}
+/** Les identifiants de controle NON ENCORE dus a la periode k. */
+function controlesNonDus(k: number): IdControle[] {
+  return CONTROLES_FIXES.filter((id) => ECHEANCE_CONTROLE[id] > k);
+}
+
+/** Relit acceptance/reference/F-RESERVATION.json (racine gelee) et exige que ECHEANCE_CONTROLE lui corresponde. */
+function echeancesAncreesDansLaRacineGelee(label: string): void {
+  const brut = JSON.parse(fs.readFileSync(path.join(REPO, 'acceptance', 'reference', 'F-RESERVATION.json'), 'utf8')) as Json;
+  const valeurs = obj(brut.valeurs);
+  const texte = (p: string): string => JSON.stringify(valeurs[p] ?? null).toLowerCase();
+  const [t1, t2, t3, t4] = [texte('P1'), texte('P2'), texte('P3'), texte('P4')];
+  exige(
+    t1.includes('reservation') && t1.includes('idempotente') && ECHEANCE_CONTROLE['reserve@1'] === 1 && ECHEANCE_CONTROLE['idempotence@1'] === 1,
+    `${label}-echeance-reserve-et-idempotence-P1-ancree`,
+    `P1=${court(t1, 300)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  exige(
+    !t1.includes('annulation') && t2.includes('annulation') && ECHEANCE_CONTROLE['cancel@1'] === 2,
+    `${label}-echeance-cancel-P2-ancree`,
+    `P1=${court(t1, 200)} P2=${court(t2, 300)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  const ordre = obj(obj(valeurs.P2).ordre_d_attente).valeur;
+  exige(
+    obj(valeurs.P1).ordre_d_attente === undefined && Array.isArray(ordre) && ordre.length >= 2 && ECHEANCE_CONTROLE['fifo@1'] === 2,
+    `${label}-echeance-fifo-P2-ancree`,
+    `P2.ordre_d_attente=${rendu(ordre)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  exige(
+    t4.includes('locataire') && t4.includes('intertenant') && ECHEANCE_CONTROLE['isolation@1'] === 4,
+    `${label}-echeance-isolation-P4-ancree`,
+    `P4=${court(t4, 300)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  exige(
+    ![t1, t2, t3].some((t) => t.includes('locataire') || t.includes('intertenant')),
+    `${label}-isolation-absente-de-P1-P2-P3-dans-la-racine-gelee`,
+    `P1..P3 mentionnent deja les locataires : ${court(`${t1} ${t2} ${t3}`, 400)}`,
+  );
+  // ADR-011:L55-57 : cancel@1/fifo@1/isolation@1 « dus en P2 a P4 » ; a P4,
+  // les cinq sont dus (la classification A1 par classe reste donc complete).
+  exige(
+    (['cancel@1', 'fifo@1', 'isolation@1'] as const).every((id) => ECHEANCE_CONTROLE[id] >= 2 && ECHEANCE_CONTROLE[id] <= 4) &&
+      rendu(controlesDus(1)) === rendu(['reserve@1', 'idempotence@1']) &&
+      rendu(controlesDus(4)) === rendu([...CONTROLES_FIXES]),
+    `${label}-table-des-echeances-conforme-a-ADR-011-L55-57`,
+    `table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+}
+
 type Classe = 'reserve' | 'idempotence' | 'cancel' | 'fifo' | 'isolation';
 const MOTIFS_CLASSE: Record<Classe, RegExp> = {
   reserve: /reserve/i,
@@ -890,31 +1005,54 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
   test(
     'T51.A2 chaque periode porte, pour chaque controle, son identifiant, son statut et les deux termes compares (ADR:L96)',
     () => {
+      echeancesAncreesDansLaRacineGelee('A2');
+
+      // SC-003 (option A) : a CHAQUE periode p, CHAQUE controle DU a p porte
+      // identifiant, statut et les deux termes compares, lies au statut ; AUCUN
+      // controle non du n'est present ; aucun identifiant hors de l'ensemble
+      // du ni en double. Exerce a TOUTES les periodes, pour les DEUX
+      // candidats de reference (la version anterieure n'observait que P2).
+      const verifierPeriode = (label: string, p: number, r: Json): void => {
+        exige(indexDe(r) === p, `${label}-periode-${p}-index-${p}`, `vu ${rendu(indexDe(r))} dans ${rendu(r)}`);
+        const controles = controlesMienDe(r);
+        const dus = controlesDus(p);
+        const ids = controles.map((c) => c.id);
+        exige(
+          controles.length === dus.length,
+          `${label}-periode-${p}-${dus.length}-controles-dus-presents`,
+          `dus ${rendu(dus)} ; vu ${controles.length} : ${rendu(ids)}`,
+        );
+        exige(
+          ids.every((id) => typeof id === 'string' && (dus as string[]).includes(id)) && new Set(ids).size === ids.length,
+          `${label}-periode-${p}-aucun-controle-hors-ensemble-du-ni-en-double`,
+          `dus ${rendu(dus)} ; vu ${rendu(ids)}`,
+        );
+        for (const id of controlesNonDus(p)) {
+          exige(!ids.includes(id), `${label}-periode-${p}-controle-${id}-non-du-absent`, `TROUVE a la periode ${p} (du a P${ECHEANCE_CONTROLE[id]}) : ${rendu(ids)}`);
+        }
+        for (const id of dus) {
+          const c = controles.find((x) => x.id === id);
+          exige(c !== undefined, `${label}-periode-${p}-controle-${id}-present`, `absent de ${rendu(ids)}`);
+          const entree = (c ?? {}) as Json;
+          exige(entree.status === 'satisfied' || entree.status === 'violated', `${label}-periode-${p}-controle-${id}-statut-reconnu`, `vu ${rendu(entree.status)}`);
+          exige('actual' in entree, `${label}-periode-${p}-controle-${id}-porte-actual`, `absent de ${rendu(entree)}`);
+          exige('expected' in entree, `${label}-periode-${p}-controle-${id}-porte-expected`, `absent de ${rendu(entree)}`);
+          // LE LIEN DECISIF (III.3, mutant T51.M2) : le statut est COHERENT avec
+          // les deux termes, jamais affirme par construction.
+          const egaux = egalesCanonique(entree.actual, entree.expected);
+          if (entree.status === 'satisfied') {
+            exige(egaux, `${label}-periode-${p}-controle-${id}-satisfied-implique-actual-egal-expected`, `actual=${rendu(entree.actual)} expected=${rendu(entree.expected)}`);
+          } else {
+            exige(!egaux, `${label}-periode-${p}-controle-${id}-violated-implique-actual-different-expected`, `actual=${rendu(entree.actual)} expected=${rendu(entree.expected)}`);
+          }
+        }
+      };
+
       const ctxOk = nouveauContexte('a2-ok');
-      let dernier: Json | null = null;
-      for (let p = 1; p <= 2; p += 1) {
+      for (let p = 1; p <= 4; p += 1) {
         const appel = candidateControlPeriod(ctxOk, REFERENCE_V2_ARGV, 60_000);
         exige(appel.resultat !== null, `periode-${p}-executee`, messageEchec(`periode ${p}`, appel));
-        dernier = appel.resultat as Json;
-      }
-      const controles = controlesMienDe(dernier);
-      exige(controles.length === CONTROLES_FIXES.length, 'cinq-controles-presents', `vu ${controles.length} : ${rendu(controles.map((c) => c.id))}`);
-
-      for (const id of CONTROLES_FIXES) {
-        const c = controles.find((x) => x.id === id);
-        exige(c !== undefined, `controle-${id}-present`, `absent de ${rendu(controles.map((x) => x.id))}`);
-        const entree = c as Json;
-        exige(entree.status === 'satisfied' || entree.status === 'violated', `controle-${id}-statut-reconnu`, `vu ${rendu(entree.status)}`);
-        exige('actual' in entree, `controle-${id}-porte-actual`, `absent de ${rendu(entree)}`);
-        exige('expected' in entree, `controle-${id}-porte-expected`, `absent de ${rendu(entree)}`);
-        // LE LIEN DECISIF (III.3, mutant T51.M2) : le statut est COHERENT avec
-        // les deux termes, jamais affirme par construction.
-        const egaux = egalesCanonique(entree.actual, entree.expected);
-        if (entree.status === 'satisfied') {
-          exige(egaux, `controle-${id}-satisfied-implique-actual-egal-expected`, `actual=${rendu(entree.actual)} expected=${rendu(entree.expected)}`);
-        } else {
-          exige(!egaux, `controle-${id}-violated-implique-actual-different-expected`, `actual=${rendu(entree.actual)} expected=${rendu(entree.expected)}`);
-        }
+        verifierPeriode('correct', p, (appel.resultat ?? {}) as Json);
       }
 
       // Le MEME lien, verifie sur un controle REELLEMENT VIOLE (candidat fautif).
@@ -923,6 +1061,7 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
       for (let p = 1; p <= 4; p += 1) {
         const appel = candidateControlPeriod(ctxFautif, REFERENCE_V2_FAUTIF_ARGV, 60_000);
         exige(appel.resultat !== null, `fautif-periode-${p}-executee`, messageEchec(`fautif periode ${p}`, appel));
+        verifierPeriode('fautif', p, (appel.resultat ?? {}) as Json);
         dernierFautif = appel.resultat as Json;
       }
       const controlesFautif = controlesMienDe(dernierFautif);
@@ -950,24 +1089,46 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
         { label: 'malformed', argv: ['node', MALFORMED], raison: RAISON.PROTOCOL_VIOLATION },
       ];
 
+      echeancesAncreesDansLaRacineGelee('A3');
+
+      // SC-003 (option A) : « sans qu'aucun soit omis » s'entend des controles
+      // DUS a la periode. Chaque forme de defaillance est donc exercee sur les
+      // QUATRE periodes (la version anterieure n'observait que P1) : a chaque
+      // periode p, CHAQUE controle du a p est evalue et viole, aucun n'est
+      // omis, aucun controle non du n'est present — de sorte que l'ensemble
+      // des cinq identifiants est couvert au fil de la trajectoire.
       for (const cas of casParMotif) {
         const ctx = nouveauContexte(`a3-${cas.label}`);
-        const appel = candidateControlPeriod(ctx, cas.argv, DELAI_MS);
-        exige(appel.resultat !== null, `${cas.label}-periode-executee`, messageEchec(cas.label, appel));
-        const r = appel.resultat as Json;
-        exige(deployeDe(r) === false, `${cas.label}-non-deploye`, `vu ${rendu(deployeDe(r))} dans ${rendu(r)}`);
-        exige(motifDe(r) === cas.raison, `${cas.label}-motif-${cas.raison}`, `vu ${rendu(motifDe(r))} dans ${rendu(r)}`);
+        for (let p = 1; p <= 4; p += 1) {
+          const appel = candidateControlPeriod(ctx, cas.argv, DELAI_MS);
+          exige(appel.resultat !== null, `${cas.label}-periode-${p}-executee`, messageEchec(`${cas.label} periode ${p}`, appel));
+          const r = (appel.resultat ?? {}) as Json;
+          exige(indexDe(r) === p, `${cas.label}-periode-${p}-index-${p}`, `vu ${rendu(indexDe(r))} dans ${rendu(r)}`);
+          exige(deployeDe(r) === false, `${cas.label}-periode-${p}-non-deploye`, `vu ${rendu(deployeDe(r))} dans ${rendu(r)}`);
+          exige(motifDe(r) === cas.raison, `${cas.label}-periode-${p}-motif-${cas.raison}`, `vu ${rendu(motifDe(r))} dans ${rendu(r)}`);
 
-        const controles = controlesMienDe(r);
-        exige(
-          controles.length === CONTROLES_FIXES.length,
-          `${cas.label}-cinq-controles-sans-omission`,
-          `vu ${controles.length} : ${rendu(controles.map((c) => c.id))}`,
-        );
-        for (const id of CONTROLES_FIXES) {
-          const c = controles.find((x) => x.id === id);
-          exige(c !== undefined, `${cas.label}-controle-${id}-present`, `absent de ${rendu(controles.map((x) => x.id))}`);
-          exige((c as Json).status === 'violated', `${cas.label}-controle-${id}-viole`, `vu ${rendu((c as Json).status)}`);
+          const controles = controlesMienDe(r);
+          const ids = controles.map((c) => c.id);
+          const dus = controlesDus(p);
+          exige(
+            controles.length === dus.length,
+            `${cas.label}-periode-${p}-${dus.length}-controles-dus-sans-omission`,
+            `dus ${rendu(dus)} ; vu ${controles.length} : ${rendu(ids)}`,
+          );
+          exige(
+            ids.every((id) => typeof id === 'string' && (dus as string[]).includes(id)) && new Set(ids).size === ids.length,
+            `${cas.label}-periode-${p}-aucun-controle-hors-ensemble-du-ni-en-double`,
+            `dus ${rendu(dus)} ; vu ${rendu(ids)}`,
+          );
+          for (const id of controlesNonDus(p)) {
+            exige(!ids.includes(id), `${cas.label}-periode-${p}-controle-${id}-non-du-absent`, `TROUVE a la periode ${p} (du a P${ECHEANCE_CONTROLE[id]}) : ${rendu(ids)}`);
+          }
+          for (const id of dus) {
+            const c = controles.find((x) => x.id === id);
+            exige(c !== undefined, `${cas.label}-periode-${p}-controle-${id}-present`, `absent de ${rendu(ids)}`);
+            const entree = (c ?? {}) as Json;
+            exige(entree.status === 'violated', `${cas.label}-periode-${p}-controle-${id}-viole`, `vu ${rendu(entree.status)}`);
+          }
         }
       }
 
@@ -997,6 +1158,13 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
   test(
     'T51.A4 le rapport de fin donne, par trajectoire et par periode, le nombre de controles satisfaits et violes, egal aux statuts persistes (ADR:L96)',
     () => {
+      echeancesAncreesDansLaRacineGelee('A4');
+
+      // SC-003 (option A) : les comptes portent sur les controles DUS a la
+      // periode. Les sommes locales sont calculees, comme avant, sur les
+      // reponses DEJA RECUES de `candidate-control-period` (temoin
+      // INDEPENDANT du rapport, III.5), mais exigees sur l'ensemble du —
+      // jamais sur un « cinq » fixe que T54.A2 interdit desormais avant P4.
       for (const [suffixe, argv] of [
         ['a4-ok', REFERENCE_V2_ARGV],
         ['a4-fautif', REFERENCE_V2_FAUTIF_ARGV],
@@ -1006,10 +1174,22 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
         for (let p = 1; p <= 4; p += 1) {
           const appel = candidateControlPeriod(ctx, [...argv], 60_000);
           exige(appel.resultat !== null, `${suffixe}-periode-${p}-executee`, messageEchec(`${suffixe} periode ${p}`, appel));
+          exige(indexDe(appel.resultat) === p, `${suffixe}-periode-${p}-index-${p}`, `vu ${rendu(indexDe(appel.resultat))}`);
           const controles = controlesMienDe(appel.resultat);
+          const dus = controlesDus(p);
+          const ids = controles.map((c) => c.id);
           const satisfied = controles.filter((c) => c.status === 'satisfied').length;
           const violated = controles.filter((c) => c.status === 'violated').length;
-          exige(satisfied + violated === CONTROLES_FIXES.length, `${suffixe}-periode-${p}-cinq-controles`, `vu ${satisfied}+${violated}`);
+          exige(
+            satisfied + violated === dus.length,
+            `${suffixe}-periode-${p}-${dus.length}-controles-dus-comptes`,
+            `dus ${rendu(dus)} ; vu ${satisfied}+${violated} sur ${rendu(ids)}`,
+          );
+          exige(
+            ids.length === dus.length && dus.every((id) => ids.includes(id)),
+            `${suffixe}-periode-${p}-comptes-portent-exactement-sur-l-ensemble-du`,
+            `dus ${rendu(dus)} ; vu ${rendu(ids)}`,
+          );
           sommesLocales.set(p, { satisfied, violated });
         }
 
@@ -1031,6 +1211,11 @@ describe('T51 — exercer et controler le code du candidat a chaque periode', ()
             Number((ligne as Json).violated) === attendu.violated,
             `${suffixe}-rapport-periode-${p}-violated-egal`,
             `rapport=${rendu((ligne as Json).violated)} persiste=${attendu.violated}`,
+          );
+          exige(
+            Number((ligne as Json).satisfied) + Number((ligne as Json).violated) === controlesDus(p).length,
+            `${suffixe}-rapport-periode-${p}-somme-egale-aux-${controlesDus(p).length}-controles-dus`,
+            `rapport=${rendu(ligne)} dus=${rendu(controlesDus(p))}`,
           );
         }
       }

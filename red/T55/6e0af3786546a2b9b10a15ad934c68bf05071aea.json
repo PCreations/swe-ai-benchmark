@@ -1,0 +1,45 @@
+{
+  "schema": "bench.red/1",
+  "task": "T55",
+  "subject_commit": "6e0af3786546a2b9b10a15ad934c68bf05071aea",
+  "dirty": false,
+  "input_digest": "4fcf4efd41e5cd45b5eecebc52973c1c33356dbdfafeafd75d4c0fa1b66d19d7",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T55.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T55.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T55.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T55.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T55.M4",
+      "note": "readAllClaudeCliPeriods mute pour decouper le texte brut de psql sur \n/| (au lieu de row_to_json) ; T55.A4 observe alors Received: modele ABSENT de {} (jest, acceptance/T55.spec.ts T55.A4) ; mutation restauree par git checkout, pnpm build relance, arbre propre confirme."
+    }
+  ],
+  "mutation_proof": {
+    "T55.A4": {
+      "killed_by": "T55.M4",
+      "note": "readAllClaudeCliPeriods mute pour decouper le texte brut de psql sur \n/| (au lieu de row_to_json) ; T55.A4 observe alors Received: modele ABSENT de {} (jest, acceptance/T55.spec.ts T55.A4) ; mutation restauree par git checkout, pnpm build relance, arbre propre confirme."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

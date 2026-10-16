@@ -1,0 +1,143 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T56 — une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.extensions.lock.json#T56.",
+    "",
+    "T56 EST UNE TACHE D'EXTENSION (ADR-013), NON IMPLEMENTEE au moment ou ce",
+    "fichier est ecrit (verification/tasks.extensions.json#T56.status =",
+    "NOT_IMPLEMENTED). L'auteur de ces mutants est, comme l'auteur de",
+    "acceptance/T56.spec.ts, AVEUGLE aux `source_paths` de T56 (packages/",
+    "activities, apps/cli) — ADR-001, aveuglement PROCEDURAL, discipline",
+    "auditable au diff, jamais une barriere technique. Les cibles sont donc",
+    "decrites par leur ROLE dans l'implementation FUTURE, jamais par un",
+    "chemin de fichier ou un nom de fonction qui n'existe pas encore (meme",
+    "discipline que verification/mutants/T00.json, § « les cibles sont",
+    "decrites par leur role et non par un chemin de fichier »).",
+    "",
+    "CE QUE acceptance/T56.spec.ts OBSERVE DEJA, A HEAD, SANS AUCUNE",
+    "IMPLEMENTATION DE T56 (mesure reelle, `pnpm exec jest acceptance/",
+    "T56.spec.ts`, ce boot) : T56.A1 ROUGE (l'enonce ACTUEL du prototype T53",
+    "cite encore litteralement 'statut' et 'idempotency_key' — EXACTEMENT",
+    "l'incident que docs/adr/ADR-013 documente) ; T56.A2 ROUGE (aucun exemple",
+    "requete->reponse dans le prompt reel pour aucune des six operations) ;",
+    "T56.A3 ROUGE (aucun fichier de verification de forme dans l'espace de",
+    "travail) ; T56.A4 ROUGE sur son troisieme volet, le volet REEL (le",
+    "candidat derive du prompt REELLEMENT recu obtient les DEUX marqueurs",
+    "<absent-du-prompt:...> pour decisionField/operationKeyField), MAIS VERT",
+    "sur ses deux premiers volets, AUTONOMES : le mecanisme de derivation",
+    "lui-meme, exerce sur un prompt FABRIQUE par la suite selon les gabarits",
+    "DEJA FIXES par acceptance/T55.spec.ts, derive correctement `decision`",
+    "quand l'enonce le nomme ainsi, ET derive correctement `status` (et",
+    "echoue alors les controles dus via le moteur REEL de pilot-conduct)",
+    "quand l'enonce (SEUL) le renomme — cette mesure VERTE-LA est precisement",
+    "ce que les mutants M1/M4 ci-dessous visent a CONFIRMER NECESSAIRE : si on",
+    "les retire (en acceptant qu'une implementation future laisse 'statut'",
+    "dans l'enonce), A1 et A4 doivent rougir — faute de quoi A1/A4 seraient",
+    "des cas creux (verification/cases.extensions.lock.json le prescrit mot",
+    "pour mot : A1 'laisser statut ou idempotency_key dans l'enonce de P1 :",
+    "le cas doit rougir' ; A4 'renommer decision en status dans l'enonce",
+    "seulement : le candidat de reference doit echouer et le cas rougir si",
+    "le moteur ne le detecte pas').",
+    "",
+    "PUISQU'AUCUNE IMPLEMENTATION DE T56 N'EXISTE, aucun de ces quatre",
+    "mutants ne peut etre « applique puis retire » sur du code reel pour",
+    "mesurer un passage VERT->ROUGE (il n'y a pas de VERT a casser). Chaque",
+    "mutant decrit donc, a la place, LE DEFAUT EXACT que verification/",
+    "cases.extensions.lock.json prescrit, LE POINT DE RESPONSABILITE (par",
+    "role) dans l'implementation future ou ce defaut se logerait, et quelles",
+    "assertions PRECISES de acceptance/T56.spec.ts rougiraient — nommees une",
+    "par une, jamais une pretention generale. Le futur implementeur de T56",
+    "rejoue ces quatre mutants (en suivant 'mutation' a la lettre dans la",
+    "zone IMPL/HARNESS qu'il aura ecrite) pour confirmer, cette fois sur du",
+    "code reel, que chaque cas requis rougit sous le defaut qu'il nomme — la",
+    "porte RED du cahier (§H)."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T56",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T56"
+  ],
+  "acceptance_entry": "acceptance/T56.spec.ts",
+  "mutant_count": 4,
+  "mutants": [
+    {
+      "id": "T56.M1",
+      "kills_case": "T56.A1",
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point de l'implementation (futur, source_paths de T56 : packages/activities, apps/cli — non lus) qui assemble le TEXTE EN PROSE de l'enonce de chaque periode avant de l'inserer dans le prompt — precisement le choix lexical du nom de champ pour la decision et pour la cle d'operation DANS LA PROSE, independant du contrat reel packages/contracts (DEJA fixe par T50/T52, jamais en cause ici) et independant du generateur d'exemples JSON (A2, point distinct).",
+      "mutation": "Laisser, ou reintroduire, dans le texte de l'enonce de P1 (et par heritage cumulatif de P2), les deux noms de champ que l'incident reel d'ADR-013 nomme mot pour mot : 'statut' (a la place de 'decision') et/ou 'idempotency_key' (a la place de 'operation_key') — par exemple une phrase telle que « chaque reservation porte un statut » et « identifiee par sa idempotency_key ». Variante equivalente et plus generale : introduire TOUT AUTRE jeton 'en_tiret_bas' qui n'appartient pas au contrat (ex. 'reservation_id') dans la meme prose.",
+      "expected_effect": "T56.A1 devient rouge.",
+      "observation_qui_echoue": "A1 lit l'enonce EXPORTE de P1/P2 (oracle packages/scenario/packages/activities, jamais le chemin sous test) et exige, en une egalite de tableau nommee, (i) l'ABSENCE des deux jetons bannis 'statut'/'idempotency_key' (assertion 'aucun-nom-de-champ-banni-dans-l-enonce') ; (ii) qu'AUCUN jeton 'en_tiret_bas' present dans l'enonce ne sorte de l'ensemble FERME des six jetons du contrat qui en comportent (assertion 'aucun-jeton-en-tiret-bas-hors-du-contrat-dans-l-enonce') ; (iii) la PRESENCE litterale de 'operation_key' et de 'decision' (assertion 'les-deux-noms-canoniques-operation_key-et-decision-sont-cites'). Sous la mutation, (i) nomme 'P1:statut'/'P1:idempotency_key' dans la liste des bannis trouves — MESURE REELLE, a HEAD, sans aucune implementation de T56 : l'enonce ACTUEL du prototype T53 echoue DEJA cette assertion exactement ainsi (['P1:statut','P1:idempotency_key','P2:statut']), ce qui est la preuve directe que cette perturbation PREND.",
+      "pourquoi_cette_perturbation": "A1 est un cas `absence` (le vocabulaire INTERDIT doit etre ABSENT, le vocabulaire CANONIQUE doit etre PRESENT) et verification/cases.extensions.lock.json prescrit EXACTEMENT cette perturbation (« laisser 'statut' ou 'idempotency_key' dans l'enonce de P1 : le cas doit rougir ») — reprise mot pour mot de l'incident REELEMENT observe par le troisieme essai reel (docs/pilot/essai-reel-2026-10-16-b.json, ADR-013). Un stub qui ferait lever l'oracle (module-stub) laisserait ce cas vert sans rien prouver sur le CONTENU de l'enonce — c'est pourquoi la porte 'necessite' usuelle ne s'applique pas ici : seule une perturbation CIBLEE sur le TEXTE (et non sur l'EXISTENCE d'un export) peut faire la preuve.",
+      "doit_rester_vert": [
+        "T56.A2",
+        "T56.A3"
+      ],
+      "tue_aussi": [
+        "T56.A4"
+      ],
+      "note_tue_aussi": "MESURE (suite courante, scenario AUTONOME de A4) : le mecanisme de derivation de champ de T56.A4 (acceptance/fixtures/claude-cli/t56-derive-reference-candidate.mjs, `extraireDecisionField`) cherche la PREMIERE occurrence, n'importe ou dans le prompt, d'un nom de champ qui precede une valeur de decision connue. Si l'enonce (qui precede toujours la section des exemples dans le prompt) contient 'statut' associe a une valeur de decision avant que l'exemple JSON conforme ne contienne 'decision', c'est 'statut' qui est retenu — et le candidat qui en resulte repond sur le mauvais nom de champ, que le moteur reel de controle ne reconnait pas comme `decision`. C'est voulu : un cas A1 qui laisserait ce defaut invisible a A4 serait, par construction, isole du chemin reel que A4 exerce (meme discipline que acceptance/T55.spec.ts, M1, qui tue aussi A3)."
+    },
+    {
+      "id": "T56.M2",
+      "kills_case": "T56.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point de l'implementation (futur) qui assemble, pour CHAQUE operation du contrat `bench.candidate/2`, l'exemple public requete->reponse au format exact des messages (NDJSON `{\"id\",\"op\",\"args\"}` -> `{\"id\",\"ok\":true,\"result\"}`, protocole DEJA fixe par T48/T50/T52) et l'insere dans le prompt de chaque periode.",
+      "mutation": "Omettre, dans la liste des exemples inseres dans le prompt, celui de l'operation `write` (la perturbation nommement citee par cases.extensions.lock.json#T56.A2) — tout en laissant les cinq autres exemples (create_tenant, advance_clock, read, probe_cancel, fingerprint) intacts. Variante equivalente : omettre n'IMPORTE LAQUELLE des six operations.",
+      "expected_effect": "T56.A2 devient rouge.",
+      "observation_qui_echoue": "A2 lance `pilot-conduct --provider claude-cli --live` (plan d'enregistrement du prompt REEL recu par chaque periode, mecanisme REPRIS de acceptance/T55.spec.ts), puis exige, pour CHAQUE operation du contrat ET pour CHAQUE periode persistee (P1, P2), qu'un exemple requete->reponse soit DETECTE par `exempleDetecte` (segmentation d'accolades equilibrees + verification que CHAQUE champ d'argument et de reponse du contrat figure dans l'enveloppe correspondante) — en une seule assertion nommee 'chaque-operation-a-un-exemple-requete-reponse-au-format-exact-dans-chaque-periode', qui echoue en nommant PRECISEMENT 'P1:write'/'P2:write' dans sa liste de manquants sous cette mutation. MESURE REELLE, a HEAD, sans aucune implementation de T56 : CETTE MEME assertion echoue DEJA, nommant les DOUZE paires periode:operation comme manquantes (aucun exemple n'existe encore pour aucune operation), ce qui demontre que le detecteur reagit correctement a une absence — la mutation ciblee (une SEULE operation omise par une implementation par ailleurs complete) produirait la MEME forme d'echec, restreinte a 'write'.",
+      "pourquoi_cette_perturbation": "A2 est un cas `behaviour` : il exerce le chemin reel du pilote (jamais une fonction isolee) et observe sa sortie. verification/cases.extensions.lock.json prescrit EXACTEMENT cette perturbation (« retirer l'exemple de l'operation write du prompt : le cas doit rougir »). Un stub qui ferait lever `pilot-conduct` (module-stub) laisserait ce cas rouge pour une raison SANS RAPPORT avec le contenu des exemples (porte RED generique, pas la preuve visee) : c'est pourquoi la mutation est CIBLEE sur l'assemblage des exemples eux-memes, jamais sur l'existence du processus.",
+      "doit_rester_vert": [
+        "T56.A1",
+        "T56.A3"
+      ],
+      "tue_aussi": [
+        "T56.A4"
+      ],
+      "note_tue_aussi": "Le volet REEL de T56.A4 derive `operationKeyField` depuis CE MEME exemple `write` (par exclusion positionnelle des quatre arguments ancres — acceptance/fixtures/claude-cli/t56-derive-reference-candidate.mjs, `extraireOperationKeyField`). Si cet exemple est absent du prompt, l'extraction echoue et retourne le marqueur `<absent-du-prompt:operation_key_field>` : le candidat derive ne peut alors satisfaire aucun controle `write` du. Les deux scenarios AUTONOMES de A4 (prompts FABRIQUES par la suite elle-meme) restent verts, puisqu'ils n'empruntent jamais le chemin reel du pilote."
+    },
+    {
+      "id": "T56.M3",
+      "kills_case": "T56.A3",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point de l'implementation (futur) qui, avant ou apres le lancement de la session candidate d'une periode, ECRIT le script public de verification de forme dans l'espace de travail du candidat (`--candidate-workspace-root`, DEJA fixe par T48/T52) — distinct du point qui construit le PROMPT (A1/A2) et distinct du candidat lui-meme (jamais ecrit par le candidat, toujours par le moteur).",
+      "mutation": "Ne pas ecrire ce script dans l'espace de travail (la perturbation nommement citee par cases.extensions.lock.json#T56.A3) — le reste du pilote (prompt, exemples, controle) demeure intact.",
+      "expected_effect": "T56.A3 devient rouge.",
+      "observation_qui_echoue": "A3 lance `pilot-conduct --provider claude-cli --live --test-stop-after-periods 1`, relit l'espace de travail de la periode 1 de facon INDEPENDANTE (`run-period --test-reread-period 1`, mecanisme REPRIS de T52/T55 — jamais le resultat de `pilot-conduct` lui-meme, qui ne porte pas `candidate.workspace_dir`), puis enumere ce repertoire et exige qu'au moins un fichier `.mjs`/`.js` (hors `candidate.mjs`) plausiblement verificateur de forme soit trouve (`trouverScriptDeVerification`) — assertion nommee 'script-de-verification-de-forme-present-apres-p1', puis repete 'script-de-verification-de-forme-present-apres-p2' apres reprise jusqu'a la fin de la trajectoire. MESURE REELLE, a HEAD, sans aucune implementation de T56 : cette PREMIERE assertion echoue DEJA, le repertoire ne contenant QUE 'candidate.mjs' (['candidate.mjs']) — exactement la forme d'echec que produirait l'implementation mutee.",
+      "pourquoi_cette_perturbation": "A3 est un cas `behaviour` et cases.extensions.lock.json prescrit EXACTEMENT cette perturbation (« ne pas ecrire le script de verification de forme dans l'espace de travail : le cas doit rougir »). La suite exige en outre, par un CONTROLE COMPORTEMENTAL distinct (executer le script trouve contre le candidat correct PUIS contre un candidat dont le champ `decision` est systematiquement renomme, et exiger une observation DIFFERENTE), que le script FASSE reellement quelque chose — sans ce second controle, un fichier vide nomme au hasard satisferait deja la seule presence et le cas serait creux.",
+      "doit_rester_vert": [
+        "T56.A1",
+        "T56.A2",
+        "T56.A4"
+      ]
+    },
+    {
+      "id": "T56.M4",
+      "kills_case": "T56.A4",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le MEME point que T56.M1 — l'assemblage du TEXTE DE L'ENONCE de chaque periode — mais observe ici par sa CONSEQUENCE FONCTIONNELLE sur le candidat de reference et le moteur reel de controle, jamais par une inspection textuelle (A1, point distinct de preuve pour le MEME defaut).",
+      "mutation": "Renommer, DANS L'ENONCE SEULEMENT (jamais dans les exemples JSON de A2, qui restent conformes au contrat — c'est ce qui rend cette mutation INVISIBLE a un controle qui ne lirait que les exemples), le champ `decision` en `status` — exactement la perturbation citee par verification/cases.extensions.lock.json#T56.A4 : « renommer decision en status dans l'enonce seulement : le candidat de reference doit echouer et le cas rougir si le moteur ne le detecte pas ».",
+      "expected_effect": "T56.A4 devient rouge.",
+      "observation_qui_echoue": "A4 porte un scenario AUTONOME, independant de toute implementation de T56 : un prompt FABRIQUE par la suite elle-meme (`ENONCE_FABRIQUE_MUTE`) qui reproduit EXACTEMENT cette mutation (le champ de decision nomme `status` dans la seule section « Enonce des exigences », l'exemple JSON de `write` dans la section « Exemples publics » restant conforme, `decision`). La suite derive un candidat depuis ce prompt (meme mecanisme que la derivation reelle), verifie D'ABORD que `decisionField` resolu vaut bien `'status'` (assertion 'scenario-fabrique-mute-derive-decisionField=status-depuis-l-enonce-seul' — preuve que la mutation A ETE REPRODUITE, pas supposee), PUIS lance ce candidat via `pilot-conduct --provider claude-cli --live --test-stop-after-periods 1` (le MOTEUR REEL, jamais une fonction de controle isolee) et exige qu'au moins un controle du a P1 soit VIOLE (assertion 'scenario-fabrique-mute-echoue-un-controle-du-a-p1-si-le-moteur-le-detecte'). MESURE REELLE, suite courante : CES DEUX assertions sont VERTES DEJA (`decisionField` vaut `'status'`, et `pilot-conduct` rend `{satisfied:0,violated:2}` a P1 pour ce candidat — le moteur, DEJA implemente independamment de T56, REFUSE deja un champ de reponse mal nomme) — ce qui prouve que le MECANISME de A4 (derivation + moteur reel) EST DEJA sensible a cette mutation precise, condition necessaire pour que le cas soit un vrai controle et non un cas creux une fois T56 implementee.",
+      "pourquoi_cette_perturbation": "A4 est un cas `behaviour`, et son danger propre (nomme par ADR-013 lui-meme : « T55.A3 ne pouvait pas le voir ») est qu'un candidat qui code ses noms de champ EN DUR (comme celui de T55) resterait VERT meme si l'enonce se trompe de vocabulaire — un faux VERT par construction. La contre-epreuve doit donc porter sur un candidat qui DERIVE AUSSI ses noms de champ, et la mutation doit affecter l'ENONCE SEULEMENT (jamais l'exemple), faute de quoi un mecanisme qui ne lirait QUE l'exemple (comme `operationKeyField`, volontairement insensible a CETTE mutation precise, puisque l'incident reel ne la met pas en cause) passerait a cote du defaut sans que cela prouve rien.",
+      "doit_rester_vert": [
+        "T56.A2",
+        "T56.A3"
+      ],
+      "tue_aussi": [
+        "T56.A1"
+      ],
+      "note_tue_aussi": "La MEME mutation, appliquee a l'implementation reelle (plutot qu'au prompt fabrique autonome de ce mutant), laisserait 'statut'/'status' litteral dans l'enonce EXPORTE que A1 inspecte directement — A1 rougirait par la meme balayage generique 'en_tiret_bas'/jeton banni que T56.M1 exerce. Les deux mutants visent donc, par deux chemins de preuve distincts (texte statique pour A1, consequence fonctionnelle via le moteur reel pour A4), le MEME point de responsabilite dans l'implementation future."
+    }
+  ]
+}

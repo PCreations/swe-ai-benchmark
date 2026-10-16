@@ -66,7 +66,12 @@ import { launchClaudeCliPeriod } from '@bench/agents'
 import type { ClaudeCliPeriodUsage } from '@bench/agents'
 
 import { revealedRequirementsForPeriod, SCENARIO_DEFAULT } from './run-period.js'
-import { describeCandidateProtocolV2 } from './candidate-protocol-v2.js'
+import {
+  describeCandidateProtocolV2,
+  describeCandidateProtocolExamplesV2,
+  buildCandidateProtocolFormVerificationScriptV2,
+  CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME,
+} from './candidate-protocol-v2.js'
 import { buildCandidatePeriodPrompt, CANDIDATE_REQUIREMENTS_PERIOD_KEYS } from './candidate-requirements-statement.js'
 
 /* ══════════════════════════════════ formes du contrat ═══════════════════ */
@@ -414,11 +419,25 @@ function buildPrompt(requirements: readonly unknown[], periodIndex: number): str
   return [
     `Protocole d'application ${CANDIDATE_PROTOCOL_MARKER} (voir bench candidate-period) : developpe le code candidat de cette periode comme un processus qui echangera, plus tard, des operations {op,args} en JSON ligne a ligne sur son entree et sa sortie standard.`,
     describeCandidateProtocolV2(),
+    describeCandidateProtocolExamplesV2(),
+    `Verificateur de forme : ce depot contient deja, a sa racine, ${CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME} — un script public qui rejoue ces memes exemples contre ton candidat (node ${CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME}) et signale tout ecart de FORME avec le contrat. Il ignore les regles metier de cette periode (il ne connait aucune valeur attendue par un controle) : lance-le avant de conclure pour detecter un desaccord de nommage.`,
     "Enonce des exigences pour cette periode (regles actives, vocabulaire et parametres du modele attendu) :",
     candidatePeriodStatement(periodIndex),
     'Exigences revelees pour cette periode (JSON) :',
     reqJson,
   ].join('\n\n')
+}
+
+/** ADR-013 (T56) : écrit (ou réécrit) le vérificateur public de forme dans
+ *  l'espace de travail de CHAQUE période, AVANT de lancer la session — pour
+ *  que le candidat puisse le lancer lui-même pendant qu'il développe, et que
+ *  `git show <commit_sha>` de la période le porte déjà quelle que soit la
+ *  session. Contenu FIXE (dérivé du seul contrat `./candidate-protocol-v2.ts`,
+ *  jamais du prompt ni d'une session) : écrire ce fichier n'est jamais une
+ *  écriture du candidat lui-même (ADR-008 L86-87 : seul ce que LA SESSION a
+ *  écrit est commis "apres" — ce fichier existe déjà AVANT qu'elle démarre). */
+function writeProtocolFormVerificationScript(workspaceDir: string): void {
+  fs.writeFileSync(path.join(workspaceDir, CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME), buildCandidateProtocolFormVerificationScriptV2())
 }
 
 /* ══════════════════════════════════════════════════ l'orchestrateur (A1/A3/A6) */
@@ -452,6 +471,7 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
   const requirements = await revealedRequirementsForPeriod(scenarioId, periodIndex)
   const prompt = buildPrompt(requirements, periodIndex)
   const workspaceDir = ensureWorkspace(input.candidateWorkspaceRoot, campaignId)
+  writeProtocolFormVerificationScript(workspaceDir)
 
   const session = await launchClaudeCliPeriod({
     workspaceDir,

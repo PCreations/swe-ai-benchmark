@@ -85,6 +85,17 @@ const REJECTION_CANCELLATION_TOO_LATE = 'CANCELLATION_TOO_LATE'
 const REJECTION_NO_ACTIVE_RESERVATION = 'NO_ACTIVE_RESERVATION'
 const REJECTION_NOT_FOUND = 'NOT_FOUND'
 
+/* ═══════════════════ ADR-013 : un seul vocabulaire (T56) ═════════════════
+ * « Ce que le troisième essai réel a montré » : l'énoncé (T53) ne doit citer
+ * AUCUN autre nom de champ que ceux du contrat `bench.candidate/2`
+ * (`./candidate-protocol-v2.ts`) — jamais `statut` ni `idempotency_key`
+ * (vocabulaire interdit par l'incident réel). Les DEUX noms canoniques que
+ * cet incident oppose à ces noms bannis (`decision`, `operation_key`) sont
+ * donc cités, littéralement, dans l'énoncé de CHAQUE période — même phrase,
+ * reprise à l'identique, jamais reformulée différemment d'une période à
+ * l'autre. */
+const CANONICAL_FIELD_NAMES_SENTENCE = `Une réservation devient ${STATUS_CONFIRMED} dès qu'une place se libère au créneau ; cette décision est portée par le champ \`decision\` de la réponse, par exemple \`{"decision":"${STATUS_CONFIRMED}"}\` ; la clé d'idempotence de chaque écriture s'appelle \`operation_key\`.`
+
 /* ═══════════════════════════════ les quatre énoncés de période ═══════════ */
 
 export interface CandidatePeriodRequirementsStatement {
@@ -105,9 +116,10 @@ const P1: CandidatePeriodRequirementsStatement = {
   statement: [
     `Période P1 — règles actives du scénario F-RESERVATION.`,
     `Le créneau ${SLOT_ID} (début ${SLOT_START}) a une capacité de ${String(SLOT_CAPACITY)} réservation(s) confirmée(s) simultanément.`,
-    `Chaque réservation porte un statut parmi ${STATUS_CONFIRMED} ou ${STATUS_CANCELLED}.`,
-    `Rejouer la même clé d'opération (idempotency_key) avec les mêmes arguments renvoie le résultat déjà obtenu, sans créer de doublon ; la rejouer avec des arguments différents renvoie ${REJECTION_CONFLICT}.`,
-    `Aucune file d'attente, aucune règle d'annulation et aucune isolation entre locataires ne sont encore énoncées à cette période.`,
+    `Chaque réservation porte une décision dont la valeur figure parmi ${STATUS_CONFIRMED} ou ${STATUS_CANCELLED}.`,
+    `Rejouer la même clé d'opération, nommée \`operation_key\`, avec les mêmes arguments renvoie le résultat déjà obtenu, sans créer de doublon ; la rejouer avec des arguments différents renvoie ${REJECTION_CONFLICT}.`,
+    `Aucune file d'attente ${STATUS_CONFIRMED}/attente/${STATUS_CANCELLED} n'est encore active à cette période (pas plus qu'une règle d'annulation ou qu'une isolation entre locataires).`,
+    CANONICAL_FIELD_NAMES_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -118,10 +130,11 @@ const P1: CandidatePeriodRequirementsStatement = {
 const P2: CandidatePeriodRequirementsStatement = {
   statement: [
     `Période P2 — règles actives du scénario F-RESERVATION.`,
-    `En plus des règles de P1 (créneau ${SLOT_ID}, début ${SLOT_START}), une file d'attente ordonnée par séquence d'admission explicite (jamais par l'horodatage) s'applique désormais.`,
-    `Au-delà de la capacité du créneau, toute réservation supplémentaire reçoit le statut ${STATUS_WAITING} ; la première entrée de la file devient ${STATUS_CONFIRMED} dès qu'une place se libère ; une réservation annulée porte le statut ${STATUS_CANCELLED}.`,
-    `Rejouer une clé d'opération reste sans effet de doublon (${REJECTION_CONFLICT} si les arguments diffèrent).`,
+    `En plus des règles de P1 (créneau ${SLOT_ID}, début ${SLOT_START}), une file d'attente ${STATUS_CONFIRMED}/${STATUS_WAITING}/${STATUS_CANCELLED} ordonnée par séquence d'admission explicite (jamais par l'horodatage) s'applique désormais.`,
+    `Au-delà de la capacité du créneau, toute réservation supplémentaire reçoit la décision ${STATUS_WAITING} ; la première entrée de la file devient ${STATUS_CONFIRMED} dès qu'une place se libère ; une réservation annulée porte la décision ${STATUS_CANCELLED}.`,
+    `Rejouer une clé d'opération (\`operation_key\`) reste sans effet de doublon (${REJECTION_CONFLICT} si les arguments diffèrent).`,
     `Aucune règle d'annulation ni aucune isolation entre locataires ne sont encore énoncées à cette période.`,
+    CANONICAL_FIELD_NAMES_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -135,6 +148,7 @@ const P3: CandidatePeriodRequirementsStatement = {
     `En plus des règles de P1 et P2 (créneau ${SLOT_ID}, début ${SLOT_START} ; file d'attente ${STATUS_CONFIRMED}/${STATUS_WAITING}/${STATUS_CANCELLED}), une annulation n'est acceptée que si elle intervient au moins ${String(NOTICE_HOURS)} heures avant le début du créneau, frontière incluse : un acteur peut encore annuler exactement à ${CANCELLATION_BOUNDARY}.`,
     `Une annulation trop tardive renvoie ${REJECTION_CANCELLATION_TOO_LATE} ; annuler une réservation qui n'a plus d'effet actif renvoie ${REJECTION_NO_ACTIVE_RESERVATION}.`,
     `Aucune isolation entre locataires n'est encore énoncée à cette période.`,
+    CANONICAL_FIELD_NAMES_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -149,6 +163,7 @@ const P4: CandidatePeriodRequirementsStatement = {
     `Période P4 — règles actives du scénario F-RESERVATION.`,
     `En plus des règles de P1, P2 et P3 (créneau ${SLOT_ID}, début ${SLOT_START} ; file d'attente ${STATUS_CONFIRMED}/${STATUS_WAITING}/${STATUS_CANCELLED} ; annulation acceptée à partir de ${String(NOTICE_HOURS)} heures avant le début, frontière incluse à ${CANCELLATION_BOUNDARY}, sinon ${REJECTION_CANCELLATION_TOO_LATE}), les locataires sont désormais isolés.`,
     `Un acteur d'un autre locataire ne peut ni lire ni modifier les réservations de ce locataire, et toute tentative renvoie le verdict ${REJECTION_NOT_FOUND}, sans aucune donnée métier divulguée.`,
+    CANONICAL_FIELD_NAMES_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement

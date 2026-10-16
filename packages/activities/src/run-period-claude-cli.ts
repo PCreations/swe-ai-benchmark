@@ -67,6 +67,7 @@ import type { ClaudeCliPeriodUsage } from '@bench/agents'
 
 import { revealedRequirementsForPeriod, SCENARIO_DEFAULT } from './run-period.js'
 import { describeCandidateProtocolV2 } from './candidate-protocol-v2.js'
+import { buildCandidatePeriodPrompt, CANDIDATE_REQUIREMENTS_PERIOD_KEYS } from './candidate-requirements-statement.js'
 
 /* ══════════════════════════════════ formes du contrat ═══════════════════ */
 
@@ -392,11 +393,29 @@ function withoutVerdict(requirements: readonly unknown[]): unknown[] {
   })
 }
 
-function buildPrompt(requirements: readonly unknown[]): string {
+/** L'enonce en langue naturelle de T53 (`buildCandidatePeriodPrompt`,
+ *  ADR-012 « Non corrige » #1) pour `periodIndex` — jamais recalcule
+ *  localement : LA MEME description exportee que `./candidate-requirements-
+ *  statement.ts` fixe pour `P1`..`P4`. `periodIndex` est borne a
+ *  [1, longueur de CANDIDATE_REQUIREMENTS_PERIOD_KEYS] (meme discipline de
+ *  clamp que `clockForPeriod`/`scriptedPeriodFor`, ailleurs dans ce
+ *  paquet) : une periode hors de ce scenario de demonstration (P1-P4)
+ *  n'omet jamais l'enonce, elle retombe sur celui de la derniere periode
+ *  connue plutot que de faire echouer la session.
+ */
+function candidatePeriodStatement(periodIndex: number): string {
+  const max = CANDIDATE_REQUIREMENTS_PERIOD_KEYS.length
+  const clamped = Math.min(Math.max(periodIndex, 1), max)
+  return buildCandidatePeriodPrompt(clamped)
+}
+
+function buildPrompt(requirements: readonly unknown[], periodIndex: number): string {
   const reqJson = JSON.stringify(canonicalValue(withoutVerdict(requirements)))
   return [
     `Protocole d'application ${CANDIDATE_PROTOCOL_MARKER} (voir bench candidate-period) : developpe le code candidat de cette periode comme un processus qui echangera, plus tard, des operations {op,args} en JSON ligne a ligne sur son entree et sa sortie standard.`,
     describeCandidateProtocolV2(),
+    "Enonce des exigences pour cette periode (regles actives, vocabulaire et parametres du modele attendu) :",
+    candidatePeriodStatement(periodIndex),
     'Exigences revelees pour cette periode (JSON) :',
     reqJson,
   ].join('\n\n')
@@ -431,7 +450,7 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
   const scenarioId = input.scenarioId ?? SCENARIO_DEFAULT
 
   const requirements = await revealedRequirementsForPeriod(scenarioId, periodIndex)
-  const prompt = buildPrompt(requirements)
+  const prompt = buildPrompt(requirements, periodIndex)
   const workspaceDir = ensureWorkspace(input.candidateWorkspaceRoot, campaignId)
 
   const session = await launchClaudeCliPeriod({

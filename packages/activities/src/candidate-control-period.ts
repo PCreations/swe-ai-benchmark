@@ -1046,9 +1046,15 @@ export async function controlCandidateCommitOnce(
 
     if (candidateProcess !== null) candidateProcess.kill()
 
-    // (A3 de T51, reprise à l'identique) : un candidat NON DÉPLOYÉ publie les
-    // cinq contrôles TOUS violés, jamais omis.
-    const controls: CandidateControlEntry[] = CONTROL_IDS.map((id) => {
+    // (A3 de T51, reprise à l'identique, RESTREINTE aux contrôles DUS) : un
+    // candidat NON DÉPLOYÉ publie les contrôles DUS à `periodIndex` TOUS
+    // violés, jamais omis. (T55.A2, ADR-012 « Non corrigé » #1) : seuls les
+    // contrôles DUS à `periodIndex` (`controlIdsDueAt`, T54) sont évalués ET
+    // persistés ici — jamais les cinq systématiquement. `candidate-control-
+    // period` (T51/T54) et `controlCandidateCommitOnce` (T52, ce bloc)
+    // partagent désormais EXACTEMENT le même filtre, jamais deux copies
+    // divergentes.
+    const controls: CandidateControlEntry[] = controlIdsDueAt(periodIndex).map((id) => {
       if (!deployed) {
         return { id, status: 'violated', actual: 'CANDIDATE_NOT_DEPLOYED', expected: controlState[id].expected }
       }

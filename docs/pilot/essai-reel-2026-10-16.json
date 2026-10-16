@@ -1,0 +1,288 @@
+{
+ "schema": "bench.essai_reel/1",
+ "date": "2026-10-16",
+ "objet": "Second essai reel d'une periode, apres T53/T54 (55/55 prouvees) : verifier sur donnees reelles les defauts du premier essai.",
+ "commit_moteur": "cf277a84a74e0403bcda2528c562850b07bf4048",
+ "claude_cli_version": "2.1.301 (Claude Code)",
+ "auth": "abonnement du mandant (oauth_token, firstParty) ; aucune ANTHROPIC_API_KEY",
+ "constats": {
+  "rapport_tokens": "CORRIGE — candidate_token_report non vide",
+  "ventilation_cache": "CORRIGE — cache_write_1h 45691, cache_write_5m 0",
+  "controles_dus": "NON CORRIGE — 5 controles a P1 : controlCandidateCommitOnce (chemin du pilote) n'applique pas controlIdsDueAt",
+  "enonce_dans_le_prompt": "NON CORRIGE — run-period-claude-cli n'importe pas buildCandidatePeriodPrompt (T53) ; le candidat repond 'accepted' au lieu de 'confirmed'"
+ },
+ "manifeste": {
+  "schema": "bench.pilot.manifest/1",
+  "corpus": {
+   "groups": [
+    {
+     "source_parent_project_id": "PRJ-SMOKE-LIVE",
+     "source_scenario_id": "SCN-PILOT-SMALL",
+     "clone_instance_ids": [
+      "PRJ-SMOKE-LIVE-clone-1"
+     ]
+    }
+   ]
+  },
+  "model": {
+   "name": "claude-haiku-4-5-20251001"
+  },
+  "price": {
+   "tariff_micro_usd": "340"
+  },
+  "exposure": {
+   "predefined": true,
+   "value": "1"
+  },
+  "budget": {
+   "unbounded": true
+  },
+  "configurations": [
+   "cfg-smoke-live"
+  ],
+  "repetitions": 1,
+  "periods_per_trajectory": 1
+ },
+ "rapport_pilot_conduct": {
+  "schema": "bench.pilot_conduct.result/1",
+  "campaign_id": "smoke-live-2",
+  "trajectory_count": 1,
+  "period_count": 1,
+  "periods_persisted": 1,
+  "ready": true,
+  "missing_prerequisites": [],
+  "interrupted": false,
+  "budget": {
+   "unbounded": true
+  },
+  "trajectories": [
+   {
+    "trajectory_key": "smoke-live-2--g0--PRJ-SMOKE-LIVE-clone-1--cfg-smoke-live--rep1",
+    "parent_project_id": "PRJ-SMOKE-LIVE",
+    "scenario_id": "SCN-PILOT-SMALL",
+    "configuration_id": "cfg-smoke-live",
+    "periods_persisted": 1
+   }
+  ],
+  "periods": [],
+  "token_report": {
+   "by_model": {}
+  },
+  "candidate_token_report": {
+   "by_model": {
+    "claude-haiku-4-5-20251001": {
+     "input_fresh": 122,
+     "cache_read": 556451,
+     "output": 9872,
+     "cache_write_5m": 0,
+     "cache_write_1h": 45691,
+     "cache_write_unresolved": 0
+    }
+   }
+  },
+  "candidate_control_report": [
+   {
+    "trajectory_key": "smoke-live-2--g0--PRJ-SMOKE-LIVE-clone-1--cfg-smoke-live--rep1",
+    "periods": [
+     {
+      "period_index": 1,
+      "satisfied": 1,
+      "violated": 4
+     }
+    ]
+   }
+  ]
+ },
+ "usage_persiste": [
+  {
+   "model": "claude-haiku-4-5-20251001",
+   "output": 9872,
+   "cache_read": 556451,
+   "input_fresh": 122,
+   "cache_write_1h": 45691,
+   "cache_write_5m": 0,
+   "cache_write_unresolved": 0
+  }
+ ],
+ "controles_persistes": [
+  {
+   "id": "reserve@1",
+   "actual": "accepted",
+   "status": "violated",
+   "expected": "confirmed"
+  },
+  {
+   "id": "idempotence@1",
+   "actual": "accepted",
+   "status": "violated",
+   "expected": "confirmed"
+  },
+  {
+   "id": "cancel@1",
+   "actual": "cancelled",
+   "status": "satisfied",
+   "expected": "cancelled"
+  },
+  {
+   "id": "fifo@1",
+   "actual": null,
+   "status": "violated",
+   "expected": {
+    "status": "confirmed"
+   }
+  },
+  {
+   "id": "isolation@1",
+   "actual": {
+    "ok": true,
+    "code": null
+   },
+   "status": "violated",
+   "expected": {
+    "ok": false,
+    "code": "NOT_FOUND"
+   }
+  }
+ ],
+ "sortie_brute_claude_p": {
+  "duration_api_ms": 82675,
+  "stop_reason": "end_turn",
+  "session_id": "8d8aeedb-188c-5211-b26f-ececa95a4ede",
+  "total_cost_usd": 0.19650909999999996,
+  "usage": {
+   "input_tokens": 122,
+   "cache_creation_input_tokens": 45691,
+   "cache_read_input_tokens": 556451,
+   "output_tokens": 9872,
+   "output_tokens_details": {
+    "thinking_tokens": 2614
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 45691,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "not_available",
+   "iterations": [
+    {
+     "input_tokens": 8,
+     "output_tokens": 311,
+     "cache_read_input_tokens": 45315,
+     "cache_creation_input_tokens": 376,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 376
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-haiku-4-5-20251001": {
+    "inputTokens": 122,
+    "outputTokens": 9872,
+    "cacheReadInputTokens": 556451,
+    "cacheCreationInputTokens": 45691,
+    "webSearchRequests": 0,
+    "costUSD": 0.19650909999999996,
+    "contextWindow": 200000,
+    "maxOutputTokens": 32000,
+    "thinkingTokens": 2614,
+    "canonicalModel": "claude-haiku-4-5",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 15,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "✅ **Application candidat implémentée avec succès**\n\nLe système de réservation est opérationnel et satisfait tous les critères :\n\n**Exigences satisfaites :**\n- 🔴 **BLOCKER** - `reservation.create`: Gestion de la capacité par créneau avec rejet des doublons\n- 🟠 **MAJOR** - `reservation.idempotency`: Idempotence garantie via `operation_key`\n\n**Protocole implémenté :**\n- ✅ Signal de démarrage: `{\"ready\":true}` à la première ligne\n- ✅ Communication JSON ligne-à-ligne sur stdin/stdout\n- ✅ Toutes 6 opérations requises: `create_tenant`, `advance_clock`, `write`, `read`, `probe_cancel`, `fingerprint`\n- ✅ Gestion complète des erreurs avec codes d'erreur structurés\n\n**Point d'entrée :** `candidate.mjs` à la racine du dépôt, lanceable par `node candidate.mjs`\n\nL'application est prête pour le moteur de benchmark.",
+  "ttft_ms": 4496,
+  "type": "result",
+  "duration_ms": 99885,
+  "uuid": "2b36e54c-265a-4457-8886-b43f9a14850c",
+  "ttft_stream_ms": 1752,
+  "time_to_request_ms": 154,
+  "time_to_request_phases_ms": {
+   "other": 26,
+   "system_prompt": 12,
+   "resume_other": 1,
+   "process_user_input": 3,
+   "input_attachments": 19,
+   "input_hooks": 3,
+   "tool_pool_refresh": 3,
+   "init_message": 6,
+   "engine_pickup": 1,
+   "message_prep": 1,
+   "model_config_wait": 1,
+   "autocompact": 1,
+   "query_setup": 1,
+   "model_gates": 0,
+   "tool_schema_build": 50,
+   "message_normalization": 2,
+   "client_creation": 6,
+   "request_build": 18
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 103,
+  "time_to_request_cpu_ms": 271,
+  "time_to_request_major_faults": 3,
+  "process_rss_mib_turn_start": 216,
+  "process_anon_mib_turn_start": 101,
+  "process_rss_mib_result": 253,
+  "process_anon_mib_result": 133,
+  "process_peak_rss_mib": 279,
+  "process_cpu_ms_turn": 4872,
+  "process_wall_ms_turn": 99885,
+  "input_attachments_detail": {
+   "slowest_producer": "queued_commands",
+   "slowest_producer_ms": 14,
+   "cpu_ms": 27,
+   "major_faults": 0
+  },
+  "first_content_frame_ms": 1753,
+  "time_to_request_from_spawn_ms": 15770856,
+  "warm_spare_claimed": false,
+  "flag_fetch_kick": "not_asked_warm",
+  "time_origin_ms": 1792110600867.308,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

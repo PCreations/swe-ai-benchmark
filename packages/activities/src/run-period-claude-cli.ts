@@ -372,8 +372,28 @@ const CANDIDATE_PROTOCOL_MARKER = 'bench.candidate/1'
  *  `./candidate-control-period.ts` derivent TOUS DEUX -- jamais une copie
  *  locale divergente. */
 
+/** SC-004 (option A, arbitree le 2026-10-16) ; ADR-011 L107 : le candidat
+ *  recoit les exigences revelees PRIVEES de tout champ de VERDICT -- le
+ *  jugement porte sur une execution, jamais la regle. `satisfied` est le seul
+ *  que porte la forme publiee (`PublishedRequirement`, @bench/scenario) ;
+ *  `verdict` et `status` (vocabulaire des resultats de controle) sont retires
+ *  par parallelisme -- MEME ensemble que `acceptance/T49.spec.ts`
+ *  (`CHAMPS_VERDICT`). Le reste de chaque exigence est conserve tel quel. */
+const VERDICT_FIELDS: readonly string[] = ['satisfied', 'verdict', 'status']
+
+function withoutVerdict(requirements: readonly unknown[]): unknown[] {
+  return requirements.map((r) => {
+    if (r === null || typeof r !== 'object' || Array.isArray(r)) return r
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(r as Record<string, unknown>)) {
+      if (!VERDICT_FIELDS.includes(k)) out[k] = v
+    }
+    return out
+  })
+}
+
 function buildPrompt(requirements: readonly unknown[]): string {
-  const reqJson = JSON.stringify(canonicalValue(requirements))
+  const reqJson = JSON.stringify(canonicalValue(withoutVerdict(requirements)))
   return [
     `Protocole d'application ${CANDIDATE_PROTOCOL_MARKER} (voir bench candidate-period) : developpe le code candidat de cette periode comme un processus qui echangera, plus tard, des operations {op,args} en JSON ligne a ligne sur son entree et sa sortie standard.`,
     describeCandidateProtocolV2(),

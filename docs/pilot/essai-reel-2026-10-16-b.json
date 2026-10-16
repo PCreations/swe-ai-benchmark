@@ -1,0 +1,270 @@
+{
+ "schema": "bench.essai_reel/1",
+ "date": "2026-10-16",
+ "objet": "Troisieme essai reel d'une periode, apres T55 (56/56 prouvees).",
+ "commit_moteur": "c2dc293ae0a39ea01f82dca203e9b3783b99d298",
+ "claude_cli_version": "2.1.301 (Claude Code)",
+ "auth": "abonnement du mandant (oauth_token, firstParty) ; aucune ANTHROPIC_API_KEY",
+ "constats": {
+  "controles_dus": "CORRIGE — P1 controlee sur reserve@1 et idempotence@1 seulement",
+  "vocabulaire": "CORRIGE — le candidat emploie 'confirmed'",
+  "forme_de_reponse": "NON CORRIGE — le candidat repond {ok,status,reservation_id} ; le contrat attend {decision}. L'enonce (T53) parle de 'statut' et d''idempotency_key', le contrat de 'decision' et d''operation_key' : les deux textes du prompt se contredisent.",
+  "session": "success, 26 tours, 0 refus de permission"
+ },
+ "manifeste": {
+  "schema": "bench.pilot.manifest/1",
+  "corpus": {
+   "groups": [
+    {
+     "source_parent_project_id": "PRJ-SMOKE-LIVE",
+     "source_scenario_id": "SCN-PILOT-SMALL",
+     "clone_instance_ids": [
+      "PRJ-SMOKE-LIVE-clone-1"
+     ]
+    }
+   ]
+  },
+  "model": {
+   "name": "claude-haiku-4-5-20251001"
+  },
+  "price": {
+   "tariff_micro_usd": "340"
+  },
+  "exposure": {
+   "predefined": true,
+   "value": "1"
+  },
+  "budget": {
+   "unbounded": true
+  },
+  "configurations": [
+   "cfg-smoke-live"
+  ],
+  "repetitions": 1,
+  "periods_per_trajectory": 1
+ },
+ "rapport_pilot_conduct": {
+  "schema": "bench.pilot_conduct.result/1",
+  "campaign_id": "smoke-live-3",
+  "trajectory_count": 1,
+  "period_count": 1,
+  "periods_persisted": 1,
+  "ready": true,
+  "missing_prerequisites": [],
+  "interrupted": false,
+  "budget": {
+   "unbounded": true
+  },
+  "trajectories": [
+   {
+    "trajectory_key": "smoke-live-3--g0--PRJ-SMOKE-LIVE-clone-1--cfg-smoke-live--rep1",
+    "parent_project_id": "PRJ-SMOKE-LIVE",
+    "scenario_id": "SCN-PILOT-SMALL",
+    "configuration_id": "cfg-smoke-live",
+    "periods_persisted": 1
+   }
+  ],
+  "periods": [],
+  "token_report": {
+   "by_model": {}
+  },
+  "candidate_token_report": {
+   "by_model": {
+    "claude-haiku-4-5-20251001": {
+     "input_fresh": 210,
+     "cache_read": 1110244,
+     "output": 18209,
+     "cache_write_5m": 0,
+     "cache_write_1h": 55950,
+     "cache_write_unresolved": 0
+    }
+   }
+  },
+  "candidate_control_report": [
+   {
+    "trajectory_key": "smoke-live-3--g0--PRJ-SMOKE-LIVE-clone-1--cfg-smoke-live--rep1",
+    "periods": [
+     {
+      "period_index": 1,
+      "satisfied": 0,
+      "violated": 2
+     }
+    ]
+   }
+  ]
+ },
+ "usage_persiste": [
+  {
+   "model": "claude-haiku-4-5-20251001",
+   "output": 18209,
+   "cache_read": 1110244,
+   "input_fresh": 210,
+   "cache_write_1h": 55950,
+   "cache_write_5m": 0,
+   "cache_write_unresolved": 0
+  }
+ ],
+ "controles_persistes": [
+  {
+   "id": "reserve@1",
+   "actual": {
+    "ok": true,
+    "status": "confirmed",
+    "reservation_id": "IDK-A-RESERVE"
+   },
+   "status": "violated",
+   "expected": "confirmed"
+  },
+  {
+   "id": "idempotence@1",
+   "actual": {
+    "ok": true,
+    "status": "confirmed",
+    "reservation_id": "IDK-A-RESERVE"
+   },
+   "status": "violated",
+   "expected": "confirmed"
+  }
+ ],
+ "sortie_brute_claude_p": {
+  "duration_api_ms": 147522,
+  "stop_reason": "end_turn",
+  "session_id": "8d8aeedb-188c-5211-b26f-ececa95a4ede",
+  "total_cost_usd": 0.31417940000000005,
+  "usage": {
+   "input_tokens": 210,
+   "cache_creation_input_tokens": 55950,
+   "cache_read_input_tokens": 1110244,
+   "output_tokens": 18209,
+   "output_tokens_details": {
+    "thinking_tokens": 7017
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 55950,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "not_available",
+   "iterations": [
+    {
+     "input_tokens": 8,
+     "output_tokens": 613,
+     "cache_read_input_tokens": 55696,
+     "cache_creation_input_tokens": 254,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 254
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-haiku-4-5-20251001": {
+    "inputTokens": 210,
+    "outputTokens": 18209,
+    "cacheReadInputTokens": 1110244,
+    "cacheCreationInputTokens": 55950,
+    "webSearchRequests": 0,
+    "costUSD": 0.31417940000000005,
+    "contextWindow": 200000,
+    "maxOutputTokens": 32000,
+    "thinkingTokens": 7017,
+    "canonicalModel": "claude-haiku-4-5",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Perfect! The `candidate.mjs` is ready and fully implements the bench.candidate protocol for Period P1 (F-RESERVATION scenario). Here's what has been implemented:\n\n## Implementation Summary\n\n**Key Features:**\n- ✅ **JSON Line-by-Line Protocol**: Handles stdin/stdout communication with proper request/response format\n- ✅ **Startup Signal**: Outputs `{\"ready\":true}` immediately on launch\n- ✅ **All Required Operations**:\n  - `create_tenant`: Creates new tenants\n  - `advance_clock`: Updates system time\n  - `write`: Performs reserve/cancel operations with idempotency\n  - `read`: Retrieves reservation details\n  - `probe_cancel`: Checks if a reservation is cancelled\n  - `fingerprint`: Generates SHA256 hash of system state\n\n- ✅ **Slot S1 Capacity Management**: Enforces 1 simultaneous confirmed reservation limit\n- ✅ **Idempotency**: Replaying operations with identical arguments returns the same result without duplicates; different arguments return CONFLICT error\n- ✅ **Reservation Status**: Tracks confirmed and cancelled states\n- ✅ **Cancel Operation**: Uses `cancel:` prefix convention to identify target reservations (e.g., `operation_key: \"cancel:res1\"` cancels reservation \"res1\")\n\n**Usage:**\n```bash\nnode candidate.mjs\n```\n\nThe implementation meets all P1 requirements including the two critical capabilities:\n- `reservation.idempotency` (MAJOR)\n- `reservation.create` with capacity constraints (BLOCKER)",
+  "ttft_ms": 5723,
+  "type": "result",
+  "duration_ms": 155907,
+  "uuid": "bd6b35ac-6f96-4155-a8d3-dfd466b6e769",
+  "ttft_stream_ms": 1352,
+  "time_to_request_ms": 209,
+  "time_to_request_phases_ms": {
+   "other": 29,
+   "system_prompt": 16,
+   "resume_other": 0,
+   "process_user_input": 5,
+   "input_attachments": 27,
+   "input_hooks": 4,
+   "tool_pool_refresh": 4,
+   "init_message": 8,
+   "engine_pickup": 2,
+   "message_prep": 1,
+   "model_config_wait": 2,
+   "autocompact": 1,
+   "query_setup": 1,
+   "model_gates": 0,
+   "tool_schema_build": 74,
+   "message_normalization": 5,
+   "client_creation": 6,
+   "request_build": 24
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 159,
+  "time_to_request_cpu_ms": 325,
+  "time_to_request_major_faults": 0,
+  "process_rss_mib_turn_start": 214,
+  "process_anon_mib_turn_start": 98,
+  "process_rss_mib_result": 262,
+  "process_anon_mib_result": 141,
+  "process_peak_rss_mib": 281,
+  "process_cpu_ms_turn": 8405,
+  "process_wall_ms_turn": 155906,
+  "input_attachments_detail": {
+   "slowest_producer": "queued_commands",
+   "slowest_producer_ms": 20,
+   "cpu_ms": 39,
+   "major_faults": 0
+  },
+  "first_content_frame_ms": 1353,
+  "time_to_request_from_spawn_ms": 22784852,
+  "warm_spare_claimed": false,
+  "flag_fetch_kick": "not_asked_warm",
+  "time_origin_ms": 1792160946039.0928,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

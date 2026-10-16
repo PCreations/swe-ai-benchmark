@@ -89,3 +89,13 @@ n'apparaissent qu'en P4. Effet sur le pilote : nul en pratique — en P3 aucun
 autre locataire n'existe, l'isolation y est trivialement satisfaite. Mais
 l'écart au cahier est réel : à aligner (une entrée dans `ECHEANCE_CONTROLE`
 de la suite, et le filtre de `candidate-control-period`) par un ADR ultérieur.
+
+## Extension à T52 (2026-10-16)
+
+Même question, même réponse. Depuis l'implémentation de T55 (`8026fd6`, ADR-012),
+le pilote n'évalue à la période k que les contrôles dus ; `T52.A2` et `T52.A3`
+(ADR-010) attendent encore les cinq contrôles à toute période et passent au
+rouge (mesuré par le test-author de T55, `ef5c0f9`). L'arbitrage de SC-003 —
+« à la période k, on contrôle les exigences dues » — s'applique tel quel : le
+test-author de T52 adapte A2 et A3 sur l'ensemble dû, sans retirer de cas. Le
+mandant en est informé dans la conversation et peut s'y opposer.

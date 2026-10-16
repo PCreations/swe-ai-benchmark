@@ -847,6 +847,30 @@ function canonique(v: unknown): unknown {
 }
 const normaliserEspaces = (s: string): string => s.replace(/\s+/g, ' ').trim();
 
+/** Champs de VERDICT d'une exigence revelee (SC-004, option A) : le jugement porte sur une
+ *  execution, jamais la regle elle-meme. `satisfied` est le seul que la forme OBSERVEE des
+ *  exigences porte (packages/scenario/src/demo.ts#PublishedRequirement) et le seul que
+ *  l'ADR-011 nomme (L107) ; `verdict` et `status` (vocabulaire des resultats de controle,
+ *  acceptance/T51.spec.ts / T52.spec.ts) sont retires par parallelisme s'ils apparaissaient. */
+const CHAMPS_VERDICT: readonly string[] = ['satisfied', 'verdict', 'status'];
+
+/** Les exigences revelees telles que le candidat DOIT les recevoir (SC-004, option A) :
+ *  chaque exigence privee de tout champ de verdict, le reste INCHANGE. */
+function sansVerdict(exigences: unknown): unknown {
+  if (!Array.isArray(exigences)) return exigences;
+  return exigences.map((e) => {
+    if (e === null || typeof e !== 'object' || Array.isArray(e)) return e;
+    const o: Json = {};
+    for (const [k, v] of Object.entries(e as Json)) if (!CHAMPS_VERDICT.includes(k)) o[k] = v;
+    return o;
+  });
+}
+const porteUnVerdict = (exigences: unknown): boolean =>
+  Array.isArray(exigences) &&
+  exigences.some(
+    (e) => e !== null && typeof e === 'object' && CHAMPS_VERDICT.some((k) => Object.prototype.hasOwnProperty.call(e, k)),
+  );
+
 /* ════════════════════════════ fixture claude-cli (reprise + extension T47) */
 
 const CLAUDE_FIXTURE_BIN_DIR = path.join(REPO, 'acceptance', 'fixtures', 'claude-cli', 'bin');
@@ -1140,8 +1164,19 @@ describe('T49 — conduire un pilote longitudinal avec un candidat reel', () => 
       const exigencesP2 = exigencesDe(refP2.resultat);
       exige(exigencesP2 !== null, 'reference-p2-exigences-presentes', `AUCUNE exigence dans ${rendu(refP2.resultat)}`);
 
-      const serialP1 = normaliserEspaces(JSON.stringify(canonique(exigencesP1)));
-      const serialP2 = normaliserEspaces(JSON.stringify(canonique(exigencesP2)));
+      // SC-004 (option A, arbitree le 2026-10-16) : le candidat recoit les exigences revelees
+      // PRIVEES de tout champ de verdict. Controle de validite : la reference porte REELLEMENT
+      // un tel champ, sinon le retrait ci-dessous ne distinguerait rien.
+      exige(
+        porteUnVerdict(exigencesP1),
+        'reference-p1-exigences-portent-un-champ-de-verdict',
+        `CONTROLE-INVALIDE : aucun champ ${rendu(CHAMPS_VERDICT)} dans les exigences P1 ${rendu(exigencesP1)} — le test ne peut rien distinguer`,
+      );
+      const enonceP1 = sansVerdict(exigencesP1);
+      const enonceP2 = sansVerdict(exigencesP2);
+
+      const serialP1 = normaliserEspaces(JSON.stringify(canonique(enonceP1)));
+      const serialP2 = normaliserEspaces(JSON.stringify(canonique(enonceP2)));
       exige(
         serialP1 !== serialP2,
         'reference-p1-et-p2-revelent-des-exigences-distinctes',
@@ -1162,9 +1197,15 @@ describe('T49 — conduire un pilote longitudinal avec un candidat reel', () => 
       const prompt = normaliserEspaces(argv[idxP + 1] ?? '');
 
       exige(
-        prompt.includes(normaliserEspaces(JSON.stringify(canonique(exigencesP1)))),
+        prompt.includes(serialP1),
         'prompt-contient-les-exigences-de-cette-periode',
-        `exigences P1 (reference) ${rendu(exigencesP1)} introuvables dans le prompt ${rendu(court(prompt, 2000))}`,
+        `exigences P1 (reference, sans verdict) ${rendu(enonceP1)} introuvables dans le prompt ${rendu(court(prompt, 2000))}`,
+      );
+      // SC-004 / ADR-011 L107 : AUCUN champ `satisfied` (ni le mot) ne parvient au candidat.
+      exige(
+        !prompt.toLowerCase().includes('satisfied'),
+        'prompt-exclut-le-champ-satisfied',
+        `"satisfied" (verdict de l application scriptee, SC-004) TROUVE dans le prompt ${rendu(court(prompt, 2000))}`,
       );
       exige(
         prompt.toLowerCase().includes('bench.candidate/1'),
@@ -1172,9 +1213,9 @@ describe('T49 — conduire un pilote longitudinal avec un candidat reel', () => 
         `marqueur "bench.candidate/1" (acceptance/T48.spec.ts, III.3) introuvable dans le prompt ${rendu(court(prompt, 2000))}`,
       );
       exige(
-        !prompt.includes(normaliserEspaces(JSON.stringify(canonique(exigencesP2)))),
+        !prompt.includes(serialP2),
         'prompt-exclut-les-exigences-de-la-periode-suivante',
-        `exigences P2 (reference) ${rendu(exigencesP2)} TROUVEES dans le prompt de P1 ${rendu(court(prompt, 2000))}`,
+        `exigences P2 (reference, sans verdict) ${rendu(enonceP2)} TROUVEES dans le prompt de P1 ${rendu(court(prompt, 2000))}`,
       );
       exige(
         !prompt.toLowerCase().includes('oracle'),

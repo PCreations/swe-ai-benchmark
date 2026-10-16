@@ -187,6 +187,28 @@
  *    simplement la memoire du processus courant, exactement ce que la
  *    perturbation nommee par cases.extensions.lock.json#T55.A4 decrit
  *    (« relire l'usage par decoupe psql dans le chemin DU PILOTE »).
+ * 5. LE CANDIDAT DE REFERENCE DE T55.A3, DERIVE DU SEUL PROMPT RECU
+ *    (acceptance/fixtures/claude-cli/t55-derive-reference-candidate.mjs, et
+ *    la variable ADDITIVE `BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_MODULE`/
+ *    `_LOG_DIR` du faux `claude`). Un candidat FIXE a l'avance (le
+ *    `reservation-candidate-v2.mjs` de T51, qu'A1/A2 continuent d'ecrire)
+ *    ne depend PAS du prompt : retirer le vocabulaire du prompt reel (la
+ *    perturbation prescrite pour A3) le laissait VERT — cas creux, mesure
+ *    par la porte GATES. Pour A3, le faux `claude` passe le prompt de CETTE
+ *    invocation au generateur, qui en EXTRAIT par motifs de CONTEXTE (la
+ *    phrase qui introduit la valeur, jamais la valeur elle-meme) chaque
+ *    statut, chaque code d'erreur et chaque parametre (debut du creneau,
+ *    delai, frontiere, capacite) ; le squelette metier est fixe, mais chaque
+ *    litteral que les controles comparent vient du prompt. Valeur absente :
+ *    marqueur `<absent-du-prompt:ROLE>`, jamais une valeur inventee. SEULE
+ *    exception, un nombre et jamais un terme de vocabulaire : la capacite,
+ *    que le prompt de P2 designe sans la redonner (« en plus des regles de
+ *    P1 »), est relue dans le `candidate.mjs` de la periode precedente
+ *    present dans le depot de la session — ce qu'une vraie session ferait.
+ *    A3 verifie en outre, periode par periode, que le generateur a consomme
+ *    le prompt REELLEMENT enregistre (II.1) et que le source ecrit ne porte
+ *    AUCUN litteral de vocabulaire (vocabulaire declare P1..P4, litteraux en
+ *    dur du candidat fixe, ancrages geles) absent de ce prompt.
  *
  * ─────────────────────────────────────────────────────────────────────── III
  * PROVENANCE DES LITTERAUX
@@ -278,6 +300,12 @@
  *     prouves isolement, jamais re-exerces ici) ferait echouer le candidat
  *     de reference CORRECT sur un controle DU, et A3 — mais pas
  *     necessairement A2 — tomberait.
+ *     Et, depuis la mesure GATES (II.5) : le candidat de reference est
+ *     DERIVE du prompt recu, de sorte qu'un prompt prive de son vocabulaire
+ *     (perturbation prescrite : « retirer le vocabulaire de l'enonce envoye
+ *     a la session ») produit un candidat qui repond des marqueurs
+ *     `<absent-du-prompt:...>` et viole les controles dus — A3 rougit pour
+ *     la raison meme qu'il nomme : le prompt ne suffit plus.
  * (4) A4 — LE DANGER NOMME : « relire l'usage par decoupe psql dans le
  *     chemin du pilote : le cas doit rougir ». Cette suite ne RECYCLE PAS
  *     la preuve d'A1 de T54 (DEJA ACCEPTEE, en UN SEUL appel continu) : elle
@@ -692,6 +720,50 @@ function argvPlanN(dir: string, n: number): string[] {
   const enreg = recordPlanN(dir, n);
   return Array.isArray(enreg?.argv) ? (enreg!.argv as unknown[]).map(String) : [];
 }
+/** Le prompt BRUT (ni normalise ni mis en minuscules) du N-ieme enregistrement — celui que
+ *  T55.A3 confronte, octet pour octet, au prompt que le generateur de candidat a consomme. */
+function promptBrutPlanN(dir: string, n: number): string | null {
+  const argv = argvPlanN(dir, n);
+  const idxP = argv.indexOf('-p');
+  return idxP >= 0 && idxP + 1 < argv.length ? (argv[idxP + 1] as string) : null;
+}
+
+/** T55.A3 (II.5) : le candidat de reference est DERIVE, par le faux `claude` lui-meme, du
+ *  prompt que CHAQUE invocation recoit — jamais un contenu fixe (RELPATH/CONTENT ou PLAN
+ *  sont ABSENTS de cet environnement, sans quoi ils seraient prioritaires). */
+const MODULE_DERIVATION_A3 = path.join(REPO, 'acceptance', 'fixtures', 'claude-cli', 't55-derive-reference-candidate.mjs');
+function envCandidatDeriveDuPrompt(opts: { deriveLogDir: string; recordPlanDir: string; recordPlanCounterFile: string }): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...envDeBase(),
+    PATH: `${CLAUDE_FIXTURE_BIN_DIR}${path.delimiter}${process.env.PATH ?? ''}`,
+    BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_MODULE: MODULE_DERIVATION_A3,
+    BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_LOG_DIR: opts.deriveLogDir,
+    BENCH_FAKE_CLAUDE_RECORD_FILE_PLAN_DIR: opts.recordPlanDir,
+    BENCH_FAKE_CLAUDE_RECORD_FILE_PLAN_COUNTER_FILE: opts.recordPlanCounterFile,
+  };
+  delete env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_RELPATH;
+  delete env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_CONTENT;
+  delete env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_PLAN_FILE;
+  delete env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_PLAN_COUNTER_FILE;
+  verifierFauxEnTetePath(env);
+  return env;
+}
+type Derivation = { prompt: string; cwd: string; relPath: string; content: string; params: unknown };
+function derivationN(dir: string, n: number): Derivation | null {
+  const f = path.join(dir, `derived-${n}.json`);
+  if (!fs.existsSync(f)) return null;
+  try {
+    const j = JSON.parse(fs.readFileSync(f, 'utf8')) as Json;
+    if (typeof j.prompt !== 'string' || typeof j.content !== 'string') return null;
+    return j as unknown as Derivation;
+  } catch {
+    return null;
+  }
+}
+const echapperRe = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** `jeton` figure-t-il dans `source` comme jeton ENTIER (pas comme fragment d'un identifiant) ? */
+const contientJeton = (source: string, jeton: string): boolean =>
+  new RegExp(`(?<![A-Za-z0-9_])${echapperRe(jeton)}(?![A-Za-z0-9_])`).test(source);
 
 /* ════════════════════════ drapeaux et sous-commandes (repris T46/T49/T52) */
 
@@ -1018,6 +1090,12 @@ const ANCHOR_WAITING = 'waiting'; // cases.extensions.lock.json:T53.A2 — actif
 const ANCHOR_FRONTIERE = '2030-01-02T12:00:00Z'; // acceptance/reference/F-RESERVATION.json:valeurs.P3.frontiere — actif depuis P3, PAS a P1/P2
 const CHAMP_SATISFIED = 'satisfied'; // source:docs/adr/ADR-011:L107 — JAMAIS dans un prompt
 
+/** T55.A3 (II.5) : les litteraux qu'un candidat de reference FIXE porterait EN DUR sans les
+ *  tenir du prompt — ceux que reservation-candidate-v2.mjs (T51) code en dur au-dela du
+ *  vocabulaire declare par T53 (decisions de `probe_cancel`/d'annulation refusee). Unis, dans
+ *  le cas A3, au vocabulaire DECLARE par l'oracle pour P1..P4 et aux ancrages geles ci-dessus. */
+const LITTERAUX_EN_DUR_DU_CANDIDAT_FIXE = ['refused', 'accepted'] as const; // acceptance/fixtures/candidates/reservation-candidate-v2.mjs
+
 /* ═══════════════════════════════════════════════════════════════════ cas */
 
 describe('T55 — verifier les proprietes du pilote sur le chemin reel', () => {
@@ -1157,8 +1235,39 @@ describe('T55 — verifier les proprietes du pilote sur le chemin reel', () => {
   test(
     'T55.A3 avec un candidat de reference conforme au seul prompt recu, chaque controle du est satisfait a chaque periode d une execution du pilote (violated=0, ADR-012:L48)',
     () => {
+      // L'ORACLE (II.2) sert ICI a borner l'univers des litteraux de vocabulaire qu'un candidat
+      // pourrait porter EN DUR (assertion de DERIVATION ci-dessous) — jamais a construire le
+      // candidat, qui ne voit QUE le prompt recu.
+      assertOracleLoaded();
+      const description = requireDescriptionUnifiee();
+      const vocabDeclare = new Map<Periode, string[]>(PERIODES.map((p) => [p, vocabulaireDe(description, p)]));
+      const univers = [
+        ...new Set([
+          ...PERIODES.flatMap((p) => vocabDeclare.get(p) ?? []),
+          ...LITTERAUX_EN_DUR_DU_CANDIDAT_FIXE,
+          ANCHOR_SLOT_ID,
+          ANCHOR_DEBUT_CRENEAU,
+          ANCHOR_FRONTIERE,
+          ANCHOR_WAITING,
+        ]),
+      ];
+      // GARDE CONTROLE-INVALIDE : l'univers doit au moins couvrir le vocabulaire declare de P1
+      // et P2, sans quoi l'absence de litteral « non tenu du prompt » ne prouverait rien.
+      exige(
+        (vocabDeclare.get('P1') ?? []).length > 0 && (vocabDeclare.get('P2') ?? []).length > 0,
+        'controle-invalide-univers-de-vocabulaire-couvre-P1-et-P2',
+        `vocabulaire declare P1=${rendu(vocabDeclare.get('P1'))} P2=${rendu(vocabDeclare.get('P2'))}`,
+      );
+      exige(fs.existsSync(MODULE_DERIVATION_A3), 'generateur-de-candidat-derive-present', `FIXTURE-ABSENTE : ${MODULE_DERIVATION_A3}`);
+
+      // LE CANDIDAT DE REFERENCE EST DERIVE DU SEUL PROMPT RECU (II.5) : le faux `claude`
+      // passe a t55-derive-reference-candidate.mjs le prompt de CETTE invocation, qui en
+      // extrait chaque valeur de reponse et chaque parametre ; une valeur absente du prompt
+      // devient un marqueur `<absent-du-prompt:...>` que les controles n'attendent pas.
       const ctx = nouveauContexte('a3');
-      const env = envEcritureConstante({ relPath: ENTREE_CANDIDATE, content: CONTENU_CANDIDAT_CORRECT });
+      const plan = nouveauPlanDeRecord('a3');
+      const deriveLogDir = path.join(plan.dir, 'derivations');
+      const env = envCandidatDeriveDuPrompt({ deriveLogDir, recordPlanDir: plan.dir, recordPlanCounterFile: plan.counterFile });
 
       const run = conduire(ctx, [], env);
       exige(run.resultat !== null && run.exit === 0, 'pilot-conduct-claude-cli-live-execute', messageEchec('pilot-conduct(claude-cli,--live,A3)', run));
@@ -1201,6 +1310,39 @@ describe('T55 — verifier les proprietes du pilote sur le chemin reel', () => {
           (ligneDirect as Json).satisfied === duesAK,
           `periode-${k}-rapport-direct-tous-les-controles-dus-satisfaits-PERSISTES`,
           `vu satisfied=${(ligneDirect as Json).satisfied} attendu ${duesAK} dans ${rendu(ligneDirect)}`,
+        );
+
+        // LA DERIVATION ELLE-MEME : le candidat qui a satisfait ces controles a bien ete ecrit
+        // depuis le prompt que la session de la periode k a REELLEMENT recu, et ne porte aucun
+        // litteral de vocabulaire que ce prompt ne contenait pas.
+        const periode = PERIODES[k - 1] as Periode;
+        const derive = derivationN(deriveLogDir, k - 1);
+        const erreurs = path.join(deriveLogDir, 'errors.log');
+        exige(
+          derive !== null,
+          `periode-${k}-candidat-derive-du-prompt-ecrit-par-le-faux-claude`,
+          `AUCUNE derivation a ${deriveLogDir}/derived-${k - 1}.json — ${fs.existsSync(erreurs) ? court(fs.readFileSync(erreurs, 'utf8'), 600) : 'pas de journal d erreur'}`,
+        );
+        const promptRecu = promptBrutPlanN(plan.dir, k - 1);
+        exige(
+          promptRecu !== null && promptRecu.length > 0 && (derive as Derivation).prompt === promptRecu,
+          `periode-${k}-candidat-derive-du-prompt-REELLEMENT-recu-par-la-session`,
+          `prompt consomme par le generateur ${rendu(court((derive as Derivation).prompt, 300))} vs prompt enregistre ${rendu(court(promptRecu ?? '', 300))}`,
+        );
+        const source = (derive as Derivation).content;
+        const enDurHorsPrompt = univers.filter((t) => contientJeton(source, t) && !(promptRecu as string).includes(t));
+        exige(
+          enDurHorsPrompt.length === 0,
+          `periode-${k}-candidat-aucun-litteral-de-vocabulaire-absent-du-prompt-recu`,
+          `litteraux PORTES par le candidat SANS figurer dans le prompt de P${k} : ${rendu(enDurHorsPrompt)} — le candidat n'est pas derive du seul prompt recu`,
+        );
+        const vocabDuPromptNonPorte = (vocabDeclare.get(periode) ?? []).filter(
+          (t) => (promptRecu as string).includes(t) && !contientJeton(source, t),
+        );
+        exige(
+          vocabDuPromptNonPorte.length === 0,
+          `periode-${k}-candidat-porte-le-vocabulaire-que-son-prompt-enonce`,
+          `vocabulaire de P${k} present dans le prompt mais ABSENT du candidat derive : ${rendu(vocabDuPromptNonPorte)}`,
         );
       }
     },

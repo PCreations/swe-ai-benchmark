@@ -127,6 +127,35 @@
 //   fournies ensemble sans interference (chacun ecrit a son propre chemin).
 //   N'a jamais lieu sur un appel "auth status" (meme garde que RECORD_FILE,
 //   ci-dessus : ce bloc est place APRES le retour anticipe de cette branche).
+//
+// AJOUTE PAR acceptance/T55.spec.ts, cas A3 (ADDITIF — ne change AUCUN
+// comportement existant pour T47/T49/T50/T51/T52/T54, qui ne posent jamais
+// ces variables ; le pair RELPATH/CONTENT reste prioritaire, puis ce
+// mecanisme, puis le PLAN de T52) :
+//   BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_MODULE  — chemin d'un module ESM qui
+//                                         exporte `deriver({prompt, cwd, fs,
+//                                         path}) -> {relPath, content,
+//                                         params}`. Le faux executable lui
+//                                         passe le prompt RECU par CETTE
+//                                         invocation (l'argument qui suit
+//                                         `-p`, '' s'il manque) et ecrit
+//                                         `content` a `relPath` sous le cwd.
+//                                         NECESSAIRE pour T55.A3 (« un
+//                                         candidat de reference conforme AU
+//                                         SEUL PROMPT RECU ») : un contenu
+//                                         FIXE (RELPATH/CONTENT, PLAN) ne
+//                                         depend pas du prompt et ne peut
+//                                         donc pas prouver que le prompt
+//                                         suffit. Module de T55 :
+//                                         acceptance/fixtures/claude-cli/
+//                                         t55-derive-reference-candidate.mjs.
+//   BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_LOG_DIR — optionnel : repertoire ou
+//                                         ecrire `derived-<n>.json` ({prompt,
+//                                         cwd, relPath, content, params}) par
+//                                         invocation successive (compteur
+//                                         propre `counter.txt` dans ce
+//                                         repertoire), et `errors.log` si la
+//                                         derivation echoue.
 
 const argv = process.argv.slice(2);
 
@@ -208,6 +237,46 @@ async function main() {
       fs.writeFileSync(dest, writeContent);
     } catch {
       /* simulation d'ecriture du candidat : un echec ici n'est pas l'objet de cette branche */
+    }
+  } else if (process.env.BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_MODULE !== undefined) {
+    // acceptance/T55.spec.ts, A3 (ADDITIF, voir en-tete) : le candidat ecrit est DERIVE du
+    // prompt RECU par CETTE invocation — jamais un contenu fixe a l'avance.
+    const deriveLogDir = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_LOG_DIR;
+    try {
+      const path = await import('node:path');
+      const url = await import('node:url');
+      const idxP = argv.indexOf('-p');
+      const prompt = idxP >= 0 && idxP + 1 < argv.length ? argv[idxP + 1] : '';
+      const mod = await import(url.pathToFileURL(path.resolve(process.env.BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_MODULE)).href);
+      const derive = mod.deriver({ prompt, cwd: process.cwd(), fs, path });
+      const dest = path.resolve(process.cwd(), derive.relPath);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, derive.content);
+      if (deriveLogDir !== undefined) {
+        fs.mkdirSync(deriveLogDir, { recursive: true });
+        const counterFile = path.join(deriveLogDir, 'counter.txt');
+        let compteur = 0;
+        try {
+          compteur = Number.parseInt(fs.readFileSync(counterFile, 'utf8').trim(), 10);
+          if (!Number.isFinite(compteur) || compteur < 0) compteur = 0;
+        } catch {
+          compteur = 0;
+        }
+        fs.writeFileSync(
+          path.join(deriveLogDir, `derived-${compteur}.json`),
+          JSON.stringify({ prompt, cwd: process.cwd(), relPath: derive.relPath, content: derive.content, params: derive.params }),
+        );
+        fs.writeFileSync(counterFile, String(compteur + 1));
+      }
+    } catch (e) {
+      if (deriveLogDir !== undefined) {
+        try {
+          fs.mkdirSync(deriveLogDir, { recursive: true });
+          fs.appendFileSync(`${deriveLogDir}/errors.log`, `${String(e && e.stack ? e.stack : e)}\n`);
+        } catch {
+          /* journal d'erreur : jamais une condition de reponse */
+        }
+      }
     }
   } else {
     // acceptance/T52.spec.ts (ADDITIF, voir en-tete) : un PLAN d'ecritures, une par

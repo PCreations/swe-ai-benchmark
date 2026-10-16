@@ -87,6 +87,46 @@
 //   ou PRESENCE simultanee du pair RELPATH/CONTENT ci-dessus (qui reste
 //   prioritaire) : aucune ecriture par ce mecanisme, comportement T47/T49
 //   inchange.
+//
+// AJOUTE PAR acceptance/T55.spec.ts (ADDITIF — ne change AUCUN comportement
+// existant pour T47/T49/T50/T51/T52/T54, qui ne posent jamais ces deux
+// variables ; le simple `BENCH_FAKE_CLAUDE_RECORD_FILE` ci-dessus reste
+// INCHANGE et continue d'ecraser a chaque invocation) :
+//   BENCH_FAKE_CLAUDE_RECORD_FILE_PLAN_DIR           — repertoire dans lequel
+//                                         ecrire UN enregistrement DISTINCT
+//                                         (meme forme que RECORD_FILE : argv,
+//                                         cwd, hasApiKey, hasAuthToken) par
+//                                         invocation de session successive,
+//                                         au chemin `record-<n>.json` (n
+//                                         demarrant a 0). NECESSAIRE parce que
+//                                         RECORD_FILE seul est ECRASE a
+//                                         chaque invocation (dernier
+//                                         survivant seulement) : une suite
+//                                         qui doit observer le prompt REELLEMENT
+//                                         recu par la session de CHAQUE periode
+//                                         d'UN MEME appel `pilot-conduct`
+//                                         (plusieurs invocations de ce faux
+//                                         executable partageant le MEME
+//                                         environnement) ne peut pas,
+//                                         sinon, distinguer la periode 1 de
+//                                         la periode 2 (meme limite que celle
+//                                         deja nommee pour
+//                                         WORKSPACE_WRITE_PLAN, T52).
+//   BENCH_FAKE_CLAUDE_RECORD_FILE_PLAN_COUNTER_FILE  — fichier compteur
+//                                         (entier decimal en texte, absent ou
+//                                         illisible == 0) propre a CE
+//                                         mecanisme (JAMAIS partage avec
+//                                         BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_
+//                                         PLAN_COUNTER_FILE, qui compte un
+//                                         evenement different) : lu AVANT
+//                                         d'ecrire pour choisir `n`, puis
+//                                         incremente de 1 et reecrit.
+//   Les deux DOIVENT etre fournies ensemble ; absence de l'une ou l'autre :
+//   aucune ecriture par ce mecanisme, comportement T47/T49/T52/T54 inchange.
+//   Independant de BENCH_FAKE_CLAUDE_RECORD_FILE : les DEUX peuvent etre
+//   fournies ensemble sans interference (chacun ecrit a son propre chemin).
+//   N'a jamais lieu sur un appel "auth status" (meme garde que RECORD_FILE,
+//   ci-dessus : ce bloc est place APRES le retour anticipe de cette branche).
 
 const argv = process.argv.slice(2);
 
@@ -125,6 +165,36 @@ async function main() {
       fs.writeFileSync(recordFile, JSON.stringify(record));
     } catch {
       /* la preuve d'invocation n'est pas l'objet de cette branche */
+    }
+  }
+
+  // acceptance/T55.spec.ts (ADDITIF, voir en-tete) : UN enregistrement DISTINCT
+  // par invocation successive, jamais ecrase par l'invocation suivante —
+  // independant du pair RECORD_FILE ci-dessus (les deux peuvent coexister).
+  const recordPlanDir = process.env.BENCH_FAKE_CLAUDE_RECORD_FILE_PLAN_DIR;
+  const recordPlanCounterFile = process.env.BENCH_FAKE_CLAUDE_RECORD_FILE_PLAN_COUNTER_FILE;
+  if (recordPlanDir !== undefined && recordPlanCounterFile !== undefined) {
+    try {
+      const path = await import('node:path');
+      let compteur = 0;
+      try {
+        compteur = Number.parseInt(fs.readFileSync(recordPlanCounterFile, 'utf8').trim(), 10);
+        if (!Number.isFinite(compteur) || compteur < 0) compteur = 0;
+      } catch {
+        compteur = 0;
+      }
+      const record = {
+        argv,
+        cwd: process.cwd(),
+        hasApiKey: Object.prototype.hasOwnProperty.call(process.env, 'ANTHROPIC_API_KEY'),
+        hasAuthToken: Object.prototype.hasOwnProperty.call(process.env, 'ANTHROPIC_AUTH_TOKEN'),
+      };
+      fs.mkdirSync(recordPlanDir, { recursive: true });
+      fs.writeFileSync(path.join(recordPlanDir, `record-${compteur}.json`), JSON.stringify(record));
+      fs.mkdirSync(path.dirname(path.resolve(recordPlanCounterFile)), { recursive: true });
+      fs.writeFileSync(recordPlanCounterFile, String(compteur + 1));
+    } catch {
+      /* capture du prompt par periode : un echec ici n'est pas l'objet de cette branche */
     }
   }
 

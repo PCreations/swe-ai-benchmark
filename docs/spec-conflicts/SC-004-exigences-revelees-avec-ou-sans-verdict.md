@@ -1,6 +1,8 @@
 # SC-004 — Le prompt contient-il les exigences révélées avec leur verdict ?
 
-    statut : OUVERT — en attente de l'arbitrage du mandant
+    statut : RESOLU — option A, arbitrée par le mandant le 2026-10-16
+             (« oui », en réponse à « Tu retiens l'option A pour SC-004 et tu
+             acceptes ADR-012 ? »)
     ouvert : 2026-10-16
     porte  : T49.A2 (ADR-008) contre T53.A4 (ADR-011)
     origine : second essai réel (docs/pilot/essai-reel-2026-10-16.json) et
@@ -39,3 +41,9 @@ le verdict de l'application scriptée continue de fuir vers le candidat.
 
 **A.** C'est la seule qui ne transmet pas au candidat le verdict qu'on va
 ensuite lui opposer.
+
+## Arbitrage
+
+**Option A**, retenue par le mandant le 2026-10-16. Le prompt contient les
+exigences révélées privées de `satisfied` et de tout champ de verdict ; le
+test-author de T49 adapte A2 en conséquence, sans retirer de cas.

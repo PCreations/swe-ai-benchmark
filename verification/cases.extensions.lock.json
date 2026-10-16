@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-011). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-012). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -9,7 +9,8 @@
     "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059",
     "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md": "7eee84045a656e382b91953110ce3aeeba802b846192c7246f4c4c9e58f6c601",
     "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md": "49a465996f5bbc72cb435c5339947ba458e6a803f8c744afbc8e421e9bfe391c",
-    "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md": "a3febf1575c1fdf610206ec39177393add33ab9443d0e5c9ad672e21ddf3309f"
+    "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md": "a3febf1575c1fdf610206ec39177393add33ab9443d0e5c9ad672e21ddf3309f",
+    "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md": "ec2cf3ddf6928384e6533dbfcb1b8eed00d004abd6d555888bd87422de7e1301"
   },
   "cases": [
     {
@@ -730,8 +731,64 @@
       "blockable": false,
       "proof_kind": "absence",
       "perturbation": "attribuer a une duree l'ecriture de cache d'une session a deux modeles : le cas doit rougir"
+    },
+    {
+      "id": "T55.A1",
+      "task": "T55",
+      "source": "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md",
+      "source_line": 48,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "construire le prompt du pilote sans l'enonce de T53 : le cas doit rougir"
+    },
+    {
+      "id": "T55.A2",
+      "task": "T55",
+      "source": "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md",
+      "source_line": 48,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "controler les cinq exigences a la periode 1 dans controlCandidateCommitOnce : le cas doit rougir"
+    },
+    {
+      "id": "T55.A3",
+      "task": "T55",
+      "source": "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md",
+      "source_line": 48,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "retirer le vocabulaire de l'enonce envoye a la session : le cas doit rougir"
+    },
+    {
+      "id": "T55.A4",
+      "task": "T55",
+      "source": "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md",
+      "source_line": 48,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "relire l'usage par decoupe psql dans le chemin du pilote : le cas doit rougir"
     }
   ],
-  "case_count": 52,
-  "classified_cases": 52
+  "case_count": 56,
+  "classified_cases": 56
 }

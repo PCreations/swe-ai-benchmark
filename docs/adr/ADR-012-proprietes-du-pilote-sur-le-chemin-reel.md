@@ -1,6 +1,7 @@
 # ADR-012 — Les propriétés du pilote, vérifiées sur le chemin réel
 
-    statut : PROPOSÉ — en attente de la décision du mandant
+    statut : ACCEPTÉ — par le mandant le 16/10/2026 (« oui », en réponse à
+             « Tu retiens l'option A pour SC-004 et tu acceptes ADR-012 ? »)
     ouvert : 16/10/2026
     porte  : `bench pilot-conduct --provider claude-cli` et tout ce qu'il
              appelle (T49 à T54)

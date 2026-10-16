@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Taches ISSUES D'ADR ACCEPTES (ADR-007 a ADR-011, T44-T54), pas du cahier.",
+    "Taches ISSUES D'ADR ACCEPTES (ADR-007 a ADR-012, T44-T55), pas du cahier.",
     "verification/tasks.json reste le registre du cahier et garde ses 44 taches : acceptance/T43.spec.ts leve au chargement sinon.",
     "Chaque carte porte spec_source (ADR + plage de lignes) a la place de cahier_lines. bench resume fusionne les deux registres."
   ],
@@ -10,10 +10,11 @@
     "docs/adr/ADR-008-candidat-reel-par-session-claude-p.md": "bf8f74c99f91c64f31c80a503717f358ac88c551fbc9e18c8279b7c4b8a3b059",
     "docs/adr/ADR-009-candidat-qui-developpe-et-qu-on-controle.md": "7eee84045a656e382b91953110ce3aeeba802b846192c7246f4c4c9e58f6c601",
     "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md": "49a465996f5bbc72cb435c5339947ba458e6a803f8c744afbc8e421e9bfe391c",
-    "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md": "a3febf1575c1fdf610206ec39177393add33ab9443d0e5c9ad672e21ddf3309f"
+    "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md": "a3febf1575c1fdf610206ec39177393add33ab9443d0e5c9ad672e21ddf3309f",
+    "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md": "ec2cf3ddf6928384e6533dbfcb1b8eed00d004abd6d555888bd87422de7e1301"
   },
-  "task_count": 11,
-  "required_case_count": 52,
+  "task_count": 12,
+  "required_case_count": 56,
   "tasks": [
     {
       "id": "T44",
@@ -471,6 +472,48 @@
         "lines": [
           111,
           117
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T55",
+      "title": "Verifier les proprietes du pilote sur le chemin reel",
+      "depends_on": [
+        "T52",
+        "T53",
+        "T54"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "apps/cli",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md"
+      ],
+      "acceptance_entry": "acceptance/T55.spec.ts",
+      "required_cases": [
+        "T55.A1",
+        "T55.A2",
+        "T55.A3",
+        "T55.A4"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T55"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md",
+        "lines": [
+          44,
+          50
         ]
       },
       "status": "NOT_IMPLEMENTED"

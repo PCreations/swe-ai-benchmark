@@ -129,8 +129,9 @@
  *    RAPPORT, qu'un `--provider fake` alimenterait). Forme de chaque entree
  *    de periode IDENTIQUE a celle que rend deja `candidate-control-report`
  *    (acceptance/T51.spec.ts, II.3) : `satisfied`/`violated`, le compte,
- *    PARMI LES CINQ controles de cette periode (ADR-009:L34, REPRIS par
- *    T51), de ceux a chaque statut. UNE entree de `periods` par periode
+ *    PARMI LES CONTROLES DUS a cette periode (SC-003 option A, ADR-011 A2 —
+ *    voir II.9 ; jusqu'a SC-003 cette suite lisait « parmi les cinq
+ *    controles », ADR-009:L34), de ceux a chaque statut. UNE entree de `periods` par periode
  *    REELLEMENT persistee pour la trajectoire, cumulatif (meme discipline
  *    que `periods`/`candidate_token_report.by_model`, T46/T49).
  *
@@ -203,6 +204,44 @@
  *    `claude -p` aurait ecrit avec ses propres outils d'edition (meme
  *    convention que T49, II.3, pour le pair RELPATH/CONTENT).
  *
+ * 9. CONTROLES DUS (docs/spec-conflicts/SC-003, option A, etendue a T52 le
+ *    2026-10-16). A la periode k, seuls les controles des exigences DUES a
+ *    une periode <= k sont evalues et persistes (ADR-011, T54.A2 ; ADR-012,
+ *    T55, commit 8026fd6). La table d'echeances `ECHEANCE_CONTROLE` est
+ *    REPRISE A L'IDENTIQUE de acceptance/T51.spec.ts (II.6), avec SA garde
+ *    d'ancrage `echeancesAncreesDansLaRacineGelee` (relue a chaque cas dans
+ *    la racine gelee acceptance/reference/F-RESERVATION.json) :
+ *    reserve@1, idempotence@1 -> P1 ; cancel@1, fifo@1 -> P2 ;
+ *    isolation@1 -> P4 ; un controle du le reste ensuite. « Les statuts de
+ *    l'application scriptee nominale » (A2) s'entendent donc RESTREINTS a
+ *    l'ensemble du : nominal = tous `satisfied` ; variante fautive
+ *    `cross-tenant-read` = `isolation@1` seul `violated` (T51.A1 : seule la
+ *    classe isolation differe). A P4, ou les cinq sont dus, la restriction
+ *    redonne EXACTEMENT les repartitions (5,0)/(4,1) d'origine.
+ *
+ * 10. QUATRE PERIODES POUR A2 ET A3 (fixture `acceptance/fixtures/pilot-
+ *    longitudinal/manifest-t52-claude-cli-four-periods.json`, copie du
+ *    manifeste de T49 a `periods_per_trajectory: 4` pres). Consequence
+ *    DIRECTE de II.9 : `isolation@1`, seul controle que la variante fautive
+ *    viole, n'est du qu'en P4. Sur les deux periodes du manifeste de T49, le
+ *    candidat correct et le candidat fautif obtiendraient les MEMES statuts
+ *    (2,0)/(4,0) — A2 perdrait sa discrimination (mutant T52.M2) et A3 son
+ *    temoin de controle (mutant T52.M3). Garder deux periodes aurait AFFAIBLI
+ *    ces cas ; quatre periodes les conservent. A1, A4 et A5 gardent le
+ *    manifeste de T49.
+ *
+ * 11. LECTURE DIRECTE DES CONTROLES PERSISTES (A2, A3). `candidate_control_
+ *    report` et `candidate-control-report` ne rendent que des COMPTES ;
+ *    l'egalite EXACTE d'ensemble entre identifiants persistes et ensemble du
+ *    (aucun non du present, aucun du manquant) exige les identifiants. Cette
+ *    suite les lit DANS PostgreSQL, hors de tout CLI, SANS fixer de schema :
+ *    elle parcourt les tables de la base de la campagne, retient les lignes
+ *    dont une colonne vaut EXACTEMENT le `trajectory_key` et qui portent un
+ *    `period_index`, et y cherche un tableau d'objets `{id: <exigence>@<n>,
+ *    status}` (forme des controles fixee par acceptance/T51.spec.ts, II :
+ *    `id`, `status`, `actual`, `expected`). Si plusieurs tables portent les
+ *    controles d'une meme periode, elles doivent CONCORDER.
+ *
  * ─────────────────────────────────────────────────────────────────────── III
  * PROVENANCE DES LITTERAUX
  *
@@ -254,23 +293,27 @@
  *     `candidate_control_report` simplement PRESENT suffise (meme
  *     avertissement que T00.M3/T51.A3 : une presence sans observation ne
  *     prouve rien) : elle exige, pour DEUX candidats de reference DISTINCTS
- *     (CORRECT puis FAUTIF, chacun sa propre campagne), la repartition EXACTE
- *     `(5,0)`/`(4,1)` DEJA etablie par T51.A1 (I), a CHAQUE periode
- *     persistee. Un moteur qui n'appellerait jamais le controle (le mutant
+ *     (CORRECT puis FAUTIF, chacun sa propre campagne de QUATRE periodes,
+ *     II.10), a CHAQUE periode k, les statuts DEJA etablis par T51.A1 (I)
+ *     RESTREINTS a l'ensemble du a k (II.9) — comptes du rapport ET
+ *     identifiants/statuts persistes, ensemble EXACTEMENT egal a l'ensemble
+ *     du — ce qui redonne `(5,0)`/`(4,1)` a P4. Un moteur qui n'appellerait jamais le controle (le mutant
  *     nomme) laisserait `candidate_control_report` absent, vide, ou a
  *     `(0,0)` constant — incapable de distinguer le candidat correct du
  *     candidat fautif, ce que cette suite exige explicitement (les DEUX
  *     repartitions DOIVENT differer entre les deux campagnes).
  * (3) A3 — LE DANGER NOMME : « controler le code d'un espace de travail
  *     restaure ailleurs que celui de la session ». Cette suite fait ecrire,
- *     par le MECANISME DE PLAN (II.7), un candidat CORRECT a la periode 1 et
- *     un candidat FAUTIF a la periode 2 d'UNE SEULE trajectoire, dans LE
- *     MEME appel chaine. Le danger precis : si le moteur controlait, pour
+ *     par le MECANISME DE PLAN (II.7), un candidat CORRECT aux periodes 1 a 3
+ *     et un candidat FAUTIF a la periode 4 d'UNE SEULE trajectoire (II.10 :
+ *     la faute n'est observable qu'a P4, ou `isolation@1` devient due), dans
+ *     LE MEME appel chaine. Le danger precis : si le moteur controlait, pour
  *     une periode donnee, un espace de travail SANS RAPPORT avec le commit
- *     de CETTE periode (par exemple le commit de l'autre periode, ou un
- *     clone frais sans historique), soit (a) la repartition de controle de
- *     la periode 1 cesserait d'etre `(5,0)`, soit (b) celle de la periode 2
- *     cesserait d'etre `(4,1)` — ET, de maniere INDEPENDANTE du statut de
+ *     de CETTE periode (par exemple le commit de la premiere ou de la
+ *     precedente periode, ou un clone frais sans historique), soit (a) les
+ *     statuts des periodes 1 a 3 cesseraient d'etre ceux du nominal restreint
+ *     aux dus, soit (b) la periode 4 cesserait d'etre `(4,1)` avec
+ *     `isolation@1` viole — ET, de maniere INDEPENDANTE du statut de
  *     controle, `git show <commit_sha(periode)>:candidate.mjs`, lu DIRECTEMENT
  *     (hors de tout CLI), doit rendre EXACTEMENT le contenu que CETTE
  *     periode a ecrit (jamais celui de l'autre periode) : un moteur qui
@@ -460,6 +503,7 @@ function psql(db: string, sql: string): { ok: boolean; out: string } {
     const out = execFileSync('psql', ['-tAqX', '-v', 'ON_ERROR_STOP=1', '-d', dsnFor(db), '-c', sql], {
       encoding: 'utf8',
       timeout: 60_000,
+      maxBuffer: 64 * 1024 * 1024, // II.11 : lignes entieres (row_to_json) relues hors de tout CLI
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     return { ok: true, out: out.trim() };
@@ -756,6 +800,9 @@ const DRAPEAU_WORKSPACE_ROOT = '--candidate-workspace-root'; // T48 III.1, repri
 const DRAPEAU_REREAD = '--test-reread-period'; // FIXE par acceptance/T49.spec.ts (II.1)
 
 const MANIFEST_T52 = path.join(REPO, 'acceptance', 'fixtures', 'pilot-longitudinal', 'manifest-t49-claude-cli-small.json'); // REPRIS A L'IDENTIQUE de T49 (II) — jamais une source de T52, UN clone, periods_per_trajectory=2
+/** II.10 : quatre periodes (A2, A3) — la seule faute de la variante (`isolation@1`) n'est due qu'a P4. */
+const MANIFEST_T52_QUATRE_PERIODES = path.join(REPO, 'acceptance', 'fixtures', 'pilot-longitudinal', 'manifest-t52-claude-cli-four-periods.json');
+const PERIODES_QUATRE = [1, 2, 3, 4] as const;
 
 /* ─────────────────────────────────── CATEGORIES_USAGE (reprises T47/T49) */
 
@@ -842,11 +889,11 @@ function nouveauContexte(suffixe: string): Contexte {
 
 /** `bench pilot-conduct` en mode `claude-cli --live`, avec un manifeste et un environnement
  *  explicite (II.1 — AUCUN drapeau nouveau par rapport a T46/T49). */
-function conduireClaudeCli(ctx: Contexte, env: NodeJS.ProcessEnv, extra: string[] = []): AppelCli {
+function conduireClaudeCli(ctx: Contexte, env: NodeJS.ProcessEnv, extra: string[] = [], manifeste: string = MANIFEST_T52): AppelCli {
   return lancer(
     SOUS_COMMANDE_CONDUIRE,
     [
-      MANIFEST_T52,
+      manifeste,
       DRAPEAU_CAMPAGNE, ctx.campaignId,
       DRAPEAU_PG, ctx.db,
       DRAPEAU_S3, ctx.bucket,
@@ -964,6 +1011,244 @@ const CONTENU_FAUTIF = fs.readFileSync(REFERENCE_V2_FAUTIF_PATH, 'utf8');
 const REPARTITION_CORRECTE = { satisfied: 5, violated: 0 };
 const REPARTITION_FAUTIVE = { satisfied: 4, violated: 1 };
 
+/* ────────────────── controles dus (II.9, SC-003 option A, reprise de T51) */
+
+const CONTROLES_FIXES = ['reserve@1', 'idempotence@1', 'cancel@1', 'fifo@1', 'isolation@1'] as const;
+type IdControle = (typeof CONTROLES_FIXES)[number];
+/** REPRISE A L'IDENTIQUE de acceptance/T51.spec.ts (II.6) — ancree par `echeancesAncreesDansLaRacineGelee`. */
+const ECHEANCE_CONTROLE: Record<IdControle, number> = {
+  'reserve@1': 1,
+  'idempotence@1': 1,
+  'cancel@1': 2,
+  'fifo@1': 2,
+  'isolation@1': 4,
+};
+/** Les identifiants de controle DUS a la periode k, dans l'ordre de CONTROLES_FIXES. */
+function controlesDus(k: number): IdControle[] {
+  return CONTROLES_FIXES.filter((id) => ECHEANCE_CONTROLE[id] <= k);
+}
+/** Les identifiants de controle NON ENCORE dus a la periode k. */
+function controlesNonDus(k: number): IdControle[] {
+  return CONTROLES_FIXES.filter((id) => ECHEANCE_CONTROLE[id] > k);
+}
+
+/** Relit acceptance/reference/F-RESERVATION.json (racine gelee) et exige que ECHEANCE_CONTROLE lui corresponde
+ *  (REPRISE A L'IDENTIQUE de acceptance/T51.spec.ts). */
+function echeancesAncreesDansLaRacineGelee(label: string): void {
+  const brut = JSON.parse(fs.readFileSync(path.join(REPO, 'acceptance', 'reference', 'F-RESERVATION.json'), 'utf8')) as Json;
+  const valeurs = obj(brut.valeurs);
+  const texte = (p: string): string => JSON.stringify(valeurs[p] ?? null).toLowerCase();
+  const [t1, t2, t3, t4] = [texte('P1'), texte('P2'), texte('P3'), texte('P4')];
+  exige(
+    t1.includes('reservation') && t1.includes('idempotente') && ECHEANCE_CONTROLE['reserve@1'] === 1 && ECHEANCE_CONTROLE['idempotence@1'] === 1,
+    `${label}-echeance-reserve-et-idempotence-P1-ancree`,
+    `P1=${court(t1, 300)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  exige(
+    !t1.includes('annulation') && t2.includes('annulation') && ECHEANCE_CONTROLE['cancel@1'] === 2,
+    `${label}-echeance-cancel-P2-ancree`,
+    `P1=${court(t1, 200)} P2=${court(t2, 300)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  const ordre = obj(obj(valeurs.P2).ordre_d_attente).valeur;
+  exige(
+    obj(valeurs.P1).ordre_d_attente === undefined && Array.isArray(ordre) && ordre.length >= 2 && ECHEANCE_CONTROLE['fifo@1'] === 2,
+    `${label}-echeance-fifo-P2-ancree`,
+    `P2.ordre_d_attente=${rendu(ordre)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  exige(
+    t4.includes('locataire') && t4.includes('intertenant') && ECHEANCE_CONTROLE['isolation@1'] === 4,
+    `${label}-echeance-isolation-P4-ancree`,
+    `P4=${court(t4, 300)} table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+  exige(
+    ![t1, t2, t3].some((t) => t.includes('locataire') || t.includes('intertenant')),
+    `${label}-isolation-absente-de-P1-P2-P3-dans-la-racine-gelee`,
+    `P1..P3 mentionnent deja les locataires : ${court(`${t1} ${t2} ${t3}`, 400)}`,
+  );
+  // ADR-011:L55-57 : cancel@1/fifo@1/isolation@1 « dus en P2 a P4 » ; a P4,
+  // les cinq sont dus.
+  exige(
+    (['cancel@1', 'fifo@1', 'isolation@1'] as const).every((id) => ECHEANCE_CONTROLE[id] >= 2 && ECHEANCE_CONTROLE[id] <= 4) &&
+      rendu(controlesDus(1)) === rendu(['reserve@1', 'idempotence@1']) &&
+      rendu(controlesDus(4)) === rendu([...CONTROLES_FIXES]),
+    `${label}-table-des-echeances-conforme-a-ADR-011-L55-57`,
+    `table=${rendu(ECHEANCE_CONTROLE)}`,
+  );
+}
+
+/** Statuts par controle de l'application scriptee nominale et de la variante fautive `cross-tenant-read`
+ *  (acceptance/T51.spec.ts, test A1 : isolation est la SEULE classe qui differe, VERT en nominal, ROUGE
+ *  pour la variante). Reprise ICI, jamais re-derivee (I). */
+type StatutControle = 'satisfied' | 'violated';
+const STATUTS_NOMINAUX: Record<IdControle, StatutControle> = {
+  'reserve@1': 'satisfied',
+  'idempotence@1': 'satisfied',
+  'cancel@1': 'satisfied',
+  'fifo@1': 'satisfied',
+  'isolation@1': 'satisfied',
+};
+const STATUTS_VARIANTE_FAUTIVE: Record<IdControle, StatutControle> = { ...STATUTS_NOMINAUX, 'isolation@1': 'violated' };
+
+/** La repartition (satisfied, violated) de `statuts` RESTREINTS aux controles dus a k (II.9). */
+function repartitionRestreinte(statuts: Record<IdControle, StatutControle>, k: number): { satisfied: number; violated: number } {
+  const dus = controlesDus(k);
+  return {
+    satisfied: dus.filter((id) => statuts[id] === 'satisfied').length,
+    violated: dus.filter((id) => statuts[id] === 'violated').length,
+  };
+}
+
+/** Coherence des references de cette suite entre elles : restreintes a P4 (cinq dus), elles redonnent
+ *  EXACTEMENT les repartitions (5,0)/(4,1) de T51.A1 ; nominal et variante ne different que sur
+ *  `isolation@1`, du a P4 seulement. */
+function referencesCoherentes(label: string): void {
+  exige(
+    rendu(repartitionRestreinte(STATUTS_NOMINAUX, 4)) === rendu(REPARTITION_CORRECTE) &&
+      rendu(repartitionRestreinte(STATUTS_VARIANTE_FAUTIVE, 4)) === rendu(REPARTITION_FAUTIVE),
+    `${label}-references-restreintes-a-P4-egales-aux-repartitions-de-T51`,
+    `nominal@P4=${rendu(repartitionRestreinte(STATUTS_NOMINAUX, 4))} variante@P4=${rendu(repartitionRestreinte(STATUTS_VARIANTE_FAUTIVE, 4))}`,
+  );
+  const differents = CONTROLES_FIXES.filter((id) => STATUTS_NOMINAUX[id] !== STATUTS_VARIANTE_FAUTIVE[id]);
+  exige(
+    differents.length === 1 && differents[0] === 'isolation@1' && ECHEANCE_CONTROLE['isolation@1'] === PERIODES_QUATRE[PERIODES_QUATRE.length - 1],
+    `${label}-seule-isolation-differe-et-elle-est-due-a-la-derniere-periode-du-manifeste`,
+    `differents=${rendu(differents)} echeance(isolation@1)=${ECHEANCE_CONTROLE['isolation@1']} periodes=${rendu(PERIODES_QUATRE)}`,
+  );
+  let periodesManifeste: unknown = null;
+  try {
+    periodesManifeste = (JSON.parse(fs.readFileSync(MANIFEST_T52_QUATRE_PERIODES, 'utf8')) as Json).periods_per_trajectory;
+  } catch (e) {
+    periodesManifeste = e;
+  }
+  exige(
+    periodesManifeste === PERIODES_QUATRE.length,
+    `${label}-manifeste-a-quatre-periodes`,
+    `periods_per_trajectory=${rendu(periodesManifeste)} dans ${MANIFEST_T52_QUATRE_PERIODES}`,
+  );
+}
+
+/* ─────────────────── controles persistes, lus dans PostgreSQL (II.11) */
+
+type ControlePersiste = { id: string; status: string };
+const RE_ID_CONTROLE = /^[a-z][a-z_]*@[0-9]+$/;
+
+function tableauDeControles(v: unknown): ControlePersiste[] | null {
+  if (!Array.isArray(v)) return null;
+  const out: ControlePersiste[] = [];
+  for (const x of v) {
+    const o = obj(x);
+    if (typeof o.id !== 'string' || !RE_ID_CONTROLE.test(o.id) || typeof o.status !== 'string') return null;
+    out.push({ id: o.id, status: o.status });
+  }
+  return out;
+}
+function peutEtreJson(v: unknown): unknown {
+  if (typeof v !== 'string') return v;
+  const t = v.trim();
+  if (!(t.startsWith('[') || t.startsWith('{'))) return v;
+  try {
+    return JSON.parse(t) as unknown;
+  } catch {
+    return v;
+  }
+}
+const signatureControles = (c: ControlePersiste[]): string =>
+  rendu([...c].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).map((x) => `${x.id}=${x.status}`));
+
+/** Pour chaque periode de la trajectoire, les tableaux de controles persistes (un par ligne/table
+ *  qui en porte), sans schema fixe : voir II.11. */
+function controlesPersistes(db: string, trajectoryKey: string): { parPeriode: Map<number, ControlePersiste[][]>; journal: string[] } {
+  const parPeriode = new Map<number, ControlePersiste[][]>();
+  const journal: string[] = [];
+  if (!/^[A-Za-z0-9._-]+$/.test(trajectoryKey)) {
+    journal.push(`trajectory_key non sure pour SQL : ${rendu(trajectoryKey)}`);
+    return { parPeriode, journal };
+  }
+  const tables = psql(
+    db,
+    "SELECT quote_ident(table_schema) || '.' || quote_ident(table_name) FROM information_schema.tables " +
+      "WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY 1",
+  );
+  if (!tables.ok) {
+    journal.push(`tables illisibles : ${court(tables.out, 300)}`);
+    return { parPeriode, journal };
+  }
+  for (const table of tables.out.split('\n').map((l) => l.trim()).filter((l) => l.length > 0)) {
+    const r = psql(db, `SELECT row_to_json(x)::text FROM ${table} x WHERE strpos(row_to_json(x)::text, '${trajectoryKey}') > 0`);
+    if (!r.ok) {
+      journal.push(`${table} : ${court(r.out, 200)}`);
+      continue;
+    }
+    for (const ligne of r.out.split('\n').filter((l) => l.trim().length > 0)) {
+      let rangee: Json;
+      try {
+        rangee = obj(JSON.parse(ligne) as unknown);
+      } catch {
+        continue;
+      }
+      if (!Object.values(rangee).some((v) => v === trajectoryKey)) continue;
+      const periode = nombre(rangee.period_index);
+      if (!Number.isInteger(periode)) continue;
+      for (const v of Object.values(rangee)) {
+        for (const n of noeuds(peutEtreJson(v))) {
+          const controles = tableauDeControles(n.valeur);
+          if (controles === null || controles.length === 0) continue;
+          journal.push(`${table} P${periode} ${signatureControles(controles)}`);
+          const liste = parPeriode.get(periode) ?? [];
+          liste.push(controles);
+          parPeriode.set(periode, liste);
+        }
+      }
+    }
+  }
+  return { parPeriode, journal };
+}
+
+/** A la periode k : les controles persistes forment EXACTEMENT l'ensemble du, chacun au statut que
+ *  `statuts` lui donne (II.9) ; et le compte rapporte par `candidate_control_report` est la
+ *  restriction de `statuts` aux dus. Rend la signature des controles persistes de k. */
+function verifierPeriodeRestreinte(
+  label: string,
+  k: number,
+  statuts: Record<IdControle, StatutControle>,
+  rapport: { period_index: number; satisfied: number; violated: number } | undefined,
+  persistes: { parPeriode: Map<number, ControlePersiste[][]>; journal: string[] },
+): string {
+  const attendu = repartitionRestreinte(statuts, k);
+  exige(
+    rapport !== undefined && rapport.satisfied === attendu.satisfied && rapport.violated === attendu.violated,
+    `${label}-periode-${k}-repartition-restreinte-aux-${controlesDus(k).length}-controles-dus`,
+    `vu ${rendu(rapport)}, attendu ${rendu(attendu)} (dus ${rendu(controlesDus(k))})`,
+  );
+  const versions = persistes.parPeriode.get(k) ?? [];
+  const signatures = [...new Set(versions.map(signatureControles))];
+  exige(
+    versions.length >= 1 && signatures.length === 1,
+    `${label}-periode-${k}-controles-persistes-lisibles-et-concordants`,
+    `${versions.length} tableau(x), ${signatures.length} version(s) : ${rendu(signatures)} — journal ${rendu(persistes.journal)}`,
+  );
+  const controles = versions[0] ?? [];
+  const ids = controles.map((c) => c.id);
+  const dus = controlesDus(k);
+  exige(
+    ids.length === dus.length && new Set(ids).size === ids.length && dus.every((id) => ids.includes(id)),
+    `${label}-periode-${k}-ensemble-des-controles-persistes-egal-a-l-ensemble-du`,
+    `dus ${rendu(dus)} ; persistes ${rendu(ids)}`,
+  );
+  for (const id of controlesNonDus(k)) {
+    exige(!ids.includes(id), `${label}-periode-${k}-controle-${id}-non-du-absent`, `TROUVE a la periode ${k} (du a P${ECHEANCE_CONTROLE[id]}) : ${rendu(ids)}`);
+  }
+  for (const id of dus) {
+    const c = controles.find((x) => x.id === id);
+    exige(
+      c !== undefined && c.status === statuts[id],
+      `${label}-periode-${k}-controle-${id}-${statuts[id]}`,
+      `vu ${rendu(c)}, attendu ${statuts[id]} — persistes ${rendu(controles)}`,
+    );
+  }
+  return signatureControles(controles);
+}
+
 /* ══════════════════════════════════════════════════════════════════ cas */
 
 describe('T52 — conduire le pilote reel de bout en bout', () => {
@@ -1031,39 +1316,50 @@ describe('T52 — conduire le pilote reel de bout en bout', () => {
   test(
     'T52.A2 avec un faux claude qui ecrit un candidat conforme au prompt, pilot-conduct --provider claude-cli --live persiste pour chaque periode les statuts de controle de l application scriptee nominale, et un candidat fautif ceux de la variante fautive (ADR:L64)',
     () => {
-      // Candidat CORRECT, campagne A.
-      const ctxOk = nouveauContexte('a2-ok');
-      const envOk = envEcritureConstante({ relPath: ENTREE_CANDIDATE, content: CONTENU_CORRECT });
-      const runOk = conduireClaudeCli(ctxOk, envOk);
-      exige(runOk.resultat !== null && runOk.exit === 0, 'pilot-conduct-correct-executee', messageEchec('pilot-conduct(claude-cli,correct)', runOk));
-      const trajOk = trajectoryKeyDe(runOk.resultat);
-      exige(typeof trajOk === 'string' && trajOk.length > 0, 'trajectory_key-correct-lisible', `vu ${rendu(trajOk)} dans ${rendu(runOk.resultat)}`);
-      const periodesOk = controlPeriodsDe(runOk.resultat, trajOk as string);
-      exige(periodesOk.length >= 2, 'au-moins-deux-periodes-de-controle-persistees-correct', `vu ${rendu(periodesOk)} dans ${rendu(runOk.resultat)}`);
-      for (const p of periodesOk) {
-        exige(
-          p.satisfied === REPARTITION_CORRECTE.satisfied && p.violated === REPARTITION_CORRECTE.violated,
-          `periode-${p.period_index}-correct-repartition-nominale`,
-          `vu satisfied=${p.satisfied} violated=${p.violated}, attendu ${rendu(REPARTITION_CORRECTE)} — periodes ${rendu(periodesOk)}`,
-        );
-      }
+      // II.9 (SC-003 option A) : a chaque periode, les statuts attendus sont ceux de la
+      // reference RESTREINTS a l'ensemble du ; II.10 : quatre periodes, pour que la faute
+      // de la variante (isolation@1, due a P4) reste observable.
+      echeancesAncreesDansLaRacineGelee('A2');
+      referencesCoherentes('A2');
 
-      // Candidat FAUTIF (isolation), campagne B — DISTINCTE.
-      const ctxFautif = nouveauContexte('a2-fautif');
-      const envFautif = envEcritureConstante({ relPath: ENTREE_CANDIDATE, content: CONTENU_FAUTIF });
-      const runFautif = conduireClaudeCli(ctxFautif, envFautif);
-      exige(runFautif.resultat !== null && runFautif.exit === 0, 'pilot-conduct-fautif-executee', messageEchec('pilot-conduct(claude-cli,fautif)', runFautif));
-      const trajFautif = trajectoryKeyDe(runFautif.resultat);
-      exige(typeof trajFautif === 'string' && trajFautif.length > 0, 'trajectory_key-fautif-lisible', `vu ${rendu(trajFautif)} dans ${rendu(runFautif.resultat)}`);
-      const periodesFautif = controlPeriodsDe(runFautif.resultat, trajFautif as string);
-      exige(periodesFautif.length >= 2, 'au-moins-deux-periodes-de-controle-persistees-fautif', `vu ${rendu(periodesFautif)} dans ${rendu(runFautif.resultat)}`);
-      for (const p of periodesFautif) {
+      const campagne = (
+        suffixe: 'correct' | 'fautif',
+        contenu: string,
+        statuts: Record<IdControle, StatutControle>,
+        repartitionComplete: { satisfied: number; violated: number },
+      ): Map<number, string> => {
+        const ctx = nouveauContexte(`a2-${suffixe === 'correct' ? 'ok' : 'fautif'}`);
+        const env = envEcritureConstante({ relPath: ENTREE_CANDIDATE, content: contenu });
+        const run = conduireClaudeCli(ctx, env, [], MANIFEST_T52_QUATRE_PERIODES);
+        exige(run.resultat !== null && run.exit === 0, `pilot-conduct-${suffixe}-executee`, messageEchec(`pilot-conduct(claude-cli,${suffixe})`, run));
+        const traj = trajectoryKeyDe(run.resultat);
+        exige(typeof traj === 'string' && traj.length > 0, `trajectory_key-${suffixe}-lisible`, `vu ${rendu(traj)} dans ${rendu(run.resultat)}`);
+        const periodes = controlPeriodsDe(run.resultat, traj as string);
+        exige(periodes.length >= 2, `au-moins-deux-periodes-de-controle-persistees-${suffixe}`, `vu ${rendu(periodes)} dans ${rendu(run.resultat)}`);
         exige(
-          p.satisfied === REPARTITION_FAUTIVE.satisfied && p.violated === REPARTITION_FAUTIVE.violated,
-          `periode-${p.period_index}-fautif-repartition-de-la-variante`,
-          `vu satisfied=${p.satisfied} violated=${p.violated}, attendu ${rendu(REPARTITION_FAUTIVE)} — periodes ${rendu(periodesFautif)}`,
+          rendu(periodes.map((p) => p.period_index).sort((a, b) => a - b)) === rendu([...PERIODES_QUATRE]),
+          `${suffixe}-chaque-periode-du-manifeste-rapportee-une-fois`,
+          `vu ${rendu(periodes)}, attendu les periodes ${rendu(PERIODES_QUATRE)}`,
         );
-      }
+        const persistes = controlesPersistes(ctx.db, traj as string);
+        const signatures = new Map<number, string>();
+        for (const k of PERIODES_QUATRE) {
+          const p = periodes.find((x) => x.period_index === k);
+          signatures.set(k, verifierPeriodeRestreinte(suffixe, k, statuts, p, persistes));
+        }
+        // A la periode ou les cinq controles sont dus, la repartition d'origine (T51.A1), EXACTE.
+        const pComplete = periodes.find((x) => x.period_index === PERIODES_QUATRE[PERIODES_QUATRE.length - 1]);
+        exige(
+          pComplete !== undefined && pComplete.satisfied === repartitionComplete.satisfied && pComplete.violated === repartitionComplete.violated,
+          `periode-${PERIODES_QUATRE[PERIODES_QUATRE.length - 1]}-${suffixe}-${suffixe === 'correct' ? 'repartition-nominale' : 'repartition-de-la-variante'}`,
+          `vu ${rendu(pComplete)}, attendu ${rendu(repartitionComplete)} — periodes ${rendu(periodes)}`,
+        );
+        return signatures;
+      };
+
+      // Candidat CORRECT, campagne A ; candidat FAUTIF (isolation), campagne B — DISTINCTE.
+      const sigOk = campagne('correct', CONTENU_CORRECT, STATUTS_NOMINAUX, REPARTITION_CORRECTE);
+      const sigFautif = campagne('fautif', CONTENU_FAUTIF, STATUTS_VARIANTE_FAUTIVE, REPARTITION_FAUTIVE);
 
       // DISCRIMINATION (IV.(2)) : les deux repartitions DOIVENT differer — un moteur
       // qui n'appellerait jamais le controle (mutant nomme) ne pourrait pas les
@@ -1073,6 +1369,16 @@ describe('T52 — conduire le pilote reel de bout en bout', () => {
         'repartitions-correcte-et-fautive-distinctes',
         `les deux repartitions sont IDENTIQUES : ${rendu(REPARTITION_CORRECTE)}`,
       );
+      // ... et la discrimination est OBSERVEE, pas seulement attendue : les controles
+      // REELLEMENT persistes des deux campagnes different exactement aux periodes ou
+      // isolation@1 est due, et concordent ailleurs.
+      const periodesQuiDifferent = PERIODES_QUATRE.filter((k) => sigOk.get(k) !== sigFautif.get(k));
+      const attenduesDifferentes = PERIODES_QUATRE.filter((k) => controlesDus(k).includes('isolation@1'));
+      exige(
+        periodesQuiDifferent.length > 0 && rendu(periodesQuiDifferent) === rendu(attenduesDifferentes),
+        'controles-persistes-correct-et-fautif-different-exactement-ou-isolation-est-due',
+        `periodes qui different ${rendu(periodesQuiDifferent)}, attendu ${rendu(attenduesDifferentes)} — correct ${rendu([...sigOk])} fautif ${rendu([...sigFautif])}`,
+      );
     },
     CASE_TIMEOUT_MS,
   );
@@ -1080,69 +1386,76 @@ describe('T52 — conduire le pilote reel de bout en bout', () => {
   test(
     'T52.A3 le code controle a une periode est exactement le commit de fin produit par la session de cette periode (ADR:L64)',
     () => {
+      echeancesAncreesDansLaRacineGelee('A3');
+      referencesCoherentes('A3');
+
+      // II.10 : CORRECT a P1, P2, P3, FAUTIF a P4 — la seule periode ou la faute
+      // (isolation@1) est due, donc observable. Un controle qui viserait l'espace de
+      // travail de la premiere ou de la precedente periode verrait, a P4, le candidat
+      // CORRECT.
+      const plan: { contenu: string; statuts: Record<IdControle, StatutControle>; nom: 'correct' | 'fautif' }[] = [
+        { contenu: CONTENU_CORRECT, statuts: STATUTS_NOMINAUX, nom: 'correct' },
+        { contenu: CONTENU_CORRECT, statuts: STATUTS_NOMINAUX, nom: 'correct' },
+        { contenu: CONTENU_CORRECT, statuts: STATUTS_NOMINAUX, nom: 'correct' },
+        { contenu: CONTENU_FAUTIF, statuts: STATUTS_VARIANTE_FAUTIVE, nom: 'fautif' },
+      ];
+      exige(plan.length === PERIODES_QUATRE.length, 'a3-une-ecriture-planifiee-par-periode', `plan ${plan.length} / periodes ${PERIODES_QUATRE.length}`);
+
       const ctx = nouveauContexte('a3');
-      const env = envEcriturePlan({
-        plan: [
-          { relPath: ENTREE_CANDIDATE, content: CONTENU_CORRECT },
-          { relPath: ENTREE_CANDIDATE, content: CONTENU_FAUTIF },
-        ],
-      });
-      const run = conduireClaudeCli(ctx, env);
+      const env = envEcriturePlan({ plan: plan.map((e) => ({ relPath: ENTREE_CANDIDATE, content: e.contenu })) });
+      const run = conduireClaudeCli(ctx, env, [], MANIFEST_T52_QUATRE_PERIODES);
       exige(run.resultat !== null && run.exit === 0, 'pilot-conduct-a3-executee', messageEchec('pilot-conduct(claude-cli,A3)', run));
 
       const traj = trajectoryKeyDe(run.resultat);
       exige(typeof traj === 'string' && traj.length > 0, 'trajectory_key-a3-lisible', `vu ${rendu(traj)} dans ${rendu(run.resultat)}`);
 
       const periodes = controlPeriodsDe(run.resultat, traj as string);
-      const p1 = periodes.find((p) => p.period_index === 1);
-      const p2 = periodes.find((p) => p.period_index === 2);
-      exige(p1 !== undefined && p2 !== undefined, 'deux-periodes-de-controle-presentes-a3', `vu ${rendu(periodes)}`);
-
-      // (1) Les STATUTS doivent suivre le candidat de LEUR PROPRE periode.
       exige(
-        p1!.satisfied === REPARTITION_CORRECTE.satisfied && p1!.violated === REPARTITION_CORRECTE.violated,
+        PERIODES_QUATRE.every((k) => periodes.some((p) => p.period_index === k)),
+        'quatre-periodes-de-controle-presentes-a3',
+        `vu ${rendu(periodes)}`,
+      );
+      const persistes = controlesPersistes(ctx.db, traj as string);
+
+      // (1) Les STATUTS doivent suivre le candidat de LEUR PROPRE periode, restreints aux dus.
+      for (const k of PERIODES_QUATRE) {
+        const e = plan[k - 1]!;
+        verifierPeriodeRestreinte(`a3-${e.nom}`, k, e.statuts, periodes.find((p) => p.period_index === k), persistes);
+      }
+      const p1 = periodes.find((p) => p.period_index === 1);
+      const p4 = periodes.find((p) => p.period_index === 4);
+      const attenduP1 = repartitionRestreinte(STATUTS_NOMINAUX, 1);
+      exige(
+        p1 !== undefined && p1.satisfied === attenduP1.satisfied && p1.violated === attenduP1.violated,
         'periode-1-controlee-avec-le-candidat-correct-ecrit-en-periode-1',
-        `vu ${rendu(p1)}, attendu ${rendu(REPARTITION_CORRECTE)}`,
+        `vu ${rendu(p1)}, attendu ${rendu(attenduP1)}`,
       );
       exige(
-        p2!.satisfied === REPARTITION_FAUTIVE.satisfied && p2!.violated === REPARTITION_FAUTIVE.violated,
-        'periode-2-controlee-avec-le-candidat-fautif-ecrit-en-periode-2',
-        `vu ${rendu(p2)}, attendu ${rendu(REPARTITION_FAUTIVE)}`,
+        p4 !== undefined && p4.satisfied === REPARTITION_FAUTIVE.satisfied && p4.violated === REPARTITION_FAUTIVE.violated,
+        'periode-4-controlee-avec-le-candidat-fautif-ecrit-en-periode-4',
+        `vu ${rendu(p4)}, attendu ${rendu(REPARTITION_FAUTIVE)}`,
       );
 
       // (2) TEMOIN INDEPENDANT DU CANAL DE CONTROLE (IV.(3)) : relecture du commit de
       //     CHAQUE periode, et comparaison DIRECTE par `git show` (hors de tout CLI) au
-      //     contenu REELLEMENT ecrit a CETTE periode (jamais celui de l'autre periode).
-      const relu1 = relirePeriode(traj as string, ctx.db, ctx.bucket, 1);
-      exige(relu1.resultat !== null && relu1.exit === 0, 'periode-1-relue', messageEchec('run-period(--test-reread-period 1)', relu1));
-      const cand1 = candidateDe(relu1.resultat);
-      exige(
-        cand1 !== null && typeof cand1.commitSha === 'string' && typeof cand1.workspaceDir === 'string',
-        'periode-1-commit-et-workspace-lisibles',
-        `vu ${rendu(cand1)} dans ${rendu(relu1.resultat)}`,
-      );
-
-      const relu2 = relirePeriode(traj as string, ctx.db, ctx.bucket, 2);
-      exige(relu2.resultat !== null && relu2.exit === 0, 'periode-2-relue', messageEchec('run-period(--test-reread-period 2)', relu2));
-      const cand2 = candidateDe(relu2.resultat);
-      exige(
-        cand2 !== null && typeof cand2.commitSha === 'string' && typeof cand2.workspaceDir === 'string',
-        'periode-2-commit-et-workspace-lisibles',
-        `vu ${rendu(cand2)} dans ${rendu(relu2.resultat)}`,
-      );
-
-      const contenuAuCommit1 = gitShow(cand1!.workspaceDir as string, cand1!.commitSha as string, ENTREE_CANDIDATE);
-      exige(
-        contenuAuCommit1 === CONTENU_CORRECT,
-        'commit-de-la-periode-1-contient-exactement-le-candidat-correct',
-        `git show ${cand1!.commitSha}:${ENTREE_CANDIDATE} a rendu ${rendu(court(contenuAuCommit1 ?? '', 300))}`,
-      );
-      const contenuAuCommit2 = gitShow(cand2!.workspaceDir as string, cand2!.commitSha as string, ENTREE_CANDIDATE);
-      exige(
-        contenuAuCommit2 === CONTENU_FAUTIF,
-        'commit-de-la-periode-2-contient-exactement-le-candidat-fautif',
-        `git show ${cand2!.commitSha}:${ENTREE_CANDIDATE} a rendu ${rendu(court(contenuAuCommit2 ?? '', 300))}`,
-      );
+      //     contenu REELLEMENT ecrit a CETTE periode.
+      for (const k of PERIODES_QUATRE) {
+        const e = plan[k - 1]!;
+        const relu = relirePeriode(traj as string, ctx.db, ctx.bucket, k);
+        exige(relu.resultat !== null && relu.exit === 0, `periode-${k}-relue`, messageEchec(`run-period(--test-reread-period ${k})`, relu));
+        const cand = candidateDe(relu.resultat);
+        exige(
+          cand !== null && typeof cand.commitSha === 'string' && typeof cand.workspaceDir === 'string',
+          `periode-${k}-commit-et-workspace-lisibles`,
+          `vu ${rendu(cand)} dans ${rendu(relu.resultat)}`,
+        );
+        const contenuAuCommit = gitShow(cand?.workspaceDir ?? '', cand?.commitSha ?? '', ENTREE_CANDIDATE);
+        exige(
+          contenuAuCommit === e.contenu,
+          `commit-de-la-periode-${k}-contient-exactement-le-candidat-${e.nom}`,
+          `git show ${rendu(cand?.commitSha)}:${ENTREE_CANDIDATE} a rendu ${rendu(court(contenuAuCommit ?? '', 300))}`,
+        );
+      }
     },
     CASE_TIMEOUT_MS,
   );

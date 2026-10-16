@@ -54,3 +54,13 @@ champs du manifeste (`model`, `price`, `exposure`, `corpus`, `configurations`,
   fournisseur factice, le comportement de T46 est inchangé ») : le même
   manifeste, le même `--provider fake`, jamais un manifeste propre à T49 pour
   ce cas précis — c'est la régression elle-même qui l'exige.
+
+- `manifest-t52-claude-cli-four-periods.json` — fixture de `acceptance/T52.spec.ts`
+  (ADR-010, T52.A2 et T52.A3, SC-003 option A) : copie de
+  `manifest-t49-claude-cli-small.json` à une seule différence près,
+  `periods_per_trajectory: 4`. Depuis SC-003, seuls les contrôles DUS à la
+  période k sont évalués ; `isolation@1`, le seul contrôle que la variante
+  fautive `cross-tenant-read` viole, n'est dû qu'en P4. Sur deux périodes, le
+  candidat correct et le candidat fautif seraient indiscernables ; quatre
+  périodes rendent à A2 sa discrimination et à A3 son témoin de contrôle.
+  `manifest-t49-claude-cli-small.json` reste inchangé (T49, T52.A1/A4/A5, T55).

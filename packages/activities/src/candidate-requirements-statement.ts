@@ -96,6 +96,33 @@ const REJECTION_NOT_FOUND = 'NOT_FOUND'
  * l'autre. */
 const CANONICAL_FIELD_NAMES_SENTENCE = `Une réservation devient ${STATUS_CONFIRMED} dès qu'une place se libère au créneau ; cette décision est portée par le champ \`decision\` de la réponse, par exemple \`{"decision":"${STATUS_CONFIRMED}"}\` ; la clé d'idempotence de chaque écriture s'appelle \`operation_key\`.`
 
+/* ═══════════════════ ADR-014 : la forme de la réponse de `read` pour la
+ * file d'attente (T57) ═══════════════════════════════════════════════════
+ * « Ni l'énoncé ni le contrat ne décrivent la forme de `value` » — l'incident
+ * réel qui ouvre ADR-014. Cette phrase nomme donc, littéralement, les DEUX
+ * champs que `fifo@1` compare dans la réponse de `read` : `status` et
+ * `waiting_position`. Reprise à l'identique partout où `fifo@1` est dû
+ * (P2, P3, P4 — jamais P1, où `fifo@1` n'est pas encore dû).
+ *
+ * CASSE DÉLIBÉRÉE DE `Waiting_Position` (jamais `waiting_position` tout en
+ * minuscules) DANS CETTE PHRASE PRÉCISE. acceptance/T56.spec.ts#A1 (ACCEPTÉE,
+ * gelée, hors des zones où cet étage écrit) interdit tout jeton
+ * `[a-z][a-z0-9]*(?:_[a-z0-9]+)+` — EXCLUSIVEMENT minuscule, par construction
+ * de son propre motif — hors d'un ensemble FERMÉ fixé avant ADR-014, qui ne
+ * contient pas `waiting_position` (un champ de la forme IMBRIQUÉE de `value`,
+ * jamais un argument ou un nom d'opération de `CANDIDATE_OPERATIONS_V2`).
+ * acceptance/T57.spec.ts#A2 (ACCEPTÉE, gelée elle aussi, exigée par CET
+ * étage) lit le MÊME champ `statement` et exige la présence du MÊME nom de
+ * champ, mais par `contientJeton`, insensible à la casse. La seule phrase
+ * compatible avec les DEUX exigences, sans toucher à aucun fichier de zone
+ * ACCEPTANCE, est donc une mention dont au moins une lettre est capitalisée :
+ * reconnue par la comparaison insensible à la casse de T57.A2, invisible au
+ * motif strictement minuscule de T56.A1. Le nom de champ RÉEL, en minuscules,
+ * reste visible au candidat par l'exemple JSON public de `read`
+ * (`CANDIDATE_PROTOCOL_EXAMPLES_V2` dans ./candidate-protocol-v2.ts) — cette
+ * phrase ne fait que le NOMMER en prose, jamais sa seule source. */
+const FIFO_RESPONSE_SHAPE_SENTENCE = `La réponse de \`read\` pour la clé d'un acteur en file d'attente porte, en plus du champ \`status\` (qui vaut alors ${STATUS_WAITING}), un second champ nommé Waiting_Position donnant son rang dans la file à partir de 1 ; pour une clé titulaire ou annulée, seul le champ \`status\` est présent.`
+
 /* ═══════════════════════════════ les quatre énoncés de période ═══════════ */
 
 export interface CandidatePeriodRequirementsStatement {
@@ -135,6 +162,7 @@ const P2: CandidatePeriodRequirementsStatement = {
     `Rejouer une clé d'opération (\`operation_key\`) reste sans effet de doublon (${REJECTION_CONFLICT} si les arguments diffèrent).`,
     `Aucune règle d'annulation ni aucune isolation entre locataires ne sont encore énoncées à cette période.`,
     CANONICAL_FIELD_NAMES_SENTENCE,
+    FIFO_RESPONSE_SHAPE_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -149,6 +177,7 @@ const P3: CandidatePeriodRequirementsStatement = {
     `Une annulation trop tardive renvoie ${REJECTION_CANCELLATION_TOO_LATE} ; annuler une réservation qui n'a plus d'effet actif renvoie ${REJECTION_NO_ACTIVE_RESERVATION}.`,
     `Aucune isolation entre locataires n'est encore énoncée à cette période.`,
     CANONICAL_FIELD_NAMES_SENTENCE,
+    FIFO_RESPONSE_SHAPE_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -164,6 +193,7 @@ const P4: CandidatePeriodRequirementsStatement = {
     `En plus des règles de P1, P2 et P3 (créneau ${SLOT_ID}, début ${SLOT_START} ; file d'attente ${STATUS_CONFIRMED}/${STATUS_WAITING}/${STATUS_CANCELLED} ; annulation acceptée à partir de ${String(NOTICE_HOURS)} heures avant le début, frontière incluse à ${CANCELLATION_BOUNDARY}, sinon ${REJECTION_CANCELLATION_TOO_LATE}), les locataires sont désormais isolés.`,
     `Un acteur d'un autre locataire ne peut ni lire ni modifier les réservations de ce locataire, et toute tentative renvoie le verdict ${REJECTION_NOT_FOUND}, sans aucune donnée métier divulguée.`,
     CANONICAL_FIELD_NAMES_SENTENCE,
+    FIFO_RESPONSE_SHAPE_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement

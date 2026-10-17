@@ -419,7 +419,7 @@ function buildPrompt(requirements: readonly unknown[], periodIndex: number): str
   return [
     `Protocole d'application ${CANDIDATE_PROTOCOL_MARKER} (voir bench candidate-period) : developpe le code candidat de cette periode comme un processus qui echangera, plus tard, des operations {op,args} en JSON ligne a ligne sur son entree et sa sortie standard.`,
     describeCandidateProtocolV2(),
-    describeCandidateProtocolExamplesV2(),
+    describeCandidateProtocolExamplesV2(periodIndex),
     `Verificateur de forme : ce depot contient deja, a sa racine, ${CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME} — un script public qui rejoue ces memes exemples contre ton candidat (node ${CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME}) et signale tout ecart de FORME avec le contrat. Il ignore les regles metier de cette periode (il ne connait aucune valeur attendue par un controle) : lance-le avant de conclure pour detecter un desaccord de nommage.`,
     "Enonce des exigences pour cette periode (regles actives, vocabulaire et parametres du modele attendu) :",
     candidatePeriodStatement(periodIndex),

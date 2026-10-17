@@ -96,12 +96,40 @@ export function describeCandidateProtocolV2(): string {
  * rester valable identiquement à N'IMPORTE QUELLE période (le contrôle ne
  * change jamais la FORME des messages, seulement les règles métier). Noms de
  * champs REPRIS de `CANDIDATE_OPERATIONS_V2` ci-dessus — jamais une seconde
- * liste qui pourrait diverger. */
+ * liste qui pourrait diverger.
+ *
+ * ADR-014 (T57) : « quand une opération peut répondre sous plusieurs formes
+ * (objet, valeur nulle, erreur), chacune a son exemple ». C'est le cas de
+ * `read` : le modèle attendu renvoie `value` sous TROIS formes distinctes
+ * (clés et types, récursivement) — une clé titulaire ou annulée (`{status}`,
+ * une seule clé), une clé en file d'attente (`{status, waiting_position}`,
+ * deux clés) ou une clé inconnue/sans effet (`null`). Les TROIS figurent donc
+ * ci-dessous, chacune avec son propre exemple requête → réponse (incident
+ * réel d'ADR-014 : un unique exemple `{"value":"exemple"}`, de forme chaîne,
+ * ne montrait AUCUNE de ces trois formes).
+ *
+ * `minPeriodIndex` (optionnel) : la forme « en file d'attente » n'existe
+ * QUE depuis que la file d'attente elle-même est une règle active — P2
+ * (`./candidate-requirements-statement.ts#P2`, « une file d'attente [...]
+ * s'applique désormais » : la MÊME période que celle où cette même règle
+ * entre dans l'énoncé). L'inclure dès P1 ferait fuir, vers le prompt de P1,
+ * le jeton `waiting` (sous-chaîne de la clé `waiting_position`) alors
+ * qu'aucune règle de file d'attente n'est encore énoncée à P1 — exactement
+ * la fuite qu'acceptance/T55.spec.ts#A1 (ACCEPTÉE, gelée) interdit (« ni
+ * [...] une règle d'une période suivante »). `describeCandidateProtocolExamplesV2`
+ * filtre donc, PAR PÉRIODE, les exemples dont `minPeriodIndex` dépasse la
+ * période courante — jamais les DEUX autres formes de `read` (`status` seul,
+ * `null`), valables identiquement à toute période. */
 export interface CandidateProtocolExampleV2 {
   readonly op: string
   readonly args: Readonly<Record<string, unknown>>
   readonly result: Readonly<Record<string, unknown>>
+  readonly minPeriodIndex?: number
 }
+
+/** P2 — voir le commentaire de `CandidateProtocolExampleV2.minPeriodIndex`
+ *  ci-dessus : la file d'attente devient une règle active À PARTIR de P2. */
+const FIFO_FORM_MIN_PERIOD_INDEX = 2
 
 export const CANDIDATE_PROTOCOL_EXAMPLES_V2: readonly CandidateProtocolExampleV2[] = [
   { op: 'create_tenant', args: { tenant_id: 'tenant-exemple' }, result: {} },
@@ -111,7 +139,18 @@ export const CANDIDATE_PROTOCOL_EXAMPLES_V2: readonly CandidateProtocolExampleV2
     args: { op: 'reserve', actor: 'acteur-exemple', tenant_id: 'tenant-exemple', admission_seq: 1, operation_key: 'cle-exemple' },
     result: { decision: 'exemple' },
   },
-  { op: 'read', args: { tenant_id: 'tenant-exemple', key: 'acteur-exemple' }, result: { value: 'exemple' } },
+  // Forme « titulaire ou annulée » de `read` : une seule clé, `status`.
+  { op: 'read', args: { tenant_id: 'tenant-exemple', key: 'acteur-exemple-titulaire' }, result: { value: { status: 'exemple-statut' } } },
+  // Forme « en file d'attente » de `read` : deux clés, `status` ET `waiting_position`.
+  // `minPeriodIndex` : voir le commentaire ci-dessus.
+  {
+    op: 'read',
+    args: { tenant_id: 'tenant-exemple', key: 'acteur-exemple-en-attente' },
+    result: { value: { status: 'exemple-statut', waiting_position: 1 } },
+    minPeriodIndex: FIFO_FORM_MIN_PERIOD_INDEX,
+  },
+  // Forme « clé inconnue ou sans effet » de `read` : valeur nulle.
+  { op: 'read', args: { tenant_id: 'tenant-exemple', key: 'cle-exemple-inconnue' }, result: { value: null } },
   { op: 'probe_cancel', args: { tenant_id: 'tenant-exemple', key: 'acteur-exemple' }, result: { decision: 'exemple' } },
   { op: 'fingerprint', args: {}, result: { sha256: '0'.repeat(64) } },
 ]
@@ -125,9 +164,19 @@ export const CANDIDATE_PROTOCOL_EXAMPLES_V2: readonly CandidateProtocolExampleV2
  * (`./run-period-claude-cli.ts`) : un vérificateur de forme public (voir
  * `buildCandidateProtocolFormVerificationScriptV2` ci-dessous) rejoue ces
  * MÊMES exemples contre le candidat.
+ *
+ * `periodIndex` (optionnel, 1-based) : filtre les exemples dont
+ * `minPeriodIndex` dépasse cette période (voir le commentaire de
+ * `CandidateProtocolExampleV2.minPeriodIndex` ci-dessus) — omis, TOUS les
+ * exemples sont inclus (compatibilité des appelants qui ne connaissent pas
+ * la période, et sens de ce texte pris isolément, hors du prompt réel d'une
+ * période).
  */
-export function describeCandidateProtocolExamplesV2(): string {
-  const lignes = CANDIDATE_PROTOCOL_EXAMPLES_V2.map((exemple, index) => {
+export function describeCandidateProtocolExamplesV2(periodIndex?: number): string {
+  const exemples = CANDIDATE_PROTOCOL_EXAMPLES_V2.filter(
+    (e) => typeof periodIndex !== 'number' || e.minPeriodIndex === undefined || periodIndex >= e.minPeriodIndex,
+  )
+  const lignes = exemples.map((exemple, index) => {
     const id = `ex-${exemple.op}-${String(index + 1)}`
     const requete = JSON.stringify({ id, op: exemple.op, args: exemple.args })
     const reponse = JSON.stringify({ id, ok: true, result: exemple.result })
@@ -143,12 +192,35 @@ export function describeCandidateProtocolExamplesV2(): string {
  * « Un vérificateur de forme dans l'espace de travail. Un script public
  * rejoue ces exemples contre le candidat et signale tout écart de forme. Le
  * candidat peut le lancer ; il ne connaît pas les attentes des contrôles. »
- * — ce script REJOUE `CANDIDATE_PROTOCOL_EXAMPLES_V2` ci-dessus (une seule
- * source, jamais deux listes qui pourraient diverger) contre
+ * — ce script REJOUE un exemple par opération (jamais une valeur attendue par
+ * un contrôle — exactement la discipline qu'exige ADR-013) contre
  * `node candidate.mjs`, et ne vérifie QUE la FORME de la réponse (présence
- * des clés de `CANDIDATE_OPERATIONS_V2.reponse`), jamais une valeur
- * attendue par un contrôle — exactement la discipline qu'exige ADR-013. */
+ * des clés de `CANDIDATE_OPERATIONS_V2.reponse`), jamais la forme IMBRIQUÉE
+ * ni une valeur métier.
+ *
+ * POURQUOI UN EXEMPLE PAR OPÉRATION, PAS TOUT `CANDIDATE_PROTOCOL_EXAMPLES_V2`
+ * (T57). `CANDIDATE_PROTOCOL_EXAMPLES_V2` porte, pour `read`, TROIS exemples
+ * (une forme par forme possible de `value`, ADR-014) — nécessaire au PROMPT
+ * (`describeCandidateProtocolExamplesV2`, T57.A1 compare des FORMES), mais ce
+ * script-ci ne compare QUE la présence de la clé top-level `value`, jamais sa
+ * forme interne : les trois exemples y seraient redondants. Pire, la forme
+ * « en file d'attente » embarque la clé `waiting_position`, dont la SOUS-
+ * CHAÎNE `waiting` coïncide, par accident lexical, avec la valeur métier
+ * `waiting` qu'un contrôle compare (acceptance/T56.spec.ts#A3, déjà ACCEPTÉE,
+ * gelée : fuite détectée par simple inclusion de sous-chaîne, pas par jeton).
+ * Ce script embarque donc, pour CHAQUE opération, le PREMIER exemple de
+ * `CANDIDATE_PROTOCOL_EXAMPLES_V2` qui la concerne (`read` : la forme
+ * « titulaire », une seule clé `status`, sans `waiting_position`) — toujours
+ * un exemple RÉEL de cette même liste, jamais une valeur réinventée ici. */
 export const CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME = 'verify-protocol-shape.mjs'
+
+function representativeExamplesForVerificationScript(): readonly CandidateProtocolExampleV2[] {
+  const parOp = new Map<string, CandidateProtocolExampleV2>()
+  for (const exemple of CANDIDATE_PROTOCOL_EXAMPLES_V2) {
+    if (!parOp.has(exemple.op)) parOp.set(exemple.op, exemple)
+  }
+  return CANDIDATE_OPERATIONS_V2.map((o) => parOp.get(o.op)).filter((e): e is CandidateProtocolExampleV2 => e !== undefined)
+}
 
 /** Sérialise les littéraux ci-dessus (contrat + exemples) pour qu'ils soient
  *  INCLUS dans le texte du script — un script PUBLIC, qui ne dépend d'aucun
@@ -156,7 +228,7 @@ export const CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME = 'verify-prot
  *  jamais importer `@bench/activities`. */
 export function buildCandidateProtocolFormVerificationScriptV2(): string {
   const operationsJson = JSON.stringify(CANDIDATE_OPERATIONS_V2)
-  const examplesJson = JSON.stringify(CANDIDATE_PROTOCOL_EXAMPLES_V2)
+  const examplesJson = JSON.stringify(representativeExamplesForVerificationScript())
   return `#!/usr/bin/env node
 // ${CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME} — script PUBLIC de vérification de FORME
 // (ADR-013, T56). Écrit par le moteur dans l'espace de travail du candidat à

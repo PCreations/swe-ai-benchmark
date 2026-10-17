@@ -66,7 +66,7 @@ const JALONS = [
   // Pas un jalon du cahier : il vient d'ADR-007, accepte le 04/10/2026. Il est
   // affiche a part pour que personne ne le confonde avec les trois du cahier.
   { nom: 'PILOTE_LONGITUDINAL', ancres: ['T46'], cahier: 'ADR-007' },
-  { nom: 'PILOTE_REEL', ancres: ['T56'], cahier: 'ADR-008..013' },
+  { nom: 'PILOTE_REEL', ancres: ['T57'], cahier: 'ADR-008..014' },
 ]
 
 /** Taches attestees SUR LE LEDGER — la seule mesure qui ne decroit pas. */

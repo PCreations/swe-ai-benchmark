@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-013). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-014). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -11,7 +11,8 @@
     "docs/adr/ADR-010-pilote-reel-de-bout-en-bout.md": "49a465996f5bbc72cb435c5339947ba458e6a803f8c744afbc8e421e9bfe391c",
     "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md": "a3febf1575c1fdf610206ec39177393add33ab9443d0e5c9ad672e21ddf3309f",
     "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md": "ec2cf3ddf6928384e6533dbfcb1b8eed00d004abd6d555888bd87422de7e1301",
-    "docs/adr/ADR-013-un-seul-vocabulaire-et-des-exemples-publics.md": "70c9a39baec709dc6643391376d87a1bf3f2bccb74ee42c4889b51a2ab4dd228"
+    "docs/adr/ADR-013-un-seul-vocabulaire-et-des-exemples-publics.md": "70c9a39baec709dc6643391376d87a1bf3f2bccb74ee42c4889b51a2ab4dd228",
+    "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md": "28e863dd249ddd46930cd7009811477ad2d03a5f619ca18835a1bb70028bf10d"
   },
   "cases": [
     {
@@ -844,8 +845,50 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "renommer decision en status dans l'enonce seulement : le candidat de reference doit echouer et le cas rougir si le moteur ne le detecte pas"
+    },
+    {
+      "id": "T57.A1",
+      "task": "T57",
+      "source": "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md",
+      "source_line": 42,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "laisser l'exemple de read avec une value chaine : le cas doit rougir"
+    },
+    {
+      "id": "T57.A2",
+      "task": "T57",
+      "source": "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md",
+      "source_line": 42,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre la forme {status, waiting_position} de l'enonce de P2 : le cas doit rougir"
+    },
+    {
+      "id": "T57.A3",
+      "task": "T57",
+      "source": "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md",
+      "source_line": 42,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "rendre l'exemple de read sous une forme que fifo@1 ne compare pas : fifo@1 doit echouer et le cas rougir"
     }
   ],
-  "case_count": 60,
-  "classified_cases": 60
+  "case_count": 63,
+  "classified_cases": 63
 }

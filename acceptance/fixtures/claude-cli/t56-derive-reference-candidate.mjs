@@ -96,7 +96,13 @@ const MOTIFS = {
     { re: new RegExp(`frontière incluse à ${ISO}, sinon ${CODE}`, 'u'), groupe: 2 },
   ],
   code_sans_effet_actif: [new RegExp(`plus d'effet actif renvoie ${CODE}`, 'u')],
-  code_autre_locataire: [new RegExp(`renvoie le verdict ${CODE}`, 'u')],
+  // ADR-015 (T58) a retire le mot « verdict » de l'enonce de P4 : la regle y
+  // est dite « reponse d'erreur dont le champ `error.code` porte la valeur X ».
+  // Les deux formulations sont reconnues ; aucune n'est retiree.
+  code_autre_locataire: [
+    new RegExp(`renvoie le verdict ${CODE}`, 'u'),
+    new RegExp(`toute tentative reçoit une réponse d'erreur dont le champ \`error\.code\` porte la valeur ${CODE}`, 'u'),
+  ],
   creneau_id: [new RegExp(`créneau ([A-Z][A-Za-z0-9_-]*) \\(début`, 'u'), new RegExp(`créneau ([A-Z][A-Za-z0-9_-]*), début`, 'u')],
   creneau_debut: [new RegExp(`début ${ISO}`, 'u')],
   delai_heures: [new RegExp(`(\\d+) heures avant le début`, 'u')],

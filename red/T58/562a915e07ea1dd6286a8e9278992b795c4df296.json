@@ -1,0 +1,60 @@
+{
+  "schema": "bench.red/1",
+  "task": "T58",
+  "subject_commit": "562a915e07ea1dd6286a8e9278992b795c4df296",
+  "dirty": false,
+  "input_digest": "2b6fe94b8fcb2b8cc619913a05acc5c85a9674f4b3ead527f924d5f7cdc12007",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T58.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T58.M1",
+      "note": "Mutant applique (worktree reel) : exemple d'erreur de read retire de CANDIDATE_PROTOCOL_ERROR_EXAMPLES_V2 (packages/activities/src/candidate-protocol-v2.ts), write/probe_cancel intacts. pnpm build + jest -t T58.A1 => ROUGE, manquant read(forme attendue {error:{code,message},id,ok}) ; A4 rougit aussi en consequence (4:satisfied=4,violated=1). Restaure (git checkout), rebuild : A1/A4 de nouveau VERTS."
+    },
+    {
+      "id": "T58.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T58.M2",
+      "note": "Mutant applique : phrase d'isolation de P4 (candidate-requirements-statement.ts) modifiee pour AJOUTER « ...autrement dit, elle renvoie le verdict NOT_FOUND » en plus de error.code (deja present). pnpm build + jest -t T58.A2 => ROUGE, mot interdit trouve P4:verdict. Restaure, rebuild : A2 de nouveau VERT."
+    },
+    {
+      "id": "T58.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T58.M3",
+      "note": "Mutant applique : les 4 occurrences de READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE retirees des enonces P1-P4 (candidate-requirements-statement.ts), la phrase du CONTRAT (candidate-protocol-v2.ts, describeCandidateProtocolV2) laissee intacte. pnpm build + jest -t T58.A3 => ROUGE, periodes P1,P2,P3,P4 sans la mention. Restaure, rebuild : A3 de nouveau VERT."
+    },
+    {
+      "id": "T58.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T58.M4",
+      "note": "Mutant applique : describeCandidateProtocolExamplesV2 rend l'exemple d'erreur de read comme {id,ok:true,result:{decision:'NOT_FOUND'}} au lieu de {id,ok:false,error:{code,message}} (write/probe_cancel intacts). pnpm build + jest -t T58.A1,T58.A4 => ROUGE sur les deux (meme signature que M1 pour A1 : read manquant ; A4 : 4:satisfied=4,violated=1). Restaure, rebuild : A1/A4 de nouveau VERTS."
+    }
+  ],
+  "mutation_proof": {
+    "T58.A1": {
+      "killed_by": "T58.M1",
+      "note": "Mutant applique (worktree reel) : exemple d'erreur de read retire de CANDIDATE_PROTOCOL_ERROR_EXAMPLES_V2 (packages/activities/src/candidate-protocol-v2.ts), write/probe_cancel intacts. pnpm build + jest -t T58.A1 => ROUGE, manquant read(forme attendue {error:{code,message},id,ok}) ; A4 rougit aussi en consequence (4:satisfied=4,violated=1). Restaure (git checkout), rebuild : A1/A4 de nouveau VERTS."
+    },
+    "T58.A2": {
+      "killed_by": "T58.M2",
+      "note": "Mutant applique : phrase d'isolation de P4 (candidate-requirements-statement.ts) modifiee pour AJOUTER « ...autrement dit, elle renvoie le verdict NOT_FOUND » en plus de error.code (deja present). pnpm build + jest -t T58.A2 => ROUGE, mot interdit trouve P4:verdict. Restaure, rebuild : A2 de nouveau VERT."
+    },
+    "T58.A3": {
+      "killed_by": "T58.M3",
+      "note": "Mutant applique : les 4 occurrences de READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE retirees des enonces P1-P4 (candidate-requirements-statement.ts), la phrase du CONTRAT (candidate-protocol-v2.ts, describeCandidateProtocolV2) laissee intacte. pnpm build + jest -t T58.A3 => ROUGE, periodes P1,P2,P3,P4 sans la mention. Restaure, rebuild : A3 de nouveau VERT."
+    },
+    "T58.A4": {
+      "killed_by": "T58.M4",
+      "note": "Mutant applique : describeCandidateProtocolExamplesV2 rend l'exemple d'erreur de read comme {id,ok:true,result:{decision:'NOT_FOUND'}} au lieu de {id,ok:false,error:{code,message}} (write/probe_cancel intacts). pnpm build + jest -t T58.A1,T58.A4 => ROUGE sur les deux (meme signature que M1 pour A1 : read manquant ; A4 : 4:satisfied=4,violated=1). Restaure, rebuild : A1/A4 de nouveau VERTS."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

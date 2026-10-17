@@ -826,7 +826,123 @@ beforeAll(async () => {
     }
   }
   ORACLE = { charge: unCharge, flat, attempts };
+
+  // Module du contrat `bench.candidate/2` lui-meme (packages/activities,
+  // candidate-protocol-v2) : ses exports — operations ET exemples publics —
+  // fournissent a A1 l'ensemble DERIVE des noms du contrat, y compris les
+  // noms de champs IMBRIQUES des reponses (jamais une liste recopiee ici).
+  const flatProto = new Map<string, unknown>();
+  const attemptsProto: string[] = [];
+  let protoCharge = false;
+  for (const s of specifiersForModule('activities', 'candidate-protocol-v2')) {
+    try {
+      flatten((await import(s)) as Ns, flatProto);
+      protoCharge = true;
+      break;
+    } catch (e) {
+      attemptsProto.push(`import(${s}) -> ${String((e as Error).message).split('\n')[0]}`);
+    }
+  }
+  PROTOCOLE = { charge: protoCharge, flat: flatProto, attempts: attemptsProto };
 }, CASE_TIMEOUT_MS);
+
+/** Chemins candidats d'un MODULE d'un paquet (dist compile d'abord, source
+ *  ensuite) — meme convention que `specifiersForPackage`. */
+function specifiersForModule(pkgDirName: string, base: string): string[] {
+  const dir = path.join(REPO, 'packages', pkgDirName);
+  const out: string[] = [];
+  for (const rel of [`dist/${base}.js`, `src/${base}.ts`]) {
+    const f = path.join(dir, rel);
+    if (fs.existsSync(f) && fs.statSync(f).isFile()) out.push(pathToFileURL(f).href);
+  }
+  return out;
+}
+
+let PROTOCOLE: { charge: boolean; flat: Map<string, unknown>; attempts: string[] } = {
+  charge: false,
+  flat: new Map(),
+  attempts: ['beforeAll non execute'],
+};
+
+/** Les exemples publics du contrat, reconnus par leur FORME (tableau
+ *  d'entrees `{op: string, args: objet, result: objet}`), jamais par un nom
+ *  d'export recopie. */
+function exemplesPublicsDuContrat(): { op: string; args: Record<string, unknown>; result: Record<string, unknown> }[] {
+  const estObjet = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v);
+  for (const v of PROTOCOLE.flat.values()) {
+    if (!Array.isArray(v) || v.length === 0) continue;
+    if (v.every((e) => estObjet(e) && typeof e.op === 'string' && estObjet(e.args) && estObjet(e.result))) {
+      return v as { op: string; args: Record<string, unknown>; result: Record<string, unknown> }[];
+    }
+  }
+  return [];
+}
+/** Les operations du contrat exportees par le module (`{op, args[], reponse[]}`). */
+function operationsExporteesDuContrat(): { op: string; args: string[]; reponse: string[] }[] {
+  const estListe = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) => typeof x === 'string');
+  for (const v of PROTOCOLE.flat.values()) {
+    if (!Array.isArray(v) || v.length === 0) continue;
+    if (
+      v.every(
+        (e) =>
+          e !== null &&
+          typeof e === 'object' &&
+          typeof (e as { op?: unknown }).op === 'string' &&
+          estListe((e as { args?: unknown }).args) &&
+          estListe((e as { reponse?: unknown }).reponse),
+      )
+    ) {
+      return v as { op: string; args: string[]; reponse: string[] }[];
+    }
+  }
+  return [];
+}
+/** Toutes les cles d'un objet JSON, RECURSIVEMENT (objets et tableaux). */
+function clesRecursives(v: unknown, into: Set<string>): void {
+  if (Array.isArray(v)) {
+    for (const x of v) clesRecursives(x, into);
+    return;
+  }
+  if (v !== null && typeof v === 'object') {
+    for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
+      into.add(k);
+      clesRecursives(x, into);
+    }
+  }
+}
+/** L'ensemble DERIVE des noms du contrat : noms d'operations, d'arguments et
+ *  de reponses (operations exportees + table III fixee par T50), PLUS chaque
+ *  nom de champ IMBRIQUE porte par les arguments et les resultats des
+ *  exemples publics exportes. */
+function nomsDuContratDerives(): Set<string> {
+  const noms = new Set<string>();
+  for (const o of [...OPERATIONS_V2, ...operationsExporteesDuContrat()]) {
+    noms.add(o.op);
+    for (const a of o.args) noms.add(a);
+    for (const r of o.reponse) noms.add(r);
+  }
+  for (const ex of exemplesPublicsDuContrat()) {
+    noms.add(ex.op);
+    clesRecursives(ex.args, noms);
+    clesRecursives(ex.result, noms);
+  }
+  return noms;
+}
+/** Tout MOT de `texte` (lettres Unicode, chiffres, tiret bas) egal a un nom
+ *  du contrat SANS tenir compte de la casse mais DIFFERENT par la casse —
+ *  une variante typographique qui echappe a une comparaison sensible a la
+ *  casse tout en designant au candidat un nom de champ qui n'existe pas. */
+function variantesDeCasse(texte: string, noms: Set<string>): string[] {
+  const parMinuscule = new Map<string, string>();
+  for (const n of noms) parMinuscule.set(n.toLowerCase(), n);
+  const out = new Set<string>();
+  for (const m of texte.matchAll(/[\p{L}\p{N}_]+/gu)) {
+    const mot = m[0];
+    const canon = parMinuscule.get(mot.toLowerCase());
+    if (canon !== undefined && canon !== mot && !noms.has(mot)) out.add(`${mot}≠${canon}`);
+  }
+  return [...out];
+}
 function assertOracleLoaded(): void {
   exige(
     ORACLE.charge,
@@ -1144,9 +1260,27 @@ describe('T56 — un seul vocabulaire et des exemples publics du protocole', () 
         `periodes avec enonce : ${rendu(periodesAvecEnonce)} — description ${rendu(description)}`,
       );
 
+      // Noms du contrat DERIVES des exports de packages/activities
+      // (candidate-protocol-v2) : operations, arguments, reponses ET champs
+      // imbriques des reponses de ses exemples publics.
+      exige(
+        PROTOCOLE.charge,
+        'module-du-contrat-candidate-protocol-v2-charge',
+        `MODULE candidate-protocol-v2 INTROUVABLE : ${PROTOCOLE.attempts.join(' | ')}`,
+      );
+      const exemplesPublics = exemplesPublicsDuContrat();
+      exige(
+        exemplesPublics.length > 0 && NOMS_OPERATIONS_V2.every((o) => exemplesPublics.some((e) => e.op === o)),
+        'exemples-publics-du-contrat-exportes-pour-chaque-operation',
+        `EXEMPLES PUBLICS DU CONTRAT ABSENTS OU INCOMPLETS : ops vues ${rendu(exemplesPublics.map((e) => e.op))} — exports ${rendu([...PROTOCOLE.flat.keys()])}`,
+      );
+      const nomsDuContrat = nomsDuContratDerives();
+      const jetonsAdmis = new Set<string>([...CONTRACT_SNAKE_TOKENS, ...[...nomsDuContrat].filter((n) => /^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(n))]);
+
       const violationsBannies: string[] = [];
       const violationsInconnues: string[] = [];
       const absencesCanonique: string[] = [];
+      const violationsCasse: string[] = [];
 
       for (const p of periodesAvecEnonce) {
         const enonce = enonceDe(description, p) as string;
@@ -1158,9 +1292,16 @@ describe('T56 — un seul vocabulaire et des exemples publics du protocole', () 
 
         // Balayage GENERIQUE « en_tiret_bas » : tout jeton de cette forme doit
         // appartenir a l'ensemble FERME des jetons du contrat qui en comportent.
+        // L'ensemble admis = jetons fixes du contrat UNION les noms derives des
+        // exports du contrat (dont les champs imbriques des reponses).
         for (const jeton of jetonsEnTiretBas(enonce)) {
-          if (!CONTRACT_SNAKE_TOKENS.has(jeton)) violationsInconnues.push(`${p}:${jeton}`);
+          if (!jetonsAdmis.has(jeton)) violationsInconnues.push(`${p}:${jeton}`);
         }
+
+        // Aucun mot egal a un nom du contrat a la casse pres mais different
+        // par la casse (ex. `Waiting_Position` pour `waiting_position`) : le
+        // candidat recevrait un nom de champ que le contrat ne connait pas.
+        for (const v of variantesDeCasse(enonce, nomsDuContrat)) violationsCasse.push(`${p}:${v}`);
 
         // Presence des DEUX noms canoniques que l'incident reel oppose aux
         // noms bannis — le write/idempotence est du depuis P1 (table
@@ -1178,7 +1319,12 @@ describe('T56 — un seul vocabulaire et des exemples publics du protocole', () 
       exige(
         violationsInconnues.length === 0,
         'aucun-jeton-en-tiret-bas-hors-du-contrat-dans-l-enonce',
-        `JETON(S) « en_tiret_bas » HORS DU CONTRAT : ${rendu(violationsInconnues)} (jetons admis : ${rendu([...CONTRACT_SNAKE_TOKENS])})`,
+        `JETON(S) « en_tiret_bas » HORS DU CONTRAT : ${rendu(violationsInconnues)} (jetons admis : ${rendu([...jetonsAdmis])})`,
+      );
+      exige(
+        violationsCasse.length === 0,
+        'aucune-variante-de-casse-d-un-nom-du-contrat-dans-l-enonce',
+        `NOM(S) DU CONTRAT CITE(S) AVEC UNE AUTRE CASSE : ${rendu(violationsCasse)} (noms du contrat : ${rendu([...nomsDuContrat])})`,
       );
       exige(
         absencesCanonique.length === 0,

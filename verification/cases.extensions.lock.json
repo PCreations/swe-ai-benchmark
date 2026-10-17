@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-014). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-015). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -12,7 +12,8 @@
     "docs/adr/ADR-011-enonce-des-exigences-pour-le-candidat.md": "a3febf1575c1fdf610206ec39177393add33ab9443d0e5c9ad672e21ddf3309f",
     "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md": "ec2cf3ddf6928384e6533dbfcb1b8eed00d004abd6d555888bd87422de7e1301",
     "docs/adr/ADR-013-un-seul-vocabulaire-et-des-exemples-publics.md": "70c9a39baec709dc6643391376d87a1bf3f2bccb74ee42c4889b51a2ab4dd228",
-    "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md": "28e863dd249ddd46930cd7009811477ad2d03a5f619ca18835a1bb70028bf10d"
+    "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md": "28e863dd249ddd46930cd7009811477ad2d03a5f619ca18835a1bb70028bf10d",
+    "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md": "f5e3b9f3c2e801187db0accd603939779dbd22b0809fe48dbaf756ed7b1e8ec0"
   },
   "cases": [
     {
@@ -887,8 +888,64 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "rendre l'exemple de read sous une forme que fifo@1 ne compare pas : fifo@1 doit echouer et le cas rougir"
+    },
+    {
+      "id": "T58.A1",
+      "task": "T58",
+      "source": "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md",
+      "source_line": 49,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "retirer l'exemple de reponse d'erreur de read : le cas doit rougir"
+    },
+    {
+      "id": "T58.A2",
+      "task": "T58",
+      "source": "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md",
+      "source_line": 49,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "laisser « verdict NOT_FOUND » dans l'enonce de P4 : le cas doit rougir"
+    },
+    {
+      "id": "T58.A3",
+      "task": "T58",
+      "source": "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md",
+      "source_line": 49,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "retirer de l'enonce que `key` est l'identifiant de l'acteur : le cas doit rougir"
+    },
+    {
+      "id": "T58.A4",
+      "task": "T58",
+      "source": "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md",
+      "source_line": 49,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "montrer l'erreur de read sous forme {decision} : isolation@1 doit echouer et le cas rougir"
     }
   ],
-  "case_count": 63,
-  "classified_cases": 63
+  "case_count": 67,
+  "classified_cases": 67
 }

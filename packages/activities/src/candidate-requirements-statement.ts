@@ -107,6 +107,17 @@ const CANONICAL_FIELD_NAMES_SENTENCE = `Une réservation devient ${STATUS_CONFIR
  * (`read.value`, voir `CANDIDATE_PROTOCOL_EXAMPLES_V2`). */
 const FIFO_RESPONSE_SHAPE_SENTENCE = `La réponse de \`read\` pour la clé d'un acteur en file d'attente porte, en plus du champ \`status\` (qui vaut alors ${STATUS_WAITING}), un second champ nommé \`waiting_position\` donnant son rang dans la file à partir de 1 ; pour une clé titulaire ou annulée, seul le champ \`status\` est présent.`
 
+/* ═══════════════════ ADR-015 : sens de l'argument `key` de `read` (T58) ══
+ * « Ce que le second pilote reel a montre » : « Le sens de l'argument `key`
+ * de `read` n'est ecrit nulle part [...] seul l'exemple public le suggere.
+ * Haiku l'a lu comme la cle d'operation. » Cette phrase le dit donc,
+ * littéralement, dans l'énoncé de CHAQUE période (P1-P4 : le sens de cet
+ * argument ne dépend d'aucune règle active, contrairement à
+ * `FIFO_RESPONSE_SHAPE_SENTENCE`) — reprise à l'identique partout, jamais
+ * reformulée différemment d'une période à l'autre (même discipline que
+ * `CANONICAL_FIELD_NAMES_SENTENCE`). */
+const READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE = `L'argument \`key\` de \`read\` est l'identifiant de l'acteur dont on interroge l'état — le même identifiant que celui porté par l'argument \`actor\` des autres opérations, jamais une clé d'opération.`
+
 /* ═══════════════════════════════ les quatre énoncés de période ═══════════ */
 
 export interface CandidatePeriodRequirementsStatement {
@@ -131,6 +142,7 @@ const P1: CandidatePeriodRequirementsStatement = {
     `Rejouer la même clé d'opération, nommée \`operation_key\`, avec les mêmes arguments renvoie le résultat déjà obtenu, sans créer de doublon ; la rejouer avec des arguments différents renvoie ${REJECTION_CONFLICT}.`,
     `Aucune file d'attente ${STATUS_CONFIRMED}/attente/${STATUS_CANCELLED} n'est encore active à cette période (pas plus qu'une règle d'annulation ou qu'une isolation entre locataires).`,
     CANONICAL_FIELD_NAMES_SENTENCE,
+    READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -147,6 +159,7 @@ const P2: CandidatePeriodRequirementsStatement = {
     `Aucune règle d'annulation ni aucune isolation entre locataires ne sont encore énoncées à cette période.`,
     CANONICAL_FIELD_NAMES_SENTENCE,
     FIFO_RESPONSE_SHAPE_SENTENCE,
+    READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -162,6 +175,7 @@ const P3: CandidatePeriodRequirementsStatement = {
     `Aucune isolation entre locataires n'est encore énoncée à cette période.`,
     CANONICAL_FIELD_NAMES_SENTENCE,
     FIFO_RESPONSE_SHAPE_SENTENCE,
+    READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement
@@ -175,9 +189,10 @@ const P4: CandidatePeriodRequirementsStatement = {
   statement: [
     `Période P4 — règles actives du scénario F-RESERVATION.`,
     `En plus des règles de P1, P2 et P3 (créneau ${SLOT_ID}, début ${SLOT_START} ; file d'attente ${STATUS_CONFIRMED}/${STATUS_WAITING}/${STATUS_CANCELLED} ; annulation acceptée à partir de ${String(NOTICE_HOURS)} heures avant le début, frontière incluse à ${CANCELLATION_BOUNDARY}, sinon ${REJECTION_CANCELLATION_TOO_LATE}), les locataires sont désormais isolés.`,
-    `Un acteur d'un autre locataire ne peut ni lire ni modifier les réservations de ce locataire, et toute tentative renvoie le verdict ${REJECTION_NOT_FOUND}, sans aucune donnée métier divulguée.`,
+    `Un acteur d'un autre locataire ne peut ni lire ni modifier les réservations de ce locataire ; toute tentative reçoit une réponse d'erreur dont le champ \`error.code\` porte la valeur ${REJECTION_NOT_FOUND}, sans aucune donnée métier divulguée.`,
     CANONICAL_FIELD_NAMES_SENTENCE,
     FIFO_RESPONSE_SHAPE_SENTENCE,
+    READ_KEY_IS_ACTOR_IDENTIFIER_SENTENCE,
   ].join(' '),
   get prompt() {
     return this.statement

@@ -80,6 +80,7 @@ export function describeCandidateProtocolV2(): string {
   return [
     `Contrat d'application ${CANDIDATE_PROTOCOL_MARKER_V2} : le processus candidat échangera, plus tard, exactement les opérations suivantes en JSON ligne à ligne sur son entrée et sa sortie standard (write.op vaut 'reserve' ou 'cancel') :`,
     ...lignes,
+    `Sens de l'argument \`key\` : pour \`read\`, l'argument \`key\` désigne l'identifiant de l'acteur dont on interroge l'état — le même identifiant que l'argument \`actor\` des autres opérations, jamais une clé d'opération ni une autre clé.`,
     `Convention de lancement : livre le point d'entrée de ce candidat au fichier \`${CANDIDATE_ENTRYPOINT_FILENAME}\` à la racine de ce dépôt ; le moteur le lancera tel quel, par \`${CANDIDATE_LAUNCH_COMMAND_TEXT}\`, depuis ce répertoire.`,
     `Signal de démarrage : dès que le processus est prêt à échanger, il doit écrire exactement une ligne JSON ${CANDIDATE_READY_SIGNAL} sur sa sortie standard, avant toute autre ligne.`,
     `Forme des requêtes : chaque requête arrive en JSON ligne à ligne sur l'entrée standard, de la forme ${CANDIDATE_REQUEST_SHAPE}.`,
@@ -155,6 +156,48 @@ export const CANDIDATE_PROTOCOL_EXAMPLES_V2: readonly CandidateProtocolExampleV2
   { op: 'fingerprint', args: {}, result: { sha256: '0'.repeat(64) } },
 ]
 
+/* ═══════════════════ ADR-015 : exemples publics de réponse d'erreur (T58) ═
+ * « Ce que le second pilote reel a montre » : « isolation@1 n'est pas
+ * attribuable [...] Aucun exemple public ne montre une reponse d'erreur. »
+ * — pour CHACUNE des trois opérations qui peuvent échouer (`write`, `read`,
+ * `probe_cancel` ; `create_tenant`/`advance_clock`/`fingerprint` n'en
+ * produisent jamais), le prompt montre désormais, EN PLUS de l'exemple de
+ * succès déjà fixé ci-dessus, UN exemple requête → réponse D'ERREUR, au
+ * format exact `CANDIDATE_RESPONSE_ERROR_SHAPE` (`{"id","ok":false,"error":
+ * {"code","message"}}`, déjà fixé par le protocole NDJSON générique, T48).
+ * Valeurs-gabarit, comme chaque exemple existant du protocole : ce que
+ * `acceptance/T58.spec.ts#formeDe` compare est la FORME (clés et types,
+ * récursivement), jamais la valeur réelle `NOT_FOUND` — l'exiger ici serait
+ * une exigence qu'aucune source n'établit (ADR-001). Ajoutés APRÈS les
+ * exemples de succès (jamais mélangés dans `CANDIDATE_PROTOCOL_EXAMPLES_V2`)
+ * pour que `representativeExamplesForVerificationScript` (T57, ci-dessous)
+ * continue de choisir l'exemple de SUCCÈS comme représentant de chaque
+ * opération — le vérificateur de forme public ne compare que la présence
+ * des clés de réponse en cas de succès, jamais une réponse d'erreur. */
+export interface CandidateProtocolErrorExampleV2 {
+  readonly op: string
+  readonly args: Readonly<Record<string, unknown>>
+  readonly error: Readonly<Record<string, unknown>>
+}
+
+export const CANDIDATE_PROTOCOL_ERROR_EXAMPLES_V2: readonly CandidateProtocolErrorExampleV2[] = [
+  {
+    op: 'write',
+    args: { op: 'reserve', actor: 'acteur-exemple', tenant_id: 'tenant-exemple', admission_seq: 1, operation_key: 'cle-exemple-refusee' },
+    error: { code: 'exemple', message: 'exemple' },
+  },
+  {
+    op: 'read',
+    args: { tenant_id: 'tenant-exemple', key: 'acteur-exemple-refuse' },
+    error: { code: 'exemple', message: 'exemple' },
+  },
+  {
+    op: 'probe_cancel',
+    args: { tenant_id: 'tenant-exemple', key: 'acteur-exemple-refuse' },
+    error: { code: 'exemple', message: 'exemple' },
+  },
+]
+
 /**
  * Le texte des exemples publics requête → réponse, un par opération, au
  * format EXACT des messages (`{"id","op","args"}` -> `{"id","ok":true,
@@ -170,7 +213,11 @@ export const CANDIDATE_PROTOCOL_EXAMPLES_V2: readonly CandidateProtocolExampleV2
  * `CandidateProtocolExampleV2.minPeriodIndex` ci-dessus) — omis, TOUS les
  * exemples sont inclus (compatibilité des appelants qui ne connaissent pas
  * la période, et sens de ce texte pris isolément, hors du prompt réel d'une
- * période).
+ * période). Les exemples D'ERREUR (ADR-015, ci-dessus) ne sont JAMAIS
+ * filtrés par période : ils montrent une FORME de protocole, pas une règle
+ * métier active à une période précise (exactement comme les exemples de
+ * succès de `create_tenant`/`advance_clock`/`fingerprint`, eux aussi
+ * inconditionnels).
  */
 export function describeCandidateProtocolExamplesV2(periodIndex?: number): string {
   const exemples = CANDIDATE_PROTOCOL_EXAMPLES_V2.filter(
@@ -182,9 +229,17 @@ export function describeCandidateProtocolExamplesV2(periodIndex?: number): strin
     const reponse = JSON.stringify({ id, ok: true, result: exemple.result })
     return `${requete} -> ${reponse}`
   })
+  const lignesErreur = CANDIDATE_PROTOCOL_ERROR_EXAMPLES_V2.map((exemple, index) => {
+    const id = `ex-erreur-${exemple.op}-${String(index + 1)}`
+    const requete = JSON.stringify({ id, op: exemple.op, args: exemple.args })
+    const reponse = JSON.stringify({ id, ok: false, error: exemple.error })
+    return `${requete} -> ${reponse}`
+  })
   return [
     `Exemples publics du protocole ${CANDIDATE_PROTOCOL_MARKER_V2} (requête → réponse, format exact des messages ${CANDIDATE_REQUEST_SHAPE} -> ${CANDIDATE_RESPONSE_OK_SHAPE}) : les valeurs ci-dessous sont des gabarits sans portée métier, choisis pour ne reproduire aucune valeur qu'un contrôle pourrait attendre à une période quelconque.`,
     ...lignes,
+    `Exemples publics de réponse D'ERREUR du protocole ${CANDIDATE_PROTOCOL_MARKER_V2} (requête → réponse, format exact ${CANDIDATE_REQUEST_SHAPE} -> ${CANDIDATE_RESPONSE_ERROR_SHAPE}) : chaque opération qui peut échouer (\`write\`, \`read\`, \`probe_cancel\`) a ici un exemple de sa réponse d'erreur ; la valeur de \`error.code\` ci-dessous est un gabarit, jamais une valeur attendue par un contrôle.`,
+    ...lignesErreur,
   ].join('\n')
 }
 

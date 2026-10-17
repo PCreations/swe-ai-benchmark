@@ -1,0 +1,50 @@
+{
+  "schema": "bench.red/1",
+  "task": "T57",
+  "subject_commit": "d6161a8b7daa81cbae5b3a8d03eb01ffacdfe115",
+  "dirty": false,
+  "input_digest": "e080cd280868ab8f652bba5c4999b79967f68df00756a7af8f344d2317d0eb21",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T57.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T57.M1",
+      "note": "applique : read ne produit plus que {value:\"exemple\"} (une seule forme chaine) a la place des deux formes objet ; pnpm build ; jest -t T57.A1 -> ROUGE, assertion chaque-forme-reellement-produite... echoue en nommant exactement [read:{value:{status:string}}, read:{value:{status:string,waiting_position:number}}] comme manquantes ; mutation restauree (git checkout), pnpm build, re-verifie VERT."
+    },
+    {
+      "id": "T57.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T57.M2",
+      "note": "applique : FIFO_RESPONSE_SHAPE_SENTENCE reecrite sans les jetons status/waiting_position ; jest -t T57.A2 -> ROUGE, assertion l-enonce-nomme-status-ET-waiting_position... echoue en nommant exactement [P2:status,P2:waiting_position,P3:status,P3:waiting_position,P4:status,P4:waiting_position] ; mutation restauree (git checkout), re-verifie VERT."
+    },
+    {
+      "id": "T57.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T57.M3",
+      "note": "applique : status renomme state dans les DEUX formes objet de read (titulaire et en-attente), waiting_position et forme null intacts ; pnpm build ; jest -t T57.A3 -> ROUGE, PERIODE(S) EN ECHEC : [2:satisfied=3,violated=1 ; 3:satisfied=3,violated=1 ; 4:satisfied=4,violated=1], seul controle du viole = fifo@1 a chaque periode ou il est du ; mutation restauree (git checkout), pnpm build, re-verifie VERT."
+    }
+  ],
+  "mutation_proof": {
+    "T57.A1": {
+      "killed_by": "T57.M1",
+      "note": "applique : read ne produit plus que {value:\"exemple\"} (une seule forme chaine) a la place des deux formes objet ; pnpm build ; jest -t T57.A1 -> ROUGE, assertion chaque-forme-reellement-produite... echoue en nommant exactement [read:{value:{status:string}}, read:{value:{status:string,waiting_position:number}}] comme manquantes ; mutation restauree (git checkout), pnpm build, re-verifie VERT."
+    },
+    "T57.A2": {
+      "killed_by": "T57.M2",
+      "note": "applique : FIFO_RESPONSE_SHAPE_SENTENCE reecrite sans les jetons status/waiting_position ; jest -t T57.A2 -> ROUGE, assertion l-enonce-nomme-status-ET-waiting_position... echoue en nommant exactement [P2:status,P2:waiting_position,P3:status,P3:waiting_position,P4:status,P4:waiting_position] ; mutation restauree (git checkout), re-verifie VERT."
+    },
+    "T57.A3": {
+      "killed_by": "T57.M3",
+      "note": "applique : status renomme state dans les DEUX formes objet de read (titulaire et en-attente), waiting_position et forme null intacts ; pnpm build ; jest -t T57.A3 -> ROUGE, PERIODE(S) EN ECHEC : [2:satisfied=3,violated=1 ; 3:satisfied=3,violated=1 ; 4:satisfied=4,violated=1], seul controle du viole = fifo@1 a chaque periode ou il est du ; mutation restauree (git checkout), pnpm build, re-verifie VERT."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

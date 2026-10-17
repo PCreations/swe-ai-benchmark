@@ -115,10 +115,13 @@
  *
  * 1. LE DETECTEUR D'EXEMPLE D'ERREUR PAR OPERATION (`exempleErreurPourOperation`,
  *    section III) : ANCRE une requete par `op`+cles d'argument (mecanisme
- *    DEJA ACCEPTE de T56/T57), puis cherche, dans une fenetre de proximite,
- *    une reponse `"ok":false` dont la FORME CANONIQUE (`formeDe`, cles et
- *    types, recursivement — REPRIS A L'IDENTIQUE de T57.spec.ts, II.1) est
- *    EXACTEMENT celle REELLEMENT observee en appelant le modele attendu
+ *    DEJA ACCEPTE de T56/T57), la LIE a SA reponse par `id` et par adjacence
+ *    (`pairesExemples` — jamais une fenetre de proximite textuelle, qui
+ *    laissait l'exemple d'erreur d'une operation voisine « couvrir »
+ *    `read` : gate de mutation T58.M4, mesure reelle), et exige que cette
+ *    reponse soit `"ok":false` avec une FORME CANONIQUE (`formeDe`, cles et
+ *    types, recursivement — REPRIS A L'IDENTIQUE de T57.spec.ts, II.1)
+ *    egale EXACTEMENT a celle REELLEMENT observee en appelant le modele attendu
  *    (section IV). Lecture LITTERALE de « cette forme exacte » : la VALEUR
  *    du code n'est jamais comparee ici — chaque exemple existant du
  *    protocole emploie deja des valeurs-gabarit (`tenant-exemple`,
@@ -956,8 +959,6 @@ function formeDe(v: unknown): string {
   return typeof v;
 }
 
-const FENETRE_PROXIMITE_EXEMPLE = 600; // REPRISE A L'IDENTIQUE de T56/T57.spec.ts
-
 type OperationV2 = { op: string; args: string[] };
 /** Les TROIS operations qui peuvent produire une reponse d'erreur, observe
  *  sur le modele attendu (section IV ci-dessous) — create_tenant/
@@ -968,30 +969,58 @@ const OPERATIONS_AVEC_ERREUR: OperationV2[] = [
   { op: 'probe_cancel', args: ['tenant_id', 'key'] },
 ];
 
-/** VRAI si le prompt montre, pour `operation`, au moins un exemple public
- *  requete→reponse ou la requete ANCRE sur `op`+cles d'argument (mecanisme
- *  DEJA ACCEPTE de T56/T57) et la reponse, dans une fenetre de proximite, est
- *  une enveloppe D'ERREUR (`"ok":false`) dont la FORME CANONIQUE (cles et
- *  types, recursivement) est EXACTEMENT `formeAttendue` — jamais une
- *  comparaison de VALEUR (voir `formeDe` ci-dessus : un exemple a
- *  valeurs-gabarit, comme chaque exemple existant du protocole, compte). */
-function exempleErreurPourOperation(promptBrut: string, operation: OperationV2, formeAttendue: string): boolean {
+const estObjetJson = (v: unknown): v is Json => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+/** Un exemple public requete→reponse, LIE STRUCTURELLEMENT. */
+type PaireExemple = { op: string; requete: Json; reponse: Json };
+/** Les paires requete→reponse du prompt, LIEES STRUCTURELLEMENT — jamais
+ *  par une fenetre de proximite textuelle. Une requete est une enveloppe JSON
+ *  VALIDE portant `id` (texte) et `op` (texte) ; SA reponse est l'enveloppe
+ *  `{...}` equilibree IMMEDIATEMENT suivante (aucune autre enveloppe entre
+ *  les deux), qui doit etre du JSON valide, porter `ok` (booleen), ne porter
+ *  AUCUN `op`, et porter le MEME `id` que la requete (le protocole NDJSON de
+ *  T48 lie requete et reponse par `id`, et c'est ce lien qu'un exemple
+ *  montre).
+ *
+ *  POURQUOI (mesure reelle, gate de mutation T58.M4) : la version
+ *  precedente de ce detecteur ancrait la REQUETE par `op`, puis acceptait la
+ *  PREMIERE enveloppe `ok:false` trouvee dans les 600 caracteres suivants —
+ *  meme si elle appartenait a l'exemple d'une AUTRE operation. Sous T58.M4
+ *  (exemple d'erreur de `read` remplace par une reponse de SUCCES
+ *  `{"ok":true,"result":{"decision":"NOT_FOUND"}}`, exemples de `write`/
+ *  `probe_cancel` intacts), `read` « avait » encore un exemple d'erreur :
+ *  celui de `probe_cancel`, sur la ligne suivante. Les quatre cas restaient
+ *  VERTS. Liee par `id` et par adjacence, chaque reponse n'appartient plus
+ *  qu'a SA requete. */
+function pairesExemples(promptBrut: string): PaireExemple[] {
   const enveloppes = enveloppesJSON(promptBrut);
-  for (let i = 0; i < enveloppes.length; i += 1) {
-    const req = enveloppes[i] as EnveloppeJSON;
-    if (req.valeur === null) continue;
-    if (req.valeur.op !== operation.op) continue;
-    if (!argsOntLesClefs(req.valeur, operation.args)) continue;
-    for (let j = i + 1; j < enveloppes.length; j += 1) {
-      const res = enveloppes[j] as EnveloppeJSON;
-      if (res.debut < req.fin) continue;
-      if (res.debut - req.fin > FENETRE_PROXIMITE_EXEMPLE) break;
-      if (res.valeur === null) continue;
-      if (res.valeur.ok !== false) continue;
-      if (formeDe(res.valeur) === formeAttendue) return true;
-    }
+  const out: PaireExemple[] = [];
+  for (let i = 0; i + 1 < enveloppes.length; i += 1) {
+    const req = (enveloppes[i] as EnveloppeJSON).valeur;
+    const res = (enveloppes[i + 1] as EnveloppeJSON).valeur;
+    if (!estObjetJson(req) || typeof req.id !== 'string' || typeof req.op !== 'string') continue;
+    if (!estObjetJson(res) || res.id !== req.id || typeof res.ok !== 'boolean') continue;
+    if (Object.prototype.hasOwnProperty.call(res, 'op')) continue;
+    out.push({ op: req.op, requete: req, reponse: res });
   }
-  return false;
+  return out;
+}
+/** Les paires de `operation` (requete ANCREE par `op`+cles d'argument,
+ *  mecanisme DEJA ACCEPTE de T56/T57). */
+function pairesDeOperation(promptBrut: string, operation: OperationV2): PaireExemple[] {
+  return pairesExemples(promptBrut).filter((p) => p.op === operation.op && argsOntLesClefs(p.requete, operation.args));
+}
+
+/** VRAI si le prompt montre, pour `operation`, au moins un exemple public
+ *  requete→reponse (LIE par `id`, voir `pairesExemples`) ou la requete ANCRE
+ *  sur `op`+cles d'argument et SA reponse est une enveloppe D'ERREUR
+ *  (`"ok":false`) dont la FORME CANONIQUE (cles et types, recursivement) est
+ *  EXACTEMENT `formeAttendue` — jamais une comparaison de VALEUR (voir
+ *  `formeDe` ci-dessus : un exemple a valeurs-gabarit, comme chaque exemple
+ *  existant du protocole, compte). Une enveloppe `ok:false` appartenant a
+ *  l'exemple d'une AUTRE operation ne compte JAMAIS. */
+function exempleErreurPourOperation(promptBrut: string, operation: OperationV2, formeAttendue: string): boolean {
+  return pairesDeOperation(promptBrut, operation).some((p) => p.reponse.ok === false && formeDe(p.reponse) === formeAttendue);
 }
 
 /** La section « Contrat d'application bench.candidate/2 » du prompt reel,
@@ -1059,6 +1088,11 @@ function batterieErreurs(): { id: string; op: string; args: Json }[] {
     { id: 'e2', op: 'write', args: { op: 'reserve', actor: acteurA, tenant_id: SECOND_TENANT, admission_seq: 1, operation_key: 't58-a1-k-err' } },
     { id: 'e3', op: 'read', args: { tenant_id: SECOND_TENANT, key: acteurA } },
     { id: 'e4', op: 'probe_cancel', args: { tenant_id: SECOND_TENANT, key: acteurA } },
+    // Lecture de SUCCES depuis le PROPRIETAIRE (aucune reservation) : fixe
+    // les cles REELLES du `result` d'une lecture reussie, pour verifier
+    // qu'aucun exemple public de `read` ne montre un refus sous la forme
+    // d'une decision (T58.M4).
+    { id: 'e5', op: 'read', args: { tenant_id: LOCATAIRE_INITIAL, key: acteurA } },
   ];
 }
 
@@ -1084,6 +1118,13 @@ describe('T58 — montrer au candidat les reponses d erreur et le sens de la cle
         );
         formesErreurObservees.set(op.op, formeDe(r as Json));
       }
+      const lectureReussie = reponses.get('e5');
+      exige(
+        lectureReussie !== undefined && lectureReussie.ok === true && estObjetJson(lectureReussie.result) && !Object.prototype.hasOwnProperty.call(lectureReussie, 'error'),
+        'le-modele-attendu-produit-reellement-une-lecture-reussie-depuis-le-proprietaire',
+        `vu ${rendu(lectureReussie)} pour read depuis LOCATAIRE_INITIAL=${rendu(LOCATAIRE_INITIAL)}`,
+      );
+      const clesResultatLecture = new Set(Object.keys((lectureReussie as Json).result as Json));
 
       const ctx = nouveauContexte('a1');
       const plan = nouveauPlanDeRecord('a1');
@@ -1111,6 +1152,36 @@ describe('T58 — montrer au candidat les reponses d erreur et le sens de la cle
         manquants.length === 0,
         'chaque-operation-qui-peut-echouer-a-un-exemple-public-de-sa-reponse-d-erreur-exacte',
         `OPERATION(S) SANS EXEMPLE D'ERREUR PUBLIC : ${rendu(manquants)} — prompts observes : ${rendu(prompts.map((p) => court(p, 1200)))}`,
+      );
+
+      // T58.M4, observe DIRECTEMENT : l'exemple d'erreur de `read` (la
+      // reponse LIEE par `id` a une requete `read`) est une enveloppe
+      // `ok:false` qui porte `error.code` (texte) et AUCUN `result`.
+      const OP_READ = OPERATIONS_AVEC_ERREUR.find((o) => o.op === 'read') as OperationV2;
+      const pairesRead = prompts.flatMap((p) => pairesDeOperation(p, OP_READ));
+      const erreursRead = pairesRead.filter((p) => p.reponse.ok === false);
+      const erreursReadBienFormees = erreursRead.filter(
+        (p) =>
+          estObjetJson(p.reponse.error) &&
+          typeof p.reponse.error.code === 'string' &&
+          !Object.prototype.hasOwnProperty.call(p.reponse, 'result'),
+      );
+      exige(
+        erreursReadBienFormees.length >= 1,
+        'l-exemple-d-erreur-de-read-a-ok-false-un-champ-error-code-et-aucun-result',
+        `exemples de read lies par id : ${rendu(pairesRead.map((p) => `${JSON.stringify(p.requete)} -> ${JSON.stringify(p.reponse)}`))}`,
+      );
+      // ... et aucun exemple de `read` ne montre un refus sous la forme d'une
+      // DECISION : toute reponse `ok:true` d'un exemple de `read` n'emploie
+      // que les cles de `result` qu'une lecture REUSSIE du modele attendu
+      // produit reellement (e5) — jamais `{"decision":...}`.
+      const lecturesHorsForme = pairesRead.filter(
+        (p) => p.reponse.ok === true && (!estObjetJson(p.reponse.result) || Object.keys(p.reponse.result).some((k) => !clesResultatLecture.has(k))),
+      );
+      exige(
+        lecturesHorsForme.length === 0,
+        'aucun-exemple-de-read-ne-montre-un-refus-sous-forme-de-decision',
+        `cles de result d'une lecture reussie (modele attendu) : ${rendu([...clesResultatLecture])} ; exemples de read hors forme : ${rendu(lecturesHorsForme.map((p) => `${JSON.stringify(p.requete)} -> ${JSON.stringify(p.reponse)}`))}`,
       );
     },
     CASE_TIMEOUT_MS,

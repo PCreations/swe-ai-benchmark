@@ -40,9 +40,10 @@
 // protocole emploie deja des valeurs-gabarit, jamais la valeur metier reelle,
 // et exiger celle-ci dans l'exemple d'erreur serait une exigence qu'aucune
 // source n'etablit). Le mecanisme cherche, n'importe ou dans le prompt
-// (enonce ET exemples), une enveloppe JSON DE PROTOCOLE (cles `id`+`ok`) de
-// la forme `{"ok":false,"error":{...}}` dont le sous-objet `error` porte au
-// moins une cle. AUCUNE forme de ce type dans le prompt (l'etat actuel, avant
+// (enonce ET exemples), un exemple requete→reponse de L'OPERATION en cause
+// dont la reponse, LIEE par `id` a sa requete (`pairesExemples`, jamais une
+// fenetre de proximite textuelle), est de la forme `{"ok":false,"error":
+// {"code":...}}` sans `result`. AUCUNE forme de ce type dans le prompt (l'etat actuel, avant
 // implementation de T58) -> le candidat retombe sur
 // `ok({[decisionField]: ANCHOR_NOT_FOUND})` — REPRODUCTION DELIBEREE de
 // l'incident reel (Sonnet traitant NOT_FOUND comme une decision), jamais une
@@ -133,50 +134,67 @@ function argsOntLesClefs(v, requis) {
   if (args === null || typeof args !== 'object' || Array.isArray(args)) return requis.length === 0;
   return requis.every((a) => Object.prototype.hasOwnProperty.call(args, a));
 }
-const FENETRE_PROXIMITE_EXEMPLE = 600; // REPRISE A L'IDENTIQUE de T56/T57/acceptance/T58.spec.ts
+const estObjet = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+/**
+ * Les paires requete→reponse du prompt, LIEES STRUCTURELLEMENT — jamais par
+ * une fenetre de proximite textuelle. Une requete est une enveloppe JSON
+ * VALIDE portant `id` (texte) et `op` (texte) ; SA reponse est l'enveloppe
+ * `{...}` equilibree IMMEDIATEMENT suivante (aucune autre enveloppe entre les
+ * deux), JSON valide, portant `ok` (booleen), AUCUN `op`, et le MEME `id` que
+ * la requete (lien requete/reponse du protocole NDJSON de T48). IDENTIQUE a
+ * `pairesExemples` de acceptance/T58.spec.ts.
+ *
+ * POURQUOI (mesure reelle, gate de mutation T58.M4) : la version precedente
+ * ancrait la REQUETE par `op` puis acceptait la PREMIERE enveloppe `ok:false`
+ * rencontree dans les 600 caracteres suivants — meme celle de l'exemple d'une
+ * AUTRE operation. Sous T58.M4 (exemple d'erreur de `read` remplace par une
+ * reponse de SUCCES `{"ok":true,"result":{"decision":"NOT_FOUND"}}`),
+ * `parOperation.read` restait VRAI grace a l'exemple de `probe_cancel` de la
+ * ligne suivante, et T58.A4 restait VERT.
+ * @param {string} texte
+ * @returns {{op: string, requete: object, reponse: object}[]}
+ */
+export function pairesExemples(texte) {
+  const enveloppes = enveloppesJSON(typeof texte === 'string' ? texte : '');
+  const out = [];
+  for (let i = 0; i + 1 < enveloppes.length; i += 1) {
+    const req = enveloppes[i].valeur;
+    const res = enveloppes[i + 1].valeur;
+    if (!estObjet(req) || typeof req.id !== 'string' || typeof req.op !== 'string') continue;
+    if (!estObjet(res) || res.id !== req.id || typeof res.ok !== 'boolean') continue;
+    if (Object.prototype.hasOwnProperty.call(res, 'op')) continue;
+    out.push({ op: req.op, requete: req, reponse: res });
+  }
+  return out;
+}
 
 /**
  * VRAI si le prompt montre, pour L'OPERATION `opName` SPECIFIQUEMENT (requete
- * ANCREE par `op`+cles d'argument, mecanisme DEJA ACCEPTE de T56/T57), une
- * reponse `"ok":false` dans une fenetre de proximite dont le sous-objet
- * `error` porte au moins une cle — PAR FORME, jamais par VALEUR ni par
+ * ANCREE par `op`+cles d'argument, mecanisme DEJA ACCEPTE de T56/T57), un
+ * exemple dont la reponse LIEE par `id` a CETTE requete (`pairesExemples`)
+ * est une enveloppe d'erreur : `"ok":false`, un sous-objet `error` portant un
+ * `code` texte, et AUCUN `result` — PAR FORME, jamais par VALEUR ni par
  * lexique (voir en-tete : chaque exemple existant du protocole emploie deja
  * des valeurs-gabarit, `tenant-exemple`/`{"decision":"exemple"}` ; exiger la
  * valeur metier reelle NOT_FOUND dans l'exemple serait une exigence qu'aucune
- * source n'etablit — le risque de FAUX ROUGE qu'ADR-001 met en garde contre.
- * Repris A L'IDENTIQUE de acceptance/T58.spec.ts, qui compare la FORME de cet
- * exemple a la forme REELLEMENT observee en appelant le modele attendu,
- * jamais sa valeur). PAR OPERATION, jamais globalement au prompt entier :
- * ADR-015 cite LITTERALEMENT « pour une LECTURE faite depuis un autre
- * locataire » — le controle isolation@1 porte sur `read` specifiquement, et
- * un exemple d'erreur montre pour `write`/`probe_cancel` SEULS ne doit pas,
- * par un effet de bord global, faire reussir `read`.
+ * source n'etablit — le risque de FAUX ROUGE qu'ADR-001 met en garde contre).
+ * PAR OPERATION, jamais globalement au prompt entier : ADR-015 cite
+ * LITTERALEMENT « pour une LECTURE faite depuis un autre locataire » — le
+ * controle isolation@1 porte sur `read` specifiquement, et un exemple
+ * d'erreur montre pour `write`/`probe_cancel` SEULS ne doit pas, par un effet
+ * de bord (global OU de proximite textuelle), faire reussir `read`.
  * @param {string} promptBrut
  * @param {string} opName
  * @returns {boolean}
  */
 export function exempleErreurPourOperation(promptBrut, opName) {
-  const texte = typeof promptBrut === 'string' ? promptBrut : '';
   const requis = ARGS_PAR_OPERATION[opName] ?? [];
-  const enveloppes = enveloppesJSON(texte);
-  for (let i = 0; i < enveloppes.length; i += 1) {
-    const req = enveloppes[i].valeur;
-    if (req === null || typeof req !== 'object' || Array.isArray(req)) continue;
-    if (req.op !== opName) continue;
-    if (!argsOntLesClefs(req, requis)) continue;
-    for (let j = i + 1; j < enveloppes.length; j += 1) {
-      const res = enveloppes[j];
-      if (res.debut < enveloppes[i].fin) continue;
-      if (res.debut - enveloppes[i].fin > FENETRE_PROXIMITE_EXEMPLE) break;
-      const v = res.valeur;
-      if (v === null || typeof v !== 'object' || Array.isArray(v)) continue;
-      if (typeof v.id !== 'string' || v.ok !== false) continue;
-      const err = v.error;
-      if (err === null || typeof err !== 'object' || Array.isArray(err)) continue;
-      if (Object.keys(err).length >= 1) return true;
-    }
-  }
-  return false;
+  return pairesExemples(promptBrut).some(({ op, requete, reponse }) => {
+    if (op !== opName || !argsOntLesClefs(requete, requis)) return false;
+    if (reponse.ok !== false || Object.prototype.hasOwnProperty.call(reponse, 'result')) return false;
+    return estObjet(reponse.error) && typeof reponse.error.code === 'string';
+  });
 }
 
 const echapperRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

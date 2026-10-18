@@ -10,11 +10,11 @@
   "idempotence@1": "valide",
   "cancel@1": "valide",
   "fifo@1": "valide",
-  "isolation@1": "valide depuis ADR-016/T59 — la sonde lit, depuis , la cle de l'acteur qui detient une reservation dans "
+  "isolation@1": "valide depuis ADR-016/T59 — la sonde lit, depuis `other`, la cle de l'acteur qui detient une reservation dans `legacy`"
  },
  "lecture": {
   "sonnet": "15/15 controles dus satisfaits (P1 2/2, P2 4/4, P3 4/4, P4 5/5).",
-  "haiku": "12/15. P1 0/2 : le candidat invente une regle absente de l'enonce (confirmation seulement si l'horloge a atteint le debut du creneau) et repond  ; corrige des P2. P4 isolation@1 violee : l'isolation est appliquee a write et probe_cancel, pas a read ; la lecture depuis  de la cle du detenteur legacy repond {value:null} (ok:true) au lieu de la reponse d'erreur NOT_FOUND que l'enonce exige — aucune donnee divulguee, mais regle enoncee non respectee. Imputable au candidat.",
+  "haiku": "12/15. P1 0/2 : le candidat invente une regle absente de l'enonce (confirmation seulement si l'horloge a atteint le debut du creneau) et repond `cancelled` ; corrige des P2. P4 isolation@1 violee : l'isolation est appliquee a write et probe_cancel, pas a read ; la lecture depuis `other` de la cle du detenteur legacy repond {value:null} (ok:true) au lieu de la reponse d'erreur NOT_FOUND que l'enonce exige — aucune donnee divulguee, mais regle enoncee non respectee. Imputable au candidat.",
   "limite": "Une seule trajectoire et une seule repetition par modele : aucune variance n'est mesuree. Au troisieme pilote (88f1622), le meme modele Haiku satisfaisait P1 2/2 : l'echec P1 de ce pilote est donc au moins en partie aleatoire."
  },
  "campagnes": {

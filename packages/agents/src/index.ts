@@ -1268,6 +1268,10 @@ const CLAUDE_VALUE_OUTPUT_FORMAT_JSON = 'json'
 const CLAUDE_FLAG_NO_SESSION_PERSISTENCE = '--no-session-persistence'
 const CLAUDE_FLAG_MODEL = '--model'
 
+/** T60 (ADR-017:L29, litteral) -- AJOUTE uniquement quand `effort` est
+ * fourni (optionnel, additif : omis, l'argv de T47/T50 est inchange). */
+const CLAUDE_FLAG_EFFORT = '--effort'
+
 /** T50 (ADR-009 L86, L88 ; ADR-008:L108 cite par ADR-009:L24) -- un mode de
  * permission NON INTERACTIF et une liste EXPLICITE d'outils autorises,
  * ajoutes a TOUTE session (jamais `--add-dir`, jamais
@@ -1487,6 +1491,10 @@ export interface LaunchClaudeCliPeriodOptions {
   readonly workspaceDir: string
   readonly model: string
   readonly prompt?: string | undefined
+  /** T60 (ADR-017:L28-29) -- transmis litteralement par `--effort <niveau>`
+   *  quand present ; AUCUN drapeau n'est ajoute quand absent (comportement
+   *  de T47/T50 inchange dans ce cas, meme convention que `prompt` ci-dessus). */
+  readonly effort?: string | undefined
   readonly env: Record<string, string | undefined>
 }
 
@@ -1531,7 +1539,7 @@ export type ClaudeCliPeriodResult =
 export async function launchClaudeCliPeriod(
   options: LaunchClaudeCliPeriodOptions,
 ): Promise<ClaudeCliPeriodResult> {
-  const { workspaceDir, model, prompt } = options
+  const { workspaceDir, model, prompt, effort } = options
   const env = purgeAnthropicCredentials(options.env)
 
   const authStatus = await runClaudeProcess(['auth', 'status'], workspaceDir, env)
@@ -1556,6 +1564,7 @@ export async function launchClaudeCliPeriod(
       CLAUDE_VALUE_ALLOWED_TOOLS,
       CLAUDE_FLAG_MODEL,
       model,
+      ...(effort !== undefined ? [CLAUDE_FLAG_EFFORT, effort] : []),
     ],
     workspaceDir,
     env,

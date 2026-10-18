@@ -83,6 +83,10 @@ export interface RunPeriodClaudeCliInput {
   readonly model: string
   readonly candidateWorkspaceRoot: string
   readonly scenarioId?: string | undefined
+  /** T60 (ADR-017:L28-29) -- transmis litteralement a `launchClaudeCliPeriod`
+   *  et persiste avec la periode ; `undefined` quand le manifeste ne porte
+   *  pas `model.effort` (comportement de T47/T49 inchange dans ce cas). */
+  readonly effort?: string | undefined
 }
 
 export interface ClaudeCliCandidate {
@@ -170,10 +174,15 @@ function ensureTable(db: string): void {
        workspace_dir text NOT NULL,
        scenario_id text NOT NULL,
        usage jsonb NOT NULL,
+       effort text,
        created_at timestamptz NOT NULL DEFAULT now(),
        PRIMARY KEY (campaign_id, period_index)
      )`,
   )
+  // T60 (ADR-017:L32) -- colonne AJOUTEE a une table deja existante (base
+  // reutilisee d'une tache anterieure a T60) : idempotent, jamais une
+  // migration destructive.
+  runPsql(db, `ALTER TABLE ${TABLE} ADD COLUMN IF NOT EXISTS effort text`)
 }
 
 function lastCompletedPeriod(db: string, campaignId: string): number {
@@ -243,15 +252,22 @@ function writeClaudeCliPeriod(
   db: string,
   campaignId: string,
   periodIndex: number,
-  row: Omit<PersistedClaudeCliPeriod, 'period_index'> & { readonly scenarioId: string },
+  row: Omit<PersistedClaudeCliPeriod, 'period_index'> & {
+    readonly scenarioId: string
+    /** T60 (ADR-017:L32) -- `null` quand le manifeste ne porte pas
+     *  `model.effort` : une colonne PRESENTE et NULLE, jamais une ligne
+     *  absente ni une valeur de remplacement. */
+    readonly effort: string | null
+  },
 ): void {
   runPsql(
     db,
-    `INSERT INTO ${TABLE}(campaign_id, period_index, session_id, raw_output, commit_sha, workspace_dir, scenario_id, usage)
+    `INSERT INTO ${TABLE}(campaign_id, period_index, session_id, raw_output, commit_sha, workspace_dir, scenario_id, usage, effort)
        VALUES (
          ${sqlLit(campaignId)}, ${String(periodIndex)}, ${sqlLit(row.session_id)}, ${sqlLit(row.raw_output)},
          ${sqlLit(row.commit_sha)}, ${sqlLit(row.workspace_dir)}, ${sqlLit(row.scenarioId)},
-         ${sqlLit(JSON.stringify(row.usage))}::jsonb
+         ${sqlLit(JSON.stringify(row.usage))}::jsonb,
+         ${row.effort === null ? 'NULL' : sqlLit(row.effort)}
        )
      ON CONFLICT (campaign_id, period_index) DO NOTHING`,
   )
@@ -477,6 +493,7 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
     workspaceDir,
     model: input.model,
     prompt,
+    effort: input.effort,
     env: process.env,
   })
 
@@ -499,6 +516,7 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
     workspace_dir: workspaceDir,
     scenarioId,
     usage: session.usage,
+    effort: input.effort ?? null,
   })
 
   return {

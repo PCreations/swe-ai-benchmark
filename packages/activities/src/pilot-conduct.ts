@@ -85,7 +85,9 @@ interface ConductManifestBudget {
 interface ConductManifest {
   readonly schema?: string
   readonly corpus?: { readonly groups?: readonly ConductManifestGroup[] }
-  readonly model?: { readonly name?: string }
+  /** `effort` AJOUTE par T60 (ADR-017:L28) -- optionnel, additif : absent, le
+   *  comportement de T39/T46/T49 est inchange. */
+  readonly model?: { readonly name?: string; readonly effort?: string }
   readonly price?: { readonly tariff_micro_usd?: string }
   readonly exposure?: { readonly predefined?: boolean; readonly value?: string }
   readonly budget?: ConductManifestBudget
@@ -121,6 +123,37 @@ function missingConductPrerequisites(manifest: ConductManifest): string[] {
   if (isEmptyPrerequisite(manifest.exposure)) missing.push('exposure')
   if (isEmptyPrerequisite(manifest.budget)) missing.push('budget')
   return missing
+}
+
+/* ══════════════════════ T60 (ADR-017) : effort de raisonnement ═══════════ */
+
+/** Les cinq niveaux, littéralement (ADR-017:L17/L29) -- jamais une sixième
+ *  valeur, jamais un synonyme. */
+const EFFORT_LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'] as const
+type EffortLevel = (typeof EFFORT_LEVELS)[number]
+
+function isEffortLevel(v: string): v is EffortLevel {
+  return (EFFORT_LEVELS as readonly string[]).includes(v)
+}
+
+/**
+ * `model.effort` (ADR-017:L28) : `undefined` quand le manifeste ne le porte
+ * pas (rendu tel quel -- AUCUN drapeau ne sera transmis). Une valeur HORS de
+ * `EFFORT_LEVELS` est refusée ICI, AVANT toute invocation de la CLI `claude`
+ * et AVANT toute écriture en base (ADR-017:L31-32) -- cette fonction est
+ * appelée au tout début de `conductPilot`, avant `ensureConductTables` et
+ * avant toute connexion PostgreSQL ou appel au fournisseur.
+ */
+function validatedManifestEffort(manifest: ConductManifest): EffortLevel | undefined {
+  const effort = manifest.model?.effort
+  if (effort === undefined) return undefined
+  if (!isEffortLevel(effort)) {
+    throw new Error(
+      `bench pilot-conduct refusé : model.effort=${JSON.stringify(effort)} hors de low|medium|high|xhigh|max ` +
+        '(ADR-017:L17/L31 — refusé avant toute invocation de la CLI claude et avant toute écriture en base)',
+    )
+  }
+  return effort
 }
 
 function trajectoryCount(manifest: ConductManifest): number {
@@ -442,6 +475,7 @@ async function conductPilotClaudeCli(
   input: ConductPilotInput,
   manifest: ConductManifest,
   plans: readonly ConductTrajectoryPlan[],
+  effort: EffortLevel | undefined,
 ): Promise<Readonly<Json>> {
   if (input.live !== true) {
     throw new Error(
@@ -476,6 +510,7 @@ async function conductPilotClaudeCli(
         model: modelName,
         candidateWorkspaceRoot: input.candidateWorkspaceRoot,
         scenarioId: plan.scenario_id,
+        effort,
       })
       if (!outcome.persisted) {
         throw new Error(
@@ -540,6 +575,9 @@ async function conductPilotClaudeCli(
     missing_prerequisites: [],
     interrupted,
     budget: effectiveBudget(manifest),
+    // T60 (ADR-017:L33) -- l'effort utilise pour la campagne, ou `null`
+    // litteralement quand le manifeste n'en porte pas (jamais omis).
+    effort: effort ?? null,
     trajectories: persistedTrajectories.map((t) => ({
       trajectory_key: t.trajectory_key,
       parent_project_id: t.parent_project_id,
@@ -566,6 +604,11 @@ async function conductPilotClaudeCli(
  */
 export async function conductPilot(input: ConductPilotInput): Promise<Readonly<Json>> {
   const manifest = loadConductManifest(input.manifestPath)
+  // T60 (ADR-017:L31-32) -- VALIDE EN PREMIER, avant toute connexion
+  // PostgreSQL (`ensureConductTables`/`applyMigrations`/`openStore` plus
+  // bas) et avant toute invocation de la CLI `claude` : une valeur hors de
+  // la liste jette ICI, donc ni écriture ni appel n'a jamais lieu.
+  const effort = validatedManifestEffort(manifest)
   const missing = missingConductPrerequisites(manifest)
   if (missing.length > 0) {
     throw new Error(
@@ -593,7 +636,7 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
   // reel ci-dessous (voir l'en-tete de ./run-period-claude-cli.ts) — c'est ce
   // qui rend A5 (fournisseur factice inchange) vrai PAR CONSTRUCTION.
   if (input.provider === 'claude-cli') {
-    return conductPilotClaudeCli(input, manifest, plans)
+    return conductPilotClaudeCli(input, manifest, plans, effort)
   }
 
   const dsn = dsnFor(db)
@@ -709,6 +752,11 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
       missing_prerequisites: [],
       interrupted,
       budget: effectiveBudget(manifest),
+      // T60 (ADR-017:L33) -- meme champ que la branche claude-cli, pour un
+      // rapport uniforme quel que soit `--provider` ; le fournisseur factice
+      // n'invoque jamais la CLI `claude`, mais le manifeste peut toujours
+      // porter `model.effort`.
+      effort: effort ?? null,
       trajectories: persistedTrajectories.map((t) => ({
         trajectory_key: t.trajectory_key,
         parent_project_id: t.parent_project_id,

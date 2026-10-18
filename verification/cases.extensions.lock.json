@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-016). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-017). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -14,7 +14,8 @@
     "docs/adr/ADR-013-un-seul-vocabulaire-et-des-exemples-publics.md": "70c9a39baec709dc6643391376d87a1bf3f2bccb74ee42c4889b51a2ab4dd228",
     "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md": "28e863dd249ddd46930cd7009811477ad2d03a5f619ca18835a1bb70028bf10d",
     "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md": "f5e3b9f3c2e801187db0accd603939779dbd22b0809fe48dbaf756ed7b1e8ec0",
-    "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7"
+    "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7",
+    "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d"
   },
   "cases": [
     {
@@ -987,8 +988,50 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "revenir a key=Z dans la traduction de la sonde : isolation@1 doit echouer et le cas rougir"
+    },
+    {
+      "id": "T60.A1",
+      "task": "T60",
+      "source": "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md",
+      "source_line": 44,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas transmettre --effort a la CLI (ou le transmettre sans manifeste) : le cas doit rougir"
+    },
+    {
+      "id": "T60.A2",
+      "task": "T60",
+      "source": "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md",
+      "source_line": 44,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "accepter une valeur d'effort inconnue et lancer la CLI : le cas doit rougir"
+    },
+    {
+      "id": "T60.A3",
+      "task": "T60",
+      "source": "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md",
+      "source_line": 44,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas persister l'effort avec la periode ou l'omettre du rapport : le cas doit rougir"
     }
   ],
-  "case_count": 70,
-  "classified_cases": 70
+  "case_count": 73,
+  "classified_cases": 73
 }

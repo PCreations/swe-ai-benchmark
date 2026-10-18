@@ -662,7 +662,11 @@ function readAllPeriodControls(db: string, campaignId: string): Map<number, Cand
 
 /* ════════════════════ traduction de l'action scriptée → bench.candidate/2 ═ */
 
-function argsForAction(action: ScriptedAction, tenant: string): { readonly op: string; readonly args: Record<string, unknown> } {
+function argsForAction(
+  action: ScriptedAction,
+  tenant: string,
+  modelState: ModelState,
+): { readonly op: string; readonly args: Record<string, unknown> } {
   if (action.kind === 'write') {
     return {
       op: 'write',
@@ -675,7 +679,23 @@ function argsForAction(action: ScriptedAction, tenant: string): { readonly op: s
       },
     }
   }
-  return { op: 'read', args: { tenant_id: tenant, key: action.actor } }
+  // ADR-016 : une lecture faite DEPUIS un locataire autre que celui où les
+  // réservations sont tenues (la sonde d'isolation, `sonde-intertenant`,
+  // seule à porter `tenant !== modelState.ownerTenant` — cf.
+  // packages/scenario/src/demo-script.ts) ne doit JAMAIS porter la clé de
+  // l'acteur LECTEUR scripté (`action.actor`, ='Z' dans le scénario T11,
+  // inchangé) : personne n'a jamais créé cette clé, ce qui réduit la sonde à
+  // une lecture de clé inconnue, jamais à un test d'isolation réel. Elle
+  // porte la clé de l'acteur qui détient RÉELLEMENT une réservation dans
+  // `legacy` à cette période (`modelState.holder`, tenu par `modelWrite`
+  // ci-dessus, jamais recalculé ici) — exactement ce que la Décision
+  // d'ADR-016 nomme : « la sonde d'isolation lit, depuis le locataire
+  // `other`, la clé d'un acteur qui détient une réservation dans `legacy` ».
+  // Une lecture DEPUIS le locataire propriétaire (toutes les autres ::
+  // `lecture-legacy`/`lecture-file`/etc.) reste inchangée : elle porte la clé
+  // de l'acteur scripté, jamais celle du détenteur courant.
+  const key = tenant !== modelState.ownerTenant && modelState.holder !== null ? modelState.holder : action.actor
+  return { op: 'read', args: { tenant_id: tenant, key } }
 }
 
 type ControlStateMap = Record<ControlKey, { readonly actual: unknown; readonly expected: unknown }>
@@ -700,7 +720,7 @@ async function applyScriptedUsage(
   isDeployed: () => boolean,
 ): Promise<{ readonly modelState: ModelState; readonly controlState: ControlStateMap }> {
   const tenant = action.tenant
-  const { op, args } = argsForAction(action, tenant)
+  const { op, args } = argsForAction(action, tenant, modelState)
   const outcome = await call(op, args)
   if (!isDeployed()) return { modelState, controlState }
 

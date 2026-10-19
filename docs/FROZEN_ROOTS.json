@@ -88,6 +88,23 @@
           "octets": 7980
         }
       ]
+    },
+    {
+      "path": "acceptance/reference-long",
+      "tree_oid": "316bb56e594196b65609a602f20cb62538c0631a",
+      "commit_du_gel": "ad9f6d67a41c4c34cf711c322d621e63b40c8fa5",
+      "relecture": "git rev-parse ad9f6d67a41c4c34cf711c322d621e63b40c8fa5:acceptance/reference-long",
+      "nombre_de_fixtures": 1,
+      "fichiers": [
+        {
+          "chemin": "acceptance/reference-long/F-LONG.json",
+          "blob_oid": "c89af917aaf3d1284e032e69e2ebfe4bffd853f3",
+          "sha256": "84caec30651f81e298b389a0314884283914b1d8af0a54acebff36ec8e3d5f83",
+          "octets": 13745
+        }
+      ],
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md (pas le cahier)",
+      "trace": "docs/spec-conflicts/SC-005-elargir-le-gel-a-reference-long.md"
     }
   ],
   "provenance": {

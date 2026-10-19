@@ -89,6 +89,10 @@ export const REFERENCE_INVARIANTS = [
   {
     fixture: 'F-MONEY',
     cahier: 'L103',
+    // La racine du cahier. Une racine declaree en plus (acceptance/reference-long,
+    // ADR-018, SC-005) est gelee comme elle, mais ne porte pas les fixtures du
+    // cahier : y exiger F-MONEY refuserait une racine correcte.
+    root: DEFAULT_FROZEN_ROOTS[0],
     match: /F[-_ ]?MONEY/i,
     // « Un appel de 100 tokens non cachés, 40 cachés et 20 de sortie vaut 340
     // micro-USD. Deux appels identiques valent 680. »
@@ -135,7 +139,7 @@ export function checkReferences(roots = frozenRoots()) {
     }
 
     const fixtures = []
-    for (const inv of REFERENCE_INVARIANTS) {
+    for (const inv of REFERENCE_INVARIANTS.filter((i) => i.root === root)) {
       const carriers = [...texts.entries()].filter(
         ([f, t]) => inv.match.test(t) || inv.match.test(f.split('/').pop() ?? ''),
       )

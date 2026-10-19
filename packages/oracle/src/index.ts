@@ -60,3 +60,6 @@ export type { AppliedEffect, ReservationOracleState, ReservationRecord } from '.
 
 export { projectBusinessState } from './projection.js'
 export type { BusinessProjection, ProjectedSlot } from './projection.js'
+
+export { replayFLong } from './f-long.js'
+export type { PeriodRecord } from './f-long.js'

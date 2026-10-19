@@ -1,0 +1,217 @@
+{
+  "schema": "bench.reference.fixture/1",
+  "fixture": "F-LONG",
+  "$comment": [
+    "Faits attendus du scenario F-LONG, transcrits de la section « Le scenario",
+    "`F-LONG` » d'ADR-018 (L77-L159). Racine NOUVELLE exigee par ADR-018,",
+    "Decision 1 (L43-L54) ; la racine gelee acceptance/reference n'est PAS",
+    "touchee. P1 a P4 ne sont pas recopiees : elles renvoient a",
+    "acceptance/reference/F-RESERVATION.json (ADR-018 L86-L89, « F-RESERVATION,",
+    "inchange »).",
+    "",
+    "Chaque valeur porte `adr_line` (ou `adr_lines`) : la ligne d'ADR-018 qui",
+    "l'enonce, relisible par `sed -n '<n>p' docs/adr/ADR-018-scenario-long-et-contradictoire.md`.",
+    "Les champs `derivation` nomment les seules valeurs qui ne sont pas lues mot",
+    "pour mot mais deduites de la phrase citee (ex. longueur d'une file).",
+    "Les cles de `faits` sont les noms de champ que acceptance/T61.spec.ts",
+    "(section IV) fixe pour `facts` de replayFLong()."
+  ],
+  "source": {
+    "adr": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+    "adr_sha256": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2",
+    "adr_commit": "4c65e8d58523509ee733953d24c1383f519ae0aa",
+    "section": "Le scenario `F-LONG`",
+    "section_lignes": [77, 159],
+    "relecture": "chaque adr_line se relit par `sed -n '<n>p' docs/adr/ADR-018-scenario-long-et-contradictoire.md`"
+  },
+  "scellement": {
+    "tache": "T61",
+    "role": "test-author",
+    "methode": "transcription de la section F-LONG d'ADR-018 ; chaque fait en gras de P5 a P12 recalcule independamment (ADR-018 L157-L159) avant transcription",
+    "recalcul_independant": {
+      "P5": "A conf (seq1), D attente (seq2) ; cap 2 -> D promu ; E attente (seq3) ; cap 1 -> le confirme le plus recent (D) retrograde en TETE de file : S2 = A conf, file [D, E]. Concorde L97-L98.",
+      "P6": "E gold -> file [E, D] ; A annule -> E promu : S2 = E conf, file [D], A annule. Concorde L104-L105.",
+      "P7": "B : -1999 (debit P7) + floor(1999 * 50 %) = 999 (36 h, entre 24 et 48 h) -> -1000. C : -1999 + 0 (12 h < 24 h) -> -1999. Les confirmations de S1/S2 sont anterieures a P7 : aucun debit. Concorde L113-L116.",
+      "P8": "D detient S4, S5 confirmes (attente S2 non comptee) ; S6 serait la troisieme -> QUOTA_EXCEEDED. Concorde L122-L123.",
+      "P9": "Debut S7 2030-03-31T10:00Z = jour local 31 mars (passage a l'heure d'ete ce dimanche a 01:00Z) ; veille locale 30 mars en UTC+1 : 18:00 locale = 17:00:00Z. 17:00:00Z <= echeance -> 3000 ; 17:00:00.001Z > echeance -> 0. Concorde L129-L132.",
+      "P10": "E confirme sur S2 depuis P6 (aucune operation ulterieure sur S2) -> premier evenement migrated, statut confirmed. Concorde L138-L140.",
+      "P11": "fifo@2 : ordre par sequence d'admission seule, G admis avant H -> [G, H] malgre H gold. Quota retire -> D confirme sur S6 (capacite 5). Concorde L145-L147.",
+      "P12": "Transcrit tel quel (L154-L155) : lecture depuis other = confirmed, depuis legacy = valeur nulle, depuis third = NOT_FOUND."
+    },
+    "desaccords": []
+  },
+  "valeurs": {
+    "horloge_initiale": { "valeur": "2030-01-01T00:00:00Z", "adr_line": 79 },
+    "acteurs": { "valeur": ["A", "B", "C", "D", "E", "F", "G", "H"], "adr_line": 79, "note": "« Acteurs A a H »" },
+    "locataire_initial": { "valeur": "legacy", "adr_line": 80 },
+    "unite_monetaire": { "valeur": "centimes entiers", "adr_line": 80 },
+    "horloges_des_periodes": {
+      "P1": { "valeur": "2030-01-01T00:00:00Z", "adr_line": 81 },
+      "P2": { "valeur": "2030-01-01T01:00:00Z", "adr_line": 81, "note": "« P2 `01:00Z` » — date par ellipse sur P1" },
+      "P3": { "valeur": "2030-01-02T11:00:00Z", "adr_line": 81 },
+      "P4": { "valeur": "2030-01-02T13:00:00Z", "adr_line": 82, "note": "« P4 `13:00Z` » — date par ellipse sur P3" },
+      "P5": { "valeur": "2030-01-03T00:00:00Z", "adr_line": 82 },
+      "P6": { "valeur": "2030-01-04T00:00:00Z", "adr_line": 82 },
+      "P7": { "valeur": "2030-01-05T00:00:00Z", "adr_line": 83 },
+      "P8": { "valeur": "2030-01-07T00:00:00Z", "adr_line": 83 },
+      "P9": { "valeur": "2030-03-30T12:00:00Z", "adr_line": 83 },
+      "P10": { "valeur": "2030-04-01T00:00:00Z", "adr_line": 84 },
+      "P11": { "valeur": "2030-04-02T00:00:00Z", "adr_line": 84 },
+      "P12": { "valeur": "2030-04-03T00:00:00Z", "adr_line": 84 }
+    },
+    "P1_a_P4": {
+      "reference": "acceptance/reference/F-RESERVATION.json",
+      "adr_lines": [86, 89],
+      "note": "« P1 a P4 — F-RESERVATION, inchange » : non recopie ici.",
+      "regles": { "valeur": ["reserve@1", "idempotence@1", "fifo@1", "cancel@1", "cancel@2", "isolation@1"], "adr_lines": [86, 88], "note": "cancel@1 puis cancel@2 (24 heures, frontiere incluse)" },
+      "etat_S1_a_l_entree_de_P5": {
+        "A": { "valeur": "annulé", "adr_line": 88 },
+        "B": { "valeur": "confirmé", "adr_line": 88 },
+        "C": { "valeur": "en attente", "adr_lines": [88, 89] }
+      }
+    },
+    "P5": {
+      "titre": { "valeur": "capacité modifiable", "adr_line": 91 },
+      "regles_introduites": { "valeur": ["capacity@1"], "adr_line": 91 },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "fifo@1", "cancel@2", "isolation@1", "capacity@1"], "adr_lines": [86, 91] },
+      "creneaux": {
+        "S2": {
+          "capacite_initiale": { "valeur": 1, "adr_line": 91 },
+          "debut": { "valeur": "2030-01-10T12:00:00Z", "adr_line": 92 }
+        }
+      },
+      "operations": { "valeur": ["A reserve S2 (confirme)", "D reserve S2 (en attente)", "capacite de S2 portee a 2 (D confirme)", "E reserve S2 (en attente)", "capacite ramenee a 1"], "adr_lines": [95, 97] },
+      "faits": {
+        "s2_capacity_final": { "valeur": 1, "adr_line": 97, "note": "« capacite ramenee a 1 »" },
+        "s2_owner": { "valeur": "A", "adr_line": 97 },
+        "s2_waiting_order": { "valeur": ["D", "E"], "adr_lines": [97, 98], "note": "« D en attente en position 1, E en position 2 » ; longueur 2 derivee" }
+      }
+    },
+    "P6": {
+      "titre": { "valeur": "priorités", "adr_line": 100 },
+      "regles_introduites": { "valeur": ["priority@1"], "adr_line": 100 },
+      "regles_remplacees": { "valeur": ["fifo@1"], "adr_line": 100 },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "priority@1", "cancel@2", "isolation@1", "capacity@1"], "adr_line": 100 },
+      "niveaux": { "valeur": ["standard", "gold"], "adr_line": 101, "note": "standard par defaut ; gold d'abord (L102)" },
+      "operations": { "valeur": ["E passe gold (S2 : E en position 1, D en position 2)", "A annule S2"], "adr_lines": [103, 104] },
+      "faits": {
+        "s2_owner": { "valeur": "E", "adr_line": 104 },
+        "s2_waiting_order": { "valeur": ["D"], "adr_lines": [104, 105], "derivation": "« D en attente en position 1 » ; seul en attente apres la promotion de E, longueur 1" },
+        "s2_a_status": { "valeur": "annulé", "adr_line": 105 }
+      }
+    },
+    "P7": {
+      "titre": { "valeur": "argent", "adr_line": 107 },
+      "regles_introduites": { "valeur": ["price@1", "cancel@3"], "adr_line": 107 },
+      "regles_remplacees": { "valeur": ["cancel@2"], "adr_line": 107 },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "priority@1", "cancel@3", "isolation@1", "capacity@1", "price@1"], "adr_line": 107 },
+      "solde_initial": { "valeur": 0, "adr_line": 109 },
+      "taux_de_remboursement": {
+        "a_48h_ou_plus": { "valeur": 100, "adr_lines": [110, 111], "unite": "%" },
+        "entre_24h_et_48h": { "valeur": 50, "adr_line": 111, "unite": "%", "arrondi": "centime inferieur" },
+        "a_moins_de_24h": { "valeur": 0, "adr_lines": [111, 112], "unite": "%" }
+      },
+      "creneaux": {
+        "S3": {
+          "capacite": { "valeur": 1, "adr_line": 112 },
+          "prix": { "valeur": 1999, "adr_line": 112 },
+          "debut": { "valeur": "2030-01-06T12:00:00Z", "adr_line": 113 }
+        }
+      },
+      "instants": {
+        "b_reserve_et_annule": { "valeur": "2030-01-05T00:00:00Z", "adr_line": 113, "note": "36 heures avant" },
+        "c_annule": { "valeur": "2030-01-06T00:00:00Z", "adr_line": 114, "note": "12 heures avant" }
+      },
+      "faits": {
+        "b_refund": { "valeur": 999, "adr_line": 114 },
+        "c_refund": { "valeur": 0, "adr_line": 116 },
+        "c_cancel_allowed": { "valeur": true, "adr_lines": [114, 115], "note": "« ce qui etait refuse sous cancel@2 »" },
+        "balance_B": { "valeur": -1000, "adr_line": 116 },
+        "balance_C": { "valeur": -1999, "adr_line": 116 }
+      }
+    },
+    "P8": {
+      "titre": { "valeur": "quotas", "adr_line": 118 },
+      "regles_introduites": { "valeur": ["quota@1"], "adr_line": 118 },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "priority@1", "cancel@3", "isolation@1", "capacity@1", "price@1", "quota@1"], "adr_line": 118 },
+      "quota_confirmees_par_locataire": { "valeur": 2, "adr_lines": [118, 119] },
+      "creneaux": {
+        "S4": { "capacite": { "valeur": 5, "adr_line": 121 }, "prix": { "valeur": 0, "adr_line": 121 }, "debut": { "valeur": "2030-01-20T12:00:00Z", "adr_line": 122 } },
+        "S5": { "capacite": { "valeur": 5, "adr_line": 121 }, "prix": { "valeur": 0, "adr_line": 121 }, "debut": { "valeur": "2030-01-20T12:00:00Z", "adr_line": 122 } },
+        "S6": { "capacite": { "valeur": 5, "adr_line": 121 }, "prix": { "valeur": 0, "adr_line": 121 }, "debut": { "valeur": "2030-01-20T12:00:00Z", "adr_line": 122 } }
+      },
+      "faits": {
+        "d_s4_status": { "valeur": "confirmé", "adr_line": 122 },
+        "d_s5_status": { "valeur": "confirmé", "adr_line": 122 },
+        "d_s6_result": { "valeur": "QUOTA_EXCEEDED", "adr_line": 123 },
+        "d_s6_waiting": { "valeur": false, "adr_line": 120, "note": "« sans attente ni debit »" },
+        "d_s6_debited": { "valeur": false, "adr_line": 120, "note": "« sans attente ni debit »" }
+      }
+    },
+    "P9": {
+      "titre": { "valeur": "fuseau horaire", "adr_line": 125 },
+      "regles_introduites": { "valeur": ["cancel@4"], "adr_line": 125 },
+      "regles_remplacees": { "valeur": ["cancel@3"], "adr_line": 125 },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "priority@1", "cancel@4", "isolation@1", "capacity@1", "price@1", "quota@1"], "adr_line": 125 },
+      "fuseau_legacy": { "valeur": "Europe/Paris", "adr_line": 126 },
+      "heure_locale_limite": { "valeur": "18:00", "adr_line": 127, "note": "la veille du jour local du creneau" },
+      "creneaux": {
+        "S7": {
+          "capacite": { "valeur": 1, "adr_line": 128 },
+          "prix": { "valeur": 3000, "adr_line": 128 },
+          "debut": { "valeur": "2030-03-31T10:00:00Z", "adr_line": 129 }
+        }
+      },
+      "echeance": { "valeur": "2030-03-30T17:00:00Z", "adr_line": 130 },
+      "echeance_fautive_UTC_plus_2": { "valeur": "2030-03-30T16:00:00Z", "adr_lines": [132, 133], "note": "piege nomme par l'ADR, jamais attendu" },
+      "instants": {
+        "copie_1": { "valeur": "2030-03-30T17:00:00Z", "adr_line": 131 },
+        "copie_2": { "valeur": "2030-03-30T17:00:00.001Z", "adr_line": 132 }
+      },
+      "faits": {
+        "refund_at_deadline": { "valeur": 3000, "adr_line": 131 },
+        "refund_after_deadline": { "valeur": 0, "adr_line": 132 }
+      }
+    },
+    "P10": {
+      "titre": { "valeur": "historique", "adr_line": 135 },
+      "regles_introduites": { "valeur": ["history@1"], "adr_line": 135 },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "priority@1", "cancel@4", "isolation@1", "capacity@1", "price@1", "quota@1", "history@1"], "adr_line": 135 },
+      "faits": {
+        "e_s2_history_first_event": { "valeur": "migrated", "adr_line": 139 },
+        "e_s2_history_first_status": { "valeur": "confirmed", "adr_lines": [139, 140] }
+      }
+    },
+    "P11": {
+      "titre": { "valeur": "retraits", "adr_line": 142 },
+      "regles_introduites": { "valeur": ["fifo@2"], "adr_line": 142 },
+      "regles_remplacees": { "valeur": ["priority@1"], "adr_line": 142 },
+      "regles_retirees": { "valeur": ["quota@1"], "adr_lines": [142, 143] },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "fifo@2", "cancel@4", "isolation@1", "capacity@1", "price@1", "history@1"], "adr_lines": [142, 143] },
+      "creneaux": {
+        "S8": { "capacite": { "valeur": 1, "adr_line": 144 } }
+      },
+      "niveaux": {
+        "G": { "valeur": "standard", "adr_line": 145 },
+        "H": { "valeur": "gold", "adr_line": 145, "note": "passe gold en P10, quand les niveaux comptaient encore" }
+      },
+      "faits": {
+        "s8_owner": { "valeur": "F", "adr_line": 144 },
+        "s8_waiting_order": { "valeur": ["G", "H"], "adr_lines": [145, 146], "note": "« G en position 1, H en position 2 » ; longueur 2 derivee" },
+        "d_s6_status": { "valeur": "confirmé", "adr_lines": [146, 147] }
+      }
+    },
+    "P12": {
+      "titre": { "valeur": "transfert", "adr_line": 149 },
+      "regles_introduites": { "valeur": ["transfer@1"], "adr_line": 149, "note": "exception etroite a isolation@1, qui reste active" },
+      "regles_actives": { "valeur": ["reserve@1", "idempotence@1", "fifo@2", "cancel@4", "isolation@1", "capacity@1", "price@1", "history@1", "transfer@1"], "adr_line": 149 },
+      "nouveau_locataire": { "valeur": "third", "adr_line": 153 },
+      "transfert": { "valeur": { "reservation": "B sur S1", "de": "legacy", "vers": "other" }, "adr_line": 153 },
+      "faits": {
+        "b_s1_from_other": { "valeur": "confirmed", "adr_line": 154 },
+        "b_s1_from_legacy": { "valeur": null, "adr_lines": [154, 155], "note": "« valeur nulle »" },
+        "b_s1_from_third": { "valeur": "NOT_FOUND", "adr_line": 155 }
+      }
+    }
+  }
+}

@@ -67,6 +67,7 @@ const JALONS = [
   // affiche a part pour que personne ne le confonde avec les trois du cahier.
   { nom: 'PILOTE_LONGITUDINAL', ancres: ['T46'], cahier: 'ADR-007' },
   { nom: 'PILOTE_REEL', ancres: ['T60'], cahier: 'ADR-008..017' },
+  { nom: 'F_LONG', ancres: ['T66'], cahier: 'ADR-018' },
 ]
 
 /** Taches attestees SUR LE LEDGER — la seule mesure qui ne decroit pas. */

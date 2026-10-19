@@ -1,9 +1,8 @@
 # ADR-018 — Un scénario long, contradictoire et à état persistant
 
-    statut : PROPOSÉ — rédigé à la demande du mandant le 19/10/2026 (« Oui
-             vas-y, rédige l'ADR-018 »), en réponse à « Il faut rendre
-             l'évolution des fonctionnalités beaucoup plus complexe, là ça
-             reste vraiment trop trop simple pour prouver quoique ce soit »
+    statut : ACCEPTÉ — par le mandant le 19/10/2026 (« Oui, j'accepte
+             l'ADR-018, lance T61 sans me demander l'autorisation à chaque
+             fois »), rédigé à sa demande (« Oui vas-y, rédige l'ADR-018 »)
     ouvert : 19/10/2026
     porte  : scénario du pilote à candidat réel, contrat du candidat, modèle
              attendu des contrôles, mesures persistées et rapport du pilote

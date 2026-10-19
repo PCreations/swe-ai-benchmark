@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Taches ISSUES D'ADR ACCEPTES (ADR-007 a ADR-017, T44-T60), pas du cahier.",
+    "Taches ISSUES D'ADR ACCEPTES (ADR-007 a ADR-018, T44-T66), pas du cahier.",
     "verification/tasks.json reste le registre du cahier et garde ses 44 taches : acceptance/T43.spec.ts leve au chargement sinon.",
     "Chaque carte porte spec_source (ADR + plage de lignes) a la place de cahier_lines. bench resume fusionne les deux registres."
   ],
@@ -16,10 +16,11 @@
     "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md": "28e863dd249ddd46930cd7009811477ad2d03a5f619ca18835a1bb70028bf10d",
     "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md": "f5e3b9f3c2e801187db0accd603939779dbd22b0809fe48dbaf756ed7b1e8ec0",
     "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7",
-    "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d"
+    "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d",
+    "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2"
   },
-  "task_count": 17,
-  "required_case_count": 73,
+  "task_count": 23,
+  "required_case_count": 95,
   "tasks": [
     {
       "id": "T44",
@@ -717,6 +718,241 @@
         "lines": [
           40,
           46
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T61",
+      "title": "Le scenario F-LONG et son modele attendu",
+      "depends_on": [
+        "T60"
+      ],
+      "source_paths": [
+        "packages/scenario",
+        "packages/oracle",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-018-scenario-long-et-contradictoire.md"
+      ],
+      "acceptance_entry": "acceptance/T61.spec.ts",
+      "required_cases": [
+        "T61.A1",
+        "T61.A2",
+        "T61.A3",
+        "T61.A4"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T61"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+        "lines": [
+          174,
+          180
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T62",
+      "title": "Le contrat bench.candidate/3 et l'enonce des douze periodes",
+      "depends_on": [
+        "T61"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/scenario",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-018-scenario-long-et-contradictoire.md"
+      ],
+      "acceptance_entry": "acceptance/T62.spec.ts",
+      "required_cases": [
+        "T62.A1",
+        "T62.A2",
+        "T62.A3",
+        "T62.A4"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T62"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+        "lines": [
+          182,
+          188
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T63",
+      "title": "Un etat qui dure d'une periode a l'autre",
+      "depends_on": [
+        "T62"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/agents",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-018-scenario-long-et-contradictoire.md"
+      ],
+      "acceptance_entry": "acceptance/T63.spec.ts",
+      "required_cases": [
+        "T63.A1",
+        "T63.A2",
+        "T63.A3"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T63"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+        "lines": [
+          190,
+          196
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T64",
+      "title": "Des controles larges et caches",
+      "depends_on": [
+        "T63"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/scenario",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-018-scenario-long-et-contradictoire.md"
+      ],
+      "acceptance_entry": "acceptance/T64.spec.ts",
+      "required_cases": [
+        "T64.A1",
+        "T64.A2",
+        "T64.A3",
+        "T64.A4"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T64"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+        "lines": [
+          198,
+          204
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T65",
+      "title": "Les mesures longitudinales sur le chemin reel",
+      "depends_on": [
+        "T64"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/evaluation",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-018-scenario-long-et-contradictoire.md"
+      ],
+      "acceptance_entry": "acceptance/T65.spec.ts",
+      "required_cases": [
+        "T65.A1",
+        "T65.A2",
+        "T65.A3",
+        "T65.A4"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T65"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+        "lines": [
+          206,
+          212
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T66",
+      "title": "Le pilote F-LONG avec repetitions",
+      "depends_on": [
+        "T65"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/agents",
+        "apps/cli",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-018-scenario-long-et-contradictoire.md"
+      ],
+      "acceptance_entry": "acceptance/T66.spec.ts",
+      "required_cases": [
+        "T66.A1",
+        "T66.A2",
+        "T66.A3"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T66"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+        "lines": [
+          214,
+          220
         ]
       },
       "status": "NOT_IMPLEMENTED"

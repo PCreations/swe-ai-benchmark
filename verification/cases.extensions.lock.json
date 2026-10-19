@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-017). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-018). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -15,7 +15,8 @@
     "docs/adr/ADR-014-forme-des-reponses-montree-au-candidat.md": "28e863dd249ddd46930cd7009811477ad2d03a5f619ca18835a1bb70028bf10d",
     "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md": "f5e3b9f3c2e801187db0accd603939779dbd22b0809fe48dbaf756ed7b1e8ec0",
     "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7",
-    "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d"
+    "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d",
+    "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2"
   },
   "cases": [
     {
@@ -1030,8 +1031,300 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "ne pas persister l'effort avec la periode ou l'omettre du rapport : le cas doit rougir"
+    },
+    {
+      "id": "T61.A1",
+      "task": "T61",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "alterer un fait de F-LONG dans le modele attendu (ex. S2 : E en position 1 apres P5) : le cas doit rougir"
+    },
+    {
+      "id": "T61.A2",
+      "task": "T61",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "laisser priority@1 active en P11 : le cas doit rougir"
+    },
+    {
+      "id": "T61.A3",
+      "task": "T61",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "placer l'echeance P9 a 16:00Z (UTC+2) : le cas doit rougir"
+    },
+    {
+      "id": "T61.A4",
+      "task": "T61",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "arrondir le remboursement de P7 au centime superieur (1000) : le cas doit rougir"
+    },
+    {
+      "id": "T62.A1",
+      "task": "T62",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre de l'enonce de P7 que cancel@2 est remplacee : le cas doit rougir"
+    },
+    {
+      "id": "T62.A2",
+      "task": "T62",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "supprimer l'exemple public de la reponse QUOTA_EXCEEDED : le cas doit rougir"
+    },
+    {
+      "id": "T62.A3",
+      "task": "T62",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "reprendre dans un exemple le remboursement attendu 999 : le cas doit rougir"
+    },
+    {
+      "id": "T62.A4",
+      "task": "T62",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "mentionner dans l'enonce de P5 la regle de priorite de P6 : le cas doit rougir"
+    },
+    {
+      "id": "T63.A1",
+      "task": "T63",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas passer BENCH_DATA_DIR au candidat ou le vider entre periodes : le cas doit rougir"
+    },
+    {
+      "id": "T63.A2",
+      "task": "T63",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "redemarrer le candidat sans relancer le controle des regles dependantes de l'etat : le cas doit rougir"
+    },
+    {
+      "id": "T63.A3",
+      "task": "T63",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "appliquer une sonde a l'etat principal au lieu d'une copie : le cas doit rougir"
+    },
+    {
+      "id": "T64.A1",
+      "task": "T64",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ignorer la graine dans la generation : le cas doit rougir"
+    },
+    {
+      "id": "T64.A2",
+      "task": "T64",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "inclure une sequence generee dans les exemples du prompt : le cas doit rougir"
+    },
+    {
+      "id": "T64.A3",
+      "task": "T64",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "compter une regle satisfaite des que la trajectoire principale l'est : le cas doit rougir"
+    },
+    {
+      "id": "T64.A4",
+      "task": "T64",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "generer 19 sequences pour une regle : le cas doit rougir"
+    },
+    {
+      "id": "T65.A1",
+      "task": "T65",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 210,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "calculer Q sans les poids de T04 : le cas doit rougir"
+    },
+    {
+      "id": "T65.A2",
+      "task": "T65",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 210,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "compter cancel@2 retiree en regression en P7 : le cas doit rougir"
+    },
+    {
+      "id": "T65.A3",
+      "task": "T65",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 210,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre la periode de retablissement dans la chronologie : le cas doit rougir"
+    },
+    {
+      "id": "T65.A4",
+      "task": "T65",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 210,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire entrer les lignes ajoutees dans Q, ou ne pas persister le nombre de fichiers de test : le cas doit rougir"
+    },
+    {
+      "id": "T66.A1",
+      "task": "T66",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 218,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "arreter la trajectoire a onze periodes ou a deux repetitions : le cas doit rougir"
+    },
+    {
+      "id": "T66.A2",
+      "task": "T66",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 218,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "afficher un intervalle de confiance sur trois repetitions : le cas doit rougir"
+    },
+    {
+      "id": "T66.A3",
+      "task": "T66",
+      "source": "docs/adr/ADR-018-scenario-long-et-contradictoire.md",
+      "source_line": 218,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "compter cancel@2 ou priority@1 en regression apres leur remplacement : le cas doit rougir"
     }
   ],
-  "case_count": 73,
-  "classified_cases": 73
+  "case_count": 95,
+  "classified_cases": 95
 }

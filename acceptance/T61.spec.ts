@@ -66,9 +66,15 @@
  * suivantes, et d'aucune autre :
  *   (a) un import de `acceptance/reference/F-RESERVATION.json` — racine gelee,
  *       docs/FROZEN_ROOTS.json — pour TOUT ce qui concerne P1 a P4 ;
- *   (b) un commentaire `// ADR-018:L<n>` resoluble par
- *       `sed -n '<n>p' docs/adr/ADR-018-scenario-long-et-contradictoire.md`,
- *       pour P5 a P12.
+ *   (b) un import de `acceptance/reference-long/F-LONG.json` — la NOUVELLE
+ *       racine qu'ADR-018 (Decision 1) exige pour les faits de F-LONG — pour
+ *       TOUT ce qui concerne P5 a P12. Chaque valeur y porte sa ligne source
+ *       (`adr_line`), et la suite garde a cote de chaque lecture un
+ *       commentaire `// ADR-018:L<n>` resoluble par
+ *       `sed -n '<n>p' docs/adr/ADR-018-scenario-long-et-contradictoire.md`.
+ *       Chaque valeur lue est en outre CONFRONTEE, par une assertion nommee
+ *       `reference-long.*`, au litteral d'ADR-018 qu'elle remplace : la racine
+ *       ne peut pas deriver de l'ADR sans que la suite rougisse.
  * AUCUNE valeur attendue n'a ete obtenue en lancant une implementation de T61
  * et en figeant ce qu'on a vu passer : packages/oracle et packages/scenario
  * n'ont pas ete lus, et aucun module de T61 n'existe encore au moment ou
@@ -273,6 +279,27 @@ const P4_ENTREE_A = S('valeurs.P4.etat_persistant_a_l_entree.A.valeur');
 const P4_ENTREE_B = S('valeurs.P4.etat_persistant_a_l_entree.B.valeur');
 const P4_ENTREE_C = S('valeurs.P4.etat_persistant_a_l_entree.C.valeur');
 const CODE_NOT_FOUND = 'NOT_FOUND'; // cahier:L123, repris par T07
+
+/* ────────── fixture de reference F-LONG (racine acceptance/reference-long) */
+
+// ADR-018 Decision 1 : « Ses faits sont figes dans une nouvelle racine,
+// `acceptance/reference-long` ». Les valeurs ATTENDUES de P5 a P12 sont lues
+// ici ; les litteraux d'ADR-018 ne servent plus qu'a confronter la racine.
+const REFERENCE_LONG_DIR = path.join(REPO, 'acceptance', 'reference-long');
+const LONG = JSON.parse(
+  fs.readFileSync(path.join(REFERENCE_LONG_DIR, 'F-LONG.json'), 'utf8'),
+) as Json;
+/** Valeur `valeurs.<chemin>.valeur` de F-LONG.json. */
+const LV = (chemin: string): unknown => refValue(LONG, `valeurs.${chemin}.valeur`);
+/** Fait attendu `valeurs.<periode>.faits.<cle>.valeur` de F-LONG.json. */
+const FAIT = (periode: string, cle: string): unknown => LV(`${periode}.faits.${cle}`);
+/** Statut attendu normalise, lu dans F-LONG.json. */
+const STATUT = (periode: string, cle: string): string => normaliser(String(FAIT(periode, cle)));
+/** Tableau attendu lu dans F-LONG.json (echoue a l'appelant si ce n'est pas un tableau). */
+const LISTE = (periode: string, cle: string): unknown[] => {
+  const v = FAIT(periode, cle);
+  return Array.isArray(v) ? v : [`PAS-UN-TABLEAU reference-long ${periode}.${cle}=${rendu(v)}`];
+};
 
 /** Statuts normalises, meme vocabulaire que T07, pour comparer les libelles de la reference a ceux que facts porte. */
 type Statut = 'confirme' | 'attente' | 'annule';
@@ -573,7 +600,9 @@ function neContientPas(ensemble: string[], valeur: string, quoi: string): void {
 /* ───────────────────────────── les douze ensembles de regles (section V) */
 
 // ADR-018:L61-65 (regle 4, fixture F-REGRESSION du cahier) et L86-155.
-const REGLES: Record<string, string[]> = {
+// Litteraux d'ADR-018 : ils ne servent, pour P5 a P12, qu'a CONFRONTER la
+// racine acceptance/reference-long (assertions `reference-long.*` de A2).
+const REGLES_ADR: Record<string, string[]> = {
   P1: ['reserve@1', 'idempotence@1', 'fifo@1', 'cancel@1'],
   P2: ['reserve@1', 'idempotence@1', 'fifo@1', 'cancel@1'],
   P3: ['reserve@1', 'idempotence@1', 'fifo@1', 'cancel@2'], // ADR-018:L86-87
@@ -643,6 +672,17 @@ const REGLES: Record<string, string[]> = {
   ], // ADR-018:L149
 };
 
+const PERIODES_LONGUES = ['P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12'];
+
+/** Ensembles ATTENDUS : P1-P4 litteraux (F-REGRESSION), P5-P12 lus dans F-LONG.json. */
+const REGLES: Record<string, string[]> = Object.fromEntries(
+  Object.entries(REGLES_ADR).map(([p, litteral]) => {
+    if (!PERIODES_LONGUES.includes(p)) return [p, litteral];
+    const lu = LV(`${p}.regles_actives`);
+    return [p, Array.isArray(lu) ? lu.map(String) : [`PAS-UN-TABLEAU reference-long ${p}.regles_actives`]];
+  }),
+);
+
 const TOUTES_PERIODES = Object.keys(REGLES);
 
 /* ──────────────────────────────────────────────────────────────── T61.A1 */
@@ -711,58 +751,85 @@ describe('T61 — le scenario F-LONG et son modele attendu (ADR-018)', () => {
       /* P5 — capacite modifiable (ADR-018:L91-98) */
       {
         const f = lues.P5!.facts;
-        egal(champ(f, 'P5', 's2_capacity_final'), 1, 'P5.s2_capacity_final'); // ADR-018:L97-98
-        egal(champ(f, 'P5', 's2_owner'), ACTEUR_A, 'P5.s2_owner'); // ADR-018:L97
+        const attendu = LISTE('P5', 's2_waiting_order');
+        // La racine porte bien les litteraux d'ADR-018 qu'elle remplace.
+        egal(FAIT('P5', 's2_capacity_final'), 1, 'reference-long.P5.s2_capacity_final'); // ADR-018:L97-98
+        egal(FAIT('P5', 's2_owner'), ACTEUR_A, 'reference-long.P5.s2_owner'); // ADR-018:L97
+        egal(attendu.length, 2, 'reference-long.P5.s2_waiting_order.length');
+        egal(attendu[0], ACTEUR_D, 'reference-long.P5.s2_waiting_order[0]'); // ADR-018:L97-98
+        egal(attendu[1], ACTEUR_E, 'reference-long.P5.s2_waiting_order[1]'); // ADR-018:L98
+        // Le modele attendu, compare a la racine.
+        egal(champ(f, 'P5', 's2_capacity_final'), FAIT('P5', 's2_capacity_final'), 'P5.s2_capacity_final'); // ADR-018:L97-98
+        egal(champ(f, 'P5', 's2_owner'), FAIT('P5', 's2_owner'), 'P5.s2_owner'); // ADR-018:L97
         const ordre = champ(f, 'P5', 's2_waiting_order') as unknown[];
-        egal(ordre.length, 2, 'P5.s2_waiting_order.length');
-        egal(ordre[0], ACTEUR_D, 'P5.s2_waiting_order[0]'); // ADR-018:L97-98
-        egal(ordre[1], ACTEUR_E, 'P5.s2_waiting_order[1]'); // ADR-018:L98
+        egal(ordre.length, attendu.length, 'P5.s2_waiting_order.length');
+        egal(ordre[0], attendu[0], 'P5.s2_waiting_order[0]'); // ADR-018:L97-98
+        egal(ordre[1], attendu[1], 'P5.s2_waiting_order[1]'); // ADR-018:L98
       }
 
       /* P6 — priorites (ADR-018:L100-105) */
       {
         const f = lues.P6!.facts;
-        egal(champ(f, 'P6', 's2_owner'), ACTEUR_E, 'P6.s2_owner'); // ADR-018:L104
+        const attendu = LISTE('P6', 's2_waiting_order');
+        egal(FAIT('P6', 's2_owner'), ACTEUR_E, 'reference-long.P6.s2_owner'); // ADR-018:L104
+        egal(attendu.length, 1, 'reference-long.P6.s2_waiting_order.length');
+        egal(attendu[0], ACTEUR_D, 'reference-long.P6.s2_waiting_order[0]'); // ADR-018:L104-105
+        egal(STATUT('P6', 's2_a_status'), 'annule', 'reference-long.P6.s2_a_status'); // ADR-018:L105
+        egal(champ(f, 'P6', 's2_owner'), FAIT('P6', 's2_owner'), 'P6.s2_owner'); // ADR-018:L104
         const ordre = champ(f, 'P6', 's2_waiting_order') as unknown[];
-        egal(ordre.length, 1, 'P6.s2_waiting_order.length');
-        egal(ordre[0], ACTEUR_D, 'P6.s2_waiting_order[0]'); // ADR-018:L104-105
-        egal(normaliser(String(champ(f, 'P6', 's2_a_status'))), 'annule', 'P6.s2_a_status'); // ADR-018:L105
+        egal(ordre.length, attendu.length, 'P6.s2_waiting_order.length');
+        egal(ordre[0], attendu[0], 'P6.s2_waiting_order[0]'); // ADR-018:L104-105
+        egal(normaliser(String(champ(f, 'P6', 's2_a_status'))), STATUT('P6', 's2_a_status'), 'P6.s2_a_status'); // ADR-018:L105
       }
 
       /* P7 — argent (ADR-018:L107-116) */
       {
         const f = lues.P7!.facts;
-        egal(champ(f, 'P7', 'b_refund'), 999, 'P7.b_refund'); // ADR-018:L113-114 (999 litteral)
-        egal(champ(f, 'P7', 'c_refund'), 0, 'P7.c_refund'); // ADR-018:L114-116
-        egal(champ(f, 'P7', 'c_cancel_allowed'), true, 'P7.c_cancel_allowed'); // ADR-018:L114-115 (« refuse sous cancel@2 »)
-        egal(champ(f, 'P7', 'balance_B'), -1000, 'P7.balance_B'); // ADR-018:L116
-        egal(champ(f, 'P7', 'balance_C'), -1999, 'P7.balance_C'); // ADR-018:L116
+        egal(FAIT('P7', 'b_refund'), 999, 'reference-long.P7.b_refund'); // ADR-018:L113-114 (999 litteral)
+        egal(FAIT('P7', 'c_refund'), 0, 'reference-long.P7.c_refund'); // ADR-018:L114-116
+        egal(FAIT('P7', 'c_cancel_allowed'), true, 'reference-long.P7.c_cancel_allowed'); // ADR-018:L114-115
+        egal(FAIT('P7', 'balance_B'), -1000, 'reference-long.P7.balance_B'); // ADR-018:L116
+        egal(FAIT('P7', 'balance_C'), -1999, 'reference-long.P7.balance_C'); // ADR-018:L116
+        egal(champ(f, 'P7', 'b_refund'), FAIT('P7', 'b_refund'), 'P7.b_refund'); // ADR-018:L113-114 (999 litteral)
+        egal(champ(f, 'P7', 'c_refund'), FAIT('P7', 'c_refund'), 'P7.c_refund'); // ADR-018:L114-116
+        egal(champ(f, 'P7', 'c_cancel_allowed'), FAIT('P7', 'c_cancel_allowed'), 'P7.c_cancel_allowed'); // ADR-018:L114-115 (« refuse sous cancel@2 »)
+        egal(champ(f, 'P7', 'balance_B'), FAIT('P7', 'balance_B'), 'P7.balance_B'); // ADR-018:L116
+        egal(champ(f, 'P7', 'balance_C'), FAIT('P7', 'balance_C'), 'P7.balance_C'); // ADR-018:L116
       }
 
       /* P8 — quotas (ADR-018:L118-123) */
       {
         const f = lues.P8!.facts;
-        egal(normaliser(String(champ(f, 'P8', 'd_s4_status'))), 'confirme', 'P8.d_s4_status'); // ADR-018:L122
-        egal(normaliser(String(champ(f, 'P8', 'd_s5_status'))), 'confirme', 'P8.d_s5_status'); // ADR-018:L122
-        egal(champ(f, 'P8', 'd_s6_result'), 'QUOTA_EXCEEDED', 'P8.d_s6_result'); // ADR-018:L123, litteral
-        egal(champ(f, 'P8', 'd_s6_waiting'), false, 'P8.d_s6_waiting'); // ADR-018:L120, « sans attente ni debit »
-        egal(champ(f, 'P8', 'd_s6_debited'), false, 'P8.d_s6_debited'); // ADR-018:L120
+        egal(STATUT('P8', 'd_s4_status'), 'confirme', 'reference-long.P8.d_s4_status'); // ADR-018:L122
+        egal(STATUT('P8', 'd_s5_status'), 'confirme', 'reference-long.P8.d_s5_status'); // ADR-018:L122
+        egal(FAIT('P8', 'd_s6_result'), 'QUOTA_EXCEEDED', 'reference-long.P8.d_s6_result'); // ADR-018:L123
+        egal(FAIT('P8', 'd_s6_waiting'), false, 'reference-long.P8.d_s6_waiting'); // ADR-018:L120
+        egal(FAIT('P8', 'd_s6_debited'), false, 'reference-long.P8.d_s6_debited'); // ADR-018:L120
+        egal(normaliser(String(champ(f, 'P8', 'd_s4_status'))), STATUT('P8', 'd_s4_status'), 'P8.d_s4_status'); // ADR-018:L122
+        egal(normaliser(String(champ(f, 'P8', 'd_s5_status'))), STATUT('P8', 'd_s5_status'), 'P8.d_s5_status'); // ADR-018:L122
+        egal(champ(f, 'P8', 'd_s6_result'), FAIT('P8', 'd_s6_result'), 'P8.d_s6_result'); // ADR-018:L123, litteral
+        egal(champ(f, 'P8', 'd_s6_waiting'), FAIT('P8', 'd_s6_waiting'), 'P8.d_s6_waiting'); // ADR-018:L120, « sans attente ni debit »
+        egal(champ(f, 'P8', 'd_s6_debited'), FAIT('P8', 'd_s6_debited'), 'P8.d_s6_debited'); // ADR-018:L120
       }
 
       /* P9 — fuseau horaire (ADR-018:L125-133) */
       {
         const f = lues.P9!.facts;
-        egal(champ(f, 'P9', 'refund_at_deadline'), 3000, 'P9.refund_at_deadline'); // ADR-018:L130-131
-        egal(champ(f, 'P9', 'refund_after_deadline'), 0, 'P9.refund_after_deadline'); // ADR-018:L131-132
+        egal(FAIT('P9', 'refund_at_deadline'), 3000, 'reference-long.P9.refund_at_deadline'); // ADR-018:L130-131
+        egal(FAIT('P9', 'refund_after_deadline'), 0, 'reference-long.P9.refund_after_deadline'); // ADR-018:L131-132
+        egal(champ(f, 'P9', 'refund_at_deadline'), FAIT('P9', 'refund_at_deadline'), 'P9.refund_at_deadline'); // ADR-018:L130-131
+        egal(champ(f, 'P9', 'refund_after_deadline'), FAIT('P9', 'refund_after_deadline'), 'P9.refund_after_deadline'); // ADR-018:L131-132
       }
 
       /* P10 — historique (ADR-018:L135-140) */
       {
         const f = lues.P10!.facts;
-        egal(champ(f, 'P10', 'e_s2_history_first_event'), 'migrated', 'P10.e_s2_history_first_event'); // ADR-018:L137-139, litteral
+        egal(FAIT('P10', 'e_s2_history_first_event'), 'migrated', 'reference-long.P10.e_s2_history_first_event'); // ADR-018:L139
+        egal(STATUT('P10', 'e_s2_history_first_status'), 'confirme', 'reference-long.P10.e_s2_history_first_status'); // ADR-018:L139-140
+        egal(champ(f, 'P10', 'e_s2_history_first_event'), FAIT('P10', 'e_s2_history_first_event'), 'P10.e_s2_history_first_event'); // ADR-018:L137-139, litteral
         egal(
           normaliser(String(champ(f, 'P10', 'e_s2_history_first_status'))),
-          'confirme',
+          STATUT('P10', 'e_s2_history_first_status'),
           'P10.e_s2_history_first_status',
         ); // ADR-018:L139-140
       }
@@ -770,24 +837,33 @@ describe('T61 — le scenario F-LONG et son modele attendu (ADR-018)', () => {
       /* P11 — retraits (ADR-018:L142-147) */
       {
         const f = lues.P11!.facts;
-        egal(champ(f, 'P11', 's8_owner'), ACTEUR_F, 'P11.s8_owner'); // ADR-018:L144
+        const attendu = LISTE('P11', 's8_waiting_order');
+        egal(FAIT('P11', 's8_owner'), ACTEUR_F, 'reference-long.P11.s8_owner'); // ADR-018:L144
+        egal(attendu.length, 2, 'reference-long.P11.s8_waiting_order.length');
+        egal(attendu[0], ACTEUR_G, 'reference-long.P11.s8_waiting_order[0]'); // ADR-018:L145-146
+        egal(attendu[1], ACTEUR_H, 'reference-long.P11.s8_waiting_order[1]'); // ADR-018:L146
+        egal(STATUT('P11', 'd_s6_status'), 'confirme', 'reference-long.P11.d_s6_status'); // ADR-018:L146-147
+        egal(champ(f, 'P11', 's8_owner'), FAIT('P11', 's8_owner'), 'P11.s8_owner'); // ADR-018:L144
         const ordre = champ(f, 'P11', 's8_waiting_order') as unknown[];
-        egal(ordre.length, 2, 'P11.s8_waiting_order.length');
-        egal(ordre[0], ACTEUR_G, 'P11.s8_waiting_order[0]'); // ADR-018:L145-146
-        egal(ordre[1], ACTEUR_H, 'P11.s8_waiting_order[1]'); // ADR-018:L146
-        egal(normaliser(String(champ(f, 'P11', 'd_s6_status'))), 'confirme', 'P11.d_s6_status'); // ADR-018:L146-147
+        egal(ordre.length, attendu.length, 'P11.s8_waiting_order.length');
+        egal(ordre[0], attendu[0], 'P11.s8_waiting_order[0]'); // ADR-018:L145-146
+        egal(ordre[1], attendu[1], 'P11.s8_waiting_order[1]'); // ADR-018:L146
+        egal(normaliser(String(champ(f, 'P11', 'd_s6_status'))), STATUT('P11', 'd_s6_status'), 'P11.d_s6_status'); // ADR-018:L146-147
       }
 
       /* P12 — transfert (ADR-018:L149-155) */
       {
         const f = lues.P12!.facts;
+        egal(STATUT('P12', 'b_s1_from_other'), 'confirme', 'reference-long.P12.b_s1_from_other'); // ADR-018:L154
+        egal(FAIT('P12', 'b_s1_from_legacy'), null, 'reference-long.P12.b_s1_from_legacy'); // ADR-018:L154-155
+        egal(FAIT('P12', 'b_s1_from_third'), CODE_NOT_FOUND, 'reference-long.P12.b_s1_from_third'); // ADR-018:L155
         egal(
           normaliser(String(champ(f, 'P12', 'b_s1_from_other'))),
-          'confirme',
+          STATUT('P12', 'b_s1_from_other'),
           'P12.b_s1_from_other',
         ); // ADR-018:L154
-        egal(champ(f, 'P12', 'b_s1_from_legacy'), null, 'P12.b_s1_from_legacy'); // ADR-018:L154-155 (« valeur nulle »)
-        egal(champ(f, 'P12', 'b_s1_from_third'), CODE_NOT_FOUND, 'P12.b_s1_from_third'); // ADR-018:L155, litteral
+        egal(champ(f, 'P12', 'b_s1_from_legacy'), FAIT('P12', 'b_s1_from_legacy'), 'P12.b_s1_from_legacy'); // ADR-018:L154-155 (« valeur nulle »)
+        egal(champ(f, 'P12', 'b_s1_from_third'), FAIT('P12', 'b_s1_from_third'), 'P12.b_s1_from_third'); // ADR-018:L155, litteral
       }
     },
     CASE_TIMEOUT_MS,
@@ -800,6 +876,17 @@ describe('T61 — le scenario F-LONG et son modele attendu (ADR-018)', () => {
     async () => {
       assertLoaded();
       assertContrat('replayFLong');
+
+      // La racine acceptance/reference-long porte, pour P5 a P12, exactement
+      // les ensembles d'ADR-018 qu'elle remplace (section V).
+      for (const p of PERIODES_LONGUES) {
+        ensembleEgal(REGLES[p]!, REGLES_ADR[p]!, `reference-long.${p}`);
+      }
+      contient(LV('P6.regles_remplacees') as string[], 'fifo@1', 'reference-long.P6 remplace fifo@1'); // ADR-018:L100
+      contient(LV('P7.regles_remplacees') as string[], 'cancel@2', 'reference-long.P7 remplace cancel@2'); // ADR-018:L107
+      contient(LV('P9.regles_remplacees') as string[], 'cancel@3', 'reference-long.P9 remplace cancel@3'); // ADR-018:L125
+      contient(LV('P11.regles_remplacees') as string[], 'priority@1', 'reference-long.P11 remplace priority@1'); // ADR-018:L142
+      contient(LV('P11.regles_retirees') as string[], 'quota@1', 'reference-long.P11 retire quota@1'); // ADR-018:L142-143
 
       for (const p of TOUTES_PERIODES) {
         const lue = await lirePeriode(p);
@@ -856,8 +943,16 @@ describe('T61 — le scenario F-LONG et son modele attendu (ADR-018)', () => {
       const remboursePile = champ(p9.facts, 'P9', 'refund_at_deadline');
       const rembourseApres = champ(p9.facts, 'P9', 'refund_after_deadline');
 
-      egal(remboursePile, 3000, 'P9.refund_at_deadline (copie 1, 2030-03-30T17:00:00Z)');
-      egal(rembourseApres, 0, 'P9.refund_after_deadline (copie 2, 2030-03-30T17:00:00.001Z)');
+      // La racine porte les litteraux d'ADR-018 : prix, echeance, instants, remboursements.
+      egal(LV('P9.creneaux.S7.prix'), 3000, 'reference-long.P9.S7.prix'); // ADR-018:L128
+      egal(LV('P9.echeance'), '2030-03-30T17:00:00Z', 'reference-long.P9.echeance'); // ADR-018:L130
+      egal(LV('P9.instants.copie_1'), '2030-03-30T17:00:00Z', 'reference-long.P9.instants.copie_1'); // ADR-018:L131
+      egal(LV('P9.instants.copie_2'), '2030-03-30T17:00:00.001Z', 'reference-long.P9.instants.copie_2'); // ADR-018:L132
+      egal(FAIT('P9', 'refund_at_deadline'), 3000, 'reference-long.P9.refund_at_deadline'); // ADR-018:L131
+      egal(FAIT('P9', 'refund_after_deadline'), 0, 'reference-long.P9.refund_after_deadline'); // ADR-018:L132
+
+      egal(remboursePile, FAIT('P9', 'refund_at_deadline'), 'P9.refund_at_deadline (copie 1, 2030-03-30T17:00:00Z)');
+      egal(rembourseApres, FAIT('P9', 'refund_after_deadline'), 'P9.refund_after_deadline (copie 2, 2030-03-30T17:00:00.001Z)');
 
       // Temoin anti-tautologie : les deux copies partent du MEME etat (meme
       // creneau S7, meme prix 3000) et NE DIFFERENT que par l'instant
@@ -903,12 +998,20 @@ describe('T61 — le scenario F-LONG et son modele attendu (ADR-018)', () => {
       // ADR-018:L112-114) : 50 % de 1999 = 999,5 -> 999, jamais 1000 (la
       // perturbation que verification/cases.extensions.lock.json prescrit
       // pour T61.A4 : « arrondir au centime superieur »).
-      egal(bRefund, 999, 'P7.b_refund (50% de 1999 arrondi au centime inferieur)');
+      const prixS3 = LV('P7.creneaux.S3.prix');
+      egal(prixS3, 1999, 'reference-long.P7.S3.prix'); // ADR-018:L112
+      egal(LV('P7.taux_de_remboursement.entre_24h_et_48h'), 50, 'reference-long.P7.taux_24_48h'); // ADR-018:L111
+      egal(FAIT('P7', 'b_refund'), 999, 'reference-long.P7.b_refund'); // ADR-018:L114
+      egal(FAIT('P7', 'c_refund'), 0, 'reference-long.P7.c_refund'); // ADR-018:L116
+      // Recalcul independant de la racine : floor(1999 * 50 / 100) = 999.
+      egal(Math.floor(((prixS3 as number) * 50) / 100), FAIT('P7', 'b_refund'), 'reference-long.P7.b_refund = plancher(50% du prix)');
+
+      egal(bRefund, FAIT('P7', 'b_refund'), 'P7.b_refund (50% de 1999 arrondi au centime inferieur)');
       expect(bRefund === 1000 ? 'ARRONDI-AU-CENTIME-SUPERIEUR' : 'arrondi-au-centime-inferieur').toBe(
         'arrondi-au-centime-inferieur',
       );
 
-      egal(cRefund, 0, 'P7.c_refund (annulation a moins de 24h)');
+      egal(cRefund, FAIT('P7', 'c_refund'), 'P7.c_refund (annulation a moins de 24h)');
 
       // Les montants restent des ENTIERS (ADR-018:L80, « les montants sont
       // des centimes entiers ») : un flottant du type 999.5 non arrondi
@@ -931,8 +1034,10 @@ describe('T61 — le scenario F-LONG et son modele attendu (ADR-018)', () => {
 
       // Coherence comptable independante : solde = -prix (debit a la
       // confirmation, ADR-018:L108-109) + remboursement.
-      egal(balanceB, -1999 + 999, 'P7.balance_B (coherence debit+remboursement)');
-      egal(balanceC, -1999 + 0, 'P7.balance_C (coherence debit+remboursement)');
+      egal(-(prixS3 as number) + (FAIT('P7', 'b_refund') as number), -1999 + 999, 'reference-long.P7.balance_B recalcule');
+      egal(-(prixS3 as number) + (FAIT('P7', 'c_refund') as number), -1999 + 0, 'reference-long.P7.balance_C recalcule');
+      egal(balanceB, -(prixS3 as number) + (FAIT('P7', 'b_refund') as number), 'P7.balance_B (coherence debit+remboursement)');
+      egal(balanceC, -(prixS3 as number) + (FAIT('P7', 'c_refund') as number), 'P7.balance_C (coherence debit+remboursement)');
     },
     CASE_TIMEOUT_MS,
   );

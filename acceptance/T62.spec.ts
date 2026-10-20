@@ -633,6 +633,20 @@ const FIELD_TOKENS_V3 = new Set(
     'set_level',
     'slot_id',
     'to_tenant_id',
+    // Les deux SEULS codes d'erreur qu'ADR-018 nomme litteralement
+    // (QUOTA_EXCEEDED L123, NOT_FOUND L155) et que A2(b), plus bas dans ce
+    // meme cas, EXIGE en exemple public de forme EXACTE (FORMES_REQUISES) —
+    // sans cette exception le vocabulaire ferme de A2(a) et l'exigence
+    // d'exemple public de A2(b) se contrediraient pour TOUTE implementation
+    // valide : requireEnonce() renvoie le texte en minuscules, donc ces deux
+    // codes, quelle que soit leur casse dans la source, sont systematiquement
+    // vus par jetonsSoulignes() comme des jetons "en_tiret_bas". Ce ne sont
+    // pas des noms de champ du contrat, mais les deux valeurs d'erreur REELLES
+    // que le modele attendu produit (deja PROUVEES par acceptance/
+    // T61.spec.ts / packages/oracle/src/f-long.ts) — fermer le vocabulaire
+    // sans elles rendrait A2 insatisfiable, jamais discriminant.
+    'quota_exceeded',
+    'not_found',
   ].map((s) => s.toLowerCase()),
 );
 

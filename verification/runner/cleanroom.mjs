@@ -37,8 +37,12 @@ function nonce(tag) {
  * (12 s sous la borne), puis TUEE deux fois de suite a ac140a5 — le settle
  * d'apres RED tournait en parallele des etages de l'autre tache, sur 4 coeurs.
  * Le PASS de T01 dependait donc de la charge de la machine.
+ *
+ * Portee a 90 min a abc00d5 : la suite T01 seule dure 1758 s (29 min) avec
+ * 67 taches au registre, et la commande adjugee l'enveloppe (verify:task,
+ * empreintes). Elle doit rester au-dessus de CHAIN_TIMEOUT_MS (chains.mjs).
  */
-export const CLEANROOM_TIMEOUT_MS = 60 * 60 * 1000
+export const CLEANROOM_TIMEOUT_MS = 90 * 60 * 1000
 
 /**
  * Exécute `command` sur un checkout neuf de `rev`, et rend ce qui a été

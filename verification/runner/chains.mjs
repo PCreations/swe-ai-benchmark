@@ -80,12 +80,21 @@ function runDir(tag) {
   return { id, dir }
 }
 
+/**
+ * Borne d'une commande de chaine (Jest, pytest). Garde-fou contre un processus
+ * pendu, pas un objectif. Elle valait 30 min : a abc00d5, la suite T01 seule
+ * dure 1758 s, et la commande etait tuee quelques secondes avant la fin — sans
+ * rapport Jest, sondes non nettoyees, refus maquille en PROOF_INVALIDATED.
+ * Doit rester sous CLEANROOM_TIMEOUT_MS (cleanroom.mjs).
+ */
+export const CHAIN_TIMEOUT_MS = 50 * 60 * 1000
+
 function exec(command, cwd, env = undefined) {
   try {
     const stdout = execSync(command, {
       cwd,
       encoding: 'utf8',
-      timeout: 30 * 60 * 1000,
+      timeout: CHAIN_TIMEOUT_MS,
       maxBuffer: 64 * 1024 * 1024,
       stdio: ['ignore', 'pipe', 'pipe'],
       ...(env ? { env } : {}),

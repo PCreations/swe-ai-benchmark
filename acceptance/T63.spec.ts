@@ -540,29 +540,45 @@ test(
 
     // Branche FAUTIVE : le candidat memoire-seule ECRIT a une periode puis
     // doit PERDRE la valeur a la periode suivante (nouveau processus).
+    //
+    // CORRECTIF (ce test-author, apres refus nomme de l'implementeur, commit
+    // 0c0ca11) : create_tenant et l'ecriture DOIVENT appartenir a LA MEME
+    // periode, donc au MEME appel a appelerPeriodRunner (meme tableau
+    // `ops`) — exactement ce que A1 etablit comme grain de periode (« chaque
+    // appel est une PERIODE SEPAREE »). La version precedente les emettait
+    // en DEUX appels distincts, donc DEUX periodes, donc deux redemarrages
+    // de processus — y compris pour LE CANDIDAT FAUTIF lui-meme ENTRE sa
+    // creation et son ecriture. Avec un moteur conforme a A1 (qui redemarre
+    // reellement le candidat a chaque appel), ce candidat memoire-seule
+    // perdait alors le tenant AVANT MEME d'ecrire, et `write` echouait par
+    // TENANT_NOT_FOUND — une erreur metier legitime, pas une preuve de
+    // violation de persistance — contredisant l'exigence `ok:true` ci-
+    // dessous pour toute implementation IMPL correcte. Ce n'etait donc PAS
+    // le defaut d'une implementation : c'etait ce cas qui exigeait
+    // simultanement deux choses incompatibles de la meme fonction. La perte
+    // que A2 doit observer est celle qui survient a la periode SUIVANTE
+    // (nouveau processus APRES l'ecriture), jamais entre une creation et
+    // l'ecriture qui la suit immediatement dans la meme periode.
     const benchDataDirFautif = nouveauRepertoireDonnees('a2-fautif');
     const commandeFautive = commandePour(CANDIDAT_MEMOIRE_SEULE);
 
-    const resCreationF = await appelerPeriodRunner({
+    const resCreationEcritureF = await appelerPeriodRunner({
       candidateCommand: commandeFautive,
       benchDataDir: benchDataDirFautif,
-      ops: [{ id: 'create', op: 'create_tenant', args: { tenant_id: 'legacy' } }],
+      ops: [
+        { id: 'create', op: 'create_tenant', args: { tenant_id: 'legacy' } },
+        { id: 'ecrire', op: 'write', args: { tenant_id: 'legacy', key: 'S1', value: 'temoin-a2' } },
+      ],
     });
     exige(
-      reponsePour(resCreationF, 'create')?.ok === true,
+      reponsePour(resCreationEcritureF, 'create')?.ok === true,
       'a2-fautif-creation-tenant-ok',
-      `A2-FAUTIF-CREATION-TENANT-A-ECHOUE : ${rendu(resCreationF)}`,
+      `A2-FAUTIF-CREATION-TENANT-A-ECHOUE : ${rendu(resCreationEcritureF)}`,
     );
-
-    const resEcritureF = await appelerPeriodRunner({
-      candidateCommand: commandeFautive,
-      benchDataDir: benchDataDirFautif,
-      ops: [{ id: 'ecrire', op: 'write', args: { tenant_id: 'legacy', key: 'S1', value: 'temoin-a2' } }],
-    });
     exige(
-      reponsePour(resEcritureF, 'ecrire')?.ok === true,
+      reponsePour(resCreationEcritureF, 'ecrire')?.ok === true,
       'a2-fautif-ecriture-ok',
-      `A2-FAUTIF-ECRITURE-A-ECHOUE (periode courante) : ${rendu(resEcritureF)}`,
+      `A2-FAUTIF-ECRITURE-A-ECHOUE (periode courante) : ${rendu(resCreationEcritureF)}`,
     );
 
     // PERIODE SUIVANTE, processus NEUF (le moteur redemarre TOUJOURS le

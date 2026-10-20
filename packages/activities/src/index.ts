@@ -571,3 +571,13 @@ export type {
   CandidateLongPeriodStatement,
   CandidateRequirementsStatementV3Long,
 } from './candidate-requirements-statement-long.js'
+
+/* ── T63 : un etat qui dure d'une periode a l'autre (ADR-018 L190-L196) ── */
+
+export { runFLongPeriod, runFLongProbe } from './f-long-persistence.js'
+export type {
+  FLongPeriodOperation,
+  FLongPeriodOperationResult,
+  RunFLongPeriodInput,
+  RunFLongPeriodResult,
+} from './f-long-persistence.js'

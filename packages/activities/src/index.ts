@@ -551,3 +551,23 @@ export type {
   CandidateRequirementsPeriodKey,
   CandidateRequirementsStatementV2,
 } from './candidate-requirements-statement.js'
+
+/* ── T62 : contrat bench.candidate/3 et énoncé des douze périodes (ADR-018) */
+
+export {
+  CANDIDATE_OPERATIONS_V3,
+  CANDIDATE_OPERATIONS_V3_NEW,
+  CANDIDATE_PROTOCOL_MARKER_V3,
+  describeCandidateProtocolV3,
+} from './candidate-protocol-v3.js'
+
+export {
+  buildFLongPeriodStatement,
+  CANDIDATE_LONG_PERIOD_KEYS,
+  CANDIDATE_REQUIREMENTS_STATEMENT_V3_LONG,
+} from './candidate-requirements-statement-long.js'
+export type {
+  CandidateLongPeriodKey,
+  CandidateLongPeriodStatement,
+  CandidateRequirementsStatementV3Long,
+} from './candidate-requirements-statement-long.js'

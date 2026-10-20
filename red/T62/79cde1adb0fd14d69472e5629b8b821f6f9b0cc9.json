@@ -1,0 +1,60 @@
+{
+  "schema": "bench.red/1",
+  "task": "T62",
+  "subject_commit": "79cde1adb0fd14d69472e5629b8b821f6f9b0cc9",
+  "dirty": false,
+  "input_digest": "797117d290e568f1568315e607c95cde6c514cbecbb204b1872902e082cb6cab",
+  "suite_loaded": true,
+  "suite_exit_code": 0,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T62.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T62.M1",
+      "note": "P7 mute : retire l'identifiant cancel@2 et le marqueur de remplacement de l'enonce (statement reste : ...et desormais price@1 et cancel@3. sans la clause qui remplace cancel@2 : cancel@2 est remplacee par cancel@3...) -- observe node tools/bench verify:task T62 : T62.A1 ROUGE (98 assertions, sur 104), T62.A2/A3/A4 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525, identique au PASS precedent)."
+    },
+    {
+      "id": "T62.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T62.M2",
+      "note": "P8 mute : exemple QUOTA_EXCEEDED remplace par {\"ok\":true,\"result\":{\"value\":null}} -- observe node tools/bench verify:task T62 : T62.A2 ROUGE (28 assertions, sur 32), T62.A1/A3/A4 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525)."
+    },
+    {
+      "id": "T62.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T62.M3",
+      "note": "P7 mute : insertion de la valeur controlee 999 dans l'exemple de remboursement integral de cancel@3 (... intergral a 48 heures ou plus (par exemple un remboursement de 999) ...) -- observe node tools/bench verify:task T62 : T62.A3 ROUGE (6 assertions, sur 10), T62.A1/A2/A4 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525)."
+    },
+    {
+      "id": "T62.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T62.M4",
+      "note": "P5 mute : mention litterale de priority@1 (regle de P6) dans l'enonce de P5 -- observe node tools/bench verify:task T62 : T62.A4 ROUGE (49 assertions, sur 85), T62.A1/A2/A3 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525, identique au PASS initial avant toute mutation)."
+    }
+  ],
+  "mutation_proof": {
+    "T62.A1": {
+      "killed_by": "T62.M1",
+      "note": "P7 mute : retire l'identifiant cancel@2 et le marqueur de remplacement de l'enonce (statement reste : ...et desormais price@1 et cancel@3. sans la clause qui remplace cancel@2 : cancel@2 est remplacee par cancel@3...) -- observe node tools/bench verify:task T62 : T62.A1 ROUGE (98 assertions, sur 104), T62.A2/A3/A4 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525, identique au PASS precedent)."
+    },
+    "T62.A2": {
+      "killed_by": "T62.M2",
+      "note": "P8 mute : exemple QUOTA_EXCEEDED remplace par {\"ok\":true,\"result\":{\"value\":null}} -- observe node tools/bench verify:task T62 : T62.A2 ROUGE (28 assertions, sur 32), T62.A1/A3/A4 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525)."
+    },
+    "T62.A3": {
+      "killed_by": "T62.M3",
+      "note": "P7 mute : insertion de la valeur controlee 999 dans l'exemple de remboursement integral de cancel@3 (... intergral a 48 heures ou plus (par exemple un remboursement de 999) ...) -- observe node tools/bench verify:task T62 : T62.A3 ROUGE (6 assertions, sur 10), T62.A1/A2/A4 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525)."
+    },
+    "T62.A4": {
+      "killed_by": "T62.M4",
+      "note": "P5 mute : mention litterale de priority@1 (regle de P6) dans l'enonce de P5 -- observe node tools/bench verify:task T62 : T62.A4 ROUGE (49 assertions, sur 85), T62.A1/A2/A3 restes VERTS ; restaure, re-verifie PASS (231 assertions, fixtures eae4af583525, identique au PASS initial avant toute mutation)."
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

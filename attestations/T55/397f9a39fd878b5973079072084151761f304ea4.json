@@ -1,0 +1,690 @@
+{
+  "schema": "bench.attestation/1",
+  "task": "T55",
+  "verdict": "PASS",
+  "commit": "397f9a39fd878b5973079072084151761f304ea4",
+  "branch": "claude/gallant-fermi-51jlsx",
+  "dirty": false,
+  "clean_room": true,
+  "input_digest": "42acc452e92e003d684c0e4dd9f96ba48b56f4b0093094ac6cac33f063159173",
+  "capabilities_used": [
+    "node22",
+    "postgres18",
+    "s3"
+  ],
+  "capabilities": {
+    "node22": {
+      "present": true,
+      "detail": "node 22.22.0"
+    },
+    "postgres18": {
+      "present": true,
+      "detail": "server_version_num=180006 (PostgreSQL 18)"
+    },
+    "s3": {
+      "present": true,
+      "detail": "http://127.0.0.1:9000 repond 403"
+    }
+  },
+  "cases": [
+    {
+      "id": "T55.A1",
+      "status": "PASS"
+    },
+    {
+      "id": "T55.A2",
+      "status": "PASS"
+    },
+    {
+      "id": "T55.A3",
+      "status": "PASS"
+    },
+    {
+      "id": "T55.A4",
+      "status": "PASS"
+    }
+  ],
+  "proof_kinds": {
+    "absence": 1,
+    "behaviour": 2,
+    "numeric": 1
+  },
+  "red_gate": {
+    "path": "red/T55/c2dc293ae0a39ea01f82dca203e9b3783b99d298.json",
+    "subject_commit": "c2dc293ae0a39ea01f82dca203e9b3783b99d298",
+    "verdict": "RED_RECORDED"
+  },
+  "two_key": {
+    "range": "c2dc293ae0a39ea01f82dca203e9b3783b99d298..HEAD",
+    "commits": [
+      {
+        "sha": "def37a72079b",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "7b85519be25b",
+        "role": "integrator",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "a487281cc3cb",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "8c2057ca0083",
+        "role": "test-author",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "17757d6fa21d",
+        "role": "implementer",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "10999a9a56cb",
+        "role": "integrator",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "ba549829334e",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "959fca144049",
+        "role": "test-author",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "1e0f967ce0df",
+        "role": "implementer",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "6d7abc38d61c",
+        "role": "test-author",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "0da5d2448bc3",
+        "role": "test-author",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "eff69f338768",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "d6161a8b7daa",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "920ebfc472df",
+        "role": "integrator",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "a1b0eaea753e",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "c38bc4fd50b0",
+        "role": "test-author",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "c1bd72cf6dac",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "88f1622f2327",
+        "role": "test-author",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "033a0467725a",
+        "role": "integrator",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "562a915e07ea",
+        "role": "test-author",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "eb15ff5dfe3d",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "d020ee22ce49",
+        "role": "test-author",
+        "phase": null,
+        "files": 5,
+        "problems": []
+      },
+      {
+        "sha": "d830c224770a",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "1da8343169bc",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "0cd08adf54ad",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "bbe82e50b08e",
+        "role": "integrator",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "2bf984ca4570",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "6b9969a55593",
+        "role": "test-author",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "ad0819bafbb3",
+        "role": "implementer",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "ab435e5e0574",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "cc8887af2cf3",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "4c65e8d58523",
+        "role": "integrator",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "5e2fd138a3ff",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "d1b20fdd9e0f",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "3ce6bf9a089c",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "3188d6bbafd8",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "0ee6b2a37304",
+        "role": "fixture-transcriber",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "ad9f6d67a41c",
+        "role": "test-author",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "ebb63405fbc8",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "28cdb9dae213",
+        "role": "fixture-transcriber",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "ce4d8aa00435",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "db77ca875fa1",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "5ba697403d7f",
+        "role": "test-author",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "88ce69342e89",
+        "role": "implementer",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "abc00d5b391e",
+        "role": "test-author",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "79cde1adb0fd",
+        "role": "integrator",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "219dca7d1e13",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "4c401807af43",
+        "role": "test-author",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "7571079bbd4a",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "0c0ca11eebcd",
+        "role": "implementer",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "b404e6c73982",
+        "role": "test-author",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "7f9298a984e6",
+        "role": "spec-extractor",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      },
+      {
+        "sha": "1ac02b9a0e4f",
+        "role": "test-author",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "cb690774d827",
+        "role": "implementer",
+        "phase": null,
+        "files": 4,
+        "problems": []
+      },
+      {
+        "sha": "6beb09b265db",
+        "role": "implementer",
+        "phase": null,
+        "files": 2,
+        "problems": []
+      },
+      {
+        "sha": "45ccfd8a5654",
+        "role": "test-author",
+        "phase": null,
+        "files": 3,
+        "problems": []
+      },
+      {
+        "sha": "397f9a39fd87",
+        "role": "integrator",
+        "phase": null,
+        "files": 1,
+        "problems": []
+      }
+    ]
+  },
+  "clean_room_run": {
+    "nonce": "aa4559cd08e4",
+    "rev": "397f9a39fd878b5973079072084151761f304ea4",
+    "clean_room": true,
+    "pristine": true,
+    "stray_before": [],
+    "prepare": [
+      {
+        "command": "pnpm install --frozen-lockfile --reporter=silent",
+        "exit_code": 0
+      },
+      {
+        "command": "uv --project analysis sync --locked",
+        "exit_code": 0
+      },
+      {
+        "command": "pnpm build",
+        "exit_code": 0
+      }
+    ],
+    "command": "node tools/bench verify:task T55 --json",
+    "exit_code": 0,
+    "stdout_sha256": "a829e0d5ed722dd8ed2c6043adc4f458b658b8c27dd9c52f0dea7910bc7c679b",
+    "run_dir": ".bench/run/aa4559cd08e4"
+  },
+  "report": {
+    "schema": "bench.result/1",
+    "task_id": "T55",
+    "reason": "PASS",
+    "exit_code": 0,
+    "commit": "397f9a39fd878b5973079072084151761f304ea4",
+    "branch": "claude/gallant-fermi-51jlsx",
+    "dirty": false,
+    "clean_room": false,
+    "registry": {
+      "kind": "repository",
+      "path": "verification/tasks.json",
+      "sha256": "8f2057db5ee83dbbd37c594053231ac51baac317e3fa43e2f3a07bd2281da7bf",
+      "problems": []
+    },
+    "fixtures_digest": "24a2cb87703bd6ef9290337d82f0e79e6f62184367b9f73561e8d8c80d236c3d",
+    "fixtures": {
+      "schema": "bench.fixtures/1",
+      "scope": [
+        "acceptance/reference",
+        "acceptance/reference-long",
+        "apps/cli",
+        "docs/adr/ADR-012-proprietes-du-pilote-sur-le-chemin-reel.md",
+        "packages/activities",
+        "verification/cases.extensions.lock.json",
+        "verification/tasks.extensions.json"
+      ],
+      "file_count": 44,
+      "digest_before": "24a2cb87703bd6ef9290337d82f0e79e6f62184367b9f73561e8d8c80d236c3d",
+      "digest_after": "24a2cb87703bd6ef9290337d82f0e79e6f62184367b9f73561e8d8c80d236c3d",
+      "stable": true,
+      "moved": [],
+      "frozen_roots_head": {
+        "acceptance/reference": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+        "acceptance/reference-long": "316bb56e594196b65609a602f20cb62538c0631a"
+      }
+    },
+    "references": {
+      "schema": "bench.references/1",
+      "source": "docs/FROZEN_ROOTS.json",
+      "roots": [
+        "acceptance/reference",
+        "acceptance/reference-long"
+      ],
+      "observed": [
+        {
+          "root": "acceptance/reference",
+          "state": "GELEE",
+          "head_oid": "f8d7adb6f569916b5176d0ebefe13f7aa10bdc91",
+          "files": 10,
+          "worktree_diff": [],
+          "fixtures": [
+            {
+              "fixture": "F-MONEY",
+              "cahier": "L103",
+              "state": "CONFORME",
+              "expected_integers": [
+                340,
+                680
+              ],
+              "missing_integers": [],
+              "files": [
+                "acceptance/reference/F-MONEY.json"
+              ]
+            }
+          ]
+        },
+        {
+          "root": "acceptance/reference-long",
+          "state": "GELEE",
+          "head_oid": "316bb56e594196b65609a602f20cb62538c0631a",
+          "files": 1,
+          "worktree_diff": [],
+          "fixtures": []
+        }
+      ],
+      "problems": []
+    },
+    "input_digest": "42acc452e92e003d684c0e4dd9f96ba48b56f4b0093094ac6cac33f063159173",
+    "versions": {
+      "declared": {
+        "node": ">=22.22.2 <23",
+        "pnpm": "pnpm@10.33.0",
+        "typescript": "6.0.3",
+        "jest": "30.5.1",
+        "ts-jest": "29.4.12",
+        "python": "==3.12.*",
+        "pytest": "9.1.1"
+      },
+      "observed": {
+        "node": "22.22.0",
+        "v8": "12.4.254.21-node.33"
+      }
+    },
+    "lockfiles": {
+      "pnpm-lock.yaml": "57384fff99b71382169d50b92e9cd0c49553403f4e4b2ef5854588cfe8ffc020",
+      "analysis/uv.lock": "5bea4ea56815d13e72680ee4533010fbeeb7f8285728d42c9a33f2c5b17f3148"
+    },
+    "commands": [
+      {
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T55.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/aa4559cd08e4/.bench/run/4edc3dc28b9a/jest.json\"",
+        "exit_code": 0
+      }
+    ],
+    "chain": "jest",
+    "acceptance_entry": "acceptance/T55.spec.ts",
+    "suite_loaded": true,
+    "suite_exit_code": 0,
+    "tests_observed": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "expected_cases": [
+      "T55.A1",
+      "T55.A2",
+      "T55.A3",
+      "T55.A4"
+    ],
+    "executed_cases": [
+      "T55.A1",
+      "T55.A2",
+      "T55.A3",
+      "T55.A4"
+    ],
+    "assertions_expected": 4,
+    "assertions_executed": 4,
+    "assertions_observed": 78,
+    "case_statuses": [
+      {
+        "id": "T55.A1",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 18,
+        "asserts_observable": true
+      },
+      {
+        "id": "T55.A2",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 14,
+        "asserts_observable": true
+      },
+      {
+        "id": "T55.A3",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 30,
+        "asserts_observable": true
+      },
+      {
+        "id": "T55.A4",
+        "status": "PASS",
+        "observed": 1,
+        "asserts": 16,
+        "asserts_observable": true
+      }
+    ],
+    "skipped_cases": [],
+    "missing_cases": [],
+    "vacuous_cases": [],
+    "proof_files": [
+      ".bench/run/4edc3dc28b9a/jest.json"
+    ],
+    "requires": [
+      "node22",
+      "postgres18",
+      "s3"
+    ],
+    "blocked_by": [],
+    "requires_live_credentials": false,
+    "depends_on": [
+      "T52",
+      "T53",
+      "T54"
+    ],
+    "detail": [],
+    "limitations": [
+      "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+      "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+      "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+      "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+      "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici."
+    ]
+  },
+  "depends_on": [
+    "T52",
+    "T53",
+    "T54"
+  ],
+  "limitations": [
+    "Les dependances ne commandent pas ce verdict : le graphe est adjuge par bench accept et bench resume, qui lisent le ledger.",
+    "Le compteur d assertions de la chaine pytest ne voit que les `assert` reecrits par pytest : un test qui ne verifierait que par unittest.assertEqual serait compte creux (refus fail-closed, jamais PASS).",
+    "La table de contenu des references ne contraint que F-MONEY (cahier L103) : les autres fixtures maitresses sont couvertes par le gel contre HEAD, pas par leurs valeurs.",
+    "Ce rapport n'est PAS une attestation tant qu'il n'est pas produit en clean-room sur un arbre propre (clean_room / dirty ci-dessus).",
+    "La CI n'est couverte par aucun cas requis de T00 (ADR-005 point 7) : elle est livree, pas prouvee ici.",
+    {
+      "code": "RED_SUBSTITUTED_BY_MUTATION",
+      "detail": "4/4 cas requis n'ont JAMAIS ete observes rouges : T55.A1 (tue par T55.M1), T55.A2 (tue par T55.M2), T55.A3 (tue par T55.M3), T55.A4 (tue par T55.M4). Leur non-vacuite repose sur une contre-epreuve par mutation, pas sur un echec observe avant implementation. Porte rouge : red/T55/c2dc293ae0a39ea01f82dca203e9b3783b99d298.json."
+    }
+  ],
+  "boot_id": "09076b29-45fe-4864-98cc-a0f1f8b36651",
+  "produced_at": "2026-10-21T18:44:59.131Z",
+  "duration_ms": 266457
+}

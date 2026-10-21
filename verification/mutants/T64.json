@@ -13,7 +13,7 @@
   "task": "T64",
   "verification_command": ["pnpm", "verify:task", "T64"],
   "acceptance_entry": "acceptance/T64.spec.ts",
-  "mutant_count": 4,
+  "mutant_count": 5,
   "mutants": [
     {
       "id": "T64.M1",
@@ -66,6 +66,19 @@
       "observation_qui_echoue": "A4 appelle le generateur pour TOUTE paire (regle, periode) de `REGLES_ADR` (les douze periodes, jamais une seule choisie a la main — danger IV.4) et exige `lot.length >= 20`. Sous cette mutation, CHAQUE appel rend un lot de longueur 19, ce qui rougit l'assertion `lot-de-20-sequences-au-moins-*` a la PREMIERE paire deja (P1/reserve@1), et pour toutes les suivantes.",
       "pourquoi_cette_perturbation": "A4 est un cas `numeric` au bord exact du seuil (20) fixe par ADR-018:L202 : un off-by-one (19 au lieu de 20) est l'erreur la plus probable d'une implementation qui lirait mal « au moins 20 » comme « 20 au plus » ou qui bornerait une boucle par `< 20` au lieu de `<= 20`/`< count` avec `count` mal initialise. La porte generique (stuber en lot vide) tuerait aussi A4, mais pas specifiquement au bord ; ce mutant verifie que A4 mord bien AU SEUIL, pas seulement sur l'absence totale.",
       "doit_rester_vert": ["T64.A1", "T64.A2"]
+    },
+    {
+      "id": "T64.M5",
+      "kills_case": "T64.A3",
+      "proof_kind": "numeric",
+      "necessity": "module-stub",
+      "direction": "casser",
+      "target": "L'export notateur (role `scoreRule` resolu par ROLES_SCORE_RULE dans packages/activities ou packages/scenario) qui, pour une regle et une periode, rend le score du lot cache de sequences evalue contre le candidat recu par `candidateCommand`/`benchDataDir`.",
+      "mutation": "Remplacer cet export par un stub constant qui ne lance JAMAIS le candidat ni ne genere de lot : `export async function scoreRule() { return { score: 0, satisfied: 0, total: 20 } }`. Defaut constate par un auditeur : avant le volet positif de T64.A3, ce stub laissait A3 VERT, car il satisfait toutes les assertions du volet naif (score dans [0,1], total > 0, score === satisfied/total, score < 1).",
+      "expected_effect": "T64.A3 devient rouge.",
+      "observation_qui_echoue": "A3 note en outre le candidat FIDELE `f-long-reference-candidate.mjs` (acceptance/fixtures/candidates, implemente P1 a P12 d'ADR-018 avec etat persiste dans BENCH_DATA_DIR) sur CHAQUE regle active de CHAQUE periode P5 a P12 (`REGLES_ADR`), et exige `total >= 20`, `satisfied === total` et `score === 1`, puis, sur la regle sous test de chaque periode, `score naif < score fidele`. Sous ce stub, le candidat fidele obtient satisfied=0 pour total=20 et score=0 : l'assertion `fidele-satisfied-egale-total-P5-reserve@1` rougit des la premiere regle, puis `fidele-score-egal-a-1-*` et `naif-strictement-inferieur-au-fidele-*` (0 < 0 est faux).",
+      "pourquoi_cette_perturbation": "C'est la porte generique (stub du notateur) que le commentaire de T64.M3 croyait deja attrapee par `total > 0` et `score === satisfied/total` : elle ne l'etait pas, puisqu'un stub coherent (0/20 = 0) satisfait ces deux exigences. Seul un temoin POSITIF reellement execute — un candidat fidele qui doit obtenir satisfied === total — distingue un notateur qui compte les sequences reellement satisfaites d'un notateur qui n'execute rien.",
+      "doit_rester_vert": ["T64.A1", "T64.A2", "T64.A4"]
     }
   ]
 }

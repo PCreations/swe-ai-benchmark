@@ -112,6 +112,14 @@
  *    `price@1` (P7, L107), `quota@1` (P8, L118), `cancel@4` (P9, L125),
  *    `history@1` (P10, L135), `fifo@2` (P11, L142), `transfer@1` (P12,
  *    L149).
+ * 6. LE CANDIDAT FIDELE DE T64.A3 est `f-long-reference-candidate.mjs`
+ *    (FIXE ICI, zone ACCEPTANCE) : il implemente P1 a P12 d'ADR-018 et
+ *    persiste son etat dans BENCH_DATA_DIR. Pour chaque periode de P5 a P12
+ *    et CHAQUE regle active (`REGLES_ADR`), A3 exige total >= 20,
+ *    satisfied === total et score === 1 ; et, sur la regle sous test (II.5),
+ *    score naif < score fidele. Sans ce volet positif, un notateur qui ne
+ *    lance jamais le candidat et rend {score:0, satisfied:0, total:20}
+ *    passait A3 (defaut constate par un auditeur).
  *
  * ─────────────────────────────────────────────────────────────────────── III
  * PROVENANCE DES LITTERAUX
@@ -185,6 +193,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const CASE_TIMEOUT_MS = 60_000;
 const SCORE_TIMEOUT_MS = 240_000;
+// T64.A3 note en outre le candidat FIDELE sur CHAQUE regle active de P5 a P12
+// (63 lots de 20 sequences au moins, chacune dans un processus neuf) : borne
+// propre a A3, plus large que SCORE_TIMEOUT_MS, jamais plus etroite.
+const SCORE_TIMEOUT_A3_MS = 1_200_000;
 
 /* ────────────────────────────────────────────────────────────────── socle */
 
@@ -699,6 +711,13 @@ async function requireScore(o: OptsNoter): Promise<Score> {
 
 const CANDIDAT_NAIF = path.join(REPO, 'acceptance', 'fixtures', 'candidates', 't64-naive-single-case-candidate.mjs');
 
+// II.6 — candidat de reference FIDELE a F-LONG (P1 a P12, etat persiste dans
+// BENCH_DATA_DIR), ecrit par le test-author (zone ACCEPTANCE), reutilisable
+// par T66 (T66.A1). C'est le temoin POSITIF de T64.A3 : un notateur qui ne
+// lance jamais le candidat (score constant), ou qui ne compte pas les
+// sequences reellement satisfaites, ne peut pas lui donner satisfied === total.
+const CANDIDAT_FIDELE = path.join(REPO, 'acceptance', 'fixtures', 'candidates', 'f-long-reference-candidate.mjs');
+
 function commandePour(script: string): string[] {
   return ['node', script];
 }
@@ -795,6 +814,8 @@ test(
   async () => {
     assertPackagesLoaded();
 
+    const scoresNaifs = new Map<string, number>();
+
     for (const period of PERIODES_LONGUES) {
       const rule = REGLE_SOUS_TEST[period] as string;
       const benchDataDir = nouveauRepertoireDonnees(`a3-${period}`);
@@ -834,9 +855,62 @@ test(
         `score-strictement-inferieur-a-1-${period}-${rule}`,
         `SCORE-EGAL-OU-SUPERIEUR-A-1 pour ${period}/${rule} (candidat naif, trajectoire principale seule) : score=${score}, satisfied=${rendu(satisfied)}, total=${rendu(total)} — le lot cache ne discrimine pas un candidat qui ne traite que le cas principal.`,
       );
+
+      scoresNaifs.set(period, score);
+    }
+
+    // ── Volet POSITIF (danger IV.3, renforce) : « le score est la fraction de
+    // ses sequences satisfaites » n'est prouve que si un candidat REELLEMENT
+    // EXECUTE et fidele a F-LONG obtient satisfied === total. Un notateur qui
+    // ne lance jamais le candidat et rend un score constant (par exemple
+    // {score:0, satisfied:0, total:20}) passe toutes les assertions du volet
+    // naif ci-dessus, mais pas celles-ci.
+    for (const period of PERIODES_LONGUES) {
+      const scoresFideles = new Map<string, number>();
+      for (const rule of REGLES_ADR[period]) {
+        const benchDataDir = nouveauRepertoireDonnees(`a3-fidele-${period}`);
+        const candidateCommand = commandePour(CANDIDAT_FIDELE);
+
+        const { score, satisfied, total } = await requireScore({
+          rule,
+          period,
+          seed: 777,
+          candidateCommand,
+          benchDataDir,
+        });
+
+        exige(
+          total !== null && Number.isInteger(total) && total >= 20,
+          `fidele-total-au-moins-20-${period}-${rule}`,
+          `FIDELE-TOTAL-ABSENT-OU-INFERIEUR-A-20 pour ${period}/${rule} : total=${rendu(total)} — ADR-018:L202 exige au moins 20 sequences par regle, et le score doit porter sur elles.`,
+        );
+        exige(
+          satisfied !== null && total !== null && satisfied === total,
+          `fidele-satisfied-egale-total-${period}-${rule}`,
+          `FIDELE-SEQUENCES-NON-TOUTES-SATISFAITES pour ${period}/${rule} : satisfied=${rendu(satisfied)}, total=${rendu(total)} — un candidat fidele a F-LONG, reellement execute, doit satisfaire chaque sequence du lot ; sinon le notateur ne compte pas les sequences reellement satisfaites (ou le candidat n'a jamais ete lance).`,
+        );
+        exige(
+          score === 1,
+          `fidele-score-egal-a-1-${period}-${rule}`,
+          `FIDELE-SCORE-DIFFERENT-DE-1 pour ${period}/${rule} : score=${score}, satisfied=${rendu(satisfied)}, total=${rendu(total)}.`,
+        );
+
+        scoresFideles.set(rule, score);
+      }
+
+      // Au moins une regle par periode separe le candidat naif du candidat
+      // fidele : la regle sous test (II.5), notee pour les deux candidats.
+      const rule = REGLE_SOUS_TEST[period] as string;
+      const naif = scoresNaifs.get(period);
+      const fidele = scoresFideles.get(rule);
+      exige(
+        naif !== undefined && fidele !== undefined && naif < fidele,
+        `naif-strictement-inferieur-au-fidele-${period}-${rule}`,
+        `NAIF-NON-INFERIEUR-AU-FIDELE pour ${period}/${rule} : naif=${rendu(naif)}, fidele=${rendu(fidele)} — le lot cache ne separe pas un candidat qui ne traite que la trajectoire principale d'un candidat fidele.`,
+      );
     }
   },
-  SCORE_TIMEOUT_MS,
+  SCORE_TIMEOUT_A3_MS,
 );
 
 /* ═══════════════════════════════ T64.A4 ════════════════════════════════ */

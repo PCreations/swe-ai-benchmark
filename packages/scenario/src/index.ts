@@ -113,6 +113,11 @@ export type {
 // ── T29 : automatiser la fabrique de scénarios sans auto-certification libre
 //    (cahier L405-L414). SQUELETTE à cet étage — les deux rôles lèvent
 //    `NotImplemented` (voir generation.ts).
+// ── T64 : controles larges et caches (ADR-018 L198-L204). SQUELETTE a cet
+//    etage — le role leve `NotImplemented` (voir hidden-sequences.ts).
+export { generateHiddenSequences } from './hidden-sequences.js'
+export type { GenerateHiddenSequencesInput, GenerateHiddenSequencesResult, HiddenSequence } from './hidden-sequences.js'
+
 export { buildRevelationPackage, generateScenarioFromModel } from './generation.js'
 export type {
   GenerationRevelationPackage,

@@ -581,3 +581,8 @@ export type {
   RunFLongPeriodInput,
   RunFLongPeriodResult,
 } from './f-long-persistence.js'
+
+/* ── T64 : controles larges et caches (ADR-018 L198-L204) ────────────────── */
+
+export { scoreRule } from './hidden-rule-scoring.js'
+export type { ScoreRuleInput, ScoreRuleResult } from './hidden-rule-scoring.js'

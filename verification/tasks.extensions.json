@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Taches ISSUES D'ADR ACCEPTES (ADR-007 a ADR-018, T44-T66), pas du cahier.",
+    "Taches ISSUES D'ADR ACCEPTES (ADR-007 a ADR-019, T44-T68), pas du cahier.",
     "verification/tasks.json reste le registre du cahier et garde ses 44 taches : acceptance/T43.spec.ts leve au chargement sinon.",
     "Chaque carte porte spec_source (ADR + plage de lignes) a la place de cahier_lines. bench resume fusionne les deux registres."
   ],
@@ -17,10 +17,11 @@
     "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md": "f5e3b9f3c2e801187db0accd603939779dbd22b0809fe48dbaf756ed7b1e8ec0",
     "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7",
     "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d",
-    "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2"
+    "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2",
+    "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md": "0c4e6544a7d6965c5204f01427528eccc0b83c785f4e069dfda684a8706f75c4"
   },
-  "task_count": 23,
-  "required_case_count": 95,
+  "task_count": 25,
+  "required_case_count": 102,
   "tasks": [
     {
       "id": "T44",
@@ -921,7 +922,8 @@
       "id": "T66",
       "title": "Le pilote F-LONG avec repetitions",
       "depends_on": [
-        "T65"
+        "T65",
+        "T68"
       ],
       "source_paths": [
         "packages/activities",
@@ -953,6 +955,84 @@
         "lines": [
           214,
           220
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T67",
+      "title": "Le contrat bench.candidate/4 : creneaux designes et points tranches",
+      "depends_on": [
+        "T64"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/oracle",
+        "packages/scenario",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md"
+      ],
+      "acceptance_entry": "acceptance/T67.spec.ts",
+      "required_cases": [
+        "T67.A1",
+        "T67.A2",
+        "T67.A3",
+        "T67.A4"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T67"
+      ],
+      "requires": [
+        "node22"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+        "lines": [
+          92,
+          98
+        ]
+      },
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T68",
+      "title": "Des sequences cachees qui discriminent chaque regle",
+      "depends_on": [
+        "T67"
+      ],
+      "source_paths": [
+        "packages/activities",
+        "packages/scenario",
+        "verification/tasks.extensions.json",
+        "verification/cases.extensions.lock.json",
+        "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md"
+      ],
+      "acceptance_entry": "acceptance/T68.spec.ts",
+      "required_cases": [
+        "T68.A1",
+        "T68.A2",
+        "T68.A3"
+      ],
+      "verification_command": [
+        "pnpm",
+        "verify:task",
+        "T68"
+      ],
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "requires_live_credentials": false,
+      "spec_source": {
+        "path": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+        "lines": [
+          100,
+          106
         ]
       },
       "status": "NOT_IMPLEMENTED"

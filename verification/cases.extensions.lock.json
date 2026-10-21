@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-018). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-019). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -16,7 +16,8 @@
     "docs/adr/ADR-015-reponses-d-erreur-et-cle-de-lecture.md": "f5e3b9f3c2e801187db0accd603939779dbd22b0809fe48dbaf756ed7b1e8ec0",
     "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7",
     "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d",
-    "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2"
+    "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2",
+    "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md": "0c4e6544a7d6965c5204f01427528eccc0b83c785f4e069dfda684a8706f75c4"
   },
   "cases": [
     {
@@ -1323,8 +1324,98 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "compter cancel@2 ou priority@1 en regression apres leur remplacement : le cas doit rougir"
+    },
+    {
+      "id": "T67.A1",
+      "task": "T67",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 96,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "retirer slot_id de read ou l'exemple public de create_slot : le cas doit rougir"
+    },
+    {
+      "id": "T67.A2",
+      "task": "T67",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 96,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre de l'enonce de P7 que le remboursement porte sur le montant debite : le cas doit rougir"
+    },
+    {
+      "id": "T67.A3",
+      "task": "T67",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 96,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "alterer un fait gele de F-LONG dans le modele attendu v4 : le cas doit rougir"
+    },
+    {
+      "id": "T67.A4",
+      "task": "T67",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 96,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "autoriser l'annulation a l'instant du debut du creneau : le cas doit rougir"
+    },
+    {
+      "id": "T68.A1",
+      "task": "T68",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 104,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire echouer le candidat fidele sur une sequence de quota@1 par une frontiere mal placee : le cas doit rougir"
+    },
+    {
+      "id": "T68.A2",
+      "task": "T68",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 104,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "generer pour price@1 des sequences sans debit ni remboursement : le cas doit rougir"
+    },
+    {
+      "id": "T68.A3",
+      "task": "T68",
+      "source": "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md",
+      "source_line": 104,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "generer pour history@1 des sequences sans appel a history : le cas doit rougir"
     }
   ],
-  "case_count": 95,
-  "classified_cases": 95
+  "case_count": 102,
+  "classified_cases": 102
 }

@@ -1,6 +1,7 @@
 # ADR-019 — Des créneaux dans le contrat, et des contrôles qui discriminent
 
-    statut : PROPOSÉ — rédigé le 21/10/2026, soumis au mandant
+    statut : ACCEPTÉ — par le mandant le 21/10/2026 (« J'accepte », en
+             réponse à « Tu acceptes l'ADR-019 tel quel ? »)
     ouvert : 21/10/2026
     porte  : contrat du candidat (T62), contrôles générés (T64), pilote F-LONG
              (T66)

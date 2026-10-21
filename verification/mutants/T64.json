@@ -1,0 +1,71 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T64 — une par cas requis, conforme au",
+    "proof_kind fixe par verification/cases.extensions.lock.json#T64.*.",
+    "",
+    "Meme discipline que verification/mutants/T00.json et verification/",
+    "mutants/T63.json : les cibles sont decrites par leur ROLE, jamais un",
+    "chemin de fichier — le test-author de T64 est AVEUGLE aux sources de",
+    "packages/activities et packages/scenario (ADR-001, discipline",
+    "procedurale, pas une barriere technique)."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T64",
+  "verification_command": ["pnpm", "verify:task", "T64"],
+  "acceptance_entry": "acceptance/T64.spec.ts",
+  "mutant_count": 4,
+  "mutants": [
+    {
+      "id": "T64.M1",
+      "kills_case": "T64.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point du generateur (packages/activities ou packages/scenario) qui derive le lot de sequences d'une regle/periode a partir de la graine recue.",
+      "mutation": "Ignorer la graine recue dans la generation — par exemple fixer une graine interne constante, ou derouler toujours la MEME suite pseudo-aleatoire independamment de l'argument `seed`. Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T64.A1 : « ignorer la graine dans la generation : le cas doit rougir ».",
+      "expected_effect": "T64.A1 devient rouge.",
+      "observation_qui_echoue": "A1 appelle le generateur deux fois avec la MEME graine (4242) et exige une egalite STRICTE (JSON.stringify) des deux lots obtenus, puis une fois avec une graine DIFFERENTE (4243) et exige une INEGALITE STRICTE avec le premier lot. Sous cette mutation, le volet « meme graine » reste vrai (le generateur est bien deterministe, juste insensible a l'argument), mais le volet « graines differentes » tombe : les lots pour 4242 et 4243 sont identiques, ce qui rougit l'assertion `graines-differentes-lots-differents-*`. La porte generique (stuber le generateur en fonction constante) tuerait aussi A1, mais ce mutant cible PRECISEMENT la graine, sans toucher a la determinisme lui-meme (que T64.M aucun autre mutant ne doit casser).",
+      "pourquoi_cette_perturbation": "A1 est un cas `behaviour` qui exerce reellement l'export du generateur. C'est la forme ou la regle universelle du stub serait valide, mais cette perturbation specifique isole la cause a la SEULE lecture de la graine, pas a l'absence totale de generation.",
+      "doit_rester_vert": ["T64.A4"]
+    },
+    {
+      "id": "T64.M2",
+      "kills_case": "T64.A2",
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point qui construit l'enonce/prompt d'une periode (packages/activities ou packages/scenario, resolu par ROLES_STATEMENT_BUILDER) juste avant de le transmettre au candidat.",
+      "mutation": "Faire inclure, dans le texte de l'enonce d'une periode (par exemple P5), la representation JSON d'une sequence reellement generee par le lot cache de cette periode/regle — un exemple illustratif construit a partir du lot lui-meme plutot que d'un exemple public distinct. Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T64.A2 : « inclure une sequence generee dans les exemples du prompt : le cas doit rougir ».",
+      "expected_effect": "T64.A2 devient rouge.",
+      "observation_qui_echoue": "A2 resout l'enonce reel de la periode (via `requireEnonce`, qui EXIGE un enonce non vide — danger IV.2) puis genere le lot cache de la meme regle/periode (seed 909090) et verifie, pour CHAQUE sequence du lot, que sa representation JSON (en minuscules) n'apparait PAS comme sous-chaine de l'enonce (en minuscules). Sous cette mutation, au moins une sequence du lot cache apparait litteralement dans l'enonce resolu, ce qui rougit l'assertion `sequence-*-absente-de-l-enonce-*`. Un enonce VIDE sous cette mutation ne pourrait PAS faire rougir A2 par accident : A2 exige d'abord explicitement un enonce non vide (danger IV.2), donc cette mutation ne peut se cacher derriere un enonce degenere.",
+      "pourquoi_cette_perturbation": "A2 est un cas `absence` : la porte generique (stuber en chaine vide) ferait rougir A2 pour la MAUVAISE raison (enonce introuvable, pas fuite d'une sequence). Ce mutant cible PRECISEMENT le canal de fuite que L54-58 interdit (« ces sequences [...] ne sont jamais montrees au candidat »), en laissant le reste de l'enonce et du generateur intacts.",
+      "doit_rester_vert": ["T64.A1", "T64.A4"]
+    },
+    {
+      "id": "T64.M3",
+      "kills_case": "T64.A3",
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point du notateur (packages/activities ou packages/scenario) qui compte une sequence hors de la trajectoire principale comme SATISFAITE des qu'une partie de cette sequence reussit, au lieu d'exiger la satisfaction COMPLETE de la regle pour cette sequence.",
+      "mutation": "Compter une sequence comme satisfaite dans le decompte `satisfied` dans tous les cas ou le candidat a repondu `ok:true` a CHAQUE operation (succes protocolaire), sans jamais verifier que le RESULTAT metier attendu par la regle (file d'attente correcte, refus correct, solde correct, historique correct, isolation correcte selon la regle testee) a bien ete obtenu. Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T64.A3 : « compter une regle satisfaite des que la trajectoire principale l'est : le cas doit rougir ».",
+      "expected_effect": "T64.A3 devient rouge.",
+      "observation_qui_echoue": "A3 note le candidat DEGENERE `t64-naive-single-case-candidate.mjs` (acceptance/fixtures/candidates) — qui repond ok:true a TOUTE operation avec un resultat FIXE, jamais calcule — sur la regle nouvellement introduite de chaque periode P5 a P12 (`REGLE_SOUS_TEST`), et exige `score < 1`. Sous cette mutation, la verification du RESULTAT metier est contournee : seul le succes protocolaire (`ok:true`) compte, ce que le candidat degenere obtient TOUJOURS (il ne renvoie jamais `ok:false`). Le score remonte donc a 1 sur chaque regle/periode testee, ce qui rougit `score-strictement-inferieur-a-1-*`. A3 exige EN OUTRE que `score` egale EXACTEMENT `satisfied/total` quand ces deux champs sont rendus : un notateur qui renverrait un score bricole sans ce rapport exact rougirait deja sur `score-egale-la-fraction-*`, independamment de ce mutant.",
+      "pourquoi_cette_perturbation": "A3 est un cas `numeric` qui exerce reellement generateur + notateur + candidat. La porte generique (stuber le notateur en `score constant 0`) tuerait A3 sur `score < 1` MAIS la ferait rougir pour la MAUVAISE raison, et serait en realite empêchee de passer par l'exigence `total > 0` ET `score === satisfied/total` (danger IV.3) : un stub nul serait donc deja attrape par la porte generique AVANT ce mutant specifique. Ce mutant cible la confusion precise que la perturbation prescrite nomme — succes protocolaire pris pour satisfaction metier — en laissant `total` et le calcul de la fraction corrects.",
+      "doit_rester_vert": ["T64.A1", "T64.A4"]
+    },
+    {
+      "id": "T64.M4",
+      "kills_case": "T64.A4",
+      "proof_kind": "numeric",
+      "necessity": "off-by-one",
+      "direction": "casser",
+      "target": "La taille par defaut du lot que le generateur produit pour une regle active, quand aucun `count` explicite superieur n'est demande.",
+      "mutation": "Faire produire 19 sequences au lieu d'au moins 20 pour une regle active, quelle que soit la regle ou la periode. Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T64.A4 : « generer 19 sequences pour une regle : le cas doit rougir ».",
+      "expected_effect": "T64.A4 devient rouge.",
+      "observation_qui_echoue": "A4 appelle le generateur pour TOUTE paire (regle, periode) de `REGLES_ADR` (les douze periodes, jamais une seule choisie a la main — danger IV.4) et exige `lot.length >= 20`. Sous cette mutation, CHAQUE appel rend un lot de longueur 19, ce qui rougit l'assertion `lot-de-20-sequences-au-moins-*` a la PREMIERE paire deja (P1/reserve@1), et pour toutes les suivantes.",
+      "pourquoi_cette_perturbation": "A4 est un cas `numeric` au bord exact du seuil (20) fixe par ADR-018:L202 : un off-by-one (19 au lieu de 20) est l'erreur la plus probable d'une implementation qui lirait mal « au moins 20 » comme « 20 au plus » ou qui bornerait une boucle par `< 20` au lieu de `<= 20`/`< count` avec `count` mal initialise. La porte generique (stuber en lot vide) tuerait aussi A4, mais pas specifiquement au bord ; ce mutant verifie que A4 mord bien AU SEUIL, pas seulement sur l'absence totale.",
+      "doit_rester_vert": ["T64.A1", "T64.A2"]
+    }
+  ]
+}

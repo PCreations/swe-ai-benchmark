@@ -109,6 +109,9 @@ importers:
       '@bench/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@bench/domain':
+        specifier: workspace:*
+        version: link:../domain
       '@bench/oracle':
         specifier: workspace:*
         version: link:../oracle

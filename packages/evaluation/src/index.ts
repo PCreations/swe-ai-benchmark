@@ -125,6 +125,18 @@ export type { ConfirmatoryManifest, ExclusionShare, ManifestCase } from './manif
 export { qualificationMatrix } from './matrix.js'
 export type { MatrixRow } from './matrix.js'
 
+/* ── T65 : mesures longitudinales sur le chemin reel (ADR-018 L206-L212) ── */
+export { persistPeriodMeasures, readPeriodMeasures, ruleTimeline } from './longitudinal-measures.js'
+export type {
+  CodeMetrics,
+  LongitudinalMeasureEntry,
+  PersistPeriodMeasuresInput,
+  PeriodMeasures,
+  ReadPeriodMeasuresInput,
+  RuleTimeline,
+  RuleTimelineInput,
+} from './longitudinal-measures.js'
+
 /* ── évaluateur sur copies privées jetables (cahier L327-L336, tâche T20) ── */
 export { listEvaluationScenarioIds, runPrivateEvaluation } from './private-run.js'
 export type {

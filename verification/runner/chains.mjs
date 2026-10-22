@@ -86,8 +86,13 @@ function runDir(tag) {
  * dure 1758 s, et la commande etait tuee quelques secondes avant la fin — sans
  * rapport Jest, sondes non nettoyees, refus maquille en PROOF_INVALIDATED.
  * Doit rester sous CLEANROOM_TIMEOUT_MS (cleanroom.mjs).
+ *
+ * Portee a 120 min a ba276fc : avec 69 taches au registre, accept T01 a ete
+ * refuse deux fois de suite (PROOF_INVALIDATED, sondes non nettoyees) apres
+ * 50 min tout juste — la borne, de nouveau. La duree de T01 croit avec le
+ * registre (ses sondes relancent verify:task en cascade) ; la marge est large.
  */
-export const CHAIN_TIMEOUT_MS = 50 * 60 * 1000
+export const CHAIN_TIMEOUT_MS = 120 * 60 * 1000
 
 function exec(command, cwd, env = undefined) {
   try {

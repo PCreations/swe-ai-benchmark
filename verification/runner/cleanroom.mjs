@@ -41,8 +41,9 @@ function nonce(tag) {
  * Portee a 90 min a abc00d5 : la suite T01 seule dure 1758 s (29 min) avec
  * 67 taches au registre, et la commande adjugee l'enveloppe (verify:task,
  * empreintes). Elle doit rester au-dessus de CHAIN_TIMEOUT_MS (chains.mjs).
+ * Portee a 180 min a ba276fc, avec CHAIN_TIMEOUT_MS porte a 120 min.
  */
-export const CLEANROOM_TIMEOUT_MS = 90 * 60 * 1000
+export const CLEANROOM_TIMEOUT_MS = 180 * 60 * 1000
 
 /**
  * Exécute `command` sur un checkout neuf de `rev`, et rend ce qui a été

@@ -589,8 +589,102 @@ function refValue(doc: Json, dotted: string): unknown {
   return cur;
 }
 const LV = (chemin: string): unknown => refValue(LONG, `valeurs.${chemin}`);
-/** Fait attendu `valeurs.<periode>.faits.<cle>.valeur` de F-LONG.json. */
+/** Fait attendu `valeurs.<periode>.faits.<cle>.valeur` de F-LONG.json — P5 a
+ *  P12 SEULEMENT (voir le bloc F-RESERVATION ci-dessous pour P1 a P4). */
 const FAIT = (periode: string, cle: string): unknown => LV(`${periode}.faits.${cle}.valeur`);
+
+/* ═══════════ racine gelee F-RESERVATION (P1 a P4, reprise T61) ══════════
+ * ADR-018:L86-89 : « P1 à P4 reprennent F-RESERVATION [...] à l'identique ».
+ * L'entree `valeurs.P1_a_P4` de F-LONG.json n'est qu'une note de renvoi
+ * (`reference`/`adr_lines`/`note`/`regles`/`etat_S1_a_l_entree_de_P5`) :
+ * elle NE PORTE AUCUN `faits` — appeler `FAIT('P1', ...)` leve
+ * REFERENCE-CHEMIN-ABSENT quel que soit le modele attendu, bloque sur la cle
+ * `faits` elle-meme, jamais une divergence de VALEUR. C'est acceptance/
+ * T61.spec.ts (ACCEPTEE, PROUVEE a HEAD, section II « fixture de reference
+ * (racine gelee, F-RESERVATION) ») qui etablit la VRAIE source de P1 a P4 —
+ * REPRISE A L'IDENTIQUE ci-dessous (memes chemins, memes litteraux, meme
+ * normalisation de statut ; ADR-001 : jamais re-derivee depuis les
+ * source_paths de T67). */
+const REFERENCE_DIR = path.join(REPO, 'acceptance', 'reference');
+const RESERVATION = JSON.parse(fs.readFileSync(path.join(REFERENCE_DIR, 'F-RESERVATION.json'), 'utf8')) as Json;
+const S = (chemin: string): string => String(refValue(RESERVATION, chemin));
+const ACTEURS_RESERVATION = (refValue(RESERVATION, 'valeurs.acteurs.valeur') as unknown[]).map(String);
+const [ACTEUR_A, ACTEUR_B, ACTEUR_C] = ACTEURS_RESERVATION as [string, string, string];
+const P4_ENTREE_A = S('valeurs.P4.etat_persistant_a_l_entree.A.valeur');
+const P4_ENTREE_B = S('valeurs.P4.etat_persistant_a_l_entree.B.valeur');
+const P4_ENTREE_C = S('valeurs.P4.etat_persistant_a_l_entree.C.valeur');
+const CODE_NOT_FOUND = 'NOT_FOUND'; // cahier:L123, repris par T07/T61
+
+/** Memes statuts normalises que T61 (section II) — jamais une comparaison
+ *  litterale d'une etiquette de statut brute. */
+type Statut = 'confirme' | 'attente' | 'annule';
+function normaliserStatut(brut: string): Statut | string {
+  const t = brut.toLowerCase();
+  if (/annul|cancel/.test(t)) return 'annule';
+  if (/confirm|booked|reserved|held/.test(t)) return 'confirme';
+  if (/attente|wait|queue|pending/.test(t)) return 'attente';
+  return `STATUT-ILLISIBLE(${brut})`;
+}
+/** Champs dont la valeur est un LIBELLE de statut (compares par
+ *  `normaliserStatut`, jamais par egalite litterale de l'etiquette — T61,
+ *  ou acceptance/reference-long/F-LONG.json porte un libelle FRANCAIS,
+ *  p.ex. `"annulé"`, alors que `facts` rend un code court, p.ex.
+ *  `"cancelled"` : une egalite litterale les declare a tort DIVERGENTS).
+ *  Reprise A L'IDENTIQUE des champs qu'acceptance/T61.spec.ts compare via
+ *  `STATUT`/`normaliser`, jamais via `FAIT`/`egal` brut — P1 a P4 inclus. */
+const CHAMPS_STATUT_NORMALISES = new Set([
+  's1_status',
+  'base_a_status',
+  'base_b_status',
+  'base_c_status',
+  's2_a_status',
+  'd_s4_status',
+  'd_s5_status',
+  'e_s2_history_first_status',
+  'd_s6_status',
+  'b_s1_from_other',
+]);
+/** @deprecated alias retenu pour la lisibilite du bloc P1-P4 ci-dessous. */
+const CHAMPS_STATUT_P1_A_P4 = CHAMPS_STATUT_NORMALISES;
+
+/** Valeur ATTENDUE d'un fait de P1 a P4 — F-RESERVATION (ci-dessus), jamais
+ *  F-LONG.json. `P2.waiting_order` est traite a part dans T67.A3 (seul le
+ *  premier element, ACTEUR_C, est fixe par la racine — T61 ne compare pas le
+ *  tableau entier). */
+function faitP1AP4(periode: string, cle: string): unknown {
+  switch (`${periode}.${cle}`) {
+    case 'P1.s1_owner':
+      return ACTEUR_A;
+    case 'P1.s1_status':
+      return 'confirme';
+    case 'P1.duplicate_idempotent_no_dup':
+      return true;
+    case 'P1.b_rejected_no_overbooking':
+      return true;
+    case 'P2.s1_owner':
+      return ACTEUR_B;
+    case 'P2.s1_status':
+      return 'confirme';
+    case 'P3.clone_at_boundary_allowed':
+      return true;
+    case 'P3.clone_at_boundary_new_owner':
+      return ACTEUR_C;
+    case 'P3.clone_after_boundary_allowed':
+      return false;
+    case 'P4.base_a_status':
+      return P4_ENTREE_A;
+    case 'P4.base_b_status':
+      return P4_ENTREE_B;
+    case 'P4.base_c_status':
+      return P4_ENTREE_C;
+    case 'P4.other_tenant_read_legacy_s1':
+      return CODE_NOT_FOUND;
+    default:
+      throw new Error(`FAIT-P1-A-P4-INCONNU ${periode}.${cle} (voir faitP1AP4)`);
+  }
+}
+/** Periodes dont les faits sont lus dans F-LONG.json (reprise T61, III). */
+const PERIODES_LONGUES = new Set(['P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12']);
 
 // IV (reprise d'acceptance/T61.spec.ts, section IV) : les champs de `facts`
 // par periode, pour exiger que CHAQUE fait gele soit reproduit par A3 — pas
@@ -702,6 +796,16 @@ async function requirePeriode(cle: Periode): Promise<EnregistrementPeriode> {
 }
 
 function champFait(facts: Json, cle: string): unknown {
+  // Acces DIRECT d'abord (meme geste que `champ()` d'acceptance/T61.spec.ts,
+  // section II) : `facts` est un dictionnaire PLAT, jamais une description
+  // a forme libre. `champValeur` (generique, II.1) exclut DELIBEREMENT les
+  // valeurs `null` (il cherche "une" valeur significative parmi plusieurs
+  // noeuds candidats) — exactement le defaut qui rendrait
+  // `P12.b_s1_from_legacy` (ADR-018:L154-155, valeur ATTENDUE `null`)
+  // irresolvable quelle que soit l'implementation. L'acces direct distingue
+  // "absent" de "present et nul" ; le detour par `champValeur` ne reste
+  // qu'un FILET pour un `facts` exceptionnellement imbrique.
+  if (cle in facts) return facts[cle];
   return champValeur(facts, [cle]);
 }
 
@@ -904,8 +1008,43 @@ test(
       const { facts } = await requirePeriode(periode);
       for (const cle of CHAMPS_FACTS[periode]) {
         const obtenu = champFait(facts, cle);
+
+        if (!PERIODES_LONGUES.has(periode)) {
+          // P1 a P4 : F-RESERVATION (ADR-018:L86-89), jamais F-LONG.json —
+          // son entree `P1_a_P4` n'est qu'une note de renvoi, sans `faits`
+          // (voir le bloc F-RESERVATION ci-dessus pour la citation complete).
+          if (periode === 'P2' && cle === 'waiting_order') {
+            exige(
+              Array.isArray(obtenu),
+              'P2-waiting_order-est-un-tableau',
+              `P2.WAITING_ORDER-PAS-UN-TABLEAU : ${rendu(obtenu)}`,
+            );
+            egal((obtenu as unknown[])[0], ACTEUR_C, 'P2.waiting_order[0] (F-RESERVATION)');
+            continue;
+          }
+          const attenduReservation = faitP1AP4(periode, cle);
+          if (CHAMPS_STATUT_P1_A_P4.has(cle)) {
+            egal(
+              normaliserStatut(String(obtenu)),
+              normaliserStatut(String(attenduReservation)),
+              `${periode}.${cle} (F-RESERVATION, statut normalise)`,
+            );
+          } else {
+            egal(obtenu, attenduReservation, `${periode}.${cle} (F-RESERVATION)`);
+          }
+          continue;
+        }
+
         const attendu = FAIT(periode, cle);
-        egal(obtenu, attendu, `${periode}.${cle} (reference-long)`);
+        if (CHAMPS_STATUT_NORMALISES.has(cle)) {
+          // Meme raison que pour P1-P4 ci-dessus : F-LONG.json porte un
+          // libelle FRANCAIS ("annulé", "confirmé"...), jamais le code court
+          // que `facts` rend ("cancelled", "confirmed"...) — T61 ne compare
+          // JAMAIS ces champs par egalite litterale (reprise a l'identique).
+          egal(normaliserStatut(String(obtenu)), normaliserStatut(String(attendu)), `${periode}.${cle} (reference-long, statut normalise)`);
+        } else {
+          egal(obtenu, attendu, `${periode}.${cle} (reference-long)`);
+        }
       }
     }
   },

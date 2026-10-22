@@ -63,3 +63,6 @@ export type { BusinessProjection, ProjectedSlot } from './projection.js'
 
 export { replayFLong } from './f-long.js'
 export type { PeriodRecord } from './f-long.js'
+
+export { resolveAdr019Points } from './adr019-points.js'
+export type { Adr019PointsResult } from './adr019-points.js'

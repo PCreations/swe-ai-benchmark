@@ -118,6 +118,13 @@ export type {
 export { generateHiddenSequences } from './hidden-sequences.js'
 export type { GenerateHiddenSequencesInput, GenerateHiddenSequencesResult, HiddenSequence } from './hidden-sequences.js'
 
+// ── T67 : contrat bench.candidate/4, creneaux designes et points tranches
+//    (ADR-019). Jamais exporte sous le nom `buildFLongPeriodStatement` (ni
+//    aucun des alias de `ROLES_STATEMENT_BUILDER` deja essayes par
+//    acceptance/T62.spec.ts) : voir l'en-tete de ./candidate-protocol-v4-long.ts.
+export { CANDIDATE_PROTOCOL_MARKER_V4, CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG } from './candidate-protocol-v4-long.js'
+export type { CandidateLongPeriodStatementV4, CandidateRequirementsStatementV4Long } from './candidate-protocol-v4-long.js'
+
 export { buildRevelationPackage, generateScenarioFromModel } from './generation.js'
 export type {
   GenerationRevelationPackage,

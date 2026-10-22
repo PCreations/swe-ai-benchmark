@@ -561,8 +561,18 @@ export {
   describeCandidateProtocolV3,
 } from './candidate-protocol-v3.js'
 
+// `buildFLongPeriodStatement` n'est PLUS reexporte ici (T67) : ce nom est le
+// PREMIER essaye par `ROLES_STATEMENT_BUILDER` dans acceptance/T62.spec.ts
+// ET acceptance/T67.spec.ts (meme liste), et une fonction qui reussirait
+// COURT-CIRCUITERAIT la resolution de LEUR PROPRE description dans les DEUX
+// suites — T62 (vocabulaire ferme a FIELD_TOKENS_V3, qui exclut `create_slot`
+// et `cancellation_too_late`) ne doit jamais recevoir le contenu du contrat
+// v4, et T67 ne doit jamais recevoir seulement le contenu (inchange) du
+// contrat v3. La laisser EXPORTEE SOUS CE NOM aurait fait regresser T62 (deja
+// PROUVEE) des que le contenu v4 existe ailleurs dans le depot. Le symbole
+// reste defini et exporte par son propre fichier ; voir packages/scenario/
+// src/candidate-protocol-v4-long.ts pour la description v4 correspondante.
 export {
-  buildFLongPeriodStatement,
   CANDIDATE_LONG_PERIOD_KEYS,
   CANDIDATE_REQUIREMENTS_STATEMENT_V3_LONG,
 } from './candidate-requirements-statement-long.js'

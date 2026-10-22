@@ -1,0 +1,76 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T65 — une par cas requis, conforme au",
+    "proof_kind fixe par verification/cases.extensions.lock.json#T65.*.",
+    "",
+    "Meme discipline que verification/mutants/T00.json et verification/",
+    "mutants/T64.json : les cibles sont decrites par leur ROLE, jamais un",
+    "chemin de fichier — le test-author de T65 est AVEUGLE aux sources de",
+    "packages/activities et packages/evaluation (ADR-001, discipline",
+    "procedurale, pas une barriere technique).",
+    "",
+    "LES QUATRE MUTANTS REPRENNENT MOT POUR MOT LES QUATRE PERTURBATIONS",
+    "PRESCRITES par verification/cases.extensions.lock.json : ce fichier ne",
+    "fait qu'expliciter QUEL POINT du calcul chacune cible et QUELLE",
+    "assertion d'acceptance/T65.spec.ts tombe sous elle."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T65",
+  "verification_command": ["pnpm", "verify:task", "T65"],
+  "acceptance_entry": "acceptance/T65.spec.ts",
+  "mutant_count": 4,
+  "mutants": [
+    {
+      "id": "T65.M1",
+      "kills_case": "T65.A1",
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point qui PERSISTE Q, R, G et G_new d'une periode apres les avoir obtenus de computePeriodMetrics (@bench/domain, T04) sur les controles reels de cette periode — pas le calcul de T04 lui-meme, qui reste hors de portee de T65.",
+      "mutation": "Introduire un decalage dans la transcription persistee : par exemple persister Q et R EXACTEMENT, mais omettre G et G_new (les figer a 0 sans les relire du resultat de computePeriodMetrics), ou persister les quatre grandeurs d'une periode DECALEE d'un indice (celles de la periode precedente). Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T65.A1 : « calculer Q sans les poids de T04 : le cas doit rougir ».",
+      "expected_effect": "T65.A1 devient rouge.",
+      "observation_qui_echoue": "A1 relit, pour les douze periodes dans l'ordre, les quatre grandeurs persistees et les compare en UNE SEULE egalite de tableau a celles que rend computePeriodMetrics sur la MEME serie de controles (SERIE_PRINCIPALE) — import direct de @bench/domain, jamais une valeur recopiee a la main. Une transcription qui ignore les poids de T04 (par exemple en recalculant Q a partir du seul compte d'exigences, sans leur `weight`) ou qui decale l'indice de periode fait tomber cette egalite a la premiere periode ou G ou G_new devient non nul (P7, isolation@1 en regression) : les quatre periodes P1-P6 peuvent rester fortuitement correctes si Q=1/R=1/G=0/G_new=0 y est trivial, mais P7 observe reellement un G et un G_new distincts de 0, ce que l'assertion `oracle-observe-une-regression-reelle` de A2 confirme independamment ne pas etre un artefact du scenario.",
+      "pourquoi_cette_perturbation": "A1 est un cas `numeric` : il compare des nombres exacts rendus par un import deja PROUVE, jamais une approximation. La porte generique (stuber le persisteur) le tuerait aussi, mais cette perturbation cible precisement la FIDELITE de la transcription — un persisteur qui APPELLE bel et bien computePeriodMetrics mais qui en RETRANSCRIT une partie seulement reste un defaut distinct d'une absence totale d'implementation.",
+      "doit_rester_vert": ["T65.A4"]
+    },
+    {
+      "id": "T65.M2",
+      "kills_case": "T65.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point qui distingue, dans l'agregation de G, un retrait d'exigence PAR REMPLACEMENT d'une exigence active devenue violee — c'est-a-dire la lecture du champ `retired`/`replaced_by` de la periode avant de compter une absence en regression (cahier:L129, F-REGRESSION).",
+      "mutation": "Compter en regression toute exigence active a la periode precedente et absente des exigences dues de la periode courante, SANS consulter la liste des retraits — de sorte qu'une regle remplacee (`cancel@2` -> `cancel@3` en P7) ou retiree sans remplacement (`quota@1` en P11) soit comptee comme une regression au meme titre qu'une regle reellement violee. Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T65.A2 : « compter cancel@2 retiree en regression en P7 : le cas doit rougir ».",
+      "expected_effect": "T65.A2 devient rouge.",
+      "observation_qui_echoue": "A2 exige que le G persiste a P7 et a P11 soit EGAL a celui que rend l'oracle T04 sur la MEME serie (assertion `retraits-non-comptes-en-regression`) — l'oracle lui-meme applique F-REGRESSION et n'y compte ni `cancel@2` (remplacee) ni `quota@1` (retiree sans remplacement). Sous la mutation, le G persiste a P7 depasse l'oracle d'au moins une unite (la retraite `cancel@2` s'y ajoute), et l'egalite tombe. Le controle `oracle-observe-une-regression-reelle` (G(P7)>0 et G(P8)>0 dans l'oracle, du fait d'`isolation@1`) exclut qu'un defaut inverse — ne jamais compter de regression — passe le cas par defaut : la mutation doit AJOUTER une regression fausse, pas en retirer une vraie.",
+      "pourquoi_cette_perturbation": "A2 est un cas `behaviour` dont le danger nomme (section V.2 d'acceptance/T65.spec.ts) est precisement l'absence de distinction entre retrait et violation. Stuber le persisteur en fonction constante (G toujours 0) le tuerait aussi mais pour la raison inverse, deja exclue par le controle positif `isolation@1` de la meme assertion : cette perturbation cible le seul defaut que A2 nomme explicitement, sans toucher au comptage de la regression reelle.",
+      "doit_rester_vert": ["T65.A1", "T65.A4"]
+    },
+    {
+      "id": "T65.M3",
+      "kills_case": "T65.A3",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point qui construit la chronologie d'une regle a partir de la suite de ses regressions/retablissements periode par periode — precisement la detection d'un RETABLISSEMENT (une periode active-due ou la regle redevient satisfaite apres une periode de regression).",
+      "mutation": "Omettre la periode de retablissement dans la chronologie publiee : ne jamais ajouter une periode a `recoveryPeriods` (ou son equivalent), meme quand la regle redevient satisfaite apres une regression — la chronologie continue de nommer correctement la premiere satisfaction et les periodes de regression, mais `recoveryPeriods` reste vide ou tronque. Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T65.A3 : « omettre la periode de retablissement dans la chronologie : le cas doit rougir ».",
+      "expected_effect": "T65.A3 devient rouge.",
+      "observation_qui_echoue": "A3 exige TROIS champs simultanement pour `isolation@1` : premiere satisfaction = P4, une regression qui inclut P7, et un retablissement qui inclut P9 — trois assertions `exige` distinctes, dans cet ordre, chacune evaluee independamment des deux autres (meme discipline que T04.A4, « une regression persistante [...] redevient nouvelle » teste par un volet dedie). Sous la mutation, les deux premieres assertions restent vertes (la mutation ne touche ni la premiere satisfaction ni la detection de regression), et seule la troisieme (`retablissement-P9-present`) rougit, nommant explicitement le danger V.3 dans son message d'echec.",
+      "pourquoi_cette_perturbation": "A3 est un cas `behaviour` dont les trois champs sont testes INDEPENDAMMENT precisement pour qu'aucune des trois omissions possibles ne puisse se cacher derriere les deux autres. Une chronologie qui ne calculerait RIEN (role non resolu) tuerait A3 aussi, mais par `CHRONOLOGIE-INTROUVABLE` — un defaut d'ABSENCE totale, distinct de celui-ci qui laisse le role fonctionner partiellement.",
+      "doit_rester_vert": ["T65.A1", "T65.A2", "T65.A4"]
+    },
+    {
+      "id": "T65.M4",
+      "kills_case": "T65.A4",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point ou le score d'une periode (Q) est calcule — precisement la frontiere qui doit EXCLURE les mesures de code (lignes ajoutees/supprimees, fichiers touches, fichiers de test) du calcul de Q/R/G/G_new.",
+      "mutation": "Deux variantes equivalentes, toutes deux suffisantes : (a) faire entrer `linesAdded` dans le calcul de Q d'une periode (par exemple ponderer les exigences dues par une fonction croissante des lignes ajoutees ce mois-ci) ; (b) ne pas persister `testFilesWritten` (le champ est calcule mais jamais ecrit, ou ecrit a une constante 0 independamment de l'entree). Perturbations prescrites mot pour mot par verification/cases.extensions.lock.json#T65.A4 : « faire entrer les lignes ajoutees dans Q, ou ne pas persister le nombre de fichiers de test : le cas doit rougir ».",
+      "expected_effect": "T65.A4 devient rouge sous l'une ou l'autre variante.",
+      "observation_qui_echoue": "A4 porte deux controles independants l'un de l'autre. (a) : il relit `testFilesWritten` (et les trois autres champs de code) pour les douze periodes et exige une egalite STRICTE avec les valeurs fournies (`CODE_PAR_PERIODE`) — la variante (b) fait tomber cette egalite exactement sur `testFilesWritten`, nomme dans le message d'echec (« perturbation ne pas persister le nombre de fichiers de test »). (b) : il persiste la MEME serie de controles sous DEUX jeux de mesures de code radicalement differents (facteur 97 sur les lignes) et exige une egalite STRICTE de Q/R/G/G_new entre les deux series — la variante (a) fait diverger cette egalite a au moins une periode, puisque `linesAdded` y influence desormais Q. Le temoin `code-variante-reellement-different` exclut qu'un defaut inverse (code toujours a 0, les deux series se ressemblant par accident) fasse passer le second controle sans rien prouver.",
+      "pourquoi_cette_perturbation": "A4 est un cas `behaviour` dont le danger nomme (section V.4 d'acceptance/T65.spec.ts) est explicitement double et independant : une implementation peut echouer le controle (a) de transcription fidele sans jamais laisser fuiter le code dans le score, ou echouer le controle (b) d'isolation du score sans rien omettre de la transcription. Les deux variantes de ce mutant couvrent chacun des deux, et aucune porte generique (stub constant) ne les couvrirait ensemble : un persisteur qui ignore completement le code echouerait (a) immediatement, masquant (b).",
+      "doit_rester_vert": ["T65.A1", "T65.A2", "T65.A3"]
+    }
+  ]
+}

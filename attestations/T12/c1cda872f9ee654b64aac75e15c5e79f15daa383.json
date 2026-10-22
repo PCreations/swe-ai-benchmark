@@ -2058,7 +2058,7 @@
     ]
   },
   "clean_room_run": {
-    "nonce": "02f075e941c3",
+    "nonce": "01023dbe58a9",
     "rev": "c1cda872f9ee654b64aac75e15c5e79f15daa383",
     "clean_room": true,
     "pristine": true,
@@ -2079,8 +2079,8 @@
     ],
     "command": "node tools/bench verify:task T12 --json",
     "exit_code": 0,
-    "stdout_sha256": "292474fe1e1f8b6c6c951e9f5dd74b91b7fca57e3484790025ca7aee94369479",
-    "run_dir": ".bench/run/02f075e941c3"
+    "stdout_sha256": "cad3ffdb06e5d621b50f41594b1407082f0f297eee44b2623e07dacf95d6ca52",
+    "run_dir": ".bench/run/01023dbe58a9"
   },
   "report": {
     "schema": "bench.result/1",
@@ -2178,7 +2178,7 @@
     },
     "commands": [
       {
-        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T12.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/02f075e941c3/.bench/run/e8330498e65c/jest.json\"",
+        "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runTestsByPath \"acceptance/T12.spec.ts\" --json --outputFile \"/home/user/swe-ai-benchmark/.bench/scratch/01023dbe58a9/.bench/run/e74e252f8d23/jest.json\"",
         "exit_code": 0
       }
     ],
@@ -2258,7 +2258,7 @@
     "missing_cases": [],
     "vacuous_cases": [],
     "proof_files": [
-      ".bench/run/e8330498e65c/jest.json"
+      ".bench/run/e74e252f8d23/jest.json"
     ],
     "requires": [
       "node22",
@@ -2295,6 +2295,6 @@
     }
   ],
   "boot_id": "09076b29-45fe-4864-98cc-a0f1f8b36651",
-  "produced_at": "2026-10-22T04:25:38.786Z",
-  "duration_ms": 279063
+  "produced_at": "2026-10-22T04:30:25.384Z",
+  "duration_ms": 281363
 }

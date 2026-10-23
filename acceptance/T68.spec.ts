@@ -15,150 +15,145 @@
  * ─────────────────────────────────────────────────────────────────────── I
  * CE QUE CETTE SUITE OBSERVE, ET D'OU ELLE LE TIENT
  *
- * T68 EST UNE TACHE D'EXTENSION : elle ne vient PAS du cahier. Le registre
- * qui la porte est verification/tasks.extensions.json, distinct de
- * verification/tasks.json, et son `spec_source` epingle un ADR ACCEPTE
+ * T68 EST UNE TACHE D'EXTENSION : son registre est
+ * verification/tasks.extensions.json et son `spec_source` epingle ADR-019
  * (docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md,
- * lignes 100-106), jamais le cahier directement. L'auteur de cette suite est
- * AVEUGLE aux `source_paths` que verification/tasks.extensions.json declare
- * pour T68 — `packages/activities`, `packages/scenario` — et ne les a lus ni
- * directement ni par `git show` (ADR-001 : aveuglement PROCEDURAL, discipline
- * auditable au diff, jamais une barriere technique). Le contrat teste
- * ci-dessous est derive de docs/specs/T68.md et de sa source, le MEME
- * document ACCEPTE, lignes 100-106, AINSI QUE du corps narratif du MEME
- * document hors de cette plage (sections « Ce que le renforcement de T64 a
- * montre » L9-37, et « Decision » point 3, L87-91) — la meme liberte que
- * prend deja acceptance/T67.spec.ts face a son propre ADR.
+ * L100-106), jamais le cahier. L'auteur de cette suite est AVEUGLE aux
+ * `source_paths` de T68 (`packages/activities`, `packages/scenario`) : il ne
+ * les a lus ni directement ni par `git show` (ADR-001, aveuglement
+ * PROCEDURAL). Seule la description PUBLIQUE exportee du contrat
+ * `bench.candidate/4` (CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG, celle que
+ * recoit un candidat reel) a ete consultee pour ecrire le candidat temoin.
  *
- *   L24-29 ANCRAGE DECISIF : « toutes les sequences, pour toutes les regles,
- *          creent un locataire, envoient deux reservations et verifient que
- *          la seconde attend. Aucune n'appelle set_capacity, set_level,
- *          balance, history ni transfer. » — ces cinq operations sont donc
- *          les operations DEDIEES de capacity@1, priority@1, price@1,
- *          history@1 et transfer@1 respectivement (meme ordre d'enumeration
- *          que les regles qui les introduisent dans REGLES_ADR, reprise
- *          d'acceptance/T61.spec.ts et d'acceptance/T67.spec.ts).
- *   L87-91 decision 3, mot pour mot : « Les sequences d'une regle exercent
- *          cette regle : elles appellent ses operations, et placent ses
- *          frontieres [...] la ou une implementation qui l'ignore se trompe.
- *          Le critere, mecanique, est un candidat de reference prive de
- *          cette seule regle. » — c'est exactement A1/A2.
- *   L102   livrable, mot pour mot (docs/specs/T68.md).
- *   L104   les trois cas d'acceptation, mot pour mot (docs/specs/T68.md).
- *   L106   commande : `pnpm verify:task T68`. « PostgreSQL et le stockage
- *          objet sont requis ; aucun appel reel. »
- *
- * Cette suite REPREND, SANS LES RELIRE, les conventions DEJA FIXEES par les
- * suites ACCEPTEES dont elle etend le socle (jamais les sources de T68) :
- *   - acceptance/T62.spec.ts / acceptance/T67.spec.ts : le chargement ESM
- *     direct de `packages/scenario` et `packages/activities`, la navigation
- *     JSON generique (`noeuds`/`champTexte`/`champValeur`), la resolution
- *     tolerante par liste d'alias de role (`essayer`, `exige`, `egal`).
- *   - acceptance/T61.spec.ts (V) : la table `REGLES_ADR` des regles actives
- *     par periode — REPRISE A L'IDENTIQUE, jamais recalculee une seconde
- *     fois ici (ADR-001). C'est la SEULE racine dont T68.A1/A2 derivent
- *     « regle active a partir de P5 » et « periode ou la regle est active ».
+ *   ADR-019 L24-29 « toutes les sequences, pour toutes les regles, creent un
+ *          locataire, envoient deux reservations et verifient que la seconde
+ *          attend. Aucune n'appelle set_capacity, set_level, balance, history
+ *          ni transfer. Une file d'attente de capacite 1 obtient donc un
+ *          score de 1 sur toutes les regles » — le defaut a fermer.
+ *   ADR-019 L87-91 decision 3 : « Les sequences d'une regle exercent cette
+ *          regle [...] Le critere, mecanique, est un candidat de reference
+ *          prive de cette seule regle. » — c'est A1/A2.
+ *   ADR-018 L46-51 decision 2 : « Toutes les operations de la trajectoire
+ *          principale s'appliquent au meme etat [BENCH_DATA_DIR] [...] Les
+ *          sondes de frontiere travaillent sur des copies jetables de ce
+ *          repertoire » ; L53-56 decision 3 : les sequences « s'appliquent a
+ *          des copies de l'etat ». — c'est ce qui permet a A3 de separer le
+ *          trafic des sequences de celui de la trajectoire (II.5).
+ *   ADR-019 L102-106 (docs/specs/T68.md) : livrable, cas, commande.
  *
  * ─────────────────────────────────────────────────────────────────────── II
- * CE QUE CETTE SUITE FIXE ELLE-MEME (ADR-001 : aucune des valeurs ci-dessous
- * n'a ete obtenue en executant une implementation de T68 — aucun module de
- * generation de sequences discriminantes n'existe encore au moment ou elle
- * est ecrite ; ADR-019 decide un CRITERE, jamais une signature de fonction).
+ * CE QUE CETTE SUITE FIXE ELLE-MEME (ADR-001)
  *
- * 1. « REGLE ACTIVE A PARTIR DE P5 » est DERIVE de REGLES_ADR (reprise
- *    gelee) : une regle est « active a partir de P5 » si et seulement si
- *    elle n'apparait dans AUCUNE des listes P1 a P4, et apparait dans au
- *    moins une liste P5 a P12. Ceci EXCLUT les regles deja actives avant P5
- *    (reserve@1, idempotence@1, fifo@1, cancel@1, cancel@2, isolation@1),
- *    meme si elles restent actives au-dela de P5 — exactement la lecture
- *    litterale de « regle active A PARTIR de P5 », jamais « regle active
- *    PENDANT P5 ou apres ». Calcule PROGRAMMATIQUEMENT ci-dessous (fonction
- *    `reglesActivesAPartirDeP5`), jamais une liste ecrite a la main : toute
- *    evolution future de REGLES_ADR (improbable, c'est une racine gelee)
- *    serait suivie sans divergence silencieuse.
- * 2. OPERATION DEDIEE PAR REGLE (`OPERATION_DEDIEE`, FIXE ICI) — la ou les
- *    operations du contrat `bench.candidate/4` que la regle introduit, au
- *    sens de I.L24-29 ci-dessus :
- *      capacity@1  -> set_capacity   (ADR-019:L27, enumeration litterale)
- *      priority@1  -> set_level      (ADR-019:L27, enumeration litterale)
- *      price@1     -> balance        (ADR-019:L27, enumeration litterale)
- *      history@1   -> history        (ADR-019:L27, enumeration litterale)
- *      transfer@1  -> transfer       (ADR-019:L27, enumeration litterale)
- *    Pour les quatre regles qui RAFFINENT une operation deja existante au
- *    lieu d'en introduire une nouvelle (aucune n'est nommee par L24-29, donc
- *    aucune n'a droit a une des cinq operations ci-dessus) :
- *      quota@1     -> write          (la promotion de quota s'observe sur
- *                                      une tentative de reservation, ADR-019
- *                                      point 5 narratif)
- *      cancel@3    -> probe_cancel   (nouvelle frontiere d'annulation,
- *                                      meme operation que cancel@1/@2)
- *      cancel@4    -> probe_cancel   (idem)
- *      fifo@2      -> write          (reordonnance observee sur une nouvelle
- *                                      reservation qui bascule la file)
- *    Ce choix est un JUGEMENT du test-author, documente au meme titre que
- *    `resolveAdr019Points` l'est dans acceptance/T67.spec.ts (II.4) — aucune
- *    source ne nomme de fonction ni d'operation pour ces quatre regles.
- * 3. ROLES TOLERES RESOLUS PAR ALIAS (aucun n'est impose, un seul suffit par
- *    famille) :
- *      generation de sequences par regle — `SEQUENCES_PAR_REGLE` ci-dessous.
- *      candidat de reference fidele a F-LONG — `CANDIDAT_FIDELE` ci-dessous.
- *      candidat prive d'une seule regle — `CANDIDAT_PRIVE` ci-dessous.
- *      notation d'un candidat sur une regle a une periode — `NOTATION`
- *      ci-dessous.
- *    Le contrat EXACT d'arguments de chacun n'est fixe par AUCUNE source :
- *    cette suite essaie plusieurs ARITES et plusieurs FORMES d'argument
- *    (identifiant seul, objet `{ruleId}`/`{rule}`, objet `{ruleId,
- *    periodId}`) et retient la premiere qui rend une valeur exploitable —
- *    meme discipline que `essayer`/ROLES_* d'acceptance/T67.spec.ts.
- * 4. UN SCORE EST UN NOMBRE DE [0,1]. Un candidat FIDELE doit rendre
- *    EXACTEMENT 1 (ADR-019:L104, « un score de 1 »), un candidat PRIVE doit
- *    rendre un nombre STRICTEMENT INFERIEUR A 1 (ADR-019:L104, « un score
- *    strictement inferieur a 1 ») — jamais une comparaison approchee qui
- *    masquerait un score de 1 renvoye par erreur sous une tolerance.
+ * 1. LES CANDIDATS SONT DES FIXTURES DE TEST, HORS DE PORTEE DE
+ *    L'IMPLEMENTEUR. Le candidat fidele ET le candidat prive d'une regle sont
+ *    le MEME programme, ecrit par le test-author :
+ *      acceptance/fixtures/candidates/f-long-reference-candidate-v4.mjs
+ *    (contrat `bench.candidate/4`, huit points d'ADR-019 appliques ; son
+ *    en-tete documente chaque choix). La privation passe par la variable
+ *    d'environnement BENCH_DROP_RULE=<regle> : la regle est retiree de
+ *    l'ensemble actif, et la regle qu'elle remplacait (fifo@1 pour
+ *    priority@1, cancel@2 pour cancel@3, cancel@3 pour cancel@4, priority@1
+ *    pour fifo@2) reste en vigueur a sa place.
+ *    Une version precedente de cette suite resolvait candidats ET notateur
+ *    par alias DANS le code d'implementation : l'implementeur fournissait
+ *    alors la copie et la note, et un candidat prive qui echoue expres
+ *    passait A2 sans que les sequences discriminent quoi que ce soit.
+ * 2. LA GENERATION ET LA NOTATION RESTENT LE LIVRABLE DE L'IMPLEMENTATION.
+ *    Deux roles, resolus par balayage tolerant des exports aplatis de
+ *    `packages/scenario` et `packages/activities` (meme mecanique
+ *    qu'acceptance/T64.spec.ts, II.1), en version `bench.candidate/4` :
+ *      - generateur : `(opts: {rule, period, seed, contract}) =>
+ *        sequence[] | {sequences|batch: sequence[]}` ;
+ *      - notateur : `(opts: {rule, period, seed, candidateCommand,
+ *        benchDataDir, contract}) => Promise<{score, satisfied, total}>`.
+ *    `contract` (et son alias `protocol`) vaut 'bench.candidate/4'. Comme en
+ *    T64, le notateur amene lui-meme l'etat du candidat jusqu'a la periode
+ *    en rejouant la trajectoire principale contre `benchDataDir`, PUIS
+ *    applique chaque sequence du lot a une COPIE de cet etat (ADR-018
+ *    decision 2 et 3), en lancant `candidateCommand` avec BENCH_DATA_DIR
+ *    pointant sur la copie. Les noms de role specifiques a v4 sont essayes
+ *    AVANT les noms de T64 : un notateur v3 ne peut servir que s'il honore
+ *    `contract: 'bench.candidate/4'`.
+ * 3. LA COMMANDE DE LANCEMENT NE TRAHIT PAS LA VARIANTE. Chaque notation
+ *    recoit `candidateCommand = ['node', <lanceur>]`, ou <lanceur> est un
+ *    petit module ecrit par cette suite dans un repertoire temporaire, sous
+ *    un nom aleatoire, qui pose BENCH_DROP_RULE et BENCH_TRAFFIC_LOG puis
+ *    importe la fixture. Le fidele et le prive ont donc des commandes de
+ *    meme forme : un notateur qui lirait la commande pour deviner « prive »
+ *    et noter 0 n'a rien a lire.
+ * 4. UN SCORE EST UN NOMBRE DE [0,1] ACCOMPAGNE DE `satisfied` ET `total`
+ *    (repris de T64.A3). A1 exige `score === 1`, `total` entier >= 1 et
+ *    `satisfied === total` ; A2 exige `score < 1` nommement, avec le score
+ *    obtenu en clair, ET, comme temoin, que le candidat complet note 1 sur la
+ *    meme (regle, periode, graine) — sans quoi un lot qui fait echouer TOUT
+ *    candidat (sequences mal formees, contrat v3 envoye a un candidat v4)
+ *    passerait A2 sans rien discriminer.
+ * 5. LE TRAFIC DES SEQUENCES EST LE TRAFIC SUR LES COPIES. La fixture
+ *    journalise `{pid, data_dir, op}` pour chaque requete recue
+ *    (BENCH_TRAFFIC_LOG). Le trafic dont `data_dir` differe de
+ *    `benchDataDir` est celui des sequences (ADR-018 decisions 2-3 : la
+ *    trajectoire principale vit dans BENCH_DATA_DIR, le reste sur des
+ *    copies). A3 lit ce journal — jamais les sequences par l'API de
+ *    l'implementation — et exige que chaque operation que la regle introduit
+ *    y figure. A1 et A2 exigent un trafic de copie non vide : la note doit
+ *    venir d'une EXECUTION REELLE du candidat sur les sequences.
+ * 6. OPERATION(S) INTRODUITE(S) PAR REGLE (`OPERATION_DEDIEE`, reprise de la
+ *    version precedente, jamais reduite) :
+ *      capacity@1 -> set_capacity, priority@1 -> set_level,
+ *      price@1 -> balance, history@1 -> history, transfer@1 -> transfer
+ *      (ADR-019 L27, enumeration litterale) ;
+ *      quota@1 -> write, fifo@2 -> write, cancel@3 -> probe_cancel,
+ *      cancel@4 -> probe_cancel (jugement du test-author : ces regles
+ *      raffinent une operation existante).
+ * 7. « REGLE ACTIVE A PARTIR DE P5 » est DERIVE de REGLES_ADR (reprise gelee
+ *    de T61.V) : absente de P1-P4, presente dans au moins une periode
+ *    P5-P12. Soit : capacity@1, priority@1, cancel@3, price@1, quota@1,
+ *    cancel@4, history@1, fifo@2, transfer@1.
+ * 8. GRAINE : 6868 (entier, convention de T64.II.2). Aucun `count` n'est
+ *    impose : la taille du lot est celle que l'implementation choisit
+ *    (T64.A4 en garantit deja au moins 20). A3 exige en outre que le `total`
+ *    note egale la longueur du lot rendu par le generateur pour la meme
+ *    (regle, periode, graine) : le notateur doit noter CE lot.
  *
  * ─────────────────────────────────────────────────────────────────────── III
- * LES DANGERS PROPRES A T68, ET LEUR CONTROLE DANS CETTE SUITE
+ * LES DANGERS PROPRES A T68, ET LEUR CONTROLE
  *
- * (1) A1 NE DOIT PAS SE CONTENTER D'UNE SEULE REGLE OU D'UNE SEULE PERIODE.
- *     Elle boucle sur CHAQUE regle de `reglesActivesAPartirDeP5()` et, pour
- *     chacune, sur CHAQUE periode ou `REGLES_ADR` la declare active — jamais
- *     un echantillon choisi a la main.
- * (2) A2 NE DOIT PAS ACCEPTER UN SCORE EGAL A 1 COMME UN FAUX NEGATIF SILENCE
- *     : l'assertion exige nommement `< 1`, et echoue avec le score OBTENU en
- *     clair si le candidat prive note malgre tout parfait — c'est exactement
- *     le defaut qu'ADR-019 (L24-29) denonce pour les sequences NAIVES
- *     d'avant ce renforcement.
- * (3) A3 NE DOIT PAS SE CONTENTER DE CHERCHER L'OPERATION N'IMPORTE OU DANS
- *     LE DOCUMENT : elle exige que l'operation dediee apparaisse DANS LA
- *     STRUCTURE MEME des sequences rendues par `SEQUENCES_PAR_REGLE` pour
- *     cette regle (parcours JSON generique de CETTE valeur seule, jamais du
- *     document entier) — une mention de `history` ailleurs dans le module ne
- *     ferait pas passer A3 a tort.
- * (4) NI A1 NI A2 NE REUSSISSENT SI LE ROLE RESOLU NE REND QU'UN OBJET VIDE
- *     OU `undefined` : `requireNotation` echoue NOMMEMENT, jamais par un
- *     acces a une propriete absente qui laisserait l'assertion suivante
- *     tourner sur `NaN === 1` (toujours faux, mais pour la mauvaise raison)
- *     ou `undefined < 1` (`false`, qui masquerait l'absence de notation
- *     comme un FAUX A2 reussi).
+ * (1) NOTATEUR CONSTANT (toujours 1) : A2 rougit — le prive doit noter < 1.
+ * (2) NOTATEUR CONSTANT (toujours 0) ou qui ne lance pas le candidat : A1
+ *     rougit — le fidele doit noter 1 avec satisfied === total, et un trafic
+ *     de copie doit exister.
+ * (3) SEQUENCES TRIVIALES (deux reservations, la seconde attend) : le prive
+ *     de chaque regle les satisfait comme le fidele -> A2 rougit ; et ni
+ *     set_capacity, ni set_level, ni balance, ni history, ni transfer
+ *     n'apparaissent sur les copies -> A3 rougit.
+ * (4) A1/A2/A3 bouclent sur CHAQUE regle de REGLES_P5 et CHAQUE periode ou
+ *     REGLES_ADR la declare active — jamais un echantillon.
  *
  * ─────────────────────────────────────────────────────────────────────── IV
  * CE QUE CETTE SUITE NE PROUVE PAS
  *
- *  • Elle ne reverifie aucune regle metier de F-LONG deja PROUVEE par
- *    T07/T61/T62/T67 : `REGLES_ADR` est tenue pour ACQUISE.
- *  • Elle n'exerce ni un contrat NDJSON reel ni une session `claude -p`
- *    (ADR-008) : aucun processus nomme `claude` n'est jamais lance, et aucun
- *    executable candidat n'est invoque — import ESM pur.
- *  • Elle ne juge PAS si l'operation dediee choisie en II.2 pour quota@1,
- *    cancel@3, cancel@4 et fifo@2 est la SEULE lecture possible d'ADR-019 —
- *    elle documente son choix et verifie exactement ce choix.
+ *  • Elle ne reverifie aucun fait gele de F-LONG : le test-author a rejoue
+ *    acceptance/reference-long/F-LONG.json contre la fixture hors suite.
+ *  • Aucun processus nomme `claude` n'est lance (ADR-008) : le seul candidat
+ *    execute est la fixture ACCEPTANCE ci-dessus.
+ *  • Le choix II.6 pour quota@1, fifo@2, cancel@3, cancel@4 n'est pas la
+ *    seule lecture possible d'ADR-019 : il est documente et verifie tel quel.
  */
 
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
+import { randomBytes } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const CASE_TIMEOUT_MS = 60_000;
+// 34 couples (regle, periode) notes pour le fidele (A1, reutilises par A3) et
+// 34 pour les prives (A2), chacun avec rejeu de trajectoire et un lot d'au
+// moins 20 sequences sur copies : bornes larges, jamais plus etroites que T64.
+const SCORE_TIMEOUT_MS = 2_400_000;
+
+const CONTRAT_V4 = 'bench.candidate/4';
+const GRAINE = 6868;
 
 /* ────────────────────────────────────────────────────────────────── socle */
 
@@ -298,49 +293,9 @@ async function essayer<T>(thunk: () => T | Promise<T>): Promise<{ ok: true; valu
   }
 }
 
-/* ═══════════ navigation JSON generique (reprise T62/T64/T67) ═══════════ */
-
-const normKey = (k: string): string => k.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-type Noeud = { chemin: string; cle: string; valeur: unknown };
-
-function noeuds(racine: unknown, profMax = 12): Noeud[] {
-  const out: Noeud[] = [];
-  const vus = new Set<unknown>();
-  const file: { chemin: string; cle: string; v: unknown; p: number }[] = [
-    { chemin: '$', cle: '', v: racine, p: 0 },
-  ];
-  while (file.length > 0) {
-    const n = file.shift() as { chemin: string; cle: string; v: unknown; p: number };
-    out.push({ chemin: n.chemin, cle: n.cle, valeur: n.v });
-    if (n.p >= profMax || n.v === null || typeof n.v !== 'object') continue;
-    if (vus.has(n.v)) continue;
-    vus.add(n.v);
-    if (Array.isArray(n.v)) {
-      n.v.forEach((x, i) => file.push({ chemin: `${n.chemin}[${i}]`, cle: n.cle, v: x, p: n.p + 1 }));
-    } else {
-      for (const [k, x] of Object.entries(n.v as Json)) {
-        file.push({ chemin: `${n.chemin}.${k}`, cle: k, v: x, p: n.p + 1 });
-      }
-    }
-  }
-  return out;
-}
-
-function champValeur(r: unknown, alias: readonly string[]): unknown {
-  const cible = new Set(alias.map(normKey));
-  for (const n of noeuds(r)) {
-    if (n.cle !== '' && cible.has(normKey(n.cle)) && n.valeur !== undefined && n.valeur !== null) {
-      return n.valeur;
-    }
-  }
-  return undefined;
-}
-
 /* ═══════ les douze ensembles de regles — oracle (reprise T61.V/T67) ═════ */
-// ADR-018:L61-65 et L86-155. Repris d'acceptance/T61.spec.ts (V) et
-// d'acceptance/T67.spec.ts, suites ACCEPTEES, PROUVEES A HEAD : jamais
-// recalcule ici.
+// ADR-018:L61-65 et L86-155. Repris d'acceptance/T61.spec.ts (V), suite
+// ACCEPTEE, PROUVEE A HEAD : jamais recalcule ici.
 const PERIODES = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12'] as const;
 type Periode = (typeof PERIODES)[number];
 
@@ -371,9 +326,7 @@ const REGLES_ADR: Record<Periode, string[]> = {
 const PERIODES_P1_A_P4: Periode[] = ['P1', 'P2', 'P3', 'P4'];
 const PERIODES_P5_A_P12: Periode[] = ['P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12'];
 
-/** II.1 — « regle active a partir de P5 » : absente de P1-P4, presente dans
- *  au moins une periode P5-P12. DERIVE de REGLES_ADR, jamais une liste ecrite
- *  a la main. */
+/** II.7 — « regle active a partir de P5 », derivee de REGLES_ADR. */
 function reglesActivesAPartirDeP5(): string[] {
   const avantP5 = new Set<string>();
   for (const p of PERIODES_P1_A_P4) for (const r of REGLES_ADR[p]) avantP5.add(r);
@@ -389,14 +342,13 @@ function reglesActivesAPartirDeP5(): string[] {
   return out;
 }
 
-/** Periodes ou une regle donnee est active, selon REGLES_ADR. */
 function periodesActives(ruleId: string): Periode[] {
   return PERIODES.filter((p) => REGLES_ADR[p].includes(ruleId));
 }
 
 const REGLES_P5 = reglesActivesAPartirDeP5();
 
-/* ═══════ operation dediee par regle (II.2, FIXE ICI) ════════════════════ */
+/* ═══════ operation(s) introduite(s) par regle (II.6) ════════════════════ */
 
 const OPERATION_DEDIEE: Record<string, string[]> = {
   'capacity@1': ['set_capacity'],
@@ -415,144 +367,224 @@ function operationsDedieesDe(ruleId: string): string[] {
   exige(
     Array.isArray(ops) && ops.length > 0,
     `operation-dediee-connue-pour-${ruleId}`,
-    `AUCUNE-OPERATION-DEDIEE-FIXEE-POUR ${ruleId} dans OPERATION_DEDIEE (II.2) — REGLES_P5=${rendu(REGLES_P5)}.`,
+    `AUCUNE-OPERATION-DEDIEE-FIXEE-POUR ${ruleId} dans OPERATION_DEDIEE (II.6) — REGLES_P5=${rendu(REGLES_P5)}.`,
   );
   return ops as string[];
 }
 
-/* ═══════ roles tolerants (III, FIXES ICI — aucune source ne les nomme) ══ */
+/* ═══════ candidats FIXTURES (II.1, II.3) — hors de portee de l'implementeur */
 
-const ROLES_SEQUENCES_PAR_REGLE = [
+const FIXTURE_CANDIDAT = path.join(
+  REPO,
+  'acceptance',
+  'fixtures',
+  'candidates',
+  'f-long-reference-candidate-v4.mjs',
+);
+
+const RACINE_TMP = fs.mkdtempSync(path.join(os.tmpdir(), 't68-'));
+
+interface Lancement {
+  candidateCommand: string[];
+  benchDataDir: string;
+  journal: string;
+}
+
+/** II.3 — lanceur au nom aleatoire : fidele et prive ont des commandes de meme forme. */
+function preparerLancement(dropRule: string | null): Lancement {
+  const dossier = fs.mkdtempSync(path.join(RACINE_TMP, 'run-'));
+  const journal = path.join(dossier, 'traffic.ndjson');
+  const lanceur = path.join(dossier, `candidate-${randomBytes(6).toString('hex')}.mjs`);
+  const benchDataDir = fs.mkdtempSync(path.join(RACINE_TMP, 'data-'));
+  const source = [
+    `process.env.BENCH_DROP_RULE = ${JSON.stringify(dropRule ?? '')};`,
+    `process.env.BENCH_TRAFFIC_LOG = ${JSON.stringify(journal)};`,
+    `await import(${JSON.stringify(pathToFileURL(FIXTURE_CANDIDAT).href)});`,
+    '',
+  ].join('\n');
+  fs.writeFileSync(lanceur, source);
+  return { candidateCommand: ['node', lanceur], benchDataDir, journal };
+}
+
+function reel(p: string): string {
+  try {
+    return fs.realpathSync(p);
+  } catch {
+    return path.resolve(p);
+  }
+}
+
+interface Trafic {
+  total: number;
+  surTrajectoire: number;
+  surCopies: number;
+  opsSurCopies: Set<string>;
+}
+
+/** II.5 — trafic reel recu par la fixture, separe trajectoire / copies. */
+function lireTrafic(l: Lancement): Trafic {
+  const out: Trafic = { total: 0, surTrajectoire: 0, surCopies: 0, opsSurCopies: new Set() };
+  if (!fs.existsSync(l.journal)) return out;
+  const principal = reel(l.benchDataDir);
+  for (const ligne of fs.readFileSync(l.journal, 'utf8').split('\n')) {
+    if (ligne.trim() === '') continue;
+    let e: { data_dir?: unknown; op?: unknown };
+    try {
+      e = JSON.parse(ligne) as { data_dir?: unknown; op?: unknown };
+    } catch {
+      continue;
+    }
+    out.total += 1;
+    const dir = typeof e.data_dir === 'string' ? reel(e.data_dir) : '';
+    if (dir === principal) {
+      out.surTrajectoire += 1;
+    } else {
+      out.surCopies += 1;
+      if (typeof e.op === 'string') out.opsSurCopies.add(e.op);
+    }
+  }
+  return out;
+}
+
+/* ═══════ roles de l'implementation : generateur et notateur v4 (II.2) ═══ */
+
+const ROLES_GENERATEUR_V4 = [
+  'generateDiscriminatingSequences',
   'generateSequencesForRule',
+  'generateHiddenSequencesV4',
+  'generateRuleSequencesV4',
   'buildDiscriminatingSequences',
   'buildDiscriminatingSequencesForRule',
-  'discriminatingSequencesForRule',
-  'sequencesForRule',
-  'buildRuleSequences',
-  'generateDiscriminatingSequences',
-  'buildHiddenSequencesForRule',
+  'generateHiddenSequences',
+  'generateRuleSequences',
 ] as const;
 
-async function resoudreSequencesPourRegle(ruleId: string): Promise<unknown | null> {
-  const args: unknown[] = [ruleId, { ruleId }, { rule: ruleId }, { ruleId, periodId: undefined }];
-  for (const nom of ROLES_SEQUENCES_PAR_REGLE) {
-    const fn = LOADED.flat.get(nom);
-    if (typeof fn !== 'function') continue;
-    for (const arg of args) {
-      const res = await essayer(() => (fn as (...a: unknown[]) => unknown)(arg));
-      if (res.ok && res.value !== null && res.value !== undefined) return res.value;
-    }
-  }
-  return null;
-}
-
-async function requireSequencesPourRegle(ruleId: string): Promise<unknown> {
-  const v = await resoudreSequencesPourRegle(ruleId);
-  exige(
-    v !== null,
-    `sequences-${ruleId}-resolues`,
-    `SEQUENCES-INTROUVABLES-POUR ${ruleId} parmi ${rendu([...ROLES_SEQUENCES_PAR_REGLE])} (exports vus : ${rendu([...LOADED.flat.keys()])})`,
-  );
-  return v;
-}
-
-/** Ensemble des noms d'operation (OPS_V4 ou non) presents comme VALEUR
- *  litterale quelque part dans la structure de sequences d'une regle —
- *  parcours de CETTE valeur seule (III.3), jamais du document entier. */
-function operationsAppeleesDans(sequences: unknown): Set<string> {
-  const vues = new Set<string>();
-  for (const n of noeuds(sequences)) {
-    if (typeof n.valeur === 'string') vues.add(n.valeur);
-  }
-  return vues;
-}
-
-const ROLES_CANDIDAT_FIDELE = [
-  'createFullReferenceCandidate',
-  'createReferenceCandidate',
-  'buildReferenceCandidate',
-  'referenceCandidate',
-  'createFLongReferenceCandidate',
-  'buildFLongReferenceCandidate',
-] as const;
-
-async function resoudreCandidatFidele(): Promise<unknown | null> {
-  for (const nom of ROLES_CANDIDAT_FIDELE) {
-    const fn = LOADED.flat.get(nom);
-    if (typeof fn !== 'function') continue;
-    const res = await essayer(() => (fn as (...a: unknown[]) => unknown)());
-    if (res.ok && res.value !== null && res.value !== undefined) return res.value;
-  }
-  return null;
-}
-
-const ROLES_CANDIDAT_PRIVE = [
-  'createReferenceCandidateWithoutRule',
-  'buildDeprivedCandidate',
-  'referenceCandidateWithout',
-  'createCandidateMissingRule',
-  'buildReferenceCandidateDeprivedOf',
-  'createReferenceCandidateDeprivedOfRule',
-] as const;
-
-async function resoudreCandidatPrive(ruleId: string): Promise<unknown | null> {
-  const args: unknown[] = [ruleId, { ruleId }, { withoutRule: ruleId }, { deprivedOf: ruleId }];
-  for (const nom of ROLES_CANDIDAT_PRIVE) {
-    const fn = LOADED.flat.get(nom);
-    if (typeof fn !== 'function') continue;
-    for (const arg of args) {
-      const res = await essayer(() => (fn as (...a: unknown[]) => unknown)(arg));
-      if (res.ok && res.value !== null && res.value !== undefined) return res.value;
-    }
-  }
-  return null;
-}
-
-const ROLES_NOTATION = [
+const ROLES_NOTATEUR_V4 = [
+  'scoreDiscriminatingRule',
+  'scoreRuleV4',
+  'scoreRuleOnContractV4',
+  'scoreRuleDiscriminating',
   'scoreCandidateOnRule',
   'scoreRule',
-  'scoreSequencesForRule',
-  'scoreCandidateForRule',
-  'scoreCandidateOnRuleAtPeriod',
-  'runAndScoreRule',
+  'scoreRuleAtPeriod',
 ] as const;
 
-/** Resout un score (nombre dans [0,1]) pour un couple (candidat, regle,
- *  periode). Plusieurs formes d'argument essayees (II.3) : aucune n'est
- *  imposee par ADR-019, qui decrit un CRITERE, jamais une signature. */
-async function resoudreNotation(
-  candidat: unknown,
-  ruleId: string,
-  periodId: Periode,
-): Promise<number | null> {
-  const argLists: unknown[][] = [
-    [candidat, ruleId, periodId],
-    [candidat, { ruleId, periodId }],
-    [{ candidate: candidat, ruleId, periodId }],
-    [{ candidate: candidat, rule: ruleId, period: periodId }],
-  ];
-  for (const nom of ROLES_NOTATION) {
-    const fn = LOADED.flat.get(nom);
-    if (typeof fn !== 'function') continue;
-    for (const args of argLists) {
-      const res = await essayer(() => (fn as (...a: unknown[]) => unknown)(...args));
-      if (!res.ok) continue;
-      let v: unknown = res.value;
-      if (v !== null && typeof v === 'object') v = champValeur(v, ['score', 'ruleScore', 'value']);
-      if (typeof v === 'number' && Number.isFinite(v)) return v;
+function extraireLot(v: unknown): unknown[] | null {
+  if (Array.isArray(v)) return v;
+  if (v !== null && typeof v === 'object') {
+    for (const k of ['sequences', 'batch', 'lot', 'items']) {
+      const x = (v as Json)[k];
+      if (Array.isArray(x)) return x;
     }
   }
   return null;
 }
 
-async function requireNotation(candidat: unknown, ruleId: string, periodId: Periode): Promise<number> {
-  const v = await resoudreNotation(candidat, ruleId, periodId);
+async function resoudreLot(rule: string, period: Periode): Promise<{ lot: unknown[]; nom: string } | null> {
+  const o = { rule, ruleId: rule, period, periodId: period, seed: GRAINE, contract: CONTRAT_V4, protocol: CONTRAT_V4 };
+  const variantes: unknown[][] = [[o], [rule, period, GRAINE], [period, rule, GRAINE]];
+  for (const nom of ROLES_GENERATEUR_V4) {
+    const fn = LOADED.flat.get(nom);
+    if (typeof fn !== 'function') continue;
+    for (const args of variantes) {
+      const res = await essayer(() => (fn as (...a: unknown[]) => unknown)(...args));
+      if (!res.ok) continue;
+      const lot = extraireLot(res.value);
+      if (lot !== null && lot.length > 0) return { lot, nom };
+    }
+  }
+  return null;
+}
+
+type Score = { score: number; satisfied: number | null; total: number | null };
+
+function extraireScore(v: unknown): Score | null {
+  if (typeof v === 'number') return { score: v, satisfied: null, total: null };
+  if (v !== null && typeof v === 'object') {
+    const o = v as Json;
+    const score = o.score ?? o.fraction ?? o.ratio;
+    const satisfied = o.satisfied ?? o.passed ?? o.okCount ?? o.satisfiedCount ?? o.nSatisfied;
+    const total = o.total ?? o.count ?? o.size ?? o.n ?? o.nTotal;
+    if (typeof score === 'number' && Number.isFinite(score)) {
+      return {
+        score,
+        satisfied: typeof satisfied === 'number' ? satisfied : null,
+        total: typeof total === 'number' ? total : null,
+      };
+    }
+  }
+  return null;
+}
+
+interface Notation {
+  score: Score | null;
+  nom: string | null;
+  trafic: Trafic;
+  lancement: Lancement;
+}
+
+async function noter(rule: string, period: Periode, dropRule: string | null): Promise<Notation> {
+  const lancement = preparerLancement(dropRule);
+  const o = {
+    rule,
+    ruleId: rule,
+    period,
+    periodId: period,
+    seed: GRAINE,
+    contract: CONTRAT_V4,
+    protocol: CONTRAT_V4,
+    candidateCommand: lancement.candidateCommand,
+    benchDataDir: lancement.benchDataDir,
+  };
+  const variantes: unknown[][] = [
+    [o],
+    [o.candidateCommand, o.benchDataDir, rule, period, GRAINE],
+    [rule, period, o.candidateCommand, o.benchDataDir, GRAINE],
+  ];
+  for (const nom of ROLES_NOTATEUR_V4) {
+    const fn = LOADED.flat.get(nom);
+    if (typeof fn !== 'function') continue;
+    for (const args of variantes) {
+      const res = await essayer(() => (fn as (...a: unknown[]) => unknown)(...args));
+      if (!res.ok) continue;
+      const score = extraireScore(res.value);
+      if (score !== null) return { score, nom, trafic: lireTrafic(lancement), lancement };
+    }
+  }
+  return { score: null, nom: null, trafic: lireTrafic(lancement), lancement };
+}
+
+// Les notations du candidat FIDELE servent a A1 et a A3 : calculees une fois,
+// a la demande de l'un ou de l'autre (chaque cas reste executable seul).
+const NOTATIONS_FIDELES = new Map<string, Promise<Notation>>();
+function noterFidele(rule: string, period: Periode): Promise<Notation> {
+  const k = `${rule}|${period}`;
+  let p = NOTATIONS_FIDELES.get(k);
+  if (p === undefined) {
+    p = noter(rule, period, null);
+    NOTATIONS_FIDELES.set(k, p);
+  }
+  return p;
+}
+
+function exigeNotation(n: Notation, etiquette: string): Score {
   exige(
-    v !== null,
-    `notation-${ruleId}-${periodId}-resolue`,
-    `NOTATION-INTROUVABLE pour regle=${ruleId} periode=${periodId} parmi ${rendu([...ROLES_NOTATION])} (exports vus : ${rendu([...LOADED.flat.keys()])})`,
+    n.score !== null,
+    `notateur-v4-resolu-${etiquette}`,
+    `NOTATEUR-V4-INTROUVABLE pour ${etiquette} parmi ${rendu([...ROLES_NOTATEUR_V4])} (contract=${CONTRAT_V4}, exports vus : ${rendu([...LOADED.flat.keys()])})`,
   );
-  return v as number;
+  const s = n.score as Score;
+  exige(
+    Number.isFinite(s.score) && s.score >= 0 && s.score <= 1,
+    `score-dans-0-1-${etiquette}`,
+    `SCORE-HORS-INTERVALLE pour ${etiquette} : ${rendu(s)} (notateur ${n.nom}).`,
+  );
+  exige(
+    n.trafic.surCopies > 0,
+    `candidat-reellement-execute-sur-copies-${etiquette}`,
+    `AUCUN-TRAFIC-DE-SEQUENCE pour ${etiquette} : la fixture n'a recu aucune requete sur une copie de l'etat (trafic total=${n.trafic.total}, sur benchDataDir=${n.trafic.surTrajectoire}) — la note ${rendu(s)} (notateur ${n.nom}) ne vient pas d'une execution reelle du candidat sur les sequences.`,
+  );
+  return s;
 }
 
 /* ═══════════════════════════════ T68.A1 ════════════════════════════════ */
@@ -564,14 +596,12 @@ test(
     exige(
       REGLES_P5.length > 0,
       'regles-actives-a-partir-de-p5-non-vide',
-      `REGLES_P5-VIDE : la derivation de II.1 n'a trouve aucune regle, REGLES_ADR=${rendu(REGLES_ADR)}`,
+      `REGLES_P5-VIDE : la derivation de II.7 n'a trouve aucune regle, REGLES_ADR=${rendu(REGLES_ADR)}`,
     );
-
-    const candidat = await resoudreCandidatFidele();
     exige(
-      candidat !== null,
-      'candidat-fidele-resolu',
-      `CANDIDAT-FIDELE-INTROUVABLE parmi ${rendu([...ROLES_CANDIDAT_FIDELE])} (exports vus : ${rendu([...LOADED.flat.keys()])})`,
+      fs.existsSync(FIXTURE_CANDIDAT),
+      'fixture-candidat-v4-presente',
+      `FIXTURE-CANDIDAT-ABSENTE : ${FIXTURE_CANDIDAT}`,
     );
 
     for (const ruleId of REGLES_P5) {
@@ -582,16 +612,28 @@ test(
         `${ruleId}-SANS-PERIODE-ACTIVE selon REGLES_ADR, alors qu'elle appartient a REGLES_P5.`,
       );
       for (const periodId of periodes) {
-        const score = await requireNotation(candidat, ruleId, periodId);
+        const etiquette = `fidele-${ruleId}-${periodId}`;
+        const n = await noterFidele(ruleId, periodId);
+        const { score, satisfied, total } = exigeNotation(n, etiquette);
+        exige(
+          total !== null && Number.isInteger(total) && total >= 1,
+          `total-entier-positif-${etiquette}`,
+          `TOTAL-ABSENT-OU-NUL pour ${etiquette} : total=${rendu(total)} (notateur ${n.nom}).`,
+        );
+        exige(
+          satisfied !== null && satisfied === total,
+          `satisfied-egale-total-${etiquette}`,
+          `FIDELE-SEQUENCES-NON-TOUTES-SATISFAITES pour ${etiquette} : satisfied=${rendu(satisfied)}, total=${rendu(total)} (notateur ${n.nom}).`,
+        );
         exige(
           score === 1,
           `score-fidele-${ruleId}-${periodId}-egal-1`,
-          `SCORE-FIDELE-DIFFERENT-DE-1 pour regle=${ruleId} periode=${periodId} : score obtenu=${rendu(score)} (ADR-019:L104, « un score de 1 »).`,
+          `SCORE-FIDELE-DIFFERENT-DE-1 pour regle=${ruleId} periode=${periodId} : score=${rendu(score)}, satisfied=${rendu(satisfied)}, total=${rendu(total)} (notateur ${n.nom}) — ADR-019:L104, « un score de 1 ».`,
         );
       }
     }
   },
-  CASE_TIMEOUT_MS * 2,
+  SCORE_TIMEOUT_MS,
 );
 
 /* ═══════════════════════════════ T68.A2 ════════════════════════════════ */
@@ -603,28 +645,38 @@ test(
     exige(
       REGLES_P5.length > 0,
       'regles-actives-a-partir-de-p5-non-vide-a2',
-      `REGLES_P5-VIDE : la derivation de II.1 n'a trouve aucune regle, REGLES_ADR=${rendu(REGLES_ADR)}`,
+      `REGLES_P5-VIDE : la derivation de II.7 n'a trouve aucune regle, REGLES_ADR=${rendu(REGLES_ADR)}`,
+    );
+    exige(
+      fs.existsSync(FIXTURE_CANDIDAT),
+      'fixture-candidat-v4-presente-a2',
+      `FIXTURE-CANDIDAT-ABSENTE : ${FIXTURE_CANDIDAT}`,
     );
 
     for (const ruleId of REGLES_P5) {
-      const prive = await resoudreCandidatPrive(ruleId);
-      exige(
-        prive !== null,
-        `candidat-prive-de-${ruleId}-resolu`,
-        `CANDIDAT-PRIVE-INTROUVABLE pour regle=${ruleId} parmi ${rendu([...ROLES_CANDIDAT_PRIVE])} (exports vus : ${rendu([...LOADED.flat.keys()])})`,
-      );
-      const periodes = periodesActives(ruleId);
-      for (const periodId of periodes) {
-        const score = await requireNotation(prive, ruleId, periodId);
+      for (const periodId of periodesActives(ruleId)) {
+        // « le MEME candidat » : la privation ne discrimine que si, sur la
+        // meme (regle, periode, graine), le candidat complet note 1 (II.4).
+        const fidele = await noterFidele(ruleId, periodId);
+        const sf = exigeNotation(fidele, `temoin-fidele-a2-${ruleId}-${periodId}`);
+        exige(
+          sf.score === 1,
+          `temoin-fidele-a2-${ruleId}-${periodId}-egal-1`,
+          `TEMOIN-FIDELE-DIFFERENT-DE-1 pour regle=${ruleId} periode=${periodId} : score=${rendu(sf.score)}, satisfied=${rendu(sf.satisfied)}, total=${rendu(sf.total)} (notateur ${fidele.nom}) — un score < 1 du prive ne prouve rien si le candidat complet echoue lui aussi.`,
+        );
+
+        const etiquette = `prive-de-${ruleId}-${periodId}`;
+        const n = await noter(ruleId, periodId, ruleId);
+        const { score, satisfied, total } = exigeNotation(n, etiquette);
         exige(
           score < 1,
           `score-prive-${ruleId}-${periodId}-strictement-inferieur-a-1`,
-          `SCORE-PRIVE-EGAL-OU-SUPERIEUR-A-1 pour regle=${ruleId} periode=${periodId} : score obtenu=${rendu(score)} — exactement le defaut qu'ADR-019 (L24-29) denonce : une sequence qui ne discrimine pas la regle.`,
+          `SCORE-PRIVE-EGAL-OU-SUPERIEUR-A-1 pour regle=${ruleId} periode=${periodId} : score=${rendu(score)}, satisfied=${rendu(satisfied)}, total=${rendu(total)} (notateur ${n.nom}, operations vues sur les copies : ${rendu([...n.trafic.opsSurCopies].sort())}) — les sequences de ${ruleId} ne distinguent pas un candidat qui l'ignore (ADR-019:L24-29, L87-91).`,
         );
       }
     }
   },
-  CASE_TIMEOUT_MS * 2,
+  SCORE_TIMEOUT_MS,
 );
 
 /* ═══════════════════════════════ T68.A3 ════════════════════════════════ */
@@ -636,21 +688,38 @@ test(
     exige(
       REGLES_P5.length > 0,
       'regles-actives-a-partir-de-p5-non-vide-a3',
-      `REGLES_P5-VIDE : la derivation de II.1 n'a trouve aucune regle, REGLES_ADR=${rendu(REGLES_ADR)}`,
+      `REGLES_P5-VIDE : la derivation de II.7 n'a trouve aucune regle, REGLES_ADR=${rendu(REGLES_ADR)}`,
     );
 
     for (const ruleId of REGLES_P5) {
       const ops = operationsDedieesDe(ruleId);
-      const sequences = await requireSequencesPourRegle(ruleId);
-      const appelees = operationsAppeleesDans(sequences);
-      for (const op of ops) {
+      for (const periodId of periodesActives(ruleId)) {
+        const etiquette = `${ruleId}-${periodId}`;
+
+        const lot = await resoudreLot(ruleId, periodId);
         exige(
-          appelees.has(op),
-          `sequences-${ruleId}-appellent-${op}`,
-          `OPERATION-DEDIEE-JAMAIS-APPELEE : regle=${ruleId} n'appelle jamais ${op} dans ses sequences (operations vues : ${rendu([...appelees])}).`,
+          lot !== null,
+          `generateur-v4-resolu-${etiquette}`,
+          `GENERATEUR-V4-INTROUVABLE-OU-LOT-VIDE pour ${etiquette} parmi ${rendu([...ROLES_GENERATEUR_V4])} (contract=${CONTRAT_V4}, seed=${GRAINE}, exports vus : ${rendu([...LOADED.flat.keys()])})`,
         );
+
+        const n = await noterFidele(ruleId, periodId);
+        const { total } = exigeNotation(n, `a3-${etiquette}`);
+        exige(
+          total !== null && total === (lot as { lot: unknown[] }).lot.length,
+          `notateur-note-le-lot-genere-${etiquette}`,
+          `TOTAL-NOTE-DIFFERENT-DU-LOT-GENERE pour ${etiquette} : total=${rendu(total)} (notateur ${n.nom}), lot=${(lot as { lot: unknown[] }).lot.length} sequence(s) (generateur ${(lot as { nom: string }).nom}, meme regle, periode et graine).`,
+        );
+
+        for (const op of ops) {
+          exige(
+            n.trafic.opsSurCopies.has(op),
+            `sequences-${ruleId}-${periodId}-appellent-${op}`,
+            `OPERATION-INTRODUITE-JAMAIS-APPELEE : regle=${ruleId} periode=${periodId} — aucune requete ${op} n'a atteint le candidat sur une copie de l'etat (operations reellement recues sur les copies : ${rendu([...n.trafic.opsSurCopies].sort())} ; ${n.trafic.surCopies} requete(s) sur copies, ${n.trafic.surTrajectoire} sur benchDataDir).`,
+          );
+        }
       }
     }
   },
-  CASE_TIMEOUT_MS * 2,
+  SCORE_TIMEOUT_MS,
 );

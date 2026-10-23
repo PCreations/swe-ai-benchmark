@@ -125,6 +125,12 @@ export type { GenerateHiddenSequencesInput, GenerateHiddenSequencesResult, Hidde
 export { CANDIDATE_PROTOCOL_MARKER_V4, CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG } from './candidate-protocol-v4-long.js'
 export type { CandidateLongPeriodStatementV4, CandidateRequirementsStatementV4Long } from './candidate-protocol-v4-long.js'
 
+// ── T68 : sequences cachees qui discriminent chaque regle (ADR-019 L100-106).
+//    SQUELETTE a cet etage — le role leve `NotImplemented` (voir
+//    discriminating-sequences.ts).
+export { generateSequencesForRule } from './discriminating-sequences.js'
+export type { DiscriminatingSequence } from './discriminating-sequences.js'
+
 export { buildRevelationPackage, generateScenarioFromModel } from './generation.js'
 export type {
   GenerationRevelationPackage,

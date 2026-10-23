@@ -596,3 +596,14 @@ export type {
 
 export { scoreRule } from './hidden-rule-scoring.js'
 export type { ScoreRuleInput, ScoreRuleResult } from './hidden-rule-scoring.js'
+
+/* ── T68 : sequences cachees qui discriminent chaque regle (ADR-019 L100-106)
+   SQUELETTE a cet etage — les trois roles levent `NotImplemented` (voir
+   f-long-reference-candidates.ts). ─────────────────────────────────────── */
+
+export {
+  createFullReferenceCandidate,
+  createReferenceCandidateWithoutRule,
+  scoreCandidateOnRule,
+} from './f-long-reference-candidates.js'
+export type { ReferenceCandidate } from './f-long-reference-candidates.js'

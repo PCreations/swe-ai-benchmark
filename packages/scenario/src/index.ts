@@ -125,11 +125,27 @@ export type { GenerateHiddenSequencesInput, GenerateHiddenSequencesResult, Hidde
 export { CANDIDATE_PROTOCOL_MARKER_V4, CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG } from './candidate-protocol-v4-long.js'
 export type { CandidateLongPeriodStatementV4, CandidateRequirementsStatementV4Long } from './candidate-protocol-v4-long.js'
 
-// ── T68 : sequences cachees qui discriminent chaque regle (ADR-019 L100-106).
-//    SQUELETTE a cet etage — le role leve `NotImplemented` (voir
+// ── T68 : sequences cachees qui discriminent chaque regle (ADR-019 L100-106),
+//    sur le contrat bench.candidate/4, avec le modele attendu qui les juge et
+//    la trajectoire principale de F-LONG en operations v4 (voir
 //    discriminating-sequences.ts).
-export { generateSequencesForRule } from './discriminating-sequences.js'
-export type { DiscriminatingSequence } from './discriminating-sequences.js'
+export {
+  DISCRIMINATED_RULES,
+  DISCRIMINATING_MIN_BATCH_SIZE,
+  DISCRIMINATING_SEQUENCES_CONTRACT,
+  ExpectedModelV4,
+  activeRulesV4,
+  fLongTrajectoryV4,
+  generateDiscriminatingSequences,
+  generateSequencesForRule,
+} from './discriminating-sequences.js'
+export type {
+  DiscriminatingSequence,
+  GenerateDiscriminatingSequencesInput,
+  GenerateDiscriminatingSequencesResult,
+  SequenceStep,
+  StepExpectation,
+} from './discriminating-sequences.js'
 
 export { buildRevelationPackage, generateScenarioFromModel } from './generation.js'
 export type {

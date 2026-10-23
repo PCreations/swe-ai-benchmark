@@ -1,0 +1,88 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T68 — une par cas requis, conforme au mode de",
+    "preuve fixe par verification/cases.extensions.lock.json (proof_kind",
+    "`behaviour` pour T68.A1, T68.A2 et T68.A3). La perturbation de chaque",
+    "mutant reprend MOT POUR MOT le champ `perturbation` du cas qu'il tue :",
+    "  T68.A1 : « faire echouer le candidat fidele sur une sequence de",
+    "           quota@1 par une frontiere mal placee : le cas doit rougir »",
+    "  T68.A2 : « generer pour price@1 des sequences sans debit ni",
+    "           remboursement : le cas doit rougir »",
+    "  T68.A3 : « generer pour history@1 des sequences sans appel a",
+    "           history : le cas doit rougir »",
+    "",
+    "Les trois cas sont `behaviour` : chacun appelle un export metier",
+    "(candidat de reference, generateur de sequences, notateur) et observe un",
+    "resultat — jamais un simple stub qui leve, qui laisserait le cas VERT",
+    "sans rien prouver (un stub leve -> `essayer` l'absorbe -> le role suivant",
+    "de la liste d'alias est tente -> en l'absence d'aucune implementation la",
+    "suite echoue deja plus tot, sur `assertPackagesLoaded`/`requireXxx`, pour",
+    "une raison SANS RAPPORT avec la regle visee). La perturbation correcte",
+    "est donc TOUJOURS une alteration CIBLEE du comportement sur la regle",
+    "nommee, jamais une casse generale.",
+    "",
+    "Les cibles sont decrites par leur ROLE et non par un chemin de fichier :",
+    "l'auteur des tests derive le contrat de docs/specs/T68.md et de sa",
+    "source (ADR-019) et n'a pas lu packages/scenario ni packages/activities.",
+    "Un mutant se pose sur le point du programme qui remplit le role decrit."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T68",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T68"
+  ],
+  "acceptance_entry": "acceptance/T68.spec.ts",
+  "mutant_count": 3,
+  "mutants": [
+    {
+      "id": "T68.M1",
+      "kills_case": "T68.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le point de l'implementation qui place la frontiere de quota@1 (le seuil de deux reservations confirmees au-dela duquel une promotion doit SAUTER l'acteur, ADR-019 decision 2 point 5) a l'interieur des sequences generees pour cette regle, OU dans le candidat de reference lui-meme lorsqu'il repond a ces sequences.",
+      "mutation": "Decaler d'une unite la frontiere de quota@1 dans la sequence (ou dans la lecture qu'en fait le candidat fidele) : promouvoir l'acteur en tete de file meme s'il detient deja DEUX confirmes au lieu de le faire sauter, ou n'exiger qu'UN confirme pour declencher le saut. Le candidat de reference, pourtant fidele a TOUTES les regles de F-LONG, repond alors a la mauvaise frontiere et son resultat sur la sequence de quota@1 cesse de correspondre a l'attendu.",
+      "expected_effect": "T68.A1 devient rouge sur quota@1, a chacune de ses periodes actives (P8, P9, P10).",
+      "observation_qui_echoue": "A1 resout un candidat de reference via ROLES_CANDIDAT_FIDELE, puis note son resultat sur chaque regle de REGLES_P5 a chacune de ses periodes actives (derivees de REGLES_ADR, reprise gelee de T61/T67) via requireNotation, et exige `score === 1` nommement, avec le score OBTENU affiche en clair en cas d'echec. Sous la mutation, le candidat fidele — qui n'a RIEN d'incorrect sur les autres regles — rate exactement la frontiere de quota@1 : son score sur quota@1 cesse de valoir 1 a P8, P9 et P10, et l'assertion `score-fidele-quota@1-P8-egal-1` (puis P9, P10) tombe la premiere.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T68.A1. A1 est un cas `behaviour` : la porte generique (stuber un export) laisserait la suite echouer plus tot sur la resolution du role, pour une raison sans rapport avec quota@1 — ce n'est pas ce que ce mutant doit prouver. La perturbation CIBLEE, qui touche precisement la frontiere que quota@1 introduit, est la seule qui montre que A1 observe reellement un score PAR REGLE et non un score global qui resterait a 1 tant que les AUTRES regles restent fideles.",
+      "doit_rester_vert": [
+        "T68.A2",
+        "T68.A3"
+      ]
+    },
+    {
+      "id": "T68.M2",
+      "kills_case": "T68.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le generateur de sequences dedie a price@1 — le point qui, pour cette regle, est cense placer au moins un debit et au moins un remboursement observables (ADR-019 decision 2 point 4 : le remboursement se calcule sur le montant effectivement debite).",
+      "mutation": "Generer pour price@1 des sequences qui ne provoquent ni debit ni remboursement : par exemple des sequences qui creent un locataire, envoient deux reservations et verifient seulement que la seconde attend — exactement le defaut NAIF denonce par ADR-019 (L24-29), que ce renforcement est cense avoir elimine. Le candidat PRIVE de price@1 (qui, par construction, ne debite ni ne rembourse jamais correctement) note alors un score IDENTIQUE au candidat fidele sur cette sequence, puisque rien dans la sequence ne distingue les deux comportements.",
+      "expected_effect": "T68.A2 devient rouge sur price@1, a chacune de ses periodes actives (P7 a P12).",
+      "observation_qui_echoue": "A2 resout, pour price@1, un candidat PRIVE de cette seule regle via ROLES_CANDIDAT_PRIVE, note son resultat a chaque periode active via requireNotation, et exige nommement `score < 1`, avec le score OBTENU affiche en clair si l'assertion tombe. Sous la mutation, les sequences de price@1 n'exercent plus le debit ni le remboursement : le candidat prive de price@1 ne s'en ecarte donc jamais et note 1 partout ou le candidat fidele note 1 — l'assertion `score-prive-price@1-P7-strictement-inferieur-a-1` (puis chaque periode suivante) tombe.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T68.A2. A2 est un cas `behaviour` dont le defaut decisif est symetrique a celui de T00.A3 (cf. verification/mutants/T00.json#T00.M3) : stuber le generateur de sequences ferait lever `essayer`, le role suivant serait tente, et en l'absence de toute implementation la suite echouerait plus tot sur `requireSequencesPourRegle`/`resoudreCandidatPrive` pour une raison SANS RAPPORT avec price@1 — ce que ce mutant doit prouver resterait invisible. La seule perturbation informative est l'inverse : rendre les sequences de price@1 PERMISSIVES au point de ne plus rien exercer de cette regle, exactement le trou qu'ADR-019 a ouvert cette tache pour fermer.",
+      "doit_rester_vert": [
+        "T68.A1",
+        "T68.A3"
+      ]
+    },
+    {
+      "id": "T68.M3",
+      "kills_case": "T68.A3",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre PERMISSIF",
+      "target": "Le generateur de sequences dedie a history@1 — le point qui, pour cette regle, est cense placer au moins un appel a l'operation `history` du contrat `bench.candidate/4` (ADR-019, enumeration litterale L24-29 : « Aucune n'appelle [...] history [...] »).",
+      "mutation": "Generer pour history@1 des sequences qui n'appellent jamais `history` : par exemple des sequences qui creent un locataire, envoient des reservations et verifient leur statut par `read` au lieu de `history`, sans jamais invoquer l'operation que history@1 introduit.",
+      "expected_effect": "T68.A3 devient rouge sur history@1.",
+      "observation_qui_echoue": "A3 resout les sequences de history@1 via ROLES_SEQUENCES_PAR_REGLE, parcourt GENERIQUEMENT cette seule structure (operationsAppeleesDans, qui ne lit que les valeurs litterales de la valeur rendue — jamais le document entier) et exige que `history` (OPERATION_DEDIEE['history@1']) y figure, avec la liste des operations effectivement vues affichee en clair si l'assertion tombe. Sous la mutation, l'ensemble des valeurs litterales des sequences de history@1 ne contient plus jamais la chaine `history` : l'assertion `sequences-history@1-appellent-history` tombe.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite mot pour mot par verification/cases.extensions.lock.json#T68.A3. Cas `behaviour` : un stub qui leve ferait echouer la suite plus tot, sur `requireSequencesPourRegle`, pour une raison generale sans rapport avec history@1 en particulier — ce mutant doit au contraire montrer qu'A3 verifie la PRESENCE de l'operation dediee a CETTE regle precisement, et non une simple non-vacuite des sequences. C'est exactement la lacune qu'ADR-019 (L24-29) decrit pour les sequences naives d'avant ce renforcement, reportee ici sur history@1 comme cas-temoin — le meme defaut vaudrait, mutatis mutandis, pour `set_capacity`, `set_level`, `balance` ou `transfer`, mais verification/cases.extensions.lock.json ne fixe qu'un seul temoin pour A3.",
+      "doit_rester_vert": [
+        "T68.A1",
+        "T68.A2"
+      ]
+    }
+  ]
+}

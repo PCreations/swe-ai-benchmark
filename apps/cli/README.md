@@ -123,6 +123,20 @@ travail git reel derive de `--candidate-workspace-root` (T48), sous `--live`
 `candidate_token_report.by_model`, l'agregat cumulatif des tokens du
 candidat, distinct de `token_report` (fournisseur factice, ADR-008 L18-19).
 
+Scenario F-LONG (T66, ADR-018 L214-L220, ADR-019) : quand un groupe du
+manifeste porte `source_scenario_id: "F-LONG"` (au plus 12
+`periods_per_trajectory`, `repetitions` au choix), chaque session `claude -p`
+recoit le contrat `bench.candidate/4` et l'enonce de sa periode ; le commit de
+la session joue la trajectoire principale de la periode sur un etat
+`BENCH_DATA_DIR` conserve de P1 a P12 (sous `--candidate-workspace-root`,
+hors des depots du candidat), puis chaque regle active est notee par execution
+reelle sur des copies de cet etat. Le rapport porte alors `f_long` :
+`periods` (un enregistrement par repetition et periode : `rule_scores`,
+`Q`, `R`, `G`, `G_new`, `regressions`, mesures du code, jetons),
+`rule_timelines` (chronologie de chaque regle) et `aggregates` (par
+configuration, `{mean, min, max, n}` de chaque mesure, sans intervalle de
+confiance). Aucune option supplementaire.
+
 ### `bench plan-distribution --campaign-id <id> --mode <mode> --parents <N> --scenarios <N> --configurations <N> --repetitions <N> --budgets <N> --periods-per-trajectory <N> --postgres-database <db> --plan-id <id>`
 
 Valide un profil de charge de distribution (T40, cahier L505-L512) : compte

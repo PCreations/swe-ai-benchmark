@@ -73,6 +73,7 @@ import {
   CANDIDATE_PROTOCOL_FORM_VERIFICATION_SCRIPT_FILENAME,
 } from './candidate-protocol-v2.js'
 import { buildCandidatePeriodPrompt, CANDIDATE_REQUIREMENTS_PERIOD_KEYS } from './candidate-requirements-statement.js'
+import { buildFLongPilotPrompt, F_LONG_SCENARIO_ID } from './f-long-pilot.js'
 
 /* ══════════════════════════════════ formes du contrat ═══════════════════ */
 
@@ -484,10 +485,16 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
   const periodIndex = lastCompletedPeriod(db, campaignId) + 1
   const scenarioId = input.scenarioId ?? SCENARIO_DEFAULT
 
-  const requirements = await revealedRequirementsForPeriod(scenarioId, periodIndex)
-  const prompt = buildPrompt(requirements, periodIndex)
+  // T66 (ADR-018 L216, ADR-019 decision 1) : une trajectoire F-LONG recoit le
+  // contrat `bench.candidate/4` et l'enonce de SA periode (T62/T67), jamais
+  // les exigences du scenario de demonstration ni le verificateur de forme
+  // de `bench.candidate/2`, qui ne connait pas ce contrat.
+  const fLong = scenarioId === F_LONG_SCENARIO_ID
+  const prompt = fLong
+    ? buildFLongPilotPrompt(periodIndex)
+    : buildPrompt(await revealedRequirementsForPeriod(scenarioId, periodIndex), periodIndex)
   const workspaceDir = ensureWorkspace(input.candidateWorkspaceRoot, campaignId)
-  writeProtocolFormVerificationScript(workspaceDir)
+  if (!fLong) writeProtocolFormVerificationScript(workspaceDir)
 
   const session = await launchClaudeCliPeriod({
     workspaceDir,

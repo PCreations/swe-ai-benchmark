@@ -64,6 +64,7 @@ import type { ModelCallRecord } from '@bench/gateway'
 import { runPeriodOnce } from './run-period.js'
 import { aggregateClaudeCliUsage, countClaudeCliPeriods, runPeriodOnceClaudeCli } from './run-period-claude-cli.js'
 import { candidateControlReport, controlCandidateCommitOnce } from './candidate-control-period.js'
+import { controlFLongPilotPeriod, fLongPilotReport, F_LONG_PERIOD_COUNT, F_LONG_SCENARIO_ID } from './f-long-pilot.js'
 
 type Json = Record<string, unknown>
 
@@ -493,6 +494,13 @@ async function conductPilotClaudeCli(
   const db = input.postgresDatabase
   const campaignId = input.campaignId
   const periodsPerTrajectory = manifest.periods_per_trajectory ?? 0
+  // T66 (ADR-018 decision 1) : F-LONG compte douze periodes, jamais plus.
+  if (plans.some((p) => p.scenario_id === F_LONG_SCENARIO_ID) && periodsPerTrajectory > F_LONG_PERIOD_COUNT) {
+    throw new Error(
+      `bench pilot-conduct refusé : periods_per_trajectory=${String(periodsPerTrajectory)} au-delà des ${String(F_LONG_PERIOD_COUNT)} périodes de F-LONG (ADR-018)`,
+    )
+  }
+  const candidateWorkspaceRoot = input.candidateWorkspaceRoot
   let interrupted = false
   let totalSoFar = plans.reduce((sum, p) => sum + countClaudeCliPeriods(db, p.trajectory_key), 0)
 
@@ -530,7 +538,22 @@ async function conductPilotClaudeCli(
       // restaure RIEN depuis S3, jamais un espace de travail sans rapport
       // (A3). Persisté sous `trajectory_key`, la MÊME identité qu'un appel
       // DIRECT et ULTÉRIEUR de `candidate-control-report` (T51, A5).
-      if (outcome.candidate !== undefined) {
+      if (outcome.candidate !== undefined && plan.scenario_id === F_LONG_SCENARIO_ID) {
+        // ── T66 (ADR-018 decisions 2-5, ADR-019) : le commit de la session
+        // joue la trajectoire principale de CETTE periode sur l'etat
+        // persistant de la trajectoire, puis chaque regle active est notee
+        // par execution reelle sur des copies de cet etat (T63/T68) ; les
+        // mesures longitudinales (T65) sont recalculees et persistees.
+        await controlFLongPilotPeriod({
+          postgresDatabase: db,
+          trajectoryKey: plan.trajectory_key,
+          periodIndex: outcome.period_index ?? i,
+          workspaceDir: outcome.candidate.workspace_dir,
+          commitSha: outcome.candidate.commit_sha,
+          usage: outcome.candidate.usage,
+          stateRoot: candidateWorkspaceRoot,
+        })
+      } else if (outcome.candidate !== undefined) {
         await controlCandidateCommitOnce({
           campaignId: plan.trajectory_key,
           postgresDatabase: db,
@@ -589,6 +612,18 @@ async function conductPilotClaudeCli(
     token_report: { by_model: {} },
     candidate_token_report: { by_model: candidateByModel },
     candidate_control_report: candidateControlReports,
+    // T66 (ADR-018 L216, decision 6) : enregistrements de periode et agregat
+    // par configuration du scenario F-LONG -- present seulement quand le
+    // manifeste en porte une trajectoire.
+    ...(persistedTrajectories.some((t) => t.scenario_id === F_LONG_SCENARIO_ID)
+      ? {
+          f_long: await fLongPilotReport({
+            postgresDatabase: db,
+            stateRoot: candidateWorkspaceRoot,
+            trajectories: persistedTrajectories,
+          }),
+        }
+      : {}),
   }
 }
 

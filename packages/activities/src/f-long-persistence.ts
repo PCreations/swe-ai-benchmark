@@ -45,6 +45,10 @@ export interface RunFLongPeriodInput {
   readonly benchDataDir: string
   readonly ops: readonly FLongPeriodOperation[]
   readonly timeoutMs?: number
+  /** T66 — repertoire courant du processus candidat (par defaut : celui du
+   *  moteur). Le pilote F-LONG y passe l'espace de travail de la session, pour
+   *  qu'un candidat qui lit des fichiers relatifs a son depot les trouve. */
+  readonly cwd?: string
 }
 
 export interface RunFLongPeriodResult {
@@ -139,6 +143,7 @@ async function exchangeWithFreshProcess(
   dataDir: string,
   ops: readonly FLongPeriodOperation[],
   timeoutMs: number,
+  cwd?: string,
 ): Promise<RunFLongPeriodResult> {
   const cmd = command[0]
   if (cmd === undefined) {
@@ -148,6 +153,7 @@ async function exchangeWithFreshProcess(
   const child = spawn(cmd, args, {
     stdio: ['pipe', 'pipe', 'inherit'],
     env: { ...process.env, BENCH_DATA_DIR: dataDir },
+    ...(cwd !== undefined ? { cwd } : {}),
   })
 
   const channel = new LineChannel(child.stdout, (cb) => child.on('close', () => cb()))
@@ -240,7 +246,13 @@ async function exchangeWithFreshProcess(
  */
 export async function runFLongPeriod(input: RunFLongPeriodInput): Promise<RunFLongPeriodResult> {
   fs.mkdirSync(input.benchDataDir, { recursive: true })
-  return exchangeWithFreshProcess(input.candidateCommand, input.benchDataDir, input.ops, input.timeoutMs ?? DEFAULT_TIMEOUT_MS)
+  return exchangeWithFreshProcess(
+    input.candidateCommand,
+    input.benchDataDir,
+    input.ops,
+    input.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    input.cwd,
+  )
 }
 
 /**
@@ -256,7 +268,13 @@ export async function runFLongProbe(input: RunFLongPeriodInput): Promise<RunFLon
   try {
     fs.mkdirSync(input.benchDataDir, { recursive: true })
     fs.cpSync(input.benchDataDir, copyDir, { recursive: true })
-    return await exchangeWithFreshProcess(input.candidateCommand, copyDir, input.ops, input.timeoutMs ?? DEFAULT_TIMEOUT_MS)
+    return await exchangeWithFreshProcess(
+      input.candidateCommand,
+      copyDir,
+      input.ops,
+      input.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      input.cwd,
+    )
   } finally {
     try {
       fs.rmSync(copyDir, { recursive: true, force: true })

@@ -48,6 +48,16 @@ export interface ScoreDiscriminatingRuleInput {
   readonly contract?: string
   readonly protocol?: string
   readonly count?: number
+  /** T66 — repertoire courant du processus candidat (voir `RunFLongPeriodInput.cwd`). */
+  readonly cwd?: string
+  /**
+   * T66 — `true` quand `benchDataDir` porte DEJA l'etat de la trajectoire
+   * principale a la fin de `period` (le pilote F-LONG la fait avancer d'une
+   * periode a chaque session, sur le meme repertoire, ADR-018 decision 2) :
+   * aucun rejeu, les sequences s'appliquent directement a des copies de cet
+   * etat. Absent ou `false` : rejeu de P1 a `period` sur `benchDataDir` (T68).
+   */
+  readonly stateAtPeriod?: boolean
 }
 
 /** Premiere etape non satisfaite d'une sequence (diagnostic). */
@@ -130,6 +140,7 @@ async function runSequence(
     candidateCommand: input.candidateCommand,
     benchDataDir: input.benchDataDir,
     ops: seq.steps,
+    ...(input.cwd !== undefined ? { cwd: input.cwd } : {}),
   })
   for (let i = 0; i < seq.steps.length; i += 1) {
     const step = seq.steps[i]
@@ -165,10 +176,18 @@ export async function scoreDiscriminatingRule(input: ScoreDiscriminatingRuleInpu
     input.count === undefined ? genInput : { ...genInput, count: input.count },
   )
 
-  // 1. Trajectoire principale, une periode = un processus neuf, sur benchDataDir.
-  for (const p of PERIODS) {
-    await runFLongPeriod({ candidateCommand: input.candidateCommand, benchDataDir: input.benchDataDir, ops: fLongTrajectoryV4(p) })
-    if (p === input.period) break
+  // 1. Trajectoire principale, une periode = un processus neuf, sur benchDataDir
+  //    — sauf quand l'appelant la tient deja a jour a cette periode (T66).
+  if (input.stateAtPeriod !== true) {
+    for (const p of PERIODS) {
+      await runFLongPeriod({
+        candidateCommand: input.candidateCommand,
+        benchDataDir: input.benchDataDir,
+        ops: fLongTrajectoryV4(p),
+        ...(input.cwd !== undefined ? { cwd: input.cwd } : {}),
+      })
+      if (p === input.period) break
+    }
   }
 
   // 2-3. Chaque sequence sur une copie jetable de l'etat, jugee par le modele attendu.

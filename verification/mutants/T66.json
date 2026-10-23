@@ -1,0 +1,120 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T66 — au moins une par cas requis, conforme au",
+    "mode de preuve fixe par verification/cases.extensions.lock.json#T66",
+    "(proof_kind `behaviour` pour A1, A2 et A3). M1 a M3 reprennent MOT POUR",
+    "MOT le champ `perturbation` du cas qu'ils tuent :",
+    "  T66.A1 : « arreter la trajectoire a onze periodes ou a deux repetitions :",
+    "           le cas doit rougir » (M1 : onze periodes ; M2 : deux repetitions)",
+    "  T66.A2 : « afficher un intervalle de confiance sur trois repetitions : le",
+    "           cas doit rougir » (M3)",
+    "  T66.A3 : « compter cancel@2 ou priority@1 en regression apres leur",
+    "           remplacement : le cas doit rougir » (M4 : cancel@2 ; M5 :",
+    "           priority@1)",
+    "",
+    "Les candidats sont des FIXTURES (acceptance/fixtures/candidates/",
+    "f-long-reference-candidate-v4.mjs, ecrit dans l'espace de travail par le",
+    "faux `claude`) : un mutant ne touche JAMAIS la fixture, le faux executable",
+    "ni la suite. Les cibles sont decrites par leur ROLE : l'auteur des tests",
+    "n'a pas lu packages/activities, packages/agents ni apps/cli (ADR-001).",
+    "`also_kills` nomme les autres cas requis que la meme mutation fait",
+    "rougir ; `doit_rester_vert` ceux qu'elle doit laisser verts."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T66",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T66"
+  ],
+  "acceptance_entry": "acceptance/T66.spec.ts",
+  "mutant_count": 5,
+  "mutants": [
+    {
+      "id": "T66.M1",
+      "kills_case": "T66.A1",
+      "also_kills": [
+        "T66.A2",
+        "T66.A3"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La boucle de `pilot-conduct --provider claude-cli --live` qui conduit, pour chaque repetition d'une configuration, les periodes de la trajectoire F-LONG (borne `periods_per_trajectory` du manifeste).",
+      "mutation": "Arreter chaque trajectoire a onze periodes : la boucle s'acheve avant P12.",
+      "expected_effect": "T66.A1 rougit sur `periodes-persistees-36-a1` (periods_persisted=33), ou a defaut sur `douze-periodes-par-repetition-dans-le-rapport` qui nomme les trois couples (repetition, P12) absents. T66.A2 rougit par le meme garde `periodes-persistees-36-a2`. T66.A3 rougit aussi (`periodes-persistees-12-a3` : 11).",
+      "observation_qui_echoue": "A1 exige periods_persisted === 36, au moins 36 sessions du faux `claude`, et dans le rapport les 12 periodes de chacune des 3 repetitions avec un score de 1 sur chaque regle active.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T66.A1 (« arreter la trajectoire a onze periodes »).",
+      "doit_rester_vert": []
+    },
+    {
+      "id": "T66.M2",
+      "kills_case": "T66.A1",
+      "also_kills": [
+        "T66.A2"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La boucle de `pilot-conduct` qui conduit les repetitions d'une configuration (borne `repetitions` du manifeste).",
+      "mutation": "Ne conduire que deux repetitions par configuration quel que soit `repetitions`.",
+      "expected_effect": "T66.A1 rougit sur `periodes-persistees-36-a1` (periods_persisted=24) ou `trois-repetitions-distinctes-dans-le-rapport`. T66.A2 rougit sur `periodes-persistees-36-a2` et, a defaut, sur `effectif-egal-au-nombre-de-repetitions` (n=2).",
+      "observation_qui_echoue": "A1 compte les repetitions distinctes des enregistrements de periode du rapport et exige exactement 3.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T66.A1 (« ou a deux repetitions »).",
+      "doit_rester_vert": [
+        "T66.A3"
+      ]
+    },
+    {
+      "id": "T66.M3",
+      "kills_case": "T66.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La construction du rapport agrege par configuration (moyenne, minimum, maximum, effectif de chaque mesure sur les repetitions), et sa regle qui n'affiche aucun intervalle de confiance en dessous de l'effectif fixe par T35.",
+      "mutation": "Supprimer la condition d'effectif : ajouter a chaque mesure agregee un champ `ci95: [lower, upper]` (intervalle t de Student) calcule sur les trois repetitions.",
+      "expected_effect": "T66.A2 rougit sur `aucun-intervalle-de-confiance-a-trois-repetitions`, qui nomme les chemins des cles `ci95` trouvees.",
+      "observation_qui_echoue": "A2 balaie TOUTES les cles du rapport et refuse toute cle dont le nom normalise contient `confidence`/`interval` ou vaut `ci`/`ic` suivi ou non d'un niveau ou d'une borne.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T66.A2.",
+      "doit_rester_vert": [
+        "T66.A1",
+        "T66.A3"
+      ]
+    },
+    {
+      "id": "T66.M4",
+      "kills_case": "T66.A3",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le passage, aux fonctions de T04, des regles retirees d'une periode F-LONG (champ `retired` : cancel@2 remplacee par cancel@3 en P7) lors du calcul de G/G_new et de la liste des regressions persistees et rapportees.",
+      "mutation": "Ne plus declarer cancel@2 comme retiree en P7 mais la garder due et non satisfaite a partir de P7 : autrefois satisfaite, elle est comptee en regression.",
+      "expected_effect": "T66.A3 rougit sur `aucune-regression-comptee-pour-cancel@2-ni-priority@1`, qui nomme `P7: cancel@2` (et les periodes suivantes).",
+      "observation_qui_echoue": "A3 lit la liste des regressions de chacune des 12 periodes du candidat qui ignore les remplacements de P7 et P11, et exige qu'aucune ne nomme cancel@2 ni priority@1.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T66.A3 (« compter cancel@2 [...] en regression apres [son] remplacement »).",
+      "doit_rester_vert": [
+        "T66.A1",
+        "T66.A2"
+      ]
+    },
+    {
+      "id": "T66.M5",
+      "kills_case": "T66.A3",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le meme passage des regles retirees, pour priority@1 remplacee par fifo@2 en P11.",
+      "mutation": "Ne plus declarer priority@1 comme retiree en P11 mais la garder due et non satisfaite a partir de P11.",
+      "expected_effect": "T66.A3 rougit sur `aucune-regression-comptee-pour-cancel@2-ni-priority@1`, qui nomme `P11: priority@1`.",
+      "observation_qui_echoue": "Identique a M4, sur priority@1.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T66.A3 (« ou priority@1 »).",
+      "doit_rester_vert": [
+        "T66.A1",
+        "T66.A2"
+      ]
+    }
+  ]
+}

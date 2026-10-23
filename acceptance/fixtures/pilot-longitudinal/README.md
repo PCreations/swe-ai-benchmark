@@ -64,3 +64,15 @@ champs du manifeste (`model`, `price`, `exposure`, `corpus`, `configurations`,
   candidat correct et le candidat fautif seraient indiscernables ; quatre
   périodes rendent à A2 sa discrimination et à A3 son témoin de contrôle.
   `manifest-t49-claude-cli-small.json` reste inchangé (T49, T52.A1/A4/A5, T55).
+
+- `manifest-t66-claude-cli-f-long-three-repetitions.json` — fixture de
+  `acceptance/T66.spec.ts` (ADR-018, T66.A1 et T66.A2) : copie de
+  `manifest-t52-claude-cli-four-periods.json` dont le groupe porte
+  `source_scenario_id: "F-LONG"` (le scénario d'ADR-018, choisi par CE champ
+  déjà prévu par le schéma de T39, jamais par un champ nouveau), UNE
+  configuration `cfg-t66-alpha`, `repetitions: 3` et
+  `periods_per_trajectory: 12` — soit 36 périodes persistées attendues.
+- `manifest-t66-claude-cli-f-long-one-repetition.json` — même manifeste à
+  `repetitions: 1` (12 périodes), pour T66.A3 : le candidat qui ignore les
+  remplacements de P7 et P11 n'a besoin que d'une trajectoire pour montrer
+  ses scores < 1 et l'absence de régression comptée sur les règles retirées.

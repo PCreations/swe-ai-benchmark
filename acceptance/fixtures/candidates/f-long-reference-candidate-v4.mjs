@@ -123,6 +123,14 @@
 //   toute autre -> retiree de l'ensemble actif.
 // Valeur vide ou absente : candidat FIDELE.
 //
+// AJOUTE PAR acceptance/T66.spec.ts (ADDITIF, T68 inchange) : BENCH_DROP_RULE
+// peut porter PLUSIEURS regles separees par des virgules, chacune privee selon
+// la table ci-dessus. T66.A3 l'emploie avec `cancel@3,fifo@2` : « un candidat
+// qui implemente fidelement P1 a P6 puis ignore les remplacements de P7 et
+// P11 » — cancel@2 reste en vigueur en P7-P8 a la place de cancel@3, et
+// priority@1 en P11-P12 a la place de fifo@2 ; cancel@4 (P9-P12) n'est pas
+// touchee, n'etant pas le remplacement de P7 ni de P11.
+//
 // ─────────────────────────────────────────────────────────── JOURNAL
 // BENCH_TRAFFIC_LOG=<chemin> (ou `--traffic-log <chemin>`) : une ligne NDJSON
 // `{pid, data_dir, op}` est AJOUTEE a ce fichier pour chaque requete recue,
@@ -193,12 +201,17 @@ const REGLE_PRECEDENTE = {
   'fifo@2': 'priority@1',
 };
 
+// acceptance/T66.spec.ts (ADDITIF) : BENCH_DROP_RULE accepte une LISTE separee
+// par des virgules ; une valeur sans virgule (seul usage de T68) se comporte
+// exactement comme avant.
+const DROP_RULES = DROP_RULE.split(',').map((r) => r.trim()).filter((r) => r !== '');
+
 function reglesEnVigueur(periode) {
   const base = ACTIVE_RULES[periode];
-  if (DROP_RULE === '' || !base.includes(DROP_RULE)) return base;
+  if (DROP_RULES.length === 0 || !base.some((r) => DROP_RULES.includes(r))) return base;
   const out = [];
   for (const r of base) {
-    if (r !== DROP_RULE) out.push(r);
+    if (!DROP_RULES.includes(r)) out.push(r);
     else if (REGLE_PRECEDENTE[r] !== undefined) out.push(REGLE_PRECEDENTE[r]);
   }
   return out;

@@ -1,0 +1,32 @@
+{
+  "schema": "bench.pilot.manifest/1",
+  "corpus": {
+    "groups": [
+      {
+        "source_parent_project_id": "PRJ-PILOT-T69-F-LONG",
+        "source_scenario_id": "F-LONG",
+        "clone_instance_ids": [
+          "PRJ-PILOT-T69-F-LONG-clone-1"
+        ]
+      }
+    ]
+  },
+  "model": {
+    "name": "bench-fake-claude-cli-model-a"
+  },
+  "price": {
+    "tariff_micro_usd": "340"
+  },
+  "exposure": {
+    "predefined": true,
+    "value": "1"
+  },
+  "budget": {
+    "unbounded": true
+  },
+  "configurations": [
+    "cfg-t69-alpha"
+  ],
+  "repetitions": 1,
+  "periods_per_trajectory": 12
+}

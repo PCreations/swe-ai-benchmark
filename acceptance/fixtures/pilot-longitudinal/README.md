@@ -76,3 +76,11 @@ champs du manifeste (`model`, `price`, `exposure`, `corpus`, `configurations`,
   `repetitions: 1` (12 périodes), pour T66.A3 : le candidat qui ignore les
   remplacements de P7 et P11 n'a besoin que d'une trajectoire pour montrer
   ses scores < 1 et l'absence de régression comptée sur les règles retirées.
+- `manifest-t69-claude-cli-f-long-one-repetition.json` — fixture de
+  `acceptance/T69.spec.ts` (ADR-020, T69.A1 à A4) : copie de
+  `manifest-t66-claude-cli-f-long-one-repetition.json` (F-LONG, 12 périodes,
+  une répétition) à ces seules différences près : le projet
+  `PRJ-PILOT-T69-F-LONG` et la configuration `cfg-t69-alpha`. Le candidat de
+  T69.A3 est dérivé du seul prompt reçu (acceptance/fixtures/claude-cli/
+  t69-derive-reference-candidate.mjs) ; celui de T69.A4 est le candidat v4
+  privé de `cancel@2`, `capacity@1` et `quota@1`.

@@ -1,0 +1,168 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T69 — au moins une par cas requis, conforme au",
+    "mode de preuve fixe par verification/cases.extensions.lock.json#T69",
+    "(A1 `absence`, A2/A3/A4 `behaviour`). Chaque mutant reprend le champ",
+    "`perturbation` du cas qu'il tue :",
+    "  T69.A1 : « retirer `waiting` (ou un code d'erreur juge) de l'enonce d'une",
+    "           periode ou la regle est active » (M1, M2)",
+    "  T69.A2 : « supprimer l'exemple public de la reponse d'erreur",
+    "           QUOTA_EXCEEDED ou de la forme de read » (M3, M4)",
+    "  T69.A3 : « faire nommer par le prompt la decision d'attente autrement",
+    "           que le notateur (ex. waitlisted) » (M5)",
+    "  T69.A4 : « ne pas persister l'attendu ou la reponse recue de la premiere",
+    "           etape en echec » (M6, M7)",
+    "",
+    "Les mutants s'appliquent a l'implementation FUTURE de T69 (prompt F-LONG,",
+    "notateur, persistance des periodes) ; l'auteur des tests est AVEUGLE a",
+    "packages/activities et packages/scenario (ADR-001) : les cibles sont",
+    "decrites par leur ROLE. Un mutant ne touche JAMAIS les fixtures",
+    "(t69-derive-reference-candidate.mjs, t69-contrat-compare.mjs, candidat v4),",
+    "le faux executable ni la suite.",
+    "",
+    "MESURE A HEAD (aea2cf2, T69 non implementee) : les quatre cas rougissent",
+    "pour la raison attendue — A1 nomme 67/81 valeurs absentes (dont `waiting`",
+    "des P1) ; A2 nomme 107 formes sans exemple (formes de read, erreurs) ; A3",
+    "nomme un score 0 sur chaque regle active de chaque periode pour le",
+    "candidat derive ; A4 nomme 15 couples (periode, regle) sous 1 sans",
+    "diagnostic."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T69",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T69"
+  ],
+  "acceptance_entry": "acceptance/T69.spec.ts",
+  "mutant_count": 7,
+  "mutants": [
+    {
+      "id": "T69.M1",
+      "kills_case": "T69.A1",
+      "also_kills": [
+        "T69.A3"
+      ],
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La partie de l'enonce de la periode P5 de F-LONG (prompt envoye a `claude -p` par `pilot-conduct --provider claude-cli`) qui cite la valeur de decision et de statut d'une reservation en attente.",
+      "mutation": "Retirer de l'enonce de P5 toute citation de la valeur `waiting` (ne garder que le mot « attente »), les autres periodes inchangees.",
+      "expected_effect": "T69.A1 rougit sur `chaque-valeur-comparee-figure-dans-le-prompt-avec-son-champ`, qui nomme `P5: decision = \"waiting\"` et `P5: status = \"waiting\"` (comparees par generateDiscriminatingSequences(capacity@1)). T69.A3 rougit aussi : le candidat derive de P5 emet un marqueur d'absence pour la decision d'attente, capacity@1 et fifo@1 sont notees sous 1 en P5.",
+      "observation_qui_echoue": "A1 recalcule depuis le generateur v4 et le modele attendu les valeurs comparees a chaque periode et exige chacune entre guillemets ou accents graves, precedee sur la meme ligne du nom de son champ, dans le prompt enregistre de la periode.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A1 (« retirer `waiting` de l'enonce d'une periode ou la regle est active »).",
+      "doit_rester_vert": [
+        "T69.A4"
+      ]
+    },
+    {
+      "id": "T69.M2",
+      "kills_case": "T69.A1",
+      "also_kills": [
+        "T69.A3"
+      ],
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La partie de l'enonce de P8 a P10 qui cite le code d'erreur de quota@1 avec le champ qui le porte.",
+      "mutation": "Retirer `QUOTA_EXCEEDED` de l'enonce de P9 (le remplacer par « une erreur de quota »).",
+      "expected_effect": "T69.A1 rougit en nommant `P9: code = \"QUOTA_EXCEEDED\" (comparee par generateDiscriminatingSequences(quota@1) write)`. T69.A3 rougit : quota@1 notee sous 1 en P9.",
+      "observation_qui_echoue": "Identique a M1, sur un code d'erreur.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A1 (« ou un code d'erreur juge »).",
+      "doit_rester_vert": [
+        "T69.A2",
+        "T69.A4"
+      ]
+    },
+    {
+      "id": "T69.M3",
+      "kills_case": "T69.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Les exemples publics du prompt F-LONG qui montrent une reponse d'erreur `{\"id\",\"ok\":false,\"error\":{\"code\",...}}` pour `write`.",
+      "mutation": "Supprimer l'exemple public de la reponse d'erreur de `write` (celle qui illustre QUOTA_EXCEEDED), en gardant la citation du code dans l'enonce.",
+      "expected_effect": "T69.A2 rougit sur `chaque-forme-comparee-a-un-exemple-public-exact`, qui nomme `P7..P12: write -> {id:string, ok:false, error:{code:string, …}}` (comparee par generateDiscriminatingSequences(quota@1/cancel@3/cancel@4)).",
+      "observation_qui_echoue": "A2 exige, par operation, une paire requete -> reponse JSON liee par `id` dont la reponse a la forme exacte de chaque attente comparee (enveloppe fermee, `ok:false`, `error.code` texte).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A2 (« supprimer l'exemple public de la reponse d'erreur QUOTA_EXCEEDED »).",
+      "doit_rester_vert": [
+        "T69.A1",
+        "T69.A4"
+      ]
+    },
+    {
+      "id": "T69.M4",
+      "kills_case": "T69.A2",
+      "also_kills": [
+        "T69.A3"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Les exemples publics du prompt F-LONG qui montrent la forme de la reponse de `read` pour une reservation en attente (`{value:{status, waiting_position}}`).",
+      "mutation": "Supprimer l'exemple de `read` d'une reservation en attente ; ne garder que l'exemple `{value:{status}}`.",
+      "expected_effect": "T69.A2 rougit en nommant `read -> {id:string, ok:true, result:{value:{status:string, waiting_position:number}}}` a chaque periode. T69.A3 rougit : le candidat derive ne trouve plus le champ de position et n'emet pas `waiting_position` ; fifo@1/priority@1/capacity@1 sont notees sous 1.",
+      "observation_qui_echoue": "A2 distingue `{status}` et `{status, waiting_position}` : une valeur de `read` est une forme FERMEE.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A2 (« ou de la forme de read »).",
+      "doit_rester_vert": [
+        "T69.A1",
+        "T69.A4"
+      ]
+    },
+    {
+      "id": "T69.M5",
+      "kills_case": "T69.A3",
+      "also_kills": [
+        "T69.A1"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "Le vocabulaire cite par l'enonce F-LONG pour la decision d'une reservation en attente.",
+      "mutation": "Faire nommer par le prompt la decision d'attente `waitlisted` au lieu de `waiting` (le notateur attend toujours `waiting`).",
+      "expected_effect": "T69.A3 rougit sur `candidat-derive-du-prompt-seul-note-1-sur-chaque-regle-active-a-chaque-periode` : le candidat derive emet `waitlisted`, fifo@1/capacity@1/priority@1/fifo@2 sont notees sous 1. T69.A1 rougit aussi (`decision = \"waiting\"` absente).",
+      "observation_qui_echoue": "A3 lance pilot-conduct --provider claude-cli --live avec le faux `claude`, qui ecrit a chaque session le candidat derive du prompt recu, et exige un score de 1 sur chaque regle active de chaque periode.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A3. Le temoin negatif de la suite (meme generateur sur un prompt renomme `waitlisted`) prouve que ce mutant ne peut pas laisser A3 vert.",
+      "doit_rester_vert": [
+        "T69.A4"
+      ]
+    },
+    {
+      "id": "T69.M6",
+      "kills_case": "T69.A4",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "La persistance, avec chaque periode F-LONG, du diagnostic de la premiere etape non satisfaite d'une sequence (operation, attendu, reponse recue) pour chaque regle notee sous 1.",
+      "mutation": "Ne plus persister la reponse recue : le diagnostic ne garde que l'operation et l'attendu.",
+      "expected_effect": "T69.A4 rougit sur `chaque-regle-sous-1-porte-operation-attendu-et-reponse-recue`, qui nomme chaque (periode, regle) sous 1 — `P5 capacity@1=0`, `P8 quota@1=0`, `P3 cancel@2=...` — avec « diagnostics incomplets ».",
+      "observation_qui_echoue": "A4 exige sous chaque enregistrement de periode, rattache a chaque regle sous 1, un objet portant operation (du contrat v4), attendu et reponse recue non nuls et distincts.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A4 (« ne pas persister [...] la reponse recue »).",
+      "doit_rester_vert": [
+        "T69.A1",
+        "T69.A2",
+        "T69.A3"
+      ]
+    },
+    {
+      "id": "T69.M7",
+      "kills_case": "T69.A4",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "casser",
+      "target": "L'ecriture en base PostgreSQL de l'enregistrement de periode F-LONG.",
+      "mutation": "Rapporter le diagnostic dans la sortie de `pilot-conduct` mais ne pas l'ecrire dans la ligne persistee de la periode (ni l'attendu ni la reponse recue en base).",
+      "expected_effect": "T69.A4 rougit sur `diagnostics-persistes-avec-chaque-periode`, qui nomme chaque diagnostic du rapport absent des lignes de la base de la campagne.",
+      "observation_qui_echoue": "A4 relit toutes les lignes des tables du schema `public` de la base de la campagne (JSON imbrique compris) et y exige chaque triple (operation, attendu, reponse recue) retenu au rapport.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T69.A4 (« ne pas persister l'attendu ou la reponse recue ») — variante ou le rapport porte le diagnostic sans qu'il soit persiste.",
+      "doit_rester_vert": [
+        "T69.A1",
+        "T69.A2",
+        "T69.A3"
+      ]
+    }
+  ]
+}

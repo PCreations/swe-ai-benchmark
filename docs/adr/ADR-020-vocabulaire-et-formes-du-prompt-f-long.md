@@ -1,6 +1,8 @@
 # ADR-020 — Le prompt F-LONG donne le vocabulaire et les formes que le notateur compare
 
-    statut : PROPOSÉ — rédigé le 24/10/2026, soumis au mandant
+    statut : ACCEPTÉ — par le mandant le 24/10/2026 (« Bah oui faut que le
+             contrat fasse partie intégrante des specs comme dans la vraie
+             vie »)
     ouvert : 24/10/2026
     porte  : prompt du pilote F-LONG (T62, T67, T66), notateur v4 (T68, T66)
     origine : sixième pilote réel, premier sur F-LONG
@@ -41,6 +43,15 @@ connaît le vocabulaire par construction. Et le rapport ne garde pas la raison
 d'un échec, ce qui a rendu le diagnostic manuel.
 
 ## Décision
+
+**Principe : le contrat fait partie de la spécification, comme dans un vrai
+projet.** La spécification d'une période n'est pas seulement une liste de
+règles en prose : elle comprend le contrat d'interface en vigueur à cette
+période — chaque opération, ses arguments, chaque réponse possible avec ses
+valeurs exactes, et chaque erreur avec son code. Le contrat évolue avec les
+règles : ce qu'une période ajoute, change ou retire dans le contrat y est
+signalé comme tel. Les quatre points ci-dessous en sont la traduction
+vérifiable.
 
 **1. Le vocabulaire.** L'énoncé de chaque période de F-LONG cite
 littéralement, avec son nom de champ, chaque valeur que le notateur compare

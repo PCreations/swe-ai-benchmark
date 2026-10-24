@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-019). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-020). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -17,7 +17,8 @@
     "docs/adr/ADR-016-sonde-d-isolation-sur-une-cle-legacy.md": "a12404fab670d18817d7844ed874c7deec6a4cb5b2a7754258e319c74798f3e7",
     "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d",
     "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2",
-    "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md": "0c4e6544a7d6965c5204f01427528eccc0b83c785f4e069dfda684a8706f75c4"
+    "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md": "0c4e6544a7d6965c5204f01427528eccc0b83c785f4e069dfda684a8706f75c4",
+    "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md": "25f9e6657322ccfe0509e49a39d7d0dd91345a57d2352e50405c5596398df8bc"
   },
   "cases": [
     {
@@ -1414,8 +1415,64 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "generer pour history@1 des sequences sans appel a history : le cas doit rougir"
+    },
+    {
+      "id": "T69.A1",
+      "task": "T69",
+      "source": "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md",
+      "source_line": 84,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "retirer `waiting` (ou un code d'erreur juge) de l'enonce d'une periode ou la regle est active : le cas doit rougir"
+    },
+    {
+      "id": "T69.A2",
+      "task": "T69",
+      "source": "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md",
+      "source_line": 84,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "supprimer l'exemple public de la reponse d'erreur QUOTA_EXCEEDED ou de la forme de read : le cas doit rougir"
+    },
+    {
+      "id": "T69.A3",
+      "task": "T69",
+      "source": "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md",
+      "source_line": 84,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire nommer par le prompt la decision d'attente autrement que le notateur (ex. waitlisted) : le candidat derive doit etre note sous 1 et le cas rougir"
+    },
+    {
+      "id": "T69.A4",
+      "task": "T69",
+      "source": "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md",
+      "source_line": 84,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas persister l'attendu ou la reponse recue de la premiere etape en echec : le cas doit rougir"
     }
   ],
-  "case_count": 102,
-  "classified_cases": 102
+  "case_count": 106,
+  "classified_cases": 106
 }

@@ -122,7 +122,11 @@ export type { GenerateHiddenSequencesInput, GenerateHiddenSequencesResult, Hidde
 //    (ADR-019). Jamais exporte sous le nom `buildFLongPeriodStatement` (ni
 //    aucun des alias de `ROLES_STATEMENT_BUILDER` deja essayes par
 //    acceptance/T62.spec.ts) : voir l'en-tete de ./candidate-protocol-v4-long.ts.
-export { CANDIDATE_PROTOCOL_MARKER_V4, CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG } from './candidate-protocol-v4-long.js'
+export {
+  CANDIDATE_PROTOCOL_MARKER_V4,
+  CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG,
+  describeFLongInterfaceContractV4,
+} from './candidate-protocol-v4-long.js'
 export type { CandidateLongPeriodStatementV4, CandidateRequirementsStatementV4Long } from './candidate-protocol-v4-long.js'
 
 // ── T68 : sequences cachees qui discriminent chaque regle (ADR-019 L100-106),
@@ -134,7 +138,11 @@ export {
   DISCRIMINATING_MIN_BATCH_SIZE,
   DISCRIMINATING_SEQUENCES_CONTRACT,
   ExpectedModelV4,
+  F_LONG_V4_RESPONSE_FIELDS,
+  F_LONG_V4_STATUSES,
   activeRulesV4,
+  fLongMigratedHistoryFactV4,
+  fLongScoringClockV4,
   fLongTrajectoryV4,
   generateDiscriminatingSequences,
   generateSequencesForRule,

@@ -62,6 +62,7 @@ import {
   DISCRIMINATING_SEQUENCES_CONTRACT,
   ExpectedModelV4,
   activeRulesV4,
+  describeFLongInterfaceContractV4,
   fLongTrajectoryV4,
   type SequenceStep,
   type StepExpectation,
@@ -123,6 +124,9 @@ export function buildFLongPilotPrompt(periodIndex: number): string {
     describeCandidateProtocolV2(),
     describeCandidateProtocolV3(),
     CANDIDATE_REQUIREMENTS_STATEMENT_V4_LONG.contract,
+    // T69 (ADR-020) : le contrat d'interface de CETTE periode, calcule depuis le
+    // modele attendu qui la note — il fait partie de la specification.
+    describeFLongInterfaceContractV4(key),
     `Etat persistant : le moteur lance ${CANDIDATE_ENTRYPOINT_FILENAME} avec la variable d'environnement BENCH_DATA_DIR, qui designe un repertoire de donnees. Toute donnee doit y etre conservee : le processus est arrete puis relance entre deux lots d'operations, et le meme repertoire est repris a la periode suivante, apres que tu auras modifie le code. Un changement de format de tes donnees doit donc relire (migrer) celles des periodes precedentes.`,
     opening === null
       ? `Horloge : le moteur fixe l'instant courant par l'operation advance_clock.`
@@ -359,11 +363,38 @@ function generateBaseSequences(rule: string, periodIndex: number, seed: number):
 
 /* ══════════════════════════════════════════════ notation d'une regle ═════ */
 
+/**
+ * T69 (ADR-020 decision 4) — diagnostic d'une regle notee sous 1 : la PREMIERE
+ * etape non satisfaite d'une sequence, avec l'operation, l'attendu (celui du
+ * modele attendu) et la reponse recue du candidat (`null` s'il n'a rien rendu).
+ * Les noms `operation` / `expected` / `received` sont les seuls de l'objet qui
+ * designent ces trois roles (l'identifiant d'etape est `step_id`).
+ */
+export interface FLongRuleFailure {
+  readonly rule: string
+  readonly sequence_index: number
+  readonly step_id: string
+  readonly boundary: string
+  readonly operation: string
+  readonly expected: StepExpectation
+  readonly received: FLongPeriodOperationResult | null
+}
+
 export interface FLongRuleScore {
   readonly score: number
   readonly satisfied: number
   readonly total: number
   readonly scorer: 'T68' | 'T66-base'
+  /** Premieres etapes non satisfaites (au plus MAX_DIAGNOSTICS), celles qui ont une reponse recue d'abord. */
+  readonly failures?: readonly FLongRuleFailure[]
+}
+
+const MAX_DIAGNOSTICS = 5
+
+function keepDiagnostics(failures: readonly FLongRuleFailure[]): FLongRuleFailure[] {
+  const withResponse = failures.filter((f) => f.received !== null)
+  const without = failures.filter((f) => f.received === null)
+  return [...withResponse, ...without].slice(0, MAX_DIAGNOSTICS)
 }
 
 const PARALLEL_PROBES = 4
@@ -378,6 +409,7 @@ async function scoreBaseRule(
 ): Promise<FLongRuleScore> {
   const sequences = generateBaseSequences(rule, periodIndex, seed)
   const ok: boolean[] = new Array<boolean>(sequences.length).fill(false)
+  const failures: (FLongRuleFailure | null)[] = new Array<FLongRuleFailure | null>(sequences.length).fill(null)
   let next = 0
   const worker = async (): Promise<void> => {
     while (next < sequences.length) {
@@ -385,16 +417,37 @@ async function scoreBaseRule(
       next += 1
       const seq = sequences[i] as BaseSequenceSpec
       const { responses } = await runFLongProbe({ candidateCommand, benchDataDir, ops: seq.steps, cwd })
-      ok[i] = seq.steps.every((step, j) => {
+      ok[i] = true
+      for (let j = 0; j < seq.steps.length; j += 1) {
+        const step = seq.steps[j] as SequenceStep
+        const expected = seq.expect[j] as StepExpectation
         const received: FLongPeriodOperationResult | undefined = responses.find((r) => r.id === step.id)
-        return judgeStep(seq.expect[j] as StepExpectation, received)
-      })
+        if (!judgeStep(expected, received)) {
+          ok[i] = false
+          failures[i] = {
+            rule,
+            sequence_index: i,
+            step_id: step.id,
+            boundary: seq.boundary,
+            operation: step.op,
+            expected,
+            received: received ?? null,
+          }
+          break
+        }
+      }
     }
   }
   await Promise.all(Array.from({ length: Math.min(PARALLEL_PROBES, sequences.length) }, () => worker()))
   const satisfied = ok.filter((x) => x).length
   const total = sequences.length
-  return { score: total > 0 ? satisfied / total : 0, satisfied, total, scorer: 'T66-base' }
+  return {
+    score: total > 0 ? satisfied / total : 0,
+    satisfied,
+    total,
+    scorer: 'T66-base',
+    failures: keepDiagnostics(failures.filter((f): f is FLongRuleFailure => f !== null)),
+  }
 }
 
 async function scoreRuleAtPeriod(
@@ -416,7 +469,18 @@ async function scoreRuleAtPeriod(
       cwd,
       stateAtPeriod: true,
     })
-    return { score: r.score, satisfied: r.satisfied, total: r.total, scorer: 'T68' }
+    const failures = r.failures.map(
+      (f): FLongRuleFailure => ({
+        rule,
+        sequence_index: f.index,
+        step_id: f.step,
+        boundary: f.boundary,
+        operation: f.op,
+        expected: f.expected,
+        received: f.received,
+      }),
+    )
+    return { score: r.score, satisfied: r.satisfied, total: r.total, scorer: 'T68', failures: keepDiagnostics(failures) }
   }
   return scoreBaseRule(rule, periodIndex, seed, candidateCommand, benchDataDir, cwd)
 }
@@ -896,9 +960,13 @@ export async function fLongPilotReport(input: {
       const m = await api.readPeriodMeasures({ benchDataDir: measuresDir, periodKey: row.period_key })
       const ruleScores: Record<string, number> = {}
       const sequences: Record<string, Json> = {}
+      // T69 (ADR-020 decision 4) : pour chaque regle notee sous 1, la premiere
+      // etape non satisfaite d'au moins une sequence, relue de la ligne persistee.
+      const diagnostics: Record<string, Json[]> = {}
       for (const [rule, s] of Object.entries(row.rule_scores)) {
         ruleScores[rule] = s.score
         sequences[rule] = { satisfied: s.satisfied, total: s.total, scorer: s.scorer }
+        if (s.score < 1) diagnostics[rule] = (s.failures ?? []).map((f) => ({ ...f }))
         perRule.set(rule, [...(perRule.get(rule) ?? []), s.score])
       }
       if (m.Q !== null) qs.push(m.Q)
@@ -917,6 +985,7 @@ export async function fLongPilotReport(input: {
         commit_sha: row.commit_sha,
         rule_scores: ruleScores,
         sequences,
+        diagnostics,
         Q: m.Q,
         R: m.R,
         G: m.G,

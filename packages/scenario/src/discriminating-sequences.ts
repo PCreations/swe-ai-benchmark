@@ -88,6 +88,29 @@ export type StepExpectation =
   | { readonly kind: 'balance'; readonly balance: number }
   | { readonly kind: 'events'; readonly first?: { readonly type: string; readonly status: Status } }
 
+/**
+ * T69 (ADR-020 decisions 1-2) — les NOMS DE CHAMPS de reponse que le notateur
+ * lit (`@bench/activities#judgeStep`) et que le contrat d'interface de chaque
+ * periode cite (`describeFLongInterfaceContractV4`) : une seule source, jamais
+ * une seconde liste ecrite a la main.
+ */
+export const F_LONG_V4_RESPONSE_FIELDS = Object.freeze({
+  decision: 'decision',
+  value: 'value',
+  status: 'status',
+  waitingPosition: 'waiting_position',
+  balance: 'balance',
+  events: 'events',
+  eventType: 'type',
+  eventStatus: 'status',
+  eventAt: 'at',
+  errorCode: 'code',
+  errorMessage: 'message',
+} as const)
+
+/** Statuts qu'une reservation peut porter (lus par `read`, portes par chaque evenement d'historique). */
+export const F_LONG_V4_STATUSES: readonly Status[] = Object.freeze(['confirmed', 'waiting', 'cancelled'] as const)
+
 export interface DiscriminatingSequence {
   readonly contract: typeof DISCRIMINATING_SEQUENCES_CONTRACT
   readonly rule: string
@@ -136,6 +159,16 @@ function factsOf(period: string): Readonly<Record<string, unknown>> {
   const rec = replayFLong().find((r) => r.period === period)
   if (rec === undefined) throw new Error(`periode inconnue de F-LONG : ${period}`)
   return rec.facts
+}
+
+/**
+ * T69 — le premier evenement de l'historique d'une reservation existant a
+ * l'entree de P10 (fait gele de la trajectoire, ADR-018 P10) : celui que le lot
+ * de `history@1` compare, et celui que le contrat d'interface cite.
+ */
+export function fLongMigratedHistoryFactV4(): { readonly type: string; readonly status: Status } {
+  const f = factsOf('P10')
+  return { type: String(f['e_s2_history_first_event']), status: String(f['e_s2_history_first_status']) as Status }
 }
 
 /* ═══════════════════════════════════ fuseau Europe/Paris (ADR-019 pt 2) ═ */
@@ -324,6 +357,11 @@ export function fLongTrajectoryV4(period: string): readonly SequenceStep[] {
   const p = asPeriod(period)
   const ops = trajectory().get(p) ?? []
   return ops.map((o, i) => ({ id: `flong-${p}-${String(i + 1)}`, op: o.op, args: o.args }))
+}
+
+/** T69 — l'horloge a laquelle le notateur juge les sequences d'une periode (fin de sa trajectoire). */
+export function fLongScoringClockV4(period: string): number {
+  return trajectoryClockAt(asPeriod(period))
 }
 
 /** Horloge laissee par la trajectoire principale a la fin d'une periode. */
@@ -988,13 +1026,9 @@ function seqHistory(c: Ctx): string {
   b.history(T, S, a)
   b.history(T, S, w)
   // Fait gele de la trajectoire (ADR-018 P10) : l'historique de E sur S2 commence par `migrated`.
-  const f = factsOf('P10')
   b.fact({
     step: { id: '', op: 'history', args: { tenant_id: 'legacy', key: 'E', slot_id: 'S2' } },
-    expect: {
-      kind: 'events',
-      first: { type: String(f['e_s2_history_first_event']), status: String(f['e_s2_history_first_status']) as Status },
-    },
+    expect: { kind: 'events', first: fLongMigratedHistoryFactV4() },
   })
   return 'historique de reservations neuves et migration de E sur S2'
 }

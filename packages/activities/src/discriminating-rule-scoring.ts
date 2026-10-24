@@ -31,6 +31,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import {
   DISCRIMINATING_SEQUENCES_CONTRACT,
+  F_LONG_V4_RESPONSE_FIELDS as F,
+  F_LONG_V4_STATUSES,
   fLongTrajectoryV4,
   generateDiscriminatingSequences,
   type DiscriminatingSequence,
@@ -84,8 +86,10 @@ export interface ScoreDiscriminatingRuleResult {
 const PERIODS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12'] as const
 const PARALLEL_PROBES = 4
 const MAX_REPORTED_FAILURES = 5
-const STATUSES = new Set(['confirmed', 'waiting', 'cancelled'])
-const EVENT_KEYS = ['at', 'status', 'type'] // ADR-019 pt 7 : exactement {type, status, at}
+// T69 : noms de champs et statuts tires de la MEME source que le contrat
+// d'interface cite dans le prompt (`@bench/scenario`, F_LONG_V4_*).
+const STATUSES: ReadonlySet<string> = new Set(F_LONG_V4_STATUSES)
+const EVENT_KEYS = [F.eventType, F.eventStatus, F.eventAt].sort() // ADR-019 pt 7 : exactement {type, status, at}
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v)
@@ -94,36 +98,37 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 /** Juge UNE reponse contre l'observable attendu — rien de plus que ce qu'il nomme. */
 export function judgeStep(expected: StepExpectation, r: FLongPeriodOperationResult | undefined): boolean {
   if (r === undefined) return false
-  if (expected.kind === 'error') return !r.ok && r.error?.code === expected.code
+  if (expected.kind === 'error') return !r.ok && (r.error as Record<string, unknown> | undefined)?.[F.errorCode] === expected.code
   if (!r.ok) return false
   const result = r.result
   switch (expected.kind) {
     case 'ok':
       return true
     case 'decision':
-      return isRecord(result) && result['decision'] === expected.decision
+      return isRecord(result) && result[F.decision] === expected.decision
     case 'balance':
-      return isRecord(result) && result['balance'] === expected.balance
+      return isRecord(result) && result[F.balance] === expected.balance
     case 'value': {
-      if (!isRecord(result) || !('value' in result)) return false
-      const v = result['value']
+      if (!isRecord(result) || !(F.value in result)) return false
+      const v = result[F.value]
       if (expected.value === null) return v === null
-      if (!isRecord(v) || v['status'] !== expected.value.status) return false
-      return expected.value.waiting_position === undefined || v['waiting_position'] === expected.value.waiting_position
+      if (!isRecord(v) || v[F.status] !== expected.value.status) return false
+      return expected.value.waiting_position === undefined || v[F.waitingPosition] === expected.value.waiting_position
     }
     case 'events': {
-      if (!isRecord(result) || !Array.isArray(result['events'])) return false
-      const events = result['events'] as unknown[]
+      if (!isRecord(result) || !Array.isArray(result[F.events])) return false
+      const events = result[F.events] as unknown[]
       if (events.length === 0) return false
       for (const e of events) {
         if (!isRecord(e)) return false
         const keys = Object.keys(e).sort()
         if (keys.length !== EVENT_KEYS.length || keys.some((k, i) => k !== EVENT_KEYS[i])) return false
-        if (typeof e['status'] !== 'string' || !STATUSES.has(e['status'])) return false
+        const st = e[F.eventStatus]
+        if (typeof st !== 'string' || !STATUSES.has(st)) return false
       }
       if (expected.first !== undefined) {
         const first = events[0] as Record<string, unknown>
-        return first['type'] === expected.first.type && first['status'] === expected.first.status
+        return first[F.eventType] === expected.first.type && first[F.eventStatus] === expected.first.status
       }
       return true
     }

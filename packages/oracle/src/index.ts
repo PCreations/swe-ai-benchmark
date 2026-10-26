@@ -66,3 +66,24 @@ export type { PeriodRecord } from './f-long.js'
 
 export { resolveAdr019Points } from './adr019-points.js'
 export type { Adr019PointsResult } from './adr019-points.js'
+
+export {
+  PLATFORM_CLAUSES,
+  PLATFORM_QUANTITIES,
+  checkNonContradiction,
+  checkUnits,
+  createPlatformModel,
+  platformClauses,
+  replayPlatform,
+} from './f-platform.js'
+export type {
+  Contradiction,
+  NonContradictionVerdict,
+  PlatformClause,
+  PlatformModel,
+  PlatformResponse,
+  PlatformStep,
+  Quantity,
+  UnitViolation,
+  UnitsVerdict,
+} from './f-platform.js'

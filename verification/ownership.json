@@ -17,6 +17,7 @@
     "REFERENCE": [
       "acceptance/reference/**",
       "acceptance/reference-long/**",
+      "acceptance/reference-platform/**",
       "docs/FROZEN_ROOTS.json"
     ],
     "ACCEPTANCE": [

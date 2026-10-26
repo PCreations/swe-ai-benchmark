@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Cas des taches d'extension (ADR-007 a ADR-020). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
+    "Cas des taches d'extension (ADR-007 a ADR-021). Meme vocabulaire de proof_kind que verification/cases.lock.json.",
     "spec_source_sha256 epingle l'ADR comme cahier_sha256 epingle le cahier : modifier l'ADR invalide le registre jusqu'a mise a jour tracee."
   ],
   "schema": "bench.caseslock.extensions/1",
@@ -18,7 +18,8 @@
     "docs/adr/ADR-017-effort-de-raisonnement-du-candidat.md": "665b02a72cf0339a479e90601da2f29977bde84b3f4ffdea1f6c73256b23c34d",
     "docs/adr/ADR-018-scenario-long-et-contradictoire.md": "dcfd4d6f145d9b382ea0d28807fb5b2ab0357c133a456802c2e01767109abda2",
     "docs/adr/ADR-019-creneaux-dans-le-contrat-et-controles-discriminants.md": "0c4e6544a7d6965c5204f01427528eccc0b83c785f4e069dfda684a8706f75c4",
-    "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md": "25f9e6657322ccfe0509e49a39d7d0dd91345a57d2352e50405c5596398df8bc"
+    "docs/adr/ADR-020-vocabulaire-et-formes-du-prompt-f-long.md": "25f9e6657322ccfe0509e49a39d7d0dd91345a57d2352e50405c5596398df8bc",
+    "docs/adr/ADR-021-scenario-f-platform.md": "3fa03f9247241e96bdef5361b88653ad9e0dc878c314dadb1a852f54ee30631c"
   },
   "cases": [
     {
@@ -1471,8 +1472,388 @@
       "blockable": false,
       "proof_kind": "behaviour",
       "perturbation": "ne pas persister l'attendu ou la reponse recue de la premiere etape en echec : le cas doit rougir"
+    },
+    {
+      "id": "T70.A1",
+      "task": "T70",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 170,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "retirer le texte d'enonce ou la mise en oeuvre d'une clause : le cas doit rougir"
+    },
+    {
+      "id": "T70.A2",
+      "task": "T70",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 170,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "alterer un fait gele de P1-P8 dans le modele attendu : le cas doit rougir"
+    },
+    {
+      "id": "T70.A3",
+      "task": "T70",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 170,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "laisser passer deux clauses actives qui gouvernent la meme decision sans remplacement : le cas doit rougir"
+    },
+    {
+      "id": "T70.A4",
+      "task": "T70",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 170,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "laisser passer une grandeur comparee sans unite declaree : le cas doit rougir"
+    },
+    {
+      "id": "T71.A1",
+      "task": "T71",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "decaler d'une heure la frontiere d'annulation autour du changement d'heure : le cas doit rougir"
+    },
+    {
+      "id": "T71.A2",
+      "task": "T71",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "rendre l'affectation de places de P11 dependante de l'ordre d'iteration : le cas doit rougir"
+    },
+    {
+      "id": "T71.A3",
+      "task": "T71",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "omettre un avoir dans le rapprochement facture-portefeuille : le cas doit rougir"
+    },
+    {
+      "id": "T71.A4",
+      "task": "T71",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 178,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "desactiver la verification de non-contradiction sur P9-P16 : le cas doit rougir"
+    },
+    {
+      "id": "T72.A1",
+      "task": "T72",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "alterer un fait gele de P17-P24 : le cas doit rougir"
+    },
+    {
+      "id": "T72.A2",
+      "task": "T72",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "perdre l'historique d'une reservation lors de la fusion : le cas doit rougir"
+    },
+    {
+      "id": "T72.A3",
+      "task": "T72",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire diverger une operation v1 de son equivalent v2 : le cas doit rougir"
+    },
+    {
+      "id": "T72.A4",
+      "task": "T72",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "modifier un total de facture lors de l'effacement : le cas doit rougir"
+    },
+    {
+      "id": "T72.A5",
+      "task": "T72",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 186,
+      "requires": [
+        "node22"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "desactiver la verification d'unites sur P17-P24 : le cas doit rougir"
+    },
+    {
+      "id": "T73.A1",
+      "task": "T73",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre une clause active de docs/spec.md : le cas doit rougir"
+    },
+    {
+      "id": "T73.A2",
+      "task": "T73",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "omettre une clause retiree de la liste du ticket : le cas doit rougir"
+    },
+    {
+      "id": "T73.A3",
+      "task": "T73",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "absence",
+      "perturbation": "inclure le texte d'une clause dans le prompt : le cas doit rougir"
+    },
+    {
+      "id": "T73.A4",
+      "task": "T73",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 194,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "conserver une modification du candidat dans docs/api.md a la periode suivante : le cas doit rougir"
+    },
+    {
+      "id": "T74.A1",
+      "task": "T74",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "laisser une attente citer une clause inactive : le cas doit rougir"
+    },
+    {
+      "id": "T74.A2",
+      "task": "T74",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "generer neuf flux ou des flux de 999 operations : le cas doit rougir"
+    },
+    {
+      "id": "T74.A3",
+      "task": "T74",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas persister la clause d'un echec : le cas doit rougir"
+    },
+    {
+      "id": "T74.A4",
+      "task": "T74",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 202,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "noter 1 le candidat prive d'une clause : le cas doit rougir"
+    },
+    {
+      "id": "T75.A1",
+      "task": "T75",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 210,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "mesurer la latence moyenne au lieu du 95e centile ou ne pas importer 50000 reservations : le cas doit rougir"
+    },
+    {
+      "id": "T75.A2",
+      "task": "T75",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 210,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "accepter un candidat sans exclusion mutuelle : le cas doit rougir"
+    },
+    {
+      "id": "T76.A1",
+      "task": "T76",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 218,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "faire differer les prompts des deux bras au-dela de la consigne de methode : le cas doit rougir"
+    },
+    {
+      "id": "T76.A2",
+      "task": "T76",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 218,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "ne pas persister la couverture ou le nombre de tests ecrits : le cas doit rougir"
+    },
+    {
+      "id": "T76.A3",
+      "task": "T76",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 218,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "numeric",
+      "perturbation": "calculer le rapport B/A comme moyenne des rapports au lieu du rapport des moyennes : le cas doit rougir"
+    },
+    {
+      "id": "T77.A1",
+      "task": "T77",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 226,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "lancer une campagne sans calibration reussie : le cas doit rougir"
+    },
+    {
+      "id": "T77.A2",
+      "task": "T77",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 226,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "behaviour",
+      "perturbation": "calibrer avec un candidat qui connait la source au lieu des seuls documents : le cas doit rougir"
+    },
+    {
+      "id": "T77.A3",
+      "task": "T77",
+      "source": "docs/adr/ADR-021-scenario-f-platform.md",
+      "source_line": 226,
+      "requires": [
+        "node22",
+        "postgres18",
+        "s3"
+      ],
+      "blockable": false,
+      "proof_kind": "refusal",
+      "perturbation": "faire reussir une calibration dont une clause manque de docs/spec.md : le cas doit rougir"
     }
   ],
-  "case_count": 106,
-  "classified_cases": 106
+  "case_count": 135,
+  "classified_cases": 135
 }

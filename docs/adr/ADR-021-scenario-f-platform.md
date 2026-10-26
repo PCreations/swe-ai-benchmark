@@ -1,8 +1,12 @@
 # ADR-021 — F-PLATFORM : un scénario beaucoup plus dur, écrit une seule fois
 
-    statut : PROPOSÉ — rédigé le 26/10/2026 à la demande du mandant (« il faut
-             très fortement complexifier les scénarios, genre vraiment
-             beaucoup beaucoup »), soumis à sa validation
+    statut : ACCEPTÉ — par le mandant le 26/10/2026 (« Ok Sonnet medium,
+             lance le chantier en autonomie »), après « Ok good » sur le plan,
+             « comme un vrai projet avec tickets et docs » et le protocole à
+             deux bras (« développer en ATDD et en respectant les principes
+             SOLID »). Rédigé à sa demande (« il faut très fortement
+             complexifier les scénarios, genre vraiment beaucoup beaucoup »).
+    modèle développeur de la première expérience : Sonnet 5.5, effort medium
     ouvert : 26/10/2026
     porte  : un nouveau scénario, son modèle attendu, ses énoncés, ses
              contrôles et le pilote ; F-LONG reste en place
@@ -154,8 +158,71 @@ F-PLATFORM est un chantier de l'ordre de dix tâches. L'expérience compte
 2 bras × R répétitions × 24 périodes sessions pour un modèle ; avec R = 3,
 144 sessions. Elle est précédée d'un passage court (1 répétition par bras).
 
-## Ce qui n'est pas encore fixé
+## Spécification des tâches T70 à T77
 
-Les clauses exactes de chaque période, leurs textes et leurs faits attendus
-sont écrits dans la première tâche du chantier, puis gelés. La liste des
-tâches (T70 et suivantes) sera inscrite au registre une fois ce plan validé.
+Format calqué sur le cahier. Chaque bloc est la source verbatim de la carte
+de spec de sa tâche, et `bench spec-lint` le vérifie contre ce fichier.
+
+**T70 — La source de clauses de F-PLATFORM, périodes P1 à P8**
+
+Dépendances : T69. Livrables : format de clause ; clauses des périodes P1 à P8 de F-PLATFORM ; modèle attendu qui exécute les clauses ; vérifications de complétude, de non-contradiction et d'unités ; faits attendus de P1 à P8 calculés à la main et gelés dans la racine `acceptance/reference-platform`.
+
+Acceptation : `T70.A1` chaque clause porte un identifiant, une période d'entrée, une période de sortie éventuelle, la clause qu'elle remplace éventuellement, son texte d'énoncé, son fragment de contrat et sa mise en œuvre dans le modèle attendu ; `A2` le modèle attendu rejoué sur la trajectoire principale de P1 à P8 reproduit chaque fait gelé ; `A3` deux clauses actives à une même période ne gouvernent jamais la même décision, sauf si l'une remplace explicitement l'autre, et une source où deux clauses le font est refusée par la vérification en nommant les deux clauses ; `A4` chaque grandeur comparée a son unité et son format déclarés dans une clause active, et une source où une grandeur comparée n'en a pas est refusée en nommant la grandeur.
+
+Commande : `pnpm verify:task T70`. Aucun service externe requis ; aucun appel réel.
+
+**T71 — Les clauses de F-PLATFORM, périodes P9 à P16**
+
+Dépendances : T70. Livrables : clauses des périodes P9 à P16 ; faits attendus de P9 à P16 calculés à la main et gelés.
+
+Acceptation : `T71.A1` le modèle attendu rejoué sur la trajectoire principale de P1 à P16 reproduit chaque fait gelé, dont les frontières d'annulation autour d'un changement d'heure et les arrondis de conversion de devises ; `A2` la migration de P11 affecte à chaque réservation existante une place déterministe, et deux rejeux de la migration sur le même état donnent la même affectation ; `A3` à chaque période à partir de P14, les factures et avoirs de chaque membre se rapprochent exactement de son portefeuille ; `A4` les vérifications de T70 (complétude, non-contradiction, unités) passent sur P1 à P16.
+
+Commande : `pnpm verify:task T71`. Aucun service externe requis ; aucun appel réel.
+
+**T72 — Les clauses de F-PLATFORM, périodes P17 à P24**
+
+Dépendances : T71. Livrables : clauses des périodes P17 à P24 ; faits attendus de P17 à P24 calculés à la main et gelés.
+
+Acceptation : `T72.A1` le modèle attendu rejoué sur la trajectoire principale de P1 à P24 reproduit chaque fait gelé ; `A2` la fusion de locataires de P17 conserve l'historique de chaque réservation et résout chaque collision d'identifiants selon sa clause ; `A3` à partir de P24, chaque opération du contrat v1 et son équivalent v2 produisent le même effet et des réponses équivalentes selon la correspondance déclarée ; `A4` l'effacement de P18 anonymise le membre sans changer le total d'aucune facture ; `A5` les vérifications de T70 passent sur P1 à P24.
+
+Commande : `pnpm verify:task T72`. Aucun service externe requis ; aucun appel réel.
+
+**T73 — Tickets et documentation dans le dépôt du candidat**
+
+Dépendances : T72. Livrables : génération, à chaque période, de `docs/spec.md`, `docs/api.md` et `docs/tickets/Pnn.md` dans le dépôt du candidat, à partir de la source de clauses ; prompt court qui y renvoie.
+
+Acceptation : `T73.A1` à chaque période, `docs/spec.md` contient le texte de chaque clause active et d'aucune clause inactive, et `docs/api.md` contient chaque valeur comparée avec le nom de son champ et au moins un exemple de chaque forme de réponse comparée ; `A2` `docs/tickets/Pnn.md` liste exactement les clauses ajoutées, remplacées et retirées par rapport à la période précédente, avec des critères d'acceptation illustrés d'exemples ; `A3` le prompt de la période renvoie à ces trois fichiers et ne contient le texte d'aucune clause ; `A4` une modification par le candidat de l'un de ces trois fichiers est remplacée à la période suivante, et tout autre fichier du dépôt est conservé.
+
+Commande : `pnpm verify:task T73`. PostgreSQL et le stockage objet sont requis ; aucun appel réel.
+
+**T74 — Contrôles ciblés et tests différentiels**
+
+Dépendances : T73. Livrables : séquences ciblées par clause ; flux différentiels aléatoires joués contre le candidat et le modèle attendu ; diagnostic de chaque échec avec sa clause.
+
+Acceptation : `T74.A1` chaque attente d'une séquence ciblée cite une clause active à la période et présente dans `docs/spec.md` ; `A2` à chaque période, au moins dix flux différentiels d'au moins mille opérations chacun sont générés de façon déterministe à partir d'une graine, et le score différentiel est la fraction de flux sans divergence ; `A3` chaque échec ciblé ou différentiel persisté porte l'opération, l'attendu, la réponse reçue et la clause ; `A4` un candidat de référence qui implémente la source obtient 1 partout, et le même candidat privé d'une clause obtient moins de 1 sur cette clause et sur le score différentiel d'au moins une période où elle est active.
+
+Commande : `pnpm verify:task T74`. PostgreSQL et le stockage objet sont requis ; aucun appel réel.
+
+**T75 — Contrôles de performance et de concurrence**
+
+Dépendances : T74. Livrables : import en volume et mesure de latence à partir de P20 ; essais concurrents à partir de P21.
+
+Acceptation : `T75.A1` à partir de P20, cinquante mille réservations sont importées, la latence au 95e centile de chaque opération est mesurée et comparée au plafond de sa clause, et un candidat de référence qui parcourt toutes les réservations à chaque opération dépasse le plafond et échoue ; `A2` à partir de P21, sur au moins cent essais de requêtes parallèles, aucun dépassement de capacité ni doublon idempotent n'est toléré, et un candidat de référence sans exclusion mutuelle échoue.
+
+Commande : `pnpm verify:task T75`. PostgreSQL et le stockage objet sont requis ; aucun appel réel.
+
+**T76 — Le pilote F-PLATFORM à deux bras**
+
+Dépendances : T75. Livrables : bras déclarés dans le manifeste avec leur consigne de méthode ; pilote F-PLATFORM de 24 périodes par trajectoire ; mesures de qualité du code ; rapport comparatif des bras.
+
+Acceptation : `T76.A1` le prompt du bras B est identique octet pour octet à celui du bras A à la même période, à l'ajout près de la consigne de méthode déclarée par le manifeste (ATDD et principes SOLID) ; `A2` lancé par `bench pilot-conduct --provider claude-cli --live` avec le faux exécutable `claude`, sur 24 périodes et deux trajectoires par bras, chaque période persistée porte les coûts, les scores ciblés et différentiels, les régressions, et les mesures de qualité du code (complexité, duplication, taille des fonctions et des fichiers, nombre de tests écrits par le candidat, couverture) ; `A3` le rapport donne, par bras et par période, la moyenne, le minimum, le maximum et l'effectif de chaque mesure, et le rapport du coût de B sur celui de A par période et cumulé, avec la méthode de rééchantillonnage de T33 sur les trajectoires.
+
+Commande : `pnpm verify:task T76`. PostgreSQL, le stockage objet et le faux exécutable `claude` sont requis ; aucun appel réel.
+
+**T77 — La calibration avant toute campagne**
+
+Dépendances : T76. Livrables : calibration d'une source de clauses par un candidat de référence dérivé des seuls documents remis ; refus de lancer une campagne sans calibration réussie pour la source en vigueur.
+
+Acceptation : `T77.A1` `bench pilot-conduct --live` sur F-PLATFORM refuse de démarrer, avant toute session, s'il n'existe pas de calibration réussie pour l'empreinte de la source de clauses en vigueur ; `A2` une calibration réussit quand un candidat de référence, dont les noms, valeurs et formes proviennent des seuls `docs/spec.md`, `docs/api.md` et `docs/tickets/Pnn.md` remis, obtient 1 sur chaque clause à chaque période ; `A3` une calibration sur une source où une clause comparée manque de `docs/spec.md` échoue en nommant la clause et la période.
+
+Commande : `pnpm verify:task T77`. PostgreSQL, le stockage objet et le faux exécutable `claude` sont requis ; aucun appel réel.

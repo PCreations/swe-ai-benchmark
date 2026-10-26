@@ -1,0 +1,215 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T73 : au moins une par cas requis, dont la perturbation",
+    "que verification/cases.extensions.lock.json fixe pour chacun (M1 pour A1, M4 pour",
+    "A2, M7 pour A3, M9 pour A4). Les cibles sont decrites par leur ROLE (II de",
+    "acceptance/T73.spec.ts), jamais par un chemin de fichier : T73 n'est pas implementee.",
+    "Un mutant ne touche jamais la suite, les racines gelees, la source de clauses ni le",
+    "faux executable `claude`.",
+    "",
+    "`doit_rester_vert` et `also_kills` ont ete VERIFIES pour chaque mutant, en l'appliquant",
+    "reellement : acceptance/T73.spec.ts execute (jest du depot) contre une reference jetable hors depot (copie de travail sans .git ; generateur renderPlatformPeriodDocs dans @bench/scenario, prompt et materialisation F-PLATFORM dans run-period --provider claude-cli), mutant active par la variable T73_MUTANT=<drapeau>. Sans mutant, A1-A4 verts (24 periodes",
+    "materialisees par 24 appels run-period, faux `claude`, PostgreSQL reel). Le resultat",
+    "observe est consigne sous `verifie_sur_reference_jetable`.",
+    "",
+    "MESURE A HEAD (f0497d7, T73 non implementee) : A1 et A2 rougissent sur",
+    "CONTRAT-NON-SATISFAIT role=platformPeriodDocs ; A3 et A4 sur l'echec de",
+    "`run-period --scenario-id F-PLATFORM` a P5 (« la trajectoire nominale (T11) ne porte",
+    "que 4 periode(s) ») — le scenario F-PLATFORM n'est pas materialise."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T73",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T73"
+  ],
+  "acceptance_entry": "acceptance/T73.spec.ts",
+  "mutant_count": 10,
+  "mutants": [
+    {
+      "id": "T73.M1",
+      "kills_case": "T73.A1",
+      "also_kills": [
+        "T73.A4"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "omettre une clause active de docs/spec.md",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "A la periode P7, ne pas ecrire dans docs/spec.md le texte de la clause active P7.R2 (les autres periodes inchangees).",
+      "expected_effect": "T73.A1 devient rouge ; T73.A4 aussi (la spec materialisee a l'entree de la session P7 est relue contre la source).",
+      "observation_qui_echoue": "A1 : `P7 spec : clause ACTIVE P7.R2 absente` ; A4 : `materialise : P7 spec : clause ACTIVE P7.R2 absente`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T73.A1.",
+      "doit_rester_vert": [
+        "T73.A2",
+        "T73.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau spec-omet-une-clause : A1 rouge, A4 rouge, A2 et A3 verts."
+    },
+    {
+      "id": "T73.M2",
+      "kills_case": "T73.A1",
+      "also_kills": [
+        "T73.A4"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "generateur paresseux qui copie toute la source",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "Ecrire dans docs/spec.md le texte de TOUTES les clauses de la source, actives ou non.",
+      "expected_effect": "T73.A1 devient rouge ; T73.A4 aussi.",
+      "observation_qui_echoue": "A1 : 1320 defauts `P1 spec : clause INACTIVE P2.R1 presente` ... ; A4 : les memes, prefixes `materialise :`.",
+      "pourquoi_cette_perturbation": "Le generateur paresseux le plus probable ; sans le controle des clauses inactives, la spec ne serait plus « a jour ».",
+      "doit_rester_vert": [
+        "T73.A2",
+        "T73.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau spec-copie-tout : A1 rouge, A4 rouge, A2 et A3 verts."
+    },
+    {
+      "id": "T73.M3",
+      "kills_case": "T73.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "recopier dans docs/api.md les exemples de la source",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "Remplacer les exemples de docs/api.md par les `contract.exemples` des clauses actives, tels quels.",
+      "expected_effect": "T73.A1 devient rouge.",
+      "observation_qui_echoue": "A1 : `l'exemple create_slot {\"slot_id\":\"K10001\",...} reproduit le fait P1.F19` (119 exemples de la source reproduisent un fait gele), et `forme comparee sans exemple get_slot {error:string,ok=false} (P1.F20)`.",
+      "pourquoi_cette_perturbation": "ADR-020 decision 2 (« aucun exemple ne reproduit une valeur attendue »), reprise par T73.A1 pour docs/api.md.",
+      "doit_rester_vert": [
+        "T73.A2",
+        "T73.A3",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau api-copie-les-exemples : A1 rouge, A2, A3 et A4 verts."
+    },
+    {
+      "id": "T73.M4",
+      "kills_case": "T73.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "omettre une clause retiree de la liste du ticket",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "Ne lister aucune clause dans la section « Clauses retirees » du ticket.",
+      "expected_effect": "T73.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `source fabriquee (P1.R1 sort a P5, P5.R9 entre a P5) : P5 ticket : P1.R1 non liste dans « retirees »` (la source reelle n'a aucune sortie sans remplacante ; A2 en fabrique une).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T73.A2.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A3",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau ticket-omet-une-retiree : A2 rouge, A1, A3 et A4 verts."
+    },
+    {
+      "id": "T73.M5",
+      "kills_case": "T73.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "omettre un remplacement du ticket",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "Au ticket P02, ne pas lister le remplacement P2.R1 -> P1.R5 dans « Clauses remplacees ».",
+      "expected_effect": "T73.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P2 ticket : remplacement P2.R1 -> P1.R5 non liste dans « remplacees »`.",
+      "pourquoi_cette_perturbation": "Le ticket doit dire ce qui change, pas seulement ce qui s'ajoute.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A3",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau ticket-omet-un-remplacement : A2 rouge, A1, A3 et A4 verts."
+    },
+    {
+      "id": "T73.M6",
+      "kills_case": "T73.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "criteres d'acceptation sans exemples",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "Garder les titres de criteres par clause, sans aucun bloc d'exemple.",
+      "expected_effect": "T73.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P1 ticket : aucun exemple (create_slot) n'illustre les criteres de P1.R1` ... (82 defauts).",
+      "pourquoi_cette_perturbation": "ADR-021 decision 4 : « criteres d'acceptation avec exemples ».",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A3",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau ticket-sans-exemples : A2 rouge, A1, A3 et A4 verts."
+    },
+    {
+      "id": "T73.M7",
+      "kills_case": "T73.A3",
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "inclure le texte d'une clause dans le prompt",
+      "target": "Le prompt de la periode F-PLATFORM passe a `claude -p` par `bench run-period --provider claude-cli --scenario-id F-PLATFORM`.",
+      "mutation": "Ajouter au prompt de chaque periode le texte de la premiere clause active.",
+      "expected_effect": "T73.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `P1 prompt : contient le texte de la clause P1.R1` ... (24 defauts).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T73.A3.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A2",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau prompt-avec-texte-de-clause : A3 rouge, A1, A2 et A4 verts."
+    },
+    {
+      "id": "T73.M8",
+      "kills_case": "T73.A3",
+      "proof_kind": "absence",
+      "necessity": "targeted-perturbation",
+      "direction": "prompt qui ne renvoie pas au ticket",
+      "target": "Le prompt de la periode F-PLATFORM (meme cible que T73.M7).",
+      "mutation": "Remplacer, dans le prompt, le chemin docs/tickets/Pnn.md par « le ticket ».",
+      "expected_effect": "T73.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `P1 prompt : ne renvoie pas a docs/tickets/P01.md` ... (24 defauts).",
+      "pourquoi_cette_perturbation": "Le prompt doit renvoyer aux TROIS fichiers.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A2",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau prompt-sans-ticket : A3 rouge, A1, A2 et A4 verts."
+    },
+    {
+      "id": "T73.M9",
+      "kills_case": "T73.A4",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "conserver une modification du candidat dans docs/api.md a la periode suivante",
+      "target": "La materialisation des documents dans l'espace du candidat avant la session (run-period --provider claude-cli --scenario-id F-PLATFORM).",
+      "mutation": "Ne pas reecrire docs/api.md quand il existe deja dans l'espace du candidat.",
+      "expected_effect": "T73.A4 devient rouge.",
+      "observation_qui_echoue": "A4 : `P3 : docs/api.md porte encore la modification du candidat`, `P3 : docs/api.md differe de la sortie du generateur pour P3` ... (30 defauts).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T73.A4.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A2",
+        "T73.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau moteur-garde-api : A4 rouge, A1, A2 et A3 verts."
+    },
+    {
+      "id": "T73.M10",
+      "kills_case": "T73.A4",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "effacer docs/ avant de regenerer",
+      "target": "La materialisation des documents (meme cible que T73.M9).",
+      "mutation": "Supprimer le repertoire docs/ de l'espace du candidat avant d'y ecrire les trois documents.",
+      "expected_effect": "T73.A4 devient rouge.",
+      "observation_qui_echoue": "A4 : `P2 : docs/notes-candidat.md (present a la sortie de P1) a disparu`, `P2 : docs/tickets/P01.md ... a disparu`, `P2 : docs/tickets/notes-candidat.md ... a disparu` ...",
+      "pourquoi_cette_perturbation": "« Le reste du depot (code, tests, notes) appartient au candidat » : y compris sous docs/.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A2",
+        "T73.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau moteur-efface-docs : A4 rouge, A1, A2 et A3 verts."
+    }
+  ]
+}

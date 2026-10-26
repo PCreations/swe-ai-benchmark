@@ -1,0 +1,44 @@
+{
+  "schema": "bench.red/1",
+  "task": "T72",
+  "subject_commit": "aacf91437e5d7eb2d510551dadef21260a41f481",
+  "dirty": false,
+  "input_digest": "29e32e19ef2eaaac0c62cefbd91da9473dda3e14ee3b9ba2f2aba857ee9795f1",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T72.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T72.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T72.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T72.A4",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T72.A5",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    }
+  ],
+  "mutation_proof": {},
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

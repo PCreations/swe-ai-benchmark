@@ -1,0 +1,274 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T72 : au moins une par cas requis, conformes au champ",
+    "`perturbation` que verification/cases.extensions.lock.json fixe pour T72.A1 a",
+    "T72.A5. Chaque mutant s'applique a l'implementation de T72 (source de clauses,",
+    "modele attendu, verificateurs, resolus par les roles de la section III de",
+    "acceptance/T70.spec.ts, repris tels quels par acceptance/T72.spec.ts), puis",
+    "`pnpm verify:task T72` doit rendre ROUGE le cas nomme par `kills_case`. Les",
+    "cibles sont decrites par leur ROLE et par la clause de la racine gelee",
+    "acceptance/reference-platform/F-PLATFORM-P17-P24.json qu'elles alterent, jamais",
+    "par un chemin de fichier.",
+    "",
+    "`doit_rester_vert` a ete VERIFIE pour chaque mutant, en l'appliquant reellement :",
+    "acceptance/T72.spec.ts a ete execute (jest du depot) contre un modele de reference",
+    "jetable ecrit hors depot (simulateur P1-P24 qui reproduit les 419 faits geles,",
+    "source de clauses = clauses P1-P16 du paquet + clauses P17-P24 fabriquees depuis la",
+    "racine, verificateurs du paquet), d'abord sans mutant (A1-A5 verts), puis avec",
+    "chaque mutant active par un drapeau : le resultat observe est consigne sous",
+    "`verifie_sur_simulateur_jetable`."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T72",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T72"
+  ],
+  "acceptance_entry": "acceptance/T72.spec.ts",
+  "mutant_count": 13,
+  "mutants": [
+    {
+      "id": "T72.M1",
+      "kills_case": "T72.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "alterer un fait gele de P17-P24",
+      "target": "La borne d'expiration des lots de credits (clause P22.R2) dans le modele attendu (role `replayPlatform` / `createPlatformModel`).",
+      "mutation": "Faire diverger le modele d'un fait gele de P17-P24 : tenir un lot pour encore valide a l'instant exact de son echeance (expire seulement si at > expires_at au lieu de at >= expires_at). Forme litterale de la perturbation prescrite : remplacer, dans la racine, P22.F10.attendu.balance_cents 500 par 900.",
+      "expected_effect": "T72.A1 devient rouge.",
+      "observation_qui_echoue": "A1 liste `P22.F10 (P22-12) [frontiere expiration_de_credit_au_jour_pres] attendu=... balance_cents 500 ... recu=... balance_cents 900` (le lot de 400 du 2031-08-11T09:02:00Z compte encore a 2032-08-11T09:02:00Z) ; avec le fait altere dans la racine, la meme ligne apparait en sens inverse.",
+      "pourquoi_cette_perturbation": "La frontiere « au jour pres » ne se voit qu'a la seconde de l'echeance ; une comparaison large est l'erreur naturelle.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A3",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau expiry-inclusive : A1 rouge, A2-A5 verts ; fait P22.F10 altere (500 -> 900) dans une copie de travail de la racine puis restaure : A1 rouge, A2-A5 verts."
+    },
+    {
+      "id": "T72.M2",
+      "kills_case": "T72.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "garder les remises par niveau apres leur retrait",
+      "target": "Le calcul du montant a la confirmation (clause P22.R1, qui remplace P15.R6) dans le modele attendu.",
+      "mutation": "Continuer d'appliquer le taux du niveau (gold 2500 pb, silver 1000 pb) aux confirmations a partir de P22, y compris aux promotions.",
+      "expected_effect": "T72.A1 devient rouge.",
+      "observation_qui_echoue": "A1 : `P22.F05 (P22-07) [frontiere remise_retiree] attendu=... amount_cents 600 ... recu=... 450`, `P22.F07 (P22-09)` (d50-2 promue : 1500 au lieu de 2000) et `P22.F15 (P22-18)`.",
+      "pourquoi_cette_perturbation": "« Fin des remises par niveau » (ADR-021, P22) ; la promotion d'une reservation demandee avant P22 est le piege : le montant se fixe a la confirmation.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A3",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau discount-kept : A1 rouge, A2-A5 verts."
+    },
+    {
+      "id": "T72.M3",
+      "kills_case": "T72.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre le tri des rapports instable a egalite",
+      "target": "Le tri et la pagination de report_occupancy (clause P19.R2) dans le modele attendu.",
+      "mutation": "Ne departager deux lignes de meme cle ni par starts_at ni par slot_id (l'ordre d'arrivee des lignes decide).",
+      "expected_effect": "T72.A1 devient rouge.",
+      "observation_qui_echoue": "A1 : `P19.F01 (P19-01)`, `P19.F02 (P19-02) [frontiere page_limite_et_tri_a_egalite] ... recu=... rows [S19, S18]` et `P19.F07 (P19-07)` : S18 et S19 (meme debut, meme fill_bp 10000) s'inversent.",
+      "pourquoi_cette_perturbation": "Un tri stable mais non total depend de l'ordre de creation ; la racine place exprès trois creneaux de meme debut dont deux pleins.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A3",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau unstable-sort : A1 rouge, A2-A5 verts."
+    },
+    {
+      "id": "T72.M4",
+      "kills_case": "T72.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ignorer les conflits d'idempotence sous rejeux",
+      "target": "L'idempotence de reserve et de import_bookings (clauses P21.R1, P21.R2, qui remplacent P1.R4 et P20.R4) dans le modele attendu.",
+      "mutation": "Rendre la reponse memorisee quels que soient les arguments du rejeu (comportement de P1.R4), sans IDEMPOTENCY_CONFLICT.",
+      "expected_effect": "T72.A1 devient rouge.",
+      "observation_qui_echoue": "A1 : `P21.F06 (P21-07) [frontiere derniere_place_et_rejeux] attendu={ok:false, error: IDEMPOTENCY_CONFLICT} recu={ok:true, booking_id: r21b ...}`, `P21.F07`, `P21.F10 (P21-11) ... recu=NOT_FOUND`, `P21.F13`.",
+      "pourquoi_cette_perturbation": "Deux requetes concurrentes qui partagent une cle avec des arguments differents ne doivent pas recevoir silencieusement la reponse de l'autre.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A3",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau no-conflict : A1 rouge, A2-A5 verts (A3 reste vert : P24-19 rend la meme reponse dans les deux rejeux)."
+    },
+    {
+      "id": "T72.M5",
+      "kills_case": "T72.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "perdre l'historique d'une reservation lors de la fusion",
+      "target": "Le transfert des reservations de la source vers la cible (clause P17.R4) dans merge_tenants du modele attendu.",
+      "mutation": "A la fusion, ne pas reprendre les places numerotees (seat_numbers) ni l'absence (no_show) des reservations de la source — perturbation prescrite.",
+      "expected_effect": "T72.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P17-26: champs [...] au lieu de [... seat_numbers ...] (historique perdu ou ajoute)` pour t-mig-b:k1, k2, k3 ; A1 : `P17.F09 (P17-26) [frontiere collision_a_la_fusion]` et `P17.F13` (free_seats).",
+      "pourquoi_cette_perturbation": "« historique conserve » (ADR-021, P17) : une fusion qui recopie l'essentiel mais pas tout passe un controle de forme ; seule la comparaison champ pour champ avant/apres la voit.",
+      "doit_rester_vert": [
+        "T72.A3",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau history-lost : A1 et A2 rouges, A3-A5 verts."
+    },
+    {
+      "id": "T72.M6",
+      "kills_case": "T72.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "effacer la trace de l'origine a la fusion",
+      "target": "Le champ origin des reservations fusionnees (clause P17.R4) dans le modele attendu.",
+      "mutation": "Recalculer origin a partir du locataire et de l'identifiant APRES fusion ({t-mig-a, t-mig-b:k1}) au lieu de garder le locataire et l'identifiant de creation.",
+      "expected_effect": "T72.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P17-26: origin {tenant_id: t-mig-a, booking_id: t-mig-b:k1} au lieu de {tenant_id: t-mig-b, booking_id: k1}` (et k2-k5) ; A1 : `P17.F09`, `P17.F10`, `P17.F11`.",
+      "pourquoi_cette_perturbation": "L'historique d'une reservation inclut d'ou elle vient ; un renommage qui ecrase l'origine rend la collision irreversible.",
+      "doit_rester_vert": [
+        "T72.A3",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau origin-lost : A1 et A2 rouges, A3-A5 verts."
+    },
+    {
+      "id": "T72.M7",
+      "kills_case": "T72.A3",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "faire diverger une operation v1 de son equivalent v2",
+      "target": "La traduction des reponses v1 -> v2 (clauses P24.R2, P24.R3) dans le modele attendu.",
+      "mutation": "Ne renommer que les cles de PREMIER niveau des reponses v2 (origin.booking_id, lines[].booking_id, exchanged[].booking_id, rows[].slot_id restent v1) — perturbation prescrite.",
+      "expected_effect": "T72.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `toutes P24-04 (reserve -> v2) : reponse non equivalente, attendu=... origin {... reservation_id: v1r} ... recu=... origin {... booking_id: v1r}` (et P24-07, P24-25, et en mode une-sur-deux) ; A1 : `P24.F03 (P24-03) [frontiere meme_operation_v1_v2]`, `P24.F22`, `P24.F23`.",
+      "pourquoi_cette_perturbation": "La correspondance declaree porte sur les noms de cles a toute profondeur ; un renommage de surface est l'implementation paresseuse typique d'un contrat v2.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau v2-shallow : A1 et A3 rouges, A2, A4, A5 verts."
+    },
+    {
+      "id": "T72.M8",
+      "kills_case": "T72.A3",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "separer l'idempotence par version du contrat",
+      "target": "La memorisation des requetes (clauses P24.R3, P21.R1) pour les requetes v2 dans le modele attendu.",
+      "mutation": "Ranger les cles d'idempotence v2 dans un espace distinct de celui de v1 (ex. prefixer request_id et import_id des requetes v2).",
+      "expected_effect": "T72.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `toutes P24-03 ... reponse non equivalente` puis `effet different` sur les etapes suivantes ; A1 : `P24.F04 (P24-04) [frontiere meme_operation_v1_v2] attendu=... booking_id v1r ... recu={ok:false, error: ALREADY_BOOKED}` et `P24.F05` (reservation_id v2~v2r).",
+      "pourquoi_cette_perturbation": "« l'ancien contrat v1 doit continuer de fonctionner » : un client v1 qui rejoue une cle creee en v2 doit retrouver la meme reservation, pas une seconde.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A4",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau v2-separate-idem : A1 et A3 rouges, A2, A4, A5 verts."
+    },
+    {
+      "id": "T72.M9",
+      "kills_case": "T72.A4",
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "modifier un total de facture lors de l'effacement",
+      "target": "L'anonymisation des factures (clause P18.R2) dans erase_member du modele attendu.",
+      "mutation": "Remettre a 0 le total_cents des factures du membre efface (« donnees personnelles effacees ») — perturbation prescrite.",
+      "expected_effect": "T72.A4 devient rouge.",
+      "observation_qui_echoue": "A4 : `m-gus -> anon-0001: INV-2031-03-anon-0001 total 0 au lieu de 3373` (et 04, 05, 07) et `somme des totaux de factures ... apres effacement au lieu de ...` ; A1 : `P18.F07 (P18-19) [frontiere effacement_avec_facture_emise]`, `P19.F13`, `P19.F14`.",
+      "pourquoi_cette_perturbation": "« totaux de factures intacts » (ADR-021, P18) : l'effacement est la seule exception a l'immuabilite, et elle ne porte que sur des identifiants.",
+      "doit_rester_vert": [
+        "T72.A2",
+        "T72.A3",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau erase-total : A1 et A4 rouges, A2, A3, A5 verts."
+    },
+    {
+      "id": "T72.M10",
+      "kills_case": "T72.A4",
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "effacer des lignes de facture en gardant les totaux",
+      "target": "L'anonymisation des factures (clause P18.R2) dans erase_member du modele attendu.",
+      "mutation": "Retirer des factures du membre efface les lignes de rechargement (top_up), qui ne changent pas total_cents.",
+      "expected_effect": "T72.A4 devient rouge.",
+      "observation_qui_echoue": "A4 seul : `m-gus -> anon-0001: facture INV-2031-06-anon-0001 modifiee au-dela de l'identifiant : attendu=... lines [{type: top_up ... 2738}] ... recu=... lines []`. A1 reste vert (aucun fait ne compare les lignes de juin 2031 du pseudonyme).",
+      "pourquoi_cette_perturbation": "Montre que A4 compare chaque facture, pas seulement les totaux : un effacement trop zele qui garde les totaux passerait un controle de sommes.",
+      "doit_rester_vert": [
+        "T72.A1",
+        "T72.A2",
+        "T72.A3",
+        "T72.A5"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau erase-drops-lines : A4 rouge, A1, A2, A3, A5 verts."
+    },
+    {
+      "id": "T72.M11",
+      "kills_case": "T72.A5",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "desactiver la verification d'unites sur P17-P24",
+      "target": "La verification d'unites (role `checkUnits`).",
+      "mutation": "N'examiner que les clauses entrees avant P17 (ou exempter les grandeurs introduites a partir de P17 : fill_bp, fee_cents, expired_cents, remaining_cents, ...) — perturbation prescrite.",
+      "expected_effect": "T72.A5 devient rouge.",
+      "observation_qui_echoue": "A5 : `ACCEPTE-A-TORT grandeur P17-P24 <nom> (retirer)` puis `grandeur comparee a P17-P24 sans declaration` (grandeur_fantome_t72).",
+      "pourquoi_cette_perturbation": "La verification de T70 doit couvrir toute la source ; les montants de frais et d'expiration sont exactement ce qu'on oublie de declarer.",
+      "doit_rester_vert": [
+        "T72.A1",
+        "T72.A2",
+        "T72.A3",
+        "T72.A4"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau units-p16 : A5 rouge (ACCEPTE-A-TORT), A1-A4 verts."
+    },
+    {
+      "id": "T72.M12",
+      "kills_case": "T72.A5",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "desactiver la verification de non-contradiction sur P17-P24",
+      "target": "La verification de non-contradiction (role `checkNonContradiction`).",
+      "mutation": "N'examiner que les clauses entrees avant P17.",
+      "expected_effect": "T72.A5 devient rouge.",
+      "observation_qui_echoue": "A5 : `ACCEPTE-A-TORT doublon de <clause entree a P17 ou apres>` puis la greffe entre deux clauses simultanees a une periode >= 17.",
+      "pourquoi_cette_perturbation": "Les remplacements de P21-P23 (P1.R4, P20.R4, P15.R6, P14.R3, P22.R4) sont ceux ou deux clauses actives risquent de gouverner la meme decision.",
+      "doit_rester_vert": [
+        "T72.A1",
+        "T72.A2",
+        "T72.A3",
+        "T72.A4"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau nc-p16 : A5 rouge, A1-A4 verts."
+    },
+    {
+      "id": "T72.M13",
+      "kills_case": "T72.A5",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "une attente qui ne vient d'aucune clause active",
+      "target": "La source de clauses (role `platformClauses`).",
+      "mutation": "Retirer la clause P22.R2 (lots et expiration) de la source, en laissant le modele rejouer la regle.",
+      "expected_effect": "T72.A5 devient rouge.",
+      "observation_qui_echoue": "A5 completude : `P22.R2: absente de la source` puis `P22.F01: P22.R2 inactive ou absente a P22`.",
+      "pourquoi_cette_perturbation": "Completude au sens d'ADR-021 : le candidat ne peut etre note sur une expiration qu'on ne lui a pas enoncee.",
+      "doit_rester_vert": [
+        "T72.A1",
+        "T72.A2",
+        "T72.A3",
+        "T72.A4"
+      ],
+      "verifie_sur_simulateur_jetable": "drapeau src-drop-P22.R2 : A5 rouge, A1-A4 verts."
+    }
+  ]
+}

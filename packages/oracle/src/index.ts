@@ -70,6 +70,7 @@ export type { Adr019PointsResult } from './adr019-points.js'
 export {
   PLATFORM_CLAUSES,
   PLATFORM_QUANTITIES,
+  PlatformEngine,
   checkNonContradiction,
   checkUnits,
   createPlatformModel,

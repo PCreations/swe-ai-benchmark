@@ -608,3 +608,12 @@ export type {
   ScoreDiscriminatingRuleResult,
 } from './discriminating-rule-scoring.js'
 
+
+/* ── T73 : documents de période F-PLATFORM dans le dépôt du candidat (ADR-021 décision 4) */
+
+export {
+  F_PLATFORM_PERIOD_COUNT,
+  F_PLATFORM_SCENARIO_ID,
+  buildFPlatformPilotPrompt,
+  materializeFPlatformPeriodDocs,
+} from './f-platform-pilot.js'

@@ -28,6 +28,8 @@ import {
 } from './f-platform-engine.js'
 
 export { PLATFORM_CLAUSES, PLATFORM_QUANTITIES } from './f-platform-clauses.js'
+/** Le moteur générique, pour exécuter une source de clauses FOURNIE (T73 : exemples des documents de période). */
+export { PlatformEngine } from './f-platform-engine.js'
 export type { PlatformClause, PlatformResponse, PlatformStep, Precision, Quantity } from './f-platform-engine.js'
 
 /** Alias de lecture de la source unique. */

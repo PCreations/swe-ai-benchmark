@@ -170,3 +170,15 @@ export type {
   ScenarioGenerationSuccess,
   ScenarioModelResponse,
 } from './generation.js'
+
+// ── T73 : documents de période de F-PLATFORM dans le dépôt du candidat
+//    (ADR-021 décision 4) — spec, contrat d'interface et ticket, dérivés de la
+//    source de clauses (voir f-platform-docs.ts).
+export {
+  F_PLATFORM_PERIOD_COUNT,
+  PLATFORM_API_PATH,
+  PLATFORM_SPEC_PATH,
+  platformTicketPath,
+  renderPlatformPeriodDocs,
+} from './f-platform-docs.js'
+export type { PlatformPeriodDocsOptions } from './f-platform-docs.js'

@@ -74,6 +74,12 @@ import {
 } from './candidate-protocol-v2.js'
 import { buildCandidatePeriodPrompt, CANDIDATE_REQUIREMENTS_PERIOD_KEYS } from './candidate-requirements-statement.js'
 import { buildFLongPilotPrompt, F_LONG_SCENARIO_ID } from './f-long-pilot.js'
+import {
+  buildFPlatformPilotPrompt,
+  F_PLATFORM_PERIOD_COUNT,
+  F_PLATFORM_SCENARIO_ID,
+  materializeFPlatformPeriodDocs,
+} from './f-platform-pilot.js'
 
 /* ══════════════════════════════════ formes du contrat ═══════════════════ */
 
@@ -124,6 +130,10 @@ export const REASON_LIVE_FLAG_ABSENT =
  *  jamais ete persistee pour cette trajectoire (jamais confondu avec un
  *  echec de session : aucune session n'est invoquee par une relecture). */
 export const REASON_NO_PERIOD_PERSISTED = 'aucune periode persistee a cet indice pour cette trajectoire'
+
+/** Motif NOMME (T73) : la trajectoire F-PLATFORM a deja ses 24 periodes ;
+ *  aucune session n'est invoquee au-dela (ADR-021 decision 2). */
+export const REASON_F_PLATFORM_EXHAUSTED = `refus : F-PLATFORM compte ${String(F_PLATFORM_PERIOD_COUNT)} periodes, aucune session au-dela (ADR-021)`
 
 /* ══════════════════════════════ PostgreSQL réel (psql) ═══════════════════ */
 
@@ -490,11 +500,28 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
   // les exigences du scenario de demonstration ni le verificateur de forme
   // de `bench.candidate/2`, qui ne connait pas ce contrat.
   const fLong = scenarioId === F_LONG_SCENARIO_ID
+  // T73 (ADR-021 decision 4) : une trajectoire F-PLATFORM recoit un prompt
+  // court qui renvoie a docs/spec.md, docs/api.md et docs/tickets/Pnn.md, que
+  // le moteur reecrit dans l'espace du candidat AVANT la session ; rien
+  // d'autre du depot n'est touche.
+  const fPlatform = scenarioId === F_PLATFORM_SCENARIO_ID
+  if (fPlatform && periodIndex > F_PLATFORM_PERIOD_COUNT) {
+    return {
+      schema: 'bench.t49.claude_cli_period_result/1',
+      campaign_id: campaignId,
+      period_index: periodIndex,
+      persisted: false,
+      failure_reason: `${REASON_F_PLATFORM_EXHAUSTED} (P${String(periodIndex)})`,
+    }
+  }
   const prompt = fLong
     ? buildFLongPilotPrompt(periodIndex)
-    : buildPrompt(await revealedRequirementsForPeriod(scenarioId, periodIndex), periodIndex)
+    : fPlatform
+      ? buildFPlatformPilotPrompt(periodIndex)
+      : buildPrompt(await revealedRequirementsForPeriod(scenarioId, periodIndex), periodIndex)
   const workspaceDir = ensureWorkspace(input.candidateWorkspaceRoot, campaignId)
-  if (!fLong) writeProtocolFormVerificationScript(workspaceDir)
+  if (fPlatform) materializeFPlatformPeriodDocs(workspaceDir, periodIndex)
+  else if (!fLong) writeProtocolFormVerificationScript(workspaceDir)
 
   const session = await launchClaudeCliPeriod({
     workspaceDir,

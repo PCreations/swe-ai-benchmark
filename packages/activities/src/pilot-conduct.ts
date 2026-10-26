@@ -65,6 +65,7 @@ import { runPeriodOnce } from './run-period.js'
 import { aggregateClaudeCliUsage, countClaudeCliPeriods, runPeriodOnceClaudeCli } from './run-period-claude-cli.js'
 import { candidateControlReport, controlCandidateCommitOnce } from './candidate-control-period.js'
 import { controlFLongPilotPeriod, fLongPilotReport, F_LONG_PERIOD_COUNT, F_LONG_SCENARIO_ID } from './f-long-pilot.js'
+import { F_PLATFORM_PERIOD_COUNT, F_PLATFORM_SCENARIO_ID } from './f-platform-pilot.js'
 
 type Json = Record<string, unknown>
 
@@ -500,6 +501,12 @@ async function conductPilotClaudeCli(
       `bench pilot-conduct refusé : periods_per_trajectory=${String(periodsPerTrajectory)} au-delà des ${String(F_LONG_PERIOD_COUNT)} périodes de F-LONG (ADR-018)`,
     )
   }
+  // T73 (ADR-021 decision 2) : F-PLATFORM compte vingt-quatre periodes, jamais plus.
+  if (plans.some((p) => p.scenario_id === F_PLATFORM_SCENARIO_ID) && periodsPerTrajectory > F_PLATFORM_PERIOD_COUNT) {
+    throw new Error(
+      `bench pilot-conduct refusé : periods_per_trajectory=${String(periodsPerTrajectory)} au-delà des ${String(F_PLATFORM_PERIOD_COUNT)} périodes de F-PLATFORM (ADR-021)`,
+    )
+  }
   const candidateWorkspaceRoot = input.candidateWorkspaceRoot
   let interrupted = false
   let totalSoFar = plans.reduce((sum, p) => sum + countClaudeCliPeriods(db, p.trajectory_key), 0)
@@ -553,7 +560,10 @@ async function conductPilotClaudeCli(
           usage: outcome.candidate.usage,
           stateRoot: candidateWorkspaceRoot,
         })
-      } else if (outcome.candidate !== undefined) {
+      } else if (outcome.candidate !== undefined && plan.scenario_id !== F_PLATFORM_SCENARIO_ID) {
+        // F-PLATFORM (T73) : le contrôle du commit par le protocole du
+        // scenario de demonstration ne s'applique pas ; ses contrôles ciblés
+        // et différentiels sont l'objet de T74.
         await controlCandidateCommitOnce({
           campaignId: plan.trajectory_key,
           postgresDatabase: db,

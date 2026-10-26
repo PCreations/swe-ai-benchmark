@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// @bench/oracle — LA source de clauses de F-PLATFORM, périodes P1 à P16 (tâches
-// T70 pour P1-P8, T71 pour P9-P16 ; ADR-021 décision 1 : « le scénario est écrit
-// une seule fois, sous forme de clauses »).
+// @bench/oracle — LA source de clauses de F-PLATFORM, périodes P1 à P24 (tâches
+// T70 pour P1-P8, T71 pour P9-P16, T72 pour P17-P24 ; ADR-021 décision 1 : « le
+// scénario est écrit une seule fois, sous forme de clauses »).
 //
 // Chaque clause porte, au même endroit :
 //   id, enters, exits, replaces   — sa vie : active sur [enters, exits[ ;
@@ -20,18 +20,21 @@
 //   questions_ouvertes            — ce que la racine gelée ne fixe pas et que le
 //                                   modèle tranche provisoirement (à confirmer).
 //
-// Les règles sont celles de acceptance/reference-platform/F-PLATFORM-P1-P8.json
-// et F-PLATFORM-P9-P16.json (`periodes.<Pn>.regles`), une clause par règle,
-// mêmes identifiants, mêmes remplacements ; une clause remplacée sort à
-// l'entrée de sa remplaçante. Le moteur (f-platform-engine.ts) ne contient
-// aucune règle. Les questions ouvertes Q01-Q28 de la racine P9-P16 sont
-// tranchées PROVISOIREMENT dans le champ `questions_ouvertes` de la clause
-// concernée.
+// Les règles sont celles de acceptance/reference-platform/F-PLATFORM-P1-P8.json,
+// F-PLATFORM-P9-P16.json et F-PLATFORM-P17-P24.json (`periodes.<Pn>.regles`),
+// une clause par règle, mêmes identifiants, mêmes remplacements ; une clause
+// remplacée sort à l'entrée de sa remplaçante (T72 : P1.R4 sort à P21, P14.R3 et
+// P15.R6 à P22). Le moteur (f-platform-engine.ts) ne contient aucune règle. Les
+// questions ouvertes Q01-Q28 (racine P9-P16) et Q29-Q61 (racine P17-P24) sont
+// tranchées PROVISOIREMENT, selon le choix de la racine, dans le champ
+// `questions_ouvertes` de la clause concernée.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
   type Booking,
+  type Complement,
   type Etape,
+  type Invariant,
   type Implementation,
   type JournalEntry,
   type Json,
@@ -136,6 +139,57 @@ export const PLATFORM_QUANTITIES: Readonly<Record<string, Quantity>> = {
   original_amount_cents: { unit: 'centimes de dollar US', format: 'entier >= 0, montant net avant conversion' },
   effective_from: { unit: 'instant UTC', format: "ISO 8601 'AAAA-MM-JJTHH:MM:SSZ', <= at" },
   adjusted: { unit: 'ajustements', format: "tableau JSON de { booking_id, refunded_cents, refund, credit_note_id }, ordre de confirmation" },
+  // ── P17 à P24 (T72)
+  source_tenant_id: { unit: IDENT, format: 'tenant_id du locataire absorbe par la fusion' },
+  renamed: { unit: 'renommages', format: "tableau JSON de { kind, from, to }, to = '<source_tenant_id>:<from>' ; kind 'slot', 'series', 'booking', 'request', 'import' dans cet ordre, puis from croissant (ordinal UTF-16)" },
+  merged_members: { unit: 'liste de member_id', format: 'tableau JSON de chaines, ordre croissant (ordinal UTF-16)' },
+  added_members: { unit: 'liste de member_id', format: 'tableau JSON de chaines, ordre croissant (ordinal UTF-16)' },
+  origin: { unit: 'origine de reservation', format: '{ tenant_id, booking_id } du locataire et de la reservation de creation' },
+  credit_note_ids: { unit: 'liste de credit_note_id', format: 'tableau JSON de chaines, ordre croissant' },
+  bookings_anonymized: { unit: 'reservations', format: 'entier >= 0' },
+  from: { unit: 'instant UTC', format: "ISO 8601 'AAAA-MM-JJTHH:MM:SSZ', borne incluse" },
+  to: { unit: 'instant UTC', format: "ISO 8601 'AAAA-MM-JJTHH:MM:SSZ', borne exclue" },
+  min_fill_bp: { unit: 'points de base (10000 = 100 %)', format: 'entier >= 0, 0 par defaut, borne incluse' },
+  fill_bp: { unit: 'points de base (10000 = 100 %)', format: 'entier : floor(booked x 10000 / capacity), peut depasser 10000' },
+  sort: { unit: 'cle de tri', format: "occupation : 'starts_at' | '-fill_bp' | 'slot_id' ; revenus : 'month' | '-net_cents' | 'member_id' ('-' = decroissant)" },
+  page: { unit: 'rang de page', format: 'entier >= 1, 1-base, 1 par defaut' },
+  page_size: { unit: 'lignes par page', format: 'entier de 1 a 100, 20 par defaut' },
+  pages: { unit: 'pages', format: 'entier : ceil(total / page_size), 0 si total = 0' },
+  total: { unit: 'lignes', format: 'entier >= 0, nombre de lignes (apres filtre pour un rapport)' },
+  rows: { unit: 'lignes', format: "tableau JSON d'objets, dans l'ordre declare" },
+  from_month: { unit: 'mois civil LOCAL du site', format: "'AAAA-MM', borne incluse" },
+  to_month: { unit: 'mois civil LOCAL du site', format: "'AAAA-MM', borne incluse" },
+  credit_notes_cents: { unit: CENTIMES, format: 'entier >= 0, somme des amount_cents des avoirs citant la facture' },
+  net_cents: { unit: CENTIMES, format: 'entier signe : total_cents - credit_notes_cents' },
+  sum_net_cents: { unit: CENTIMES, format: 'entier signe : somme des net_cents de toutes les lignes filtrees' },
+  import_id: { unit: IDENT, format: 'chaine non vide fournie par le client' },
+  accepted: { unit: 'reservations', format: 'entier >= 0 : confirmed + waiting' },
+  confirmed: { unit: 'reservations', format: 'entier >= 0' },
+  'import_bookings.waiting': { unit: 'reservations', format: 'entier >= 0 (champ waiting de la reponse d import)' },
+  duplicates: { unit: 'lignes', format: 'entier >= 0' },
+  rejected: { unit: 'lignes refusees', format: 'tableau JSON de { index, request_id, error }, ordre des lignes' },
+  index: { unit: 'rang de ligne', format: 'entier >= 1, 1-base' },
+  plafond_p95_ms: { unit: 'millisecondes (ms)', format: 'entier, latence au 95e centile par operation' },
+  duree_import_ms: { unit: 'millisecondes (ms)', format: "entier, duree d'un import de 50 000 lignes" },
+  acquired_at: { unit: 'instant UTC', format: "ISO 8601 'AAAA-MM-JJTHH:MM:SSZ', at de l'operation qui credite" },
+  expires_at: { unit: 'instant UTC', format: "ISO 8601 'AAAA-MM-JJTHH:MM:SSZ', meme instant 12 mois civils apres acquired_at" },
+  remaining_cents: { unit: CENTIMES, format: 'entier > 0, reste du lot' },
+  lots: { unit: 'lots de credits', format: 'tableau JSON de { acquired_at, expires_at, remaining_cents }, expires_at croissant puis ordre d entree' },
+  expired_cents: { unit: CENTIMES, format: 'entier >= 0, somme des lignes expiry du mois' },
+  to_member_id: { unit: IDENT, format: 'member_id du destinataire' },
+  with_booking_id: { unit: IDENT, format: "booking_id de l'autre reservation de l'echange" },
+  fee_cents: { unit: CENTIMES, format: 'entier >= 100 : max(100, floor((A x 1000 + 5000) / 10000))' },
+  'fee.credits_cents': { unit: CENTIMES, format: 'entier >= 0, part des frais payee en credits' },
+  'fee.card_cents': { unit: CENTIMES, format: 'entier >= 0, part des frais payee par carte' },
+  payer_member_id: { unit: IDENT, format: 'member_id debite a la confirmation, ou null si jamais confirmee' },
+  transfers: { unit: 'transferts', format: 'tableau JSON de { from_member_id, to_member_id, at, fee_cents }, ordre des transferts' },
+  exchanged: { unit: 'echange', format: 'tableau JSON de deux { booking_id, member_id, fee_cents }' },
+  version: { unit: 'version du contrat', format: "'v1' | 'v2' ('v1' par defaut), hors args" },
+  reservation_id: { unit: IDENT, format: 'v2 : nom de booking_id' },
+  session_id: { unit: IDENT, format: 'v2 : nom de slot_id' },
+  session_ids: { unit: 'liste ordonnee de slot_id', format: 'v2 : nom de slot_ids' },
+  quantity: { unit: 'places', format: 'v2 : nom de seats' },
+  with_reservation_id: { unit: IDENT, format: 'v2 : nom de with_booking_id' },
 }
 
 /** price_cents à partir de P15 : la devise du prix n'est plus forcément l'EUR. */
@@ -212,9 +266,14 @@ type Partielle = (ctx: PlatformContext, b: Booking, k: number) => void
 /** Historique daté des mouvements de portefeuille d'un locataire (clé de donnees). */
 const CLE_HISTORIQUE_PORTEFEUILLE = 'portefeuille.historique'
 interface MouvementDate {
-  readonly member_id: string
+  /** Modifiable : l'effacement P18 remplace l'identifiant du membre. */
+  member_id: string
   readonly t: number
   readonly delta: number
+  /** P22.R2 : mouvement d'expiration d'un lot (pas un débit). */
+  readonly expiration?: true
+  /** P22.R2 : lot (entrée de crédits) dont l'expiration est déjà inscrite. */
+  expire?: true
 }
 const historiquePortefeuille = (ctx: PlatformContext): MouvementDate[] =>
   ctx.donnee<MouvementDate[]>(CLE_HISTORIQUE_PORTEFEUILLE, () => [])
@@ -228,6 +287,24 @@ const mouvementPortefeuille: Mouvement = (ctx, member, delta) => {
   return solde
 }
 const soldePortefeuille: Solde = (ctx, member) => ctx.locataire.wallets.get(member) ?? 0
+
+/**
+ * Arguments de la première requête de chaque clé d'idempotence (tenant, request_id), rangés à côté de la réponse
+ * mémorisée : { member_id, slot_id, seats (1 si absent) }. P1.R4 ne les compare pas ; P21.R1 les compare.
+ */
+const CLE_ARGUMENTS_IDEMPOTENCE = 'idempotence.arguments'
+interface ArgumentsNormalises {
+  member_id: unknown
+  slot_id: unknown
+  seats: unknown
+}
+const argumentsNormalises = (args: Json): ArgumentsNormalises => ({
+  member_id: args.member_id,
+  slot_id: args.slot_id,
+  seats: args.seats ?? 1,
+})
+const argumentsMemorises = (ctx: PlatformContext): Map<string, ArgumentsNormalises> =>
+  ctx.donnee<Map<string, ArgumentsNormalises>>(CLE_ARGUMENTS_IDEMPOTENCE, () => new Map())
 
 /* ════════════════════════════════════════════════════════════════════ P1 */
 
@@ -372,6 +449,7 @@ const P1_R3 = clause({
 const P1_R4 = clause({
   id: 'P1.R4',
   enters: 'P1',
+  exits: 'P21',
   text:
     "Idempotence de reserve. La première réponse produite pour un request_id est mémorisée, y compris une réponse " +
     "d'erreur (NOT_FOUND, SLOT_CLOSED, ALREADY_BOOKED, et FULL tant que ce refus existe). Toute requête reserve ultérieure portant le même " +
@@ -394,9 +472,14 @@ const P1_R4 = clause({
       const memo = ctx.locataire.memo.get(cle)
       if (memo !== undefined) return clone(memo)
       const memo_de = ctx.locataire.memo
+      const arguments_de = argumentsMemorises(ctx)
+      const demandes = argumentsNormalises(ctx.args)
       ctx.apres.push((r) => {
         const memorisable = ctx.regleOpt<(r: PlatformResponse) => boolean>('idempotence.memorisable')
-        if (memorisable === undefined || memorisable(r)) memo_de.set(cle, clone(r))
+        if (memorisable === undefined || memorisable(r)) {
+          memo_de.set(cle, clone(r))
+          arguments_de.set(cle, demandes)
+        }
       })
       return undefined
     }),
@@ -1677,6 +1760,7 @@ const P9_R2 = clause({
   grandeurs: ['local_starts_at', 'starts_at', 'timezone'],
   questions_ouvertes: [
     "Q02 (provisoire) : l'heure ambigue d'automne est lue comme sa premiere occurrence (+02:00), comme la racine le fixe ; regle executee mais non exercee par un fait",
+    "Q61 (provisoire, racine P17-P24) : Q02 reste ouverte ; la trajectoire P17-P24 ne passe par aucune annulation autour du 26/10/2031 ni du 31/10/2032",
   ],
 })
 
@@ -1726,11 +1810,15 @@ const P9_R3 = clause({
 
 type Avoir = (ctx: PlatformContext, b: Booking, e: JournalEntry, reason: string) => string | null
 
+/** Membre remboursé d'une réservation : son titulaire, sauf clause active qui désigne le payeur (P23.R4). */
+type Payeur = (ctx: PlatformContext, b: Booking) => string
+
 /** Rembourse r_c au portefeuille et inscrit le remboursement ; rend l'avoir éventuel (P14.R4). */
 function inscrireRemboursement(ctx: PlatformContext, b: Booking, R: number, rc: number, reason: string, type = 'refund'): string | null {
-  if (rc > 0) ctx.regle<Mouvement>('portefeuille.mouvement')(ctx, b.member_id, rc)
+  const membre = ctx.regleOpt<Payeur>('reservation.payeur')?.(ctx, b) ?? b.member_id
+  if (rc > 0) ctx.regle<Mouvement>('portefeuille.mouvement')(ctx, membre, rc)
   if (R <= 0) return null
-  const e = ctx.journaliser({ type, member_id: b.member_id, booking_id: b.booking_id, amount_cents: R, credits_cents: rc, card_cents: R - rc })
+  const e = ctx.journaliser({ type, member_id: membre, booking_id: b.booking_id, amount_cents: R, credits_cents: rc, card_cents: R - rc })
   return ctx.regleOpt<Avoir>('comptabilite.avoir')?.(ctx, b, e, reason) ?? null
 }
 
@@ -1816,7 +1904,8 @@ const SUSPENSION_MS = 7 * 86_400_000
 const SEUIL_ABSENCES = 3
 
 interface Absence {
-  readonly member_id: string
+  /** Modifiable : l'effacement P18 remplace l'identifiant du membre. */
+  member_id: string
   readonly t: number
 }
 type Enregistrement = (ctx: PlatformContext, b: Booking, T: number) => { absences_30d: number; suspended_until: string | null }
@@ -2409,6 +2498,8 @@ type DebutMois = (ctx: PlatformContext, mois: string) => number
 type Lignes = (ctx: PlatformContext, member: string, mois: string) => JournalEntry[]
 type Facture = (ctx: PlatformContext, member: string, mois: string) => Json
 type Rapprochement = (ctx: PlatformContext, member: string) => void
+/** Sortie du portefeuille portée par une facture hors credits_used (P22.R4 : expired_cents). */
+type SortieDeFacture = (facture: Json) => number
 
 const MOIS = /^(\d{4})-(0[1-9]|1[0-2])$/
 const moisSuivant = (mois: string): string => {
@@ -2507,6 +2598,7 @@ const P14_R2 = clause({
 const P14_R3 = clause({
   id: 'P14.R3',
   enters: 'P14',
+  exits: 'P22',
   text:
     "Contenu d'une facture : invoice_id, member_id, month, lines (dans l'ordre des opérations ; au sein d'une opération, le " +
     "remboursement avant la compensation, puis les charges des promus dans l'ordre de promoted ; chaque ligne { type, " +
@@ -2633,8 +2725,8 @@ const P14_R4 = clause({
       const credit_note_id = `AV-${String(f.seq).padStart(4, '0')}`
       f.avoirs.push({
         credit_note_id,
-        invoice_id: `INV-${moisCharge}-${b.member_id}`,
-        member_id: b.member_id,
+        invoice_id: `INV-${moisCharge}-${e.member_id}`,
+        member_id: e.member_id,
         booking_id: b.booking_id,
         reason,
         month: ctx.regle<MoisDe>('comptabilite.mois')(ctx, ctx.instant),
@@ -2659,6 +2751,18 @@ const P14_R4 = clause({
     "Q22 (provisoire) : au-dela de AV-9999 la sequence continue sur 5 chiffres ou plus (AV-10000), sans troncature",
   ],
 })
+
+/** Réponse de list_documents pour member_id (P14.R5) : factures par mois croissant, avoirs par identifiant croissant. */
+function documentsDe(ctx: PlatformContext, member_id: unknown): PlatformResponse {
+  const f = facturation(ctx)
+  const invoices = [...f.factures.values()]
+    .filter((x) => x.member_id === member_id)
+    .sort((a, b) => (String(a.month) < String(b.month) ? -1 : 1))
+  const credit_notes = f.avoirs
+    .filter((a) => a.member_id === member_id)
+    .sort((a, b) => (String(a.credit_note_id) < String(b.credit_note_id) ? -1 : 1))
+  return succeed({ member_id, invoices: clone(invoices), credit_notes: clone(credit_notes) })
+}
 
 const P14_R5 = clause({
   id: 'P14.R5',
@@ -2685,14 +2789,7 @@ const P14_R5 = clause({
     'list_documents.effet': (ctx: PlatformContext): PlatformResponse => {
       const member_id = ctx.args.member_id
       if (ctx.role(member_id) === undefined) return fail('NOT_FOUND')
-      const f = facturation(ctx)
-      const invoices = [...f.factures.values()]
-        .filter((x) => x.member_id === member_id)
-        .sort((a, b) => (String(a.month) < String(b.month) ? -1 : 1))
-      const credit_notes = f.avoirs
-        .filter((a) => a.member_id === member_id)
-        .sort((a, b) => (String(a.credit_note_id) < String(b.credit_note_id) ? -1 : 1))
-      return succeed({ member_id, invoices: clone(invoices), credit_notes: clone(credit_notes) })
+      return documentsDe(ctx, member_id)
     },
   },
   grandeurs: ['member_id', 'invoice_id', 'credit_note_id', 'month'],
@@ -2721,18 +2818,25 @@ const P14_R6 = clause({
       const f = facturation(ctx)
       const factures = [...f.factures.values()].filter((x) => x.member_id === member).sort((a, b) => (String(a.month) < String(b.month) ? -1 : 1))
       let ouverture = 0
+      let moisPrecedent: string | null = null
+      const sorties = ctx.regles<SortieDeFacture>('comptabilite.sortie.')
       for (const x of factures) {
         const n = (k: string): number => x[k] as number
         const avoirs = f.avoirs.filter((a) => a.member_id === member && a.month === x.month).reduce((s, a) => s + (a.credits_cents as number), 0)
+        // la facture suivante s'ouvre sur la clôture de la précédente quand leurs mois se suivent (avant T72, ils se
+        // suivaient toujours) ; après des mois jamais émis, la chaîne repart de l'ouverture de la facture
+        const chainee = moisPrecedent === null || moisSuivant(moisPrecedent) === x.month
+        const autres = sorties.reduce((s, sortie) => s + sortie(x), 0)
         if (
-          n('opening_balance_cents') !== ouverture ||
+          (chainee && n('opening_balance_cents') !== ouverture) ||
           n('credit_notes_credits_cents') !== avoirs ||
-          n('closing_balance_cents') !== n('opening_balance_cents') + n('top_ups_cents') + n('compensations_cents') + avoirs - n('credits_used_cents') ||
+          n('closing_balance_cents') !== n('opening_balance_cents') + n('top_ups_cents') + n('compensations_cents') + avoirs - n('credits_used_cents') - autres ||
           n('card_cents') + n('credits_used_cents') !== n('total_cents')
         ) {
           throw new Error(`RAPPROCHEMENT-ROMPU ${String(x.invoice_id)}`)
         }
         ouverture = n('closing_balance_cents')
+        moisPrecedent = String(x.month)
       }
     }) satisfies Rapprochement,
   },
@@ -2960,6 +3064,7 @@ const P15_R5 = clause({
 const P15_R6 = clause({
   id: 'P15.R6',
   enters: 'P15',
+  exits: 'P22',
   replaces: 'P7.R3',
   text:
     "Montant (remplace P7.R3). Fixé à l'instant où la réservation devient 'confirmed', avec le prix, la devise du prix et " +
@@ -3170,7 +3275,1624 @@ const P16_R3 = clause({
   grandeurs: ['credit_note_id', 'lines.amount_cents', 'refunds_cents', 'reason'],
 })
 
-/** La source unique de clauses de F-PLATFORM, P1 à P16, dans l'ordre d'entrée. */
+/** Textes d'énoncé des clauses P17 à P24 (règles Pn.Rk). */
+const TEXTE_P17_R1 =
+  "merge_tenants {source_tenant_id} fusionne le locataire SOURCE dans le locataire CIBLE, qui est le locataire de l'enveloppe (champ tenant) ; actor admin de la cible (P4.R2, P4.R3). Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, sans aucun effet) : (1) source_tenant_id inconnu (jamais cree, ou deja fusionne) -> NOT_FOUND ; (2) source_tenant_id = cible -> INVALID_ARGUMENT ; (3) actor non admin de la source -> FORBIDDEN ; (4) la source ou la cible a deja emis au moins une facture (P14.R2) -> INVALID_ARGUMENT ; (5) un identifiant renomme par P17.R2 existe deja dans son espace de la cible ou de la source -> INVALID_ARGUMENT. Effet : tout le contenu de la source passe dans la cible (P17.R2 a P17.R4), puis la source cesse d'exister : toute operation dont le champ tenant la nomme -> NOT_FOUND (P3.R2), merge_tenants qui la nomme -> NOT_FOUND, et create_tenant avec son identifiant -> ALREADY_EXISTS (l'identifiant reste reserve). La cible garde son proprietaire, son fuseau (P9.R1), sa sequence d'avoirs (P14.R4) et de pseudonymes (P18.R1) ; la table de taux (P15.R1) de la source s'ajoute a celle de la cible, une date deja presente dans la cible gardant le taux de la cible. Reponse {ok: true, tenant_id (la cible), source_tenant_id, renamed, merged_members, added_members}."
+const TEXTE_P17_R2 =
+  "Collisions d'identifiants, regle declaree. Espaces de noms : (a) slot_id ; (b) series_id ; (c) request_id / booking_id : les reservations ET les cles d'idempotence memorisees (P1.R4, y compris celles d'une reponse d'erreur) ; (d) import_id (P20.R1). Un identifiant de la SOURCE qui existe deja dans le meme espace de la CIBLE est renomme '<source_tenant_id>:<identifiant>' (exemple : 'M1' de t-mig-b devient 't-mig-b:M1') ; un identifiant sans collision garde son nom ; les identifiants de la cible ne changent jamais. Tout ce qui reference un identifiant renomme suit : slot_id des reservations, file d'attente, occurrences d'une serie, cle et booking_id/slot_id d'une reponse memorisee. renamed liste les renommages {kind, from, to} : kind 'slot', puis 'series', puis 'booking' (cle portant une reservation), puis 'request' (cle memorisee sans reservation), puis 'import' ; dans chaque kind, from croissant (ordinal UTF-16). Les member_id ne sont jamais renommes (P17.R3)."
+const TEXTE_P17_R3 =
+  "Membres. Un member_id present dans les deux locataires designe la MEME personne : il n'est pas renomme ; son role devient le plus eleve des deux (admin > staff > member) ; son niveau (P7.R2) celui de plus fort taux de remise ; son portefeuille la SOMME des deux soldes, l'historique du portefeuille de la source (mouvements et lots P22.R2) rejoignant celui de la cible avec ses instants ; suspended_until la plus tardive des deux (null si aucune). Un membre present seulement dans la source est ajoute avec son role, son niveau, son portefeuille et sa suspension. merged_members (presents dans les deux) et added_members (source seulement) : member_id croissants (ordinal)."
+const TEXTE_P17_R4 =
+  "Historique conserve. Chaque reservation de la source passe dans la cible avec TOUT son etat, inchange hors renommage P17.R2 : member_id, status, seats, seat_numbers, rang en file d'attente, no_show, amount_cents, paid_credits_cents, paid_card_cents, devise et taux d'origine (P15.R6), instant et rang de confirmation (l'ordre de confirmation P13.R3 reste l'ordre global de la trajectoire), mouvements financiers (P14.R1). A partir de P17, toute reservation porte origin = {tenant_id, booking_id} : le locataire et le booking_id sous lesquels elle a ete CREEE (pour une reservation jamais fusionnee : son locataire et son booking_id actuels) ; les vues de reservation (reserve, get_booking) portent origin. Une reponse memorisee de la source est conservee sous sa cle (renommee s'il y a lieu) : seuls ses champs booking_id et slot_id de premier niveau sont reecrits selon le renommage ; le reste (dont origin) est inchange ; elle est rejouee a l'identique sous cette cle."
+const TEXTE_P18_R1 =
+  "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}."
+const TEXTE_P18_R2 =
+  "Anonymisation. Dans tout le locataire, l'identifiant efface est remplace par le pseudonyme : member_id (et payeur) des reservations, portefeuille (solde, historique, lots), niveau, suspension, reponses et arguments memorises (toute valeur chaine EGALE au member_id, a toute profondeur), factures et avoirs (member_id, et l'invoice_id 'INV-<AAAA-MM>-<member_id>' devient 'INV-<AAAA-MM>-<pseudonyme>', y compris l'invoice_id cite par un avoir). C'est la SEULE exception a l'immuabilite des factures (P14.R2) : elle ne remplace que des identifiants ; aucun montant, aucune ligne, aucun ordre ne change ; les totaux de toutes les factures restent intacts. Les identifiants des autres membres, des reservations et des avoirs ne changent pas."
+const TEXTE_P18_R3 =
+  "Apres effacement. Le membre efface n'est plus membre : il ne peut plus agir (FORBIDDEN, P4.R2) ; toute operation qui le designe comme member_id (reserve, top_up, set_tier, erase_member, ...) -> NOT_FOUND, et de meme pour le pseudonyme, sauf en lecture : list_documents, get_wallet (admin, staff) et le filtre member_id de report_revenue (P19.R3) acceptent le pseudonyme ; get_booking rend le pseudonyme. Les documents futurs du pseudonyme portent 'INV-<AAAA-MM>-<pseudonyme>' ; issue_invoices range les pseudonymes parmi les member_id par ordre croissant (ordinal). add_member avec l'ancien identifiant cree un NOUVEAU membre, sans historique (solde 0, aucun document)."
+const TEXTE_P19_R1 =
+  "report_occupancy {from, to, min_fill_bp?, sort?, page_size?, page?} (admin, staff). Controles apres ceux d'acteur, dans cet ordre : from ou to absent ou pas au format 'AAAA-MM-JJTHH:MM:SSZ', ou from >= to -> INVALID_ARGUMENT ; min_fill_bp (defaut 0) pas un entier >= 0 -> INVALID_ARGUMENT ; sort (defaut 'starts_at') hors de {'starts_at', '-fill_bp', 'slot_id'} -> INVALID_ARGUMENT ; page_size (defaut 20) pas un entier de 1 a 100, ou page (defaut 1) pas un entier >= 1 -> INVALID_ARGUMENT. Lignes : une par creneau existant du locataire (une occurrence exceptee par P5.R2 n'existe plus) dont from <= starts_at < to (borne haute EXCLUE) : {slot_id, starts_at, capacity, booked, fill_bp}, booked = somme des seats des reservations confirmed (P13.R1), fill_bp = floor(booked x 10000 / capacity) (points de base ; peut depasser 10000 en surreservation). Filtre : fill_bp >= min_fill_bp (borne incluse)."
+const TEXTE_P19_R2 =
+  "Tri stable et pagination. Ordre : la cle de sort ('starts_at' croissant, '-fill_bp' decroissant, 'slot_id' croissant ordinal), puis, a egalite, starts_at croissant, puis slot_id croissant ordinal (unites UTF-16) : l'ordre est total et ne depend ni de l'ordre de creation, ni de la page demandee. total = nombre de lignes apres filtre ; pages = ceil(total / page_size) (0 si total = 0) ; rows = les lignes de rang (page - 1) x page_size + 1 a page x page_size. Une page au-dela de la derniere rend rows = [] (ce n'est pas une erreur). Reponse {ok: true, total, page, page_size, pages, rows}."
+const TEXTE_P19_R3 =
+  "report_revenue {from_month, to_month, member_id?, sort?, page_size?, page?} (admin seulement). Controles apres ceux d'acteur : from_month ou to_month pas au format 'AAAA-MM' (mois 01..12), ou from_month > to_month -> INVALID_ARGUMENT ; sort (defaut 'month') hors de {'month', '-net_cents', 'member_id'} -> INVALID_ARGUMENT ; page_size et page comme P19.R1. Lignes : une par facture EMISE (P14.R2) de mois dans [from_month, to_month] (bornes incluses), filtree sur member_id s'il est donne (egalite exacte ; un pseudonyme P18 est un member_id comme un autre ; un member_id sans facture donne total 0, pas une erreur) : {invoice_id, month, member_id, total_cents, credit_notes_cents, net_cents} ; credit_notes_cents = somme des amount_cents des avoirs (P14.R4) dont l'invoice_id est cette facture, emis jusqu'a l'instant du rapport ; net_cents = total_cents - credit_notes_cents. Ordre : la cle de sort ('month' croissant, '-net_cents' decroissant, 'member_id' croissant ordinal), puis month croissant, puis member_id croissant ordinal. Pagination comme P19.R2. Reponse {ok: true, total, page, page_size, pages, sum_net_cents, rows}, sum_net_cents = somme des net_cents de TOUTES les lignes filtrees (pas seulement de la page)."
+const TEXTE_P20_R1 =
+  "import_bookings {import_id, rows} (admin, staff). Controles apres ceux d'acteur : import_id absent ou chaine vide -> INVALID_ARGUMENT ; import_id deja vu dans le locataire -> idempotence de l'import (P20.R4) ; rows pas un tableau, vide, ou de plus de 50 000 lignes -> INVALID_ARGUMENT (non memorise). Chaque ligne {request_id, member_id, slot_id, seats?} est traitee, dans l'ordre des lignes, EXACTEMENT comme une requete reserve emise par l'actor de l'import a l'instant at de l'import : meme ordre des controles qu'a P16 (sans le controle 'member pour autrui', l'actor etant admin ou staff), meme idempotence par request_id et meme memorisation (une ligne refusee memorise son refus comme reserve), meme admission, meme paiement (P8.R2, P15.R6). Une ligne refusee n'arrete pas l'import (import partiellement invalide). Une ligne qui n'est pas un objet portant un request_id chaine est refusee INVALID_ARGUMENT, sans memorisation."
+const TEXTE_P20_R2 =
+  "Reponse de import_bookings {ok: true, import_id, total, accepted, confirmed, waiting, duplicates, rejected}. total = nombre de lignes ; duplicates = nombre de lignes dont le request_id etait deja memorise avant elles (par une requete anterieure ou par une ligne precedente du meme import) : elles n'ont aucun effet ; rejected = [{index, request_id, error}] des autres lignes dont la reponse est un refus, dans l'ordre des lignes, index = rang 1-base de la ligne ; accepted = nombre de reservations creees = confirmed + waiting. Identite : total = accepted + duplicates + nombre de rejected."
+const TEXTE_P20_R3 =
+  "Plafond de latence declare, par operation, sur le volume importe (la mesure est faite par T75, pas par les faits de cette racine) : apres import de 50 000 reservations selon le profil `volume` de cette racine, la latence au 95e centile de chaque operation ne depasse pas : reserve 50 ms, cancel 50 ms, get_booking 20 ms, get_slot 20 ms, get_wallet 20 ms, list_documents 100 ms, report_occupancy 200 ms, report_revenue 200 ms, toute autre operation 100 ms ; un import_bookings de 50 000 lignes : 30 000 ms pour l'operation entiere. Une implementation qui parcourt toutes les reservations du locataire a chaque operation depasse ces plafonds."
+const TEXTE_P20_R4 =
+  "Idempotence de l'import : un import_id deja vu dans le locataire renvoie la reponse memorisee de son premier import, a l'identique et sans effet, quels que soient les rows envoyes. Seule une reponse ok: true est memorisee."
+const TEXTE_P21_R1 =
+  "Idempotence sous rejeux (remplace P1.R4). La premiere reponse produite pour un request_id (requete reserve ou ligne d'import P20.R1) est memorisee avec les arguments NORMALISES de sa requete {member_id, slot_id, seats (1 si absent)} ; c'est vrai aussi des cles memorisees avant P21 (arguments de leur premiere requete). Une requete ulterieure portant le meme request_id : arguments normalises egaux -> la reponse memorisee, a l'identique, sans effet (meme si l'etat a change depuis) ; arguments normalises differents -> {ok: false, error: 'IDEMPOTENCY_CONFLICT'}, sans effet et NON memorise (la cle garde sa premiere reponse). Une ligne d'import en conflit est un refus (rejected, error IDEMPOTENCY_CONFLICT). Le controle 'member pour autrui -> FORBIDDEN' (P4.R3) reste place AVANT l'idempotence et n'est jamais memorise."
+const TEXTE_P21_R2 =
+  "Idempotence de l'import sous rejeux (remplace P20.R4) : un import_id deja vu renvoie la reponse memorisee, a l'identique et sans effet, si rows est egal EN PROFONDEUR a celui du premier import (memes lignes, meme ordre, memes champs) ; sinon {ok: false, error: 'IDEMPOTENCY_CONFLICT'}, sans effet et non memorise."
+const TEXTE_P21_R3 =
+  "Serialisabilite (clause de concurrence ; les essais paralleles sont faits par T75, les faits de cette racine sont sequentiels). Chaque operation est atomique. Des requetes paralleles produisent les memes reponses et le meme etat qu'une execution SEQUENTIELLE dans un ordre compatible avec leur chevauchement temporel. Invariants verifies apres chaque operation : booked <= overbook_limit de chaque creneau (P13.R1) ; aucune place numerotee attribuee a deux reservations ; au plus une reservation active par (membre, creneau) ; au plus une reservation par request_id ; tout solde de portefeuille >= 0. En sequentiel, l'ordre est celui de la trajectoire, y compris entre operations de meme instant at."
+const TEXTE_P21_R4 =
+  "Derniere place disputee : parmi des requetes reserve concurrentes (request_id distincts) pour la derniere place d'un creneau, exactement UNE est confirmed ; les autres entrent en file (waiting) dans l'ordre de serialisation. Rejeux simultanes : N requetes paralleles de meme request_id et memes arguments creent exactement UNE reservation et recoivent N reponses identiques (la reponse memorisee, celle de la premiere executee comprise) ; si leurs arguments different, une seule cree, les autres recoivent la reponse memorisee ou IDEMPOTENCY_CONFLICT selon P21.R1."
+const TEXTE_P22_R1 =
+  "Fin des remises par niveau (remplace P15.R6). Le montant est fixe a l'instant ou la reservation devient confirmed (reservation ou promotion) avec le prix et la devise du prix de CET instant, SANS remise : brut = seats x price_cents ; net = brut (taux 0 quel que soit le niveau) ; prix en EUR : amount_cents = net ; prix en USD : conversion P15.R3 au taux applicable a l'instant de la confirmation, avec price_currency, original_amount_cents et rate_micro comme a P15.R6 ; RATE_UNAVAILABLE comme a P15.R6. Cela vaut pour toute confirmation a partir de P22, y compris la promotion d'une reservation demandee avant P22. Les montants fixes avant P22 ne changent pas ; les factures et avoirs deja emis ne changent pas. set_tier reste accepte et le niveau reste enregistre, sans effet sur le prix. Le recalcul P16.R2 utilise le taux de remise de la confirmation de chaque reservation : son taux d'avant P22 pour une reservation confirmee avant P22, 0 pour une reservation confirmee a partir de P22."
+const TEXTE_P22_R2 =
+  "Lots de credits et expiration. Chaque entree de credits au portefeuille (top_up, compensation P13.R3, re-credit r_c d'un remboursement ou d'un trop-percu, y compris par avoir) forme un LOT {acquired_at = at de l'operation, expires_at = le meme instant UTC 12 mois civils plus tard (un 29 fevrier donne le 1er mars), remaining_cents}. Chaque debit de credits (paiement P8.R2, frais P23.R3) consomme les lots par expires_at croissant (le plus ancien d'abord), puis par ordre d'entree. Retroactivite : les lots sont reconstitues sur TOUT l'historique du portefeuille depuis P8, par la meme regle (y compris les anciens credits). Un lot expire a l'instant expires_at : pour une operation d'instant at >= expires_at son reste est perdu (a at = expires_at le lot est expire ; a expires_at - 1 s il ne l'est pas). L'expiration est un mouvement de portefeuille date de expires_at, de montant = reste du lot ; a instant egal elle precede l'operation. balance_cents = somme des restes des lots non expires."
+const TEXTE_P22_R3 =
+  "Vues des lots. get_wallet porte en plus lots = [{acquired_at, expires_at, remaining_cents}] : les lots non expires de reste > 0, par expires_at croissant puis ordre d'entree (acquired_at, expires_at : 'AAAA-MM-JJTHH:MM:SSZ'). La reponse de top_up porte en plus expires_at, l'echeance du lot cree."
+const TEXTE_P22_R4 =
+  "Factures (remplace P14.R3). Contenu de P14.R3, plus : les lignes {type: 'expiry', booking_id: null, amount_cents} des expirations du membre dont expires_at tombe dans le mois (mois local, P14.R1), rangees a leur instant parmi les lignes ; le champ expired_cents = somme de ces lignes. Une expiration n'est ni une charge ni un remboursement : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte. Identite : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents. Les factures emises avant P22 ne portent pas expired_cents et ne changent pas."
+const TEXTE_P23_R1 =
+  "transfer_booking {booking_id, to_member_id} (admin, staff pour toute reservation ; member seulement pour une reservation dont il est le TITULAIRE, member_id). Controles apres ceux d'acteur, dans cet ordre : booking_id inconnu -> NOT_FOUND ; actor member non titulaire -> FORBIDDEN ; to_member_id non membre -> NOT_FOUND ; statut different de confirmed, ou to_member_id = titulaire actuel -> INVALID_ARGUMENT ; at >= starts_at du creneau -> SLOT_CLOSED ; at < suspended_until du destinataire (P10.R3) -> SUSPENDED ; le destinataire a une AUTRE reservation active (confirmed ou waiting) sur le meme creneau -> ALREADY_BOOKED. Effet : le titulaire devient to_member_id ; la reservation garde booking_id, seats, seat_numbers, montants, payeur et rang de confirmation ; le cedant paie les frais P23.R3. Reponse {ok: true, booking_id, member_id (nouveau titulaire), fee_cents, fee: {credits_cents, card_cents}}."
+const TEXTE_P23_R2 =
+  "exchange_bookings {booking_id, with_booking_id} (admin, staff ; member -> FORBIDDEN) : les deux titulaires echangent leurs reservations ; sur un meme creneau numerote, cela echange leurs places. Controles apres ceux d'acteur, dans cet ordre : l'une des deux inconnue -> NOT_FOUND ; booking_id = with_booking_id, l'une non confirmed, ou meme titulaire -> INVALID_ARGUMENT ; l'un des deux creneaux commence (at >= starts_at) -> SLOT_CLOSED ; l'un des deux titulaires suspendu (at < suspended_until) -> SUSPENDED ; creneaux differents et l'un des titulaires a deja une autre reservation active sur le creneau qu'il recoit -> ALREADY_BOOKED. Effet : chacun devient titulaire de la reservation de l'autre ; chaque cedant paie les frais P23.R3 de la reservation qu'il cede (frais de booking_id d'abord). Reponse {ok: true, exchanged: [{booking_id, member_id (nouveau titulaire), fee_cents}, {booking_id: with_booking_id, member_id, fee_cents}]}."
+const TEXTE_P23_R3 =
+  "Frais de transfert : fee_cents = max(100, floor((A x 1000 + 5000) / 10000)), A = amount_cents actuel de la reservation cedee (10 % arrondi demi vers le haut au centime, minimum 100 centimes, meme pour une reservation gratuite ou peu chere). Payes par le cedant au moment du transfert : credits d'abord (lots P22.R2, le plus ancien d'abord), puis carte. C'est un mouvement de type 'fee' (booking_id, montant, part credits, part carte) date de l'operation. Les frais ne sont jamais rembourses. A partir de P23, les vues de reservation (reserve, get_booking) portent payer_member_id (le membre debite a la confirmation ; null si jamais confirmee) et transfers = [{from_member_id, to_member_id, at, fee_cents}] dans l'ordre des transferts ([] si aucun)."
+const TEXTE_P23_R4 =
+  "Payeur et remboursements. Le titulaire actuel peut annuler sa reservation (member pour sa reservation, P4.R3). Tout remboursement ulterieur d'une reservation transferee (annulation totale ou partielle, debarquement, trop-percu P16.R2) va au PAYEUR (payer_member_id), pas au titulaire : r_c re-credite a son portefeuille, r_d rendu a sa carte, ligne refund ou avoir sur SES documents (l'avoir cite la facture de la charge, celle du payeur). La compensation de debarquement (P13.R3) va au titulaire."
+const TEXTE_P23_R5 =
+  "Factures (remplace P22.R4). Contenu de P22.R4, plus les lignes {type: 'fee', booking_id, amount_cents} des frais payes par le membre, comptees comme des charges : dans charges_cents, et leurs parts dans card_cents et credits_used_cents."
+const TEXTE_P24_R1 =
+  "Version du contrat. A partir de P24, l'enveloppe porte un champ version (au niveau de l'operation, hors args) : 'v1' ou 'v2' ; absent, il vaut 'v1'. Avant P24 ce champ est ignore. Toute autre valeur -> {ok: false, error: 'INVALID_ARGUMENT'} (forme v1), sans effet et avant tout autre controle (meme celui du tenant)."
+const TEXTE_P24_R2 =
+  "Correspondance declaree v1 <-> v2, bijective. Operations : reserve <-> create_reservation, cancel <-> cancel_reservation, get_booking <-> get_reservation, get_slot <-> get_session, create_slot <-> create_session, transfer_booking <-> transfer_reservation, exchange_bookings <-> exchange_reservations, import_bookings <-> import_reservations ; toutes les autres operations gardent leur nom. Champs : booking_id <-> reservation_id, slot_id <-> session_id, slot_ids <-> session_ids, seats <-> quantity, with_booking_id <-> with_reservation_id ; la correspondance porte sur les NOMS de cles, a toute profondeur, dans les arguments ET dans les reponses (exemples : rows[].slot_id, lines[].booking_id, origin.booking_id, assignments[].booking_id) ; les valeurs ne changent jamais, les autres cles non plus. Erreurs : v1 {ok: false, error: CODE} <-> v2 {ok: false, error: {code: CODE}} ; seule l'erreur de premier niveau change de forme (les error des lignes rejected d'un import restent des chaines)."
+const TEXTE_P24_R3 =
+  "Equivalence. Une requete v2 est traduite en v1 par la correspondance P24.R2, executee par les regles en vigueur, et sa reponse est traduite en v2 : une operation v1 et son equivalent v2 ont le MEME effet et des reponses qui se correspondent exactement. L'idempotence est commune aux deux versions : une cle (request_id, import_id) memorisee par une version est rejouee par l'autre, la reponse etant rendue dans la forme de la requete qui rejoue ; les arguments normalises (P21.R1) et les rows (P21.R2) sont compares apres traduction en v1. Le contrat v1 continue de fonctionner a l'identique."
+const TEXTE_P24_R4 =
+  "Noms de l'autre version. En v2, un nom d'operation v1 renomme (ex. reserve) ou une cle v1 renommee presente a n'importe quelle profondeur des arguments (ex. booking_id) -> {ok: false, error: {code: 'INVALID_ARGUMENT'}} ; en v1, un nom d'operation v2 ou une cle v2 -> {ok: false, error: 'INVALID_ARGUMENT'}. Sans effet, non memorise, controle juste apres celui de la version."
+
+/* ═══════════════════════════════════════════════════════ outils P17 à P24 */
+
+const ordinal = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)
+
+/** L'état qu'une clause range sous `cle` dans un locataire quelconque (pas forcément celui de l'opération). */
+function donneeDe<T>(t: Tenant, cle: string, init: () => T): T {
+  if (!t.donnees.has(cle)) t.donnees.set(cle, init())
+  return t.donnees.get(cle) as T
+}
+
+/** Égalité profonde de valeurs JSON, indépendante de l'ordre des clés d'un objet. */
+function egalProfond(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a)) return Array.isArray(b) && a.length === b.length && a.every((x, i) => egalProfond(x, b[i]))
+  if (a !== null && typeof a === 'object') {
+    if (b === null || typeof b !== 'object' || Array.isArray(b)) return false
+    const ka = Object.keys(a as Json).filter((k) => (a as Json)[k] !== undefined)
+    const kb = Object.keys(b as Json).filter((k) => (b as Json)[k] !== undefined)
+    return ka.length === kb.length && ka.every((k) => egalProfond((a as Json)[k], (b as Json)[k]))
+  }
+  return Object.is(a, b)
+}
+
+/** Remplace, à toute profondeur, toute valeur chaîne ÉGALE à `de` par `vers` (les clés ne changent pas). */
+function remplacerChaine<T>(v: T, de: string, vers: string): T {
+  if (v === de) return vers as T
+  if (Array.isArray(v)) return v.map((x: unknown) => remplacerChaine(x, de, vers)) as T
+  if (v !== null && typeof v === 'object') {
+    const out: Json = {}
+    for (const [k, x] of Object.entries(v as Json)) out[k] = remplacerChaine(x, de, vers)
+    return out as T
+  }
+  return v
+}
+
+/** Réservation avec les champs ajoutés à partir de P17 (origine, payeur, transferts). */
+interface Origine {
+  readonly tenant_id: string
+  readonly booking_id: string
+}
+interface Transfert {
+  from_member_id: string
+  to_member_id: string
+  readonly at: string
+  readonly fee_cents: number
+}
+interface Reservation extends Booking {
+  origin?: Origine
+  payer_member_id?: string
+  transfers?: Transfert[]
+}
+const etendue = (b: Booking): Reservation => b as Reservation
+
+type RoleDe = (ctx: PlatformContext, t: Tenant, m: string) => string | undefined
+type Partition = (ctx: PlatformContext, id: string) => Tenant | undefined
+
+const CLE_ABSORBES = 'fusion.absorbes'
+const CLE_PSEUDONYMES = 'effacement.pseudonymes'
+const CLE_IMPORTS = 'import.memoire'
+
+interface Pseudonymes {
+  seq: number
+  readonly ensemble: Set<string>
+}
+const pseudonymesDe = (t: Tenant): Pseudonymes => donneeDe<Pseudonymes>(t, CLE_PSEUDONYMES, () => ({ seq: 0, ensemble: new Set() }))
+
+interface ImportMemorise {
+  readonly reponse: PlatformResponse
+  readonly rows: unknown
+}
+const importsDe = (t: Tenant): Map<string, ImportMemorise> => donneeDe<Map<string, ImportMemorise>>(t, CLE_IMPORTS, () => new Map())
+const historiqueDe = (t: Tenant): MouvementDate[] => donneeDe<MouvementDate[]>(t, CLE_HISTORIQUE_PORTEFEUILLE, () => [])
+const suspensionsDe = (t: Tenant): Map<string, number> => donneeDe<Map<string, number>>(t, CLE_SUSPENSIONS, () => new Map())
+
+/* ═══════════════════════════════════════════════════════════════════ P17 */
+
+const RANG_ROLE: Readonly<Record<string, number>> = { member: 0, staff: 1, admin: 2 }
+const ORDRE_DES_KINDS = ['slot', 'series', 'booking', 'request', 'import'] as const
+type Kind = (typeof ORDRE_DES_KINDS)[number]
+
+interface Renommage {
+  readonly kind: Kind
+  readonly from: string
+  readonly to: string
+}
+interface PlanFusion {
+  readonly slots: Map<string, string>
+  readonly series: Map<string, string>
+  readonly cles: Map<string, string>
+  readonly imports: Map<string, string>
+  readonly renamed: Renommage[]
+}
+type Planifier = (ctx: PlatformContext, source: Tenant, cible: Tenant) => PlanFusion | null
+type FusionMembres = (ctx: PlatformContext, source: Tenant, cible: Tenant) => { merged_members: string[]; added_members: string[] }
+type FusionContenu = (ctx: PlatformContext, source: Tenant, cible: Tenant, plan: PlanFusion) => void
+
+const aEmisUneFacture = (t: Tenant): boolean => {
+  const f = t.donnees.get(CLE_FACTURATION) as Facturation | undefined
+  return f !== undefined && f.emis.size > 0
+}
+const membresDe = (t: Tenant): string[] => {
+  const ms = new Set(t.members.keys())
+  if (t.owner_id !== undefined) ms.add(t.owner_id)
+  return [...ms]
+}
+const absorbesDe = (t: Tenant): Set<string> => donneeDe<Set<string>>(t, CLE_ABSORBES, () => new Set())
+
+const P17_R1 = clause({
+  id: 'P17.R1',
+  enters: 'P17',
+  text: TEXTE_P17_R1,
+  contract: {
+    operations: {
+      merge_tenants: {
+        roles_autorises: ['admin'],
+        arguments: { source_tenant_id: 'chaine' },
+        reponse: { ok: true, tenant_id: 'chaine (la cible)', source_tenant_id: 'chaine', renamed: 'tableau de { kind, from, to }', merged_members: 'tableau', added_members: 'tableau' },
+        erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT'],
+        ordre_des_controles: ['NOT_FOUND source', 'INVALID_ARGUMENT source = cible', 'FORBIDDEN actor non admin de la source', 'INVALID_ARGUMENT facture emise', 'INVALID_ARGUMENT renommage deja pris'],
+      },
+      create_tenant: { erreurs: ['ALREADY_EXISTS'], identifiant_absorbe: 'reste reserve : ALREADY_EXISTS' },
+    },
+    exemples: [
+      { contexte: "m-ana n'est pas membre de t-beta", requete: { op: 'merge_tenants', tenant: 't-alpha', actor: 'm-ana', args: { source_tenant_id: 't-beta' } }, reponse: { ok: false, error: 'FORBIDDEN' } },
+      { requete: { op: 'merge_tenants', tenant: 't-mig-a', actor: 'm-ana', args: { source_tenant_id: 't-gamma' } }, reponse: { ok: false, error: 'NOT_FOUND' } },
+      { contexte: 'apres fusion de t-mig-b', requete: { op: 'create_tenant', args: { tenant_id: 't-mig-b', owner_id: 'm-ana' } }, reponse: { ok: false, error: 'ALREADY_EXISTS' } },
+    ],
+  },
+  implementation: {
+    'autorisation.merge_tenants': ['admin'],
+    'create_tenant.etape.identifiant_absorbe': etape(5, (ctx) => {
+      const id = ctx.args.tenant_id
+      if (typeof id !== 'string') return undefined
+      for (const t of ctx.etat.tenants.values()) if ((t.donnees.get(CLE_ABSORBES) as Set<string> | undefined)?.has(id) === true) return fail('ALREADY_EXISTS')
+      return undefined
+    }),
+    'merge_tenants.effet': (ctx: PlatformContext): PlatformResponse => {
+      const cible = ctx.locataire
+      const sid = ctx.args.source_tenant_id
+      const source = typeof sid === 'string' ? ctx.regle<Partition>('locataire.partition')(ctx, sid) : undefined
+      if (source === undefined) return fail('NOT_FOUND')
+      if (source === cible) return fail('INVALID_ARGUMENT')
+      if (ctx.regle<RoleDe>('membres.role')(ctx, source, String(ctx.step.actor)) !== 'admin') return fail('FORBIDDEN')
+      if (aEmisUneFacture(source) || aEmisUneFacture(cible)) return fail('INVALID_ARGUMENT')
+      const plan = ctx.regle<Planifier>('fusion.renommage')(ctx, source, cible)
+      if (plan === null) return fail('INVALID_ARGUMENT')
+      const membres = ctx.regle<FusionMembres>('fusion.membres')(ctx, source, cible)
+      ctx.regle<FusionContenu>('fusion.contenu')(ctx, source, cible, plan)
+      const absorbes = absorbesDe(cible)
+      absorbes.add(source.tenant_id)
+      for (const x of absorbesDe(source)) absorbes.add(x)
+      ctx.etat.tenants.delete(source.tenant_id)
+      return succeed({
+        tenant_id: cible.tenant_id,
+        source_tenant_id: source.tenant_id,
+        renamed: plan.renamed.map((r) => ({ ...r })),
+        merged_members: membres.merged_members,
+        added_members: membres.added_members,
+      })
+    },
+  },
+  grandeurs: ['tenant_id', 'source_tenant_id', 'renamed', 'merged_members', 'added_members', 'actor'],
+  questions_ouvertes: [
+    "Q29 (provisoire, exercee) : la fusion est refusee INVALID_ARGUMENT des que la source ou la cible a emis une facture ; aucune regle ne fusionne deux historiques factures",
+  ],
+})
+
+const P17_R2 = clause({
+  id: 'P17.R2',
+  enters: 'P17',
+  text: TEXTE_P17_R2,
+  contract: {
+    valeurs: {
+      forme_du_renommage: '<source_tenant_id>:<identifiant>',
+      espaces: ['slot_id', 'series_id', 'request_id/booking_id', 'import_id'],
+      ordre_de_renamed: [...ORDRE_DES_KINDS],
+      tri_dans_un_kind: 'from croissant (ordinal UTF-16)',
+    },
+    exemples: [
+      { contexte: 'M1 existe dans t-mig-a et t-mig-b', calcul: "'M1' de t-mig-b devient 't-mig-b:M1' ; renamed [{ kind: 'slot', from: 'M1', to: 't-mig-b:M1' }, ...]" },
+    ],
+  },
+  implementation: {
+    'fusion.renommage': ((_ctx, source, cible) => {
+      const prefixe = `${source.tenant_id}:`
+      const cles = (t: Tenant): Set<string> => new Set([...t.bookings.keys(), ...t.memo.keys()])
+      const espaces: Array<[Exclude<Kind, 'request'>, Set<string>, Set<string>, Map<string, string>]> = [
+        ['slot', new Set(source.slots.keys()), new Set(cible.slots.keys()), new Map()],
+        ['series', new Set(source.series.keys()), new Set(cible.series.keys()), new Map()],
+        ['booking', cles(source), cles(cible), new Map()],
+        ['import', new Set(importsDe(source).keys()), new Set(importsDe(cible).keys()), new Map()],
+      ]
+      const renamed: Renommage[] = []
+      for (const [kind, ids, pris, renommes] of espaces) {
+        for (const id of ids) {
+          if (!pris.has(id)) continue
+          const to = `${prefixe}${id}`
+          if (pris.has(to) || ids.has(to)) return null
+          renommes.set(id, to)
+          renamed.push({ kind: kind === 'booking' && !source.bookings.has(id) ? 'request' : kind, from: id, to })
+        }
+      }
+      renamed.sort((a, b) => ORDRE_DES_KINDS.indexOf(a.kind) - ORDRE_DES_KINDS.indexOf(b.kind) || ordinal(a.from, b.from))
+      const [slots, series, cles_, imports] = espaces.map((e) => e[3]) as [Map<string, string>, Map<string, string>, Map<string, string>, Map<string, string>]
+      return { slots, series, cles: cles_, imports, renamed }
+    }) satisfies Planifier,
+  },
+  grandeurs: ['renamed', 'slot_id', 'series_id', 'booking_id', 'request_id', 'import_id'],
+  questions_ouvertes: [
+    "Q32 (provisoire) : une serie renommee garde ses occurrences '<series_id>@<date>' sous leurs propres slot_id (renommes seulement s'ils entrent eux-memes en collision) ; le lien nom de serie / nom d'occurrence est rompu",
+  ],
+})
+
+const P17_R3 = clause({
+  id: 'P17.R3',
+  enters: 'P17',
+  text: TEXTE_P17_R3,
+  contract: {
+    valeurs: { rang_des_roles: ['member', 'staff', 'admin'], niveau: 'plus fort taux de remise', portefeuille: 'somme', suspension: 'la plus tardive (null si aucune)' },
+    operations: { merge_tenants: { reponse: { merged_members: 'member_id croissants', added_members: 'member_id croissants' } } },
+    exemples: [{ contexte: 'm-y : 300 dans la cible, 650 dans la source', requete: { op: 'get_wallet', tenant: 't-mig-a', actor: 'm-ana', args: { member_id: 'm-y' } }, reponse: { ok: true, member_id: 'm-y', balance_cents: 950 } }],
+  },
+  implementation: {
+    'fusion.membres': ((_ctx, source, cible) => {
+      const roleDe = (t: Tenant, m: string): string | undefined => (t.owner_id === m ? 'admin' : t.members.get(m))
+      const merged_members: string[] = []
+      const added_members: string[] = []
+      for (const m of membresDe(source)) {
+        const rs = roleDe(source, m) as string
+        const rc = roleDe(cible, m)
+        if (rc === undefined) added_members.push(m)
+        else merged_members.push(m)
+        const role = rc === undefined || (RANG_ROLE[rs] ?? 0) > (RANG_ROLE[rc] ?? 0) ? rs : rc
+        if (cible.owner_id !== m) cible.members.set(m, role)
+      }
+      for (const [m, ts] of source.tiers) {
+        const tc = cible.tiers.get(m)
+        if (tc === undefined || (TAUX_REMISE_BP[ts] ?? 0) > (TAUX_REMISE_BP[tc] ?? 0)) cible.tiers.set(m, ts)
+      }
+      for (const [m, w] of source.wallets) cible.wallets.set(m, (cible.wallets.get(m) ?? 0) + w)
+      const historique = historiqueDe(cible)
+      historique.push(...historiqueDe(source))
+      const tries = historique.map((h, i) => [h, i] as const).sort((a, b) => a[0].t - b[0].t || a[1] - b[1]).map(([h]) => h)
+      historique.splice(0, historique.length, ...tries)
+      const suspensions = suspensionsDe(cible)
+      for (const [m, s] of suspensionsDe(source)) suspensions.set(m, Math.max(suspensions.get(m) ?? -Infinity, s))
+      donneeDe<Absence[]>(cible, CLE_ABSENCES, () => []).push(...donneeDe<Absence[]>(source, CLE_ABSENCES, () => []))
+      merged_members.sort(ordinal)
+      added_members.sort(ordinal)
+      return { merged_members, added_members }
+    }) satisfies FusionMembres,
+  },
+  grandeurs: ['merged_members', 'added_members', 'member_id', 'role', 'tier', 'balance_cents', 'suspended_until'],
+  questions_ouvertes: [
+    "Q30 (provisoire, exercee) : un member_id present dans les deux locataires est la MEME personne : pas de renommage, role le plus eleve, niveau de plus forte remise, soldes additionnes",
+    "Q33 (provisoire) : les absences (P10) enregistrees dans la source rejoignent celles de la cible et comptent dans absences_30d des enregistrements suivants",
+    "Q34 (provisoire) : les pseudonymes P18 de la source rejoignent ceux de la cible sans renommage, meme s'ils coincident ; la cible garde sa sequence de pseudonymes",
+  ],
+})
+
+const P17_R4 = clause({
+  id: 'P17.R4',
+  enters: 'P17',
+  text: TEXTE_P17_R4,
+  contract: {
+    operations: {
+      reserve: { reponse: { origin: '{ tenant_id, booking_id } de creation' } },
+      get_booking: { reponse: { origin: '{ tenant_id, booking_id } de creation' } },
+    },
+    memoire_renommee: 'cle renommee ; seuls booking_id et slot_id de premier niveau reecrits',
+    exemples: [
+      { requete: { op: 'get_booking', tenant: 't-mig-a', actor: 'm-ana', args: { booking_id: 't-mig-b:k1' } }, reponse: { ok: true, booking_id: 't-mig-b:k1', member_id: 'm-x', slot_id: 't-mig-b:M1', seat_numbers: [5], origin: { tenant_id: 't-mig-b', booking_id: 'k1' } } },
+    ],
+  },
+  implementation: {
+    'fusion.contenu': ((_ctx, source, cible, plan) => {
+      const rs = (id: string): string => plan.slots.get(id) ?? id
+      const rk = (id: string): string => plan.cles.get(id) ?? id
+      for (const s of source.slots.values()) {
+        const ns: Slot = { ...s, slot_id: rs(s.slot_id), file: s.file.map(rk) }
+        cible.slots.set(ns.slot_id, ns)
+      }
+      for (const se of source.series.values()) {
+        const id = plan.series.get(se.series_id) ?? se.series_id
+        cible.series.set(id, { ...se, series_id: id, exceptions: new Set(se.exceptions) })
+      }
+      for (const b of source.bookings.values()) {
+        const e = etendue(b)
+        const nb: Reservation = {
+          ...e,
+          booking_id: rk(b.booking_id),
+          slot_id: rs(b.slot_id),
+          origin: e.origin ?? { tenant_id: source.tenant_id, booking_id: b.booking_id },
+          ...(e.seat_numbers === undefined ? {} : { seat_numbers: [...e.seat_numbers] }),
+          ...(e.transfers === undefined ? {} : { transfers: e.transfers.map((x) => ({ ...x })) }),
+        }
+        cible.bookings.set(nb.booking_id, nb)
+      }
+      const argumentsCible = donneeDe<Map<string, ArgumentsNormalises>>(cible, CLE_ARGUMENTS_IDEMPOTENCE, () => new Map())
+      const argumentsSource = donneeDe<Map<string, ArgumentsNormalises>>(source, CLE_ARGUMENTS_IDEMPOTENCE, () => new Map())
+      for (const [k, r] of source.memo) {
+        const nr = clone(r)
+        if (typeof nr.booking_id === 'string') nr.booking_id = rk(nr.booking_id)
+        if (typeof nr.slot_id === 'string') nr.slot_id = rs(nr.slot_id)
+        cible.memo.set(rk(k), nr)
+        const a = argumentsSource.get(k)
+        if (a !== undefined) argumentsCible.set(rk(k), { ...a, slot_id: typeof a.slot_id === 'string' ? rs(a.slot_id) : a.slot_id })
+      }
+      const importsCible = importsDe(cible)
+      for (const [k, x] of importsDe(source)) importsCible.set(plan.imports.get(k) ?? k, x)
+      for (const e of source.journal) cible.journal.push(e)
+      cible.journal.sort((a, b) => a.seq - b.seq)
+      const tauxCible = donneeDe<Map<string, number>>(cible, CLE_TAUX, () => new Map())
+      for (const [d, r] of donneeDe<Map<string, number>>(source, CLE_TAUX, () => new Map())) if (!tauxCible.has(d)) tauxCible.set(d, r)
+      const pseudos = pseudonymesDe(cible)
+      for (const p of pseudonymesDe(source).ensemble) pseudos.ensemble.add(p)
+    }) satisfies FusionContenu,
+    'vue.reservation.origine': ((ctx, b, champs) => {
+      const o = etendue(b).origin
+      champs.origin = o === undefined ? { tenant_id: ctx.locataire.tenant_id, booking_id: b.booking_id } : { tenant_id: o.tenant_id, booking_id: o.booking_id }
+    }) satisfies Vue<Booking>,
+  },
+  grandeurs: ['origin', 'booking_id', 'slot_id', 'request_id', 'tenant_id'],
+  questions_ouvertes: [
+    "Q31 (provisoire) : seuls booking_id et slot_id de PREMIER niveau d'une reponse memorisee de la source sont reecrits ; une valeur imbriquee (promoted, waiting, rejected[].request_id d'un import memorise) garde l'ancien identifiant",
+  ],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P18 */
+
+type PseudonymeSuivant = (ctx: PlatformContext) => string
+interface BilanAnonymisation {
+  readonly invoice_ids: string[]
+  readonly credit_note_ids: string[]
+  readonly bookings_anonymized: number
+}
+type Anonymiser = (ctx: PlatformContext, membre: string, pseudo: string) => BilanAnonymisation
+
+const P18_R1 = clause({
+  id: 'P18.R1',
+  enters: 'P18',
+  text: TEXTE_P18_R1,
+  contract: {
+    operations: {
+      erase_member: {
+        roles_autorises: ['admin'],
+        arguments: { member_id: 'chaine' },
+        reponse: { ok: true, member_id: "pseudonyme 'anon-nnnn'", invoice_ids: 'tableau croissant', credit_note_ids: 'tableau croissant', bookings_anonymized: 'entier' },
+        erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT'],
+        ordre_des_controles: ['NOT_FOUND (non membre, pseudonyme, deja efface)', 'INVALID_ARGUMENT (proprietaire ou actor)', 'INVALID_ARGUMENT (reservation active a venir)'],
+      },
+    },
+    valeurs: { pseudonyme: "'anon-' + 4 chiffres, sequence par locataire, a partir de anon-0001" },
+    exemples: [
+      { requete: { op: 'erase_member', tenant: 't-alpha', actor: 'm-ana', args: { member_id: 'm-gus' } }, reponse: { ok: true, member_id: 'anon-0001', credit_note_ids: ['AV-0002'], bookings_anonymized: 13 } },
+      { contexte: 'm-cleo a une reservation confirmed a venir', requete: { op: 'erase_member', tenant: 't-alpha', actor: 'm-ana', args: { member_id: 'm-cleo' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+    ],
+  },
+  implementation: {
+    'autorisation.erase_member': ['admin'],
+    'effacement.pseudonyme': ((ctx) => {
+      const p = pseudonymesDe(ctx.locataire)
+      p.seq += 1
+      return `anon-${String(p.seq).padStart(4, '0')}`
+    }) satisfies PseudonymeSuivant,
+    'erase_member.effet': (ctx: PlatformContext): PlatformResponse => {
+      const m = ctx.args.member_id
+      if (typeof m !== 'string' || ctx.role(m) === undefined) return fail('NOT_FOUND')
+      if (m === ctx.locataire.owner_id || m === ctx.step.actor) return fail('INVALID_ARGUMENT')
+      for (const b of ctx.locataire.bookings.values()) {
+        if (b.member_id !== m || !ctx.estActive(b)) continue
+        const slot = ctx.locataire.slots.get(b.slot_id)
+        if (slot !== undefined && Date.parse(slot.starts_at) > ctx.instant) return fail('INVALID_ARGUMENT')
+      }
+      const pseudo = ctx.regle<PseudonymeSuivant>('effacement.pseudonyme')(ctx)
+      const bilan = ctx.regle<Anonymiser>('effacement.anonymiser')(ctx, m, pseudo)
+      return succeed({ member_id: pseudo, ...bilan })
+    },
+  },
+  grandeurs: ['member_id', 'invoice_ids', 'credit_note_ids', 'bookings_anonymized', 'starts_at', 'at'],
+  questions_ouvertes: [
+    "Q35 (provisoire, exercee) : l'effacement est refuse INVALID_ARGUMENT tant que le membre a une reservation active (confirmed ou waiting) a venir ; elle n'est pas annulee d'office",
+  ],
+})
+
+const P18_R2 = clause({
+  id: 'P18.R2',
+  enters: 'P18',
+  text: TEXTE_P18_R2,
+  contract: {
+    valeurs: { invoice_id_renomme: 'INV-<AAAA-MM>-<pseudonyme>', montants: 'inchanges', exception_a_l_immuabilite: 'identifiants seulement' },
+    exemples: [{ calcul: "INV-2031-03-m-gus devient INV-2031-03-anon-0001 ; total_cents 3373 inchange" }],
+  },
+  implementation: {
+    'effacement.anonymiser': ((ctx, m, pseudo) => {
+      const t = ctx.locataire
+      t.members.delete(m)
+      const deplacer = <V>(map: Map<string, V>): void => {
+        const v = map.get(m)
+        if (v === undefined) return
+        map.delete(m)
+        map.set(pseudo, v)
+      }
+      deplacer(t.tiers)
+      deplacer(t.wallets)
+      deplacer(suspensionsDe(t))
+      for (const h of historiqueDe(t)) if (h.member_id === m) h.member_id = pseudo
+      for (const a of donneeDe<Absence[]>(t, CLE_ABSENCES, () => [])) if (a.member_id === m) a.member_id = pseudo
+      for (const e of t.journal) if (e.member_id === m) e.member_id = pseudo
+      let bookings_anonymized = 0
+      for (const b of t.bookings.values()) {
+        const e = etendue(b)
+        if (b.member_id !== m && e.payer_member_id !== m) continue
+        bookings_anonymized += 1
+        if (b.member_id === m) b.member_id = pseudo
+        if (e.payer_member_id === m) e.payer_member_id = pseudo
+      }
+      for (const b of t.bookings.values()) {
+        for (const x of etendue(b).transfers ?? []) {
+          if (x.from_member_id === m) x.from_member_id = pseudo
+          if (x.to_member_id === m) x.to_member_id = pseudo
+        }
+      }
+      for (const [k, r] of t.memo) t.memo.set(k, remplacerChaine(r, m, pseudo))
+      const args = argumentsMemorises(ctx)
+      for (const [k, a] of args) args.set(k, remplacerChaine(a, m, pseudo))
+      const imports = importsDe(t)
+      for (const [k, x] of imports) imports.set(k, remplacerChaine(x, m, pseudo))
+      const f = facturation(ctx)
+      const renommer = (id: unknown): unknown =>
+        typeof id === 'string' && /^INV-\d{4}-\d{2}-/.test(id) && id.slice(12) === m ? `${id.slice(0, 12)}${pseudo}` : id
+      const factures = [...f.factures.values()]
+      f.factures.clear()
+      const invoice_ids: string[] = []
+      for (const x of factures) {
+        if (x.member_id === m) {
+          x.member_id = pseudo
+          x.invoice_id = renommer(x.invoice_id)
+          invoice_ids.push(String(x.invoice_id))
+        }
+        f.factures.set(String(x.invoice_id), x)
+      }
+      const credit_note_ids: string[] = []
+      for (const a of f.avoirs) {
+        a.invoice_id = renommer(a.invoice_id)
+        if (a.member_id === m) a.member_id = pseudo
+        if (a.member_id === pseudo) credit_note_ids.push(String(a.credit_note_id))
+      }
+      pseudonymesDe(t).ensemble.add(pseudo)
+      return { invoice_ids: invoice_ids.sort(ordinal), credit_note_ids: credit_note_ids.sort(ordinal), bookings_anonymized }
+    }) satisfies Anonymiser,
+  },
+  grandeurs: ['member_id', 'invoice_id', 'credit_note_id', 'total_cents', 'balance_cents'],
+  questions_ouvertes: [
+    "Q36 (provisoire) : les arguments memorises sont anonymises comme les reponses ; a partir de P21, rejouer une cle de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT",
+    "Q37 (provisoire) : l'anonymisation remplace toute valeur chaine EGALE au member_id a toute profondeur des reponses et arguments memorises, sans restriction aux champs nommes member_id",
+  ],
+})
+
+const estPseudonyme = (ctx: PlatformContext, m: unknown): boolean =>
+  typeof m === 'string' && pseudonymesDe(ctx.locataire).ensemble.has(m) && ctx.role(m) === undefined
+
+const P18_R3 = clause({
+  id: 'P18.R3',
+  enters: 'P18',
+  text: TEXTE_P18_R3,
+  contract: {
+    operations: {
+      list_documents: { pseudonyme: 'accepte (admin, staff)' },
+      get_wallet: { pseudonyme: 'accepte (admin, staff)' },
+      report_revenue: { filtre_member_id: 'un pseudonyme est un member_id comme un autre' },
+      reserve: { erreurs: ['NOT_FOUND'], membre_efface: 'NOT_FOUND, pseudonyme compris' },
+    },
+    erreurs: ['NOT_FOUND', 'FORBIDDEN'],
+    exemples: [
+      { requete: { op: 'get_wallet', tenant: 't-alpha', actor: 'm-sam', args: { member_id: 'anon-0001' } }, reponse: { ok: true, member_id: 'anon-0001', balance_cents: 547 } },
+      { requete: { op: 'list_documents', tenant: 't-alpha', actor: 'm-sam', args: { member_id: 'm-gus' } }, reponse: { ok: false, error: 'NOT_FOUND' } },
+    ],
+  },
+  implementation: {
+    'get_wallet.etape.pseudonyme': etape(6, (ctx) => {
+      const m = ctx.args.member_id
+      if (!estPseudonyme(ctx, m)) return undefined
+      return succeed({ member_id: m, balance_cents: ctx.regle<Solde>('portefeuille.solde')(ctx, String(m)) })
+    }),
+    'list_documents.etape.pseudonyme': etape(6, (ctx) => (estPseudonyme(ctx, ctx.args.member_id) ? documentsDe(ctx, ctx.args.member_id) : undefined)),
+  },
+  grandeurs: ['member_id', 'balance_cents', 'invoice_id'],
+  questions_ouvertes: [
+    "Q38 (provisoire, exercee) : le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde son portefeuille ; un solde non nul n'est ni rembourse ni annule",
+  ],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P19 */
+
+interface Pagination {
+  readonly page_size: number
+  readonly page: number
+}
+type PaginationValide = (args: Json) => Pagination | null
+type Paginer = <T>(lignes: readonly T[], p: Pagination) => { total: number; page: number; page_size: number; pages: number; rows: T[] }
+interface LigneOccupation {
+  readonly slot_id: string
+  readonly starts_at: string
+  readonly capacity: number
+  readonly booked: number
+  readonly fill_bp: number
+}
+type OrdreOccupation = (lignes: readonly LigneOccupation[], sort: string) => LigneOccupation[]
+
+const TRIS_OCCUPATION = ['starts_at', '-fill_bp', 'slot_id'] as const
+const TRIS_REVENUS = ['month', '-net_cents', 'member_id'] as const
+
+const P19_R1 = clause({
+  id: 'P19.R1',
+  enters: 'P19',
+  text: TEXTE_P19_R1,
+  contract: {
+    operations: {
+      report_occupancy: {
+        roles_autorises: ['admin', 'staff'],
+        arguments: { from: "'AAAA-MM-JJTHH:MM:SSZ' inclus", to: "'AAAA-MM-JJTHH:MM:SSZ' exclu", min_fill_bp: 'entier >= 0 (0)', sort: "'starts_at' (defaut) | '-fill_bp' | 'slot_id'", page_size: 'entier 1..100 (20)', page: 'entier >= 1 (1)' },
+        reponse: { ok: true, total: 'entier', page: 'entier', page_size: 'entier', pages: 'entier', rows: 'tableau de { slot_id, starts_at, capacity, booked, fill_bp }' },
+        erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT'],
+      },
+    },
+    valeurs: { tris: [...TRIS_OCCUPATION], page_size: { defaut: 20, min: 1, max: 100 }, page: { defaut: 1, min: 1 }, fill_bp: 'floor(booked * 10000 / capacity)', fenetre: '[from, to[' },
+    exemples: [
+      { requete: { op: 'report_occupancy', tenant: 't-alpha', actor: 'm-sam', args: { from: '2031-05-01T00:00:00Z', to: '2031-06-01T00:00:00Z', page_size: 101 } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+      { calcul: 'S20 : capacity 20, booked 19 -> fill_bp floor(190000 / 20) = 9500' },
+    ],
+  },
+  implementation: {
+    'autorisation.report_occupancy': ['admin', 'staff'],
+    'rapport.pagination_valide': ((args) => {
+      const page_size = args.page_size ?? 20
+      const page = args.page ?? 1
+      if (!estEntier(page_size) || page_size < 1 || page_size > 100 || !estEntier(page) || page < 1) return null
+      return { page_size, page }
+    }) satisfies PaginationValide,
+    'report_occupancy.effet': (ctx: PlatformContext): PlatformResponse => {
+      const { from, to } = ctx.args
+      if (!estInstant(from) || !estInstant(to) || Date.parse(from) >= Date.parse(to)) return fail('INVALID_ARGUMENT')
+      const min = ctx.args.min_fill_bp ?? 0
+      if (!estEntier(min) || min < 0) return fail('INVALID_ARGUMENT')
+      const sort = ctx.args.sort ?? 'starts_at'
+      if (typeof sort !== 'string' || !(TRIS_OCCUPATION as readonly string[]).includes(sort)) return fail('INVALID_ARGUMENT')
+      const pagination = ctx.regle<PaginationValide>('rapport.pagination_valide')(ctx.args)
+      if (pagination === null) return fail('INVALID_ARGUMENT')
+      const debut = Date.parse(from)
+      const fin = Date.parse(to)
+      const lignes: LigneOccupation[] = []
+      for (const s of ctx.locataire.slots.values()) {
+        const t = Date.parse(s.starts_at)
+        if (t < debut || t >= fin) continue
+        const booked = ctx.occupees(s)
+        const fill_bp = Math.floor((booked * 10000) / s.capacity)
+        if (fill_bp >= min) lignes.push({ slot_id: s.slot_id, starts_at: s.starts_at, capacity: s.capacity, booked, fill_bp })
+      }
+      const ordonnees = ctx.regle<OrdreOccupation>('rapport.ordre_occupation')(lignes, sort)
+      return succeed(clone(ctx.regle<Paginer>('rapport.paginer')(ordonnees, pagination)))
+    },
+  },
+  grandeurs: ['from', 'to', 'min_fill_bp', 'sort', 'page_size', 'page', 'slot_id', 'starts_at', 'capacity', 'booked', 'fill_bp'],
+  questions_ouvertes: [
+    "Q39 (provisoire, exercee) : report_occupancy filtre starts_at en instants UTC [from, to[, pas en mois locaux du site",
+    "Q40 (provisoire, exercee) : booked compte les reservations confirmed, absentes (no_show) comprises, et exclut les debarquees (bumped) ; les creneaux clos et passes sont inclus",
+  ],
+})
+
+const P19_R2 = clause({
+  id: 'P19.R2',
+  enters: 'P19',
+  text: TEXTE_P19_R2,
+  contract: {
+    valeurs: { departage: ['starts_at croissant', 'slot_id croissant ordinal'], pages: 'ceil(total / page_size), 0 si total = 0', page_au_dela: 'rows = []' },
+    exemples: [
+      { requete: { op: 'report_occupancy', tenant: 't-alpha', actor: 'm-sam', args: { from: '2031-05-01T00:00:00Z', to: '2031-06-01T00:00:00Z', sort: '-fill_bp', page_size: 2, page: 4 } }, reponse: { ok: true, total: 5, page: 4, page_size: 2, pages: 3, rows: [] } },
+    ],
+  },
+  implementation: {
+    'rapport.paginer': (<T>(lignes: readonly T[], p: Pagination) => {
+      const total = lignes.length
+      const pages = Math.ceil(total / p.page_size)
+      const rows = lignes.slice((p.page - 1) * p.page_size, p.page * p.page_size)
+      return { total, page: p.page, page_size: p.page_size, pages, rows }
+    }) satisfies Paginer,
+    'rapport.ordre_occupation': ((lignes, sort) => {
+      const cle = (a: LigneOccupation, b: LigneOccupation): number =>
+        sort === '-fill_bp' ? b.fill_bp - a.fill_bp : sort === 'slot_id' ? ordinal(a.slot_id, b.slot_id) : 0
+      return [...lignes].sort((a, b) => cle(a, b) || Date.parse(a.starts_at) - Date.parse(b.starts_at) || ordinal(a.slot_id, b.slot_id))
+    }) satisfies OrdreOccupation,
+  },
+  grandeurs: ['total', 'page', 'page_size', 'pages', 'rows', 'sort', 'starts_at', 'slot_id', 'fill_bp'],
+})
+
+interface LigneRevenu {
+  readonly invoice_id: string
+  readonly month: string
+  readonly member_id: string
+  readonly total_cents: number
+  readonly credit_notes_cents: number
+  readonly net_cents: number
+}
+
+const P19_R3 = clause({
+  id: 'P19.R3',
+  enters: 'P19',
+  text: TEXTE_P19_R3,
+  contract: {
+    operations: {
+      report_revenue: {
+        roles_autorises: ['admin'],
+        arguments: { from_month: "'AAAA-MM'", to_month: "'AAAA-MM'", member_id: 'chaine (optionnel)', sort: "'month' (defaut) | '-net_cents' | 'member_id'", page_size: 'entier 1..100 (20)', page: 'entier >= 1 (1)' },
+        reponse: { ok: true, total: 'entier', page: 'entier', page_size: 'entier', pages: 'entier', sum_net_cents: 'entier', rows: 'tableau de { invoice_id, month, member_id, total_cents, credit_notes_cents, net_cents }' },
+        erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT'],
+      },
+    },
+    valeurs: { tris: [...TRIS_REVENUS], departage: ['month croissant', 'member_id croissant ordinal'] },
+    exemples: [
+      { requete: { op: 'report_revenue', tenant: 't-alpha', actor: 'm-ana', args: { from_month: '2031-07', to_month: '2031-06' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+    ],
+  },
+  implementation: {
+    'autorisation.report_revenue': ['admin'],
+    'report_revenue.effet': (ctx: PlatformContext): PlatformResponse => {
+      const { from_month, to_month } = ctx.args
+      if (typeof from_month !== 'string' || !MOIS.test(from_month) || typeof to_month !== 'string' || !MOIS.test(to_month) || from_month > to_month) {
+        return fail('INVALID_ARGUMENT')
+      }
+      const sort = ctx.args.sort ?? 'month'
+      if (typeof sort !== 'string' || !(TRIS_REVENUS as readonly string[]).includes(sort)) return fail('INVALID_ARGUMENT')
+      const pagination = ctx.regle<PaginationValide>('rapport.pagination_valide')(ctx.args)
+      if (pagination === null) return fail('INVALID_ARGUMENT')
+      const f = facturation(ctx)
+      const filtre = ctx.args.member_id
+      const lignes: LigneRevenu[] = []
+      for (const x of f.factures.values()) {
+        const month = String(x.month)
+        if (month < from_month || month > to_month) continue
+        if (filtre !== undefined && x.member_id !== filtre) continue
+        const total_cents = x.total_cents as number
+        const credit_notes_cents = f.avoirs
+          .filter((a) => a.invoice_id === x.invoice_id && Date.parse(String(a.issued_at)) <= ctx.instant)
+          .reduce((s, a) => s + (a.amount_cents as number), 0)
+        lignes.push({ invoice_id: String(x.invoice_id), month, member_id: String(x.member_id), total_cents, credit_notes_cents, net_cents: total_cents - credit_notes_cents })
+      }
+      const cle = (a: LigneRevenu, b: LigneRevenu): number =>
+        sort === '-net_cents' ? b.net_cents - a.net_cents : sort === 'member_id' ? ordinal(a.member_id, b.member_id) : 0
+      lignes.sort((a, b) => cle(a, b) || ordinal(a.month, b.month) || ordinal(a.member_id, b.member_id))
+      const sum_net_cents = lignes.reduce((s, l) => s + l.net_cents, 0)
+      const p = ctx.regle<Paginer>('rapport.paginer')(lignes, pagination)
+      return succeed(clone({ total: p.total, page: p.page, page_size: p.page_size, pages: p.pages, sum_net_cents, rows: p.rows }))
+    },
+  },
+  grandeurs: ['from_month', 'to_month', 'member_id', 'sort', 'invoice_id', 'month', 'total_cents', 'credit_notes_cents', 'net_cents', 'sum_net_cents', 'total', 'pages', 'rows'],
+  questions_ouvertes: [
+    "Q41 (provisoire, exercee) : report_revenue attribue chaque avoir a la facture qu'il cite (invoice_id), meme s'il est emis un autre mois",
+  ],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P20 */
+
+const LIGNES_MAX = 50_000
+interface IssueDeLigne {
+  readonly index: number
+  readonly request_id: unknown
+  readonly reponse: PlatformResponse
+  readonly doublon: boolean
+}
+type BilanImport = (ctx: PlatformContext, import_id: string, issues: readonly IssueDeLigne[]) => PlatformResponse
+
+const PLAFONDS_P95_MS: Readonly<Record<string, number>> = {
+  reserve: 50,
+  cancel: 50,
+  get_booking: 20,
+  get_slot: 20,
+  get_wallet: 20,
+  list_documents: 100,
+  report_occupancy: 200,
+  report_revenue: 200,
+}
+const PLAFOND_PAR_DEFAUT_MS = 100
+const DUREE_IMPORT_MS = 30_000
+
+const P20_R1 = clause({
+  id: 'P20.R1',
+  enters: 'P20',
+  text: TEXTE_P20_R1,
+  contract: {
+    operations: {
+      import_bookings: {
+        roles_autorises: ['admin', 'staff'],
+        arguments: { import_id: 'chaine non vide', rows: 'tableau de 1 a 50 000 { request_id, member_id, slot_id, seats? }' },
+        erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT'],
+        ligne: 'traitee exactement comme reserve (controles, idempotence, admission, paiement)',
+      },
+    },
+    valeurs: { lignes_min: 1, lignes_max: LIGNES_MAX },
+    exemples: [
+      { requete: { op: 'import_bookings', tenant: 't-alpha', actor: 'm-sam', args: { import_id: 'imp-2', rows: [] } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+    ],
+  },
+  implementation: {
+    'autorisation.import_bookings': ['admin', 'staff'],
+    'import_bookings.etape.identifiant': etape(5, (ctx) => (estChaine(ctx.args.import_id) ? undefined : fail('INVALID_ARGUMENT'))),
+    'import_bookings.effet': (ctx: PlatformContext): PlatformResponse => {
+      const rows = ctx.args.rows
+      if (!Array.isArray(rows) || rows.length === 0 || rows.length > LIGNES_MAX) return fail('INVALID_ARGUMENT')
+      const issues: IssueDeLigne[] = []
+      rows.forEach((row: unknown, i: number) => {
+        const index = i + 1
+        const rid = row !== null && typeof row === 'object' && !Array.isArray(row) ? (row as Json).request_id : undefined
+        if (typeof rid !== 'string') {
+          issues.push({ index, request_id: rid ?? null, reponse: fail('INVALID_ARGUMENT'), doublon: false })
+          return
+        }
+        const deja = ctx.locataire.memo.has(rid)
+        const reponse = ctx.executer('reserve', clone(row as Json))
+        const conflit = reponse.ok === false && reponse.error === 'IDEMPOTENCY_CONFLICT'
+        issues.push({ index, request_id: rid, reponse, doublon: deja && !conflit })
+      })
+      return ctx.regle<BilanImport>('import.bilan')(ctx, String(ctx.args.import_id), issues)
+    },
+  },
+  grandeurs: ['import_id', 'rows', 'request_id', 'member_id', 'slot_id', 'seats'],
+  questions_ouvertes: [
+    "Q42 (provisoire, exercee) : une ligne d'import est un reserve complet : elle est payee (credits puis carte) et facturee",
+  ],
+})
+
+const P20_R2 = clause({
+  id: 'P20.R2',
+  enters: 'P20',
+  text: TEXTE_P20_R2,
+  contract: {
+    operations: {
+      import_bookings: {
+        reponse: { ok: true, import_id: 'chaine', total: 'entier', accepted: 'entier', confirmed: 'entier', waiting: 'entier', duplicates: 'entier', rejected: 'tableau de { index, request_id, error }' },
+      },
+    },
+    identite: 'total = accepted + duplicates + nombre de rejected ; accepted = confirmed + waiting',
+    exemples: [
+      { reponse: { ok: true, import_id: 'imp-4', total: 2, accepted: 2, confirmed: 0, waiting: 2, duplicates: 0, rejected: [] } },
+    ],
+  },
+  implementation: {
+    'import.bilan': ((_ctx, import_id, issues) => {
+      let confirmed = 0
+      let waiting = 0
+      let duplicates = 0
+      const rejected: Json[] = []
+      for (const x of issues) {
+        if (x.doublon) duplicates += 1
+        else if (x.reponse.ok === true) {
+          if (x.reponse.status === 'confirmed') confirmed += 1
+          else waiting += 1
+        } else rejected.push({ index: x.index, request_id: x.request_id, error: x.reponse.error })
+      }
+      return succeed({ import_id, total: issues.length, accepted: confirmed + waiting, confirmed, waiting, duplicates, rejected })
+    }) satisfies BilanImport,
+  },
+  grandeurs: ['import_id', 'total', 'accepted', 'confirmed', 'import_bookings.waiting', 'duplicates', 'rejected', 'index'],
+  questions_ouvertes: [
+    "Q44 (provisoire) : duplicates compte aussi une ligne dont la cle a memorise un REFUS ; elle n'est pas listee dans rejected",
+  ],
+})
+
+const P20_R3 = clause({
+  id: 'P20.R3',
+  enters: 'P20',
+  text: TEXTE_P20_R3,
+  contract: {
+    valeurs: { unite: 'millisecondes (ms), latence au 95e centile', plafonds_p95_ms: { ...PLAFONDS_P95_MS, autre: PLAFOND_PAR_DEFAUT_MS }, import_50000_lignes_ms: DUREE_IMPORT_MS, volume_reservations: LIGNES_MAX },
+    mesure: 'T75 (pas les faits de la racine)',
+  },
+  implementation: {
+    'performance.plafond_p95_ms': (op: string): number => PLAFONDS_P95_MS[op] ?? PLAFOND_PAR_DEFAUT_MS,
+    'performance.duree_import_ms': (): number => DUREE_IMPORT_MS,
+  },
+  grandeurs: ['plafond_p95_ms', 'duree_import_ms'],
+  questions_ouvertes: [
+    "Q43 (provisoire) : les plafonds (reserve 50 ms, lectures 20 ms, rapports 200 ms, autres 100 ms, import de 50 000 lignes 30 s) sont des propositions ; machine, echauffement et nombre d'appels sont laisses a T75",
+  ],
+})
+
+/** Mémoire d'idempotence d'un import (P20.R4) : seule une réponse ok: true est mémorisée, avec ses rows. */
+const memoriserImport = (ctx: PlatformContext, cle: string): void => {
+  const imports = importsDe(ctx.locataire)
+  const rows = clone(ctx.args.rows)
+  ctx.apres.push((r) => {
+    if (r.ok === true) imports.set(cle, { reponse: clone(r), rows })
+  })
+}
+
+const P20_R4 = clause({
+  id: 'P20.R4',
+  enters: 'P20',
+  exits: 'P21',
+  text: TEXTE_P20_R4,
+  contract: {
+    operations: { import_bookings: { idempotence: 'cle (tenant, import_id) ; reponse ok: true rejouee a l identique quels que soient les rows' } },
+    exemples: [{ contexte: 'imp-1 deja importe', requete: { op: 'import_bookings', args: { import_id: 'imp-1', rows: '(memes ou autres)' } }, reponse: { ok: true, import_id: 'imp-1', total: 10, accepted: 3, duplicates: 2 } }],
+  },
+  implementation: {
+    'import_bookings.etape.idempotence': etape(10, (ctx) => {
+      const cle = String(ctx.args.import_id)
+      const memo = importsDe(ctx.locataire).get(cle)
+      if (memo !== undefined) return clone(memo.reponse)
+      memoriserImport(ctx, cle)
+      return undefined
+    }),
+  },
+  grandeurs: ['import_id'],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P21 */
+
+const P21_R1 = clause({
+  id: 'P21.R1',
+  enters: 'P21',
+  replaces: 'P1.R4',
+  text: TEXTE_P21_R1,
+  contract: {
+    operations: {
+      reserve: {
+        idempotence: 'cle (tenant, request_id) ; arguments normalises { member_id, slot_id, seats (1 si absent) } egaux -> reponse memorisee ; differents -> IDEMPOTENCY_CONFLICT (non memorise)',
+        erreurs: ['IDEMPOTENCY_CONFLICT'],
+      },
+      import_bookings: { ligne_en_conflit: 'rejected, error IDEMPOTENCY_CONFLICT' },
+    },
+    erreurs: ['IDEMPOTENCY_CONFLICT'],
+    valeurs: { arguments_normalises: ['member_id', 'slot_id', 'seats (defaut 1)'] },
+    exemples: [
+      { contexte: 'r21b memorise avec { m-dan, S42, 1 }', requete: { op: 'reserve', args: { request_id: 'r21b', member_id: 'm-dan', slot_id: 'S42', seats: 1 } }, reponse: { ok: true, booking_id: 'r21b', status: 'confirmed' } },
+      { requete: { op: 'reserve', args: { request_id: 'r21b', member_id: 'm-dan', slot_id: 'S42', seats: 2 } }, reponse: { ok: false, error: 'IDEMPOTENCY_CONFLICT' } },
+    ],
+  },
+  implementation: {
+    'reserve.etape.idempotence': etape(10, (ctx) => {
+      const cle = String(ctx.args.request_id)
+      const t = ctx.locataire
+      const arguments_de = argumentsMemorises(ctx)
+      const demandes = argumentsNormalises(ctx.args)
+      const memo = t.memo.get(cle)
+      if (memo !== undefined) {
+        const premiers = arguments_de.get(cle)
+        if (premiers !== undefined && !egalProfond(premiers, demandes)) return fail('IDEMPOTENCY_CONFLICT')
+        ctx.d.cle_idempotence = cle
+        return clone(memo)
+      }
+      ctx.d.cle_idempotence = cle
+      ctx.apres.push((r) => {
+        const memorisable = ctx.regleOpt<(r: PlatformResponse) => boolean>('idempotence.memorisable')
+        if (memorisable === undefined || memorisable(r)) {
+          t.memo.set(cle, clone(r))
+          arguments_de.set(cle, demandes)
+        }
+      })
+      return undefined
+    }),
+  },
+  grandeurs: ['request_id', 'member_id', 'slot_id', 'seats'],
+  questions_ouvertes: [
+    "Q45 (provisoire, exercee) : les arguments normalises ne comparent que member_id, slot_id et seats ; un rejeu par un autre actor ou a un autre instant n'est pas un conflit",
+  ],
+})
+
+const P21_R2 = clause({
+  id: 'P21.R2',
+  enters: 'P21',
+  replaces: 'P20.R4',
+  text: TEXTE_P21_R2,
+  contract: {
+    operations: { import_bookings: { idempotence: 'rows egaux en profondeur -> reponse memorisee ; sinon IDEMPOTENCY_CONFLICT (non memorise)', erreurs: ['IDEMPOTENCY_CONFLICT'] } },
+    exemples: [{ contexte: 'imp-1 rejoue avec 3 lignes au lieu de 10', requete: { op: 'import_bookings', args: { import_id: 'imp-1' } }, reponse: { ok: false, error: 'IDEMPOTENCY_CONFLICT' } }],
+  },
+  implementation: {
+    'import_bookings.etape.idempotence': etape(10, (ctx) => {
+      const cle = String(ctx.args.import_id)
+      const memo = importsDe(ctx.locataire).get(cle)
+      if (memo !== undefined) return egalProfond(memo.rows, ctx.args.rows) ? clone(memo.reponse) : fail('IDEMPOTENCY_CONFLICT')
+      memoriserImport(ctx, cle)
+      return undefined
+    }),
+  },
+  grandeurs: ['import_id', 'rows'],
+  questions_ouvertes: [
+    "Q46 (provisoire) : rows est compare EN PROFONDEUR sans normalisation (une ligne sans seats differe d'une ligne seats: 1)",
+  ],
+})
+
+/** Créneaux touchés par l'opération courante (créneau ou créneau de la réservation de l'opération). */
+const creneauxTouches = (ctx: PlatformContext): Slot[] => {
+  const out = new Set<Slot>()
+  const s = ctx.d.slot as Slot | undefined
+  if (s !== undefined && ctx.locataire.slots.get(s.slot_id) === s) out.add(s)
+  for (const cle of ['booking', 'autre']) {
+    const b = ctx.d[cle] as Booking | undefined
+    const sb = b === undefined ? undefined : ctx.locataire.slots.get(b.slot_id)
+    if (sb !== undefined) out.add(sb)
+  }
+  return [...out]
+}
+
+const P21_R3 = clause({
+  id: 'P21.R3',
+  enters: 'P21',
+  text: TEXTE_P21_R3,
+  contract: {
+    invariants: ['booked <= overbook_limit', 'place numerotee unique', 'une reservation active par (membre, creneau)', 'une reservation par request_id', 'solde >= 0'],
+    valeurs: { essais_paralleles_min: 100, clients_paralleles: 20, ordre_sequentiel: 'celui de la trajectoire, y compris a instant egal' },
+  },
+  implementation: {
+    'invariant.coherence': ((ctx) => {
+      for (const slot of creneauxTouches(ctx)) {
+        const plafond = ctx.regle<Plafond>('creneau.plafond')(ctx, slot)
+        if (ctx.occupees(slot) > plafond) throw new Error(`INVARIANT-ROMPU booked > overbook_limit sur ${slot.slot_id}`)
+        const places = new Set<number>()
+        const actifs = new Set<string>()
+        for (const b of ctx.locataire.bookings.values()) {
+          if (b.slot_id !== slot.slot_id) continue
+          if (ctx.estActive(b)) {
+            if (actifs.has(b.member_id)) throw new Error(`INVARIANT-ROMPU deux reservations actives de ${b.member_id} sur ${slot.slot_id}`)
+            actifs.add(b.member_id)
+          }
+          if (b.status !== 'confirmed' || slot.numbered !== true) continue
+          for (const x of b.seat_numbers ?? []) {
+            if (places.has(x)) throw new Error(`INVARIANT-ROMPU place ${String(x)} attribuee deux fois sur ${slot.slot_id}`)
+            places.add(x)
+          }
+        }
+      }
+      for (const [m, w] of ctx.locataire.wallets) if (w < 0) throw new Error(`INVARIANT-ROMPU solde negatif ${m}`)
+    }) satisfies Invariant,
+  },
+  grandeurs: ['booked', 'overbook_limit', 'seat_numbers', 'balance_cents', 'request_id'],
+  questions_ouvertes: [
+    "Q47 (provisoire) : la serialisabilite n'est pas observable par une trajectoire sequentielle ; les parametres des essais (100 essais, 20 clients, quatre scenarios) restent a confirmer par T75",
+  ],
+})
+
+const P21_R4 = clause({
+  id: 'P21.R4',
+  enters: 'P21',
+  text: TEXTE_P21_R4,
+  contract: {
+    scenarios: ['derniere_place : exactement une confirmed, les autres waiting dans l ordre de serialisation', 'rejeux_simultanes : une reservation, N reponses identiques', 'rejeux_en_conflit : reponse memorisee ou IDEMPOTENCY_CONFLICT'],
+    erreurs: ['IDEMPOTENCY_CONFLICT'],
+    exemples: [
+      { contexte: 'S42 : une place libre ; r21b puis r21c au meme instant', reponse: { r21b: { status: 'confirmed' }, r21c: { status: 'waiting', position: 1 } } },
+    ],
+  },
+  implementation: {
+    'invariant.rejeu_identique': ((ctx, r) => {
+      const cle = ctx.d.cle_idempotence
+      if (typeof cle !== 'string') return
+      if (r.ok === false && (r.error === 'IDEMPOTENCY_CONFLICT' || r.error === 'FORBIDDEN')) return
+      const memo = ctx.locataire.memo.get(cle)
+      if (memo !== undefined && !egalProfond(memo, r)) throw new Error(`INVARIANT-ROMPU rejeu divergent de la cle ${cle}`)
+    }) satisfies Invariant,
+  },
+  grandeurs: ['request_id', 'status', 'position'],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P22 */
+
+/** Même instant UTC, 12 mois civils plus tard (un 29 février donne le 1er mars). */
+function plusDouzeMois(t: number): number {
+  const d = new Date(t)
+  return Date.UTC(d.getUTCFullYear() + 1, d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds())
+}
+
+interface Lot {
+  readonly entree: MouvementDate
+  readonly ordre: number
+  readonly acquis: number
+  readonly echeance: number
+  reste: number
+  echu: boolean
+}
+type Lots = (historique: readonly MouvementDate[], member: string, jusqua: number) => { vivants: Lot[]; echus: Lot[] }
+
+const P22_R1 = clause({
+  id: 'P22.R1',
+  enters: 'P22',
+  replaces: 'P15.R6',
+  text: TEXTE_P22_R1,
+  contract: {
+    operations: {
+      reserve: { erreurs: ['RATE_UNAVAILABLE'], reponse: { amount_cents: "entier (EUR), sans remise, si status != 'waiting'", price_currency: "'USD'", original_amount_cents: 'entier (USD)', rate_micro: 'entier' } },
+      get_booking: { reponse: { amount_cents: 'entier (EUR)' } },
+      set_tier: { reste_accepte: 'sans effet sur le prix' },
+    },
+    valeurs: { taux_de_remise_bp: 0, recalcul_P16: 'taux de remise de la confirmation de chaque reservation' },
+    exemples: [
+      { contexte: 'm-cleo gold, S60 a 600', requete: { op: 'reserve', args: { request_id: 'f2', member_id: 'm-cleo', slot_id: 'S60' } }, reponse: { ok: true, booking_id: 'f2', amount_cents: 600, paid_card_cents: 600 } },
+    ],
+  },
+  implementation: {
+    'tarif.montant': P15_R6.implementation['tarif.montant'],
+    'reservation.montant': (ctx: PlatformContext, b: Booking): number => {
+      const slot = ctx.locataire.slots.get(b.slot_id)
+      const devise = ctx.regle<Devise>('tarif.devise')(ctx, slot)
+      const rate_micro = devise === 'USD' ? ctx.regle<TauxApplicable>('devise.taux_applicable')(ctx, ctx.instant) : undefined
+      const prix = ctx.regle<(ctx: PlatformContext, s: Slot | undefined) => number>('tarif.prix')(ctx, slot)
+      const { amount_cents, net } = ctx.regle<Montant>('tarif.montant')(ctx, { seats: b.seats, prix, devise, taux_bp: 0, ...(rate_micro === undefined ? {} : { rate_micro }) })
+      b.discount_bp = 0
+      if (devise === 'USD') {
+        b.price_currency = 'USD'
+        b.original_amount_cents = net
+        if (rate_micro !== undefined) b.rate_micro = rate_micro
+      }
+      return amount_cents
+    },
+    'vue.reservation.montant': P15_R6.implementation['vue.reservation.montant'],
+    'vue.reservation.devise': P15_R6.implementation['vue.reservation.devise'],
+    'reserve.etape.taux': P15_R6.implementation['reserve.etape.taux'],
+    'promotion.condition.taux': P15_R6.implementation['promotion.condition.taux'],
+  },
+  grandeurs: ['amount_cents', 'price_cents', 'seats', 'discount_bp', 'price_currency', 'original_amount_cents', 'rate_micro'],
+  unites: { price_cents: PRIX_EN_DEVISE },
+  questions_ouvertes: [
+    "Q52 (provisoire, exercee) : set_tier reste accepte apres la fin des remises ; le niveau est enregistre, sans effet sur le prix",
+  ],
+})
+
+const P22_R2 = clause({
+  id: 'P22.R2',
+  enters: 'P22',
+  text: TEXTE_P22_R2,
+  contract: {
+    valeurs: { duree: '12 mois civils, meme instant UTC', bornes: 'expire si at >= expires_at', consommation: "expires_at croissant puis ordre d'entree", retroactivite: 'tout l historique du portefeuille depuis P8' },
+    lot: { acquired_at: "'AAAA-MM-JJTHH:MM:SSZ'", expires_at: "'AAAA-MM-JJTHH:MM:SSZ'", remaining_cents: 'entier' },
+    exemples: [
+      { contexte: 'lot de 400 expirant le 2032-08-11T09:02:00Z', requete: { op: 'get_wallet', at: '2032-08-11T09:01:59Z', args: { member_id: 'm-fay' } }, reponse: { ok: true, balance_cents: 900 } },
+      { requete: { op: 'get_wallet', at: '2032-08-11T09:02:00Z', args: { member_id: 'm-fay' } }, reponse: { ok: true, balance_cents: 500 } },
+    ],
+  },
+  implementation: {
+    'portefeuille.lots': ((historique, member, jusqua) => {
+      const lots: Lot[] = []
+      const echus: Lot[] = []
+      const parEcheance = (a: Lot, b: Lot): number => a.echeance - b.echeance || a.ordre - b.ordre
+      const expirer = (t: number): void => {
+        for (const l of lots) {
+          if (!l.echu && l.echeance <= t) {
+            l.echu = true
+            echus.push(l)
+          }
+        }
+      }
+      const evenements = historique
+        .map((h, i) => [h, i] as const)
+        .filter(([h]) => h.member_id === member && h.expiration !== true && h.t <= jusqua)
+        .sort((a, b) => a[0].t - b[0].t || a[1] - b[1])
+      for (const [h] of evenements) {
+        expirer(h.t)
+        if (h.delta > 0) {
+          lots.push({ entree: h, ordre: lots.length, acquis: h.t, echeance: plusDouzeMois(h.t), reste: h.delta, echu: false })
+          continue
+        }
+        let d = -h.delta
+        for (const l of lots.filter((x) => !x.echu && x.reste > 0).sort(parEcheance)) {
+          const pris = Math.min(l.reste, d)
+          l.reste -= pris
+          d -= pris
+          if (d === 0) break
+        }
+        if (d > 0) throw new Error(`LOTS-INSUFFISANTS ${member} a ${isoSeconde(h.t)}`)
+      }
+      expirer(jusqua)
+      return { vivants: lots.filter((l) => !l.echu && l.reste > 0).sort(parEcheance), echus: echus.sort(parEcheance) }
+    }) satisfies Lots,
+    'enveloppe.expiration': etape(15, (ctx) => {
+      if (ctx.step.op === 'create_tenant') return undefined
+      const t = ctx.locataire
+      const historique = historiqueDe(t)
+      const lots = ctx.regle<Lots>('portefeuille.lots')
+      const echeances: Array<{ member: string; lot: Lot }> = []
+      for (const member of new Set(historique.map((h) => h.member_id))) {
+        for (const lot of lots(historique, member, ctx.instant).echus) {
+          if (lot.entree.expire === true) continue
+          lot.entree.expire = true
+          if (lot.reste > 0) echeances.push({ member, lot })
+        }
+      }
+      echeances.sort((a, b) => a.lot.echeance - b.lot.echeance || a.lot.entree.t - b.lot.entree.t || ordinal(a.member, b.member))
+      for (const { member, lot } of echeances) {
+        historique.push({ member_id: member, t: lot.echeance, delta: -lot.reste, expiration: true })
+        t.wallets.set(member, (t.wallets.get(member) ?? 0) - lot.reste)
+        t.journal.push({
+          seq: ++ctx.etat.journal_seq,
+          at: isoSeconde(lot.echeance),
+          type: 'expiry',
+          member_id: member,
+          booking_id: null,
+          amount_cents: lot.reste,
+          credits_cents: lot.reste,
+          card_cents: 0,
+        })
+      }
+      return undefined
+    }),
+  },
+  grandeurs: ['acquired_at', 'expires_at', 'remaining_cents', 'balance_cents', 'at'],
+  questions_ouvertes: [
+    "Q48 (provisoire, exercee) : un re-credit (remboursement, trop-percu, avoir) forme un NOUVEAU lot de 12 mois a compter du re-credit",
+    "Q49 (provisoire) : les compensations (P13) forment des lots et expirent comme des credits achetes",
+    "Q51 (provisoire) : un 29 fevrier + 12 mois donne le 1er mars a la meme heure UTC",
+  ],
+})
+
+const P22_R3 = clause({
+  id: 'P22.R3',
+  enters: 'P22',
+  text: TEXTE_P22_R3,
+  contract: {
+    operations: {
+      get_wallet: { reponse: { lots: 'tableau de { acquired_at, expires_at, remaining_cents }, expires_at croissant puis ordre d entree' } },
+      top_up: { reponse: { expires_at: "'AAAA-MM-JJTHH:MM:SSZ'" } },
+    },
+    exemples: [
+      { requete: { op: 'top_up', tenant: 't-alpha', actor: 'm-sam', at: '2032-08-02T09:01:00Z', args: { member_id: 'm-fay', amount_cents: 500 } }, reponse: { ok: true, member_id: 'm-fay', balance_cents: 1500, credited_cents: 500, expires_at: '2033-08-02T09:01:00Z' } },
+    ],
+  },
+  implementation: {
+    'get_wallet.complement.lots': ((ctx, r) => {
+      if (r.ok !== true) return r
+      const { vivants } = ctx.regle<Lots>('portefeuille.lots')(historiqueDe(ctx.locataire), String(r.member_id), ctx.instant)
+      return { ...r, lots: vivants.map((l) => ({ acquired_at: isoSeconde(l.acquis), expires_at: isoSeconde(l.echeance), remaining_cents: l.reste })) }
+    }) satisfies Complement,
+    'top_up.complement.echeance': ((ctx, r) => (r.ok === true ? { ...r, expires_at: isoSeconde(plusDouzeMois(ctx.instant)) } : r)) satisfies Complement,
+  },
+  grandeurs: ['lots', 'acquired_at', 'expires_at', 'remaining_cents'],
+})
+
+/** Facture à partir de P22 (P22.R4 ; P23.R5 avec les frais) : lignes rangées à leur instant, expirations, frais. */
+function factureAvecExpirations(ctx: PlatformContext, member: string, mois: string, frais: boolean): Json {
+  const lignes = [...ctx.regle<Lignes>('comptabilite.lignes')(ctx, member, mois)].sort((a, b) => Date.parse(a.at) - Date.parse(b.at) || a.seq - b.seq)
+  const somme = (types: (t: string) => boolean, champ: 'amount_cents' | 'credits_cents' | 'card_cents'): number =>
+    lignes.filter((e) => types(e.type)).reduce((s, e) => s + e[champ], 0)
+  const charge = (t: string): boolean => t === 'charge' || (frais && t === 'fee')
+  const remb = (t: string): boolean => TYPES_REMBOURSEMENT.has(t)
+  const charges_cents = somme(charge, 'amount_cents')
+  const refunds_cents = somme(remb, 'amount_cents')
+  const debut = ctx.regle<DebutMois>('comptabilite.debut_mois')
+  const solde = (t: number): number =>
+    historiquePortefeuille(ctx).filter((h) => h.member_id === member && h.t < t).reduce((s, h) => s + h.delta, 0)
+  const credit_notes_credits_cents = facturation(ctx)
+    .avoirs.filter((a) => a.member_id === member && a.month === mois)
+    .reduce((s, a) => s + (a.credits_cents as number), 0)
+  return {
+    invoice_id: `INV-${mois}-${member}`,
+    member_id: member,
+    month: mois,
+    lines: lignes.map((e) => ({ type: e.type, booking_id: e.booking_id, amount_cents: e.amount_cents })),
+    charges_cents,
+    refunds_cents,
+    total_cents: charges_cents - refunds_cents,
+    card_cents: somme(charge, 'card_cents') - somme(remb, 'card_cents'),
+    credits_used_cents: somme(charge, 'credits_cents') - somme(remb, 'credits_cents'),
+    top_ups_cents: somme((t) => t === 'top_up', 'amount_cents'),
+    compensations_cents: somme((t) => t === 'compensation', 'amount_cents'),
+    expired_cents: somme((t) => t === 'expiry', 'amount_cents'),
+    credit_notes_credits_cents,
+    opening_balance_cents: solde(debut(ctx, mois)),
+    closing_balance_cents: solde(debut(ctx, moisSuivant(mois))),
+  }
+}
+const sortieExpiration: SortieDeFacture = (x) => (typeof x.expired_cents === 'number' ? x.expired_cents : 0)
+const GRANDEURS_FACTURE = [
+  'invoice_id', 'member_id', 'month', 'lines.amount_cents', 'charges_cents', 'refunds_cents', 'total_cents',
+  'invoices.card_cents', 'credits_used_cents', 'top_ups_cents', 'compensations_cents', 'credit_notes_credits_cents',
+  'opening_balance_cents', 'closing_balance_cents', 'expired_cents',
+] as const
+
+const P22_R4 = clause({
+  id: 'P22.R4',
+  enters: 'P22',
+  exits: 'P23',
+  replaces: 'P14.R3',
+  text: TEXTE_P22_R4,
+  contract: {
+    facture: { lines: "tableau de { type: 'charge' | 'refund' | 'top_up' | 'compensation' | 'adjustment' | 'expiry', booking_id, amount_cents }, rangees a leur instant", expired_cents: 'entier' },
+    identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired',
+    exemples: [
+      { facture: { invoice_id: 'INV-2032-06-m-dan', month: '2032-06', lines: [{ type: 'expiry', booking_id: null, amount_cents: 1664 }], charges_cents: 0, total_cents: 0, credits_used_cents: 0, expired_cents: 1664, opening_balance_cents: 1681, closing_balance_cents: 17 } },
+    ],
+  },
+  implementation: {
+    'comptabilite.facture': ((ctx, member, mois) => factureAvecExpirations(ctx, member, mois, false)) satisfies Facture,
+    'comptabilite.sortie.expiration': sortieExpiration,
+  },
+  grandeurs: [...GRANDEURS_FACTURE],
+  questions_ouvertes: [
+    "Q50 (provisoire, exercee) : une expiration est un mouvement : elle fait emettre une facture de total 0 pour un mois sans autre mouvement",
+  ],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P23 */
+
+interface Frais {
+  readonly fee_cents: number
+  readonly fee: { credits_cents: number; card_cents: number }
+}
+type FraisDeTransfert = (ctx: PlatformContext, b: Booking, cedant: string) => Frais
+
+/** Payeur d'une réservation (P23.R3) : le membre débité à la confirmation ; null si jamais confirmée. */
+const payeurDe = (b: Booking): string | null => etendue(b).payer_member_id ?? (b.confirmed_at !== undefined ? b.member_id : null)
+const suspenduA = (ctx: PlatformContext, m: string): boolean => {
+  const s = suspensionsDe(ctx.locataire).get(m)
+  return s !== undefined && ctx.instant < s
+}
+const autreActive = (ctx: PlatformContext, m: string, slot_id: string, sauf: Booking): boolean => {
+  for (const b of ctx.locataire.bookings.values()) if (b !== sauf && b.member_id === m && b.slot_id === slot_id && ctx.estActive(b)) return true
+  return false
+}
+const commenceA = (ctx: PlatformContext, b: Booking): boolean => {
+  const slot = ctx.locataire.slots.get(b.slot_id)
+  return slot === undefined || ctx.instant >= Date.parse(slot.starts_at)
+}
+/** Cession de b à `vers` : payeur figé, frais du cédant (P23.R3), transfert inscrit. */
+function ceder(ctx: PlatformContext, b: Booking, vers: string): Frais {
+  const e = etendue(b)
+  const cedant = b.member_id
+  e.payer_member_id = payeurDe(b) ?? cedant
+  const frais = ctx.regle<FraisDeTransfert>('transfert.frais')(ctx, b, cedant)
+  b.member_id = vers
+  ;(e.transfers ??= []).push({ from_member_id: cedant, to_member_id: vers, at: ctx.step.at, fee_cents: frais.fee_cents })
+  return frais
+}
+
+const P23_R1 = clause({
+  id: 'P23.R1',
+  enters: 'P23',
+  text: TEXTE_P23_R1,
+  contract: {
+    operations: {
+      transfer_booking: {
+        roles_autorises: ['admin', 'staff', 'member:titulaire'],
+        arguments: { booking_id: 'chaine', to_member_id: 'chaine' },
+        reponse: { ok: true, booking_id: 'chaine', member_id: 'nouveau titulaire', fee_cents: 'entier', fee: { credits_cents: 'entier', card_cents: 'entier' } },
+        erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT', 'SLOT_CLOSED', 'SUSPENDED', 'ALREADY_BOOKED'],
+        ordre_des_controles: ['NOT_FOUND (booking_id)', 'FORBIDDEN (member non titulaire)', 'NOT_FOUND (to_member_id)', 'INVALID_ARGUMENT (non confirmed, ou meme titulaire)', 'SLOT_CLOSED', 'SUSPENDED (destinataire)', 'ALREADY_BOOKED (destinataire)'],
+      },
+    },
+    exemples: [
+      { requete: { op: 'transfer_booking', tenant: 't-alpha', actor: 'm-sam', args: { booking_id: 'h1', to_member_id: 'm-gus' } }, reponse: { ok: true, booking_id: 'h1', member_id: 'm-gus', fee_cents: 200, fee: { credits_cents: 0, card_cents: 200 } } },
+      { contexte: 'm-fay detient deja h3 sur S70', requete: { op: 'transfer_booking', tenant: 't-alpha', actor: 'm-sam', args: { booking_id: 'h2', to_member_id: 'm-fay' } }, reponse: { ok: false, error: 'ALREADY_BOOKED' } },
+    ],
+  },
+  implementation: {
+    'autorisation.transfer_booking': ['admin', 'staff', 'member'],
+    'transfer_booking.effet': (ctx: PlatformContext): PlatformResponse => {
+      const b = ctx.locataire.bookings.get(String(ctx.args.booking_id))
+      if (b === undefined) return fail('NOT_FOUND')
+      ctx.d.booking = b
+      if (ctx.role(ctx.step.actor) === 'member' && b.member_id !== ctx.step.actor) return fail('FORBIDDEN')
+      const vers = ctx.args.to_member_id
+      if (typeof vers !== 'string' || ctx.role(vers) === undefined) return fail('NOT_FOUND')
+      if (b.status !== 'confirmed' || vers === b.member_id) return fail('INVALID_ARGUMENT')
+      if (commenceA(ctx, b)) return fail('SLOT_CLOSED')
+      if (suspenduA(ctx, vers)) return fail('SUSPENDED')
+      if (autreActive(ctx, vers, b.slot_id, b)) return fail('ALREADY_BOOKED')
+      const frais = ceder(ctx, b, vers)
+      return succeed({ booking_id: b.booking_id, member_id: vers, fee_cents: frais.fee_cents, fee: { ...frais.fee } })
+    },
+  },
+  grandeurs: ['booking_id', 'to_member_id', 'member_id', 'fee_cents', 'fee.credits_cents', 'fee.card_cents', 'starts_at', 'suspended_until', 'at'],
+  questions_ouvertes: [
+    "Q55 (provisoire) : un transfert DEPUIS un membre suspendu est permis (seul le destinataire est controle) ; une absence deja enregistree reste attachee a l'historique de l'ancien titulaire",
+  ],
+})
+
+const P23_R2 = clause({
+  id: 'P23.R2',
+  enters: 'P23',
+  text: TEXTE_P23_R2,
+  contract: {
+    operations: {
+      exchange_bookings: {
+        roles_autorises: ['admin', 'staff'],
+        arguments: { booking_id: 'chaine', with_booking_id: 'chaine' },
+        reponse: { ok: true, exchanged: 'tableau de deux { booking_id, member_id (nouveau titulaire), fee_cents }' },
+        erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT', 'SLOT_CLOSED', 'SUSPENDED', 'ALREADY_BOOKED'],
+        ordre_des_controles: ['NOT_FOUND', 'INVALID_ARGUMENT (meme reservation, non confirmed, meme titulaire)', 'SLOT_CLOSED', 'SUSPENDED', 'ALREADY_BOOKED (creneaux differents)'],
+      },
+    },
+    exemples: [
+      { requete: { op: 'exchange_bookings', tenant: 't-alpha', actor: 'm-sam', args: { booking_id: 'h2', with_booking_id: 'h3' } }, reponse: { ok: true, exchanged: [{ booking_id: 'h2', member_id: 'm-fay', fee_cents: 400 }, { booking_id: 'h3', member_id: 'm-dan', fee_cents: 200 }] } },
+    ],
+  },
+  implementation: {
+    'autorisation.exchange_bookings': ['admin', 'staff'],
+    'exchange_bookings.effet': (ctx: PlatformContext): PlatformResponse => {
+      const id1 = String(ctx.args.booking_id)
+      const id2 = String(ctx.args.with_booking_id)
+      const b1 = ctx.locataire.bookings.get(id1)
+      const b2 = ctx.locataire.bookings.get(id2)
+      if (b1 === undefined || b2 === undefined) return fail('NOT_FOUND')
+      ctx.d.booking = b1
+      ctx.d.autre = b2
+      if (id1 === id2 || b1.status !== 'confirmed' || b2.status !== 'confirmed' || b1.member_id === b2.member_id) return fail('INVALID_ARGUMENT')
+      if (commenceA(ctx, b1) || commenceA(ctx, b2)) return fail('SLOT_CLOSED')
+      const m1 = b1.member_id
+      const m2 = b2.member_id
+      if (suspenduA(ctx, m1) || suspenduA(ctx, m2)) return fail('SUSPENDED')
+      if (b1.slot_id !== b2.slot_id && (autreActive(ctx, m1, b2.slot_id, b2) || autreActive(ctx, m2, b1.slot_id, b1))) return fail('ALREADY_BOOKED')
+      const f1 = ceder(ctx, b1, m2)
+      const f2 = ceder(ctx, b2, m1)
+      return succeed({
+        exchanged: [
+          { booking_id: b1.booking_id, member_id: m2, fee_cents: f1.fee_cents },
+          { booking_id: b2.booking_id, member_id: m1, fee_cents: f2.fee_cents },
+        ],
+      })
+    },
+  },
+  grandeurs: ['booking_id', 'with_booking_id', 'exchanged', 'member_id', 'fee_cents', 'seat_numbers'],
+  questions_ouvertes: [
+    "Q56 (provisoire, exercee) : exchange_bookings n'exige pas le consentement des deux titulaires (admin, staff seulement) ; un membre ne peut pas proposer d'echange (FORBIDDEN)",
+  ],
+})
+
+const TAUX_FRAIS_BP = 1000
+const FRAIS_MINIMUM_CENTS = 100
+
+const P23_R3 = clause({
+  id: 'P23.R3',
+  enters: 'P23',
+  text: TEXTE_P23_R3,
+  contract: {
+    valeurs: { taux_bp: TAUX_FRAIS_BP, minimum_cents: FRAIS_MINIMUM_CENTS, arrondi: 'demi vers le haut, au centime', formule: 'max(100, floor((A*1000 + 5000) / 10000))', paiement: 'credits (lots, le plus ancien d abord) puis carte', mouvement: "'fee'" },
+    operations: {
+      reserve: { reponse: { payer_member_id: 'member_id | null', transfers: 'tableau de { from_member_id, to_member_id, at, fee_cents }' } },
+      get_booking: { reponse: { payer_member_id: 'member_id | null', transfers: 'tableau de { from_member_id, to_member_id, at, fee_cents }' } },
+    },
+    exemples: [
+      { calcul: 'A = 600 : floor((600*1000 + 5000) / 10000) = 60 < 100 -> fee_cents 100' },
+      { requete: { op: 'get_booking', args: { booking_id: 'h1' } }, reponse: { ok: true, booking_id: 'h1', member_id: 'm-gus', payer_member_id: 'm-cleo', transfers: [{ from_member_id: 'm-cleo', to_member_id: 'm-gus', at: '2032-08-16T09:06:00Z', fee_cents: 200 }] } },
+    ],
+  },
+  implementation: {
+    'transfert.frais': ((ctx, b, cedant) => {
+      const A = b.amount_cents ?? 0
+      const fee_cents = Math.max(FRAIS_MINIMUM_CENTS, Math.floor((A * TAUX_FRAIS_BP + 5000) / 10000))
+      const credits = Math.min(ctx.regle<Solde>('portefeuille.solde')(ctx, cedant), fee_cents)
+      if (credits > 0) ctx.regle<Mouvement>('portefeuille.mouvement')(ctx, cedant, -credits)
+      ctx.journaliser({ type: 'fee', member_id: cedant, booking_id: b.booking_id, amount_cents: fee_cents, credits_cents: credits, card_cents: fee_cents - credits })
+      return { fee_cents, fee: { credits_cents: credits, card_cents: fee_cents - credits } }
+    }) satisfies FraisDeTransfert,
+    'vue.reservation.payeur': ((_ctx, b, champs) => {
+      champs.payer_member_id = payeurDe(b)
+      champs.transfers = (etendue(b).transfers ?? []).map((x) => ({ ...x }))
+    }) satisfies Vue<Booking>,
+  },
+  grandeurs: ['fee_cents', 'fee.credits_cents', 'fee.card_cents', 'amount_cents', 'payer_member_id', 'transfers', 'balance_cents'],
+  questions_ouvertes: [
+    "Q54 (provisoire) : les frais ont un minimum de 100 centimes meme pour une reservation gratuite",
+  ],
+})
+
+const P23_R4 = clause({
+  id: 'P23.R4',
+  enters: 'P23',
+  text: TEXTE_P23_R4,
+  contract: {
+    remboursements: 'au payeur (payer_member_id) : r_c a son portefeuille, r_d a sa carte, ligne refund ou avoir sur ses documents',
+    compensation_de_debarquement: 'au titulaire',
+    operations: { cancel: { titulaire: 'peut annuler (member pour sa reservation)' } },
+    exemples: [
+      { contexte: 'h2 payee par m-dan, transferee a m-fay', requete: { op: 'cancel', actor: 'm-fay', args: { booking_id: 'h2', seats: 1 } }, reponse: { ok: true, booking_id: 'h2', status: 'confirmed', seats: 1, refunded_cents: 2000, refund: { credits_cents: 0, card_cents: 2000 } } },
+    ],
+  },
+  implementation: {
+    'reservation.payeur': ((_ctx, b) => payeurDe(b) ?? b.member_id) satisfies Payeur,
+  },
+  grandeurs: ['payer_member_id', 'refunded_cents', 'refund.credits_cents', 'refund.card_cents'],
+  questions_ouvertes: [
+    "Q53 (provisoire, exercee) : les remboursements d'une reservation transferee vont au PAYEUR, pas au titulaire qui annule ; la compensation de debarquement va au titulaire",
+  ],
+})
+
+const P23_R5 = clause({
+  id: 'P23.R5',
+  enters: 'P23',
+  replaces: 'P22.R4',
+  text: TEXTE_P23_R5,
+  contract: {
+    facture: { lines: "tableau de { type: 'charge' | 'refund' | 'top_up' | 'compensation' | 'adjustment' | 'expiry' | 'fee', booking_id, amount_cents }", charges_cents: 'charges + frais' },
+    identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired',
+    exemples: [
+      { facture: { invoice_id: 'INV-2032-08-m-dan', lines: [{ type: 'charge', booking_id: 'h2', amount_cents: 4000 }, { type: 'fee', booking_id: 'h2', amount_cents: 400 }, { type: 'refund', booking_id: 'h2', amount_cents: 2000 }] } },
+    ],
+  },
+  implementation: {
+    'comptabilite.facture': ((ctx, member, mois) => factureAvecExpirations(ctx, member, mois, true)) satisfies Facture,
+    'comptabilite.sortie.expiration': sortieExpiration,
+  },
+  grandeurs: [...GRANDEURS_FACTURE],
+})
+
+/* ═══════════════════════════════════════════════════════════════════ P24 */
+
+interface Correspondance {
+  readonly operations: Readonly<Record<string, string>>
+  readonly champs: Readonly<Record<string, string>>
+}
+const CORRESPONDANCE_V2: Correspondance = {
+  operations: {
+    reserve: 'create_reservation',
+    cancel: 'cancel_reservation',
+    get_booking: 'get_reservation',
+    get_slot: 'get_session',
+    create_slot: 'create_session',
+    transfer_booking: 'transfer_reservation',
+    exchange_bookings: 'exchange_reservations',
+    import_bookings: 'import_reservations',
+  },
+  champs: {
+    booking_id: 'reservation_id',
+    slot_id: 'session_id',
+    slot_ids: 'session_ids',
+    seats: 'quantity',
+    with_booking_id: 'with_reservation_id',
+  },
+}
+const inverse = (table: Readonly<Record<string, string>>): Record<string, string> => Object.fromEntries(Object.entries(table).map(([k, v]) => [v, k]))
+type Renommer = <T>(v: T, table: Readonly<Record<string, string>>) => T
+/** Renomme les CLÉS d'une valeur JSON, à toute profondeur ; les valeurs ne changent pas. */
+const renommerCles: Renommer = <T>(v: T, table: Readonly<Record<string, string>>): T => {
+  if (Array.isArray(v)) return v.map((x: unknown) => renommerCles(x, table)) as T
+  if (v !== null && typeof v === 'object') {
+    const out: Json = {}
+    for (const [k, x] of Object.entries(v as Json)) out[table[k] ?? k] = renommerCles(x, table)
+    return out as T
+  }
+  return v
+}
+const porteUneCle = (v: unknown, cles: ReadonlySet<string>): boolean => {
+  if (Array.isArray(v)) return v.some((x) => porteUneCle(x, cles))
+  if (v !== null && typeof v === 'object') return Object.entries(v as Json).some(([k, x]) => cles.has(k) || porteUneCle(x, cles))
+  return false
+}
+const erreurV2 = (code: string): PlatformResponse => ({ ok: false, error: { code } })
+
+const P24_R1 = clause({
+  id: 'P24.R1',
+  enters: 'P24',
+  text: TEXTE_P24_R1,
+  contract: {
+    enveloppe: { version: "'v1' | 'v2', hors args ; absent -> 'v1'" },
+    erreurs: ['INVALID_ARGUMENT'],
+    valeurs: { versions: ['v1', 'v2'], defaut: 'v1', controle: 'avant tout autre, meme celui du tenant' },
+    exemples: [{ requete: { op: 'get_slot', tenant: 't-alpha', actor: 'm-sam', version: 'v3', args: { slot_id: 'S80' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } }],
+  },
+  implementation: {
+    'requete.version': etape(10, (ctx) => {
+      const v = ctx.step.version ?? 'v1'
+      if (v !== 'v1' && v !== 'v2') return fail('INVALID_ARGUMENT')
+      ctx.d.version = v
+      return undefined
+    }),
+  },
+  grandeurs: ['version'],
+  questions_ouvertes: [
+    "Q60 (provisoire) : avant P24, version est ignoree et une operation au nom v2 est une operation inconnue ; le modele attendu leve OPERATION-SANS-CLAUSE (aucune reponse n'est fixee)",
+  ],
+})
+
+const P24_R2 = clause({
+  id: 'P24.R2',
+  enters: 'P24',
+  text: TEXTE_P24_R2,
+  contract: {
+    operations: { ...CORRESPONDANCE_V2.operations },
+    champs: { ...CORRESPONDANCE_V2.champs },
+    erreur_v1: '{ ok: false, error: CODE }',
+    erreur_v2: '{ ok: false, error: { code: CODE } }',
+    portee: 'noms de cles, a toute profondeur, arguments et reponses ; seule l erreur de premier niveau change de forme',
+    exemples: [
+      { requete: { op: 'create_session', version: 'v2', args: { session_id: 'S80', capacity: 2, starts_at: '2032-09-30T16:00:00Z' } }, reponse: { ok: true, session_id: 'S80' } },
+      { requete: { op: 'get_reservation', version: 'v2', args: { reservation_id: 'nope' } }, reponse: { ok: false, error: { code: 'NOT_FOUND' } } },
+    ],
+  },
+  implementation: {
+    'contrat.correspondance': (): Correspondance => CORRESPONDANCE_V2,
+    'contrat.renommer': renommerCles,
+  },
+  grandeurs: ['reservation_id', 'session_id', 'session_ids', 'quantity', 'with_reservation_id', 'booking_id', 'slot_id', 'slot_ids', 'seats', 'with_booking_id'],
+  questions_ouvertes: [
+    "Q57 (provisoire, exercee) : la correspondance ne renomme que les cles listees ; seat_numbers, free_seats, overbook_limit gardent leur nom en v2",
+    "Q58 (provisoire) : les error des lignes rejected d'un import restent des chaines en v2 ; seule l'erreur de premier niveau prend la forme { code }",
+  ],
+})
+
+const P24_R3 = clause({
+  id: 'P24.R3',
+  enters: 'P24',
+  text: TEXTE_P24_R3,
+  contract: {
+    equivalence: 'requete v2 traduite en v1, executee, reponse traduite en v2 : meme effet, reponses correspondantes',
+    idempotence: 'commune aux deux versions ; comparaison apres traduction en v1 ; reponse rendue dans la forme de la requete qui rejoue',
+    exemples: [
+      { contexte: 'v1r cree en v2 (quantity 2)', requete: { op: 'reserve', version: 'v1', args: { request_id: 'v1r', member_id: 'm-cleo', slot_id: 'S80', seats: 2 } }, reponse: { ok: true, booking_id: 'v1r', slot_id: 'S80', seats: 2 } },
+    ],
+  },
+  implementation: {
+    'requete.traduction': etape(30, (ctx) => {
+      if (ctx.d.version !== 'v2') return undefined
+      const c = ctx.regle<() => Correspondance>('contrat.correspondance')()
+      const renommer = ctx.regle<Renommer>('contrat.renommer')
+      const op = inverse(c.operations)[ctx.step.op] ?? ctx.step.op
+      ctx.reecrire(op, renommer(ctx.args, inverse(c.champs)))
+      ctx.sorties.push((r) => {
+        if (r.ok !== false) return renommer(r, c.champs)
+        return typeof r.error === 'string' ? erreurV2(r.error) : r
+      })
+      return undefined
+    }),
+  },
+  grandeurs: ['version', 'request_id', 'import_id'],
+})
+
+const P24_R4 = clause({
+  id: 'P24.R4',
+  enters: 'P24',
+  text: TEXTE_P24_R4,
+  contract: {
+    erreurs: ['INVALID_ARGUMENT'],
+    v2: "nom d'operation v1 renomme, ou cle v1 renommee a toute profondeur -> { ok: false, error: { code: 'INVALID_ARGUMENT' } }",
+    v1: "nom d'operation v2, ou cle v2 -> { ok: false, error: 'INVALID_ARGUMENT' }",
+    exemples: [
+      { requete: { op: 'get_reservation', version: 'v2', args: { booking_id: 'v1r' } }, reponse: { ok: false, error: { code: 'INVALID_ARGUMENT' } } },
+      { requete: { op: 'reserve', version: 'v1', args: { request_id: 'v9r', member_id: 'm-dan', session_id: 'S80' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+    ],
+  },
+  implementation: {
+    'requete.noms': etape(20, (ctx) => {
+      const c = ctx.regle<() => Correspondance>('contrat.correspondance')()
+      const v2 = ctx.d.version === 'v2'
+      const ops = v2 ? Object.keys(c.operations) : Object.values(c.operations)
+      const cles = new Set(v2 ? Object.keys(c.champs) : Object.values(c.champs))
+      if (!ops.includes(ctx.step.op) && !porteUneCle(ctx.args, cles)) return undefined
+      return v2 ? erreurV2('INVALID_ARGUMENT') : fail('INVALID_ARGUMENT')
+    }),
+  },
+  grandeurs: ['version'],
+  questions_ouvertes: [
+    "Q59 (provisoire, exercee) : strict : une cle de l'autre version, meme inconnue de l'operation, est refusee INVALID_ARGUMENT ; une cle inconnue des deux versions est ignoree",
+  ],
+})
+
+/** La source unique de clauses de F-PLATFORM, P1 à P24, dans l'ordre d'entrée. */
 export const PLATFORM_CLAUSES: readonly PlatformClause[] = Object.freeze([
   P1_R1, P1_R2, P1_R3, P1_R4, P1_R5, P1_R6, P1_R7,
   P2_R1, P2_R2, P2_R3, P2_R4,
@@ -3188,4 +4910,12 @@ export const PLATFORM_CLAUSES: readonly PlatformClause[] = Object.freeze([
   P14_R1, P14_R2, P14_R3, P14_R4, P14_R5, P14_R6,
   P15_R1, P15_R2, P15_R3, P15_R4, P15_R5, P15_R6,
   P16_R1, P16_R2, P16_R3,
+  P17_R1, P17_R2, P17_R3, P17_R4,
+  P18_R1, P18_R2, P18_R3,
+  P19_R1, P19_R2, P19_R3,
+  P20_R1, P20_R2, P20_R3, P20_R4,
+  P21_R1, P21_R2, P21_R3, P21_R4,
+  P22_R1, P22_R2, P22_R3, P22_R4,
+  P23_R1, P23_R2, P23_R3, P23_R4, P23_R5,
+  P24_R1, P24_R2, P24_R3, P24_R4,
 ])

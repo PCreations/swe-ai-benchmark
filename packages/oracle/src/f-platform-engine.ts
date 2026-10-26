@@ -25,6 +25,20 @@
 //     range son propre état (fuseau, absences, taux, factures...).
 //
 // Aucune horloge ambiante : l'instant de chaque opération est son champ `at`.
+//
+// Quatre facilités de MÉCANIQUE, sans règle (T72) :
+//   - phase de requête (`requete.*`, étapes rangées) : avant tout le reste,
+//     une clause peut refuser la requête, ou la réécrire (step et args sont
+//     modifiables) et inscrire une transformation de la réponse (`sorties`),
+//     appliquée en tout dernier ;
+//   - compléments (`<op>.complement.*`) : fonctions rangées appliquées à la
+//     réponse de l'opération, avant la mémorisation (`apres`) ;
+//   - invariants (`invariant.*`) : vérifications exécutées après chaque
+//     opération ; elles lèvent si l'état les viole ;
+//   - sous-opération (`ctx.executer(op, args)`) : déroule une opération du même
+//     acteur, au même instant, dans le même locataire (enveloppe, étapes,
+//     effet, compléments, mémorisation, invariants), pour une clause qui en
+//     enchaîne plusieurs.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Json = Record<string, unknown>
@@ -39,6 +53,7 @@ export interface PlatformStep {
   readonly op: string
   readonly tenant?: string
   readonly actor?: string
+  readonly version?: string
   readonly args?: Json
 }
 
@@ -46,7 +61,8 @@ export type BookingStatus = 'confirmed' | 'waiting' | 'cancelled' | 'bumped'
 
 export interface Booking {
   readonly booking_id: string
-  readonly member_id: string
+  /** Titulaire : modifiable (transfert P23, effacement P18). */
+  member_id: string
   readonly slot_id: string
   readonly seq: number
   status: BookingStatus
@@ -109,7 +125,8 @@ export interface JournalEntry {
   readonly seq: number
   readonly at: string
   readonly type: string
-  readonly member_id: string
+  /** Modifiable : l'effacement P18 remplace l'identifiant du membre. */
+  member_id: string
   readonly booking_id: string | null
   readonly amount_cents: number
   readonly credits_cents: number
@@ -151,6 +168,10 @@ export interface Etape {
   readonly rang: number
   readonly etape: (ctx: PlatformContext) => PlatformResponse | undefined
 }
+/** Complément d'une clause à la réponse d'une opération. */
+export type Complement = (ctx: PlatformContext, reponse: PlatformResponse) => PlatformResponse
+/** Invariant d'une clause, vérifié après chaque opération : lève s'il est violé. */
+export type Invariant = (ctx: PlatformContext, reponse: PlatformResponse) => void
 /** Contribution d'une clause à une vue (réservation, créneau, annulation). */
 export type Vue<T> = (ctx: PlatformContext, objet: T, champs: Json) => void
 
@@ -221,16 +242,33 @@ export class PlatformContext {
   readonly d: Record<string, unknown> = {}
   /** Rappels exécutés sur la réponse finale (mémorisation d'idempotence). */
   readonly apres: Array<(r: PlatformResponse) => void> = []
-  readonly args: Json
+  /** Transformations de la réponse, appliquées en dernier, dans l'ordre d'inscription. */
+  readonly sorties: Array<(r: PlatformResponse) => PlatformResponse> = []
+  /** Requête courante : une clause de la phase `requete.` peut la réécrire. */
+  step: PlatformStep
+  args: Json
 
   constructor(
     readonly etat: PlatformState,
-    readonly step: PlatformStep,
+    step: PlatformStep,
     readonly periode: number,
     private readonly table: Map<string, [string, unknown]>,
   ) {
+    this.step = step
     this.args = step.args ?? {}
     this.locataire = etat.tenants.get('default') as Tenant
+  }
+
+  /** Réécrit la requête courante (op et args), pour la suite de l'opération. */
+  reecrire(op: string, args: Json): void {
+    this.step = { ...this.step, op, args }
+    this.args = args
+  }
+
+  /** Sous-opération : `op` avec `args`, même acteur, même instant, même locataire. */
+  executer(op: string, args: Json): PlatformResponse {
+    const sous = new PlatformContext(this.etat, { ...this.step, op, args }, this.periode, this.table)
+    return derouler(sous)
   }
 
   get instant(): number {
@@ -344,16 +382,31 @@ export class PlatformEngine {
     const n = periodNumber(step.period)
     if (n === null) throw new Error(`PERIODE-ILLISIBLE ${String(step.period)}`)
     const ctx = new PlatformContext(this.etat, step, n, this.table(n))
-    const effet = ctx.regleOpt<(ctx: PlatformContext) => PlatformResponse>(`${step.op}.effet`)
-    if (effet === undefined) throw new Error(`OPERATION-SANS-CLAUSE ${step.op} a P${String(n)}`)
-    const etapes = [...ctx.regles<Etape>('enveloppe.'), ...ctx.regles<Etape>(`${step.op}.etape.`)]
     let reponse: PlatformResponse | undefined
-    for (const e of etapes) {
+    for (const e of ctx.regles<Etape>('requete.')) {
       reponse = e.etape(ctx)
       if (reponse !== undefined) break
     }
-    if (reponse === undefined) reponse = effet(ctx)
-    for (const f of ctx.apres) f(reponse)
+    if (reponse === undefined) reponse = derouler(ctx)
+    for (const f of ctx.sorties) reponse = f(reponse)
     return reponse
   }
+}
+
+/** Déroule l'opération courante du contexte : enveloppe, étapes, effet, compléments, mémorisation, invariants. */
+export function derouler(ctx: PlatformContext): PlatformResponse {
+  const op = ctx.step.op
+  const effet = ctx.regleOpt<(ctx: PlatformContext) => PlatformResponse>(`${op}.effet`)
+  if (effet === undefined) throw new Error(`OPERATION-SANS-CLAUSE ${op} a P${String(ctx.periode)}`)
+  const etapes = [...ctx.regles<Etape>('enveloppe.'), ...ctx.regles<Etape>(`${op}.etape.`)]
+  let reponse: PlatformResponse | undefined
+  for (const e of etapes) {
+    reponse = e.etape(ctx)
+    if (reponse !== undefined) break
+  }
+  if (reponse === undefined) reponse = effet(ctx)
+  for (const c of ctx.regles<Complement>(`${op}.complement.`)) reponse = c(ctx, reponse)
+  for (const f of ctx.apres) f(reponse)
+  for (const v of ctx.regles<Invariant>('invariant.')) v(ctx, reponse)
+  return reponse
 }

@@ -1,0 +1,55 @@
+{
+  "schema": "bench.red/1",
+  "task": "T70",
+  "subject_commit": "aacf91437e5d7eb2d510551dadef21260a41f481",
+  "dirty": false,
+  "input_digest": "cc286be8006fb4f3239387a2f79ed961e25181ad23be3458ecd4a1e39a47cb86",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T70.A1",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T70.M1",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que la passe de clarification (3563408..aacf914) n'ajoute des faits qu'aux autres cas"
+    },
+    {
+      "id": "T70.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T70.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T70.M5",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que la passe de clarification (3563408..aacf914) n'ajoute des faits qu'aux autres cas"
+    },
+    {
+      "id": "T70.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T70.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que la passe de clarification (3563408..aacf914) n'ajoute des faits qu'aux autres cas"
+    }
+  ],
+  "mutation_proof": {
+    "T70.A1": {
+      "killed_by": "T70.M1",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que la passe de clarification (3563408..aacf914) n'ajoute des faits qu'aux autres cas"
+    },
+    "T70.A3": {
+      "killed_by": "T70.M5",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que la passe de clarification (3563408..aacf914) n'ajoute des faits qu'aux autres cas"
+    },
+    "T70.A4": {
+      "killed_by": "T70.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que la passe de clarification (3563408..aacf914) n'ajoute des faits qu'aux autres cas"
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

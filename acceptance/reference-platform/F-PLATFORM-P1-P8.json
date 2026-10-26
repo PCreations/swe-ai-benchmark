@@ -1,0 +1,4053 @@
+{
+  "schema": "bench.reference.fixture/1",
+  "fixture": "F-PLATFORM-P1-P8",
+  "$comment": [
+    "Faits attendus du scenario F-PLATFORM, periodes P1 a P8 (ADR-021, decision 1 :",
+    "« Les faits attendus, calcules a la main, sont figes dans une racine gelee »).",
+    "Racine NOUVELLE acceptance/reference-platform, deja revendiquee en zone REFERENCE",
+    "par verification/ownership.json. Les racines acceptance/reference et",
+    "acceptance/reference-long ne sont PAS touchees.",
+    "",
+    "ADR-021 ne donne pour P1-P8 qu'une ligne de tableau par periode (L61-L68). Ce",
+    "fichier FIXE donc les regles precises (valeurs, ordre des controles, arrondis),",
+    "une trajectoire principale par periode, et les faits qui en decoulent. Ce sont",
+    "ces regles que la source de clauses de T70 doit enoncer et executer.",
+    "",
+    "Lecture par acceptance/T70.spec.ts : periodes.<Pn>.trajectoire (operations",
+    "rejouees dans l'ordre P1 -> P8, sur UN SEUL etat) et periodes.<Pn>.faits",
+    "(chaque fait nomme l'etape dont la reponse doit contenir `attendu`).",
+    "",
+    "Chaque fait porte `justification` (calcul a la main) et `recalcul` (second",
+    "calcul independant, par une autre voie). Aucun fait n'a ete obtenu en executant",
+    "une implementation de T70 : packages/scenario et packages/oracle n'ont pas ete lus."
+  ],
+  "source": {
+    "adr": "docs/adr/ADR-021-scenario-f-platform.md",
+    "adr_sha256": "3fa03f9247241e96bdef5361b88653ad9e0dc878c314dadb1a852f54ee30631c",
+    "adr_commit": "5a23e264233edd63e07065caf6f6f34ebde0e9d5",
+    "lignes_periodes": {
+      "P1": 61,
+      "P2": 62,
+      "P3": 63,
+      "P4": 64,
+      "P5": 65,
+      "P6": 66,
+      "P7": 67,
+      "P8": 68
+    },
+    "decision_1": [
+      29,
+      52
+    ],
+    "carte_T70": [
+      166,
+      172
+    ]
+  },
+  "scellement": {
+    "tache": "T70",
+    "role": "fixture-transcriber",
+    "methode": "regles fixees ici a partir du tableau d'ADR-021 ; chaque fait calcule a la main (justification), puis recalcule une seconde fois independamment (recalcul) ; les desaccords auraient corrige la DESCRIPTION, jamais le calcul",
+    "desaccords": [
+      "P6.F18 : premier jet ecrit `confirmed` pour g10 sur S4 ; le recalcul a montre que S4 est plein (c3 et c2 confirmees en P4) : fait corrige en `waiting`, position 1, et l'enchainement P7-24 (annulation de c2 -> promotion de g10) ajoute pour l'exercer."
+    ],
+    "comptes": {
+      "P1": {
+        "etapes": 19,
+        "faits": 17
+      },
+      "P2": {
+        "etapes": 15,
+        "faits": 14
+      },
+      "P3": {
+        "etapes": 17,
+        "faits": 15
+      },
+      "P4": {
+        "etapes": 20,
+        "faits": 18
+      },
+      "P5": {
+        "etapes": 17,
+        "faits": 16
+      },
+      "P6": {
+        "etapes": 23,
+        "faits": 19
+      },
+      "P7": {
+        "etapes": 24,
+        "faits": 15
+      },
+      "P8": {
+        "etapes": 30,
+        "faits": 24
+      },
+      "total_faits": 138
+    }
+  },
+  "conventions": {
+    "unites_et_formats": {
+      "montants": "centimes d'euro, entiers (champs *_cents) ; jamais de flottant",
+      "taux": "points de base entiers (1 pb = 1/10000)",
+      "instants": "ISO 8601 UTC 'AAAA-MM-JJTHH:MM:SSZ' (champ at de chaque operation, starts_at)",
+      "dates": "'AAAA-MM-JJ' (calendrier UTC) ; jours de semaine ISO 1 = lundi ... 7 = dimanche",
+      "heures": "'HH:MM' en UTC",
+      "identifiants": "chaines fournies par le client : tenant_id, slot_id, member_id, request_id, series_id ; booking_id = request_id ; slot_id d'occurrence '<series_id>@<AAAA-MM-JJ>'",
+      "places": "entiers (capacity, seats, booked, available, position)"
+    },
+    "enveloppe_operation": {
+      "forme": "{ id, period, at, op, tenant?, actor?, args }",
+      "id": "identifiant d'etape de la trajectoire (ex. 'P1-01'), sans effet sur le modele",
+      "period": "periode en vigueur 'P1'..'P8' : seules les regles actives a cette periode s'appliquent",
+      "at": "horloge de l'operation (instant ISO 8601 UTC), non decroissante le long de la trajectoire",
+      "tenant": "a partir de P3 ; absent -> 'default'",
+      "actor": "a partir de P4 ; membre qui agit"
+    },
+    "forme_des_reponses": {
+      "succes": "{ ok: true, ...champs de l'operation }",
+      "erreur": "{ ok: false, error: CODE }",
+      "comparaison": "chaque fait liste un sous-ensemble de champs ; chaque champ liste doit etre present et egal en profondeur (tableaux : meme ordre) ; les champs non listes ne sont pas compares"
+    },
+    "codes_erreur": [
+      "NOT_FOUND",
+      "SLOT_CLOSED",
+      "ALREADY_BOOKED",
+      "FULL",
+      "ALREADY_CANCELLED",
+      "ALREADY_EXISTS",
+      "FORBIDDEN",
+      "GROUP_TOO_LARGE",
+      "INVALID_ARGUMENT"
+    ],
+    "ordre_des_controles_de_reserve_a_P8": [
+      "tenant inconnu -> NOT_FOUND",
+      "actor non membre / role -> FORBIDDEN (non memorise)",
+      "member pour autrui -> FORBIDDEN (non memorise)",
+      "idempotence (tenant, request_id) -> reponse memorisee",
+      "slot inconnu -> NOT_FOUND",
+      "member_id non membre -> NOT_FOUND",
+      "at >= starts_at -> SLOT_CLOSED",
+      "seats invalide -> INVALID_ARGUMENT ; seats > capacity -> GROUP_TOO_LARGE",
+      "reservation active du membre -> ALREADY_BOOKED",
+      "admission (confirmed + paiement, ou waiting)"
+    ]
+  },
+  "periodes": {
+    "P1": {
+      "titre": "Reservation simple, capacite, idempotence",
+      "horloge": "2031-03-03T08:00:00Z",
+      "operations_introduites": [
+        "create_slot",
+        "reserve",
+        "cancel",
+        "get_booking",
+        "get_slot"
+      ],
+      "codes_erreur_introduits": [
+        "NOT_FOUND",
+        "SLOT_CLOSED",
+        "ALREADY_BOOKED",
+        "FULL",
+        "ALREADY_CANCELLED",
+        "ALREADY_EXISTS"
+      ],
+      "regles": [
+        {
+          "id": "P1.R1",
+          "texte": "create_slot {slot_id, capacity, starts_at} cree un creneau. capacity est un entier >= 1 (sinon INVALID_ARGUMENT) ; starts_at est un instant ISO 8601 UTC. Un slot_id deja pris -> ALREADY_EXISTS. Reponse {ok: true, slot_id}.",
+          "valeurs": {
+            "capacity_min": 1
+          }
+        },
+        {
+          "id": "P1.R2",
+          "texte": "reserve {request_id, member_id, slot_id} : controles dans cet ordre exact (le premier qui echoue donne la reponse) : (1) idempotence (P1.R4) ; (2) slot_id inconnu -> NOT_FOUND ; (3) at >= starts_at -> SLOT_CLOSED (reservable seulement si at < starts_at, strictement) ; (4) le member_id a deja une reservation ACTIVE sur ce creneau -> ALREADY_BOOKED ; (5) admission (P1.R5)."
+        },
+        {
+          "id": "P1.R3",
+          "texte": "Une reservation creee a pour booking_id le request_id de la requete qui l'a creee. Statuts : confirmed, cancelled (et waiting a partir de P2). Une reservation est ACTIVE si son statut est confirmed (ou waiting a partir de P2)."
+        },
+        {
+          "id": "P1.R4",
+          "texte": "Idempotence : la premiere reponse produite pour un request_id est memorisee (y compris une reponse d'erreur : NOT_FOUND, SLOT_CLOSED, ALREADY_BOOKED, FULL). Toute requete reserve ulterieure portant le meme request_id renvoie cette reponse memorisee a l'identique, sans aucun effet, quels que soient ses autres arguments et l'etat courant."
+        },
+        {
+          "id": "P1.R5",
+          "texte": "Admission : booked = nombre de places occupees par les reservations confirmed. Si booked + 1 <= capacity la reservation est confirmed ; sinon la requete est refusee FULL et rien n'est cree.",
+          "valeurs": {
+            "places_par_reservation": 1
+          }
+        },
+        {
+          "id": "P1.R6",
+          "texte": "cancel {booking_id} : inconnu -> NOT_FOUND ; deja cancelled -> ALREADY_CANCELLED ; sinon statut cancelled et la place est liberee. Aucune regle de delai : l'annulation est permise a tout instant. Reponse {ok: true, booking_id, status: 'cancelled'}."
+        },
+        {
+          "id": "P1.R7",
+          "texte": "get_booking {booking_id} -> {ok: true, booking_id, member_id, slot_id, status} ou NOT_FOUND. get_slot {slot_id} -> {ok: true, slot_id, capacity, starts_at, booked, available} avec available = capacity - booked, ou NOT_FOUND."
+        }
+      ],
+      "ligne_adr": 61,
+      "trajectoire": [
+        {
+          "id": "P1-01",
+          "period": "P1",
+          "at": "2031-03-03T08:00:00Z",
+          "op": "create_slot",
+          "args": {
+            "slot_id": "S1",
+            "capacity": 2,
+            "starts_at": "2031-03-20T18:00:00Z"
+          }
+        },
+        {
+          "id": "P1-02",
+          "period": "P1",
+          "at": "2031-03-03T08:01:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r1",
+            "member_id": "m-ana",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-03",
+          "period": "P1",
+          "at": "2031-03-03T08:02:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r1",
+            "member_id": "m-ana",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-04",
+          "period": "P1",
+          "at": "2031-03-03T08:03:00Z",
+          "op": "get_slot",
+          "args": {
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-05",
+          "period": "P1",
+          "at": "2031-03-03T08:04:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r2",
+            "member_id": "m-ben",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-06",
+          "period": "P1",
+          "at": "2031-03-03T08:05:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r3",
+            "member_id": "m-cleo",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-07",
+          "period": "P1",
+          "at": "2031-03-03T08:06:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r4",
+            "member_id": "m-ana",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-08",
+          "period": "P1",
+          "at": "2031-03-03T08:07:00Z",
+          "op": "cancel",
+          "args": {
+            "booking_id": "r1"
+          }
+        },
+        {
+          "id": "P1-09",
+          "period": "P1",
+          "at": "2031-03-03T08:08:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r3",
+            "member_id": "m-cleo",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-10",
+          "period": "P1",
+          "at": "2031-03-03T08:09:00Z",
+          "op": "get_slot",
+          "args": {
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-11",
+          "period": "P1",
+          "at": "2031-03-03T08:10:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r5",
+            "member_id": "m-cleo",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P1-12",
+          "period": "P1",
+          "at": "2031-03-03T08:11:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r7",
+            "member_id": "m-dan",
+            "slot_id": "S0"
+          }
+        },
+        {
+          "id": "P1-13",
+          "period": "P1",
+          "at": "2031-03-03T08:12:00Z",
+          "op": "create_slot",
+          "args": {
+            "slot_id": "S9",
+            "capacity": 5,
+            "starts_at": "2031-03-03T08:15:00Z"
+          }
+        },
+        {
+          "id": "P1-14",
+          "period": "P1",
+          "at": "2031-03-03T08:14:59Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r8",
+            "member_id": "m-dan",
+            "slot_id": "S9"
+          }
+        },
+        {
+          "id": "P1-15",
+          "period": "P1",
+          "at": "2031-03-03T08:15:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r9",
+            "member_id": "m-eve",
+            "slot_id": "S9"
+          }
+        },
+        {
+          "id": "P1-16",
+          "period": "P1",
+          "at": "2031-03-03T08:16:00Z",
+          "op": "cancel",
+          "args": {
+            "booking_id": "r1"
+          }
+        },
+        {
+          "id": "P1-17",
+          "period": "P1",
+          "at": "2031-03-03T08:17:00Z",
+          "op": "get_booking",
+          "args": {
+            "booking_id": "r1"
+          }
+        },
+        {
+          "id": "P1-18",
+          "period": "P1",
+          "at": "2031-03-03T08:18:00Z",
+          "op": "cancel",
+          "args": {
+            "booking_id": "r404"
+          }
+        },
+        {
+          "id": "P1-19",
+          "period": "P1",
+          "at": "2031-03-03T08:19:00Z",
+          "op": "get_slot",
+          "args": {
+            "slot_id": "S1"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P1.F01",
+          "etape": "P1-02",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r1",
+            "status": "confirmed"
+          },
+          "justification": "S1 cree vide (capacite 2) ; 0 place occupee < 2 : r1 confirmee ; booking_id = request_id (P1.R3).",
+          "recalcul": "occupation avant = 0 ; 0 + 1 <= 2 -> confirmed."
+        },
+        {
+          "id": "P1.F02",
+          "etape": "P1-03",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r1",
+            "status": "confirmed"
+          },
+          "justification": "Meme request_id r1 : la reponse memorisee de P1-02 est renvoyee telle quelle, sans effet (P1.R4).",
+          "recalcul": "r1 deja vu -> reponse de P1-02 a l'identique."
+        },
+        {
+          "id": "P1.F03",
+          "etape": "P1-04",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S1",
+            "capacity": 2,
+            "booked": 1,
+            "available": 1,
+            "starts_at": "2031-03-20T18:00:00Z"
+          },
+          "justification": "Le rejeu P1-03 n'a cree aucune reservation : une seule place occupee (r1) ; available = 2 - 1 = 1.",
+          "recalcul": "reservations confirmees de S1 = {r1} -> booked 1 ; 2 - 1 = 1."
+        },
+        {
+          "id": "P1.F04",
+          "etape": "P1-05",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r2",
+            "status": "confirmed"
+          },
+          "justification": "Derniere place : occupation 1 < 2, r2 confirmee ; S1 est alors plein (2/2).",
+          "recalcul": "1 + 1 = 2 <= 2 -> confirmed ; available devient 0."
+        },
+        {
+          "id": "P1.F05",
+          "etape": "P1-06",
+          "attendu": {
+            "ok": false,
+            "error": "FULL"
+          },
+          "justification": "S1 plein (2/2) et, en P1, aucune file d'attente : refus FULL (P1.R5) ; la reponse est memorisee sous r3.",
+          "recalcul": "occupation 2 = capacite 2 -> FULL."
+        },
+        {
+          "id": "P1.F06",
+          "etape": "P1-07",
+          "attendu": {
+            "ok": false,
+            "error": "ALREADY_BOOKED"
+          },
+          "justification": "m-ana detient r1 (confirmee) sur S1 ; le controle ALREADY_BOOKED (etape 6 de l'ordre) precede le controle de capacite (etape 7) : ALREADY_BOOKED, pas FULL.",
+          "recalcul": "ordre P1 : idempotence, creneau, cloture, deja reserve, capacite ; r4 inconnu, S1 existe, 08:06 < 2031-03-20T18:00, m-ana a r1 actif -> ALREADY_BOOKED."
+        },
+        {
+          "id": "P1.F07",
+          "etape": "P1-08",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r1",
+            "status": "cancelled"
+          },
+          "justification": "r1 confirmee -> annulee ; une place se libere (occupation 1/2).",
+          "recalcul": "r1 statut confirmed -> cancelled ; occupation 2 - 1 = 1."
+        },
+        {
+          "id": "P1.F08",
+          "etape": "P1-09",
+          "attendu": {
+            "ok": false,
+            "error": "FULL"
+          },
+          "justification": "Rejeu de r3 : la reponse memorisee (FULL, P1-06) est renvoyee meme si une place est libre ; aucun effet (P1.R4).",
+          "recalcul": "r3 deja vu -> reponse de P1-06 = FULL ; aucune reservation creee."
+        },
+        {
+          "id": "P1.F09",
+          "etape": "P1-10",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S1",
+            "booked": 1,
+            "available": 1
+          },
+          "justification": "Apres l'annulation de r1 et le rejeu sans effet de r3 : seule r2 occupe S1.",
+          "recalcul": "confirmees = {r2} -> 1 ; 2 - 1 = 1."
+        },
+        {
+          "id": "P1.F10",
+          "etape": "P1-11",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r5",
+            "status": "confirmed"
+          },
+          "justification": "Nouveau request_id r5 pour m-cleo : la place liberee par r1 est prise.",
+          "recalcul": "occupation 1 + 1 = 2 <= 2 -> confirmed."
+        },
+        {
+          "id": "P1.F11",
+          "etape": "P1-12",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "Le creneau S0 n'existe pas : NOT_FOUND.",
+          "recalcul": "S0 jamais cree -> NOT_FOUND."
+        },
+        {
+          "id": "P1.F12",
+          "etape": "P1-14",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r8",
+            "status": "confirmed"
+          },
+          "justification": "Frontiere de cloture : at = 08:14:59Z < starts_at = 08:15:00Z (strict) : reservable.",
+          "recalcul": "08:14:59 < 08:15:00 -> pas SLOT_CLOSED ; S9 vide, 1 <= 5 -> confirmed."
+        },
+        {
+          "id": "P1.F13",
+          "etape": "P1-15",
+          "attendu": {
+            "ok": false,
+            "error": "SLOT_CLOSED"
+          },
+          "justification": "Frontiere de cloture : at = starts_at = 2031-03-03T08:15:00Z ; la reservation exige at < starts_at : SLOT_CLOSED.",
+          "recalcul": "08:15:00 >= 08:15:00 -> SLOT_CLOSED."
+        },
+        {
+          "id": "P1.F14",
+          "etape": "P1-16",
+          "attendu": {
+            "ok": false,
+            "error": "ALREADY_CANCELLED"
+          },
+          "justification": "r1 est deja annulee depuis P1-08 : ALREADY_CANCELLED, sans effet.",
+          "recalcul": "statut de r1 = cancelled -> ALREADY_CANCELLED."
+        },
+        {
+          "id": "P1.F15",
+          "etape": "P1-17",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r1",
+            "member_id": "m-ana",
+            "slot_id": "S1",
+            "status": "cancelled"
+          },
+          "justification": "Lecture de r1 : creee par m-ana sur S1, annulee en P1-08.",
+          "recalcul": "r1 : member m-ana, slot S1, statut cancelled."
+        },
+        {
+          "id": "P1.F16",
+          "etape": "P1-18",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "Aucune reservation r404 : NOT_FOUND.",
+          "recalcul": "r404 jamais cree -> NOT_FOUND."
+        },
+        {
+          "id": "P1.F17",
+          "etape": "P1-19",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S1",
+            "capacity": 2,
+            "booked": 2,
+            "available": 0
+          },
+          "justification": "Etat final de S1 en P1 : r2 et r5 confirmees.",
+          "recalcul": "confirmees = {r2, r5} -> 2 ; 2 - 2 = 0."
+        }
+      ]
+    },
+    "P2": {
+      "titre": "File d'attente et promotion a l'annulation",
+      "horloge": "2031-03-04T09:00:00Z",
+      "operations_introduites": [],
+      "codes_erreur_introduits": [],
+      "regles": [
+        {
+          "id": "P2.R1",
+          "texte": "Admission : si booked + 1 <= capacity la reservation est confirmed ; sinon elle est creee avec le statut waiting et ajoutee en QUEUE de la file d'attente du creneau. Le refus FULL n'existe plus. La reponse d'une reservation en attente porte position (rang 1-base dans la file).",
+          "remplace": "P1.R5"
+        },
+        {
+          "id": "P2.R2",
+          "texte": "Promotion : quand une reservation confirmed est annulee, la place liberee est attribuee, dans la meme operation, a la reservation en tete de file, qui passe confirmed et quitte la file. Annuler une reservation waiting la retire de la file (les suivantes remontent) et ne promeut personne. La reponse de cancel porte promoted : la liste ordonnee des booking_id promus par cette operation ([] si aucun)."
+        },
+        {
+          "id": "P2.R3",
+          "texte": "get_slot porte en plus waiting : la liste ordonnee des booking_id en attente (tete en premier). get_booking d'une reservation waiting porte position ; une reservation non waiting n'a pas de position."
+        },
+        {
+          "id": "P2.R4",
+          "texte": "Une reservation waiting est ACTIVE : elle declenche ALREADY_BOOKED pour le meme membre sur le meme creneau."
+        }
+      ],
+      "ligne_adr": 62,
+      "trajectoire": [
+        {
+          "id": "P2-01",
+          "period": "P2",
+          "at": "2031-03-04T09:00:00Z",
+          "op": "create_slot",
+          "args": {
+            "slot_id": "S2",
+            "capacity": 1,
+            "starts_at": "2031-03-21T18:00:00Z"
+          }
+        },
+        {
+          "id": "P2-02",
+          "period": "P2",
+          "at": "2031-03-04T09:01:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "w1",
+            "member_id": "m-ana",
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-03",
+          "period": "P2",
+          "at": "2031-03-04T09:02:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "w2",
+            "member_id": "m-ben",
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-04",
+          "period": "P2",
+          "at": "2031-03-04T09:03:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "w3",
+            "member_id": "m-cleo",
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-05",
+          "period": "P2",
+          "at": "2031-03-04T09:04:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "w2",
+            "member_id": "m-ben",
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-06",
+          "period": "P2",
+          "at": "2031-03-04T09:05:00Z",
+          "op": "get_slot",
+          "args": {
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-07",
+          "period": "P2",
+          "at": "2031-03-04T09:06:00Z",
+          "op": "cancel",
+          "args": {
+            "booking_id": "w2"
+          }
+        },
+        {
+          "id": "P2-08",
+          "period": "P2",
+          "at": "2031-03-04T09:07:00Z",
+          "op": "get_booking",
+          "args": {
+            "booking_id": "w3"
+          }
+        },
+        {
+          "id": "P2-09",
+          "period": "P2",
+          "at": "2031-03-04T09:08:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "w4",
+            "member_id": "m-dan",
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-10",
+          "period": "P2",
+          "at": "2031-03-04T09:09:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "w5",
+            "member_id": "m-cleo",
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-11",
+          "period": "P2",
+          "at": "2031-03-04T09:10:00Z",
+          "op": "cancel",
+          "args": {
+            "booking_id": "w1"
+          }
+        },
+        {
+          "id": "P2-12",
+          "period": "P2",
+          "at": "2031-03-04T09:11:00Z",
+          "op": "get_slot",
+          "args": {
+            "slot_id": "S2"
+          }
+        },
+        {
+          "id": "P2-13",
+          "period": "P2",
+          "at": "2031-03-04T09:12:00Z",
+          "op": "get_booking",
+          "args": {
+            "booking_id": "w4"
+          }
+        },
+        {
+          "id": "P2-14",
+          "period": "P2",
+          "at": "2031-03-04T09:13:00Z",
+          "op": "get_booking",
+          "args": {
+            "booking_id": "w3"
+          }
+        },
+        {
+          "id": "P2-15",
+          "period": "P2",
+          "at": "2031-03-04T09:14:00Z",
+          "op": "reserve",
+          "args": {
+            "request_id": "r6",
+            "member_id": "m-eve",
+            "slot_id": "S1"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P2.F01",
+          "etape": "P2-02",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w1",
+            "status": "confirmed"
+          },
+          "justification": "S2 (capacite 1) vide : w1 confirmee, S2 plein.",
+          "recalcul": "0 + 1 <= 1 -> confirmed."
+        },
+        {
+          "id": "P2.F02",
+          "etape": "P2-03",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w2",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "S2 plein : en P2, la file d'attente remplace le refus FULL de P1 (P2.R1 remplace P1.R5) ; w2 est 1re de la file.",
+          "recalcul": "occupation 1 = capacite -> waiting ; file [] + w2 -> position 1."
+        },
+        {
+          "id": "P2.F03",
+          "etape": "P2-04",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w3",
+            "status": "waiting",
+            "position": 2
+          },
+          "justification": "S2 toujours plein ; w3 rejoint la file derriere w2.",
+          "recalcul": "file [w2] + w3 -> position 2."
+        },
+        {
+          "id": "P2.F04",
+          "etape": "P2-05",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w2",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "Rejeu de w2 : reponse memorisee de P2-03 renvoyee telle quelle, sans nouvelle entree dans la file.",
+          "recalcul": "w2 deja vu -> reponse de P2-03."
+        },
+        {
+          "id": "P2.F05",
+          "etape": "P2-06",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S2",
+            "booked": 1,
+            "available": 0,
+            "waiting": [
+              "w2",
+              "w3"
+            ]
+          },
+          "justification": "La file ne contient que w2 et w3 dans l'ordre d'arrivee (le rejeu P2-05 n'a rien ajoute).",
+          "recalcul": "confirmees {w1} -> 1 ; 1 - 1 = 0 ; file [w2, w3]."
+        },
+        {
+          "id": "P2.F06",
+          "etape": "P2-07",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w2",
+            "status": "cancelled",
+            "promoted": []
+          },
+          "justification": "Annuler une reservation EN ATTENTE ne libere aucune place : personne n'est promu ; w2 quitte la file.",
+          "recalcul": "w2 waiting -> cancelled ; occupation inchangee 1/1 -> promoted []."
+        },
+        {
+          "id": "P2.F07",
+          "etape": "P2-08",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w3",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "w2 retiree de la file : w3 remonte en position 1.",
+          "recalcul": "file [w2, w3] - w2 = [w3] -> position 1."
+        },
+        {
+          "id": "P2.F08",
+          "etape": "P2-09",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w4",
+            "status": "waiting",
+            "position": 2
+          },
+          "justification": "S2 plein ; w4 entre en file derriere w3.",
+          "recalcul": "file [w3] + w4 -> position 2."
+        },
+        {
+          "id": "P2.F09",
+          "etape": "P2-10",
+          "attendu": {
+            "ok": false,
+            "error": "ALREADY_BOOKED"
+          },
+          "justification": "m-cleo a deja une reservation ACTIVE (w3, en attente) sur S2 : une reservation en attente compte comme active (P2.R4).",
+          "recalcul": "actives de m-cleo sur S2 = {w3 waiting} -> ALREADY_BOOKED."
+        },
+        {
+          "id": "P2.F10",
+          "etape": "P2-11",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w1",
+            "status": "cancelled",
+            "promoted": [
+              "w3"
+            ]
+          },
+          "justification": "Annuler w1 (confirmee) libere 1 place : la tete de file w3 est promue dans la meme operation (P2.R2).",
+          "recalcul": "places libres 0 + 1 = 1 ; tete [w3, w4] = w3 -> confirmed ; libres 0 -> w4 reste."
+        },
+        {
+          "id": "P2.F11",
+          "etape": "P2-12",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S2",
+            "booked": 1,
+            "available": 0,
+            "waiting": [
+              "w4"
+            ]
+          },
+          "justification": "Apres promotion : w3 confirmee, w4 seule en file.",
+          "recalcul": "confirmees {w3} -> 1 ; file [w4]."
+        },
+        {
+          "id": "P2.F12",
+          "etape": "P2-13",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w4",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "w4 remonte en tete apres la promotion de w3.",
+          "recalcul": "file [w4] -> position 1."
+        },
+        {
+          "id": "P2.F13",
+          "etape": "P2-14",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w3",
+            "status": "confirmed"
+          },
+          "justification": "w3 promue en P2-11.",
+          "recalcul": "w3 promue -> confirmed."
+        },
+        {
+          "id": "P2.F14",
+          "etape": "P2-15",
+          "attendu": {
+            "ok": true,
+            "booking_id": "r6",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "S1 (cree en P1, plein avec r2 et r5) : en P2 une demande sur creneau plein entre en file au lieu d'etre refusee FULL.",
+          "recalcul": "S1 occupation 2/2 -> waiting ; file [] -> position 1."
+        }
+      ]
+    },
+    "P3": {
+      "titre": "Locataires isoles",
+      "horloge": "2031-03-05T09:00:00Z",
+      "operations_introduites": [
+        "create_tenant"
+      ],
+      "codes_erreur_introduits": [],
+      "regles": [
+        {
+          "id": "P3.R1",
+          "texte": "create_tenant {tenant_id, owner_id} cree un locataire (tenant_id deja pris -> ALREADY_EXISTS). Reponse {ok: true, tenant_id}. owner_id n'a d'effet qu'a partir de P4."
+        },
+        {
+          "id": "P3.R2",
+          "texte": "Toute autre operation porte un champ tenant (au niveau de l'operation, hors args) ; absent, il vaut 'default'. Le locataire 'default' existe implicitement et contient tout ce qui a ete cree en P1 et P2. Un tenant inconnu -> NOT_FOUND (controle avant tous les autres)."
+        },
+        {
+          "id": "P3.R3",
+          "texte": "Isolation : slot_id, booking_id/request_id et member_id sont propres a chaque locataire. Une ressource d'un autre locataire est introuvable : NOT_FOUND (jamais FORBIDDEN). L'idempotence est cle par (tenant, request_id)."
+        }
+      ],
+      "ligne_adr": 63,
+      "trajectoire": [
+        {
+          "id": "P3-01",
+          "period": "P3",
+          "at": "2031-03-05T09:00:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-alpha",
+            "owner_id": "m-ana"
+          }
+        },
+        {
+          "id": "P3-02",
+          "period": "P3",
+          "at": "2031-03-05T09:01:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-beta",
+            "owner_id": "m-ben"
+          }
+        },
+        {
+          "id": "P3-03",
+          "period": "P3",
+          "at": "2031-03-05T09:02:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "args": {
+            "slot_id": "S1",
+            "capacity": 1,
+            "starts_at": "2031-03-22T18:00:00Z"
+          }
+        },
+        {
+          "id": "P3-04",
+          "period": "P3",
+          "at": "2031-03-05T09:03:00Z",
+          "op": "create_slot",
+          "args": {
+            "slot_id": "S1",
+            "capacity": 3,
+            "starts_at": "2031-03-22T18:00:00Z"
+          }
+        },
+        {
+          "id": "P3-05",
+          "period": "P3",
+          "at": "2031-03-05T09:04:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "args": {
+            "request_id": "a1",
+            "member_id": "m-ana",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-06",
+          "period": "P3",
+          "at": "2031-03-05T09:05:00Z",
+          "op": "reserve",
+          "tenant": "t-beta",
+          "args": {
+            "request_id": "a1",
+            "member_id": "m-ben",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-07",
+          "period": "P3",
+          "at": "2031-03-05T09:06:00Z",
+          "op": "create_slot",
+          "tenant": "t-beta",
+          "args": {
+            "slot_id": "S1",
+            "capacity": 1,
+            "starts_at": "2031-03-22T18:00:00Z"
+          }
+        },
+        {
+          "id": "P3-08",
+          "period": "P3",
+          "at": "2031-03-05T09:07:00Z",
+          "op": "reserve",
+          "tenant": "t-beta",
+          "args": {
+            "request_id": "a1",
+            "member_id": "m-ben",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-09",
+          "period": "P3",
+          "at": "2031-03-05T09:08:00Z",
+          "op": "reserve",
+          "tenant": "t-beta",
+          "args": {
+            "request_id": "b1",
+            "member_id": "m-ben",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-10",
+          "period": "P3",
+          "at": "2031-03-05T09:09:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "args": {
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-11",
+          "period": "P3",
+          "at": "2031-03-05T09:10:00Z",
+          "op": "get_slot",
+          "args": {
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-12",
+          "period": "P3",
+          "at": "2031-03-05T09:11:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "args": {
+            "booking_id": "w3"
+          }
+        },
+        {
+          "id": "P3-13",
+          "period": "P3",
+          "at": "2031-03-05T09:12:00Z",
+          "op": "get_booking",
+          "tenant": "default",
+          "args": {
+            "booking_id": "w3"
+          }
+        },
+        {
+          "id": "P3-14",
+          "period": "P3",
+          "at": "2031-03-05T09:13:00Z",
+          "op": "cancel",
+          "tenant": "t-beta",
+          "args": {
+            "booking_id": "b1"
+          }
+        },
+        {
+          "id": "P3-15",
+          "period": "P3",
+          "at": "2031-03-05T09:14:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "args": {
+            "booking_id": "a1"
+          }
+        },
+        {
+          "id": "P3-16",
+          "period": "P3",
+          "at": "2031-03-05T09:15:00Z",
+          "op": "reserve",
+          "tenant": "t-gamma",
+          "args": {
+            "request_id": "x1",
+            "member_id": "m-ana",
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P3-17",
+          "period": "P3",
+          "at": "2031-03-05T09:16:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-alpha",
+            "owner_id": "m-dan"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P3.F01",
+          "etape": "P3-01",
+          "attendu": {
+            "ok": true,
+            "tenant_id": "t-alpha"
+          },
+          "justification": "Creation du locataire t-alpha.",
+          "recalcul": "t-alpha inconnu -> cree."
+        },
+        {
+          "id": "P3.F02",
+          "etape": "P3-03",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S1"
+          },
+          "justification": "Les identifiants de creneau sont propres a chaque locataire : S1 existe dans default mais pas dans t-alpha, la creation reussit.",
+          "recalcul": "cle (t-alpha, S1) libre -> ok."
+        },
+        {
+          "id": "P3.F03",
+          "etape": "P3-04",
+          "attendu": {
+            "ok": false,
+            "error": "ALREADY_EXISTS"
+          },
+          "justification": "Sans champ tenant, l'operation vise default (P3.R2), ou S1 existe depuis P1-01 : ALREADY_EXISTS.",
+          "recalcul": "cle (default, S1) prise -> ALREADY_EXISTS."
+        },
+        {
+          "id": "P3.F04",
+          "etape": "P3-05",
+          "attendu": {
+            "ok": true,
+            "booking_id": "a1",
+            "status": "confirmed"
+          },
+          "justification": "S1 de t-alpha (capacite 1) vide : a1 confirmee.",
+          "recalcul": "0 + 1 <= 1 -> confirmed."
+        },
+        {
+          "id": "P3.F05",
+          "etape": "P3-06",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "L'idempotence est cle par (locataire, request_id) : a1 dans t-beta n'est PAS un rejeu de a1 de t-alpha ; S1 n'existe pas encore dans t-beta : NOT_FOUND, memorise sous (t-beta, a1).",
+          "recalcul": "(t-beta, a1) inconnu ; (t-beta, S1) inexistant -> NOT_FOUND."
+        },
+        {
+          "id": "P3.F06",
+          "etape": "P3-08",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "(t-beta, a1) a deja une reponse memorisee (P3-06) : elle est renvoyee telle quelle meme si S1 existe maintenant dans t-beta.",
+          "recalcul": "(t-beta, a1) deja vu -> NOT_FOUND."
+        },
+        {
+          "id": "P3.F07",
+          "etape": "P3-09",
+          "attendu": {
+            "ok": true,
+            "booking_id": "b1",
+            "status": "confirmed"
+          },
+          "justification": "Nouveau request_id b1 dans t-beta : S1 de t-beta vide, confirmee.",
+          "recalcul": "0 + 1 <= 1 -> confirmed."
+        },
+        {
+          "id": "P3.F08",
+          "etape": "P3-10",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S1",
+            "capacity": 1,
+            "booked": 1,
+            "available": 0,
+            "waiting": []
+          },
+          "justification": "S1 de t-alpha ne voit que a1 ; b1 (t-beta) ne compte pas.",
+          "recalcul": "confirmees (t-alpha, S1) = {a1} -> 1 ; 1 - 1 = 0."
+        },
+        {
+          "id": "P3.F09",
+          "etape": "P3-11",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S1",
+            "capacity": 2,
+            "booked": 2,
+            "available": 0,
+            "waiting": [
+              "r6"
+            ]
+          },
+          "justification": "S1 de default (sans champ tenant) est inchange depuis P2 : r2, r5 confirmees, r6 en file ; la tentative P3-04 n'a pas modifie sa capacite.",
+          "recalcul": "default/S1 : capacite 2, confirmees {r2, r5}, file [r6]."
+        },
+        {
+          "id": "P3.F10",
+          "etape": "P3-12",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "w3 appartient a default : lue depuis t-alpha, elle est introuvable (NOT_FOUND, jamais FORBIDDEN).",
+          "recalcul": "(t-alpha, w3) inexistant -> NOT_FOUND."
+        },
+        {
+          "id": "P3.F11",
+          "etape": "P3-13",
+          "attendu": {
+            "ok": true,
+            "booking_id": "w3",
+            "member_id": "m-cleo",
+            "slot_id": "S2",
+            "status": "confirmed"
+          },
+          "justification": "tenant explicite default : w3 (promue en P2-11) est lisible.",
+          "recalcul": "(default, w3) confirmed."
+        },
+        {
+          "id": "P3.F12",
+          "etape": "P3-14",
+          "attendu": {
+            "ok": true,
+            "booking_id": "b1",
+            "status": "cancelled",
+            "promoted": []
+          },
+          "justification": "b1 annulee dans t-beta ; aucune file sur S1 de t-beta.",
+          "recalcul": "file vide -> promoted []."
+        },
+        {
+          "id": "P3.F13",
+          "etape": "P3-15",
+          "attendu": {
+            "ok": true,
+            "booking_id": "a1",
+            "member_id": "m-ana",
+            "status": "confirmed"
+          },
+          "justification": "L'annulation de b1 dans t-beta n'a pas touche a1 de t-alpha.",
+          "recalcul": "(t-alpha, a1) inchange -> confirmed."
+        },
+        {
+          "id": "P3.F14",
+          "etape": "P3-16",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "Le locataire t-gamma n'existe pas : NOT_FOUND.",
+          "recalcul": "t-gamma jamais cree -> NOT_FOUND."
+        },
+        {
+          "id": "P3.F15",
+          "etape": "P3-17",
+          "attendu": {
+            "ok": false,
+            "error": "ALREADY_EXISTS"
+          },
+          "justification": "t-alpha existe deja : ALREADY_EXISTS ; son proprietaire reste m-ana.",
+          "recalcul": "t-alpha cree en P3-01 -> ALREADY_EXISTS."
+        }
+      ]
+    },
+    "P4": {
+      "titre": "Membres et roles (admin, staff, member), refus FORBIDDEN",
+      "horloge": "2031-03-06T09:00:00Z",
+      "operations_introduites": [
+        "add_member"
+      ],
+      "codes_erreur_introduits": [
+        "FORBIDDEN"
+      ],
+      "regles": [
+        {
+          "id": "P4.R1",
+          "texte": "Roles : admin, staff, member. Le owner_id d'un locataire est admin de ce locataire. add_member {member_id, role} cree le membre ou remplace son role ; reponse {ok: true, member_id, role}. Le locataire 'default' n'a ni proprietaire ni membre."
+        },
+        {
+          "id": "P4.R2",
+          "texte": "Toute operation sauf create_tenant porte un champ actor (au niveau de l'operation). Ordre des controles : (1) tenant inconnu -> NOT_FOUND ; (2) actor absent ou non membre du locataire -> FORBIDDEN ; (3) role de l'actor non autorise pour l'operation -> FORBIDDEN ; puis les controles propres a l'operation."
+        },
+        {
+          "id": "P4.R3",
+          "texte": "Permissions par operation : add_member : admin. create_slot : admin, staff. reserve : admin, staff pour tout member_id ; member seulement si member_id = actor (sinon FORBIDDEN, controle avant l'idempotence). cancel et get_booking : admin, staff pour toute reservation ; member seulement pour ses propres reservations (booking inconnu -> NOT_FOUND d'abord, puis reservation d'un autre -> FORBIDDEN). get_slot : tous les roles. create_tenant : sans controle d'acteur.",
+          "valeurs": {
+            "add_member": [
+              "admin"
+            ],
+            "create_slot": [
+              "admin",
+              "staff"
+            ],
+            "reserve": [
+              "admin",
+              "staff",
+              "member:soi"
+            ],
+            "cancel": [
+              "admin",
+              "staff",
+              "member:soi"
+            ],
+            "get_booking": [
+              "admin",
+              "staff",
+              "member:soi"
+            ],
+            "get_slot": [
+              "admin",
+              "staff",
+              "member"
+            ]
+          }
+        },
+        {
+          "id": "P4.R4",
+          "texte": "Une reponse FORBIDDEN n'est jamais memorisee pour l'idempotence : le meme request_id reste utilisable. reserve : un member_id qui n'est pas membre du locataire -> NOT_FOUND (apres le controle d'existence du creneau)."
+        }
+      ],
+      "ligne_adr": 64,
+      "trajectoire": [
+        {
+          "id": "P4-01",
+          "period": "P4",
+          "at": "2031-03-06T09:00:00Z",
+          "op": "add_member",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-sam",
+            "role": "staff"
+          }
+        },
+        {
+          "id": "P4-02",
+          "period": "P4",
+          "at": "2031-03-06T09:01:00Z",
+          "op": "add_member",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-cleo",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P4-03",
+          "period": "P4",
+          "at": "2031-03-06T09:02:00Z",
+          "op": "add_member",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-dan",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P4-04",
+          "period": "P4",
+          "at": "2031-03-06T09:03:00Z",
+          "op": "add_member",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-eve",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P4-05",
+          "period": "P4",
+          "at": "2031-03-06T09:04:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S4",
+            "capacity": 2,
+            "starts_at": "2031-03-24T18:00:00Z"
+          }
+        },
+        {
+          "id": "P4-06",
+          "period": "P4",
+          "at": "2031-03-06T09:05:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "slot_id": "S5",
+            "capacity": 1,
+            "starts_at": "2031-03-24T18:00:00Z"
+          }
+        },
+        {
+          "id": "P4-07",
+          "period": "P4",
+          "at": "2031-03-06T09:06:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "request_id": "c1",
+            "member_id": "m-cleo",
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P4-08",
+          "period": "P4",
+          "at": "2031-03-06T09:07:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "request_id": "c2",
+            "member_id": "m-dan",
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P4-09",
+          "period": "P4",
+          "at": "2031-03-06T09:08:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "c3",
+            "member_id": "m-dan",
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P4-10",
+          "period": "P4",
+          "at": "2031-03-06T09:09:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "c4",
+            "member_id": "m-eve",
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P4-11",
+          "period": "P4",
+          "at": "2031-03-06T09:10:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "booking_id": "c1"
+          }
+        },
+        {
+          "id": "P4-12",
+          "period": "P4",
+          "at": "2031-03-06T09:11:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "booking_id": "c1"
+          }
+        },
+        {
+          "id": "P4-13",
+          "period": "P4",
+          "at": "2031-03-06T09:12:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "c1"
+          }
+        },
+        {
+          "id": "P4-14",
+          "period": "P4",
+          "at": "2031-03-06T09:13:00Z",
+          "op": "get_slot",
+          "tenant": "t-beta",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P4-15",
+          "period": "P4",
+          "at": "2031-03-06T09:14:00Z",
+          "op": "get_slot",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S1"
+          }
+        },
+        {
+          "id": "P4-16",
+          "period": "P4",
+          "at": "2031-03-06T09:15:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "c1"
+          }
+        },
+        {
+          "id": "P4-17",
+          "period": "P4",
+          "at": "2031-03-06T09:16:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P4-18",
+          "period": "P4",
+          "at": "2031-03-06T09:17:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "request_id": "c2",
+            "member_id": "m-cleo",
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P4-19",
+          "period": "P4",
+          "at": "2031-03-06T09:18:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "booking_id": "c1"
+          }
+        },
+        {
+          "id": "P4-20",
+          "period": "P4",
+          "at": "2031-03-06T09:19:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "args": {
+            "slot_id": "S4"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P4.F01",
+          "etape": "P4-01",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-sam",
+            "role": "staff"
+          },
+          "justification": "m-ana est proprietaire de t-alpha (P3-01) donc admin (P4.R1) ; add_member est reserve a admin.",
+          "recalcul": "acteur admin -> ok."
+        },
+        {
+          "id": "P4.F02",
+          "etape": "P4-04",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "m-sam est staff ; add_member est reserve a admin : FORBIDDEN, m-eve n'est PAS ajoutee.",
+          "recalcul": "staff ∉ {admin} -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F03",
+          "etape": "P4-05",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S4"
+          },
+          "justification": "create_slot est permis a admin et staff ; m-sam est staff.",
+          "recalcul": "staff ∈ {admin, staff} -> ok."
+        },
+        {
+          "id": "P4.F04",
+          "etape": "P4-06",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "m-cleo est member ; create_slot lui est refuse.",
+          "recalcul": "member ∉ {admin, staff} -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F05",
+          "etape": "P4-07",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c1",
+            "status": "confirmed"
+          },
+          "justification": "Un member peut reserver pour lui-meme (member_id = actor).",
+          "recalcul": "m-cleo = m-cleo ; S4 vide, 1 <= 2 -> confirmed."
+        },
+        {
+          "id": "P4.F06",
+          "etape": "P4-08",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "Un member ne peut pas reserver pour un autre membre : FORBIDDEN ; la reponse n'est PAS memorisee (le controle d'autorisation precede l'idempotence).",
+          "recalcul": "member et member_id m-dan ≠ actor m-cleo -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F07",
+          "etape": "P4-09",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c3",
+            "status": "confirmed"
+          },
+          "justification": "Un staff peut reserver pour tout membre du locataire ; S4 atteint 2/2.",
+          "recalcul": "1 + 1 = 2 <= 2 -> confirmed."
+        },
+        {
+          "id": "P4.F08",
+          "etape": "P4-10",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "m-eve n'est pas membre de t-alpha (P4-04 refuse) : member_id inconnu -> NOT_FOUND.",
+          "recalcul": "membres de t-alpha = {m-ana, m-sam, m-cleo, m-dan} ; m-eve absent -> NOT_FOUND."
+        },
+        {
+          "id": "P4.F09",
+          "etape": "P4-11",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "c1 appartient a m-cleo ; m-dan (member) ne peut annuler que ses propres reservations.",
+          "recalcul": "c1 existe ; proprietaire m-cleo ≠ m-dan -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F10",
+          "etape": "P4-12",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "Un member ne lit que ses propres reservations.",
+          "recalcul": "proprietaire m-cleo ≠ m-dan -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F11",
+          "etape": "P4-13",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c1",
+            "member_id": "m-cleo",
+            "status": "confirmed"
+          },
+          "justification": "Un staff lit toute reservation du locataire ; c1 est intacte (P4-11 refuse).",
+          "recalcul": "staff -> ok ; c1 confirmed."
+        },
+        {
+          "id": "P4.F12",
+          "etape": "P4-14",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "m-ana n'est pas membre de t-beta (proprietaire m-ben) : tout acteur non membre recoit FORBIDDEN.",
+          "recalcul": "t-beta existe ; m-ana ∉ membres(t-beta) = {m-ben} -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F13",
+          "etape": "P4-15",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "Sans champ tenant : default. default n'a ni proprietaire ni membre (cree implicitement en P1) : FORBIDDEN pour tout acteur a partir de P4.",
+          "recalcul": "membres(default) = {} -> FORBIDDEN."
+        },
+        {
+          "id": "P4.F14",
+          "etape": "P4-16",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c1",
+            "status": "cancelled",
+            "promoted": []
+          },
+          "justification": "m-cleo annule sa propre reservation ; aucune file sur S4.",
+          "recalcul": "proprietaire = actor -> ok ; file vide -> promoted []."
+        },
+        {
+          "id": "P4.F15",
+          "etape": "P4-17",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S4",
+            "booked": 1,
+            "available": 1,
+            "waiting": []
+          },
+          "justification": "get_slot est permis a tout membre ; S4 ne garde que c3.",
+          "recalcul": "confirmees {c3} -> 1 ; 2 - 1 = 1."
+        },
+        {
+          "id": "P4.F16",
+          "etape": "P4-18",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c2",
+            "status": "confirmed"
+          },
+          "justification": "La reponse FORBIDDEN de P4-08 n'a pas ete memorisee : c2 est traite comme une nouvelle requete ; m-cleo n'a plus de reservation active sur S4 (c1 annulee).",
+          "recalcul": "(t-alpha, c2) sans reponse memorisee ; actives de m-cleo sur S4 = {} ; 1 + 1 <= 2 -> confirmed."
+        },
+        {
+          "id": "P4.F17",
+          "etape": "P4-19",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c1",
+            "status": "cancelled"
+          },
+          "justification": "L'admin lit toute reservation ; c1 annulee en P4-16.",
+          "recalcul": "admin -> ok ; c1 cancelled."
+        },
+        {
+          "id": "P4.F18",
+          "etape": "P4-20",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "Sans champ actor a partir de P4 : l'acteur absent n'est membre de rien -> FORBIDDEN, meme pour get_slot.",
+          "recalcul": "actor absent -> FORBIDDEN."
+        }
+      ]
+    },
+    "P5": {
+      "titre": "Creneaux recurrents hebdomadaires avec exceptions",
+      "horloge": "2031-03-07T09:00:00Z",
+      "operations_introduites": [
+        "create_recurring",
+        "add_exception",
+        "list_occurrences"
+      ],
+      "codes_erreur_introduits": [],
+      "regles": [
+        {
+          "id": "P5.R1",
+          "texte": "create_recurring {series_id, weekday, start_time, capacity, from_date, until_date} (admin, staff) : weekday est le jour ISO (1 = lundi ... 7 = dimanche) ; start_time 'HH:MM' en UTC ; from_date et until_date 'AAAA-MM-JJ', bornes INCLUSES. Cree un creneau par date d de [from_date, until_date] dont le jour ISO vaut weekday, de slot_id '<series_id>@<AAAA-MM-JJ>', starts_at '<AAAA-MM-JJ>T<HH:MM>:00Z', capacite capacity. Reponse {ok: true, series_id, slot_ids} en ordre chronologique.",
+          "valeurs": {
+            "weekday": "ISO 8601, 1 = lundi",
+            "bornes": "incluses",
+            "fuseau": "UTC"
+          }
+        },
+        {
+          "id": "P5.R2",
+          "texte": "add_exception {series_id, date} (admin, staff) : si date n'est pas une occurrence COURANTE de la serie (jour different, hors bornes, ou deja exceptee) -> NOT_FOUND. Sinon l'occurrence est retiree (son creneau n'existe plus : get_slot et reserve -> NOT_FOUND) et toutes ses reservations actives (confirmed et waiting) passent cancelled. Reponse {ok: true, series_id, date, cancelled} : booking_id annules dans l'ordre de creation des reservations."
+        },
+        {
+          "id": "P5.R3",
+          "texte": "list_occurrences {series_id} (tous les roles) -> {ok: true, series_id, slot_ids} : occurrences courantes, exceptions exclues, ordre chronologique."
+        }
+      ],
+      "ligne_adr": 65,
+      "trajectoire": [
+        {
+          "id": "P5-01",
+          "period": "P5",
+          "at": "2031-03-07T09:00:00Z",
+          "op": "create_recurring",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "series_id": "yoga",
+            "weekday": 3,
+            "start_time": "18:00",
+            "capacity": 2,
+            "from_date": "2031-03-10",
+            "until_date": "2031-04-09"
+          }
+        },
+        {
+          "id": "P5-02",
+          "period": "P5",
+          "at": "2031-03-07T09:01:00Z",
+          "op": "create_recurring",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "series_id": "yoga",
+            "weekday": 3,
+            "start_time": "18:00",
+            "capacity": 2,
+            "from_date": "2031-03-10",
+            "until_date": "2031-04-09"
+          }
+        },
+        {
+          "id": "P5-03",
+          "period": "P5",
+          "at": "2031-03-07T09:02:00Z",
+          "op": "list_occurrences",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "series_id": "yoga"
+          }
+        },
+        {
+          "id": "P5-04",
+          "period": "P5",
+          "at": "2031-03-07T09:03:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "slot_id": "yoga@2031-04-09"
+          }
+        },
+        {
+          "id": "P5-05",
+          "period": "P5",
+          "at": "2031-03-07T09:04:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "slot_id": "yoga@2031-03-10"
+          }
+        },
+        {
+          "id": "P5-06",
+          "period": "P5",
+          "at": "2031-03-07T09:05:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "request_id": "d1",
+            "member_id": "m-dan",
+            "slot_id": "yoga@2031-03-26"
+          }
+        },
+        {
+          "id": "P5-07",
+          "period": "P5",
+          "at": "2031-03-07T09:06:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "request_id": "d2",
+            "member_id": "m-cleo",
+            "slot_id": "yoga@2031-03-26"
+          }
+        },
+        {
+          "id": "P5-08",
+          "period": "P5",
+          "at": "2031-03-07T09:07:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "d3",
+            "member_id": "m-sam",
+            "slot_id": "yoga@2031-03-26"
+          }
+        },
+        {
+          "id": "P5-09",
+          "period": "P5",
+          "at": "2031-03-07T09:08:00Z",
+          "op": "add_exception",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "series_id": "yoga",
+            "date": "2031-03-26"
+          }
+        },
+        {
+          "id": "P5-10",
+          "period": "P5",
+          "at": "2031-03-07T09:09:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "booking_id": "d1"
+          }
+        },
+        {
+          "id": "P5-11",
+          "period": "P5",
+          "at": "2031-03-07T09:10:00Z",
+          "op": "list_occurrences",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "series_id": "yoga"
+          }
+        },
+        {
+          "id": "P5-12",
+          "period": "P5",
+          "at": "2031-03-07T09:11:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "request_id": "d4",
+            "member_id": "m-dan",
+            "slot_id": "yoga@2031-03-26"
+          }
+        },
+        {
+          "id": "P5-13",
+          "period": "P5",
+          "at": "2031-03-07T09:12:00Z",
+          "op": "add_exception",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "series_id": "yoga",
+            "date": "2031-03-26"
+          }
+        },
+        {
+          "id": "P5-14",
+          "period": "P5",
+          "at": "2031-03-07T09:13:00Z",
+          "op": "add_exception",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "series_id": "yoga",
+            "date": "2031-03-27"
+          }
+        },
+        {
+          "id": "P5-15",
+          "period": "P5",
+          "at": "2031-03-07T09:14:00Z",
+          "op": "add_exception",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "series_id": "yoga",
+            "date": "2031-04-02"
+          }
+        },
+        {
+          "id": "P5-16",
+          "period": "P5",
+          "at": "2031-03-07T09:15:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "slot_id": "yoga@2031-03-12"
+          }
+        },
+        {
+          "id": "P5-17",
+          "period": "P5",
+          "at": "2031-03-07T09:16:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-dan",
+          "args": {
+            "slot_id": "yoga@2031-03-26"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P5.F01",
+          "etape": "P5-01",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "create_recurring est reserve a admin et staff ; m-cleo est member.",
+          "recalcul": "member -> FORBIDDEN."
+        },
+        {
+          "id": "P5.F02",
+          "etape": "P5-02",
+          "attendu": {
+            "ok": true,
+            "series_id": "yoga",
+            "slot_ids": [
+              "yoga@2031-03-12",
+              "yoga@2031-03-19",
+              "yoga@2031-03-26",
+              "yoga@2031-04-02",
+              "yoga@2031-04-09"
+            ]
+          },
+          "justification": "Mercredis (ISO 3) du 2031-03-10 (lundi) au 2031-04-09 (mercredi), bornes incluses : 12, 19, 26 mars, 2 et 9 avril. La borne until_date tombe un mercredi et est INCLUSE. slot_id = yoga@AAAA-MM-JJ.",
+          "recalcul": "2031-03-10 lundi ; +2 j = 03-12 mer ; +7 -> 03-19, 03-26, 04-02 (26+7=33-31), 04-09 ; 04-16 > 04-09 stop -> 5 occurrences."
+        },
+        {
+          "id": "P5.F03",
+          "etape": "P5-03",
+          "attendu": {
+            "ok": true,
+            "series_id": "yoga",
+            "slot_ids": [
+              "yoga@2031-03-12",
+              "yoga@2031-03-19",
+              "yoga@2031-03-26",
+              "yoga@2031-04-02",
+              "yoga@2031-04-09"
+            ]
+          },
+          "justification": "list_occurrences est permis a tout membre ; ordre chronologique.",
+          "recalcul": "meme liste que P5.F02."
+        },
+        {
+          "id": "P5.F04",
+          "etape": "P5-04",
+          "attendu": {
+            "ok": true,
+            "slot_id": "yoga@2031-04-09",
+            "capacity": 2,
+            "starts_at": "2031-04-09T18:00:00Z",
+            "booked": 0,
+            "available": 2
+          },
+          "justification": "Derniere occurrence (borne incluse) : debut = date + start_time 18:00 en UTC ; capacite de la serie.",
+          "recalcul": "2031-04-09 + 18:00 -> 2031-04-09T18:00:00Z ; aucune reservation -> 0 / 2."
+        },
+        {
+          "id": "P5.F05",
+          "etape": "P5-05",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "2031-03-10 est un lundi : pas une occurrence de la serie du mercredi.",
+          "recalcul": "weekday(2031-03-10) = 1 ≠ 3 -> pas de creneau -> NOT_FOUND."
+        },
+        {
+          "id": "P5.F06",
+          "etape": "P5-06",
+          "attendu": {
+            "ok": true,
+            "booking_id": "d1",
+            "status": "confirmed"
+          },
+          "justification": "Une occurrence se reserve comme un creneau ordinaire.",
+          "recalcul": "0 + 1 <= 2 -> confirmed."
+        },
+        {
+          "id": "P5.F07",
+          "etape": "P5-08",
+          "attendu": {
+            "ok": true,
+            "booking_id": "d3",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "yoga@2031-03-26 plein (d1, d2) : m-sam (staff, membre du locataire) entre en file.",
+          "recalcul": "2 = 2 -> waiting ; position 1."
+        },
+        {
+          "id": "P5.F08",
+          "etape": "P5-09",
+          "attendu": {
+            "ok": true,
+            "series_id": "yoga",
+            "date": "2031-03-26",
+            "cancelled": [
+              "d1",
+              "d2",
+              "d3"
+            ]
+          },
+          "justification": "L'exception retire l'occurrence ; toutes ses reservations actives (confirmees ET en attente) sont annulees, dans l'ordre de creation.",
+          "recalcul": "actives de yoga@2031-03-26 dans l'ordre de creation : d1 (P5-06), d2 (P5-07), d3 (P5-08)."
+        },
+        {
+          "id": "P5.F09",
+          "etape": "P5-10",
+          "attendu": {
+            "ok": true,
+            "booking_id": "d1",
+            "status": "cancelled"
+          },
+          "justification": "d1 annulee par l'exception.",
+          "recalcul": "d1 ∈ cancelled -> cancelled."
+        },
+        {
+          "id": "P5.F10",
+          "etape": "P5-11",
+          "attendu": {
+            "ok": true,
+            "series_id": "yoga",
+            "slot_ids": [
+              "yoga@2031-03-12",
+              "yoga@2031-03-19",
+              "yoga@2031-04-02",
+              "yoga@2031-04-09"
+            ]
+          },
+          "justification": "L'occurrence exceptee n'est plus listee.",
+          "recalcul": "5 - {03-26} = 4 occurrences."
+        },
+        {
+          "id": "P5.F11",
+          "etape": "P5-12",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "L'occurrence retiree n'est plus reservable : NOT_FOUND.",
+          "recalcul": "yoga@2031-03-26 retiree -> NOT_FOUND."
+        },
+        {
+          "id": "P5.F12",
+          "etape": "P5-13",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "Seconde exception a la meme date : la date n'est plus une occurrence -> NOT_FOUND.",
+          "recalcul": "03-26 ∉ occurrences -> NOT_FOUND."
+        },
+        {
+          "id": "P5.F13",
+          "etape": "P5-14",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "2031-03-27 est un jeudi : pas une occurrence -> NOT_FOUND.",
+          "recalcul": "weekday(2031-03-27) = 4 ≠ 3 -> NOT_FOUND."
+        },
+        {
+          "id": "P5.F14",
+          "etape": "P5-15",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "add_exception est reserve a admin et staff ; m-dan est member.",
+          "recalcul": "member -> FORBIDDEN."
+        },
+        {
+          "id": "P5.F15",
+          "etape": "P5-16",
+          "attendu": {
+            "ok": true,
+            "slot_id": "yoga@2031-03-12",
+            "starts_at": "2031-03-12T18:00:00Z",
+            "capacity": 2
+          },
+          "justification": "Premiere occurrence de la serie.",
+          "recalcul": "2031-03-12 + 18:00 -> 2031-03-12T18:00:00Z."
+        },
+        {
+          "id": "P5.F16",
+          "etape": "P5-17",
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "L'occurrence exceptee n'existe plus comme creneau.",
+          "recalcul": "retiree -> NOT_FOUND."
+        }
+      ]
+    },
+    "P6": {
+      "titre": "Reservations de groupe (tout ou rien) et file d'attente des groupes",
+      "horloge": "2031-03-08T09:00:00Z",
+      "operations_introduites": [],
+      "codes_erreur_introduits": [
+        "GROUP_TOO_LARGE"
+      ],
+      "regles": [
+        {
+          "id": "P6.R1",
+          "texte": "reserve accepte seats (entier >= 1, 1 par defaut ; sinon INVALID_ARGUMENT). Toute reservation porte seats et ses reponses (reserve, get_booking) le renvoient. booked = SOMME des seats des reservations confirmed ; available = capacity - booked."
+        },
+        {
+          "id": "P6.R2",
+          "texte": "seats > capacity -> GROUP_TOO_LARGE (controle place apres SLOT_CLOSED et avant ALREADY_BOOKED). seats = capacity est permis."
+        },
+        {
+          "id": "P6.R3",
+          "texte": "Admission tout ou rien : si seats <= available la reservation est confirmed pour toutes ses places ; sinon elle entre ENTIERE en queue de file (waiting), jamais partiellement. Une demande qui tient est confirmee meme si des groupes plus anciens attendent.",
+          "remplace": "P2.R1"
+        },
+        {
+          "id": "P6.R4",
+          "texte": "Promotion premier-qui-tient : apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation dont seats <= available ; on recommence le parcours depuis la tete tant qu'une reservation tient. Les reservations sautees gardent leur rang. promoted liste les promus dans l'ordre de promotion.",
+          "remplace": "P2.R2"
+        }
+      ],
+      "ligne_adr": 66,
+      "trajectoire": [
+        {
+          "id": "P6-01",
+          "period": "P6",
+          "at": "2031-03-08T09:00:00Z",
+          "op": "add_member",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-fay",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P6-02",
+          "period": "P6",
+          "at": "2031-03-08T09:01:00Z",
+          "op": "add_member",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-gus",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P6-03",
+          "period": "P6",
+          "at": "2031-03-08T09:02:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S6",
+            "capacity": 5,
+            "starts_at": "2031-03-27T18:00:00Z"
+          }
+        },
+        {
+          "id": "P6-04",
+          "period": "P6",
+          "at": "2031-03-08T09:03:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g1",
+            "member_id": "m-cleo",
+            "slot_id": "S6",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P6-05",
+          "period": "P6",
+          "at": "2031-03-08T09:04:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g2",
+            "member_id": "m-dan",
+            "slot_id": "S6",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P6-06",
+          "period": "P6",
+          "at": "2031-03-08T09:05:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S6"
+          }
+        },
+        {
+          "id": "P6-07",
+          "period": "P6",
+          "at": "2031-03-08T09:06:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g3",
+            "member_id": "m-fay",
+            "slot_id": "S6",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P6-08",
+          "period": "P6",
+          "at": "2031-03-08T09:07:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g4",
+            "member_id": "m-gus",
+            "slot_id": "S6",
+            "seats": 1
+          }
+        },
+        {
+          "id": "P6-09",
+          "period": "P6",
+          "at": "2031-03-08T09:08:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "request_id": "g5",
+            "member_id": "m-ana",
+            "slot_id": "S6",
+            "seats": 6
+          }
+        },
+        {
+          "id": "P6-10",
+          "period": "P6",
+          "at": "2031-03-08T09:09:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "g3"
+          }
+        },
+        {
+          "id": "P6-11",
+          "period": "P6",
+          "at": "2031-03-08T09:10:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S6"
+          }
+        },
+        {
+          "id": "P6-12",
+          "period": "P6",
+          "at": "2031-03-08T09:11:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "g2"
+          }
+        },
+        {
+          "id": "P6-13",
+          "period": "P6",
+          "at": "2031-03-08T09:12:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "g1"
+          }
+        },
+        {
+          "id": "P6-14",
+          "period": "P6",
+          "at": "2031-03-08T09:13:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S6"
+          }
+        },
+        {
+          "id": "P6-15",
+          "period": "P6",
+          "at": "2031-03-08T09:14:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g6",
+            "member_id": "m-fay",
+            "slot_id": "S6",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P6-16",
+          "period": "P6",
+          "at": "2031-03-08T09:15:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g7",
+            "member_id": "m-cleo",
+            "slot_id": "S6",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P6-17",
+          "period": "P6",
+          "at": "2031-03-08T09:16:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "g2"
+          }
+        },
+        {
+          "id": "P6-18",
+          "period": "P6",
+          "at": "2031-03-08T09:17:00Z",
+          "op": "get_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S6"
+          }
+        },
+        {
+          "id": "P6-19",
+          "period": "P6",
+          "at": "2031-03-08T09:18:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S6B",
+            "capacity": 2,
+            "starts_at": "2031-03-27T18:00:00Z"
+          }
+        },
+        {
+          "id": "P6-20",
+          "period": "P6",
+          "at": "2031-03-08T09:19:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g8",
+            "member_id": "m-dan",
+            "slot_id": "S6B",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P6-21",
+          "period": "P6",
+          "at": "2031-03-08T09:20:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "g9",
+            "member_id": "m-gus",
+            "slot_id": "S6B",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P6-22",
+          "period": "P6",
+          "at": "2031-03-08T09:21:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-gus",
+          "args": {
+            "request_id": "g10",
+            "member_id": "m-gus",
+            "slot_id": "S4"
+          }
+        },
+        {
+          "id": "P6-23",
+          "period": "P6",
+          "at": "2031-03-08T09:22:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-gus",
+          "args": {
+            "booking_id": "g10"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P6.F01",
+          "etape": "P6-04",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g1",
+            "status": "confirmed",
+            "seats": 3
+          },
+          "justification": "Groupe de 3 places sur S6 (capacite 5) vide : tient entierement, confirme.",
+          "recalcul": "3 <= 5 - 0 = 5 -> confirmed."
+        },
+        {
+          "id": "P6.F02",
+          "etape": "P6-05",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g2",
+            "status": "waiting",
+            "position": 1,
+            "seats": 3
+          },
+          "justification": "Tout ou rien : 3 places demandees, 2 libres -> le groupe entier attend, aucune place partielle.",
+          "recalcul": "3 > 5 - 3 = 2 -> waiting ; file [] -> 1."
+        },
+        {
+          "id": "P6.F03",
+          "etape": "P6-06",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S6",
+            "booked": 3,
+            "available": 2,
+            "waiting": [
+              "g2"
+            ]
+          },
+          "justification": "booked compte les PLACES confirmees (somme des seats), pas les reservations ; g2 n'occupe rien.",
+          "recalcul": "seats confirmees = 3 ; 5 - 3 = 2."
+        },
+        {
+          "id": "P6.F04",
+          "etape": "P6-07",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g3",
+            "status": "confirmed",
+            "seats": 2
+          },
+          "justification": "Une demande qui tient est confirmee meme si un groupe plus ancien attend (premier qui tient, P6.R3) : g3 prend les 2 dernieres places.",
+          "recalcul": "2 <= 2 -> confirmed ; booked 5."
+        },
+        {
+          "id": "P6.F05",
+          "etape": "P6-08",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g4",
+            "status": "waiting",
+            "position": 2,
+            "seats": 1
+          },
+          "justification": "S6 plein (5/5) : g4 entre en file derriere g2.",
+          "recalcul": "1 > 0 -> waiting ; file [g2] + g4 -> 2."
+        },
+        {
+          "id": "P6.F06",
+          "etape": "P6-09",
+          "attendu": {
+            "ok": false,
+            "error": "GROUP_TOO_LARGE"
+          },
+          "justification": "6 places demandees > capacite 5 : le groupe ne pourra jamais tenir -> GROUP_TOO_LARGE, pas de mise en file.",
+          "recalcul": "6 > 5 -> GROUP_TOO_LARGE."
+        },
+        {
+          "id": "P6.F07",
+          "etape": "P6-10",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g3",
+            "status": "cancelled",
+            "promoted": [
+              "g4"
+            ]
+          },
+          "justification": "Liberation de 2 places : parcours de la file dans l'ordre ; g2 (3) ne tient pas dans 2 et est saute ; g4 (1) tient et est promu ; il reste 1 place, g2 ne tient toujours pas.",
+          "recalcul": "libres 0 + 2 = 2 ; g2 : 3 > 2 saute ; g4 : 1 <= 2 promu -> libres 1 ; nouveau parcours : g2 3 > 1 -> fin."
+        },
+        {
+          "id": "P6.F08",
+          "etape": "P6-11",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S6",
+            "booked": 4,
+            "available": 1,
+            "waiting": [
+              "g2"
+            ]
+          },
+          "justification": "Confirmees : g1 (3) + g4 (1) = 4 places.",
+          "recalcul": "3 + 1 = 4 ; 5 - 4 = 1 ; file [g2]."
+        },
+        {
+          "id": "P6.F09",
+          "etape": "P6-12",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g2",
+            "status": "waiting",
+            "position": 1,
+            "seats": 3
+          },
+          "justification": "g2 sautee garde sa place en tete de file.",
+          "recalcul": "file [g2] -> position 1."
+        },
+        {
+          "id": "P6.F10",
+          "etape": "P6-13",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g1",
+            "status": "cancelled",
+            "promoted": [
+              "g2"
+            ]
+          },
+          "justification": "Liberation de 3 places : 1 + 3 = 4 libres ; g2 (3) tient, promu ; il reste 1 place, file vide.",
+          "recalcul": "libres 1 + 3 = 4 ; g2 : 3 <= 4 -> promu ; libres 1."
+        },
+        {
+          "id": "P6.F11",
+          "etape": "P6-14",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S6",
+            "booked": 4,
+            "available": 1,
+            "waiting": []
+          },
+          "justification": "Confirmees : g4 (1) + g2 (3).",
+          "recalcul": "1 + 3 = 4 ; 5 - 4 = 1."
+        },
+        {
+          "id": "P6.F12",
+          "etape": "P6-15",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g6",
+            "status": "waiting",
+            "position": 1,
+            "seats": 2
+          },
+          "justification": "m-fay n'a plus de reservation active sur S6 (g3 annulee) ; 2 places > 1 libre -> attente.",
+          "recalcul": "2 > 1 -> waiting ; position 1."
+        },
+        {
+          "id": "P6.F13",
+          "etape": "P6-16",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g7",
+            "status": "waiting",
+            "position": 2,
+            "seats": 2
+          },
+          "justification": "m-cleo n'a plus de reservation active sur S6 (g1 annulee) ; 2 > 1 -> attente derriere g6.",
+          "recalcul": "2 > 1 -> waiting ; position 2."
+        },
+        {
+          "id": "P6.F14",
+          "etape": "P6-17",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g2",
+            "status": "cancelled",
+            "promoted": [
+              "g6",
+              "g7"
+            ]
+          },
+          "justification": "Liberation de 3 places : 1 + 3 = 4 libres ; g6 (2) promu, reste 2 ; g7 (2) promu, reste 0 : une annulation peut promouvoir plusieurs groupes, dans l'ordre de la file.",
+          "recalcul": "libres 4 ; g6 2 <= 4 -> 2 ; g7 2 <= 2 -> 0."
+        },
+        {
+          "id": "P6.F15",
+          "etape": "P6-18",
+          "attendu": {
+            "ok": true,
+            "slot_id": "S6",
+            "booked": 5,
+            "available": 0,
+            "waiting": []
+          },
+          "justification": "Confirmees : g4 (1) + g6 (2) + g7 (2) = 5.",
+          "recalcul": "1 + 2 + 2 = 5 ; 5 - 5 = 0."
+        },
+        {
+          "id": "P6.F16",
+          "etape": "P6-20",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g8",
+            "status": "confirmed",
+            "seats": 2
+          },
+          "justification": "Frontiere : seats = capacite (2 = 2) est permis et confirme.",
+          "recalcul": "2 <= 2 et 2 <= 2 - 0 -> confirmed."
+        },
+        {
+          "id": "P6.F17",
+          "etape": "P6-21",
+          "attendu": {
+            "ok": false,
+            "error": "GROUP_TOO_LARGE"
+          },
+          "justification": "Frontiere : seats = capacite + 1 -> GROUP_TOO_LARGE (controle avant la capacite restante).",
+          "recalcul": "3 > 2 -> GROUP_TOO_LARGE."
+        },
+        {
+          "id": "P6.F18",
+          "etape": "P6-22",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g10",
+            "status": "waiting",
+            "position": 1,
+            "seats": 1
+          },
+          "justification": "Sans champ seats : 1 place par defaut (P6.R1). S4 (capacite 2) porte c3 et c2 confirmees depuis P4 : plein, g10 attend.",
+          "recalcul": "S4 : c3 (1) + c2 (1) = 2 = capacite ; 1 > 0 -> waiting ; file [] -> 1."
+        },
+        {
+          "id": "P6.F19",
+          "etape": "P6-23",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g10",
+            "member_id": "m-gus",
+            "slot_id": "S4",
+            "status": "waiting",
+            "position": 1,
+            "seats": 1
+          },
+          "justification": "Un member lit sa propre reservation ; seats = 1 par defaut.",
+          "recalcul": "g10 : proprietaire m-gus = actor ; seats 1."
+        }
+      ]
+    },
+    "P7": {
+      "titre": "Prix par place, remises par niveau d'abonnement, arrondi au centime declare",
+      "horloge": "2031-03-10T09:00:00Z",
+      "operations_introduites": [
+        "set_price",
+        "set_tier"
+      ],
+      "codes_erreur_introduits": [],
+      "regles": [
+        {
+          "id": "P7.R1",
+          "texte": "set_price {slot_id, price_cents} (admin) : prix PAR PLACE en centimes entiers >= 0 ; reponse {ok: true, slot_id, price_cents}. Tout creneau a le prix 0 tant qu'aucun prix n'est fixe."
+        },
+        {
+          "id": "P7.R2",
+          "texte": "set_tier {member_id, tier} (admin) : tier dans {none, silver, gold} ; niveau par defaut none ; reponse {ok: true, member_id, tier}. Taux de remise en points de base : none 0, silver 1000 (10 %), gold 2500 (25 %).",
+          "valeurs": {
+            "none": 0,
+            "silver": 1000,
+            "gold": 2500,
+            "unite": "points de base (1/10000)"
+          }
+        },
+        {
+          "id": "P7.R3",
+          "texte": "Montant, fixe a l'instant ou la reservation devient confirmed (a la reservation ou a la promotion), avec le prix et le niveau de CET instant : brut = seats x price_cents ; remise = arrondi au centime, demi vers le haut, de brut x taux / 10000, soit floor((brut x taux + 5000) / 10000) ; amount_cents = brut - remise. La remise porte sur le brut TOTAL, pas place par place ; l'arrondi porte sur la REMISE. Un changement de prix ou de niveau ulterieur ne modifie pas un montant fixe. Les reservations confirmees avant P7 ont amount_cents 0. Une reservation waiting n'a pas encore de montant.",
+          "valeurs": {
+            "arrondi": "demi vers le haut, sur la remise",
+            "formule_remise": "floor((brut*taux_bp + 5000) / 10000)"
+          }
+        },
+        {
+          "id": "P7.R4",
+          "texte": "Paiement : le montant est paye entierement par carte a la confirmation."
+        },
+        {
+          "id": "P7.R5",
+          "texte": "Annulation totale d'une reservation confirmed : refunded_cents = amount_cents (100 %, vers la carte) ; waiting : 0. La reponse de cancel porte refunded_cents. Apres annulation totale, amount_cents vaut 0."
+        }
+      ],
+      "ligne_adr": 67,
+      "trajectoire": [
+        {
+          "id": "P7-01",
+          "period": "P7",
+          "at": "2031-03-10T09:00:00Z",
+          "op": "set_tier",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-cleo",
+            "tier": "gold"
+          }
+        },
+        {
+          "id": "P7-02",
+          "period": "P7",
+          "at": "2031-03-10T09:01:00Z",
+          "op": "set_tier",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-dan",
+            "tier": "silver"
+          }
+        },
+        {
+          "id": "P7-03",
+          "period": "P7",
+          "at": "2031-03-10T09:02:00Z",
+          "op": "set_tier",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-gus",
+            "tier": "gold"
+          }
+        },
+        {
+          "id": "P7-04",
+          "period": "P7",
+          "at": "2031-03-10T09:03:00Z",
+          "op": "set_tier",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-fay",
+            "tier": "gold"
+          }
+        },
+        {
+          "id": "P7-05",
+          "period": "P7",
+          "at": "2031-03-10T09:04:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S7",
+            "capacity": 4,
+            "starts_at": "2031-03-28T18:00:00Z"
+          }
+        },
+        {
+          "id": "P7-06",
+          "period": "P7",
+          "at": "2031-03-10T09:05:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S7",
+            "price_cents": 1999
+          }
+        },
+        {
+          "id": "P7-07",
+          "period": "P7",
+          "at": "2031-03-10T09:06:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S7",
+            "price_cents": 1
+          }
+        },
+        {
+          "id": "P7-08",
+          "period": "P7",
+          "at": "2031-03-10T09:07:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "request_id": "p1",
+            "member_id": "m-cleo",
+            "slot_id": "S7"
+          }
+        },
+        {
+          "id": "P7-09",
+          "period": "P7",
+          "at": "2031-03-10T09:08:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "p2",
+            "member_id": "m-dan",
+            "slot_id": "S7",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P7-10",
+          "period": "P7",
+          "at": "2031-03-10T09:09:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "p3",
+            "member_id": "m-fay",
+            "slot_id": "S7"
+          }
+        },
+        {
+          "id": "P7-11",
+          "period": "P7",
+          "at": "2031-03-10T09:10:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S8",
+            "capacity": 3,
+            "starts_at": "2031-03-28T18:00:00Z"
+          }
+        },
+        {
+          "id": "P7-12",
+          "period": "P7",
+          "at": "2031-03-10T09:11:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S8",
+            "price_cents": 333
+          }
+        },
+        {
+          "id": "P7-13",
+          "period": "P7",
+          "at": "2031-03-10T09:12:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "p4",
+            "member_id": "m-cleo",
+            "slot_id": "S8",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P7-14",
+          "period": "P7",
+          "at": "2031-03-10T09:13:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S9",
+            "capacity": 2,
+            "starts_at": "2031-03-28T18:00:00Z"
+          }
+        },
+        {
+          "id": "P7-15",
+          "period": "P7",
+          "at": "2031-03-10T09:14:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S9",
+            "price_cents": 1998
+          }
+        },
+        {
+          "id": "P7-16",
+          "period": "P7",
+          "at": "2031-03-10T09:15:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "p5",
+            "member_id": "m-gus",
+            "slot_id": "S9"
+          }
+        },
+        {
+          "id": "P7-17",
+          "period": "P7",
+          "at": "2031-03-10T09:16:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S7",
+            "price_cents": 2500
+          }
+        },
+        {
+          "id": "P7-18",
+          "period": "P7",
+          "at": "2031-03-10T09:17:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "p1"
+          }
+        },
+        {
+          "id": "P7-19",
+          "period": "P7",
+          "at": "2031-03-10T09:18:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "p2"
+          }
+        },
+        {
+          "id": "P7-20",
+          "period": "P7",
+          "at": "2031-03-10T09:19:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "p3"
+          }
+        },
+        {
+          "id": "P7-21",
+          "period": "P7",
+          "at": "2031-03-10T09:20:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "p6",
+            "member_id": "m-fay",
+            "slot_id": "S9"
+          }
+        },
+        {
+          "id": "P7-22",
+          "period": "P7",
+          "at": "2031-03-10T09:21:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "g7"
+          }
+        },
+        {
+          "id": "P7-24",
+          "period": "P7",
+          "at": "2031-03-10T09:23:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "c2"
+          }
+        },
+        {
+          "id": "P7-25",
+          "period": "P7",
+          "at": "2031-03-10T09:24:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-gus",
+          "args": {
+            "booking_id": "g10"
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P7.F01",
+          "etape": "P7-01",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-cleo",
+            "tier": "gold"
+          },
+          "justification": "set_tier est reserve a admin.",
+          "recalcul": "m-ana admin -> ok."
+        },
+        {
+          "id": "P7.F02",
+          "etape": "P7-04",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "m-sam (staff) ne peut pas fixer un niveau : m-fay reste au niveau none.",
+          "recalcul": "staff ∉ {admin} -> FORBIDDEN."
+        },
+        {
+          "id": "P7.F03",
+          "etape": "P7-07",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "set_price est reserve a admin : le prix de S7 reste 1999.",
+          "recalcul": "staff -> FORBIDDEN."
+        },
+        {
+          "id": "P7.F04",
+          "etape": "P7-08",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p1",
+            "status": "confirmed",
+            "amount_cents": 1499
+          },
+          "justification": "brut = 1 x 1999 = 1999 ; remise gold 2500 pb = 1999 x 2500 / 10000 = 499,75 -> arrondi demi vers le haut au centime = 500 ; montant = 1999 - 500 = 1499.",
+          "recalcul": "floor((1999*2500 + 5000) / 10000) = floor(5002500 / 10000) = 500 ; 1999 - 500 = 1499."
+        },
+        {
+          "id": "P7.F05",
+          "etape": "P7-09",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p2",
+            "status": "confirmed",
+            "seats": 3,
+            "amount_cents": 5397
+          },
+          "justification": "brut = 3 x 1999 = 5997 ; remise silver 1000 pb = 599,7 -> 600 ; montant 5397. S7 atteint 4/4.",
+          "recalcul": "floor((5997*1000 + 5000)/10000) = floor(6002000/10000) = 600 ; 5997 - 600 = 5397."
+        },
+        {
+          "id": "P7.F06",
+          "etape": "P7-10",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p3",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "S7 plein : p3 attend ; une reservation en attente n'est pas facturee (montant fixe a la confirmation).",
+          "recalcul": "1 + 4 > 4 -> waiting."
+        },
+        {
+          "id": "P7.F07",
+          "etape": "P7-13",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p4",
+            "status": "confirmed",
+            "seats": 3,
+            "amount_cents": 749
+          },
+          "justification": "La remise s'applique au BRUT TOTAL, pas place par place : brut 3 x 333 = 999 ; 25 % = 249,75 -> 250 ; montant 749 (place par place : 83,25 -> 83, x3 = 249, montant 750, FAUX).",
+          "recalcul": "floor((999*2500 + 5000)/10000) = floor(2502500/10000) = 250 ; 999 - 250 = 749."
+        },
+        {
+          "id": "P7.F08",
+          "etape": "P7-16",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p5",
+            "status": "confirmed",
+            "amount_cents": 1498
+          },
+          "justification": "Frontiere d'arrondi exacte : 1998 x 25 % = 499,5 -> demi vers le haut : remise 500 ; montant 1498 (l'arrondi porte sur la REMISE, pas sur le montant : arrondir 1498,5 vers le haut donnerait 1499, FAUX).",
+          "recalcul": "floor((1998*2500 + 5000)/10000) = floor(5000000/10000) = 500 ; 1998 - 500 = 1498."
+        },
+        {
+          "id": "P7.F09",
+          "etape": "P7-18",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p1",
+            "status": "confirmed",
+            "amount_cents": 1499
+          },
+          "justification": "Le changement de prix de S7 (P7-17) ne touche pas une reservation deja confirmee.",
+          "recalcul": "montant fige a la confirmation = 1499."
+        },
+        {
+          "id": "P7.F10",
+          "etape": "P7-19",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p2",
+            "status": "cancelled",
+            "refunded_cents": 5397,
+            "promoted": [
+              "p3"
+            ]
+          },
+          "justification": "En P7, annuler rembourse integralement le montant paye (sur la carte) ; 3 places liberees : p3 (1 place) promu.",
+          "recalcul": "rembourse = 5397 ; libres 0 + 3 = 3 ; p3 1 <= 3 -> promu."
+        },
+        {
+          "id": "P7.F11",
+          "etape": "P7-20",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p3",
+            "status": "confirmed",
+            "amount_cents": 2500
+          },
+          "justification": "Promu en P7-19 : le prix et le niveau sont ceux de l'instant de confirmation : prix S7 = 2500 (P7-17), m-fay niveau none (P7-04 refuse) -> remise 0.",
+          "recalcul": "brut 1 x 2500 = 2500 ; remise 0 pb -> 0 ; montant 2500."
+        },
+        {
+          "id": "P7.F12",
+          "etape": "P7-21",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p6",
+            "status": "confirmed",
+            "amount_cents": 1998
+          },
+          "justification": "Niveau none = 0 % : montant = brut = 1998 ; S9 2/2.",
+          "recalcul": "1998 - 0 = 1998."
+        },
+        {
+          "id": "P7.F13",
+          "etape": "P7-22",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g7",
+            "status": "confirmed",
+            "seats": 2,
+            "amount_cents": 0
+          },
+          "justification": "Reservations confirmees avant P7 : montant 0 (aucun prix n'existait ; tout creneau a un prix par defaut de 0).",
+          "recalcul": "prix au moment de la confirmation = 0 -> 0."
+        },
+        {
+          "id": "P7.F14",
+          "etape": "P7-24",
+          "attendu": {
+            "ok": true,
+            "booking_id": "c2",
+            "status": "cancelled",
+            "refunded_cents": 0,
+            "promoted": [
+              "g10"
+            ]
+          },
+          "justification": "c2 (S4, confirmee en P4, montant 0) annulee : rembourse 0 ; 1 place liberee, g10 (m-gus, 1 place) promu.",
+          "recalcul": "rembourse = montant 0 ; libres 1 ; g10 1 <= 1 -> promu."
+        },
+        {
+          "id": "P7.F15",
+          "etape": "P7-25",
+          "attendu": {
+            "ok": true,
+            "booking_id": "g10",
+            "status": "confirmed",
+            "amount_cents": 0
+          },
+          "justification": "g10 promue a P7 sur S4 dont le prix est 0 (jamais fixe) : brut 0, remise gold sur 0 = 0, montant 0.",
+          "recalcul": "1 x 0 = 0 ; floor((0*2500 + 5000)/10000) = 0 ; 0."
+        }
+      ]
+    },
+    "P8": {
+      "titre": "Portefeuille de credits : credits puis carte, remboursement au prorata vers chaque source",
+      "horloge": "2031-03-11T09:00:00Z",
+      "operations_introduites": [
+        "top_up",
+        "get_wallet"
+      ],
+      "codes_erreur_introduits": [
+        "INVALID_ARGUMENT"
+      ],
+      "regles": [
+        {
+          "id": "P8.R1",
+          "texte": "Chaque membre a, dans chaque locataire, un portefeuille balance_cents (entier >= 0, initialement 0). top_up {member_id, amount_cents} (admin, staff) : amount_cents entier > 0 sinon INVALID_ARGUMENT ; reponse {ok: true, member_id, balance_cents} (solde apres). get_wallet {member_id} : admin, staff pour tout membre ; member pour lui-meme seulement (sinon FORBIDDEN) ; reponse {ok: true, member_id, balance_cents}."
+        },
+        {
+          "id": "P8.R2",
+          "texte": "Paiement a la confirmation (reservation ou promotion), avec le solde de cet instant : paid_credits_cents = min(balance_cents, amount_cents), debite du portefeuille ; paid_card_cents = amount_cents - paid_credits_cents. Les reservations payees avant P8 ont paid_credits_cents 0 et paid_card_cents = amount_cents. reserve et get_booking d'une reservation confirmed portent amount_cents, paid_credits_cents, paid_card_cents.",
+          "remplace": "P7.R4"
+        },
+        {
+          "id": "P8.R3",
+          "texte": "cancel {booking_id, seats?} : seats absent ou egal aux places restantes n = annulation totale ; 1 <= seats < n = annulation partielle (reservation confirmed seulement) ; seats < 1, seats > n, ou annulation partielle d'une reservation waiting -> INVALID_ARGUMENT, sans effet."
+        },
+        {
+          "id": "P8.R4",
+          "texte": "Remboursement : soit A = amount_cents restant, C = paid_credits_cents restant, D = paid_card_cents restant (A = C + D). Annulation totale : rembourse C en credits (re-credites au portefeuille) et D a la carte, puis A, C, D valent 0. Annulation partielle de k places sur n : R = floor(A x k / n) ; part credits r_c = floor(R x C / A) (0 si A = 0) ; part carte r_d = R - r_c ; la reservation garde n - k places, A - R, C - r_c, D - r_d et reste confirmed ; r_c est re-credite au portefeuille ; les places liberees declenchent la promotion. La reponse de cancel porte refunded_cents = R (ou C + D), refund = {credits_cents, card_cents}, promoted, et pour une annulation partielle status 'confirmed' et seats = n - k.",
+          "valeurs": {
+            "arrondi_rembourse": "floor",
+            "arrondi_part_credits": "floor, la carte recoit le reste"
+          },
+          "remplace": "P7.R5"
+        }
+      ],
+      "ligne_adr": 68,
+      "trajectoire": [
+        {
+          "id": "P8-01",
+          "period": "P8",
+          "at": "2031-03-11T09:00:00Z",
+          "op": "top_up",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-cleo",
+            "amount_cents": 2000
+          }
+        },
+        {
+          "id": "P8-02",
+          "period": "P8",
+          "at": "2031-03-11T09:01:00Z",
+          "op": "top_up",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "member_id": "m-cleo",
+            "amount_cents": 500
+          }
+        },
+        {
+          "id": "P8-03",
+          "period": "P8",
+          "at": "2031-03-11T09:02:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S10",
+            "capacity": 6,
+            "starts_at": "2031-03-29T18:00:00Z"
+          }
+        },
+        {
+          "id": "P8-04",
+          "period": "P8",
+          "at": "2031-03-11T09:03:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S10",
+            "price_cents": 1000
+          }
+        },
+        {
+          "id": "P8-05",
+          "period": "P8",
+          "at": "2031-03-11T09:04:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "request_id": "q1",
+            "member_id": "m-cleo",
+            "slot_id": "S10",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P8-06",
+          "period": "P8",
+          "at": "2031-03-11T09:05:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "member_id": "m-cleo"
+          }
+        },
+        {
+          "id": "P8-07",
+          "period": "P8",
+          "at": "2031-03-11T09:06:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "member_id": "m-dan"
+          }
+        },
+        {
+          "id": "P8-08",
+          "period": "P8",
+          "at": "2031-03-11T09:07:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "q1",
+            "seats": 1
+          }
+        },
+        {
+          "id": "P8-09",
+          "period": "P8",
+          "at": "2031-03-11T09:08:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "q1"
+          }
+        },
+        {
+          "id": "P8-10",
+          "period": "P8",
+          "at": "2031-03-11T09:09:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "member_id": "m-cleo"
+          }
+        },
+        {
+          "id": "P8-11",
+          "period": "P8",
+          "at": "2031-03-11T09:10:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "q1",
+            "seats": 1
+          }
+        },
+        {
+          "id": "P8-12",
+          "period": "P8",
+          "at": "2031-03-11T09:11:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "q1"
+          }
+        },
+        {
+          "id": "P8-13",
+          "period": "P8",
+          "at": "2031-03-11T09:12:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "member_id": "m-cleo"
+          }
+        },
+        {
+          "id": "P8-14",
+          "period": "P8",
+          "at": "2031-03-11T09:13:00Z",
+          "op": "top_up",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-dan",
+            "amount_cents": 900
+          }
+        },
+        {
+          "id": "P8-15",
+          "period": "P8",
+          "at": "2031-03-11T09:14:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "q2",
+            "member_id": "m-dan",
+            "slot_id": "S10"
+          }
+        },
+        {
+          "id": "P8-16",
+          "period": "P8",
+          "at": "2031-03-11T09:15:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-dan"
+          }
+        },
+        {
+          "id": "P8-17",
+          "period": "P8",
+          "at": "2031-03-11T09:16:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "q3",
+            "member_id": "m-fay",
+            "slot_id": "S10",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P8-18",
+          "period": "P8",
+          "at": "2031-03-11T09:17:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "q3",
+            "seats": 3
+          }
+        },
+        {
+          "id": "P8-19",
+          "period": "P8",
+          "at": "2031-03-11T09:18:00Z",
+          "op": "create_slot",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "slot_id": "S11",
+            "capacity": 1,
+            "starts_at": "2031-03-29T18:00:00Z"
+          }
+        },
+        {
+          "id": "P8-20",
+          "period": "P8",
+          "at": "2031-03-11T09:19:00Z",
+          "op": "set_price",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "S11",
+            "price_cents": 500
+          }
+        },
+        {
+          "id": "P8-21",
+          "period": "P8",
+          "at": "2031-03-11T09:20:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "q4",
+            "member_id": "m-gus",
+            "slot_id": "S11"
+          }
+        },
+        {
+          "id": "P8-22",
+          "period": "P8",
+          "at": "2031-03-11T09:21:00Z",
+          "op": "reserve",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "request_id": "q5",
+            "member_id": "m-fay",
+            "slot_id": "S11"
+          }
+        },
+        {
+          "id": "P8-23",
+          "period": "P8",
+          "at": "2031-03-11T09:22:00Z",
+          "op": "top_up",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-fay",
+            "amount_cents": 300
+          }
+        },
+        {
+          "id": "P8-24",
+          "period": "P8",
+          "at": "2031-03-11T09:23:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-gus",
+          "args": {
+            "booking_id": "q4"
+          }
+        },
+        {
+          "id": "P8-25",
+          "period": "P8",
+          "at": "2031-03-11T09:24:00Z",
+          "op": "get_booking",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "q5"
+          }
+        },
+        {
+          "id": "P8-26",
+          "period": "P8",
+          "at": "2031-03-11T09:25:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-fay"
+          }
+        },
+        {
+          "id": "P8-27",
+          "period": "P8",
+          "at": "2031-03-11T09:26:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "booking_id": "p1"
+          }
+        },
+        {
+          "id": "P8-28",
+          "period": "P8",
+          "at": "2031-03-11T09:27:00Z",
+          "op": "get_wallet",
+          "tenant": "t-alpha",
+          "actor": "m-cleo",
+          "args": {
+            "member_id": "m-cleo"
+          }
+        },
+        {
+          "id": "P8-29",
+          "period": "P8",
+          "at": "2031-03-11T09:28:00Z",
+          "op": "cancel",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "booking_id": "q3",
+            "seats": 1
+          }
+        },
+        {
+          "id": "P8-30",
+          "period": "P8",
+          "at": "2031-03-11T09:29:00Z",
+          "op": "top_up",
+          "tenant": "t-alpha",
+          "actor": "m-sam",
+          "args": {
+            "member_id": "m-dan",
+            "amount_cents": 0
+          }
+        }
+      ],
+      "faits": [
+        {
+          "id": "P8.F01",
+          "etape": "P8-01",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-cleo",
+            "balance_cents": 2000
+          },
+          "justification": "Portefeuille initial 0 ; credit de 2000 par un staff.",
+          "recalcul": "0 + 2000 = 2000."
+        },
+        {
+          "id": "P8.F02",
+          "etape": "P8-02",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "top_up est reserve a admin et staff ; un member ne credite pas son propre portefeuille.",
+          "recalcul": "member -> FORBIDDEN ; solde reste 2000."
+        },
+        {
+          "id": "P8.F03",
+          "etape": "P8-05",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q1",
+            "status": "confirmed",
+            "seats": 3,
+            "amount_cents": 2250,
+            "paid_credits_cents": 2000,
+            "paid_card_cents": 250
+          },
+          "justification": "brut 3 x 1000 = 3000 ; remise gold 25 % = 750 (exact) ; montant 2250. Credits d'abord : min(2000, 2250) = 2000 ; reste a la carte 250.",
+          "recalcul": "floor((3000*2500 + 5000)/10000) = 750 ; 3000 - 750 = 2250 ; credits = min(2000, 2250) = 2000 ; carte = 2250 - 2000 = 250."
+        },
+        {
+          "id": "P8.F04",
+          "etape": "P8-06",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-cleo",
+            "balance_cents": 0
+          },
+          "justification": "Le solde a ete entierement consomme par q1.",
+          "recalcul": "2000 - 2000 = 0."
+        },
+        {
+          "id": "P8.F05",
+          "etape": "P8-07",
+          "attendu": {
+            "ok": false,
+            "error": "FORBIDDEN"
+          },
+          "justification": "Un member ne lit que son propre portefeuille.",
+          "recalcul": "member_id m-dan ≠ actor m-cleo -> FORBIDDEN."
+        },
+        {
+          "id": "P8.F06",
+          "etape": "P8-08",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q1",
+            "status": "confirmed",
+            "seats": 2,
+            "refunded_cents": 750,
+            "refund": {
+              "credits_cents": 666,
+              "card_cents": 84
+            },
+            "promoted": []
+          },
+          "justification": "Annulation partielle de 1 place sur 3 : R = floor(2250 x 1 / 3) = 750 ; part credits = floor(750 x 2000 / 2250) = floor(666,67) = 666 ; carte = 750 - 666 = 84.",
+          "recalcul": "2250/3 = 750 exact ; 750*2000 = 1500000 ; 1500000/2250 = 666,666… -> 666 ; 750 - 666 = 84."
+        },
+        {
+          "id": "P8.F07",
+          "etape": "P8-09",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q1",
+            "status": "confirmed",
+            "seats": 2,
+            "amount_cents": 1500,
+            "paid_credits_cents": 1334,
+            "paid_card_cents": 166
+          },
+          "justification": "Restes apres l'annulation partielle : montant 2250 - 750, credits 2000 - 666, carte 250 - 84.",
+          "recalcul": "1500 ; 1334 ; 166 ; controle 1334 + 166 = 1500."
+        },
+        {
+          "id": "P8.F08",
+          "etape": "P8-10",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-cleo",
+            "balance_cents": 666
+          },
+          "justification": "La part credits du remboursement revient au portefeuille.",
+          "recalcul": "0 + 666 = 666."
+        },
+        {
+          "id": "P8.F09",
+          "etape": "P8-11",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q1",
+            "status": "confirmed",
+            "seats": 1,
+            "refunded_cents": 750,
+            "refund": {
+              "credits_cents": 667,
+              "card_cents": 83
+            }
+          },
+          "justification": "Seconde annulation partielle, 1 place sur 2 : R = floor(1500 x 1 / 2) = 750 ; credits = floor(750 x 1334 / 1500) = 667 (exact) ; carte 83.",
+          "recalcul": "750*1334 = 1000500 ; /1500 = 667,0 -> 667 ; 750 - 667 = 83 ; restes : 750, 667, 83."
+        },
+        {
+          "id": "P8.F10",
+          "etape": "P8-12",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q1",
+            "status": "cancelled",
+            "refunded_cents": 750,
+            "refund": {
+              "credits_cents": 667,
+              "card_cents": 83
+            }
+          },
+          "justification": "Annulation totale : chaque source recoit tout ce qui lui reste (credits 667, carte 83).",
+          "recalcul": "restes de P8.F09 : 667 + 83 = 750."
+        },
+        {
+          "id": "P8.F11",
+          "etape": "P8-13",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-cleo",
+            "balance_cents": 2000
+          },
+          "justification": "Les credits rembourses (666 + 667 + 667) reconstituent exactement les 2000 payes.",
+          "recalcul": "666 + 667 = 1333 ; + 667 = 2000 ; cote carte 84 + 83 + 83 = 250."
+        },
+        {
+          "id": "P8.F12",
+          "etape": "P8-15",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q2",
+            "status": "confirmed",
+            "amount_cents": 900,
+            "paid_credits_cents": 900,
+            "paid_card_cents": 0
+          },
+          "justification": "Frontiere : solde = montant. brut 1000 ; silver 10 % = 100 ; montant 900 ; credits min(900, 900) = 900 ; carte 0.",
+          "recalcul": "floor((1000*1000 + 5000)/10000) = 100 ; 900 ; min(900, 900) = 900 ; 0."
+        },
+        {
+          "id": "P8.F13",
+          "etape": "P8-16",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-dan",
+            "balance_cents": 0
+          },
+          "justification": "Le solde de m-dan est epuise exactement.",
+          "recalcul": "900 - 900 = 0."
+        },
+        {
+          "id": "P8.F14",
+          "etape": "P8-17",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q3",
+            "status": "confirmed",
+            "seats": 2,
+            "amount_cents": 2000,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 2000
+          },
+          "justification": "m-fay, niveau none, solde 0 : tout a la carte.",
+          "recalcul": "2 x 1000 = 2000 ; remise 0 ; credits min(0, 2000) = 0 ; carte 2000."
+        },
+        {
+          "id": "P8.F15",
+          "etape": "P8-18",
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Annuler 3 places d'une reservation qui en compte 2 : INVALID_ARGUMENT, sans effet.",
+          "recalcul": "3 > 2 -> INVALID_ARGUMENT."
+        },
+        {
+          "id": "P8.F16",
+          "etape": "P8-21",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q4",
+            "status": "confirmed",
+            "amount_cents": 375,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 375
+          },
+          "justification": "m-gus gold, solde 0 : brut 500 ; 25 % = 125 ; montant 375, tout a la carte.",
+          "recalcul": "floor((500*2500 + 5000)/10000) = 125 ; 375."
+        },
+        {
+          "id": "P8.F17",
+          "etape": "P8-22",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q5",
+            "status": "waiting",
+            "position": 1
+          },
+          "justification": "S11 (capacite 1) plein : q5 attend, rien n'est preleve.",
+          "recalcul": "1 > 0 -> waiting."
+        },
+        {
+          "id": "P8.F18",
+          "etape": "P8-24",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q4",
+            "status": "cancelled",
+            "refunded_cents": 375,
+            "refund": {
+              "credits_cents": 0,
+              "card_cents": 375
+            },
+            "promoted": [
+              "q5"
+            ]
+          },
+          "justification": "Annulation totale de q4 payee a la carte ; 1 place liberee : q5 promu.",
+          "recalcul": "credits 0, carte 375 ; libres 1 ; q5 1 <= 1 -> promu."
+        },
+        {
+          "id": "P8.F19",
+          "etape": "P8-25",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q5",
+            "status": "confirmed",
+            "amount_cents": 500,
+            "paid_credits_cents": 300,
+            "paid_card_cents": 200
+          },
+          "justification": "Paiement a l'instant de la promotion avec le solde de ce moment : m-fay a 300 (P8-23) ; montant 500 (none) ; credits 300 ; carte 200.",
+          "recalcul": "min(300, 500) = 300 ; 500 - 300 = 200."
+        },
+        {
+          "id": "P8.F20",
+          "etape": "P8-26",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-fay",
+            "balance_cents": 0
+          },
+          "justification": "Le solde de m-fay est consomme par la promotion.",
+          "recalcul": "300 - 300 = 0."
+        },
+        {
+          "id": "P8.F21",
+          "etape": "P8-27",
+          "attendu": {
+            "ok": true,
+            "booking_id": "p1",
+            "status": "cancelled",
+            "refunded_cents": 1499,
+            "refund": {
+              "credits_cents": 0,
+              "card_cents": 1499
+            }
+          },
+          "justification": "p1 confirmee en P7 (avant les credits) : payee entierement a la carte ; son annulation rembourse 1499 a la carte, 0 en credits.",
+          "recalcul": "paid_credits 0, paid_card 1499 -> refund 0 / 1499."
+        },
+        {
+          "id": "P8.F22",
+          "etape": "P8-28",
+          "attendu": {
+            "ok": true,
+            "member_id": "m-cleo",
+            "balance_cents": 2000
+          },
+          "justification": "L'annulation de p1 n'a rien credite au portefeuille.",
+          "recalcul": "2000 + 0 = 2000."
+        },
+        {
+          "id": "P8.F23",
+          "etape": "P8-29",
+          "attendu": {
+            "ok": true,
+            "booking_id": "q3",
+            "status": "confirmed",
+            "seats": 1,
+            "refunded_cents": 1000,
+            "refund": {
+              "credits_cents": 0,
+              "card_cents": 1000
+            }
+          },
+          "justification": "Annulation partielle d'une reservation payee a la carte seulement : R = floor(2000 x 1 / 2) = 1000 ; credits floor(1000 x 0 / 2000) = 0 ; carte 1000.",
+          "recalcul": "2000/2 = 1000 ; 1000*0/2000 = 0 ; 1000 - 0 = 1000."
+        },
+        {
+          "id": "P8.F24",
+          "etape": "P8-30",
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Un credit doit etre un entier strictement positif de centimes : 0 -> INVALID_ARGUMENT.",
+          "recalcul": "0 <= 0 -> INVALID_ARGUMENT."
+        }
+      ]
+    }
+  }
+}

@@ -5,8 +5,8 @@
     "Faits attendus du scenario F-PLATFORM, periodes P17 a P24 (ADR-021, decision 1 :",
     "« Les faits attendus, calcules a la main, sont figes dans une racine gelee »), pour T72.",
     "Meme racine, meme structure et memes conventions que F-PLATFORM-P1-P8.json et",
-    "F-PLATFORM-P9-P16.json, qui ne sont PAS modifies : la trajectoire ci-dessous les PROLONGE",
-    "sur UN SEUL etat (rejouer P1-01 ... P16-24 puis P17-01 ... P24-25, sans reinitialiser).",
+    "F-PLATFORM-P9-P16.json, qui ne sont modifies que par la passe de clarification (voir plus bas) : la trajectoire ci-dessous les PROLONGE",
+    "sur UN SEUL etat (rejouer P1-01 ... P16-31 puis P17-01 ... P24-25, sans reinitialiser).",
     "",
     "ADR-021 ne donne pour P17-P24 qu'une ligne de tableau par periode (L77-L84). Ce fichier",
     "FIXE donc les regles precises (valeurs, unites, formats, ordre des controles, arrondis,",
@@ -28,7 +28,21 @@
     "(il reproduit aussi les 271 faits de P1-P16) : 0 desaccord. Aucun fait n'a ete obtenu en",
     "executant packages/oracle ; le transcripteur a LU, sur instruction, l'en-tete, la liste des",
     "clauses et les `questions_ouvertes` de packages/oracle/src/f-platform-clauses.ts (aveuglement",
-    "procedural, ADR-001) pour ne pas les contredire."
+    "procedural, ADR-001) pour ne pas les contredire.",
+    "",
+    "PASSE DE CLARIFICATION (fixture-transcriber, 26/10/2026). Le tri des questions ouvertes",
+    "(T70-01..T70-16, Q01-Q61, N-01..N-04) est applique : chaque question GARDER devient une",
+    "precision ecrite (`regles[].precisions`, phrase du tri) ; chaque CHANGER ou FIXER modifie",
+    "le texte de ses regles (ou en ajoute une : P1.R8, P9.R5 qui remplace P5.R1) et est EXERCE",
+    "par des faits nouveaux, ajoutes en FIN de periode (etapes et faits a numeros suivants), sur",
+    "des locataires et des identifiants neufs (t-clar, t-q32a/b, t-q34a/b, t-q37, creneaux K*, N2,",
+    "G6...) pour ne decaler aucun fait existant. `questions_resolues` trace chaque question vers ses",
+    "regles et ses faits. Seule Q38 (solde d'un membre efface) reste ouverte : decision du mandant.",
+    "Les faits nouveaux ont ete calcules a la main, recalcules par une autre voie, puis confrontes",
+    "a un simulateur jetable hors depot etendu aux regles clarifiees : 0 desaccord sur les faits",
+    "anciens et nouveaux. Pour cette passe, packages/oracle/src/f-platform-*.ts a ete LU en lecture",
+    "seule (sur instruction) et execute seulement pour constater qu'il diverge sur les faits nouveaux",
+    "et sur eux seuls ; aucune valeur attendue n'en vient."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -56,10 +70,10 @@
   "prolonge": {
     "fixture": "F-PLATFORM-P9-P16",
     "chemin": "acceptance/reference-platform/F-PLATFORM-P9-P16.json",
-    "sha256": "8bc273e96e21e4e0fc4b526eccae11f1275729ccbc46b33e142654e501d0ea4a",
-    "commit": "9343f9e93a3033318f449715c30a316bee8a8f96",
-    "derniere_etape": "P16-24",
-    "etat_au_depart": "celui laisse par P16-24 (horloge 2031-07-31T22:21:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges"
+    "sha256": "76ebbdc1e3211347e53a707872cdace99b4198b1616d80e6f0ac4a99cd6af22a",
+    "commit": "f97044d137ef41df79dcffe4851fa3bcde641e30",
+    "derniere_etape": "P16-31",
+    "etat_au_depart": "celui laisse par P16-31 (horloge 2031-08-01T12:07:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000)"
   },
   "scellement": {
     "tache": "T72",
@@ -73,12 +87,12 @@
     ],
     "comptes": {
       "P17": {
-        "etapes": 40,
-        "faits": 21
+        "etapes": 49,
+        "faits": 26
       },
       "P18": {
-        "etapes": 29,
-        "faits": 16
+        "etapes": 44,
+        "faits": 23
       },
       "P19": {
         "etapes": 18,
@@ -89,22 +103,49 @@
         "faits": 12
       },
       "P21": {
-        "etapes": 24,
-        "faits": 18
+        "etapes": 26,
+        "faits": 19
       },
       "P22": {
-        "etapes": 21,
-        "faits": 17
+        "etapes": 22,
+        "faits": 18
       },
       "P23": {
-        "etapes": 27,
-        "faits": 21
+        "etapes": 34,
+        "faits": 27
       },
       "P24": {
         "etapes": 25,
         "faits": 25
       },
-      "total_faits": 148
+      "total_faits": 168
+    },
+    "clarification": {
+      "source": "tri des questions ouvertes de F-PLATFORM (T70-01..T70-16, Q01-Q61, N-01..N-04)",
+      "faits_ajoutes": [
+        "P17.F22",
+        "P17.F23",
+        "P17.F24",
+        "P17.F25",
+        "P17.F26",
+        "P18.F17",
+        "P18.F18",
+        "P18.F19",
+        "P18.F20",
+        "P18.F21",
+        "P18.F22",
+        "P18.F23",
+        "P21.F19",
+        "P22.F18",
+        "P23.F22",
+        "P23.F23",
+        "P23.F24",
+        "P23.F25",
+        "P23.F26",
+        "P23.F27"
+      ],
+      "faits_existants_modifies": [],
+      "questions_resolues": 32
     }
   },
   "conventions": {
@@ -146,6 +187,7 @@
     "forme_des_erreurs_v2": "{ ok: false, error: { code: CODE } }",
     "ordre_des_controles_de_reserve_a_P24": [
       "version inconnue -> INVALID_ARGUMENT (forme v1) ; noms de l'autre version -> INVALID_ARGUMENT (P24.R1, P24.R4)",
+      "operation inconnue (ni v1 ni v2) -> INVALID_ARGUMENT (P1.R8, non memorise)",
       "tenant inconnu -> NOT_FOUND",
       "actor non membre / role -> FORBIDDEN (non memorise)",
       "member pour autrui -> FORBIDDEN (non memorise)",
@@ -251,31 +293,53 @@
               "INVALID_ARGUMENT facture emise",
               "INVALID_ARGUMENT renommage deja pris"
             ]
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q29",
+              "classe": "GARDER",
+              "texte": "merge_tenants -> INVALID_ARGUMENT dès que la source ou la cible a émis au moins une facture (P14.R2)."
+            }
+          ]
         },
         {
           "id": "P17.R2",
-          "texte": "Collisions d'identifiants, regle declaree. Espaces de noms : (a) slot_id ; (b) series_id ; (c) request_id / booking_id : les reservations ET les cles d'idempotence memorisees (P1.R4, y compris celles d'une reponse d'erreur) ; (d) import_id (P20.R1). Un identifiant de la SOURCE qui existe deja dans le meme espace de la CIBLE est renomme '<source_tenant_id>:<identifiant>' (exemple : 'M1' de t-mig-b devient 't-mig-b:M1') ; un identifiant sans collision garde son nom ; les identifiants de la cible ne changent jamais. Tout ce qui reference un identifiant renomme suit : slot_id des reservations, file d'attente, occurrences d'une serie, cle et booking_id/slot_id d'une reponse memorisee. renamed liste les renommages {kind, from, to} : kind 'slot', puis 'series', puis 'booking' (cle portant une reservation), puis 'request' (cle memorisee sans reservation), puis 'import' ; dans chaque kind, from croissant (ordinal UTF-16). Les member_id ne sont jamais renommes (P17.R3).",
+          "texte": "Collisions d'identifiants, regle declaree. Espaces de noms : (a) slot_id ; (b) series_id ; (c) request_id / booking_id : les reservations ET les cles d'idempotence memorisees (P1.R4, y compris celles d'une reponse d'erreur) ; (d) import_id (P20.R1) ; (e) pseudonymes (P18.R1). Un identifiant de la SOURCE qui existe deja dans le meme espace de la CIBLE est renomme '<source_tenant_id>:<identifiant>' (exemple : 'M1' de t-mig-b devient 't-mig-b:M1') ; un identifiant sans collision garde son nom ; les identifiants de la cible ne changent jamais. Tout ce qui reference un identifiant renomme suit : slot_id des reservations, file d'attente, occurrences d'une serie, cle et booking_id/slot_id d'une reponse memorisee. renamed liste les renommages {kind, from, to} : kind 'slot', puis 'series', puis 'booking' (cle portant une reservation), puis 'request' (cle memorisee sans reservation), puis 'import', puis 'pseudonym' ; dans chaque kind, from croissant (ordinal UTF-16). Les member_id ne sont jamais renommes (P17.R3). Une serie et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences courantes entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la serie recoivent le prefixe '<source_tenant_id>:' (le lien '<series_id>@<date>' est conserve) ; chacun de ces renommages figure dans renamed (kind 'slot' pour les occurrences, 'series' pour la serie). Un pseudonyme de la source (P18.R1) deja present dans la cible, comme pseudonyme ou comme member_id, est renomme '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs, reservations) ; renomme ou non, il reste un pseudonyme lisible dans la cible (P18.R3). Ce renommage figure dans renamed sous le kind 'pseudonym', place apres 'import'.",
           "valeurs": {
             "forme_du_renommage": "<source_tenant_id>:<identifiant>",
             "espaces": [
               "slot_id",
               "series_id",
               "request_id/booking_id",
-              "import_id"
+              "import_id",
+              "pseudonyme"
             ],
             "ordre_de_renamed": [
               "slot",
               "series",
               "booking",
               "request",
-              "import"
-            ]
-          }
+              "import",
+              "pseudonym"
+            ],
+            "serie": "series_id et ses occurrences renommes ensemble"
+          },
+          "precisions": [
+            {
+              "question": "Q32",
+              "classe": "CHANGER",
+              "texte": "Une série et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la série reçoivent le préfixe '<source_tenant_id>:'. Le lien '<series_id>@<date>' est ainsi conservé."
+            },
+            {
+              "question": "Q34",
+              "classe": "CHANGER",
+              "texte": "Un pseudonyme de la source déjà présent dans la cible (pseudonyme ou member_id) est renommé '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs). Ce renommage figure dans renamed, sous le kind 'pseudonym', placé après 'import'."
+            }
+          ]
         },
         {
           "id": "P17.R3",
-          "texte": "Membres. Un member_id present dans les deux locataires designe la MEME personne : il n'est pas renomme ; son role devient le plus eleve des deux (admin > staff > member) ; son niveau (P7.R2) celui de plus fort taux de remise ; son portefeuille la SOMME des deux soldes, l'historique du portefeuille de la source (mouvements et lots P22.R2) rejoignant celui de la cible avec ses instants ; suspended_until la plus tardive des deux (null si aucune). Un membre present seulement dans la source est ajoute avec son role, son niveau, son portefeuille et sa suspension. merged_members (presents dans les deux) et added_members (source seulement) : member_id croissants (ordinal).",
+          "texte": "Membres. Un member_id present dans les deux locataires designe la MEME personne : il n'est pas renomme ; son role devient le plus eleve des deux (admin > staff > member) ; son niveau (P7.R2) celui de plus fort taux de remise ; son portefeuille la SOMME des deux soldes, l'historique du portefeuille de la source (mouvements et lots P22.R2) rejoignant celui de la cible avec ses instants ; suspended_until la plus tardive des deux (null si aucune). Un membre present seulement dans la source est ajoute avec son role, son niveau, son portefeuille et sa suspension. merged_members (presents dans les deux) et added_members (source seulement) : member_id croissants (ordinal). Un pseudonyme (P18.R1) n'est pas un membre : il ne figure ni dans merged_members ni dans added_members et suit P17.R2 (e).",
           "valeurs": {
             "rang_des_roles": [
               "member",
@@ -284,11 +348,35 @@
             ],
             "niveau": "plus fort taux de remise",
             "portefeuille": "somme"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q30",
+              "classe": "GARDER",
+              "texte": "Par exception à l'isolation P3.R3, qui reste vraie entre locataires distincts, merge_tenants considère qu'un member_id présent dans les deux locataires désigne la MÊME personne : pas de renommage, rôle le plus élevé, niveau de plus forte remise, soldes et historiques de portefeuille réunis, suspension la plus tardive."
+            },
+            {
+              "question": "Q33",
+              "classe": "GARDER",
+              "texte": "Les absences enregistrées dans la source rejoignent celles de la cible et comptent dans absences_30d des enregistrements suivants."
+            },
+            {
+              "question": "Q34",
+              "classe": "CHANGER",
+              "texte": "Un pseudonyme de la source déjà présent dans la cible (pseudonyme ou member_id) est renommé '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs). Ce renommage figure dans renamed, sous le kind 'pseudonym', placé après 'import'."
+            }
+          ]
         },
         {
           "id": "P17.R4",
-          "texte": "Historique conserve. Chaque reservation de la source passe dans la cible avec TOUT son etat, inchange hors renommage P17.R2 : member_id, status, seats, seat_numbers, rang en file d'attente, no_show, amount_cents, paid_credits_cents, paid_card_cents, devise et taux d'origine (P15.R6), instant et rang de confirmation (l'ordre de confirmation P13.R3 reste l'ordre global de la trajectoire), mouvements financiers (P14.R1). A partir de P17, toute reservation porte origin = {tenant_id, booking_id} : le locataire et le booking_id sous lesquels elle a ete CREEE (pour une reservation jamais fusionnee : son locataire et son booking_id actuels) ; les vues de reservation (reserve, get_booking) portent origin. Une reponse memorisee de la source est conservee sous sa cle (renommee s'il y a lieu) : seuls ses champs booking_id et slot_id de premier niveau sont reecrits selon le renommage ; le reste (dont origin) est inchange ; elle est rejouee a l'identique sous cette cle."
+          "texte": "Historique conserve. Chaque reservation de la source passe dans la cible avec TOUT son etat, inchange hors renommage P17.R2 : member_id, status, seats, seat_numbers, rang en file d'attente, no_show, amount_cents, paid_credits_cents, paid_card_cents, devise et taux d'origine (P15.R6), instant et rang de confirmation (l'ordre de confirmation P13.R3 reste l'ordre global de la trajectoire), mouvements financiers (P14.R1). A partir de P17, toute reservation porte origin = {tenant_id, booking_id} : le locataire et le booking_id sous lesquels elle a ete CREEE (pour une reservation jamais fusionnee : son locataire et son booking_id actuels) ; les vues de reservation (reserve, get_booking) portent origin. Une reponse memorisee de la source est conservee sous sa cle (renommee s'il y a lieu) : seuls ses champs booking_id et slot_id de premier niveau sont reecrits selon le renommage ; le reste (dont origin) est inchange ; elle est rejouee a l'identique sous cette cle.",
+          "precisions": [
+            {
+              "question": "Q31",
+              "classe": "GARDER",
+              "texte": "Dans une réponse mémorisée de la source, seuls les champs booking_id et slot_id de premier niveau sont réécrits ; les identifiants imbriqués gardent leur valeur d'origine."
+            }
+          ]
         }
       ],
       "ligne_adr": 77,
@@ -761,6 +849,114 @@
             "tenant_id": "t-mig-b",
             "owner_id": "m-ana"
           }
+        },
+        {
+          "id": "P17-41",
+          "period": "P17",
+          "at": "2031-08-04T09:42:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q32a",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P17-42",
+          "period": "P17",
+          "at": "2031-08-04T09:43:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q32b",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P17-43",
+          "period": "P17",
+          "at": "2031-08-04T09:44:00Z",
+          "op": "create_recurring",
+          "tenant": "t-q32a",
+          "actor": "m-own",
+          "args": {
+            "series_id": "SR",
+            "weekday": 1,
+            "start_time": "10:00",
+            "capacity": 2,
+            "from_date": "2031-09-01",
+            "until_date": "2031-09-01"
+          }
+        },
+        {
+          "id": "P17-44",
+          "period": "P17",
+          "at": "2031-08-04T09:45:00Z",
+          "op": "create_recurring",
+          "tenant": "t-q32b",
+          "actor": "m-own",
+          "args": {
+            "series_id": "SR",
+            "weekday": 1,
+            "start_time": "10:00",
+            "capacity": 2,
+            "from_date": "2031-09-08",
+            "until_date": "2031-09-08"
+          }
+        },
+        {
+          "id": "P17-45",
+          "period": "P17",
+          "at": "2031-08-04T09:46:00Z",
+          "op": "merge_tenants",
+          "tenant": "t-q32a",
+          "actor": "m-own",
+          "args": {
+            "source_tenant_id": "t-q32b"
+          }
+        },
+        {
+          "id": "P17-46",
+          "period": "P17",
+          "at": "2031-08-04T09:47:00Z",
+          "op": "list_occurrences",
+          "tenant": "t-q32a",
+          "actor": "m-own",
+          "args": {
+            "series_id": "t-q32b:SR"
+          }
+        },
+        {
+          "id": "P17-47",
+          "period": "P17",
+          "at": "2031-08-04T09:48:00Z",
+          "op": "get_slot",
+          "tenant": "t-q32a",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "t-q32b:SR@2031-09-08"
+          }
+        },
+        {
+          "id": "P17-48",
+          "period": "P17",
+          "at": "2031-08-04T09:49:00Z",
+          "op": "add_exception",
+          "tenant": "t-q32a",
+          "actor": "m-own",
+          "args": {
+            "series_id": "t-q32b:SR",
+            "date": "2031-09-08"
+          }
+        },
+        {
+          "id": "P17-49",
+          "period": "P17",
+          "at": "2031-08-04T09:50:00Z",
+          "op": "list_occurrences",
+          "tenant": "t-q32a",
+          "actor": "m-own",
+          "args": {
+            "series_id": "t-q32b:SR"
+          }
         }
       ],
       "faits": [
@@ -1182,6 +1378,102 @@
           },
           "justification": "L'identifiant d'une source fusionnee reste reserve : create_tenant t-mig-b -> ALREADY_EXISTS.",
           "recalcul": "t-mig-b reserve depuis P17-25 -> ALREADY_EXISTS."
+        },
+        {
+          "id": "P17.F22",
+          "etape": "P17-45",
+          "clauses": [
+            "P17.R1",
+            "P17.R2",
+            "P17.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "tenant_id": "t-q32a",
+            "source_tenant_id": "t-q32b",
+            "renamed": [
+              {
+                "kind": "slot",
+                "from": "SR@2031-09-08",
+                "to": "t-q32b:SR@2031-09-08"
+              },
+              {
+                "kind": "series",
+                "from": "SR",
+                "to": "t-q32b:SR"
+              }
+            ],
+            "merged_members": [
+              "m-own"
+            ],
+            "added_members": []
+          },
+          "justification": "Q32 : series_id SR existe dans la cible ; l'occurrence SR@2031-09-08 de la source, elle, n'entre pas en collision, mais une serie et ses occurrences se renomment ENSEMBLE : les deux recoivent le prefixe 't-q32b:'. renamed : kind 'slot' puis 'series'. m-own est dans les deux locataires.",
+          "recalcul": "collision(series SR) -> renommer SR et [SR@2031-09-08] ; 't-q32b:' + 'SR@2031-09-08' = 't-q32b:SR' + '@2031-09-08' (lien conserve)."
+        },
+        {
+          "id": "P17.F23",
+          "etape": "P17-46",
+          "clauses": [
+            "P5.R3",
+            "P17.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "series_id": "t-q32b:SR",
+            "slot_ids": [
+              "t-q32b:SR@2031-09-08"
+            ]
+          },
+          "justification": "Q32 : la serie renommee liste des slot_id qui existent (l'ancien choix rendait 'SR@2031-09-08', non renomme).",
+          "recalcul": "occurrences de t-q32b:SR = [t-q32b:SR@2031-09-08]."
+        },
+        {
+          "id": "P17.F24",
+          "etape": "P17-47",
+          "clauses": [
+            "P1.R7",
+            "P17.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "t-q32b:SR@2031-09-08",
+            "capacity": 2,
+            "starts_at": "2031-09-08T10:00:00Z",
+            "booked": 0
+          },
+          "justification": "L'occurrence renommee existe dans la cible avec son etat (10:00 en heure locale UTC du locataire t-q32b).",
+          "recalcul": "fuseau UTC -> 2031-09-08T10:00:00Z ; aucune reservation."
+        },
+        {
+          "id": "P17.F25",
+          "etape": "P17-48",
+          "clauses": [
+            "P5.R2",
+            "P17.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "series_id": "t-q32b:SR",
+            "date": "2031-09-08",
+            "cancelled": []
+          },
+          "justification": "Q32 : add_exception retire la VRAIE occurrence '<series_id>@<date>' = 't-q32b:SR@2031-09-08' (l'ancien choix rendait NOT_FOUND).",
+          "recalcul": "'t-q32b:SR' + '@2031-09-08' est une occurrence courante -> retiree ; aucune reservation."
+        },
+        {
+          "id": "P17.F26",
+          "etape": "P17-49",
+          "clauses": [
+            "P5.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "series_id": "t-q32b:SR",
+            "slot_ids": []
+          },
+          "justification": "Apres l'exception, la serie n'a plus d'occurrence courante.",
+          "recalcul": "[t-q32b:SR@2031-09-08] moins l'exception = []."
         }
       ],
       "fusion": {
@@ -1287,14 +1579,40 @@
           "texte": "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}.",
           "valeurs": {
             "pseudonyme": "'anon-' + 4 chiffres, sequence par locataire, a partir de anon-0001"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q35",
+              "classe": "GARDER",
+              "texte": "erase_member -> INVALID_ARGUMENT tant que le membre a une réservation confirmed ou waiting sur un créneau qui n'a pas commencé ; il faut d'abord l'annuler."
+            }
+          ]
         },
         {
           "id": "P18.R2",
-          "texte": "Anonymisation. Dans tout le locataire, l'identifiant efface est remplace par le pseudonyme : member_id (et payeur) des reservations, portefeuille (solde, historique, lots), niveau, suspension, reponses et arguments memorises (toute valeur chaine EGALE au member_id, a toute profondeur), factures et avoirs (member_id, et l'invoice_id 'INV-<AAAA-MM>-<member_id>' devient 'INV-<AAAA-MM>-<pseudonyme>', y compris l'invoice_id cite par un avoir). C'est la SEULE exception a l'immuabilite des factures (P14.R2) : elle ne remplace que des identifiants ; aucun montant, aucune ligne, aucun ordre ne change ; les totaux de toutes les factures restent intacts. Les identifiants des autres membres, des reservations et des avoirs ne changent pas.",
+          "texte": "Anonymisation. Dans tout le locataire, l'identifiant efface est remplace par le pseudonyme : member_id (et payeur) des reservations, portefeuille (solde, historique, lots), niveau, suspension, reponses et arguments memorises (seules les valeurs EGALES au member_id des cles member_id, payer_member_id, from_member_id et to_member_id, a toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>' ; un slot_id, un request_id ou un autre identifiant egal par hasard au member_id ne change pas), factures et avoirs (member_id, et l'invoice_id 'INV-<AAAA-MM>-<member_id>' devient 'INV-<AAAA-MM>-<pseudonyme>', y compris l'invoice_id cite par un avoir). C'est la SEULE exception a l'immuabilite des factures (P14.R2) : elle ne remplace que des identifiants ; aucun montant, aucune ligne, aucun ordre ne change ; les totaux de toutes les factures restent intacts. Les identifiants des autres membres, des reservations et des avoirs ne changent pas.",
           "valeurs": {
-            "invoice_id_renomme": "INV-<AAAA-MM>-<pseudonyme>"
-          }
+            "invoice_id_renomme": "INV-<AAAA-MM>-<pseudonyme>",
+            "cles_anonymisees": [
+              "member_id",
+              "payer_member_id",
+              "from_member_id",
+              "to_member_id",
+              "suffixe de invoice_id"
+            ]
+          },
+          "precisions": [
+            {
+              "question": "Q36",
+              "classe": "GARDER",
+              "texte": "Les arguments mémorisés sont anonymisés comme les réponses : à partir de P21, rejouer une clé de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT."
+            },
+            {
+              "question": "Q37",
+              "classe": "CHANGER",
+              "texte": "L'anonymisation ne remplace que les valeurs des clés member_id, payer_member_id, from_member_id et to_member_id, à toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>'. Un slot_id, un request_id ou un autre identifiant égal par hasard au member_id ne change pas."
+            }
+          ]
         },
         {
           "id": "P18.R3",
@@ -1633,6 +1951,177 @@
           "args": {
             "member_id": "m-gus"
           }
+        },
+        {
+          "id": "P18-30",
+          "period": "P18",
+          "at": "2031-08-11T09:29:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q37",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-31",
+          "period": "P18",
+          "at": "2031-08-11T09:30:00Z",
+          "op": "add_member",
+          "tenant": "t-q37",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-yan",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-32",
+          "period": "P18",
+          "at": "2031-08-11T09:31:00Z",
+          "op": "create_slot",
+          "tenant": "t-q37",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "m-yan",
+            "capacity": 1,
+            "starts_at": "2031-08-11T09:40:00Z"
+          }
+        },
+        {
+          "id": "P18-33",
+          "period": "P18",
+          "at": "2031-08-11T09:32:00Z",
+          "op": "reserve",
+          "tenant": "t-q37",
+          "actor": "m-own",
+          "args": {
+            "request_id": "z1",
+            "member_id": "m-yan",
+            "slot_id": "m-yan"
+          }
+        },
+        {
+          "id": "P18-34",
+          "period": "P18",
+          "at": "2031-08-11T09:40:00Z",
+          "op": "erase_member",
+          "tenant": "t-q37",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-yan"
+          }
+        },
+        {
+          "id": "P18-35",
+          "period": "P18",
+          "at": "2031-08-11T09:41:00Z",
+          "op": "reserve",
+          "tenant": "t-q37",
+          "actor": "m-own",
+          "args": {
+            "request_id": "z1",
+            "member_id": "anon-0001",
+            "slot_id": "m-yan"
+          }
+        },
+        {
+          "id": "P18-36",
+          "period": "P18",
+          "at": "2031-08-11T09:42:00Z",
+          "op": "get_slot",
+          "tenant": "t-q37",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "m-yan"
+          }
+        },
+        {
+          "id": "P18-37",
+          "period": "P18",
+          "at": "2031-08-11T09:43:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q34a",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-38",
+          "period": "P18",
+          "at": "2031-08-11T09:44:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q34b",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-39",
+          "period": "P18",
+          "at": "2031-08-11T09:45:00Z",
+          "op": "add_member",
+          "tenant": "t-q34a",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-pa",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-40",
+          "period": "P18",
+          "at": "2031-08-11T09:46:00Z",
+          "op": "add_member",
+          "tenant": "t-q34b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-pb",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-41",
+          "period": "P18",
+          "at": "2031-08-11T09:47:00Z",
+          "op": "erase_member",
+          "tenant": "t-q34a",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-pa"
+          }
+        },
+        {
+          "id": "P18-42",
+          "period": "P18",
+          "at": "2031-08-11T09:48:00Z",
+          "op": "erase_member",
+          "tenant": "t-q34b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-pb"
+          }
+        },
+        {
+          "id": "P18-43",
+          "period": "P18",
+          "at": "2031-08-11T09:49:00Z",
+          "op": "merge_tenants",
+          "tenant": "t-q34a",
+          "actor": "m-own",
+          "args": {
+            "source_tenant_id": "t-q34b"
+          }
+        },
+        {
+          "id": "P18-44",
+          "period": "P18",
+          "at": "2031-08-11T09:50:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q34a",
+          "actor": "m-own",
+          "args": {
+            "member_id": "t-q34b:anon-0001"
+          }
         }
       ],
       "faits": [
@@ -1940,6 +2429,131 @@
           },
           "justification": "L'effacement d'un autre membre ne touche ni les identifiants ni les montants des documents de m-cleo.",
           "recalcul": "avoirs de m-cleo P14-P16 : AV-0001 (v1, avril) et AV-0004 (y1, juin), 1500 chacun, inchanges."
+        },
+        {
+          "id": "P18.F17",
+          "etape": "P18-33",
+          "clauses": [
+            "P15.R6",
+            "P17.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "z1",
+            "member_id": "m-yan",
+            "slot_id": "m-yan",
+            "status": "confirmed",
+            "seats": 1
+          },
+          "justification": "Creneau dont le slot_id vaut par hasard le member_id 'm-yan' ; reservation gratuite confirmed.",
+          "recalcul": "creneau neuf d'une place -> confirmed."
+        },
+        {
+          "id": "P18.F18",
+          "etape": "P18-34",
+          "clauses": [
+            "P18.R1",
+            "P18.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 1
+          },
+          "justification": "A at = starts_at 09:40, le creneau n'est plus a venir (starts_at > at est faux) : effacement permis ; premier pseudonyme de t-q37.",
+          "recalcul": "09:40 > 09:40 faux -> aucune reservation a venir ; sequence t-q37 : anon-0001 ; z1 -> 1 reservation."
+        },
+        {
+          "id": "P18.F19",
+          "etape": "P18-35",
+          "clauses": [
+            "P1.R4",
+            "P18.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "z1",
+            "member_id": "anon-0001",
+            "slot_id": "m-yan",
+            "status": "confirmed"
+          },
+          "justification": "Q37 : la reponse memorisee de z1 est rejouee (P1.R4, avant P21) ; seule la cle member_id est anonymisee : slot_id 'm-yan', egal par hasard au member_id, NE change PAS (l'ancien choix le remplacait par 'anon-0001').",
+          "recalcul": "member_id 'm-yan' -> 'anon-0001' ; slot_id n'est pas une cle de membre -> inchange."
+        },
+        {
+          "id": "P18.F20",
+          "etape": "P18-36",
+          "clauses": [
+            "P1.R7",
+            "P18.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "m-yan",
+            "booked": 1
+          },
+          "justification": "Q37 : le creneau garde son identifiant ; z1 y reste confirmed.",
+          "recalcul": "slot_id inchange ; 1 place confirmee."
+        },
+        {
+          "id": "P18.F21",
+          "etape": "P18-42",
+          "clauses": [
+            "P18.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 0
+          },
+          "justification": "La sequence de pseudonymes est PAR LOCATAIRE : t-q34b donne aussi anon-0001 (t-q34a l'a donne a m-pa en P18-41).",
+          "recalcul": "pseudoSeq(t-q34b) = 0 -> anon-0001."
+        },
+        {
+          "id": "P18.F22",
+          "etape": "P18-43",
+          "clauses": [
+            "P17.R1",
+            "P17.R2",
+            "P17.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "tenant_id": "t-q34a",
+            "source_tenant_id": "t-q34b",
+            "renamed": [
+              {
+                "kind": "pseudonym",
+                "from": "anon-0001",
+                "to": "t-q34b:anon-0001"
+              }
+            ],
+            "merged_members": [
+              "m-own"
+            ],
+            "added_members": []
+          },
+          "justification": "Q34 : le pseudonyme anon-0001 de la source existe deja dans la cible : renomme 't-q34b:anon-0001', kind 'pseudonym' (apres 'import') ; les soldes de deux personnes effacees ne sont pas additionnes. Un pseudonyme n'est pas un membre : merged_members ne compte que m-own.",
+          "recalcul": "anon-0001 present dans t-q34a -> collision -> prefixe 't-q34b:'."
+        },
+        {
+          "id": "P18.F23",
+          "etape": "P18-44",
+          "clauses": [
+            "P18.R3",
+            "P17.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "t-q34b:anon-0001",
+            "balance_cents": 0
+          },
+          "justification": "Q34 : le pseudonyme renomme reste lisible dans la cible par get_wallet (P18.R3) ; l'ancien choix ne le connaissait pas (NOT_FOUND).",
+          "recalcul": "t-q34b:anon-0001 est un pseudonyme de t-q34a ; aucun credit -> 0."
         }
       ],
       "effacement": {
@@ -2023,7 +2637,19 @@
             },
             "fill_bp": "floor(booked * 10000 / capacity)",
             "fenetre": "[from, to["
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q39",
+              "classe": "GARDER",
+              "texte": "report_occupancy filtre starts_at sur des instants UTC, from inclus et to exclu (et non sur des mois locaux)."
+            },
+            {
+              "question": "Q40",
+              "classe": "GARDER",
+              "texte": "booked du rapport compte les réservations confirmed, absences comprises, sans les débarquées ; les créneaux clos et passés sont inclus."
+            }
+          ]
         },
         {
           "id": "P19.R2",
@@ -2049,7 +2675,14 @@
               "month croissant",
               "member_id croissant ordinal"
             ]
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q41",
+              "classe": "GARDER",
+              "texte": "credit_notes_cents d'une ligne de report_revenue somme les avoirs qui citent cette facture, émis jusqu'à l'instant du rapport, quel que soit leur mois d'émission."
+            }
+          ]
         }
       ],
       "ligne_adr": 79,
@@ -2755,14 +3388,28 @@
           "valeurs": {
             "lignes_max": 50000,
             "lignes_min": 1
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q42",
+              "classe": "GARDER",
+              "texte": "import_bookings est une réservation en LOT, pas une reprise d'historique : chaque ligne est payée (crédits puis carte) et facturée exactement comme un reserve."
+            }
+          ]
         },
         {
           "id": "P20.R2",
           "texte": "Reponse de import_bookings {ok: true, import_id, total, accepted, confirmed, waiting, duplicates, rejected}. total = nombre de lignes ; duplicates = nombre de lignes dont le request_id etait deja memorise avant elles (par une requete anterieure ou par une ligne precedente du meme import) : elles n'ont aucun effet ; rejected = [{index, request_id, error}] des autres lignes dont la reponse est un refus, dans l'ordre des lignes, index = rang 1-base de la ligne ; accepted = nombre de reservations creees = confirmed + waiting. Identite : total = accepted + duplicates + nombre de rejected.",
           "valeurs": {
             "index": "1-base"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q44",
+              "classe": "GARDER",
+              "texte": "duplicates compte toute ligne dont le request_id était déjà mémorisé, que la réponse mémorisée soit un succès ou un refus ; une telle ligne n'apparaît pas dans rejected."
+            }
+          ]
         },
         {
           "id": "P20.R3",
@@ -2782,7 +3429,14 @@
             },
             "import_50000_lignes_ms": 30000,
             "volume_reservations": 50000
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q43",
+              "classe": "GARDER",
+              "texte": "Plafonds au 95e centile après import de 50 000 réservations : reserve et cancel 50 ms ; get_booking, get_slot et get_wallet 20 ms ; list_documents 100 ms ; report_occupancy et report_revenue 200 ms ; toute autre opération 100 ms ; un import de 50 000 lignes 30 000 ms."
+            }
+          ]
         },
         {
           "id": "P20.R4",
@@ -3357,12 +4011,26 @@
               "slot_id",
               "seats (defaut 1)"
             ]
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q45",
+              "classe": "GARDER",
+              "texte": "Les arguments comparés sont { member_id, slot_id, seats (1 si absent) } ; l'actor et l'instant ne comptent pas."
+            }
+          ]
         },
         {
           "id": "P21.R2",
           "texte": "Idempotence de l'import sous rejeux (remplace P20.R4) : un import_id deja vu renvoie la reponse memorisee, a l'identique et sans effet, si rows est egal EN PROFONDEUR a celui du premier import (memes lignes, meme ordre, memes champs) ; sinon {ok: false, error: 'IDEMPOTENCY_CONFLICT'}, sans effet et non memorise.",
-          "remplace": "P20.R4"
+          "remplace": "P20.R4",
+          "precisions": [
+            {
+              "question": "Q46",
+              "classe": "GARDER",
+              "texte": "Pour import_bookings, rows est comparé par égalité profonde des valeurs JSON (ordre des clés indifférent), sans normalisation : une ligne sans seats diffère d'une ligne seats: 1."
+            }
+          ]
         },
         {
           "id": "P21.R3",
@@ -3377,7 +4045,14 @@
               "une reservation par request_id",
               "solde >= 0"
             ]
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q47",
+              "classe": "GARDER",
+              "texte": "La spec du candidat ne porte que les invariants de P21.R3 ; « 100 essais, 20 clients, quatre scenarios » est un parametre de T75, a confirmer la-bas."
+            }
+          ]
         },
         {
           "id": "P21.R4",
@@ -3762,6 +4437,30 @@
             "member_id": "m-cleo",
             "slot_id": "S51"
           }
+        },
+        {
+          "id": "P21-25",
+          "period": "P21",
+          "at": "2031-09-01T09:22:00Z",
+          "op": "add_member",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-feb",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P21-26",
+          "period": "P21",
+          "at": "2032-02-29T10:00:00Z",
+          "op": "top_up",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-feb",
+            "amount_cents": 1000
+          }
         }
       ],
       "faits": [
@@ -4039,6 +4738,22 @@
           },
           "justification": "Encore en P21 : remise gold sur S51 a 2000 -> 1500 ; m-cleo sans credits.",
           "recalcul": "2000 - floor((2000 x 2500 + 5000) / 10000) = 2000 - 500 = 1500."
+        },
+        {
+          "id": "P21.F19",
+          "etape": "P21-26",
+          "clauses": [
+            "P15.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-feb",
+            "balance_cents": 1000,
+            "credited_cents": 1000,
+            "currency": "EUR"
+          },
+          "justification": "Rechargement le 29 fevrier 2032 (annee bissextile) ; avant P22, la reponse ne porte pas expires_at.",
+          "recalcul": "0 + 1000 = 1000."
         }
       ],
       "concurrence": {
@@ -4091,16 +4806,40 @@
           "remplace": "P15.R6",
           "valeurs": {
             "taux_de_remise_bp": 0
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q52",
+              "classe": "GARDER",
+              "texte": "set_tier reste accepté après P22 ; le niveau est enregistré mais n'a plus d'effet sur le prix."
+            }
+          ]
         },
         {
           "id": "P22.R2",
-          "texte": "Lots de credits et expiration. Chaque entree de credits au portefeuille (top_up, compensation P13.R3, re-credit r_c d'un remboursement ou d'un trop-percu, y compris par avoir) forme un LOT {acquired_at = at de l'operation, expires_at = le meme instant UTC 12 mois civils plus tard (un 29 fevrier donne le 1er mars), remaining_cents}. Chaque debit de credits (paiement P8.R2, frais P23.R3) consomme les lots par expires_at croissant (le plus ancien d'abord), puis par ordre d'entree. Retroactivite : les lots sont reconstitues sur TOUT l'historique du portefeuille depuis P8, par la meme regle (y compris les anciens credits). Un lot expire a l'instant expires_at : pour une operation d'instant at >= expires_at son reste est perdu (a at = expires_at le lot est expire ; a expires_at - 1 s il ne l'est pas). L'expiration est un mouvement de portefeuille date de expires_at, de montant = reste du lot ; a instant egal elle precede l'operation. balance_cents = somme des restes des lots non expires.",
+          "texte": "Lots de credits et expiration. Chaque entree de credits au portefeuille (top_up, compensation P13.R3, re-credit r_c d'un remboursement ou d'un trop-percu, y compris par avoir) forme un LOT {acquired_at = at de l'operation, expires_at = le meme instant UTC 12 mois civils plus tard (12 mois civils apres un 29 fevrier donnent le 28 fevrier de l'annee suivante, a la meme heure UTC), remaining_cents}. Chaque debit de credits (paiement P8.R2, frais P23.R3) consomme les lots par expires_at croissant (le plus ancien d'abord), puis par ordre d'entree. Retroactivite : les lots sont reconstitues sur TOUT l'historique du portefeuille depuis P8, par la meme regle (y compris les anciens credits). Un lot expire a l'instant expires_at : pour une operation d'instant at >= expires_at son reste est perdu (a at = expires_at le lot est expire ; a expires_at - 1 s il ne l'est pas). L'expiration est un mouvement de portefeuille date de expires_at, de montant = reste du lot ; a instant egal elle precede l'operation. balance_cents = somme des restes des lots non expires.",
           "valeurs": {
-            "duree": "12 mois civils, meme instant UTC",
+            "duree": "12 mois civils, meme instant UTC ; 29 fevrier + 12 mois = 28 fevrier",
             "bornes": "expire si at >= expires_at",
             "consommation": "expires_at croissant puis ordre d entree"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q48",
+              "classe": "GARDER",
+              "texte": "Tout re-crédit (remboursement, trop-perçu, avoir) forme un nouveau lot de 12 mois à compter de son instant ; il ne reprend pas l'échéance des crédits d'origine."
+            },
+            {
+              "question": "Q49",
+              "classe": "GARDER",
+              "texte": "Les compensations de débarquement forment des lots et expirent comme des crédits achetés."
+            },
+            {
+              "question": "Q51",
+              "classe": "CHANGER",
+              "texte": "12 mois civils après le 29 février donnent le 28 février de l'année suivante, à la même heure UTC."
+            }
+          ]
         },
         {
           "id": "P22.R3",
@@ -4109,7 +4848,14 @@
         {
           "id": "P22.R4",
           "texte": "Factures (remplace P14.R3). Contenu de P14.R3, plus : les lignes {type: 'expiry', booking_id: null, amount_cents} des expirations du membre dont expires_at tombe dans le mois (mois local, P14.R1), rangees a leur instant parmi les lignes ; le champ expired_cents = somme de ces lignes. Une expiration n'est ni une charge ni un remboursement : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte. Identite : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents. Les factures emises avant P22 ne portent pas expired_cents et ne changent pas.",
-          "remplace": "P14.R3"
+          "remplace": "P14.R3",
+          "precisions": [
+            {
+              "question": "Q50",
+              "classe": "GARDER",
+              "texte": "Une expiration est un mouvement : elle produit une ligne expiry et, si c'est le seul mouvement du mois, une facture de total 0."
+            }
+          ]
         }
       ],
       "ligne_adr": 82,
@@ -4358,6 +5104,17 @@
           "actor": "m-sam",
           "args": {
             "member_id": "m-cleo"
+          }
+        },
+        {
+          "id": "P22-22",
+          "period": "P22",
+          "at": "2032-08-12T09:09:00Z",
+          "op": "get_wallet",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-feb"
           }
         }
       ],
@@ -4790,6 +5547,28 @@
           },
           "justification": "Changement retroactif au 2031-09-01 : d51-1 (confirmee en P21, gold) est recalculee AVEC sa remise d'origine : 1600 - 400 = 1200, trop-percu 300 ; f4 (confirmee en P22) SANS remise : 1600, trop-percu 400. Charges de sept. 2031 et aout 2032 non facturees : lignes adjustment, pas d'avoir.",
           "recalcul": "d51-1 : floor((1600 x 2500 + 5000) / 10000) = 400 ; 1500 - 1200 = 300 ; f4 : 2000 - 1600 = 400 ; C = 0 -> tout a la carte."
+        },
+        {
+          "id": "P22.F18",
+          "etape": "P22-22",
+          "clauses": [
+            "P22.R2",
+            "P22.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-feb",
+            "balance_cents": 1000,
+            "lots": [
+              {
+                "acquired_at": "2032-02-29T10:00:00Z",
+                "expires_at": "2033-02-28T10:00:00Z",
+                "remaining_cents": 1000
+              }
+            ]
+          },
+          "justification": "Q51 : 12 mois civils apres le 29 fevrier 2032 donnent le 28 fevrier 2033 (fevrier 2033 n'a pas de 29), a la meme heure UTC (l'ancien choix donnait le 1er mars). Lot non echu au 2032-08-12.",
+          "recalcul": "2033 non bissextile -> dernier jour de fevrier = 28 ; 10:00:00Z conserve."
         }
       ]
     },
@@ -4804,25 +5583,54 @@
       "regles": [
         {
           "id": "P23.R1",
-          "texte": "transfer_booking {booking_id, to_member_id} (admin, staff pour toute reservation ; member seulement pour une reservation dont il est le TITULAIRE, member_id). Controles apres ceux d'acteur, dans cet ordre : booking_id inconnu -> NOT_FOUND ; actor member non titulaire -> FORBIDDEN ; to_member_id non membre -> NOT_FOUND ; statut different de confirmed, ou to_member_id = titulaire actuel -> INVALID_ARGUMENT ; at >= starts_at du creneau -> SLOT_CLOSED ; at < suspended_until du destinataire (P10.R3) -> SUSPENDED ; le destinataire a une AUTRE reservation active (confirmed ou waiting) sur le meme creneau -> ALREADY_BOOKED. Effet : le titulaire devient to_member_id ; la reservation garde booking_id, seats, seat_numbers, montants, payeur et rang de confirmation ; le cedant paie les frais P23.R3. Reponse {ok: true, booking_id, member_id (nouveau titulaire), fee_cents, fee: {credits_cents, card_cents}}."
+          "texte": "transfer_booking {booking_id, to_member_id} (admin, staff pour toute reservation ; member seulement pour une reservation dont il est le TITULAIRE, member_id). Controles apres ceux d'acteur, dans cet ordre : booking_id inconnu -> NOT_FOUND ; actor member non titulaire -> FORBIDDEN ; to_member_id non membre -> NOT_FOUND ; statut different de confirmed, ou to_member_id = titulaire actuel -> INVALID_ARGUMENT ; at >= starts_at du creneau -> SLOT_CLOSED ; at < suspended_until du destinataire (P10.R3) -> SUSPENDED ; le destinataire a une AUTRE reservation active (confirmed ou waiting) sur le meme creneau -> ALREADY_BOOKED. Effet : le titulaire devient to_member_id ; la reservation garde booking_id, seats, seat_numbers, montants, payeur et rang de confirmation ; le cedant paie les frais P23.R3. Reponse {ok: true, booking_id, member_id (nouveau titulaire), fee_cents, fee: {credits_cents, card_cents}}.",
+          "precisions": [
+            {
+              "question": "Q55",
+              "classe": "GARDER",
+              "texte": "Seul le destinataire d'un transfert est contrôlé (SUSPENDED) ; un membre suspendu peut céder sa réservation. Une absence reste attachée au membre qui était titulaire quand elle a été enregistrée."
+            }
+          ]
         },
         {
           "id": "P23.R2",
-          "texte": "exchange_bookings {booking_id, with_booking_id} (admin, staff ; member -> FORBIDDEN) : les deux titulaires echangent leurs reservations ; sur un meme creneau numerote, cela echange leurs places. Controles apres ceux d'acteur, dans cet ordre : l'une des deux inconnue -> NOT_FOUND ; booking_id = with_booking_id, l'une non confirmed, ou meme titulaire -> INVALID_ARGUMENT ; l'un des deux creneaux commence (at >= starts_at) -> SLOT_CLOSED ; l'un des deux titulaires suspendu (at < suspended_until) -> SUSPENDED ; creneaux differents et l'un des titulaires a deja une autre reservation active sur le creneau qu'il recoit -> ALREADY_BOOKED. Effet : chacun devient titulaire de la reservation de l'autre ; chaque cedant paie les frais P23.R3 de la reservation qu'il cede (frais de booking_id d'abord). Reponse {ok: true, exchanged: [{booking_id, member_id (nouveau titulaire), fee_cents}, {booking_id: with_booking_id, member_id, fee_cents}]}."
+          "texte": "exchange_bookings {booking_id, with_booking_id} (admin, staff ; member -> FORBIDDEN) : les deux titulaires echangent leurs reservations ; sur un meme creneau numerote, cela echange leurs places. Controles apres ceux d'acteur, dans cet ordre : l'une des deux inconnue -> NOT_FOUND ; booking_id = with_booking_id, l'une non confirmed, ou meme titulaire -> INVALID_ARGUMENT ; l'un des deux creneaux commence (at >= starts_at) -> SLOT_CLOSED ; l'un des deux titulaires suspendu (at < suspended_until) -> SUSPENDED ; creneaux differents et l'un des titulaires a deja une autre reservation active sur le creneau qu'il recoit -> ALREADY_BOOKED. Effet : chacun devient titulaire de la reservation de l'autre ; chaque cedant paie les frais P23.R3 de la reservation qu'il cede (frais de booking_id d'abord). Reponse {ok: true, exchanged: [{booking_id, member_id (nouveau titulaire), fee_cents}, {booking_id: with_booking_id, member_id, fee_cents}]}.",
+          "precisions": [
+            {
+              "question": "Q56",
+              "classe": "GARDER",
+              "texte": "exchange_bookings est une opération de back-office (admin, staff) qui ne demande pas le consentement des titulaires ; un member -> FORBIDDEN."
+            }
+          ]
         },
         {
           "id": "P23.R3",
-          "texte": "Frais de transfert : fee_cents = max(100, floor((A x 1000 + 5000) / 10000)), A = amount_cents actuel de la reservation cedee (10 % arrondi demi vers le haut au centime, minimum 100 centimes, meme pour une reservation gratuite ou peu chere). Payes par le cedant au moment du transfert : credits d'abord (lots P22.R2, le plus ancien d'abord), puis carte. C'est un mouvement de type 'fee' (booking_id, montant, part credits, part carte) date de l'operation. Les frais ne sont jamais rembourses. A partir de P23, les vues de reservation (reserve, get_booking) portent payer_member_id (le membre debite a la confirmation ; null si jamais confirmee) et transfers = [{from_member_id, to_member_id, at, fee_cents}] dans l'ordre des transferts ([] si aucun).",
+          "texte": "Frais de transfert : fee_cents = 0 si A = 0 ; sinon fee_cents = max(100, floor((A x 1000 + 5000) / 10000)), A = amount_cents actuel de la reservation cedee (10 % arrondi demi vers le haut au centime, minimum 100 centimes pour une reservation payante, meme peu chere ; une reservation gratuite se cede sans frais). Payes par le cedant au moment du transfert : credits d'abord (lots P22.R2, le plus ancien d'abord), puis carte. C'est un mouvement de type 'fee' (booking_id, montant, part credits, part carte) date de l'operation. Les frais ne sont jamais rembourses. A partir de P23, les vues de reservation (reserve, get_booking) portent payer_member_id (le membre debite a la confirmation ; null si jamais confirmee) et transfers = [{from_member_id, to_member_id, at, fee_cents}] dans l'ordre des transferts ([] si aucun).",
           "valeurs": {
             "taux_bp": 1000,
             "minimum_cents": 100,
             "arrondi": "demi vers le haut, au centime",
-            "formule": "max(100, floor((A*1000 + 5000) / 10000))"
-          }
+            "formule": "0 si A = 0 ; sinon max(100, floor((A*1000 + 5000) / 10000))",
+            "reservation_gratuite": 0
+          },
+          "precisions": [
+            {
+              "question": "Q54",
+              "classe": "CHANGER",
+              "texte": "fee_cents = 0 si A = 0 ; sinon fee_cents = max(100, floor((A × 1000 + 5000) / 10000))."
+            }
+          ]
         },
         {
           "id": "P23.R4",
-          "texte": "Payeur et remboursements. Le titulaire actuel peut annuler sa reservation (member pour sa reservation, P4.R3). Tout remboursement ulterieur d'une reservation transferee (annulation totale ou partielle, debarquement, trop-percu P16.R2) va au PAYEUR (payer_member_id), pas au titulaire : r_c re-credite a son portefeuille, r_d rendu a sa carte, ligne refund ou avoir sur SES documents (l'avoir cite la facture de la charge, celle du payeur). La compensation de debarquement (P13.R3) va au titulaire."
+          "texte": "Payeur et remboursements. Le titulaire actuel peut annuler sa reservation (member pour sa reservation, P4.R3). Tout remboursement ulterieur d'une reservation transferee (annulation totale ou partielle, debarquement, trop-percu P16.R2) va au PAYEUR (payer_member_id), pas au titulaire : r_c re-credite a son portefeuille, r_d rendu a sa carte, ligne refund ou avoir sur SES documents (l'avoir cite la facture de la charge, celle du payeur). La compensation de debarquement (P13.R3) va au titulaire.",
+          "precisions": [
+            {
+              "question": "Q53",
+              "classe": "GARDER",
+              "texte": "Les remboursements d'une réservation transférée vont au payeur (payer_member_id) ; la compensation de débarquement va au titulaire actuel."
+            }
+          ]
         },
         {
           "id": "P23.R5",
@@ -5151,6 +5959,92 @@
           "actor": "m-sam",
           "args": {
             "member_id": "m-fay"
+          }
+        },
+        {
+          "id": "P23-28",
+          "period": "P23",
+          "at": "2032-08-31T22:03:00Z",
+          "op": "create_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "F23",
+            "capacity": 2,
+            "starts_at": "2032-09-30T10:00:00Z"
+          }
+        },
+        {
+          "id": "P23-29",
+          "period": "P23",
+          "at": "2032-08-31T22:04:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "f23a",
+            "member_id": "m-kim",
+            "slot_id": "F23"
+          }
+        },
+        {
+          "id": "P23-30",
+          "period": "P23",
+          "at": "2032-08-31T22:05:00Z",
+          "op": "transfer_booking",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "f23a",
+            "to_member_id": "m-lou"
+          }
+        },
+        {
+          "id": "P23-31",
+          "period": "P23",
+          "at": "2032-08-31T22:06:00Z",
+          "op": "get_booking",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "f23a"
+          }
+        },
+        {
+          "id": "P23-32",
+          "period": "P23",
+          "at": "2032-08-31T22:07:00Z",
+          "op": "create_reservation",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "x60",
+            "member_id": "m-max",
+            "session_id": "F23"
+          }
+        },
+        {
+          "id": "P23-33",
+          "period": "P23",
+          "at": "2032-08-31T22:08:00Z",
+          "op": "frobnicate",
+          "tenant": "t-nulle-part",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "F23"
+          }
+        },
+        {
+          "id": "P23-34",
+          "period": "P23",
+          "at": "2032-08-31T22:09:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "x60",
+            "member_id": "m-max",
+            "slot_id": "F23"
           }
         }
       ],
@@ -5622,6 +6516,108 @@
           },
           "justification": "Facture d'aout 2032 de m-dan : les frais d'echange de h2 sont une charge ; le remboursement de h2, annule par la titulaire m-fay, est une ligne de SON payeur m-dan.",
           "recalcul": "charges 600 + 2000 + 4000 + 400 = 7000 ; remboursements 400 + 2000 = 2400 ; 7000 - 2400 = 4600, tout carte."
+        },
+        {
+          "id": "P23.F22",
+          "etape": "P23-29",
+          "clauses": [
+            "P22.R1",
+            "P23.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "f23a",
+            "status": "confirmed",
+            "amount_cents": 0,
+            "payer_member_id": "m-kim"
+          },
+          "justification": "F23 n'a pas de prix : reservation gratuite, A = 0.",
+          "recalcul": "1 x 0 = 0."
+        },
+        {
+          "id": "P23.F23",
+          "etape": "P23-30",
+          "clauses": [
+            "P23.R1",
+            "P23.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "f23a",
+            "member_id": "m-lou",
+            "fee_cents": 0,
+            "fee": {
+              "credits_cents": 0,
+              "card_cents": 0
+            }
+          },
+          "justification": "Q54 : fee_cents = 0 si A = 0 (l'ancien minimum de 100 centimes faisait payer 1 EUR pour ceder une seance gratuite).",
+          "recalcul": "A = 0 -> 0 ; rien a debiter."
+        },
+        {
+          "id": "P23.F24",
+          "etape": "P23-31",
+          "clauses": [
+            "P23.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "f23a",
+            "member_id": "m-lou",
+            "payer_member_id": "m-kim",
+            "transfers": [
+              {
+                "from_member_id": "m-kim",
+                "to_member_id": "m-lou",
+                "at": "2032-08-31T22:05:00Z",
+                "fee_cents": 0
+              }
+            ]
+          },
+          "justification": "Le transfert est trace avec des frais nuls.",
+          "recalcul": "un transfert, fee_cents 0."
+        },
+        {
+          "id": "P23.F25",
+          "etape": "P23-32",
+          "clauses": [
+            "P1.R8"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Q60 (P1.R8) : avant P24, 'create_reservation' (nom v2) n'appartient pas au contrat en vigueur -> INVALID_ARGUMENT, sans effet, non memorise.",
+          "recalcul": "operation hors contrat a P23 -> refus."
+        },
+        {
+          "id": "P23.F26",
+          "etape": "P23-33",
+          "clauses": [
+            "P1.R8"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Q60 : le controle d'operation passe AVANT celui du tenant : 't-nulle-part' n'existe pas, mais la reponse est INVALID_ARGUMENT, pas NOT_FOUND.",
+          "recalcul": "operation inconnue d'abord -> INVALID_ARGUMENT."
+        },
+        {
+          "id": "P23.F27",
+          "etape": "P23-34",
+          "clauses": [
+            "P21.R1",
+            "P1.R8"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "x60",
+            "member_id": "m-max",
+            "status": "confirmed"
+          },
+          "justification": "Q60 : le refus de P23-32 n'a rien memorise : la cle x60 est libre et reserve la cree.",
+          "recalcul": "x60 absent de la memoire d'idempotence -> reservation creee."
         }
       ]
     },
@@ -5642,14 +6638,21 @@
       "regles": [
         {
           "id": "P24.R1",
-          "texte": "Version du contrat. A partir de P24, l'enveloppe porte un champ version (au niveau de l'operation, hors args) : 'v1' ou 'v2' ; absent, il vaut 'v1'. Avant P24 ce champ est ignore. Toute autre valeur -> {ok: false, error: 'INVALID_ARGUMENT'} (forme v1), sans effet et avant tout autre controle (meme celui du tenant).",
+          "texte": "Version du contrat. A partir de P24, l'enveloppe porte un champ version (au niveau de l'operation, hors args) : 'v1' ou 'v2' ; absent, il vaut 'v1'. Avant P24 ce champ est ignore. Toute autre valeur -> {ok: false, error: 'INVALID_ARGUMENT'} (forme v1), sans effet et avant tout autre controle (meme celui du tenant). Juste apres ce controle, une operation dont le nom n'appartient ni au contrat v1 ni au contrat v2 de P24 -> INVALID_ARGUMENT dans la forme de la version (P1.R8).",
           "valeurs": {
             "versions": [
               "v1",
               "v2"
             ],
             "defaut": "v1"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q60",
+              "classe": "FIXER",
+              "texte": "Une opération dont le nom n'appartient pas au contrat en vigueur à la période -> { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, non mémorisée. Ce contrôle passe avant tous les autres (avant le tenant ; à partir de P24, juste après celui de la version)."
+            }
+          ]
         },
         {
           "id": "P24.R2",
@@ -5673,7 +6676,19 @@
               "with_booking_id": "with_reservation_id"
             },
             "erreur_v2": "{ code: CODE }"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q57",
+              "classe": "GARDER",
+              "texte": "La correspondance v1 <-> v2 ne renomme que les clés listées ; toutes les autres (seat_numbers, free_seats, overbook_limit, …) gardent leur nom en v2."
+            },
+            {
+              "question": "Q58",
+              "classe": "GARDER",
+              "texte": "En v2, seule l'erreur de premier niveau prend la forme { code } ; les error des lignes rejected restent des chaînes."
+            }
+          ]
         },
         {
           "id": "P24.R3",
@@ -5681,7 +6696,14 @@
         },
         {
           "id": "P24.R4",
-          "texte": "Noms de l'autre version. En v2, un nom d'operation v1 renomme (ex. reserve) ou une cle v1 renommee presente a n'importe quelle profondeur des arguments (ex. booking_id) -> {ok: false, error: {code: 'INVALID_ARGUMENT'}} ; en v1, un nom d'operation v2 ou une cle v2 -> {ok: false, error: 'INVALID_ARGUMENT'}. Sans effet, non memorise, controle juste apres celui de la version."
+          "texte": "Noms de l'autre version. En v2, un nom d'operation v1 renomme (ex. reserve) ou une cle v1 renommee presente a n'importe quelle profondeur des arguments (ex. booking_id) -> {ok: false, error: {code: 'INVALID_ARGUMENT'}} ; en v1, un nom d'operation v2 ou une cle v2 -> {ok: false, error: 'INVALID_ARGUMENT'}. Sans effet, non memorise, controle juste apres celui de la version.",
+          "precisions": [
+            {
+              "question": "Q59",
+              "classe": "GARDER",
+              "texte": "Une clé de l'autre version, à n'importe quelle profondeur des arguments, est refusée INVALID_ARGUMENT ; une clé inconnue des deux versions est ignorée."
+            }
+          ]
         }
       ],
       "ligne_adr": 84,
@@ -6597,202 +7619,426 @@
   },
   "questions_ouvertes": [
     {
-      "id": "Q29",
-      "periode": "P17",
-      "question": "La fusion est refusee (INVALID_ARGUMENT) des que la source ou la cible a emis une facture : aucune regle ne dit comment fusionner deux historiques factures (collision des invoice_id 'INV-<mois>-<membre>', avoirs AV-nnnn de deux sequences, mois deja emis d'un cote seulement). Faut-il le permettre, et selon quelle regle ?",
-      "exerce": true
-    },
-    {
-      "id": "Q30",
-      "periode": "P17",
-      "question": "Un member_id present dans les deux locataires est traite comme la MEME personne (pas de renommage ; role max, niveau de plus forte remise, soldes additionnes). On aurait pu renommer les membres comme les autres identifiants. Voulu ?",
-      "exerce": true
-    },
-    {
-      "id": "Q31",
-      "periode": "P17",
-      "question": "Seuls booking_id et slot_id de PREMIER niveau d'une reponse memorisee de la source sont reecrits ; une valeur imbriquee (ex. promoted, waiting, ou rejected[].request_id d'un import memorise) garde l'ancien identifiant. Aucun fait ne l'exerce.",
-      "exerce": false
-    },
-    {
-      "id": "Q32",
-      "periode": "P17",
-      "question": "Une serie renommee ('<source>:<series_id>') garde ses occurrences '<series_id>@<date>' sous leurs propres slot_id (renommes seulement s'ils entrent eux-memes en collision) : le lien nom de serie / nom d'occurrence est alors rompu. Non exerce.",
-      "exerce": false
-    },
-    {
-      "id": "Q33",
-      "periode": "P17",
-      "question": "Absences (P10) apres fusion : absences_30d compte-t-il les absences enregistrees dans la source ? Le modele jetable compte toutes les reservations du membre dans la cible. Non exerce.",
-      "exerce": false
-    },
-    {
-      "id": "Q34",
-      "periode": "P17",
-      "question": "Pseudonymes P18 presents dans la source : 'anon-nnnn' de la source peut coincider avec un pseudonyme de la cible ; ni l'un ni l'autre n'etant membre, rien ne les renomme. Non exerce.",
-      "exerce": false
-    },
-    {
-      "id": "Q35",
-      "periode": "P18",
-      "question": "L'effacement est refuse tant que le membre a une reservation active a venir ; alternative : l'annuler d'office avec remboursement integral. Voulu ?",
-      "exerce": true
-    },
-    {
-      "id": "Q36",
-      "periode": "P18",
-      "question": "Apres effacement, les arguments memorises sont anonymises : a partir de P21, rejouer une cle de l'ancien membre avec son ancien member_id rendrait IDEMPOTENCY_CONFLICT (en P18 la reponse memorisee anonymisee est rendue, P18.F11). Non exerce en P21.",
-      "exerce": false
-    },
-    {
-      "id": "Q37",
-      "periode": "P18",
-      "question": "L'anonymisation remplace toute valeur chaine EGALE au member_id, a toute profondeur des reponses memorisees : un slot_id ou request_id qui vaudrait par hasard le member_id serait aussi remplace. Faut-il restreindre aux champs nommes member_id, payer_member_id, from_member_id, to_member_id ?",
-      "exerce": false
-    },
-    {
       "id": "Q38",
       "periode": "P18",
       "question": "Le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde le portefeuille : un solde non nul d'un membre efface n'est ni rembourse ni annule. Voulu ?",
       "exerce": true
+    }
+  ],
+  "questions_resolues": [
+    {
+      "id": "Q29",
+      "periode": "P17",
+      "sujet": "fusion refusée dès qu'une facture est émise",
+      "question": "La fusion est refusee (INVALID_ARGUMENT) des que la source ou la cible a emis une facture : aucune regle ne dit comment fusionner deux historiques factures (collision des invoice_id 'INV-<mois>-<membre>', avoirs AV-nnnn de deux sequences, mois deja emis d'un cote seulement). Faut-il le permettre, et selon quelle regle ?",
+      "classe": "GARDER",
+      "decision": "merge_tenants -> INVALID_ARGUMENT dès que la source ou la cible a émis au moins une facture (P14.R2).",
+      "regles": [
+        "P17.R1"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q30",
+      "periode": "P17",
+      "sujet": "même member_id = même personne",
+      "question": "Un member_id present dans les deux locataires est traite comme la MEME personne (pas de renommage ; role max, niveau de plus forte remise, soldes additionnes). On aurait pu renommer les membres comme les autres identifiants. Voulu ?",
+      "classe": "GARDER",
+      "decision": "Par exception à l'isolation P3.R3, qui reste vraie entre locataires distincts, merge_tenants considère qu'un member_id présent dans les deux locataires désigne la MÊME personne : pas de renommage, rôle le plus élevé, niveau de plus forte remise, soldes et historiques de portefeuille réunis, suspension la plus tardive.",
+      "regles": [
+        "P17.R3"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q31",
+      "periode": "P17",
+      "sujet": "réécriture des réponses mémorisées",
+      "question": "Seuls booking_id et slot_id de PREMIER niveau d'une reponse memorisee de la source sont reecrits ; une valeur imbriquee (ex. promoted, waiting, ou rejected[].request_id d'un import memorise) garde l'ancien identifiant. Aucun fait ne l'exerce.",
+      "classe": "GARDER",
+      "decision": "Dans une réponse mémorisée de la source, seuls les champs booking_id et slot_id de premier niveau sont réécrits ; les identifiants imbriqués gardent leur valeur d'origine.",
+      "regles": [
+        "P17.R4"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q32",
+      "periode": "P17",
+      "sujet": "série renommée, occurrences non renommées",
+      "question": "Une serie renommee ('<source>:<series_id>') garde ses occurrences '<series_id>@<date>' sous leurs propres slot_id (renommes seulement s'ils entrent eux-memes en collision) : le lien nom de serie / nom d'occurrence est alors rompu. Non exerce.",
+      "classe": "CHANGER",
+      "decision": "Une série et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la série reçoivent le préfixe '<source_tenant_id>:'. Le lien '<series_id>@<date>' est ainsi conservé.",
+      "regles": [
+        "P17.R2"
+      ],
+      "faits": [
+        "P17.F22",
+        "P17.F23",
+        "P17.F24",
+        "P17.F25",
+        "P17.F26"
+      ]
+    },
+    {
+      "id": "Q33",
+      "periode": "P17",
+      "sujet": "absences de la source",
+      "question": "Absences (P10) apres fusion : absences_30d compte-t-il les absences enregistrees dans la source ? Le modele jetable compte toutes les reservations du membre dans la cible. Non exerce.",
+      "classe": "GARDER",
+      "decision": "Les absences enregistrées dans la source rejoignent celles de la cible et comptent dans absences_30d des enregistrements suivants.",
+      "regles": [
+        "P17.R3"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q34",
+      "periode": "P17/P18",
+      "sujet": "collision de pseudonymes à la fusion",
+      "question": "Pseudonymes P18 presents dans la source : 'anon-nnnn' de la source peut coincider avec un pseudonyme de la cible ; ni l'un ni l'autre n'etant membre, rien ne les renomme. Non exerce.",
+      "classe": "CHANGER",
+      "decision": "Un pseudonyme de la source déjà présent dans la cible (pseudonyme ou member_id) est renommé '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs). Ce renommage figure dans renamed, sous le kind 'pseudonym', placé après 'import'.",
+      "regles": [
+        "P17.R2",
+        "P17.R3"
+      ],
+      "faits": [
+        "P18.F21",
+        "P18.F22",
+        "P18.F23"
+      ]
+    },
+    {
+      "id": "Q35",
+      "periode": "P18",
+      "sujet": "effacement refusé s'il reste une réservation à venir",
+      "question": "L'effacement est refuse tant que le membre a une reservation active a venir ; alternative : l'annuler d'office avec remboursement integral. Voulu ?",
+      "classe": "GARDER",
+      "decision": "erase_member -> INVALID_ARGUMENT tant que le membre a une réservation confirmed ou waiting sur un créneau qui n'a pas commencé ; il faut d'abord l'annuler.",
+      "regles": [
+        "P18.R1"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q36",
+      "periode": "P18/P21",
+      "sujet": "arguments mémorisés anonymisés",
+      "question": "Apres effacement, les arguments memorises sont anonymises : a partir de P21, rejouer une cle de l'ancien membre avec son ancien member_id rendrait IDEMPOTENCY_CONFLICT (en P18 la reponse memorisee anonymisee est rendue, P18.F11). Non exerce en P21.",
+      "classe": "GARDER",
+      "decision": "Les arguments mémorisés sont anonymisés comme les réponses : à partir de P21, rejouer une clé de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT.",
+      "regles": [
+        "P18.R2"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q37",
+      "periode": "P18",
+      "sujet": "remplacement de toute chaîne égale au member_id",
+      "question": "L'anonymisation remplace toute valeur chaine EGALE au member_id, a toute profondeur des reponses memorisees : un slot_id ou request_id qui vaudrait par hasard le member_id serait aussi remplace. Faut-il restreindre aux champs nommes member_id, payer_member_id, from_member_id, to_member_id ?",
+      "classe": "CHANGER",
+      "decision": "L'anonymisation ne remplace que les valeurs des clés member_id, payer_member_id, from_member_id et to_member_id, à toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>'. Un slot_id, un request_id ou un autre identifiant égal par hasard au member_id ne change pas.",
+      "regles": [
+        "P18.R2"
+      ],
+      "faits": [
+        "P18.F17",
+        "P18.F18",
+        "P18.F19",
+        "P18.F20"
+      ]
     },
     {
       "id": "Q39",
       "periode": "P19",
+      "sujet": "report_occupancy en instants UTC",
       "question": "report_occupancy filtre sur starts_at en instants UTC alors que les factures et report_revenue raisonnent en mois LOCAUX : un rapport « de mai » d'un site a Paris doit-il utiliser [mai local[ ? Exerce en UTC seulement.",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "report_occupancy filtre starts_at sur des instants UTC, from inclus et to exclu (et non sur des mois locaux).",
+      "regles": [
+        "P19.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q40",
       "periode": "P19",
+      "sujet": "ce que compte booked dans le rapport",
       "question": "booked compte les reservations confirmed, absentes (no_show) comprises, et exclut les debarquees (bumped) ; les creneaux clos et passes sont inclus. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "booked du rapport compte les réservations confirmed, absences comprises, sans les débarquées ; les créneaux clos et passés sont inclus.",
+      "regles": [
+        "P19.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q41",
       "periode": "P19",
+      "sujet": "avoir rattaché à la facture citée",
       "question": "report_revenue attribue chaque avoir a la facture qu'il cite (invoice_id), meme s'il est emis un autre mois (AV-0003 emis en juillet corrige juin) ; une vue par mois d'emission donnerait d'autres nets. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "credit_notes_cents d'une ligne de report_revenue somme les avoirs qui citent cette facture, émis jusqu'à l'instant du rapport, quel que soit leur mois d'émission.",
+      "regles": [
+        "P19.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q42",
       "periode": "P20",
+      "sujet": "import payé et facturé",
       "question": "Une ligne d'import est un reserve complet : elle est PAYEE (credits puis carte) et facturee. Pour une reprise d'historique on aurait pu importer sans paiement (montant 0). Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "import_bookings est une réservation en LOT, pas une reprise d'historique : chaque ligne est payée (crédits puis carte) et facturée exactement comme un reserve.",
+      "regles": [
+        "P20.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q43",
       "periode": "P20",
+      "sujet": "plafonds de latence",
       "question": "Les plafonds de latence (reserve 50 ms, lectures 20 ms, rapports 200 ms, autres 100 ms, import de 50 000 lignes 30 s) sont des propositions : la machine de mesure, l'echauffement et le nombre d'appels par operation sont laisses a T75.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Plafonds au 95e centile après import de 50 000 réservations : reserve et cancel 50 ms ; get_booking, get_slot et get_wallet 20 ms ; list_documents 100 ms ; report_occupancy et report_revenue 200 ms ; toute autre opération 100 ms ; un import de 50 000 lignes 30 000 ms.",
+      "regles": [
+        "P20.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q44",
       "periode": "P20",
+      "sujet": "doublon dont la clé a mémorisé un refus",
       "question": "duplicates compte aussi une ligne dont la cle a memorise un REFUS (la reponse memorisee est une erreur) : elle n'est pas listee dans rejected. Non exerce (les deux doublons de P20.F01 rejouent des succes).",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "duplicates compte toute ligne dont le request_id était déjà mémorisé, que la réponse mémorisée soit un succès ou un refus ; une telle ligne n'apparaît pas dans rejected.",
+      "regles": [
+        "P20.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q45",
       "periode": "P21",
+      "sujet": "arguments comparés pour l'idempotence",
       "question": "Les arguments normalises comparent member_id, slot_id et seats seulement : un rejeu par un autre actor (admin au lieu de staff) ou a un autre instant n'est pas un conflit. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Les arguments comparés sont { member_id, slot_id, seats (1 si absent) } ; l'actor et l'instant ne comptent pas.",
+      "regles": [
+        "P21.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q46",
       "periode": "P21",
+      "sujet": "rows comparé sans normalisation",
       "question": "Pour un import, rows est compare EN PROFONDEUR sans normalisation (une ligne sans seats differe d'une ligne seats: 1), contrairement a reserve. Non exerce.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Pour import_bookings, rows est comparé par égalité profonde des valeurs JSON (ordre des clés indifférent), sans normalisation : une ligne sans seats diffère d'une ligne seats: 1.",
+      "regles": [
+        "P21.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q47",
       "periode": "P21",
+      "sujet": "paramètres des essais concurrents",
       "question": "La serialisabilite n'est pas observable par une trajectoire sequentielle : les parametres des essais (100 essais, 20 clients, quatre scenarios) sont fixes ici pour T75 et restent a confirmer.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "La spec du candidat ne porte que les invariants de P21.R3 ; « 100 essais, 20 clients, quatre scenarios » est un parametre de T75, a confirmer la-bas.",
+      "regles": [
+        "P21.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q48",
       "periode": "P22",
+      "sujet": "re-crédit = nouveau lot",
       "question": "Un re-credit (remboursement, trop-percu, avoir) forme un NOUVEAU lot de 12 mois a compter du re-credit, au lieu de rendre leur echeance d'origine aux credits rembourses (le lot de 1664 de m-dan date du 2031-06-20, P22.F01). Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Tout re-crédit (remboursement, trop-perçu, avoir) forme un nouveau lot de 12 mois à compter de son instant ; il ne reprend pas l'échéance des crédits d'origine.",
+      "regles": [
+        "P22.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q49",
       "periode": "P22",
+      "sujet": "les compensations expirent",
       "question": "Les compensations (P13) expirent comme des credits achetes, bien que l'ADR ne parle que de credits « achetes ». Non exerce (aucune compensation restante).",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Les compensations de débarquement forment des lots et expirent comme des crédits achetés.",
+      "regles": [
+        "P22.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q50",
       "periode": "P22",
+      "sujet": "expiration = mouvement",
       "question": "Une expiration est un mouvement qui fait emettre une facture de total 0 pour un mois sans autre mouvement (INV-2032-06-m-dan). Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Une expiration est un mouvement : elle produit une ligne expiry et, si c'est le seul mouvement du mois, une facture de total 0.",
+      "regles": [
+        "P22.R4"
+      ],
+      "faits": []
     },
     {
       "id": "Q51",
       "periode": "P22",
+      "sujet": "29 février + 12 mois",
       "question": "Un 29 fevrier + 12 mois donne le 1er mars a la meme heure UTC ; non exerce.",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "12 mois civils après le 29 février donnent le 28 février de l'année suivante, à la même heure UTC.",
+      "regles": [
+        "P22.R2"
+      ],
+      "faits": [
+        "P21.F19",
+        "P22.F18"
+      ]
     },
     {
       "id": "Q52",
       "periode": "P22",
+      "sujet": "set_tier après la fin des remises",
       "question": "set_tier reste accepte apres la fin des remises (sans effet) ; on aurait pu le retirer (operation inconnue). Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "set_tier reste accepté après P22 ; le niveau est enregistré mais n'a plus d'effet sur le prix.",
+      "regles": [
+        "P22.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q53",
       "periode": "P23",
+      "sujet": "remboursement au payeur, compensation au titulaire",
       "question": "Les remboursements d'une reservation transferee vont au PAYEUR, pas au titulaire qui annule (P23.F12), et la compensation de debarquement va au titulaire (non exerce). Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Les remboursements d'une réservation transférée vont au payeur (payer_member_id) ; la compensation de débarquement va au titulaire actuel.",
+      "regles": [
+        "P23.R4"
+      ],
+      "faits": []
     },
     {
       "id": "Q54",
       "periode": "P23",
+      "sujet": "frais minimaux sur une réservation gratuite",
       "question": "Les frais ont un minimum de 100 centimes meme pour une reservation gratuite : transferer une reservation a 0 coute 1 EUR. Non exerce sur une reservation gratuite.",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "fee_cents = 0 si A = 0 ; sinon fee_cents = max(100, floor((A × 1000 + 5000) / 10000)).",
+      "regles": [
+        "P23.R3"
+      ],
+      "faits": [
+        "P23.F22",
+        "P23.F23",
+        "P23.F24"
+      ]
     },
     {
       "id": "Q55",
       "periode": "P23",
+      "sujet": "transfert depuis un membre suspendu",
       "question": "Transfert DEPUIS un membre suspendu : permis (seul le destinataire est controle). Une absence (no_show) deja enregistree reste attachee a la reservation, donc au nouveau titulaire pour les comptes futurs ? Non exerce.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Seul le destinataire d'un transfert est contrôlé (SUSPENDED) ; un membre suspendu peut céder sa réservation. Une absence reste attachée au membre qui était titulaire quand elle a été enregistrée.",
+      "regles": [
+        "P23.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q56",
       "periode": "P23",
+      "sujet": "échange sans consentement",
       "question": "exchange_bookings n'exige pas le consentement des deux titulaires (admin/staff seulement) ; un membre ne peut pas proposer d'echange. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "exchange_bookings est une opération de back-office (admin, staff) qui ne demande pas le consentement des titulaires ; un member -> FORBIDDEN.",
+      "regles": [
+        "P23.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q57",
       "periode": "P24",
+      "sujet": "clés non listées gardent leur nom",
       "question": "La correspondance ne renomme que les cles listees : seat_numbers, free_seats, overbook_limit gardent leur nom « seat/slot » en v2. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "La correspondance v1 <-> v2 ne renomme que les clés listées ; toutes les autres (seat_numbers, free_seats, overbook_limit, …) gardent leur nom en v2.",
+      "regles": [
+        "P24.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q58",
       "periode": "P24",
+      "sujet": "error des lignes rejected en v2",
       "question": "Les error des lignes rejected d'un import restent des chaines en v2 (seule l'erreur de premier niveau prend la forme {code}). Non exerce.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "En v2, seule l'erreur de premier niveau prend la forme { code } ; les error des lignes rejected restent des chaînes.",
+      "regles": [
+        "P24.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q59",
       "periode": "P24",
+      "sujet": "refus strict des clés de l'autre version",
       "question": "Strict : une cle de l'autre version (meme inconnue de l'operation) est refusee INVALID_ARGUMENT ; une cle inconnue des deux versions est ignoree. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Une clé de l'autre version, à n'importe quelle profondeur des arguments, est refusée INVALID_ARGUMENT ; une clé inconnue des deux versions est ignorée.",
+      "regles": [
+        "P24.R4"
+      ],
+      "faits": []
     },
     {
       "id": "Q60",
-      "periode": "P24",
+      "periode": "P24 et avant",
+      "sujet": "opération inconnue (dont un nom v2 avant P24)",
       "question": "Avant P24, version est ignoree et une operation au nom v2 est une operation inconnue : quelle reponse ? Non fixe, non exerce.",
-      "exerce": false
+      "classe": "FIXER",
+      "decision": "Une opération dont le nom n'appartient pas au contrat en vigueur à la période -> { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, non mémorisée. Ce contrôle passe avant tous les autres (avant le tenant ; à partir de P24, juste après celui de la version).",
+      "regles": [
+        "P1.R8",
+        "P24.R1"
+      ],
+      "faits": [
+        "P23.F25",
+        "P23.F26",
+        "P23.F27"
+      ]
     },
     {
       "id": "Q61",
       "periode": "P9-P24",
+      "sujet": "rappel de Q02",
       "question": "Q02 de la racine P9-P16 (heure locale ambigue d'automne non exercee) reste ouverte : la trajectoire P17-P24 ne passe pas par une annulation autour du 26/10/2031 ni du 31/10/2032.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00).",
+      "regles": [
+        "P9.R2"
+      ],
+      "faits": [
+        "P9.F22"
+      ]
     }
   ]
 }

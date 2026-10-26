@@ -13,6 +13,17 @@
 // se décide ici « par défaut », hormis deux points de structure documentés
 // (locataire implicite avant P3, une place par réservation avant P6).
 //
+// Trois facilités de STRUCTURE, sans règle (T71) :
+//   - horodatage des confirmations : quand une réservation devient confirmed,
+//     le moteur note l'instant `at` de l'opération et un rang de confirmation
+//     croissant (un fait observé, que les clauses P13, P14 et P16 lisent) ;
+//   - journal financier brut du locataire (`journaliser`) : les clauses qui
+//     font circuler de l'argent y inscrivent ce qu'elles font ; ce que ce
+//     journal VAUT (lignes de facture, avoirs, mois) est décidé par les clauses
+//     de P14 ;
+//   - `donnees` : un entrepôt clé -> valeur par locataire où chaque clause
+//     range son propre état (fuseau, absences, taux, factures...).
+//
 // Aucune horloge ambiante : l'instant de chaque opération est son champ `at`.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -31,7 +42,7 @@ export interface PlatformStep {
   readonly args?: Json
 }
 
-export type BookingStatus = 'confirmed' | 'waiting' | 'cancelled'
+export type BookingStatus = 'confirmed' | 'waiting' | 'cancelled' | 'bumped'
 
 export interface Booking {
   readonly booking_id: string
@@ -43,6 +54,16 @@ export interface Booking {
   amount_cents?: number
   paid_credits_cents?: number
   paid_card_cents?: number
+  /** Instant (champ at) et rang de la confirmation : horodatage de structure. */
+  confirmed_at?: string
+  confirmation_seq?: number
+  /** Taux de remise (pb) retenu au calcul du montant. */
+  discount_bp?: number
+  no_show?: boolean
+  seat_numbers?: number[]
+  price_currency?: string
+  original_amount_cents?: number
+  rate_micro?: number
 }
 
 export interface Slot {
@@ -52,6 +73,9 @@ export interface Slot {
   /** File d'attente : booking_id, tête en premier. */
   file: string[]
   price_cents?: number
+  price_currency?: string
+  numbered?: boolean
+  closed?: boolean
 }
 
 export interface Series {
@@ -74,11 +98,31 @@ export interface Tenant {
   readonly tiers: Map<string, string>
   readonly wallets: Map<string, number>
   readonly series: Map<string, Series>
+  /** Journal financier brut, dans l'ordre des inscriptions. */
+  readonly journal: JournalEntry[]
+  /** État propre aux clauses, rangé par clé. */
+  readonly donnees: Map<string, unknown>
+}
+
+/** Une inscription du journal financier brut (montants en centimes d'EUR). */
+export interface JournalEntry {
+  readonly seq: number
+  readonly at: string
+  readonly type: string
+  readonly member_id: string
+  readonly booking_id: string | null
+  readonly amount_cents: number
+  readonly credits_cents: number
+  readonly card_cents: number
+  /** Avoir qui couvre cette inscription, s'il y en a un. */
+  avoir?: string
 }
 
 export interface PlatformState {
   readonly tenants: Map<string, Tenant>
   seq: number
+  confirmations: number
+  journal_seq: number
 }
 
 /** Mise en œuvre d'une clause : décision -> fonction (ou étape/vue rangée). */
@@ -149,6 +193,8 @@ export function newTenant(tenant_id: string, owner_id?: string): Tenant {
     tiers: new Map(),
     wallets: new Map(),
     series: new Map(),
+    journal: [],
+    donnees: new Map(),
   }
 }
 
@@ -234,9 +280,25 @@ export class PlatformContext {
     return this.regles<(b: Booking) => boolean>('reservation.active.').some((f) => f(b))
   }
 
+  /** Inscrit un mouvement au journal financier brut du locataire courant, daté par `at`. */
+  journaliser(e: Omit<JournalEntry, 'seq' | 'at'>): JournalEntry {
+    const entree: JournalEntry = { seq: ++this.etat.journal_seq, at: this.step.at, ...e }
+    this.locataire.journal.push(entree)
+    return entree
+  }
+
+  /** L'état qu'une clause range sous `cle` dans le locataire courant (créé par `init` au premier accès). */
+  donnee<T>(cle: string, init: () => T): T {
+    const d = this.locataire.donnees
+    if (!d.has(cle)) d.set(cle, init())
+    return d.get(cle) as T
+  }
+
   /** Une réservation devient confirmed : montant puis paiement, si des clauses actives les gouvernent. */
   confirmer(b: Booking): void {
     b.status = 'confirmed'
+    b.confirmed_at = this.step.at
+    b.confirmation_seq = ++this.etat.confirmations
     const montant = this.regleOpt<(ctx: PlatformContext, b: Booking) => number>('reservation.montant')
     if (montant !== undefined) b.amount_cents = montant(this, b)
     const paiement = this.regleOpt<(ctx: PlatformContext, b: Booking) => void>('reservation.paiement')
@@ -259,7 +321,12 @@ export class PlatformContext {
 
 /** Modèle attendu : un état unique, des clauses, une opération à la fois. */
 export class PlatformEngine {
-  readonly etat: PlatformState = { tenants: new Map([['default', newTenant('default')]]), seq: 0 }
+  readonly etat: PlatformState = {
+    tenants: new Map([['default', newTenant('default')]]),
+    seq: 0,
+    confirmations: 0,
+    journal_seq: 0,
+  }
   private readonly tables = new Map<number, Map<string, [string, unknown]>>()
 
   constructor(readonly clauses: readonly PlatformClause[]) {}

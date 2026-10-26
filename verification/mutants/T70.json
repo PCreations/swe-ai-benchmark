@@ -1,0 +1,110 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T70 : au moins une par cas requis, conformes au champ",
+    "`perturbation` que verification/cases.extensions.lock.json fixe pour T70.A1 a",
+    "T70.A4. Chaque mutant s'applique a l'implementation de T70 (source de clauses,",
+    "modele attendu, verificateurs, resolus par les roles de la section III de",
+    "acceptance/T70.spec.ts), puis `pnpm verify:task T70` doit rendre ROUGE le cas",
+    "nomme par `kills_case`. Les cibles sont decrites par leur ROLE, jamais par un",
+    "chemin : l'auteur de la suite n'a lu ni packages/scenario ni packages/oracle",
+    "(ADR-001)."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T70",
+  "verification_command": ["pnpm", "verify:task", "T70"],
+  "acceptance_entry": "acceptance/T70.spec.ts",
+  "mutant_count": 7,
+  "mutants": [
+    {
+      "id": "T70.M1",
+      "kills_case": "T70.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "retirer le texte d'enonce d'une clause",
+      "target": "Une clause quelconque de la source exportee sous le role `platformClauses`.",
+      "mutation": "Remplacer son texte d'enonce par la chaine vide (ou supprimer le champ) — perturbation prescrite par cases.extensions.lock.json (« retirer le texte d'enonce ou la mise en oeuvre d'une clause »).",
+      "expected_effect": "T70.A1 devient rouge.",
+      "observation_qui_echoue": "A1 collecte, clause par clause, `<id>: texte d'enonce absent ou vide` et exige une liste de problemes vide.",
+      "pourquoi_cette_perturbation": "Le texte d'enonce est ce que T73 ecrira dans docs/spec.md ; une clause sans texte casserait la completude sans qu'aucun fait ne change.",
+      "doit_rester_vert": ["T70.A2"]
+    },
+    {
+      "id": "T70.M2",
+      "kills_case": "T70.A1",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "retirer la mise en oeuvre d'une clause",
+      "target": "Le champ de mise en oeuvre d'une clause de la source `platformClauses`.",
+      "mutation": "Remplacer la mise en oeuvre d'une clause par un objet sans fonction (ex. `{}`), sans toucher au modele qui rejoue la trajectoire.",
+      "expected_effect": "T70.A1 devient rouge.",
+      "observation_qui_echoue": "A1 exige pour chaque clause une fonction, ou un objet portant une fonction a profondeur <= 3 : `<id>: mise en oeuvre absente (aucune fonction)`.",
+      "pourquoi_cette_perturbation": "Une clause sans mise en oeuvre n'est plus une source EXECUTABLE (ADR-021 decision 1).",
+      "doit_rester_vert": ["T70.A2", "T70.A3", "T70.A4"]
+    },
+    {
+      "id": "T70.M3",
+      "kills_case": "T70.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "alterer un fait gele",
+      "target": "Le calcul de la remise par niveau dans le modele attendu (role `replayPlatform` / `createPlatformModel`), clause de P7.",
+      "mutation": "Arrondir la remise place par place au lieu du brut total (ou arrondir le montant plutot que la remise) : p4 rend 750 au lieu de 749 (P7.F07) et p5 1499 au lieu de 1498 (P7.F08) — perturbation prescrite (« alterer un fait gele de P1-P8 dans le modele attendu »). Variante : promouvoir strictement la tete de file en P6 (g4 non promu, P6.F07).",
+      "expected_effect": "T70.A2 devient rouge.",
+      "observation_qui_echoue": "A2 compare chacun des 138 faits geles a la reponse de son etape et liste `P7.F07 (P7-13) attendu=... recu=...`.",
+      "pourquoi_cette_perturbation": "Les frontieres d'arrondi sont exactement les faits qu'une lecture approximative de la clause fausse.",
+      "doit_rester_vert": ["T70.A1", "T70.A3", "T70.A4"]
+    },
+    {
+      "id": "T70.M4",
+      "kills_case": "T70.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "alterer un fait gele",
+      "target": "Le remboursement au prorata de P8 dans le modele attendu.",
+      "mutation": "Arrondir la part credits au plus proche au lieu de floor : P8.F06 rend credits 667 / carte 83 au lieu de 666 / 84.",
+      "expected_effect": "T70.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P8.F06 (P8-08)` diverge sur refund.credits_cents.",
+      "pourquoi_cette_perturbation": "Arithmetique exacte de la comptabilite des sources.",
+      "doit_rester_vert": ["T70.A1", "T70.A3", "T70.A4"]
+    },
+    {
+      "id": "T70.M5",
+      "kills_case": "T70.A3",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "laisser passer une contradiction",
+      "target": "La verification de non-contradiction (role `checkNonContradiction`).",
+      "mutation": "Ignorer les paires de clauses actives a la meme periode qui gouvernent la meme decision (rendre toujours un verdict sans violation) — perturbation prescrite (« laisser passer deux clauses actives qui gouvernent la meme decision sans remplacement »).",
+      "expected_effect": "T70.A3 devient rouge.",
+      "observation_qui_echoue": "A3 (b) et (c) exigent un refus pour le doublon `T70-CLAUSE-DOUBLON` et pour la greffe entre deux clauses reelles : `ACCEPTE-A-TORT`.",
+      "pourquoi_cette_perturbation": "C'est le defaut qu'ADR-021 a constate trois fois (cancel@2 contre le point 3 d'ADR-019).",
+      "doit_rester_vert": ["T70.A1", "T70.A2", "T70.A4"]
+    },
+    {
+      "id": "T70.M6",
+      "kills_case": "T70.A3",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "refuser sans nommer, ou refuser hors periode",
+      "target": "La verification de non-contradiction.",
+      "mutation": "Comparer les decisions de toutes les clauses sans regarder les periodes d'activite (ou ne nommer qu'une des deux clauses dans le refus).",
+      "expected_effect": "T70.A3 devient rouge.",
+      "observation_qui_echoue": "A3 (d) : une clause sortie a P(n+1) et une clause entrant a P(n+1) sur la meme decision doivent passer (`REFUS-A-TORT`) ; ou `REFUS-SANS-NOMMER [<id>]`.",
+      "pourquoi_cette_perturbation": "Le critere porte sur les clauses actives a UNE MEME periode et exige les deux noms.",
+      "doit_rester_vert": ["T70.A1", "T70.A2", "T70.A4"]
+    },
+    {
+      "id": "T70.M7",
+      "kills_case": "T70.A4",
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "laisser passer une grandeur sans unite",
+      "target": "La verification d'unites (role `checkUnits`).",
+      "mutation": "Ne plus exiger de declaration pour une grandeur comparee (ou accepter une declaration faite par une clause pas encore active) — perturbation prescrite (« laisser passer une grandeur comparee sans unite declaree »).",
+      "expected_effect": "T70.A4 devient rouge.",
+      "observation_qui_echoue": "A4 (b), (c), (d) exigent un refus nommant `grandeur_fantome_t70`, la grandeur reelle amputee de son unite, et `grandeur_tardive_t70` declaree trop tard : `ACCEPTE-A-TORT`.",
+      "pourquoi_cette_perturbation": "L'unite des montants non dite a coute un pilote F-LONG (ADR-021).",
+      "doit_rester_vert": ["T70.A1", "T70.A2", "T70.A3"]
+    }
+  ]
+}

@@ -5,8 +5,8 @@
     "Faits attendus du scenario F-PLATFORM, periodes P9 a P16 (ADR-021, decision 1 :",
     "« Les faits attendus, calcules a la main, sont figes dans une racine gelee »), pour T71.",
     "Meme racine, meme structure et memes conventions que F-PLATFORM-P1-P8.json, qui n'est",
-    "PAS modifie : la trajectoire ci-dessous le PROLONGE sur UN SEUL etat (rejouer P1-01 ...",
-    "P8-30 puis P9-01 ... P16-24, sans reinitialiser le modele).",
+    "modifie que par la passe de clarification (voir plus bas) : la trajectoire ci-dessous le PROLONGE sur UN SEUL etat (rejouer P1-01 ...",
+    "P8-40 puis P9-01 ... P16-24, sans reinitialiser le modele).",
     "",
     "ADR-021 ne donne pour P9-P16 qu'une ligne de tableau par periode (L69-L76). Ce fichier",
     "FIXE donc les regles precises (valeurs, unites, formats, ordre des controles, arrondis),",
@@ -24,7 +24,21 @@
     "(il reproduit aussi les 138 faits de P1-P8) : 0 desaccord. Aucun fait n'a ete obtenu en",
     "executant packages/oracle ; le transcripteur a LU, sur instruction, l'en-tete, la liste des",
     "clauses et les `questions_ouvertes` de packages/oracle/src/f-platform-clauses.ts (aveuglement",
-    "procedural, ADR-001) pour ne pas les contredire."
+    "procedural, ADR-001) pour ne pas les contredire.",
+    "",
+    "PASSE DE CLARIFICATION (fixture-transcriber, 26/10/2026). Le tri des questions ouvertes",
+    "(T70-01..T70-16, Q01-Q61, N-01..N-04) est applique : chaque question GARDER devient une",
+    "precision ecrite (`regles[].precisions`, phrase du tri) ; chaque CHANGER ou FIXER modifie",
+    "le texte de ses regles (ou en ajoute une : P1.R8, P9.R5 qui remplace P5.R1) et est EXERCE",
+    "par des faits nouveaux, ajoutes en FIN de periode (etapes et faits a numeros suivants), sur",
+    "des locataires et des identifiants neufs (t-clar, t-q32a/b, t-q34a/b, t-q37, creneaux K*, N2,",
+    "G6...) pour ne decaler aucun fait existant. `questions_resolues` trace chaque question vers ses",
+    "regles et ses faits. Seule Q38 (solde d'un membre efface) reste ouverte : decision du mandant.",
+    "Les faits nouveaux ont ete calcules a la main, recalcules par une autre voie, puis confrontes",
+    "a un simulateur jetable hors depot etendu aux regles clarifiees : 0 desaccord sur les faits",
+    "anciens et nouveaux. Pour cette passe, packages/oracle/src/f-platform-*.ts a ete LU en lecture",
+    "seule (sur instruction) et execute seulement pour constater qu'il diverge sur les faits nouveaux",
+    "et sur eux seuls ; aucune valeur attendue n'en vient."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -52,10 +66,10 @@
   "prolonge": {
     "fixture": "F-PLATFORM-P1-P8",
     "chemin": "acceptance/reference-platform/F-PLATFORM-P1-P8.json",
-    "sha256": "9ea4ffee4758b4f71ec2f4e3b84bbe705574409e3bb821ada4c71650f59b59a4",
-    "commit": "b99996dd8cd68743d6193cfdb2aeeda880cfb831",
-    "derniere_etape": "P8-30",
-    "etat_au_depart": "celui laisse par P8-30 : t-alpha (proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 2000, m-dan 0, m-fay 0, m-gus 0 ; fuseau 'UTC' partout ; reservations et creneaux de P1-P8 (tous commencent avant le 2031-03-30) ; locataires default et t-beta inchanges"
+    "sha256": "4890674e2ae0d59808463a49c7b52e378d0d46316a52b59114b0aad8262826ef",
+    "commit": "356340809639341e7a81b4d811357212f4f2c135",
+    "derniere_etape": "P8-40",
+    "etat_au_depart": "celui laisse par P8-40 : t-alpha (proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 2000, m-dan 0, m-fay 0, m-gus 0 ; fuseau 'UTC' partout ; reservations et creneaux de P1-P8 (tous commencent avant le 2031-03-30) ; locataires default et t-beta inchanges ; passe de clarification : locataire t-clar (proprietaire m-own ; membres m-kim, m-lou, m-max, m-big ; fuseau UTC ; portefeuilles m-big 100000000, m-kim 600), series Y366 et Q4 (Q4@2031-03-20 exceptee), creneaux G6 et Q4 ; creneaux K10000 et N2 dans default"
   },
   "scellement": {
     "tache": "T71",
@@ -64,8 +78,8 @@
     "desaccords": [],
     "comptes": {
       "P9": {
-        "etapes": 25,
-        "faits": 17
+        "etapes": 41,
+        "faits": 27
       },
       "P10": {
         "etapes": 22,
@@ -80,22 +94,53 @@
         "faits": 10
       },
       "P13": {
-        "etapes": 24,
-        "faits": 14
-      },
-      "P14": {
-        "etapes": 27,
-        "faits": 22
-      },
-      "P15": {
-        "etapes": 37,
-        "faits": 24
-      },
-      "P16": {
-        "etapes": 24,
+        "etapes": 31,
         "faits": 19
       },
-      "total_faits": 133
+      "P14": {
+        "etapes": 29,
+        "faits": 24
+      },
+      "P15": {
+        "etapes": 39,
+        "faits": 26
+      },
+      "P16": {
+        "etapes": 31,
+        "faits": 24
+      },
+      "total_faits": 157
+    },
+    "clarification": {
+      "source": "tri des questions ouvertes de F-PLATFORM (T70-01..T70-16, Q01-Q61, N-01..N-04)",
+      "faits_ajoutes": [
+        "P9.F18",
+        "P9.F19",
+        "P9.F20",
+        "P9.F21",
+        "P9.F22",
+        "P9.F23",
+        "P9.F24",
+        "P9.F25",
+        "P9.F26",
+        "P9.F27",
+        "P13.F15",
+        "P13.F16",
+        "P13.F17",
+        "P13.F18",
+        "P13.F19",
+        "P14.F23",
+        "P14.F24",
+        "P15.F25",
+        "P15.F26",
+        "P16.F20",
+        "P16.F21",
+        "P16.F22",
+        "P16.F23",
+        "P16.F24"
+      ],
+      "faits_existants_modifies": [],
+      "questions_resolues": 29
     }
   },
   "conventions": {
@@ -111,7 +156,8 @@
       "dates_de_taux": "'AAAA-MM-JJ', date civile LOCALE du site",
       "places_numerotees": "seat_numbers, free_seats : listes croissantes d entiers 1..capacity",
       "identifiants": "invoice_id 'INV-<AAAA-MM>-<member_id>' ; credit_note_id 'AV-nnnn' (4 chiffres, sequence par locataire)",
-      "compteurs": "absences_30d, overbook_limit : entiers"
+      "compteurs": "absences_30d, overbook_limit : entiers",
+      "heures_de_serie": "start_time 'HH:MM' de create_recurring : heure murale LOCALE du site a partir de P9 ; from_date, until_date et date d'occurrence : calendrier local (P9.R5)"
     },
     "codes_erreur": [
       "NOT_FOUND",
@@ -134,6 +180,7 @@
       "bumped"
     ],
     "ordre_des_controles_de_reserve_a_P16": [
+      "operation inconnue -> INVALID_ARGUMENT (P1.R8, non memorise)",
       "tenant inconnu -> NOT_FOUND",
       "actor non membre / role -> FORBIDDEN (non memorise)",
       "member pour autrui -> FORBIDDEN (non memorise)",
@@ -248,11 +295,23 @@
             "heure_inexistante": "decalage d'avant le saut (+01:00)",
             "heure_ambigue": "premiere occurrence (+02:00)",
             "format_local": "AAAA-MM-JJTHH:MM:SS+HH:MM"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q02",
+              "classe": "GARDER",
+              "texte": "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00)."
+            },
+            {
+              "question": "Q61",
+              "classe": "GARDER",
+              "texte": "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00)."
+            }
+          ]
         },
         {
           "id": "P9.R3",
-          "texte": "Paliers d'annulation, en heure MURALE du site. Soit Ls l'heure locale murale du debut du creneau (P9.R2). D48 = l'instant UTC de l'heure locale murale (Ls moins 48 heures d'horloge : meme heure, deux jours de calendrier plus tot) ; D24 = l'instant UTC de (Ls moins 24 heures d'horloge : meme heure, la veille) ; chacune convertie par P9.R2. Ce ne sont PAS des durees ecoulees : autour d'un changement d'heure, D48 peut etre a 47 ou 49 heures reelles du debut. Pour une annulation a l'instant at (champ at de l'operation) : at < D48 -> taux 10000 pb (100 %) ; D48 <= at < D24 -> 5000 pb (50 %) ; at >= D24 -> 0 pb (y compris apres le debut). Le palier vaut pour toute annulation, totale ou partielle, quel que soit l'acteur (admin, staff ou membre). La reponse de cancel porte refund_rate_bp, le taux du palier, meme pour une reservation waiting (qui ne rembourse rien).",
+          "texte": "Paliers d'annulation, en heure MURALE du site. Soit Ls l'heure locale murale du debut du creneau (P9.R2). D48 = l'instant UTC de l'heure locale murale (Ls moins 48 heures d'horloge : meme heure, deux jours de calendrier plus tot) ; D24 = l'instant UTC de (Ls moins 24 heures d'horloge : meme heure, la veille) ; chacune convertie par P9.R2. Ce ne sont PAS des durees ecoulees : autour d'un changement d'heure, D48 peut etre a 47 ou 49 heures reelles du debut. Pour une annulation a l'instant at (champ at de l'operation) : at < D48 -> taux 10000 pb (100 %) ; D48 <= at < D24 -> 5000 pb (50 %) ; at >= D24 -> 0 pb (y compris apres le debut). Le palier vaut pour toute annulation, totale ou partielle, quel que soit l'acteur (admin, staff ou membre). La reponse de cancel porte refund_rate_bp, le taux du palier, meme pour une reservation waiting (qui ne rembourse rien). Une annulation d'office par add_exception (P5.R2) n'applique aucun palier : son taux est FORCE a 10000 par P5.R2, quel que soit l'instant.",
           "valeurs": {
             "paliers_bp": [
               {
@@ -271,16 +330,89 @@
             ],
             "bornes": "D48 et D24 appartiennent au palier SUIVANT (comparaison stricte at < D)",
             "unite": "points de base"
-          }
+          },
+          "precisions": [
+            {
+              "question": "T70-16",
+              "classe": "CHANGER",
+              "texte": "Une annulation d'office par add_exception a un taux FORCE de 10000, pose par P5.R2 et lu par P9.R3 (et non l'effet de bord d'un creneau supprime)."
+            },
+            {
+              "question": "Q03",
+              "classe": "GARDER",
+              "texte": "Le palier s'applique à toute annulation, quel que soit l'acteur (admin, staff ou member) : il n'existe pas d'annulation à 100 % par geste commercial."
+            },
+            {
+              "question": "Q04",
+              "classe": "CHANGER",
+              "texte": "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée."
+            },
+            {
+              "question": "Q06",
+              "classe": "GARDER",
+              "texte": "refund_rate_bp est le taux du palier à l'instant de l'annulation, y compris pour une réservation waiting, qui ne rembourse rien (refunded_cents 0)."
+            }
+          ]
         },
         {
           "id": "P9.R4",
           "remplace": "P8.R4",
-          "texte": "Remboursement selon le palier (remplace P8.R4). Soit A = amount_cents restant, C = paid_credits_cents restant, D = paid_card_cents restant (A = C + D) et t le taux du palier (P9.R3) en points de base. Annulation totale : R = floor(A x t / 10000). Annulation partielle de k places sur n : R = floor(A x k x t / (n x 10000)) (un seul arrondi). Dans les deux cas : r_c = floor(R x C / A) (0 si A = 0), r_d = R - r_c ; r_c est re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A - R, C - r_c, D - r_d. Annulation totale : statut cancelled, amount_cents vaut A - R (frais retenus, 0 si t = 10000) ; annulation partielle : seats = n - k, statut confirmed, les places liberees declenchent la promotion. Reponse de cancel : refunded_cents = R, refund = {credits_cents: r_c, card_cents: r_d}, refund_rate_bp, promoted, et pour une partielle seats (et seat_numbers a partir de P11). Avant P9 le taux vaut toujours 10000, ce qui redonne exactement P8.R4.",
+          "texte": "Remboursement selon le palier (remplace P8.R4). Soit A = amount_cents restant, C = paid_credits_cents restant, D = paid_card_cents restant (A = C + D) et t le taux du palier (P9.R3) en points de base. Annulation totale : R = floor(A x t / 10000). Annulation partielle de k places sur n : R = floor(A x k x t / (n x 10000)) (un seul arrondi). Dans les deux cas : r_c = floor(R x C / A) (0 si A = 0), r_d = R - r_c ; r_c est re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A - R, C - r_c, D - r_d. Annulation totale : statut cancelled, amount_cents vaut A - R (frais retenus, 0 si t = 10000) ; annulation partielle : seats = n - k, statut confirmed, les places liberees declenchent la promotion. Reponse de cancel : refunded_cents = R, refund = {credits_cents: r_c, card_cents: r_d}, refund_rate_bp, promoted, et pour une partielle seats (et seat_numbers a partir de P11). Avant P9 le taux vaut toujours 10000, ce qui redonne exactement P8.R4. Frais retenus : chaque reservation porte F, la somme des frais d'annulation partielle deja retenus (0 a sa creation) ; une annulation partielle de k places sur n ajoute floor(A x k / n) - R a F (part non rendue des places annulees) ; F sert au recalcul P16.R2. L'annulation d'office par add_exception (P5.R2) rend R = A (taux force 10000).",
           "valeurs": {
             "arrondi_rembourse": "floor, un seul arrondi",
             "arrondi_part_credits": "floor, la carte recoit le reste"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q04",
+              "classe": "CHANGER",
+              "texte": "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée."
+            },
+            {
+              "question": "Q25",
+              "classe": "CHANGER",
+              "texte": "A' = montant P15.R6 au nouveau prix pour les seats actuels + F, où F est la somme des frais d'annulation partielle déjà retenus sur la réservation (à chaque annulation partielle de k places sur n : F += floor(A × k / n) - R). Le trop-perçu T = A - A' ne rend jamais des frais d'annulation."
+            }
+          ]
+        },
+        {
+          "id": "P9.R5",
+          "remplace": "P5.R1",
+          "texte": "create_recurring {series_id, weekday, start_time, capacity, from_date, until_date} (admin, staff) (remplace P5.R1) : weekday est le jour ISO (1 = lundi ... 7 = dimanche) ; start_time 'HH:MM' est l'heure MURALE locale du site (fuseau du locataire a l'instant de create_recurring, P9.R1) ; from_date et until_date 'AAAA-MM-JJ' sont des dates du calendrier LOCAL, bornes INCLUSES. Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, rien n'est cree) : (1) series_id absent ou vide, weekday hors 1..7, start_time hors 'HH:MM' (00:00 a 23:59), capacity non entiere ou hors de 1..10000, date mal formee, from_date > until_date, plage de plus de 366 jours (until_date - from_date > 365 jours), ou plage ne contenant aucun jour weekday -> INVALID_ARGUMENT ; (2) series_id deja pris dans le locataire, ou slot_id d'une seule de ses occurrences deja pris -> ALREADY_EXISTS (tout ou rien). Cree un creneau par date locale d de [from_date, until_date] dont le jour ISO vaut weekday, de slot_id '<series_id>@<AAAA-MM-JJ>' (d), capacite capacity, et de starts_at l'instant UTC de '<d> <start_time>' en heure locale, converti par P9.R2 (heure inexistante lue a +01:00, heure ambigue = premiere occurrence). Une serie hebdomadaire garde donc la meme heure locale de part et d'autre d'un changement d'heure ; en 'UTC', le resultat est celui de P5.R1. Les creneaux deja crees ne bougent pas. Reponse {ok: true, series_id, slot_ids} en ordre chronologique.",
+          "valeurs": {
+            "weekday": "ISO 8601, 1 = lundi",
+            "bornes": "incluses",
+            "fuseau": "heure murale locale du site (P9.R2)",
+            "capacity": "1..10000",
+            "plage_max": "366 dates (until_date - from_date <= 365 jours)"
+          },
+          "precisions": [
+            {
+              "question": "T70-07",
+              "classe": "GARDER",
+              "texte": "create_recurring : si series_id existe déjà dans le locataire, ou si le slot_id d'une seule de ses occurrences existe déjà -> ALREADY_EXISTS et rien n'est créé (tout ou rien)."
+            },
+            {
+              "question": "T70-08",
+              "classe": "GARDER",
+              "texte": "create_recurring : series_id vide, weekday hors 1..7, start_time hors 'HH:MM' (00:00 à 23:59), capacity non entière ou < 1, date mal formée ou from_date > until_date -> INVALID_ARGUMENT ; ce contrôle précède ALREADY_EXISTS."
+            },
+            {
+              "question": "N-01",
+              "classe": "FIXER",
+              "texte": "create_recurring dont la plage [from_date, until_date] ne contient aucun jour weekday -> INVALID_ARGUMENT, rien n'est créé."
+            },
+            {
+              "question": "N-04",
+              "classe": "FIXER",
+              "texte": "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT."
+            },
+            {
+              "question": "Q01",
+              "classe": "CHANGER",
+              "texte": "À partir de P9, start_time est l'heure MURALE locale du site et from_date, until_date et la date d'occurrence sont des dates du calendrier local ; le starts_at de chaque occurrence est l'instant UTC de '<date> <start_time>' local, converti par P9.R2 (heure inexistante lue à +01:00, heure ambiguë = première occurrence). Une série hebdomadaire garde donc la même heure locale de part et d'autre d'un changement d'heure. En 'UTC', rien ne change."
+            }
+          ]
         }
       ],
       "ligne_adr": 69,
@@ -579,6 +711,204 @@
           "actor": "m-cleo",
           "args": {
             "booking_id": "t4"
+          }
+        },
+        {
+          "id": "P9-26",
+          "period": "P9",
+          "at": "2031-03-30T07:03:00Z",
+          "op": "set_timezone",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "timezone": "Europe/Paris"
+          }
+        },
+        {
+          "id": "P9-27",
+          "period": "P9",
+          "at": "2031-03-30T07:04:00Z",
+          "op": "create_recurring",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "series_id": "W9",
+            "weekday": 7,
+            "start_time": "02:30",
+            "capacity": 1,
+            "from_date": "2031-03-23",
+            "until_date": "2031-04-06"
+          }
+        },
+        {
+          "id": "P9-28",
+          "period": "P9",
+          "at": "2031-03-30T07:05:00Z",
+          "op": "get_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "W9@2031-03-23"
+          }
+        },
+        {
+          "id": "P9-29",
+          "period": "P9",
+          "at": "2031-03-30T07:06:00Z",
+          "op": "get_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "W9@2031-03-30"
+          }
+        },
+        {
+          "id": "P9-30",
+          "period": "P9",
+          "at": "2031-03-30T07:07:00Z",
+          "op": "get_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "W9@2031-04-06"
+          }
+        },
+        {
+          "id": "P9-31",
+          "period": "P9",
+          "at": "2031-03-30T07:08:00Z",
+          "op": "create_recurring",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "series_id": "W9b",
+            "weekday": 7,
+            "start_time": "02:30",
+            "capacity": 1,
+            "from_date": "2031-10-26",
+            "until_date": "2031-10-26"
+          }
+        },
+        {
+          "id": "P9-32",
+          "period": "P9",
+          "at": "2031-03-30T07:09:00Z",
+          "op": "get_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "W9b@2031-10-26"
+          }
+        },
+        {
+          "id": "P9-33",
+          "period": "P9",
+          "at": "2031-03-30T07:10:00Z",
+          "op": "create_recurring",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "series_id": "Q9",
+            "weekday": 1,
+            "start_time": "10:00",
+            "capacity": 2,
+            "from_date": "2031-03-31",
+            "until_date": "2031-03-31"
+          }
+        },
+        {
+          "id": "P9-34",
+          "period": "P9",
+          "at": "2031-03-30T07:11:00Z",
+          "op": "set_price",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "Q9@2031-03-31",
+            "price_cents": 1000
+          }
+        },
+        {
+          "id": "P9-35",
+          "period": "P9",
+          "at": "2031-03-30T07:12:00Z",
+          "op": "top_up",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-lou",
+            "amount_cents": 300
+          }
+        },
+        {
+          "id": "P9-36",
+          "period": "P9",
+          "at": "2031-03-30T07:13:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "q9a",
+            "member_id": "m-lou",
+            "slot_id": "Q9@2031-03-31"
+          }
+        },
+        {
+          "id": "P9-37",
+          "period": "P9",
+          "at": "2031-03-30T07:14:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "q9b",
+            "member_id": "m-max",
+            "slot_id": "Q9@2031-03-31"
+          }
+        },
+        {
+          "id": "P9-38",
+          "period": "P9",
+          "at": "2031-03-30T08:29:00Z",
+          "op": "cancel",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "q9b"
+          }
+        },
+        {
+          "id": "P9-39",
+          "period": "P9",
+          "at": "2031-03-30T08:30:00Z",
+          "op": "add_exception",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "series_id": "Q9",
+            "date": "2031-03-31"
+          }
+        },
+        {
+          "id": "P9-40",
+          "period": "P9",
+          "at": "2031-03-30T08:31:00Z",
+          "op": "get_wallet",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-lou"
+          }
+        },
+        {
+          "id": "P9-41",
+          "period": "P9",
+          "at": "2031-03-30T08:32:00Z",
+          "op": "get_booking",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "q9a"
           }
         }
       ],
@@ -893,6 +1223,176 @@
           },
           "justification": "t4 apres deux annulations partielles : A = 2250 - 375 - 0 = 1875 ; C = 500 - 83 = 417 ; D = 1750 - 292 = 1458 ; 1 place.",
           "recalcul": "417 + 1458 = 1875 = A ; 3 - 1 - 1 = 1 place."
+        },
+        {
+          "id": "P9.F18",
+          "etape": "P9-27",
+          "clauses": [
+            "P9.R5"
+          ],
+          "attendu": {
+            "ok": true,
+            "series_id": "W9",
+            "slot_ids": [
+              "W9@2031-03-23",
+              "W9@2031-03-30",
+              "W9@2031-04-06"
+            ]
+          },
+          "justification": "Q01 (P9.R5) : dates du calendrier LOCAL de Europe/Paris, trois dimanches de la plage.",
+          "recalcul": "2031-03-23, 03-30, 04-06 : jours ISO 7."
+        },
+        {
+          "id": "P9.F19",
+          "etape": "P9-28",
+          "clauses": [
+            "P9.R5",
+            "P9.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "W9@2031-03-23",
+            "starts_at": "2031-03-23T01:30:00Z",
+            "local_starts_at": "2031-03-23T02:30:00+01:00"
+          },
+          "justification": "Q01 : start_time 02:30 est l'heure MURALE locale ; le 23 mars, Paris est a UTC+1 : 02:30 locale = 01:30Z (l'ancien choix donnait 02:30Z).",
+          "recalcul": "02:30 - 1 h = 01:30Z ; affichage local +01:00."
+        },
+        {
+          "id": "P9.F20",
+          "etape": "P9-29",
+          "clauses": [
+            "P9.R5",
+            "P9.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "W9@2031-03-30",
+            "starts_at": "2031-03-30T01:30:00Z",
+            "local_starts_at": "2031-03-30T03:30:00+02:00"
+          },
+          "justification": "Q01 + P9.R2 : le 30 mars 2031 (passage a l'heure d'ete a 01:00Z), 02:30 locale n'existe pas : lue avec le decalage d'avant le saut (+01:00), soit 01:30Z ; a cet instant Paris est deja a +02:00 : 03:30 locale.",
+          "recalcul": "01:30Z >= 01:00Z -> decalage +2 -> 03:30+02:00."
+        },
+        {
+          "id": "P9.F21",
+          "etape": "P9-30",
+          "clauses": [
+            "P9.R5",
+            "P9.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "W9@2031-04-06",
+            "starts_at": "2031-04-06T00:30:00Z",
+            "local_starts_at": "2031-04-06T02:30:00+02:00"
+          },
+          "justification": "Q01 : apres le changement d'heure, la serie garde son heure LOCALE 02:30 ; en ete (+02:00) c'est 00:30Z.",
+          "recalcul": "02:30 - 2 h = 00:30Z."
+        },
+        {
+          "id": "P9.F22",
+          "etape": "P9-32",
+          "clauses": [
+            "P9.R5",
+            "P9.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "W9b@2031-10-26",
+            "starts_at": "2031-10-26T00:30:00Z",
+            "local_starts_at": "2031-10-26T02:30:00+02:00"
+          },
+          "justification": "Q01 + Q02 : le 26 octobre 2031 (retour a l'heure d'hiver a 01:00Z), 02:30 locale est AMBIGUE : premiere occurrence (+02:00), soit 00:30Z.",
+          "recalcul": "00:30Z < 01:00Z -> encore +2 -> 02:30+02:00 ; la seconde occurrence serait 01:30Z (+01:00)."
+        },
+        {
+          "id": "P9.F23",
+          "etape": "P9-36",
+          "clauses": [
+            "P7.R3",
+            "P8.R2",
+            "P9.R5"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "q9a",
+            "status": "confirmed",
+            "amount_cents": 1000,
+            "paid_credits_cents": 300,
+            "paid_card_cents": 700
+          },
+          "justification": "Q9@2031-03-31 commence a 10:00 locale = 08:00Z (+02:00) ; m-lou (none) paie 1000 : 300 en credits, 700 a la carte.",
+          "recalcul": "min(300, 1000) = 300 ; 1000 - 300 = 700."
+        },
+        {
+          "id": "P9.F24",
+          "etape": "P9-38",
+          "clauses": [
+            "P9.R3",
+            "P9.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "q9b",
+            "status": "cancelled",
+            "refunded_cents": 0,
+            "refund_rate_bp": 0
+          },
+          "justification": "Temoin du palier : debut 2031-03-31 10:00 locale ; D24 = 2031-03-30 10:00 locale = 08:00Z ; at 08:29Z >= D24 : taux 0, rien n'est rendu a q9b.",
+          "recalcul": "08:29Z >= 08:00Z -> 0 pb ; floor(1000 x 0 / 10000) = 0."
+        },
+        {
+          "id": "P9.F25",
+          "etape": "P9-39",
+          "clauses": [
+            "P5.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "series_id": "Q9",
+            "date": "2031-03-31",
+            "cancelled": [
+              "q9a"
+            ]
+          },
+          "justification": "Q04 : reponse inchangee ; seule q9a est encore active (q9b est annulee).",
+          "recalcul": "actives de Q9@2031-03-31 : [q9a]."
+        },
+        {
+          "id": "P9.F26",
+          "etape": "P9-40",
+          "clauses": [
+            "P5.R2",
+            "P9.R3",
+            "P9.R4",
+            "P8.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-lou",
+            "balance_cents": 300
+          },
+          "justification": "Q04 / T70-16 : l'annulation d'office par add_exception a le taux FORCE 10000, alors que le palier du meme instant vaut 0 (P9.F24) : C = 300 est re-credite.",
+          "recalcul": "R = A = 1000 ; r_c = floor(1000 x 300 / 1000) = 300 ; solde 0 + 300 = 300."
+        },
+        {
+          "id": "P9.F27",
+          "etape": "P9-41",
+          "clauses": [
+            "P5.R2",
+            "P9.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "q9a",
+            "status": "cancelled",
+            "amount_cents": 0,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 0
+          },
+          "justification": "Q04 : remboursement integral, aucun frais retenu (une annulation au palier 0 aurait garde amount_cents 1000).",
+          "recalcul": "A - R = 1000 - 1000 = 0 ; C 300 - 300 ; D 700 - 700."
         }
       ]
     },
@@ -908,7 +1408,19 @@
       "regles": [
         {
           "id": "P10.R1",
-          "texte": "mark_no_show {booking_id} (admin, staff) enregistre une absence. Controles apres ceux d'acteur (P4.R2), dans cet ordre : booking_id inconnu -> NOT_FOUND ; statut different de confirmed -> INVALID_ARGUMENT ; at < starts_at du creneau (creneau pas encore commence) -> INVALID_ARGUMENT ; absence deja enregistree pour cette reservation -> ALREADY_EXISTS. Effet : la reservation porte no_show = true ; son statut reste confirmed ; aucun remboursement. Reponse {ok: true, booking_id, member_id, absences_30d, suspended_until}. A partir de P10, les vues de reservation (reserve, get_booking) portent no_show (booleen, false par defaut)."
+          "texte": "mark_no_show {booking_id} (admin, staff) enregistre une absence. Controles apres ceux d'acteur (P4.R2), dans cet ordre : booking_id inconnu -> NOT_FOUND ; statut different de confirmed -> INVALID_ARGUMENT ; at < starts_at du creneau (creneau pas encore commence) -> INVALID_ARGUMENT ; absence deja enregistree pour cette reservation -> ALREADY_EXISTS. Effet : la reservation porte no_show = true ; son statut reste confirmed ; aucun remboursement. Reponse {ok: true, booking_id, member_id, absences_30d, suspended_until}. A partir de P10, les vues de reservation (reserve, get_booking) portent no_show (booleen, false par defaut).",
+          "precisions": [
+            {
+              "question": "Q08",
+              "classe": "GARDER",
+              "texte": "Une absence enregistrée est définitive ; une suspension dure jusqu'à suspended_until ; aucune opération ne les retire."
+            },
+            {
+              "question": "Q09",
+              "classe": "GARDER",
+              "texte": "Une réservation marquée absente reste 'confirmed' (no_show = true) : elle reste payée et facturée, compte dans booked, et peut encore être annulée au palier en vigueur (0 % après D24)."
+            }
+          ]
         },
         {
           "id": "P10.R2",
@@ -919,7 +1431,14 @@
             "fenetre": "]T - 30 j, T]",
             "suspension_s": 604800,
             "origine_suspension": "at de l'operation mark_no_show"
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q07",
+              "classe": "GARDER",
+              "texte": "absences_30d est calculé une seule fois, à l'enregistrement de l'absence d'instant T, sur les absences déjà enregistrées du membre dont l'instant est dans ]T - 30 j, T] ; un enregistrement ultérieur ne recalcule pas les absences déjà enregistrées et ne déclenche aucune suspension rétroactive."
+            }
+          ]
         },
         {
           "id": "P10.R3",
@@ -1390,7 +1909,24 @@
       "regles": [
         {
           "id": "P11.R1",
-          "texte": "number_seats {slot_id} (admin) : MIGRATION d'un creneau vers des places numerotees 1..capacity. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; creneau deja numerote -> ALREADY_EXISTS ; at >= starts_at -> SLOT_CLOSED. Reponse {ok: true, slot_id, assignments} : assignments liste {booking_id, seat_numbers} dans l'ordre d'affectation (P11.R2). Un creneau non migre reste non numerote (ses reservations n'ont pas de seat_numbers)."
+          "texte": "number_seats {slot_id} (admin) : MIGRATION d'un creneau vers des places numerotees 1..capacity. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; creneau deja numerote -> ALREADY_EXISTS ; at >= starts_at -> SLOT_CLOSED. Reponse {ok: true, slot_id, assignments} : assignments liste {booking_id, seat_numbers} dans l'ordre d'affectation (P11.R2). Un creneau non migre reste non numerote (ses reservations n'ont pas de seat_numbers).",
+          "precisions": [
+            {
+              "question": "Q10",
+              "classe": "GARDER",
+              "texte": "number_seats ne libère aucune place et ne promeut personne."
+            },
+            {
+              "question": "Q11",
+              "classe": "GARDER",
+              "texte": "number_seats sur un créneau surréservé (booked > capacity) -> INVALID_ARGUMENT, sans effet, contrôle fait après SLOT_CLOSED."
+            },
+            {
+              "question": "Q12",
+              "classe": "GARDER",
+              "texte": "create_slot crée toujours un créneau non numéroté ; seul number_seats numérote un créneau."
+            }
+          ]
         },
         {
           "id": "P11.R2",
@@ -1411,7 +1947,14 @@
         {
           "id": "P11.R4",
           "remplace": "P6.R4",
-          "texte": "Promotion premier-qui-tient (remplace P6.R4). Apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation qui tient ; on recommence depuis la tete tant qu'une reservation tient. Tenir : non numerote, seats <= available ; numerote, il existe un bloc de seats places consecutives libres, et la reservation promue recoit le bloc libre de plus petit premier numero. Les reservations sautees gardent leur rang ; promoted liste les promus dans l'ordre de promotion."
+          "texte": "Promotion premier-qui-tient (remplace P6.R4). Apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation qui tient ; on recommence depuis la tete tant qu'une reservation tient. Tenir : non numerote, seats <= available ; numerote, il existe un bloc de seats places consecutives libres, et la reservation promue recoit le bloc libre de plus petit premier numero. Les reservations sautees gardent leur rang ; promoted liste les promus dans l'ordre de promotion. Une liberation de places a un instant at >= starts_at du creneau (annulation tardive, totale ou partielle) ne promeut personne : promoted = [] et les reservations en file y restent (a partir de P13, close_slot les expire).",
+          "precisions": [
+            {
+              "question": "N-02",
+              "classe": "FIXER",
+              "texte": "Une libération de places à un instant at >= starts_at du créneau (annulation tardive, totale ou partielle) ne promeut personne ; les réservations en file y restent jusqu'à close_slot, qui les expire."
+            }
+          ]
         },
         {
           "id": "P11.R5",
@@ -2235,7 +2778,19 @@
         {
           "id": "P12.R1",
           "remplace": "P11.R4",
-          "texte": "RAPPORT DE BUG BUG-P12, comportement correct (remplace P11.R4, qu'il precise sans en changer le sens). Promotion premier-qui-tient : apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation qui tient ; on recommence depuis la tete tant qu'une reservation tient. Sur un creneau numerote, une reservation tient s'il existe un bloc de seats places consecutives libres parmi TOUTES les places libres du creneau au moment du parcours, quelle que soit l'operation qui les a liberees (annulation totale, partielle, ou une operation anterieure) ; la reservation promue recoit le bloc libre de plus petit premier numero. Non numerote : seats <= available. Les reservations sautees gardent leur rang ; promoted liste les promus dans l'ordre de promotion. Scenario de reproduction fourni (sans la cause) : creneau numerote de 4 places ; x1 (1 place) recoit [1], x2 (2) [2,3], x3 (1) [4] ; x4 (2) attend ; annuler x1 ne promeut personne ; annuler 1 place de x2 libere la place 3 et ne promeut personne ; annuler x3 doit promouvoir x4 sur [3,4]. Observe en production : x4 reste en file."
+          "texte": "RAPPORT DE BUG BUG-P12, comportement correct (remplace P11.R4, qu'il precise sans en changer le sens). Promotion premier-qui-tient : apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation qui tient ; on recommence depuis la tete tant qu'une reservation tient. Sur un creneau numerote, une reservation tient s'il existe un bloc de seats places consecutives libres parmi TOUTES les places libres du creneau au moment du parcours, quelle que soit l'operation qui les a liberees (annulation totale, partielle, ou une operation anterieure) ; la reservation promue recoit le bloc libre de plus petit premier numero. Non numerote : seats <= available. Les reservations sautees gardent leur rang ; promoted liste les promus dans l'ordre de promotion. Scenario de reproduction fourni (sans la cause) : creneau numerote de 4 places ; x1 (1 place) recoit [1], x2 (2) [2,3], x3 (1) [4] ; x4 (2) attend ; annuler x1 ne promeut personne ; annuler 1 place de x2 libere la place 3 et ne promeut personne ; annuler x3 doit promouvoir x4 sur [3,4]. Observe en production : x4 reste en file. Une liberation de places a un instant at >= starts_at du creneau (annulation tardive, totale ou partielle) ne promeut personne : promoted = [] et les reservations en file y restent (a partir de P13, close_slot les expire).",
+          "precisions": [
+            {
+              "question": "N-02",
+              "classe": "FIXER",
+              "texte": "Une libération de places à un instant at >= starts_at du créneau (annulation tardive, totale ou partielle) ne promeut personne ; les réservations en file y restent jusqu'à close_slot, qui les expire."
+            },
+            {
+              "question": "Q13",
+              "classe": "GARDER",
+              "texte": "P12.R1 remplace P11.R4. La règle de promotion ne change pas ; le rapport BUG-P12 la précise : toutes les places libres du créneau comptent, quelle que soit l'opération qui les a libérées."
+            }
+          ]
         }
       ],
       "ligne_adr": 72,
@@ -2615,18 +3170,44 @@
               "19": 20,
               "20": 22
             }
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q17",
+              "classe": "GARDER",
+              "texte": "available = overbook_limit - booked, y compris pour un créneau clos ou commencé : available ne dit pas si le créneau est réservable."
+            }
+          ]
         },
         {
           "id": "P13.R2",
-          "texte": "close_slot {slot_id} (admin, staff) cloture un creneau a son debut. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; at < starts_at -> INVALID_ARGUMENT ; creneau deja clos -> ALREADY_CLOSED. Effets, dans cet ordre : (1) toutes les reservations waiting passent cancelled (expirees, rien a rembourser) ; (2) tant que booked > capacity, la reservation confirmed confirmee la PLUS RECEMMENT (ordre de confirmation P13.R3) est debarquee ENTIERE (statut bumped), meme si cela fait descendre booked sous capacity. Reponse {ok: true, slot_id, expired, bumped, compensation_cents} : expired dans l'ordre de la file, bumped dans l'ordre de debarquement, compensation_cents = somme des compensations."
+          "texte": "close_slot {slot_id} (admin, staff) cloture un creneau a son debut. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; at < starts_at -> INVALID_ARGUMENT ; creneau deja clos -> ALREADY_CLOSED. Effets, dans cet ordre : (1) toutes les reservations waiting passent cancelled (expirees, rien a rembourser) ; (2) tant que booked > capacity, la reservation confirmed confirmee la PLUS RECEMMENT (ordre de confirmation P13.R3) est debarquee ENTIERE (statut bumped), meme si cela fait descendre booked sous capacity. Reponse {ok: true, slot_id, expired, bumped, compensation_cents} : expired dans l'ordre de la file, bumped dans l'ordre de debarquement, compensation_cents = somme des compensations.",
+          "precisions": [
+            {
+              "question": "Q14",
+              "classe": "GARDER",
+              "texte": "close_slot n'est jamais automatique : tant qu'un créneau n'est pas clos, ses réservations surnuméraires restent 'confirmed', sans débarquement ni compensation."
+            },
+            {
+              "question": "Q15",
+              "classe": "GARDER",
+              "texte": "On débarque dans l'ordre inverse de confirmation ; une annulation partielle ne change pas le rang de confirmation."
+            }
+          ]
         },
         {
           "id": "P13.R3",
           "texte": "Ordre de confirmation : l'ordre dans lequel les reservations sont devenues confirmed le long de la trajectoire (a la reservation ou a la promotion ; a l'interieur d'une operation, dans l'ordre de promoted). Debarquement d'une reservation : remboursement integral vers chaque source (C re-credite au portefeuille, D a la carte), puis amount_cents, paid_credits_cents, paid_card_cents valent 0 ; compensation de 1000 centimes PAR PLACE debarquee, creditee au portefeuille du membre (credits). bumped n'est pas un statut actif : cancel -> ALREADY_CANCELLED, mark_no_show -> INVALID_ARGUMENT.",
           "valeurs": {
             "compensation_par_place_cents": 1000
-          }
+          },
+          "precisions": [
+            {
+              "question": "Q16",
+              "classe": "GARDER",
+              "texte": "La compensation de 1000 centimes par place débarquée est due même pour une réservation gratuite ; un groupe est débarqué entier, même si booked descend alors sous capacity."
+            }
+          ]
         }
       ],
       "ligne_adr": 73,
@@ -2927,6 +3508,95 @@
           "args": {
             "member_id": "m-fay"
           }
+        },
+        {
+          "id": "P13-25",
+          "period": "P13",
+          "at": "2031-05-12T16:07:00Z",
+          "op": "create_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "B13",
+            "capacity": 10,
+            "starts_at": "2031-05-12T18:00:00Z"
+          }
+        },
+        {
+          "id": "P13-26",
+          "period": "P13",
+          "at": "2031-05-12T16:08:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "b13a",
+            "member_id": "m-kim",
+            "slot_id": "B13",
+            "seats": 10
+          }
+        },
+        {
+          "id": "P13-27",
+          "period": "P13",
+          "at": "2031-05-12T16:09:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "b13w",
+            "member_id": "m-lou",
+            "slot_id": "B13",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P13-28",
+          "period": "P13",
+          "at": "2031-05-12T16:10:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "b13c",
+            "member_id": "m-max",
+            "slot_id": "B13",
+            "seats": 1
+          }
+        },
+        {
+          "id": "P13-29",
+          "period": "P13",
+          "at": "2031-05-12T16:11:00Z",
+          "op": "cancel",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "b13a",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P13-30",
+          "period": "P13",
+          "at": "2031-05-12T16:12:00Z",
+          "op": "get_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "B13"
+          }
+        },
+        {
+          "id": "P13-31",
+          "period": "P13",
+          "at": "2031-05-12T18:00:00Z",
+          "op": "close_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "B13"
+          }
         }
       ],
       "faits": [
@@ -3163,6 +3833,96 @@
           },
           "justification": "m-fay : solde 0 (P8-25 l'a vide) + 1000 (o10). o4 expiree ne rapporte rien.",
           "recalcul": "0 + 1000 = 1000."
+        },
+        {
+          "id": "P13.F15",
+          "etape": "P13-27",
+          "clauses": [
+            "P11.R3",
+            "P13.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "b13w",
+            "status": "waiting",
+            "seats": 2,
+            "position": 1
+          },
+          "justification": "B13 : capacity 10, plafond 11 ; b13a (10) laisse available 1 < 2 : b13w (cree avant b13c) entre en file.",
+          "recalcul": "10 + floor(10 x 1000 / 10000) = 11 ; 11 - 10 = 1 < 2."
+        },
+        {
+          "id": "P13.F16",
+          "etape": "P13-28",
+          "clauses": [
+            "P11.R3",
+            "P13.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "b13c",
+            "status": "confirmed",
+            "seats": 1
+          },
+          "justification": "b13c (1 place) tient : confirmee directement, meme si b13w attend.",
+          "recalcul": "1 <= 1 -> confirmed ; booked 11."
+        },
+        {
+          "id": "P13.F17",
+          "etape": "P13-29",
+          "clauses": [
+            "P9.R4",
+            "P12.R1",
+            "P13.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "b13a",
+            "status": "confirmed",
+            "seats": 8,
+            "promoted": [
+              "b13w"
+            ]
+          },
+          "justification": "Annulation partielle de 2 places a 16:11 < starts_at 18:00 (promotion permise, N-02) : booked 9, available 2 : b13w est promue, APRES b13c dans l'ordre de confirmation.",
+          "recalcul": "11 - 2 = 9 ; 11 - 9 = 2 >= 2 -> b13w confirmed ; booked 11."
+        },
+        {
+          "id": "P13.F18",
+          "etape": "P13-30",
+          "clauses": [
+            "P13.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "B13",
+            "capacity": 10,
+            "booked": 11,
+            "overbook_limit": 11,
+            "available": 0
+          },
+          "justification": "8 + 1 + 2 = 11 places confirmees : surreservation d'une place.",
+          "recalcul": "11 - 11 = 0."
+        },
+        {
+          "id": "P13.F19",
+          "etape": "P13-31",
+          "clauses": [
+            "P13.R2",
+            "P13.R3",
+            "P1.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "B13",
+            "expired": [],
+            "bumped": [
+              "b13w"
+            ],
+            "compensation_cents": 2000
+          },
+          "justification": "N-03 : le rang de confirmation est l'ordre des passages a 'confirmed' (b13a, b13c, puis b13w promue), pas l'ordre de creation (b13a, b13w, b13c) : on debarque d'abord b13w (2 places), booked 9 <= 10, arret. Un rang de creation aurait debarque b13c.",
+          "recalcul": "ordre de confirmation inverse : b13w, b13c, b13a ; 11 > 10 -> b13w (11 - 2 = 9) ; 9 <= 10 stop ; 2 x 1000 = 2000."
         }
       ]
     },
@@ -3181,15 +3941,51 @@
         },
         {
           "id": "P14.R2",
-          "texte": "issue_invoices {month} (admin) emet les factures du mois 'AAAA-MM'. Controles apres ceux d'acteur : month mal forme (mois hors 01..12) -> INVALID_ARGUMENT ; mois non termine (at < premier instant du mois suivant en heure locale du site) -> INVALID_ARGUMENT ; mois deja emis pour ce locataire -> ALREADY_EXISTS. Une facture est emise pour chaque membre ayant au moins une ligne ou un avoir emis dans le mois ; invoice_id = 'INV-<AAAA-MM>-<member_id>'. Reponse {ok: true, month, invoice_ids} par member_id croissant (ordinal). Une facture emise est IMMUABLE : elle ne change plus jamais."
+          "texte": "issue_invoices {month} (admin) emet les factures du mois 'AAAA-MM'. Controles apres ceux d'acteur : month mal forme (mois hors 01..12) -> INVALID_ARGUMENT ; mois non termine (at < premier instant du mois suivant en heure locale du site) -> INVALID_ARGUMENT ; mois deja emis pour ce locataire -> ALREADY_EXISTS. Une facture est emise pour chaque membre ayant au moins une ligne ou un avoir emis dans le mois ; invoice_id = 'INV-<AAAA-MM>-<member_id>'. Reponse {ok: true, month, invoice_ids} par member_id croissant (ordinal). Une facture emise est IMMUABLE : elle ne change plus jamais. A partir de P14, set_timezone (P9.R1) est refuse {ok: false, error: 'INVALID_ARGUMENT'}, sans effet, des que le locataire a emis au moins une facture, meme vers le fuseau deja en vigueur ; avant la premiere facture il reste permis.",
+          "precisions": [
+            {
+              "question": "Q05",
+              "classe": "CHANGER",
+              "texte": "À partir de P14, set_timezone est refusé { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, dès que le locataire a émis au moins une facture."
+            },
+            {
+              "question": "Q19",
+              "classe": "GARDER",
+              "texte": "issue_invoices peut émettre n'importe quel mois terminé, dans n'importe quel ordre, sans exiger que les mois précédents soient émis ; opening_balance_cents est le solde réel du portefeuille au premier instant local du mois."
+            },
+            {
+              "question": "Q20",
+              "classe": "GARDER",
+              "texte": "Tout locataire peut émettre des factures ; un mouvement de montant 0 n'est pas une ligne ; un membre sans ligne ni avoir émis dans le mois n'a pas de facture ce mois-là, même si son solde est non nul."
+            }
+          ]
         },
         {
           "id": "P14.R3",
-          "texte": "Contenu d'une facture : invoice_id, member_id, month, lines (dans l'ordre des operations ; au sein d'une operation, le remboursement avant la compensation, puis les charges des promus dans l'ordre de promoted ; chaque ligne {type, booking_id (null pour top_up), amount_cents}), charges_cents = somme des charges, refunds_cents = somme des lignes de remboursement (refund, et adjustment a partir de P16), total_cents = charges_cents - refunds_cents, card_cents = parts carte des charges - parts carte des remboursements, credits_used_cents = parts credits des charges - parts credits des remboursements (ces deux montants sont signes et card_cents + credits_used_cents = total_cents), top_ups_cents, compensations_cents, credit_notes_credits_cents = somme des credits_cents des avoirs emis dans le mois pour ce membre, opening_balance_cents et closing_balance_cents = solde du portefeuille au premier instant du mois et au premier instant du mois suivant. Identite : closing = opening + top_ups + compensations + credit_notes_credits - credits_used."
+          "texte": "Contenu d'une facture : invoice_id, member_id, month, lines (dans l'ordre des operations ; au sein d'une operation, le remboursement avant la compensation, puis les charges des promus dans l'ordre de promoted ; chaque ligne {type, booking_id (null pour top_up), amount_cents}), charges_cents = somme des charges, refunds_cents = somme des lignes de remboursement (refund, et adjustment a partir de P16), total_cents = charges_cents - refunds_cents, card_cents = parts carte des charges - parts carte des remboursements, credits_used_cents = parts credits des charges - parts credits des remboursements (ces deux montants sont signes et card_cents + credits_used_cents = total_cents), top_ups_cents, compensations_cents, credit_notes_credits_cents = somme des credits_cents des avoirs emis dans le mois pour ce membre, opening_balance_cents et closing_balance_cents = solde du portefeuille au premier instant du mois et au premier instant du mois suivant. Identite : closing = opening + top_ups + compensations + credit_notes_credits - credits_used.",
+          "precisions": [
+            {
+              "question": "Q21",
+              "classe": "GARDER",
+              "texte": "Une ligne de facture est exactement { type, booking_id, amount_cents } (booking_id null pour top_up et expiry) ; un rechargement en USD y figure pour ses centimes d'EUR crédités."
+            }
+          ]
         },
         {
           "id": "P14.R4",
-          "texte": "Avoirs. Un remboursement R > 0 (annulation, debarquement) dont la CHARGE appartient a un mois deja facture (mois local de la confirmation de la reservation) ne devient pas une ligne : il fait l'objet d'un avoir emis a l'instant de l'operation : {credit_note_id 'AV-nnnn' (sequence par locataire, 4 chiffres, a partir de AV-0001), invoice_id (la facture de la charge), member_id, booking_id, reason ('cancellation', 'bump', 'price_change' a partir de P16), month (mois local d'emission), issued_at, amount_cents = R, credits_cents = r_c, card_cents = r_d}. Sinon le remboursement est une ligne refund du mois ou il a lieu. La reponse de cancel porte credit_note_id (l'avoir emis, ou null)."
+          "texte": "Avoirs. Un remboursement R > 0 (annulation, debarquement) dont la CHARGE appartient a un mois deja facture (mois local de la confirmation de la reservation) ne devient pas une ligne : il fait l'objet d'un avoir emis a l'instant de l'operation : {credit_note_id 'AV-nnnn' (sequence par locataire, 4 chiffres, a partir de AV-0001), invoice_id (la facture de la charge), member_id, booking_id, reason ('cancellation', 'bump', 'price_change' a partir de P16), month (mois local d'emission), issued_at, amount_cents = R, credits_cents = r_c, card_cents = r_d}. Sinon le remboursement est une ligne refund du mois ou il a lieu. La reponse de cancel porte credit_note_id (l'avoir emis, ou null).",
+          "precisions": [
+            {
+              "question": "Q18",
+              "classe": "GARDER",
+              "texte": "Un remboursement dont la charge appartient à un mois non encore facturé est une ligne refund du mois où il a lieu, même si la charge date d'un mois passé ; card_cents et credits_used_cents d'une facture peuvent donc être négatifs."
+            },
+            {
+              "question": "Q22",
+              "classe": "GARDER",
+              "texte": "Les séquences d'avoirs et de pseudonymes ont au moins 4 chiffres, complétés par des zéros à gauche ; au-delà de 9999 elles continuent sans troncature (AV-10000)."
+            }
+          ]
         },
         {
           "id": "P14.R5",
@@ -3498,6 +4294,28 @@
           "actor": "m-sam",
           "args": {
             "member_id": "m-sam"
+          }
+        },
+        {
+          "id": "P14-28",
+          "period": "P14",
+          "at": "2031-05-31T22:22:00Z",
+          "op": "set_timezone",
+          "tenant": "t-alpha",
+          "actor": "m-ana",
+          "args": {
+            "timezone": "Europe/Paris"
+          }
+        },
+        {
+          "id": "P14-29",
+          "period": "P14",
+          "at": "2031-05-31T22:23:00Z",
+          "op": "set_timezone",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "timezone": "Europe/Paris"
           }
         }
       ],
@@ -4236,6 +5054,35 @@
           },
           "justification": "Solde = cloture de mai de m-fay.",
           "recalcul": "0 + 1000 = 1000."
+        },
+        {
+          "id": "P14.F23",
+          "etape": "P14-28",
+          "clauses": [
+            "P14.R2",
+            "P9.R1"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Q05 : t-alpha a emis des factures (P14-04, P14-06, P14-15) : set_timezone est refuse, meme vers le fuseau deja en vigueur, sans effet (l'ancien choix l'acceptait et deplacait les frontieres des mois factures).",
+          "recalcul": "issued(t-alpha) = {2031-03, 2031-04, 2031-05} non vide -> refus."
+        },
+        {
+          "id": "P14.F24",
+          "etape": "P14-29",
+          "clauses": [
+            "P14.R2",
+            "P9.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "tenant_id": "t-clar",
+            "timezone": "Europe/Paris"
+          },
+          "justification": "Frontiere Q05 : t-clar n'a emis aucune facture : set_timezone reste permis a P14.",
+          "recalcul": "issued(t-clar) vide -> ok."
         }
       ],
       "rapprochement": {
@@ -4288,14 +5135,23 @@
       "regles": [
         {
           "id": "P15.R1",
-          "texte": "set_rate {currency, date, rate_micro} (admin) inscrit un taux dans la table datee du locataire. currency vaut 'USD' (l'EUR est la devise de compte, taux implicite 1) ; date 'AAAA-MM-JJ' ; rate_micro entier >= 1 = nombre d'EUR pour 1 USD multiplie par 1 000 000 (912500 = 0,9125 EUR par USD). Sinon INVALID_ARGUMENT. Un taux deja inscrit pour (currency, date) -> ALREADY_EXISTS (la table ne se reecrit pas). Reponse {ok: true, currency, date, rate_micro}.",
+          "texte": "set_rate {currency, date, rate_micro} (admin) inscrit un taux dans la table datee du locataire. currency vaut 'USD' (l'EUR est la devise de compte, taux implicite 1) ; date 'AAAA-MM-JJ' ; rate_micro entier de 1 a 10 000 000 inclus = nombre d'EUR pour 1 USD multiplie par 1 000 000 (912500 = 0,9125 EUR par USD). Sinon INVALID_ARGUMENT. Un taux deja inscrit pour (currency, date) -> ALREADY_EXISTS (la table ne se reecrit pas). Reponse {ok: true, currency, date, rate_micro}.",
           "valeurs": {
             "unite_rate_micro": "EUR par USD x 10^6",
             "devises": [
               "EUR",
               "USD"
-            ]
-          }
+            ],
+            "rate_micro_min": 1,
+            "rate_micro_max": 10000000
+          },
+          "precisions": [
+            {
+              "question": "Q24",
+              "classe": "CHANGER",
+              "texte": "rate_micro est un entier de 1 à 10 000 000 inclus, sinon INVALID_ARGUMENT."
+            }
+          ]
         },
         {
           "id": "P15.R2",
@@ -4311,17 +5167,51 @@
         {
           "id": "P15.R4",
           "remplace": "P8.R1",
-          "texte": "Portefeuille (remplace P8.R1). Chaque membre a, dans chaque locataire, un portefeuille balance_cents en centimes d'EUR (entier >= 0, initialement 0). top_up {member_id, amount_cents, currency?} (admin, staff) : amount_cents entier > 0 et currency absente, 'EUR' ou 'USD', sinon INVALID_ARGUMENT ; member_id non membre -> NOT_FOUND ; en USD, sans taux applicable -> RATE_UNAVAILABLE, sinon credited_cents = conversion P15.R3 de amount_cents au taux applicable a at ; en EUR credited_cents = amount_cents. Reponse {ok: true, member_id, balance_cents (apres), credited_cents, currency, rate_micro (USD seulement)}. get_wallet {member_id} : admin, staff pour tout membre ; member pour lui-meme seulement (sinon FORBIDDEN) ; reponse {ok: true, member_id, balance_cents}."
+          "texte": "Portefeuille (remplace P8.R1). Chaque membre a, dans chaque locataire, un portefeuille balance_cents en centimes d'EUR (entier >= 0, initialement 0). top_up {member_id, amount_cents, currency?} (admin, staff) : amount_cents entier de 1 a 100 000 000 et currency absente, 'EUR' ou 'USD', sinon INVALID_ARGUMENT ; member_id non membre -> NOT_FOUND ; en USD, sans taux applicable -> RATE_UNAVAILABLE, sinon credited_cents = conversion P15.R3 de amount_cents au taux applicable a at ; en EUR credited_cents = amount_cents. Reponse {ok: true, member_id, balance_cents (apres), credited_cents, currency, rate_micro (USD seulement)}. get_wallet {member_id} : admin, staff pour tout membre ; member pour lui-meme seulement (sinon FORBIDDEN) ; reponse {ok: true, member_id, balance_cents}.",
+          "valeurs": {
+            "amount_cents_min": 1,
+            "amount_cents_max": 100000000
+          },
+          "precisions": [
+            {
+              "question": "N-04",
+              "classe": "FIXER",
+              "texte": "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT."
+            }
+          ]
         },
         {
           "id": "P15.R5",
           "remplace": "P7.R1",
-          "texte": "set_price {slot_id, price_cents, currency?} (admin) (remplace P7.R1) : prix PAR PLACE en centimes entiers >= 0 de currency ('EUR' par defaut, ou 'USD' ; autre -> INVALID_ARGUMENT) ; reponse {ok: true, slot_id, price_cents, currency}. Tout creneau a le prix 0 EUR tant qu'aucun prix n'est fixe."
+          "texte": "set_price {slot_id, price_cents, currency?} (admin) (remplace P7.R1) : prix PAR PLACE en centimes entiers de 0 a 100 000 000 de currency ('EUR' par defaut, ou 'USD' ; autre -> INVALID_ARGUMENT) ; reponse {ok: true, slot_id, price_cents, currency}. Tout creneau a le prix 0 EUR tant qu'aucun prix n'est fixe.",
+          "valeurs": {
+            "price_cents_min": 0,
+            "price_cents_max": 100000000
+          },
+          "precisions": [
+            {
+              "question": "N-04",
+              "classe": "FIXER",
+              "texte": "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT."
+            },
+            {
+              "question": "Q28",
+              "classe": "GARDER",
+              "texte": "get_slot ne porte ni price_cents ni devise ; le prix payé se lit dans amount_cents (et original_amount_cents) de la réservation."
+            }
+          ]
         },
         {
           "id": "P15.R6",
           "remplace": "P7.R3",
-          "texte": "Montant (remplace P7.R3). Fixe a l'instant ou la reservation devient confirmed, avec le prix, la devise du prix et le niveau de CET instant : brut = seats x price_cents ; remise = floor((brut x taux + 5000) / 10000) (demi vers le haut, sur la remise, sur le brut total) ; net = brut - remise, dans la devise du prix. Prix en EUR : amount_cents = net. Prix en USD : amount_cents = conversion P15.R3 de net au taux applicable a l'instant de la confirmation (reservation ou promotion) ; la reservation porte alors price_currency 'USD', original_amount_cents = net (centimes USD) et rate_micro. amount_cents est toujours en centimes d'EUR ; tout remboursement se calcule sur amount_cents, sans reconversion. Reserver un creneau en USD sans taux applicable -> RATE_UNAVAILABLE (controle place juste avant l'admission, memorise) ; une reservation en file d'un tel creneau ne tient pas tant qu'aucun taux ne s'applique. Un changement ulterieur de prix, de niveau ou de taux ne modifie pas un montant fixe (sauf P16). Les reservations confirmees avant P7 ont amount_cents 0 ; une reservation waiting n'a pas de montant."
+          "texte": "Montant (remplace P7.R3). Fixe a l'instant ou la reservation devient confirmed, avec le prix, la devise du prix et le niveau de CET instant : brut = seats x price_cents ; remise = floor((brut x taux + 5000) / 10000) (demi vers le haut, sur la remise, sur le brut total) ; net = brut - remise, dans la devise du prix. Prix en EUR : amount_cents = net. Prix en USD : amount_cents = conversion P15.R3 de net au taux applicable a l'instant de la confirmation (reservation ou promotion) ; la reservation porte alors price_currency 'USD', original_amount_cents = net (centimes USD) et rate_micro. amount_cents est toujours en centimes d'EUR ; tout remboursement se calcule sur amount_cents, sans reconversion. Reserver un creneau en USD sans taux applicable -> RATE_UNAVAILABLE (controle place juste avant l'admission, memorise) ; une reservation en file d'un tel creneau ne tient pas tant qu'aucun taux ne s'applique. Un changement ulterieur de prix, de niveau ou de taux ne modifie pas un montant fixe (sauf P16). Les reservations confirmees avant P7 ont amount_cents 0 ; une reservation waiting n'a pas de montant.",
+          "precisions": [
+            {
+              "question": "Q23",
+              "classe": "GARDER",
+              "texte": "Une réservation en file sur un créneau en USD n'est pas promue tant qu'aucun taux ne s'applique (elle garde son rang) ; un reserve direct rend RATE_UNAVAILABLE, réponse mémorisée pour l'idempotence."
+            }
+          ]
         }
       ],
       "ligne_adr": 75,
@@ -4772,6 +5662,32 @@
           "actor": "m-sam",
           "args": {
             "member_id": "m-sam"
+          }
+        },
+        {
+          "id": "P15-38",
+          "period": "P15",
+          "at": "2031-06-30T22:22:00Z",
+          "op": "set_rate",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "currency": "USD",
+            "date": "2031-06-30",
+            "rate_micro": 10000001
+          }
+        },
+        {
+          "id": "P15-39",
+          "period": "P15",
+          "at": "2031-06-30T22:23:00Z",
+          "op": "set_rate",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "currency": "USD",
+            "date": "2031-06-30",
+            "rate_micro": 10000000
           }
         }
       ],
@@ -5432,6 +6348,34 @@
           },
           "justification": "Juin de m-gus : un seul mouvement, le rechargement de 3000 USD credite 2738 EUR (P15.F07).",
           "recalcul": "0 + 2738 = 2738."
+        },
+        {
+          "id": "P15.F25",
+          "etape": "P15-38",
+          "clauses": [
+            "P15.R1"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Q24 : rate_micro 10 000 001 depasse la borne 10 000 000 -> INVALID_ARGUMENT, sans effet.",
+          "recalcul": "10000001 > 10000000 -> refus."
+        },
+        {
+          "id": "P15.F26",
+          "etape": "P15-39",
+          "clauses": [
+            "P15.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "currency": "USD",
+            "date": "2031-06-30",
+            "rate_micro": 10000000
+          },
+          "justification": "Q24 : 10 000 000 est la borne INCLUSE ; le refus precedent n'a rien inscrit (pas d'ALREADY_EXISTS).",
+          "recalcul": "1 <= 10000000 <= 10000000 -> ok."
         }
       ],
       "rapprochement": {
@@ -5482,15 +6426,40 @@
       "regles": [
         {
           "id": "P16.R1",
-          "texte": "change_price {slot_id, price_cents, effective_from} (admin) : changement de prix RETROACTIF. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; price_cents entier >= 0 sinon INVALID_ARGUMENT ; effective_from instant ISO 8601 UTC <= at, sinon INVALID_ARGUMENT. Effet : le prix du creneau devient price_cents (devise inchangee) pour toute confirmation FUTURE (reservation ou promotion apres cette operation). Reponse {ok: true, slot_id, price_cents, adjusted} ou adjusted liste, dans l'ordre de confirmation, {booking_id, refunded_cents, refund: {credits_cents, card_cents}, credit_note_id} des reservations ajustees."
+          "texte": "change_price {slot_id, price_cents, effective_from} (admin) : changement de prix RETROACTIF. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; price_cents entier de 0 a 100 000 000 sinon INVALID_ARGUMENT ; effective_from instant ISO 8601 UTC <= at, sinon INVALID_ARGUMENT. Effet : le prix du creneau devient price_cents (devise inchangee) pour toute confirmation FUTURE (reservation ou promotion apres cette operation). Reponse {ok: true, slot_id, price_cents, adjusted} ou adjusted liste, dans l'ordre de confirmation, {booking_id, refunded_cents, refund: {credits_cents, card_cents}, credit_note_id} des reservations ajustees.",
+          "precisions": [
+            {
+              "question": "N-04",
+              "classe": "FIXER",
+              "texte": "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT."
+            },
+            {
+              "question": "Q27",
+              "classe": "GARDER",
+              "texte": "set_price fixe le prix des confirmations futures sans toucher aux réservations existantes ; change_price fixe ce même prix (devise inchangée) et rend EN PLUS les trop-perçus des confirmations depuis effective_from."
+            }
+          ]
         },
         {
           "id": "P16.R2",
-          "texte": "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas.",
+          "texte": "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas.",
           "valeurs": {
             "borne_effective_from": "incluse",
-            "arrondi_part_credits": "floor, la carte recoit le reste"
-          }
+            "arrondi_part_credits": "floor, la carte recoit le reste",
+            "A_prime": "montant P15.R6 au nouveau prix pour les seats actuels + F (frais retenus, P9.R4)"
+          },
+          "precisions": [
+            {
+              "question": "Q25",
+              "classe": "CHANGER",
+              "texte": "A' = montant P15.R6 au nouveau prix pour les seats actuels + F, où F est la somme des frais d'annulation partielle déjà retenus sur la réservation (à chaque annulation partielle de k places sur n : F += floor(A × k / n) - R). Le trop-perçu T = A - A' ne rend jamais des frais d'annulation."
+            },
+            {
+              "question": "Q26",
+              "classe": "GARDER",
+              "texte": "Le recalcul P16.R2 d'une réservation en USD utilise le rate_micro de sa confirmation."
+            }
+          ]
         },
         {
           "id": "P16.R3",
@@ -5774,6 +6743,94 @@
           "actor": "m-sam",
           "args": {
             "member_id": "m-sam"
+          }
+        },
+        {
+          "id": "P16-25",
+          "period": "P16",
+          "at": "2031-07-31T22:22:00Z",
+          "op": "create_slot",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "R16",
+            "capacity": 4,
+            "starts_at": "2031-08-03T10:00:00Z"
+          }
+        },
+        {
+          "id": "P16-26",
+          "period": "P16",
+          "at": "2031-07-31T22:23:00Z",
+          "op": "set_price",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "R16",
+            "price_cents": 1000
+          }
+        },
+        {
+          "id": "P16-27",
+          "period": "P16",
+          "at": "2031-07-31T22:30:00Z",
+          "op": "reserve",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "request_id": "r16a",
+            "member_id": "m-max",
+            "slot_id": "R16",
+            "seats": 4
+          }
+        },
+        {
+          "id": "P16-28",
+          "period": "P16",
+          "at": "2031-08-01T12:00:00Z",
+          "op": "cancel",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "r16a",
+            "seats": 2
+          }
+        },
+        {
+          "id": "P16-29",
+          "period": "P16",
+          "at": "2031-08-01T12:05:00Z",
+          "op": "change_price",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "R16",
+            "price_cents": 800,
+            "effective_from": "2031-07-31T22:30:00Z"
+          }
+        },
+        {
+          "id": "P16-30",
+          "period": "P16",
+          "at": "2031-08-01T12:06:00Z",
+          "op": "get_booking",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "r16a"
+          }
+        },
+        {
+          "id": "P16-31",
+          "period": "P16",
+          "at": "2031-08-01T12:07:00Z",
+          "op": "change_price",
+          "tenant": "t-clar",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "R16",
+            "price_cents": 100000001,
+            "effective_from": "2031-07-31T22:30:00Z"
           }
         }
       ],
@@ -6461,6 +7518,107 @@
           },
           "justification": "Juin de m-fay : rechargement 500, w-f 1849 dont 1500 credits ; juillet : y4 2400 carte.",
           "recalcul": "juin 1000 + 500 - 1500 = 0 ; juillet 0."
+        },
+        {
+          "id": "P16.F20",
+          "etape": "P16-27",
+          "clauses": [
+            "P15.R6",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "r16a",
+            "status": "confirmed",
+            "seats": 4,
+            "amount_cents": 4000,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 4000
+          },
+          "justification": "m-max (none, solde 0) : 4 x 1000 = 4000, tout a la carte.",
+          "recalcul": "min(0, 4000) = 0 ; 4000 carte."
+        },
+        {
+          "id": "P16.F21",
+          "etape": "P16-28",
+          "clauses": [
+            "P9.R3",
+            "P9.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "r16a",
+            "status": "confirmed",
+            "seats": 2,
+            "refunded_cents": 1000,
+            "refund": {
+              "credits_cents": 0,
+              "card_cents": 1000
+            },
+            "refund_rate_bp": 5000,
+            "promoted": [],
+            "credit_note_id": null
+          },
+          "justification": "Debut 2031-08-03 12:00 locale (10:00Z, +02:00) ; D48 = 08-01 12:00 locale = 10:00Z, D24 = 08-02 10:00Z ; at 08-01 12:00Z : palier 5000. R = floor(4000 x 2 x 5000 / (4 x 10000)) = 1000. Q25 : frais retenus F = floor(4000 x 2 / 4) - 1000 = 1000.",
+          "recalcul": "moitie de 4000 = 2000 pour 2 places, a 50 % : 1000 rendus, 1000 retenus ; A = 3000, C 0, D 3000."
+        },
+        {
+          "id": "P16.F22",
+          "etape": "P16-29",
+          "clauses": [
+            "P16.R1",
+            "P16.R2",
+            "P16.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "R16",
+            "price_cents": 800,
+            "adjusted": [
+              {
+                "booking_id": "r16a",
+                "refunded_cents": 400,
+                "refund": {
+                  "credits_cents": 0,
+                  "card_cents": 400
+                },
+                "credit_note_id": null
+              }
+            ]
+          },
+          "justification": "Q25 : A' = 2 x 800 (seats actuels, nouveau prix, sans remise) + F 1000 = 2600 ; T = 3000 - 2600 = 400. L'ancien choix (A' = 1600, T = 1400) rendait en douce les 1000 de frais d'annulation. Aucune facture de t-clar : ligne 'adjustment', credit_note_id null.",
+          "recalcul": "3000 - (1600 + 1000) = 400 ; r_c = floor(400 x 0 / 3000) = 0 ; r_d = 400."
+        },
+        {
+          "id": "P16.F23",
+          "etape": "P16-30",
+          "clauses": [
+            "P16.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "r16a",
+            "status": "confirmed",
+            "seats": 2,
+            "amount_cents": 2600,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 2600
+          },
+          "justification": "Apres ajustement : A' = 2600, D = 3000 - 400.",
+          "recalcul": "C 0 ; D 2600 ; A = C + D = 2600."
+        },
+        {
+          "id": "P16.F24",
+          "etape": "P16-31",
+          "clauses": [
+            "P16.R1"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "N-04 : change_price porte la meme borne de price_cents que set_price (100 000 000) -> INVALID_ARGUMENT, sans effet.",
+          "recalcul": "100000001 > 100000000 -> refus."
         }
       ],
       "rapprochement": {
@@ -6502,174 +7660,389 @@
       }
     }
   },
-  "questions_ouvertes": [
+  "questions_ouvertes": [],
+  "questions_resolues": [
+    {
+      "id": "T70-16",
+      "periode": "P9 (P9.R3, sans numéro)",
+      "sujet": "taux par défaut 10000 pour un créneau supprimé par add_exception",
+      "classe": "CHANGER",
+      "decision": "Une annulation d'office par add_exception a un taux FORCE de 10000, pose par P5.R2 et lu par P9.R3 (et non l'effet de bord d'un creneau supprime).",
+      "regles": [
+        "P9.R3"
+      ],
+      "faits": [
+        "P9.F24",
+        "P9.F26",
+        "P9.F27"
+      ]
+    },
     {
       "id": "Q01",
       "periode": "P9",
+      "sujet": "start_time de create_recurring reste en UTC après set_timezone",
       "question": "create_recurring (P5.R1) garde start_time en UTC apres set_timezone : une serie hebdomadaire traversant un changement d'heure garde la meme heure UTC et change d'heure locale. Faut-il plutot exprimer start_time en heure locale du site a partir de P9 ?",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "À partir de P9, start_time est l'heure MURALE locale du site et from_date, until_date et la date d'occurrence sont des dates du calendrier local ; le starts_at de chaque occurrence est l'instant UTC de '<date> <start_time>' local, converti par P9.R2 (heure inexistante lue à +01:00, heure ambiguë = première occurrence). Une série hebdomadaire garde donc la même heure locale de part et d'autre d'un changement d'heure. En 'UTC', rien ne change.",
+      "regles": [
+        "P9.R5"
+      ],
+      "faits": [
+        "P9.F18",
+        "P9.F19",
+        "P9.F20",
+        "P9.F21",
+        "P9.F22"
+      ]
     },
     {
       "id": "Q02",
       "periode": "P9",
+      "sujet": "heure ambiguë d'automne = première occurrence",
       "question": "Une heure locale AMBIGUE (automne) est declaree comme sa premiere occurrence (UTC+2) pour le calcul de D48/D24, mais aucun fait ne l'exerce (la trajectoire ne va pas jusqu'au 26/10/2031). Ajouter un fait d'automne en T72, ou garder la regle non exercee ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00).",
+      "regles": [
+        "P9.R2"
+      ],
+      "faits": [
+        "P9.F22"
+      ]
     },
     {
       "id": "Q03",
       "periode": "P9",
+      "sujet": "palier quel que soit l'acteur",
       "question": "Le palier s'applique quel que soit l'acteur : une annulation par admin ou staff (geste commercial) n'est pas remboursee a 100 %. Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Le palier s'applique à toute annulation, quel que soit l'acteur (admin, staff ou member) : il n'existe pas d'annulation à 100 % par geste commercial.",
+      "regles": [
+        "P9.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q04",
-      "periode": "P9",
+      "periode": "P9 (P5.R2)",
+      "sujet": "add_exception sur une réservation payée",
       "question": "add_exception (P5.R2) sur une reservation payee : ni remboursement, ni palier, ni avoir ne sont fixes (deja ouvert dans la source P1-P8). Aucun fait P9-P16 ne l'exerce ; a trancher (proposition : remboursement integral, avoir si la charge est facturee).",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée.",
+      "regles": [
+        "P5.R2",
+        "P7.R5",
+        "P8.R4",
+        "P9.R3",
+        "P9.R4"
+      ],
+      "faits": [
+        "P8.F29",
+        "P8.F30",
+        "P8.F31",
+        "P9.F24",
+        "P9.F25",
+        "P9.F26",
+        "P9.F27"
+      ]
     },
     {
       "id": "Q05",
-      "periode": "P9",
+      "periode": "P9 / P14",
+      "sujet": "set_timezone après l'émission de factures",
       "question": "Changer de fuseau (set_timezone) apres l'emission de factures deplacerait la frontiere des mois deja factures (P14.R1 prend le fuseau en vigueur a l'emission) : doubles comptes ou trous possibles. Interdire set_timezone apres la premiere facture, ou figer le fuseau de chaque mois emis ?",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "À partir de P14, set_timezone est refusé { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, dès que le locataire a émis au moins une facture.",
+      "regles": [
+        "P14.R2"
+      ],
+      "faits": [
+        "P14.F23",
+        "P14.F24"
+      ]
     },
     {
       "id": "Q06",
       "periode": "P9",
+      "sujet": "refund_rate_bp d'une annulation waiting",
       "question": "refund_rate_bp d'une annulation de reservation waiting vaut le taux du palier (qui ne rembourse rien) : on aurait pu dire 0 ou omettre le champ. Aucun fait P9-P16 n'annule une waiting.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "refund_rate_bp est le taux du palier à l'instant de l'annulation, y compris pour une réservation waiting, qui ne rembourse rien (refunded_cents 0).",
+      "regles": [
+        "P9.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q07",
       "periode": "P10",
+      "sujet": "absence enregistrée hors ordre",
       "question": "Absence enregistree hors ordre (une absence plus ancienne marquee apres une plus recente) : le compte ne se fait que relativement a l'absence que l'on enregistre ; les absences posterieures deja enregistrees ne sont pas reevaluees et ne declenchent pas de suspension retroactive. Voulu ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "absences_30d est calculé une seule fois, à l'enregistrement de l'absence d'instant T, sur les absences déjà enregistrées du membre dont l'instant est dans ]T - 30 j, T] ; un enregistrement ultérieur ne recalcule pas les absences déjà enregistrées et ne déclenche aucune suspension rétroactive.",
+      "regles": [
+        "P10.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q08",
       "periode": "P10",
+      "sujet": "pas d'annulation d'absence ni de levée de suspension",
       "question": "Annuler ou corriger une absence (mark_no_show a tort) n'est pas prevu ; une suspension ne peut pas etre levee.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Une absence enregistrée est définitive ; une suspension dure jusqu'à suspended_until ; aucune opération ne les retire.",
+      "regles": [
+        "P10.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q09",
       "periode": "P10",
+      "sujet": "réservation absente",
       "question": "Une reservation absente reste confirmed (no_show = true) : elle reste facturee et compte dans booked. Une annulation ulterieure d'une reservation absente (palier 0 %) est permise.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Une réservation marquée absente reste 'confirmed' (no_show = true) : elle reste payée et facturée, compte dans booked, et peut encore être annulée au palier en vigueur (0 % après D24).",
+      "regles": [
+        "P10.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q10",
       "periode": "P11",
+      "sujet": "number_seats ne promeut pas",
       "question": "number_seats ne declenche aucune promotion (aucune place n'est liberee) : une reservation waiting qui tiendrait apres numerotation reste en file jusqu'a la prochaine liberation. Voulu ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "number_seats ne libère aucune place et ne promeut personne.",
+      "regles": [
+        "P11.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q11",
       "periode": "P11",
+      "sujet": "migrer un créneau surréservé",
       "question": "Migrer (number_seats) un creneau SURRESERVE (booked > capacity, possible a partir de P13) n'est pas specifie : les blocs depasseraient capacity. Refuser (INVALID_ARGUMENT) ou debarquer d'abord ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "number_seats sur un créneau surréservé (booked > capacity) -> INVALID_ARGUMENT, sans effet, contrôle fait après SLOT_CLOSED.",
+      "regles": [
+        "P11.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q12",
       "periode": "P11",
+      "sujet": "pas de create_slot numéroté",
       "question": "Pas de create_slot directement numerote : un creneau ne devient numerote que par number_seats. Faut-il un argument numbered a create_slot ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "create_slot crée toujours un créneau non numéroté ; seul number_seats numérote un créneau.",
+      "regles": [
+        "P11.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q13",
       "periode": "P12",
+      "sujet": "P12.R1 remplace P11.R4",
       "question": "P12.R1 REMPLACE P11.R4 sans en changer le sens (il le precise) : la source peut-elle plutot le porter comme clause de non-regression qui ne gouverne aucune decision ? La racine a choisi le remplacement pour garder la non-contradiction mecanique.",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "P12.R1 remplace P11.R4. La règle de promotion ne change pas ; le rapport BUG-P12 la précise : toutes les places libres du créneau comptent, quelle que soit l'opération qui les a libérées.",
+      "regles": [
+        "P12.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q14",
       "periode": "P13",
+      "sujet": "close_slot jamais automatique",
       "question": "close_slot n'est jamais automatique : un creneau surreserve non clos garde ses surnumeraires sans compensation. Faut-il une cloture implicite au debut du creneau ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "close_slot n'est jamais automatique : tant qu'un créneau n'est pas clos, ses réservations surnuméraires restent 'confirmed', sans débarquement ni compensation.",
+      "regles": [
+        "P13.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q15",
       "periode": "P13",
+      "sujet": "rang de débarquement après annulation partielle",
       "question": "Le debarquement suit l'ordre de confirmation ; une reservation partiellement annulee garde son rang de confirmation d'origine. Non exerce.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "On débarque dans l'ordre inverse de confirmation ; une annulation partielle ne change pas le rang de confirmation.",
+      "regles": [
+        "P13.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q16",
       "periode": "P13",
+      "sujet": "compensation sur réservation gratuite ; groupe entier",
       "question": "La compensation (1000 centimes par place) est due meme pour une reservation gratuite (o9, o10) et meme si le debarquement d'un groupe entier fait descendre booked sous capacity (S20 : 19 places sur 20). Voulu ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "La compensation de 1000 centimes par place débarquée est due même pour une réservation gratuite ; un groupe est débarqué entier, même si booked descend alors sous capacity.",
+      "regles": [
+        "P13.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q17",
       "periode": "P13",
+      "sujet": "available d'un créneau clos",
       "question": "available d'un creneau clos reste plafond - booked (S18 clos : available 1) alors que plus rien n'y est reservable ; les faits ne le comparent pas. Faut-il available = 0 apres cloture ?",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "available = overbook_limit - booked, y compris pour un créneau clos ou commencé : available ne dit pas si le créneau est réservable.",
+      "regles": [
+        "P13.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q18",
       "periode": "P14",
+      "sujet": "remboursement d'une charge d'un mois passé non facturé",
       "question": "Un remboursement d'une charge d'un mois PASSE mais pas encore facture devient une ligne refund du mois du remboursement (n2 : charge d'avril, remboursee le 04/05, avant l'emission d'avril) : card_cents de mai devient negatif (-1080). Faut-il plutot rattacher le remboursement au mois de la charge ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Un remboursement dont la charge appartient à un mois non encore facturé est une ligne refund du mois où il a lieu, même si la charge date d'un mois passé ; card_cents et credits_used_cents d'une facture peuvent donc être négatifs.",
+      "regles": [
+        "P14.R4"
+      ],
+      "faits": []
     },
     {
       "id": "Q19",
       "periode": "P14",
+      "sujet": "émission dans le désordre",
       "question": "issue_invoices accepte d'emettre les mois dans le desordre (avril avant mars) et n'exige pas que les mois precedents soient emis ; le solde d'ouverture est lu dans l'historique du portefeuille. Non exerce.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "issue_invoices peut émettre n'importe quel mois terminé, dans n'importe quel ordre, sans exiger que les mois précédents soient émis ; opening_balance_cents est le solde réel du portefeuille au premier instant local du mois.",
+      "regles": [
+        "P14.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q20",
       "periode": "P14",
+      "sujet": "qui reçoit une facture",
       "question": "Seul t-alpha est facture ; les reservations a montant nul ne font pas de ligne ; un membre sans mouvement ni avoir dans le mois n'a pas de facture meme si son solde est non nul (la chaine opening = closing precedent tient quand meme).",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Tout locataire peut émettre des factures ; un mouvement de montant 0 n'est pas une ligne ; un membre sans ligne ni avoir émis dans le mois n'a pas de facture ce mois-là, même si son solde est non nul.",
+      "regles": [
+        "P14.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q21",
       "periode": "P14",
+      "sujet": "format minimal d'une ligne",
       "question": "Format des lignes minimal ({type, booking_id, amount_cents}) : pas de parts credits/carte par ligne, pas de devise d'origine pour un rechargement en USD. Suffisant pour la facture remise au candidat ?",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "Une ligne de facture est exactement { type, booking_id, amount_cents } (booking_id null pour top_up et expiry) ; un rechargement en USD y figure pour ses centimes d'EUR crédités.",
+      "regles": [
+        "P14.R3"
+      ],
+      "faits": []
     },
     {
       "id": "Q22",
       "periode": "P14",
+      "sujet": "au-delà de AV-9999",
       "question": "Numerotation des avoirs au-dela de AV-9999 non specifiee.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Les séquences d'avoirs et de pseudonymes ont au moins 4 chiffres, complétés par des zéros à gauche ; au-delà de 9999 elles continuent sans troncature (AV-10000).",
+      "regles": [
+        "P14.R4"
+      ],
+      "faits": []
     },
     {
       "id": "Q23",
       "periode": "P15",
+      "sujet": "créneau en USD sans taux",
       "question": "Une reservation en file d'un creneau en USD ne tient pas tant qu'aucun taux ne s'applique (declare, non exerce) ; une reservation directe rend RATE_UNAVAILABLE (declare, non exerce).",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Une réservation en file sur un créneau en USD n'est pas promue tant qu'aucun taux ne s'applique (elle garde son rang) ; un reserve direct rend RATE_UNAVAILABLE, réponse mémorisée pour l'idempotence.",
+      "regles": [
+        "P15.R6"
+      ],
+      "faits": []
     },
     {
       "id": "Q24",
       "periode": "P15",
+      "sujet": "rate_micro sans borne supérieure",
       "question": "Pas de borne superieure pour rate_micro, pas de taux EUR->USD, portefeuille et factures toujours en EUR (aucun affichage en USD).",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "rate_micro est un entier de 1 à 10 000 000 inclus, sinon INVALID_ARGUMENT.",
+      "regles": [
+        "P15.R1"
+      ],
+      "faits": [
+        "P15.F25",
+        "P15.F26"
+      ]
     },
     {
       "id": "Q25",
       "periode": "P16",
+      "sujet": "A' recalculé après une annulation partielle à palier < 100 %",
       "question": "change_price sur une reservation deja partiellement annulee avec palier < 100 % : A' est recalcule sur les seats ACTUELS alors que A contient des frais retenus pour les places annulees ; le trop-percu peut alors surprendre. Non exerce.",
-      "exerce": false
+      "classe": "CHANGER",
+      "decision": "A' = montant P15.R6 au nouveau prix pour les seats actuels + F, où F est la somme des frais d'annulation partielle déjà retenus sur la réservation (à chaque annulation partielle de k places sur n : F += floor(A × k / n) - R). Le trop-perçu T = A - A' ne rend jamais des frais d'annulation.",
+      "regles": [
+        "P9.R4",
+        "P16.R2"
+      ],
+      "faits": [
+        "P16.F21",
+        "P16.F22",
+        "P16.F23"
+      ]
     },
     {
       "id": "Q26",
       "periode": "P16",
+      "sujet": "rate_micro du recalcul en USD",
       "question": "change_price sur un creneau en USD : A' utilise le rate_micro de la confirmation (declare, non exerce).",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "Le recalcul P16.R2 d'une réservation en USD utilise le rate_micro de sa confirmation.",
+      "regles": [
+        "P16.R2"
+      ],
+      "faits": []
     },
     {
       "id": "Q27",
       "periode": "P16",
+      "sujet": "set_price contre change_price",
       "question": "set_price (P15.R5) et change_price (P16.R1) fixent tous deux le prix des confirmations futures : la source doit les faire gouverner des decisions distinctes (ou fusionner) pour passer la non-contradiction.",
-      "exerce": true
+      "classe": "GARDER",
+      "decision": "set_price fixe le prix des confirmations futures sans toucher aux réservations existantes ; change_price fixe ce même prix (devise inchangée) et rend EN PLUS les trop-perçus des confirmations depuis effective_from.",
+      "regles": [
+        "P16.R1"
+      ],
+      "faits": []
     },
     {
       "id": "Q28",
       "periode": "P9-P16",
+      "sujet": "prix absent de get_slot",
       "question": "get_slot porte-t-il price_cents / price_currency ? Les racines ne le fixent pas et aucun fait ne les compare.",
-      "exerce": false
+      "classe": "GARDER",
+      "decision": "get_slot ne porte ni price_cents ni devise ; le prix payé se lit dans amount_cents (et original_amount_cents) de la réservation.",
+      "regles": [
+        "P15.R5"
+      ],
+      "faits": []
     }
   ]
 }

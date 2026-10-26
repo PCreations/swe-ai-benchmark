@@ -95,7 +95,53 @@ retire des règles, et beaucoup forcent à revoir la conception :
 - **Régressions** : chaque clause encore active est recontrôlée à chaque
   période (G et `G_new` du cahier).
 
-### 4. Le garde-fou avant tout pilote
+### 4. Comme un vrai projet : tickets et documentation dans le dépôt
+
+Le prompt n'empile plus des couches de contrat. À chaque période, le moteur
+écrit dans le dépôt du candidat, à partir de la même source de clauses :
+- `docs/spec.md` : la spécification consolidée et à jour ;
+- `docs/api.md` : le contrat d'interface en vigueur (opérations, réponses,
+  valeurs exactes, codes d'erreur, exemples) ;
+- `docs/tickets/Pnn.md` : le ticket de la période (ce qui change et pourquoi,
+  ce qui est ajouté, modifié ou retiré, critères d'acceptation avec exemples).
+
+Le prompt est court, comme un ticket assigné : il renvoie au ticket, à la spec
+et au contrat. Le moteur réécrit ces trois emplacements à chaque période ; le
+reste du dépôt (code, tests, notes) appartient au candidat.
+
+### 5. Ce qu'on mesure : l'effet de la qualité du code sur le coût futur
+
+Question de recherche : **la qualité du code produit change-t-elle le coût du
+développement futur pour un modèle ?**
+
+Protocole : deux bras, partis de zéro, sur les mêmes 24 tickets, avec le même
+modèle, le même effort et le même outil (Claude Code non interactif). La seule
+différence est une phrase de méthode ajoutée à chaque prompt du bras B.
+
+| Bras | Consigne ajoutée au prompt |
+|---|---|
+| A — naturel | aucune : seulement le ticket, la spec et le contrat |
+| B — discipliné | développer en ATDD (tests d'acceptation écrits d'abord, à partir des critères du ticket) et respecter les principes SOLID |
+
+Chaque bras est répété (trajectoires indépendantes), pour séparer l'effet de
+la méthode du hasard du modèle.
+
+Mesures, à chaque période :
+- **coût** : tokens par catégorie, tours, durée de la session ;
+- **résultat** : score par clause (séquences ciblées et tests différentiels),
+  régressions G et `G_new` ;
+- **qualité du code**, comme vérification que la consigne a eu un effet :
+  complexité, duplication, taille des fonctions et des fichiers, nombre de
+  tests écrits par le candidat et leur couverture.
+
+Analyse : le coût par période et le coût cumulé de B rapporté à A, à résultat
+comparable, avec les outils statistiques du cahier (rapport de coûts,
+bootstrap, calcul de puissance). L'hypothèse à éprouver : B coûte plus au
+début, puis moins quand le projet grossit et que les tickets imposent des
+refontes (P11, P17, P24). Le calcul de puissance (T35) fixe le nombre de
+répétitions nécessaire.
+
+### 6. Le garde-fou avant tout pilote
 
 Avant une campagne, une **calibration** : un candidat de référence,
 implémenté à partir du seul énoncé, doit obtenir 1 sur chaque clause à chaque
@@ -104,10 +150,9 @@ candidat, et bloque la campagne.
 
 ## Coût
 
-F-PLATFORM est un chantier de l'ordre de dix tâches. Une campagne complète
-(24 périodes × 3 répétitions × 5 configurations, soit 360 sessions) prendrait
-de l'ordre de 30 à 40 heures sur l'abonnement du mandant. Elle peut être
-précédée d'un passage court (1 répétition).
+F-PLATFORM est un chantier de l'ordre de dix tâches. L'expérience compte
+2 bras × R répétitions × 24 périodes sessions pour un modèle ; avec R = 3,
+144 sessions. Elle est précédée d'un passage court (1 répétition par bras).
 
 ## Ce qui n'est pas encore fixé
 

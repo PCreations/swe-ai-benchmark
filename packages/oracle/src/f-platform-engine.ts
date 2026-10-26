@@ -13,16 +13,19 @@
 // se décide ici « par défaut », hormis deux points de structure documentés
 // (locataire implicite avant P3, une place par réservation avant P6).
 //
-// Trois facilités de STRUCTURE, sans règle (T71) :
-//   - horodatage des confirmations : quand une réservation devient confirmed,
-//     le moteur note l'instant `at` de l'opération et un rang de confirmation
-//     croissant (un fait observé, que les clauses P13, P14 et P16 lisent) ;
+// L'instant et le rang de confirmation d'une réservation ne sont PAS posés par
+// le moteur : `confirmer` passe la main à la décision `reservation.confirmation`
+// (clause P1.R3), qui les inscrit (clarification N-03).
+//
+// Deux facilités de STRUCTURE, sans règle (T71) :
 //   - journal financier brut du locataire (`journaliser`) : les clauses qui
 //     font circuler de l'argent y inscrivent ce qu'elles font ; ce que ce
 //     journal VAUT (lignes de facture, avoirs, mois) est décidé par les clauses
 //     de P14 ;
 //   - `donnees` : un entrepôt clé -> valeur par locataire où chaque clause
-//     range son propre état (fuseau, absences, taux, factures...).
+//     range son propre état (fuseau, absences, taux, factures...), et un
+//     entrepôt global (`donneeGlobale`) pour l'état d'une clause qui traverse
+//     les locataires (rang de confirmation, P1.R3).
 //
 // Aucune horloge ambiante : l'instant de chaque opération est son champ `at`.
 //
@@ -70,7 +73,7 @@ export interface Booking {
   amount_cents?: number
   paid_credits_cents?: number
   paid_card_cents?: number
-  /** Instant (champ at) et rang de la confirmation : horodatage de structure. */
+  /** Instant (champ at) et rang de la confirmation : inscrits par la clause P1.R3. */
   confirmed_at?: string
   confirmation_seq?: number
   /** Taux de remise (pb) retenu au calcul du montant. */
@@ -138,8 +141,9 @@ export interface JournalEntry {
 export interface PlatformState {
   readonly tenants: Map<string, Tenant>
   seq: number
-  confirmations: number
   journal_seq: number
+  /** État global propre aux clauses, rangé par clé (traverse les locataires). */
+  readonly donnees: Map<string, unknown>
 }
 
 /** Mise en œuvre d'une clause : décision -> fonction (ou étape/vue rangée). */
@@ -160,7 +164,16 @@ export interface PlatformClause {
   readonly implementation: Implementation
   readonly governs: readonly string[]
   readonly compares: readonly string[]
+  /** Précisions de la règle (passe de clarification), recopiées de la racine. */
+  readonly precisions?: readonly Precision[]
   readonly questions_ouvertes?: readonly string[]
+}
+
+/** Une précision de règle : la question tranchée, sa classe, la phrase exacte. */
+export interface Precision {
+  readonly question: string
+  readonly classe: string
+  readonly texte: string
 }
 
 /** Étape rangée d'une opération ou de l'enveloppe : rend une réponse pour s'arrêter, rien pour continuer. */
@@ -332,11 +345,16 @@ export class PlatformContext {
     return d.get(cle) as T
   }
 
-  /** Une réservation devient confirmed : montant puis paiement, si des clauses actives les gouvernent. */
+  /** L'état global qu'une clause range sous `cle` (créé par `init` au premier accès). */
+  donneeGlobale<T>(cle: string, init: () => T): T {
+    const d = this.etat.donnees
+    if (!d.has(cle)) d.set(cle, init())
+    return d.get(cle) as T
+  }
+
+  /** Une réservation devient confirmed (clause `reservation.confirmation`), puis montant et paiement si des clauses actives les gouvernent. */
   confirmer(b: Booking): void {
-    b.status = 'confirmed'
-    b.confirmed_at = this.step.at
-    b.confirmation_seq = ++this.etat.confirmations
+    this.regle<(ctx: PlatformContext, b: Booking) => void>('reservation.confirmation')(this, b)
     const montant = this.regleOpt<(ctx: PlatformContext, b: Booking) => number>('reservation.montant')
     if (montant !== undefined) b.amount_cents = montant(this, b)
     const paiement = this.regleOpt<(ctx: PlatformContext, b: Booking) => void>('reservation.paiement')
@@ -362,8 +380,8 @@ export class PlatformEngine {
   readonly etat: PlatformState = {
     tenants: new Map([['default', newTenant('default')]]),
     seq: 0,
-    confirmations: 0,
     journal_seq: 0,
+    donnees: new Map(),
   }
   private readonly tables = new Map<number, Map<string, [string, unknown]>>()
 

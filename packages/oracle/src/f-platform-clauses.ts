@@ -17,17 +17,22 @@
 //   governs                       — les décisions gouvernées, dérivées des clés
 //                                   de `implementation` (jamais écrites à part) ;
 //   compares                      — les grandeurs comparées ;
-//   questions_ouvertes            — ce que la racine gelée ne fixe pas et que le
-//                                   modèle tranche provisoirement (à confirmer).
+//   precisions                    — les précisions de la règle dans la racine
+//                                   (passe de clarification : questions T70-xx,
+//                                   Qnn, N-0n tranchées), recopiées mot pour mot ;
+//   questions_ouvertes            — ce que la racine gelée laisse ouvert (seule
+//                                   Q38 reste ouverte : décision du mandant).
 //
 // Les règles sont celles de acceptance/reference-platform/F-PLATFORM-P1-P8.json,
 // F-PLATFORM-P9-P16.json et F-PLATFORM-P17-P24.json (`periodes.<Pn>.regles`),
 // une clause par règle, mêmes identifiants, mêmes remplacements ; une clause
 // remplacée sort à l'entrée de sa remplaçante (T72 : P1.R4 sort à P21, P14.R3 et
-// P15.R6 à P22). Le moteur (f-platform-engine.ts) ne contient aucune règle. Les
-// questions ouvertes Q01-Q28 (racine P9-P16) et Q29-Q61 (racine P17-P24) sont
-// tranchées PROVISOIREMENT, selon le choix de la racine, dans le champ
-// `questions_ouvertes` de la clause concernée.
+// P15.R6 à P22 ; clarification : P5.R1 sort à P9, où P9.R5 la remplace). Le
+// moteur (f-platform-engine.ts) ne contient aucune règle, pas même l'instant et
+// le rang de confirmation (P1.R3). Les questions T70-01..T70-16, Q01-Q61 et
+// N-01..N-04 sont tranchées par la passe de clarification : les règles réécrites
+// portent le texte de la racine, et chaque clause ses `precisions`. Seule Q38
+// reste ouverte (P18.R3).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
@@ -39,6 +44,7 @@ import {
   type JournalEntry,
   type Json,
   type PlatformClause,
+  type Precision,
   type PlatformContext,
   type PlatformResponse,
   type Quantity,
@@ -73,7 +79,7 @@ export const PLATFORM_QUANTITIES: Readonly<Record<string, Quantity>> = {
   status: { unit: 'enumeration', format: "'confirmed' | 'waiting' | 'cancelled' (et 'bumped' a partir de P13)" },
   role: { unit: 'enumeration', format: "'admin' | 'staff' | 'member'" },
   tier: { unit: 'enumeration', format: "'none' | 'silver' | 'gold'" },
-  capacity: { unit: 'places', format: 'entier >= 1' },
+  capacity: { unit: 'places', format: 'entier de 1 a 10 000' },
   seats: { unit: 'places', format: 'entier >= 1 (1 par defaut)' },
   booked: { unit: 'places', format: 'entier >= 0' },
   available: { unit: 'places', format: 'entier >= 0 (capacity - booked)' },
@@ -134,14 +140,14 @@ export const PLATFORM_QUANTITIES: Readonly<Record<string, Quantity>> = {
   'credit_notes.card_cents': { unit: CENTIMES, format: 'entier >= 0, part rendue a la carte' },
   currency: { unit: 'devise ISO 4217', format: "'EUR' | 'USD' ('EUR' par defaut)" },
   price_currency: { unit: 'devise ISO 4217', format: "'EUR' | 'USD'" },
-  rate_micro: { unit: 'EUR pour 1 USD x 1 000 000', format: 'entier >= 1 (912500 = 0,9125 EUR par USD)' },
+  rate_micro: { unit: 'EUR pour 1 USD x 1 000 000', format: 'entier de 1 a 10 000 000 (912500 = 0,9125 EUR par USD)' },
   credited_cents: { unit: CENTIMES, format: 'entier > 0, montant credite en EUR apres conversion P15.R3' },
   original_amount_cents: { unit: 'centimes de dollar US', format: 'entier >= 0, montant net avant conversion' },
   effective_from: { unit: 'instant UTC', format: "ISO 8601 'AAAA-MM-JJTHH:MM:SSZ', <= at" },
   adjusted: { unit: 'ajustements', format: "tableau JSON de { booking_id, refunded_cents, refund, credit_note_id }, ordre de confirmation" },
   // ── P17 à P24 (T72)
   source_tenant_id: { unit: IDENT, format: 'tenant_id du locataire absorbe par la fusion' },
-  renamed: { unit: 'renommages', format: "tableau JSON de { kind, from, to }, to = '<source_tenant_id>:<from>' ; kind 'slot', 'series', 'booking', 'request', 'import' dans cet ordre, puis from croissant (ordinal UTF-16)" },
+  renamed: { unit: 'renommages', format: "tableau JSON de { kind, from, to }, to = '<source_tenant_id>:<from>' ; kind 'slot', 'series', 'booking', 'request', 'import', 'pseudonym' dans cet ordre, puis from croissant (ordinal UTF-16)" },
   merged_members: { unit: 'liste de member_id', format: 'tableau JSON de chaines, ordre croissant (ordinal UTF-16)' },
   added_members: { unit: 'liste de member_id', format: 'tableau JSON de chaines, ordre croissant (ordinal UTF-16)' },
   origin: { unit: 'origine de reservation', format: '{ tenant_id, booking_id } du locataire et de la reservation de creation' },
@@ -178,7 +184,7 @@ export const PLATFORM_QUANTITIES: Readonly<Record<string, Quantity>> = {
   expired_cents: { unit: CENTIMES, format: 'entier >= 0, somme des lignes expiry du mois' },
   to_member_id: { unit: IDENT, format: 'member_id du destinataire' },
   with_booking_id: { unit: IDENT, format: "booking_id de l'autre reservation de l'echange" },
-  fee_cents: { unit: CENTIMES, format: 'entier >= 100 : max(100, floor((A x 1000 + 5000) / 10000))' },
+  fee_cents: { unit: CENTIMES, format: 'entier : 0 si A = 0, sinon max(100, floor((A x 1000 + 5000) / 10000))' },
   'fee.credits_cents': { unit: CENTIMES, format: 'entier >= 0, part des frais payee en credits' },
   'fee.card_cents': { unit: CENTIMES, format: 'entier >= 0, part des frais payee par carte' },
   payer_member_id: { unit: IDENT, format: 'member_id debite a la confirmation, ou null si jamais confirmee' },
@@ -209,7 +215,243 @@ interface ClauseSpec {
   readonly questions_ouvertes?: readonly string[]
 }
 
+/**
+ * Précisions de la passe de clarification (racines gelées, `regles[].precisions`), recopiées mot pour mot :
+ * chaque clause porte celles de sa règle (champ `precisions`).
+ */
+const PRECISIONS: Readonly<Record<string, readonly Precision[]>> = {
+  'P1.R1': [
+    { question: 'T70-01', classe: 'GARDER', texte: "create_slot contrôle d'abord ses arguments : slot_id absent ou vide, capacity non entière ou < 1, ou starts_at hors de la forme 'AAAA-MM-JJTHH:MM:SSZ' -> INVALID_ARGUMENT ; ensuite seulement, un slot_id déjà pris -> ALREADY_EXISTS." },
+    { question: 'T70-02', classe: 'CHANGER', texte: "INVALID_ARGUMENT est un code introduit des P1 (codes_erreur_introduits de P1, et non plus de P8) : create_slot (P1.R1) l'emploie des P1, seats (P6.R1) des P6." },
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+  ],
+  'P1.R2': [
+    { question: 'T70-03', classe: 'GARDER', texte: "La réponse de succès de reserve est la vue de la réservation, avec exactement les champs que get_booking rendrait à l'instant de la réponse ; un rejeu idempotent rend cette réponse mémorisée telle quelle." },
+  ],
+  'P1.R3': [
+    { question: 'N-03', classe: 'FIXER', texte: "L'instant de confirmation d'une réservation est le at de l'opération qui la rend 'confirmed' ; son rang de confirmation est l'ordre de ces passages le long de la trajectoire." },
+  ],
+  'P1.R8': [
+    { question: 'Q60', classe: 'FIXER', texte: "Une opération dont le nom n'appartient pas au contrat en vigueur à la période -> { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, non mémorisée. Ce contrôle passe avant tous les autres (avant le tenant ; à partir de P24, juste après celui de la version)." },
+  ],
+  'P2.R2': [
+    { question: 'N-02', classe: 'FIXER', texte: "Une libération de places à un instant at >= starts_at du créneau (annulation tardive, totale ou partielle) ne promeut personne ; les réservations en file y restent jusqu'à close_slot, qui les expire." },
+  ],
+  'P3.R1': [
+    { question: 'T70-04', classe: 'GARDER', texte: "create_tenant : tenant_id ou owner_id absent, vide ou non chaîne -> INVALID_ARGUMENT, contrôle fait avant ALREADY_EXISTS." },
+  ],
+  'P4.R1': [
+    { question: 'T70-05', classe: 'CHANGER', texte: "add_member dont member_id est le propriétaire du locataire -> { ok: false, error: 'INVALID_ARGUMENT' }, sans effet : le propriétaire reste admin." },
+    { question: 'T70-06', classe: 'GARDER', texte: "add_member : member_id absent ou vide, ou role hors de 'admin', 'staff', 'member' -> INVALID_ARGUMENT, contrôle fait après ceux d'acteur." },
+  ],
+  'P5.R1': [
+    { question: 'T70-07', classe: 'GARDER', texte: "create_recurring : si series_id existe déjà dans le locataire, ou si le slot_id d'une seule de ses occurrences existe déjà -> ALREADY_EXISTS et rien n'est créé (tout ou rien)." },
+    { question: 'T70-08', classe: 'GARDER', texte: "create_recurring : series_id vide, weekday hors 1..7, start_time hors 'HH:MM' (00:00 à 23:59), capacity non entière ou < 1, date mal formée ou from_date > until_date -> INVALID_ARGUMENT ; ce contrôle précède ALREADY_EXISTS." },
+    { question: 'N-01', classe: 'FIXER', texte: "create_recurring dont la plage [from_date, until_date] ne contient aucun jour weekday -> INVALID_ARGUMENT, rien n'est créé." },
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+  ],
+  'P5.R2': [
+    { question: 'T70-09', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+    { question: 'Q04', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+  ],
+  'P5.R3': [
+    { question: 'T70-10', classe: 'GARDER', texte: "list_occurrences : series_id inconnu -> NOT_FOUND." },
+  ],
+  'P6.R1': [
+    { question: 'T70-11', classe: 'CHANGER', texte: "INVALID_ARGUMENT etant introduit des P1, le refus de seats invalide (P6.R1) est permis des P6." },
+  ],
+  'P6.R4': [
+    { question: 'N-02', classe: 'FIXER', texte: "Une libération de places à un instant at >= starts_at du créneau (annulation tardive, totale ou partielle) ne promeut personne ; les réservations en file y restent jusqu'à close_slot, qui les expire." },
+  ],
+  'P7.R1': [
+    { question: 'T70-12', classe: 'GARDER', texte: "set_price : slot_id inconnu -> NOT_FOUND d'abord ; ensuite price_cents (et, à partir de P15, currency) invalide -> INVALID_ARGUMENT." },
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+  ],
+  'P7.R2': [
+    { question: 'T70-13', classe: 'GARDER', texte: "set_tier : member_id non membre du locataire -> NOT_FOUND d'abord ; ensuite tier hors de 'none', 'silver', 'gold' -> INVALID_ARGUMENT." },
+  ],
+  'P7.R5': [
+    { question: 'T70-09', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+    { question: 'Q04', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+  ],
+  'P8.R1': [
+    { question: 'T70-14', classe: 'GARDER', texte: "top_up : amount_cents (et, à partir de P15, currency) invalide -> INVALID_ARGUMENT d'abord, puis member_id non membre -> NOT_FOUND. get_wallet : un member qui lit le portefeuille d'un autre -> FORBIDDEN, puis member_id non membre -> NOT_FOUND." },
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+  ],
+  'P8.R3': [
+    { question: 'T70-15', classe: 'GARDER', texte: "cancel : NOT_FOUND, puis FORBIDDEN, puis ALREADY_CANCELLED (une réservation 'bumped' compte comme annulée à partir de P13), puis validité de seats -> INVALID_ARGUMENT." },
+  ],
+  'P8.R4': [
+    { question: 'T70-09', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+    { question: 'Q04', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+  ],
+  'P9.R2': [
+    { question: 'Q02', classe: 'GARDER', texte: "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00)." },
+    { question: 'Q61', classe: 'GARDER', texte: "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00)." },
+  ],
+  'P9.R3': [
+    { question: 'T70-16', classe: 'CHANGER', texte: "Une annulation d'office par add_exception a un taux FORCE de 10000, pose par P5.R2 et lu par P9.R3 (et non l'effet de bord d'un creneau supprime)." },
+    { question: 'Q03', classe: 'GARDER', texte: "Le palier s'applique à toute annulation, quel que soit l'acteur (admin, staff ou member) : il n'existe pas d'annulation à 100 % par geste commercial." },
+    { question: 'Q04', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+    { question: 'Q06', classe: 'GARDER', texte: "refund_rate_bp est le taux du palier à l'instant de l'annulation, y compris pour une réservation waiting, qui ne rembourse rien (refunded_cents 0)." },
+  ],
+  'P9.R4': [
+    { question: 'Q04', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+    { question: 'Q25', classe: 'CHANGER', texte: "A' = montant P15.R6 au nouveau prix pour les seats actuels + F, où F est la somme des frais d'annulation partielle déjà retenus sur la réservation (à chaque annulation partielle de k places sur n : F += floor(A × k / n) - R). Le trop-perçu T = A - A' ne rend jamais des frais d'annulation." },
+  ],
+  'P9.R5': [
+    { question: 'T70-07', classe: 'GARDER', texte: "create_recurring : si series_id existe déjà dans le locataire, ou si le slot_id d'une seule de ses occurrences existe déjà -> ALREADY_EXISTS et rien n'est créé (tout ou rien)." },
+    { question: 'T70-08', classe: 'GARDER', texte: "create_recurring : series_id vide, weekday hors 1..7, start_time hors 'HH:MM' (00:00 à 23:59), capacity non entière ou < 1, date mal formée ou from_date > until_date -> INVALID_ARGUMENT ; ce contrôle précède ALREADY_EXISTS." },
+    { question: 'N-01', classe: 'FIXER', texte: "create_recurring dont la plage [from_date, until_date] ne contient aucun jour weekday -> INVALID_ARGUMENT, rien n'est créé." },
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+    { question: 'Q01', classe: 'CHANGER', texte: "À partir de P9, start_time est l'heure MURALE locale du site et from_date, until_date et la date d'occurrence sont des dates du calendrier local ; le starts_at de chaque occurrence est l'instant UTC de '<date> <start_time>' local, converti par P9.R2 (heure inexistante lue à +01:00, heure ambiguë = première occurrence). Une série hebdomadaire garde donc la même heure locale de part et d'autre d'un changement d'heure. En 'UTC', rien ne change." },
+  ],
+  'P10.R1': [
+    { question: 'Q08', classe: 'GARDER', texte: "Une absence enregistrée est définitive ; une suspension dure jusqu'à suspended_until ; aucune opération ne les retire." },
+    { question: 'Q09', classe: 'GARDER', texte: "Une réservation marquée absente reste 'confirmed' (no_show = true) : elle reste payée et facturée, compte dans booked, et peut encore être annulée au palier en vigueur (0 % après D24)." },
+  ],
+  'P10.R2': [
+    { question: 'Q07', classe: 'GARDER', texte: "absences_30d est calculé une seule fois, à l'enregistrement de l'absence d'instant T, sur les absences déjà enregistrées du membre dont l'instant est dans ]T - 30 j, T] ; un enregistrement ultérieur ne recalcule pas les absences déjà enregistrées et ne déclenche aucune suspension rétroactive." },
+  ],
+  'P11.R1': [
+    { question: 'Q10', classe: 'GARDER', texte: "number_seats ne libère aucune place et ne promeut personne." },
+    { question: 'Q11', classe: 'GARDER', texte: "number_seats sur un créneau surréservé (booked > capacity) -> INVALID_ARGUMENT, sans effet, contrôle fait après SLOT_CLOSED." },
+    { question: 'Q12', classe: 'GARDER', texte: "create_slot crée toujours un créneau non numéroté ; seul number_seats numérote un créneau." },
+  ],
+  'P11.R4': [
+    { question: 'N-02', classe: 'FIXER', texte: "Une libération de places à un instant at >= starts_at du créneau (annulation tardive, totale ou partielle) ne promeut personne ; les réservations en file y restent jusqu'à close_slot, qui les expire." },
+  ],
+  'P12.R1': [
+    { question: 'N-02', classe: 'FIXER', texte: "Une libération de places à un instant at >= starts_at du créneau (annulation tardive, totale ou partielle) ne promeut personne ; les réservations en file y restent jusqu'à close_slot, qui les expire." },
+    { question: 'Q13', classe: 'GARDER', texte: "P12.R1 remplace P11.R4. La règle de promotion ne change pas ; le rapport BUG-P12 la précise : toutes les places libres du créneau comptent, quelle que soit l'opération qui les a libérées." },
+  ],
+  'P13.R1': [
+    { question: 'Q17', classe: 'GARDER', texte: "available = overbook_limit - booked, y compris pour un créneau clos ou commencé : available ne dit pas si le créneau est réservable." },
+  ],
+  'P13.R2': [
+    { question: 'Q14', classe: 'GARDER', texte: "close_slot n'est jamais automatique : tant qu'un créneau n'est pas clos, ses réservations surnuméraires restent 'confirmed', sans débarquement ni compensation." },
+    { question: 'Q15', classe: 'GARDER', texte: "On débarque dans l'ordre inverse de confirmation ; une annulation partielle ne change pas le rang de confirmation." },
+  ],
+  'P13.R3': [
+    { question: 'Q16', classe: 'GARDER', texte: "La compensation de 1000 centimes par place débarquée est due même pour une réservation gratuite ; un groupe est débarqué entier, même si booked descend alors sous capacity." },
+  ],
+  'P14.R2': [
+    { question: 'Q05', classe: 'CHANGER', texte: "À partir de P14, set_timezone est refusé { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, dès que le locataire a émis au moins une facture." },
+    { question: 'Q19', classe: 'GARDER', texte: "issue_invoices peut émettre n'importe quel mois terminé, dans n'importe quel ordre, sans exiger que les mois précédents soient émis ; opening_balance_cents est le solde réel du portefeuille au premier instant local du mois." },
+    { question: 'Q20', classe: 'GARDER', texte: "Tout locataire peut émettre des factures ; un mouvement de montant 0 n'est pas une ligne ; un membre sans ligne ni avoir émis dans le mois n'a pas de facture ce mois-là, même si son solde est non nul." },
+  ],
+  'P14.R3': [
+    { question: 'Q21', classe: 'GARDER', texte: "Une ligne de facture est exactement { type, booking_id, amount_cents } (booking_id null pour top_up et expiry) ; un rechargement en USD y figure pour ses centimes d'EUR crédités." },
+  ],
+  'P14.R4': [
+    { question: 'Q18', classe: 'GARDER', texte: "Un remboursement dont la charge appartient à un mois non encore facturé est une ligne refund du mois où il a lieu, même si la charge date d'un mois passé ; card_cents et credits_used_cents d'une facture peuvent donc être négatifs." },
+    { question: 'Q22', classe: 'GARDER', texte: "Les séquences d'avoirs et de pseudonymes ont au moins 4 chiffres, complétés par des zéros à gauche ; au-delà de 9999 elles continuent sans troncature (AV-10000)." },
+  ],
+  'P15.R1': [
+    { question: 'Q24', classe: 'CHANGER', texte: "rate_micro est un entier de 1 à 10 000 000 inclus, sinon INVALID_ARGUMENT." },
+  ],
+  'P15.R4': [
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+  ],
+  'P15.R5': [
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+    { question: 'Q28', classe: 'GARDER', texte: "get_slot ne porte ni price_cents ni devise ; le prix payé se lit dans amount_cents (et original_amount_cents) de la réservation." },
+  ],
+  'P15.R6': [
+    { question: 'Q23', classe: 'GARDER', texte: "Une réservation en file sur un créneau en USD n'est pas promue tant qu'aucun taux ne s'applique (elle garde son rang) ; un reserve direct rend RATE_UNAVAILABLE, réponse mémorisée pour l'idempotence." },
+  ],
+  'P16.R1': [
+    { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
+    { question: 'Q27', classe: 'GARDER', texte: "set_price fixe le prix des confirmations futures sans toucher aux réservations existantes ; change_price fixe ce même prix (devise inchangée) et rend EN PLUS les trop-perçus des confirmations depuis effective_from." },
+  ],
+  'P16.R2': [
+    { question: 'Q25', classe: 'CHANGER', texte: "A' = montant P15.R6 au nouveau prix pour les seats actuels + F, où F est la somme des frais d'annulation partielle déjà retenus sur la réservation (à chaque annulation partielle de k places sur n : F += floor(A × k / n) - R). Le trop-perçu T = A - A' ne rend jamais des frais d'annulation." },
+    { question: 'Q26', classe: 'GARDER', texte: "Le recalcul P16.R2 d'une réservation en USD utilise le rate_micro de sa confirmation." },
+  ],
+  'P17.R1': [
+    { question: 'Q29', classe: 'GARDER', texte: "merge_tenants -> INVALID_ARGUMENT dès que la source ou la cible a émis au moins une facture (P14.R2)." },
+  ],
+  'P17.R2': [
+    { question: 'Q32', classe: 'CHANGER', texte: "Une série et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la série reçoivent le préfixe '<source_tenant_id>:'. Le lien '<series_id>@<date>' est ainsi conservé." },
+    { question: 'Q34', classe: 'CHANGER', texte: "Un pseudonyme de la source déjà présent dans la cible (pseudonyme ou member_id) est renommé '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs). Ce renommage figure dans renamed, sous le kind 'pseudonym', placé après 'import'." },
+  ],
+  'P17.R3': [
+    { question: 'Q30', classe: 'GARDER', texte: "Par exception à l'isolation P3.R3, qui reste vraie entre locataires distincts, merge_tenants considère qu'un member_id présent dans les deux locataires désigne la MÊME personne : pas de renommage, rôle le plus élevé, niveau de plus forte remise, soldes et historiques de portefeuille réunis, suspension la plus tardive." },
+    { question: 'Q33', classe: 'GARDER', texte: "Les absences enregistrées dans la source rejoignent celles de la cible et comptent dans absences_30d des enregistrements suivants." },
+    { question: 'Q34', classe: 'CHANGER', texte: "Un pseudonyme de la source déjà présent dans la cible (pseudonyme ou member_id) est renommé '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs). Ce renommage figure dans renamed, sous le kind 'pseudonym', placé après 'import'." },
+  ],
+  'P17.R4': [
+    { question: 'Q31', classe: 'GARDER', texte: "Dans une réponse mémorisée de la source, seuls les champs booking_id et slot_id de premier niveau sont réécrits ; les identifiants imbriqués gardent leur valeur d'origine." },
+  ],
+  'P18.R1': [
+    { question: 'Q35', classe: 'GARDER', texte: "erase_member -> INVALID_ARGUMENT tant que le membre a une réservation confirmed ou waiting sur un créneau qui n'a pas commencé ; il faut d'abord l'annuler." },
+  ],
+  'P18.R2': [
+    { question: 'Q36', classe: 'GARDER', texte: "Les arguments mémorisés sont anonymisés comme les réponses : à partir de P21, rejouer une clé de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT." },
+    { question: 'Q37', classe: 'CHANGER', texte: "L'anonymisation ne remplace que les valeurs des clés member_id, payer_member_id, from_member_id et to_member_id, à toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>'. Un slot_id, un request_id ou un autre identifiant égal par hasard au member_id ne change pas." },
+  ],
+  'P19.R1': [
+    { question: 'Q39', classe: 'GARDER', texte: "report_occupancy filtre starts_at sur des instants UTC, from inclus et to exclu (et non sur des mois locaux)." },
+    { question: 'Q40', classe: 'GARDER', texte: "booked du rapport compte les réservations confirmed, absences comprises, sans les débarquées ; les créneaux clos et passés sont inclus." },
+  ],
+  'P19.R3': [
+    { question: 'Q41', classe: 'GARDER', texte: "credit_notes_cents d'une ligne de report_revenue somme les avoirs qui citent cette facture, émis jusqu'à l'instant du rapport, quel que soit leur mois d'émission." },
+  ],
+  'P20.R1': [
+    { question: 'Q42', classe: 'GARDER', texte: "import_bookings est une réservation en LOT, pas une reprise d'historique : chaque ligne est payée (crédits puis carte) et facturée exactement comme un reserve." },
+  ],
+  'P20.R2': [
+    { question: 'Q44', classe: 'GARDER', texte: "duplicates compte toute ligne dont le request_id était déjà mémorisé, que la réponse mémorisée soit un succès ou un refus ; une telle ligne n'apparaît pas dans rejected." },
+  ],
+  'P20.R3': [
+    { question: 'Q43', classe: 'GARDER', texte: "Plafonds au 95e centile après import de 50 000 réservations : reserve et cancel 50 ms ; get_booking, get_slot et get_wallet 20 ms ; list_documents 100 ms ; report_occupancy et report_revenue 200 ms ; toute autre opération 100 ms ; un import de 50 000 lignes 30 000 ms." },
+  ],
+  'P21.R1': [
+    { question: 'Q45', classe: 'GARDER', texte: "Les arguments comparés sont { member_id, slot_id, seats (1 si absent) } ; l'actor et l'instant ne comptent pas." },
+  ],
+  'P21.R2': [
+    { question: 'Q46', classe: 'GARDER', texte: "Pour import_bookings, rows est comparé par égalité profonde des valeurs JSON (ordre des clés indifférent), sans normalisation : une ligne sans seats diffère d'une ligne seats: 1." },
+  ],
+  'P21.R3': [
+    { question: 'Q47', classe: 'GARDER', texte: "La spec du candidat ne porte que les invariants de P21.R3 ; « 100 essais, 20 clients, quatre scenarios » est un parametre de T75, a confirmer la-bas." },
+  ],
+  'P22.R1': [
+    { question: 'Q52', classe: 'GARDER', texte: "set_tier reste accepté après P22 ; le niveau est enregistré mais n'a plus d'effet sur le prix." },
+  ],
+  'P22.R2': [
+    { question: 'Q48', classe: 'GARDER', texte: "Tout re-crédit (remboursement, trop-perçu, avoir) forme un nouveau lot de 12 mois à compter de son instant ; il ne reprend pas l'échéance des crédits d'origine." },
+    { question: 'Q49', classe: 'GARDER', texte: "Les compensations de débarquement forment des lots et expirent comme des crédits achetés." },
+    { question: 'Q51', classe: 'CHANGER', texte: "12 mois civils après le 29 février donnent le 28 février de l'année suivante, à la même heure UTC." },
+  ],
+  'P22.R4': [
+    { question: 'Q50', classe: 'GARDER', texte: "Une expiration est un mouvement : elle produit une ligne expiry et, si c'est le seul mouvement du mois, une facture de total 0." },
+  ],
+  'P23.R1': [
+    { question: 'Q55', classe: 'GARDER', texte: "Seul le destinataire d'un transfert est contrôlé (SUSPENDED) ; un membre suspendu peut céder sa réservation. Une absence reste attachée au membre qui était titulaire quand elle a été enregistrée." },
+  ],
+  'P23.R2': [
+    { question: 'Q56', classe: 'GARDER', texte: "exchange_bookings est une opération de back-office (admin, staff) qui ne demande pas le consentement des titulaires ; un member -> FORBIDDEN." },
+  ],
+  'P23.R3': [
+    { question: 'Q54', classe: 'CHANGER', texte: "fee_cents = 0 si A = 0 ; sinon fee_cents = max(100, floor((A × 1000 + 5000) / 10000))." },
+  ],
+  'P23.R4': [
+    { question: 'Q53', classe: 'GARDER', texte: "Les remboursements d'une réservation transférée vont au payeur (payer_member_id) ; la compensation de débarquement va au titulaire actuel." },
+  ],
+  'P24.R1': [
+    { question: 'Q60', classe: 'FIXER', texte: "Une opération dont le nom n'appartient pas au contrat en vigueur à la période -> { ok: false, error: 'INVALID_ARGUMENT' }, sans effet, non mémorisée. Ce contrôle passe avant tous les autres (avant le tenant ; à partir de P24, juste après celui de la version)." },
+  ],
+  'P24.R2': [
+    { question: 'Q57', classe: 'GARDER', texte: "La correspondance v1 <-> v2 ne renomme que les clés listées ; toutes les autres (seat_numbers, free_seats, overbook_limit, …) gardent leur nom en v2." },
+    { question: 'Q58', classe: 'GARDER', texte: "En v2, seule l'erreur de premier niveau prend la forme { code } ; les error des lignes rejected restent des chaînes." },
+  ],
+  'P24.R4': [
+    { question: 'Q59', classe: 'GARDER', texte: "Une clé de l'autre version, à n'importe quelle profondeur des arguments, est refusée INVALID_ARGUMENT ; une clé inconnue des deux versions est ignorée." },
+  ],
+}
+
 function clause(s: ClauseSpec): PlatformClause {
+  const precisions = PRECISIONS[s.id]
   const quantities: Record<string, Quantity> = {}
   for (const g of s.grandeurs) {
     const q = s.unites?.[g] ?? PLATFORM_QUANTITIES[g]
@@ -226,6 +468,7 @@ function clause(s: ClauseSpec): PlatformClause {
     implementation: s.implementation,
     governs: Object.keys(s.implementation).sort(),
     compares: [...s.grandeurs],
+    ...(precisions === undefined ? {} : { precisions: precisions.map((p) => ({ ...p })) }),
     ...(s.questions_ouvertes === undefined ? {} : { questions_ouvertes: [...s.questions_ouvertes] }),
   }
 }
@@ -306,39 +549,54 @@ const argumentsNormalises = (args: Json): ArgumentsNormalises => ({
 const argumentsMemorises = (ctx: PlatformContext): Map<string, ArgumentsNormalises> =>
   ctx.donnee<Map<string, ArgumentsNormalises>>(CLE_ARGUMENTS_IDEMPOTENCE, () => new Map())
 
+/** Bornes des entiers (clarification N-04, Q24) : au-delà, INVALID_ARGUMENT. */
+const CAPACITE_MIN = 1
+const CAPACITE_MAX = 10_000
+const PRIX_MAX_CENTS = 100_000_000
+const RECHARGE_MAX_CENTS = 100_000_000
+const RATE_MICRO_MAX = 10_000_000
+/** Une plage create_recurring couvre au plus 366 dates : until_date - from_date <= 365 jours. */
+const PLAGE_MAX_JOURS = 365
+const capaciteValide = (v: unknown): v is number => estEntier(v) && v >= CAPACITE_MIN && v <= CAPACITE_MAX
+const prixValide = (v: unknown): v is number => estEntier(v) && v >= 0 && v <= PRIX_MAX_CENTS
+const rechargeValide = (v: unknown): v is number => estEntier(v) && v >= 1 && v <= RECHARGE_MAX_CENTS
+
+/** Taux d'une annulation d'office par add_exception (P5.R2), forcé quel que soit le palier P9.R3. */
+const TAUX_INTEGRAL_BP = 10_000
+
+/** Rang de confirmation (P1.R3) : compteur global, l'ordre de confirmation traverse les locataires. */
+const CLE_RANG_CONFIRMATION = 'confirmation.rang'
+
 /* ════════════════════════════════════════════════════════════════════ P1 */
 
 const P1_R1 = clause({
   id: 'P1.R1',
   enters: 'P1',
   text:
-    "Création d'un créneau. L'opération create_slot reçoit slot_id (chaîne non vide choisie par le client), " +
-    "capacity (nombre de places, entier supérieur ou égal à 1) et starts_at (instant de début, ISO 8601 en UTC, " +
-    "forme exacte 'AAAA-MM-JJTHH:MM:SSZ'). Si capacity n'est pas un entier >= 1, ou si starts_at n'a pas cette " +
-    "forme, la réponse est { ok: false, error: 'INVALID_ARGUMENT' }. Si slot_id désigne déjà un créneau, la réponse " +
-    "est { ok: false, error: 'ALREADY_EXISTS' } et rien ne change. Sinon le créneau est créé, vide, et la réponse est " +
-    '{ ok: true, slot_id }.',
+    "create_slot {slot_id, capacity, starts_at} cree un creneau. Controles dans cet ordre (le premier qui echoue donne la reponse, sans effet) : (1) slot_id absent ou vide, capacity non entiere ou hors de 1..10000, ou starts_at hors de la forme 'AAAA-MM-JJTHH:MM:SSZ' -> INVALID_ARGUMENT ; (2) slot_id deja pris -> ALREADY_EXISTS. starts_at est un instant ISO 8601 UTC. Reponse {ok: true, slot_id}.",
   contract: {
     operations: {
       create_slot: {
-        arguments: { slot_id: 'chaine non vide', capacity: 'entier >= 1', starts_at: "'AAAA-MM-JJTHH:MM:SSZ'" },
+        arguments: { slot_id: 'chaine non vide', capacity: 'entier de 1 a 10000', starts_at: "'AAAA-MM-JJTHH:MM:SSZ'" },
         reponse: { ok: true, slot_id: 'chaine' },
         erreurs: ['INVALID_ARGUMENT', 'ALREADY_EXISTS'],
+        ordre_des_controles: ['INVALID_ARGUMENT (slot_id, capacity, starts_at)', 'ALREADY_EXISTS'],
       },
     },
-    valeurs: { capacity_min: 1 },
+    valeurs: { capacity_min: CAPACITE_MIN, capacity_max: CAPACITE_MAX },
     exemples: [
       {
         requete: { op: 'create_slot', args: { slot_id: 'S1', capacity: 2, starts_at: '2031-03-20T18:00:00Z' } },
         reponse: { ok: true, slot_id: 'S1' },
       },
       { requete: { op: 'create_slot', args: { slot_id: 'S1', capacity: 3, starts_at: '2031-03-22T18:00:00Z' } }, reponse: { ok: false, error: 'ALREADY_EXISTS' } },
+      { requete: { op: 'create_slot', args: { slot_id: 'K10001', capacity: 10001, starts_at: '2031-03-20T18:00:00Z' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
     ],
   },
   implementation: {
     'create_slot.effet': (ctx: PlatformContext): PlatformResponse => {
       const { slot_id, capacity, starts_at } = ctx.args
-      if (!estChaine(slot_id) || !estEntier(capacity) || capacity < 1 || !estInstant(starts_at)) {
+      if (!estChaine(slot_id) || !capaciteValide(capacity) || !estInstant(starts_at)) {
         return fail('INVALID_ARGUMENT')
       }
       if (ctx.locataire.slots.has(slot_id)) return fail('ALREADY_EXISTS')
@@ -347,10 +605,6 @@ const P1_R1 = clause({
     },
   },
   grandeurs: ['slot_id', 'capacity', 'starts_at'],
-  questions_ouvertes: [
-    "ordre entre INVALID_ARGUMENT et ALREADY_EXISTS non fixe par la racine : le modele controle les arguments d'abord",
-    "INVALID_ARGUMENT figure en P1.R1 alors que la racine le liste parmi les codes introduits en P8",
-  ],
 })
 
 const P1_R2 = clause({
@@ -408,21 +662,21 @@ const P1_R2 = clause({
       ctx.regle<(ctx: PlatformContext) => PlatformResponse>('reserve.admission')(ctx),
   },
   grandeurs: ['request_id', 'member_id', 'slot_id', 'at', 'starts_at'],
-  questions_ouvertes: [
-    "la racine ne fixe pas la forme de la reponse de succes de reserve (les faits n'en comparent que booking_id et status) : le modele rend la vue de reservation (P1.R3 et suivantes)",
-  ],
 })
 
 const P1_R3 = clause({
   id: 'P1.R3',
   enters: 'P1',
   text:
-    "Réservations et statuts. Une réservation créée a pour booking_id le request_id de la requête qui l'a créée. " +
-    "Ses statuts possibles sont 'confirmed' et 'cancelled' ('waiting' s'y ajoute à partir de P2). Une réservation est " +
-    "ACTIVE si son statut est 'confirmed'. La vue d'une réservation porte booking_id, member_id, slot_id et status.",
+    "Une reservation creee a pour booking_id le request_id de la requete qui l'a creee. Statuts : confirmed, cancelled (et waiting a partir de P2). Une reservation est ACTIVE si son statut est confirmed (ou waiting a partir de P2). L'instant de confirmation d'une reservation est le at de l'operation qui la rend 'confirmed' (a la reservation ou a la promotion) ; son rang de confirmation est l'ordre de ces passages le long de la trajectoire (a l'interieur d'une operation, dans l'ordre de promoted). P13.R2, P13.R3, P14.R4, P16.R2 et P17.R4 emploient ces deux notions.",
   contract: {
     valeurs: { status: ['confirmed', 'cancelled'], active: ['confirmed'] },
     vue_reservation: { booking_id: 'chaine = request_id', member_id: 'chaine', slot_id: 'chaine', status: "'confirmed' | 'cancelled'" },
+    confirmation: {
+      instant: "at de l'operation qui rend la reservation 'confirmed' (reservation ou promotion)",
+      rang: "ordre de ces passages le long de la trajectoire, tous locataires confondus ; dans une operation, ordre de promoted",
+      lu_par: ['P13.R2', 'P13.R3', 'P14.R4', 'P16.R2', 'P17.R4'],
+    },
     exemples: [{ requete: { op: 'reserve', args: { request_id: 'r1', member_id: 'm-ana', slot_id: 'S1' } }, reponse: { ok: true, booking_id: 'r1', status: 'confirmed' } }],
   },
   implementation: {
@@ -438,12 +692,17 @@ const P1_R3 = clause({
       ctx.locataire.bookings.set(b.booking_id, b)
       return b
     }) satisfies Creation,
+    'reservation.confirmation': (ctx: PlatformContext, b: Booking): void => {
+      b.status = 'confirmed'
+      b.confirmed_at = ctx.step.at
+      b.confirmation_seq = ++ctx.donneeGlobale<{ rang: number }>(CLE_RANG_CONFIRMATION, () => ({ rang: 0 })).rang
+    },
     'reservation.active.confirmee': (b: Booking): boolean => b.status === 'confirmed',
     'vue.reservation.base': ((_ctx, b, champs) => {
       Object.assign(champs, { booking_id: b.booking_id, member_id: b.member_id, slot_id: b.slot_id, status: b.status })
     }) satisfies Vue<Booking>,
   },
-  grandeurs: ['booking_id', 'request_id', 'member_id', 'slot_id', 'status'],
+  grandeurs: ['booking_id', 'request_id', 'member_id', 'slot_id', 'status', 'at'],
 })
 
 const P1_R4 = clause({
@@ -622,7 +881,41 @@ const P1_R7 = clause({
   grandeurs: ['booking_id', 'member_id', 'slot_id', 'status', 'capacity', 'starts_at', 'booked', 'available'],
 })
 
+/** Forme d'une erreur dans la version de la requête (P24.R2) ; sans elle, la forme v1. */
+type FormeErreur = (ctx: PlatformContext, code: string) => PlatformResponse
+
+const P1_R8 = clause({
+  id: 'P1.R8',
+  enters: 'P1',
+  text:
+    "Operation inconnue : une operation dont le nom n'appartient pas au contrat en vigueur a la periode (operations introduites par les clauses actives ; avant P24, un nom d'operation du contrat v2 comme create_reservation est une operation inconnue) -> {ok: false, error: 'INVALID_ARGUMENT'}, sans effet, non memorisee. Ce controle passe avant tous les autres : avant celui du tenant (P3.R2) et de l'acteur (P4.R2) ; a partir de P24, juste apres celui de la version (P24.R1).",
+  contract: {
+    operation_inconnue: { reponse: { ok: false, error: 'INVALID_ARGUMENT' }, memorisee: false, effet: 'aucun' },
+    erreurs: ['INVALID_ARGUMENT'],
+    valeurs: { reponse: 'INVALID_ARGUMENT', rang: 'premier controle (apres la version a partir de P24)', memorisee: false },
+    exemples: [
+      { contexte: 'avant P24 : nom du contrat v2', requete: { op: 'create_reservation', tenant: 't-clar', actor: 'm-own', args: { request_id: 'x60', member_id: 'm-max', session_id: 'F23' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+      { contexte: 'tenant inconnu : le controle d operation passe avant', requete: { op: 'frobnicate', tenant: 't-nulle-part', actor: 'm-own', args: { slot_id: 'F23' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+      { contexte: 'x60 n a pas ete memorise', requete: { op: 'reserve', tenant: 't-clar', actor: 'm-own', args: { request_id: 'x60', member_id: 'm-max', slot_id: 'F23' } }, reponse: { ok: true, booking_id: 'x60', status: 'confirmed' } },
+    ],
+  },
+  implementation: {
+    'requete.operation_connue': etape(15, (ctx) => {
+      const op = ctx.step.op
+      if (ctx.regleOpt(`${op}.effet`) !== undefined) return undefined
+      const autres = ctx.regleOpt<() => Correspondance>('contrat.correspondance')?.()
+      if (autres !== undefined && Object.values(autres.operations).includes(op)) return undefined
+      const forme = ctx.regleOpt<FormeErreur>('contrat.forme_erreur')
+      return forme === undefined ? fail('INVALID_ARGUMENT') : forme(ctx, 'INVALID_ARGUMENT')
+    }),
+  },
+  grandeurs: [],
+})
+
 /* ════════════════════════════════════════════════════════════════════ P2 */
+
+/** Clarification N-02 : une libération à at >= starts_at du créneau ne promeut personne. */
+const creneauOuvert = (ctx: PlatformContext, slot: Slot): boolean => ctx.instant < Date.parse(slot.starts_at)
 
 const P2_R1 = clause({
   id: 'P2.R1',
@@ -663,16 +956,15 @@ const P2_R2 = clause({
   enters: 'P2',
   exits: 'P6',
   text:
-    "Promotion à l'annulation. Quand une réservation 'confirmed' est annulée, la place libérée est attribuée, dans la " +
-    "même opération, à la réservation en tête de file, qui passe 'confirmed' et quitte la file. Annuler une réservation " +
-    "'waiting' la retire de la file (les suivantes remontent d'un rang) et ne promeut personne. La réponse de cancel " +
-    "porte promoted : la liste ordonnée des booking_id promus par cette opération ([] si aucun).",
+    "Promotion : quand une reservation confirmed est annulee, la place liberee est attribuee, dans la meme operation, a la reservation en tete de file, qui passe confirmed et quitte la file. Annuler une reservation waiting la retire de la file (les suivantes remontent) et ne promeut personne. La reponse de cancel porte promoted : la liste ordonnee des booking_id promus par cette operation ([] si aucun). Une liberation de places a un instant at >= starts_at du creneau (annulation tardive, totale ou partielle) ne promeut personne : promoted = [] et les reservations en file y restent (a partir de P13, close_slot les expire).",
   contract: {
     operations: { cancel: { reponse: { ok: true, booking_id: 'chaine', status: "'cancelled'", promoted: 'tableau de booking_id' } } },
     exemples: [
       { contexte: 'w1 confirmed, file [w3, w4]', requete: { op: 'cancel', args: { booking_id: 'w1' } }, reponse: { ok: true, booking_id: 'w1', status: 'cancelled', promoted: ['w3'] } },
       { contexte: 'w2 waiting', requete: { op: 'cancel', args: { booking_id: 'w2' } }, reponse: { ok: true, booking_id: 'w2', status: 'cancelled', promoted: [] } },
+      { contexte: "N2 commence a 09:20:00Z, n2d en file", requete: { op: 'cancel', at: '2031-03-04T09:20:00Z', args: { booking_id: 'n2b' } }, reponse: { ok: true, booking_id: 'n2b', status: 'cancelled', promoted: [] } },
     ],
+    liberation_tardive: 'at >= starts_at du creneau : aucune promotion, la file reste (P13 : close_slot l expire)',
   },
   implementation: {
     'annulation.retrait_file': ((_ctx, b, slot) => {
@@ -680,6 +972,7 @@ const P2_R2 = clause({
     }) satisfies RetraitFile,
     'liberation.promotion': (ctx: PlatformContext, slot: Slot): string[] => {
       const promus: string[] = []
+      if (!creneauOuvert(ctx, slot)) return promus
       for (;;) {
         const tete = slot.file[0]
         const b = tete === undefined ? undefined : ctx.locataire.bookings.get(tete)
@@ -779,7 +1072,6 @@ const P3_R1 = clause({
     },
   },
   grandeurs: ['tenant_id', 'owner_id'],
-  questions_ouvertes: ['tenant_id ou owner_id absent : non fixe par la racine ; le modele repond INVALID_ARGUMENT'],
 })
 
 const P3_R2 = clause({
@@ -840,10 +1132,7 @@ const P4_R1 = clause({
   id: 'P4.R1',
   enters: 'P4',
   text:
-    "Membres et rôles. Les rôles sont 'admin', 'staff' et 'member'. Le owner_id d'un locataire est 'admin' de ce " +
-    "locataire. add_member { member_id, role } crée le membre dans le locataire de l'opération, ou remplace son rôle s'il " +
-    "existe déjà ; réponse { ok: true, member_id, role }. Un role hors de ces trois valeurs -> " +
-    "{ ok: false, error: 'INVALID_ARGUMENT' }. Le locataire 'default' n'a ni propriétaire ni membre.",
+    "Roles : admin, staff, member. Le owner_id d'un locataire est admin de ce locataire. add_member {member_id, role} cree le membre ou remplace son role ; reponse {ok: true, member_id, role}. Controles apres ceux d'acteur (P4.R2) : member_id absent ou vide, ou role hors de 'admin', 'staff', 'member' -> INVALID_ARGUMENT ; member_id = owner_id du locataire -> INVALID_ARGUMENT, sans effet (le proprietaire reste admin). Le locataire 'default' n'a ni proprietaire ni membre.",
   contract: {
     operations: {
       add_member: {
@@ -853,8 +1142,11 @@ const P4_R1 = clause({
         erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT'],
       },
     },
-    valeurs: { roles: [...ROLES], proprietaire: 'admin' },
-    exemples: [{ requete: { op: 'add_member', tenant: 't-alpha', actor: 'm-ana', args: { member_id: 'm-sam', role: 'staff' } }, reponse: { ok: true, member_id: 'm-sam', role: 'staff' } }],
+    valeurs: { roles: [...ROLES], proprietaire: 'admin, jamais modifiable par add_member' },
+    exemples: [
+      { requete: { op: 'add_member', tenant: 't-alpha', actor: 'm-ana', args: { member_id: 'm-sam', role: 'staff' } }, reponse: { ok: true, member_id: 'm-sam', role: 'staff' } },
+      { contexte: 'm-own proprietaire de t-clar', requete: { op: 'add_member', tenant: 't-clar', actor: 'm-own', args: { member_id: 'm-own', role: 'member' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+    ],
   },
   implementation: {
     'membres.role': (_ctx: PlatformContext, t: Tenant, m: string): string | undefined =>
@@ -864,15 +1156,12 @@ const P4_R1 = clause({
       if (!estChaine(member_id) || typeof role !== 'string' || !(ROLES as readonly string[]).includes(role)) {
         return fail('INVALID_ARGUMENT')
       }
+      if (member_id === ctx.locataire.owner_id) return fail('INVALID_ARGUMENT')
       ctx.locataire.members.set(member_id, role)
       return succeed({ member_id, role })
     },
   },
   grandeurs: ['member_id', 'role', 'owner_id'],
-  questions_ouvertes: [
-    "add_member sur le owner_id : la racine dit que le proprietaire est admin ; le modele le garde admin quel que soit le role ecrit",
-    'role invalide : non fixe par la racine ; le modele repond INVALID_ARGUMENT',
-  ],
 })
 
 const P4_R2 = clause({
@@ -982,16 +1271,46 @@ const datesDeSerie = (s: Series): string[] => {
 }
 const occurrence = (series_id: string, date: string): string => `${series_id}@${date}`
 
+/** starts_at d'une occurrence de date `d` (AAAA-MM-JJ) à l'heure `hhmm` : UTC (P5.R1) ou heure locale du site (P9.R5). */
+type DebutOccurrence = (ctx: PlatformContext, d: string, hhmm: string) => string
+
+/** Contrôles (dans l'ordre de P5.R1 / P9.R5) et création tout ou rien d'une série hebdomadaire. */
+function creerSerie(ctx: PlatformContext, debutDe: DebutOccurrence): PlatformResponse {
+  const { series_id, weekday, start_time, capacity, from_date, until_date } = ctx.args
+  const debut = dateUtc(from_date)
+  const fin = dateUtc(until_date)
+  if (
+    !estChaine(series_id) ||
+    !estEntier(weekday) || weekday < 1 || weekday > 7 ||
+    typeof start_time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start_time) ||
+    !capaciteValide(capacity) ||
+    debut === null || fin === null || debut > fin ||
+    fin - debut > PLAGE_MAX_JOURS * JOUR_MS
+  ) {
+    return fail('INVALID_ARGUMENT')
+  }
+  const t = ctx.locataire
+  const serie: Series = {
+    series_id, weekday, start_time, capacity,
+    from_date: String(from_date), until_date: String(until_date), exceptions: new Set(),
+  }
+  const dates = datesDeSerie(serie)
+  if (dates.length === 0) return fail('INVALID_ARGUMENT')
+  if (t.series.has(series_id) || dates.some((d) => t.slots.has(occurrence(series_id, d)))) return fail('ALREADY_EXISTS')
+  t.series.set(series_id, serie)
+  for (const d of dates) {
+    const slot_id = occurrence(series_id, d)
+    t.slots.set(slot_id, { slot_id, capacity, starts_at: debutDe(ctx, d, start_time), file: [] })
+  }
+  return succeed({ series_id, slot_ids: dates.map((d) => occurrence(series_id, d)) })
+}
+
 const P5_R1 = clause({
   id: 'P5.R1',
   enters: 'P5',
+  exits: 'P9',
   text:
-    "Créneaux récurrents hebdomadaires. create_recurring { series_id, weekday, start_time, capacity, from_date, " +
-    "until_date } (rôles admin, staff) : weekday est le jour ISO 8601 (1 = lundi ... 7 = dimanche) ; start_time est une " +
-    "heure 'HH:MM' en UTC ; from_date et until_date sont des dates 'AAAA-MM-JJ' du calendrier UTC, bornes INCLUSES. " +
-    "L'opération crée un créneau par date d de [from_date, until_date] dont le jour ISO vaut weekday, de slot_id " +
-    "'<series_id>@<AAAA-MM-JJ>', de starts_at '<AAAA-MM-JJ>T<HH:MM>:00Z' et de capacité capacity. Ces créneaux se " +
-    "réservent et se lisent comme les autres. Réponse { ok: true, series_id, slot_ids }, slot_ids en ordre chronologique.",
+    "create_recurring {series_id, weekday, start_time, capacity, from_date, until_date} (admin, staff) : weekday est le jour ISO (1 = lundi ... 7 = dimanche) ; start_time 'HH:MM' en UTC ; from_date et until_date 'AAAA-MM-JJ', bornes INCLUSES. Cree un creneau par date d de [from_date, until_date] dont le jour ISO vaut weekday, de slot_id '<series_id>@<AAAA-MM-JJ>', starts_at '<AAAA-MM-JJ>T<HH:MM>:00Z', capacite capacity. Reponse {ok: true, series_id, slot_ids} en ordre chronologique. Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, rien n'est cree) : (1) series_id absent ou vide, weekday hors 1..7, start_time hors 'HH:MM' (00:00 a 23:59), capacity non entiere ou hors de 1..10000, date mal formee, from_date > until_date, plage de plus de 366 jours (until_date - from_date > 365 jours), ou plage [from_date, until_date] ne contenant aucun jour weekday (serie sans occurrence) -> INVALID_ARGUMENT ; (2) series_id deja pris dans le locataire, ou slot_id d'une seule de ses occurrences deja pris -> ALREADY_EXISTS (tout ou rien).",
   contract: {
     operations: {
       create_recurring: {
@@ -1000,70 +1319,38 @@ const P5_R1 = clause({
           series_id: 'chaine non vide',
           weekday: 'entier 1..7 (ISO, 1 = lundi)',
           start_time: "'HH:MM' UTC",
-          capacity: 'entier >= 1',
+          capacity: 'entier de 1 a 10000',
           from_date: "'AAAA-MM-JJ' incluse",
-          until_date: "'AAAA-MM-JJ' incluse",
+          until_date: "'AAAA-MM-JJ' incluse, until_date - from_date <= 365 jours",
         },
-        reponse: { ok: true, series_id: 'chaine', slot_ids: 'tableau chronologique' },
+        reponse: { ok: true, series_id: 'chaine', slot_ids: 'tableau chronologique, au moins une occurrence' },
         erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT', 'ALREADY_EXISTS'],
+        ordre_des_controles: ['INVALID_ARGUMENT (arguments, plage, serie sans occurrence)', 'ALREADY_EXISTS (tout ou rien)'],
       },
     },
-    valeurs: { weekday: 'ISO 8601, 1 = lundi', bornes: 'incluses', fuseau: 'UTC' },
+    valeurs: { weekday: 'ISO 8601, 1 = lundi', bornes: 'incluses', fuseau: 'UTC', capacity: '1..10000', plage_max: '366 dates (until_date - from_date <= 365 jours)', occurrences_min: 1 },
     exemples: [
       {
         requete: { op: 'create_recurring', args: { series_id: 'yoga', weekday: 3, start_time: '18:00', capacity: 2, from_date: '2031-03-10', until_date: '2031-04-09' } },
         reponse: { ok: true, series_id: 'yoga', slot_ids: ['yoga@2031-03-12', 'yoga@2031-03-19', 'yoga@2031-03-26', 'yoga@2031-04-02', 'yoga@2031-04-09'] },
       },
+      { contexte: 'aucun lundi du 01/04 au 06/04/2031', requete: { op: 'create_recurring', args: { series_id: 'V0', weekday: 1, start_time: '10:00', capacity: 2, from_date: '2031-04-01', until_date: '2031-04-06' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+      { contexte: '366 jours d ecart', requete: { op: 'create_recurring', args: { series_id: 'Y367', weekday: 1, start_time: '10:00', capacity: 2, from_date: '2031-04-01', until_date: '2032-04-01' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
     ],
   },
   implementation: {
     'autorisation.create_recurring': ['admin', 'staff'],
     'serie.dates': datesDeSerie,
-    'create_recurring.effet': (ctx: PlatformContext): PlatformResponse => {
-      const { series_id, weekday, start_time, capacity, from_date, until_date } = ctx.args
-      const debut = dateUtc(from_date)
-      const fin = dateUtc(until_date)
-      if (
-        !estChaine(series_id) ||
-        !estEntier(weekday) || weekday < 1 || weekday > 7 ||
-        typeof start_time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start_time) ||
-        !estEntier(capacity) || capacity < 1 ||
-        debut === null || fin === null || debut > fin
-      ) {
-        return fail('INVALID_ARGUMENT')
-      }
-      const t = ctx.locataire
-      const serie: Series = {
-        series_id, weekday, start_time, capacity,
-        from_date: String(from_date), until_date: String(until_date), exceptions: new Set(),
-      }
-      const dates = datesDeSerie(serie)
-      if (t.series.has(series_id) || dates.some((d) => t.slots.has(occurrence(series_id, d)))) return fail('ALREADY_EXISTS')
-      t.series.set(series_id, serie)
-      for (const d of dates) {
-        const slot_id = occurrence(series_id, d)
-        t.slots.set(slot_id, { slot_id, capacity, starts_at: `${d}T${start_time}:00Z`, file: [] })
-      }
-      return succeed({ series_id, slot_ids: dates.map((d) => occurrence(series_id, d)) })
-    },
+    'create_recurring.effet': (ctx: PlatformContext): PlatformResponse => creerSerie(ctx, (_ctx, d, hhmm) => `${d}T${hhmm}:00Z`),
   },
   grandeurs: ['series_id', 'weekday', 'start_time', 'capacity', 'from_date', 'until_date', 'slot_id', 'starts_at', 'slot_ids'],
-  questions_ouvertes: [
-    "series_id deja pris, ou occurrence dont le slot_id existe deja : non fixe par la racine ; le modele repond ALREADY_EXISTS sans rien creer",
-    'arguments invalides (weekday hors 1..7, heure ou date mal formee, from_date > until_date) : non fixe ; le modele repond INVALID_ARGUMENT',
-  ],
 })
 
 const P5_R2 = clause({
   id: 'P5.R2',
   enters: 'P5',
   text:
-    "Exceptions (jours fériés). add_exception { series_id, date } (rôles admin, staff) : si series_id est inconnu, ou si " +
-    "date n'est pas une occurrence COURANTE de la série (jour de semaine différent, hors des bornes, ou déjà exceptée) -> " +
-    "{ ok: false, error: 'NOT_FOUND' }. Sinon l'occurrence est retirée : son créneau n'existe plus (get_slot et reserve " +
-    "sur son slot_id -> NOT_FOUND) et toutes ses réservations actives ('confirmed' et 'waiting') passent 'cancelled' " +
-    "(elles restent lisibles par get_booking). Réponse { ok: true, series_id, date, cancelled }, cancelled étant la liste " +
-    "des booking_id annulés dans l'ordre de création des réservations.",
+    "add_exception {series_id, date} (admin, staff) : si date n'est pas une occurrence COURANTE de la serie (jour different, hors bornes, ou deja exceptee) -> NOT_FOUND. Sinon l'occurrence est retiree (son creneau n'existe plus : get_slot et reserve -> NOT_FOUND) et toutes ses reservations actives (confirmed et waiting) passent cancelled. Reponse {ok: true, series_id, date, cancelled} : booking_id annules dans l'ordre de creation des reservations. Chaque reservation 'confirmed' ainsi annulee d'office est remboursee INTEGRALEMENT (taux 10000, quel que soit le palier P9.R3) vers chaque source : C re-credite au portefeuille (P8), D rendu a la carte, au payeur a partir de P23 (P23.R4) ; puis amount_cents, paid_credits_cents et paid_card_cents valent 0. Si la charge appartient a un mois deja facture (P14.R4), un avoir de reason 'cancellation' est emis ; sinon c'est une ligne refund (P14.R1). Une reservation waiting ne rembourse rien. La reponse de add_exception est inchangee.",
   contract: {
     operations: {
       add_exception: {
@@ -1076,7 +1363,14 @@ const P5_R2 = clause({
     exemples: [
       { requete: { op: 'add_exception', args: { series_id: 'yoga', date: '2031-03-26' } }, reponse: { ok: true, series_id: 'yoga', date: '2031-03-26', cancelled: ['d1', 'd2', 'd3'] } },
       { contexte: 'deja exceptee', requete: { op: 'add_exception', args: { series_id: 'yoga', date: '2031-03-26' } }, reponse: { ok: false, error: 'NOT_FOUND' } },
+      { contexte: 'q4a confirmed : A 1000, C 600, D 400', requete: { op: 'add_exception', args: { series_id: 'Q4', date: '2031-03-20' } }, reponse: { ok: true, series_id: 'Q4', date: '2031-03-20', cancelled: ['q4a'] }, puis: { get_wallet: { balance_cents: 600 }, get_booking: { status: 'cancelled', amount_cents: 0, paid_credits_cents: 0, paid_card_cents: 0 } } },
     ],
+    annulation_d_office: {
+      remboursement: 'integral (taux force 10000, quel que soit le palier) vers chaque source : C au portefeuille, D a la carte (au payeur a partir de P23)',
+      document: "avoir de reason 'cancellation' si la charge est d'un mois deja facture, sinon ligne refund",
+      waiting: 'rien a rembourser',
+      reponse: 'inchangee',
+    },
   },
   implementation: {
     'autorisation.add_exception': ['admin', 'staff'],
@@ -1092,15 +1386,19 @@ const P5_R2 = clause({
       const annulees = [...t.bookings.values()]
         .filter((b) => b.slot_id === slot_id && (b.status === 'confirmed' || b.status === 'waiting'))
         .sort((a, b) => a.seq - b.seq)
-      for (const b of annulees) b.status = 'cancelled'
+      const rembourser = ctx.regleOpt<Remboursement>('annulation.remboursement')
+      for (const b of annulees) {
+        if (b.status === 'confirmed' && rembourser !== undefined) {
+          ctx.d.taux_force = TAUX_INTEGRAL_BP
+          rembourser(ctx, b, b.seats, b.seats)
+        }
+        b.status = 'cancelled'
+      }
       t.slots.delete(slot_id)
       return succeed({ series_id: serie.series_id, date, cancelled: annulees.map((b) => b.booking_id) })
     },
   },
-  grandeurs: ['series_id', 'date', 'cancelled', 'status'],
-  questions_ouvertes: [
-    "a partir de P7/P8, une reservation confirmed annulee par add_exception : la racine ne dit ni remboursement ni re-credit du portefeuille ; le modele n'applique aucun remboursement (a trancher avant toute sequence qui l'exerce)",
-  ],
+  grandeurs: ['series_id', 'date', 'cancelled', 'status', 'amount_cents', 'paid_credits_cents', 'paid_card_cents'],
 })
 
 const P5_R3 = clause({
@@ -1133,7 +1431,6 @@ const P5_R3 = clause({
     },
   },
   grandeurs: ['series_id', 'slot_ids'],
-  questions_ouvertes: ['series_id inconnu : non fixe par la racine ; le modele repond NOT_FOUND'],
 })
 
 /* ════════════════════════════════════════════════════════════════════ P6 */
@@ -1167,7 +1464,6 @@ const P6_R1 = clause({
     'creneau.plafond': (_ctx: PlatformContext, slot: Slot): number => slot.capacity,
   },
   grandeurs: ['seats', 'booked', 'available', 'capacity'],
-  questions_ouvertes: ["INVALID_ARGUMENT figure en P6.R1 alors que la racine le liste parmi les codes introduits en P8"],
 })
 
 const P6_R2 = clause({
@@ -1227,16 +1523,14 @@ const P6_R4 = clause({
   exits: 'P11',
   replaces: 'P2.R2',
   text:
-    "Promotion premier-qui-tient (remplace P2.R2). Après toute libération de places, on parcourt la file depuis la tête " +
-    "et on promeut ('confirmed') la PREMIÈRE réservation dont seats <= available ; on recommence le parcours depuis la " +
-    "tête tant qu'une réservation tient. Les réservations sautées gardent leur rang. Annuler une réservation 'waiting' la " +
-    "retire de la file et ne libère aucune place. La réponse de cancel porte promoted : les booking_id promus dans l'ordre " +
-    'de promotion ([] si aucun).',
+    "Promotion premier-qui-tient : apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation dont seats <= available ; on recommence le parcours depuis la tete tant qu'une reservation tient. Les reservations sautees gardent leur rang. promoted liste les promus dans l'ordre de promotion. Une liberation de places a un instant at >= starts_at du creneau (annulation tardive, totale ou partielle) ne promeut personne : promoted = [] et les reservations en file y restent (a partir de P13, close_slot les expire).",
   contract: {
     operations: { cancel: { reponse: { promoted: 'tableau de booking_id, ordre de promotion' } } },
     exemples: [
       { contexte: 'S6 capacity 5 : g1 (3) et g3 (2) confirmed ; file [g2 (3), g4 (1)]', requete: { op: 'cancel', args: { booking_id: 'g3' } }, reponse: { ok: true, booking_id: 'g3', status: 'cancelled', promoted: ['g4'] } },
+      { contexte: 'G6 commence a 09:30:00Z, g6b (2) en file', requete: { op: 'cancel', at: '2031-03-08T09:30:00Z', args: { booking_id: 'g6a' } }, reponse: { ok: true, booking_id: 'g6a', status: 'cancelled', promoted: [] } },
     ],
+    liberation_tardive: 'at >= starts_at du creneau : aucune promotion, la file reste (P13 : close_slot l expire)',
   },
   implementation: {
     'annulation.retrait_file': ((_ctx, b, slot) => {
@@ -1244,6 +1538,7 @@ const P6_R4 = clause({
     }) satisfies RetraitFile,
     'liberation.promotion': (ctx: PlatformContext, slot: Slot): string[] => {
       const promus: string[] = []
+      if (!creneauOuvert(ctx, slot)) return promus
       for (let tient = true; tient; ) {
         tient = false
         const dispo = slot.capacity - ctx.occupees(slot)
@@ -1276,19 +1571,18 @@ const P7_R1 = clause({
   enters: 'P7',
   exits: 'P15',
   text:
-    "Prix par place. set_price { slot_id, price_cents } (rôle admin seulement) fixe le prix PAR PLACE du créneau, en " +
-    "centimes d'euro, entier >= 0 ; réponse { ok: true, slot_id, price_cents }. slot_id inconnu -> NOT_FOUND ; " +
-    "price_cents qui n'est pas un entier >= 0 -> INVALID_ARGUMENT. Tout créneau a le prix 0 tant qu'aucun prix n'est fixé.",
+    "set_price {slot_id, price_cents} (admin) : prix PAR PLACE en centimes entiers de 0 a 100 000 000 (slot_id inconnu -> NOT_FOUND d'abord, puis price_cents invalide -> INVALID_ARGUMENT) ; reponse {ok: true, slot_id, price_cents}. Tout creneau a le prix 0 tant qu'aucun prix n'est fixe.",
   contract: {
     operations: {
       set_price: {
         roles_autorises: ['admin'],
-        arguments: { slot_id: 'chaine', price_cents: 'entier >= 0 (centimes, par place)' },
+        arguments: { slot_id: 'chaine', price_cents: 'entier de 0 a 100 000 000 (centimes, par place)' },
         reponse: { ok: true, slot_id: 'chaine', price_cents: 'entier' },
         erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT'],
+        ordre_des_controles: ['NOT_FOUND (slot_id)', 'INVALID_ARGUMENT (price_cents)'],
       },
     },
-    valeurs: { prix_par_defaut_cents: 0 },
+    valeurs: { prix_par_defaut_cents: 0, price_cents_min: 0, price_cents_max: PRIX_MAX_CENTS },
     exemples: [
       { requete: { op: 'set_price', actor: 'm-ana', args: { slot_id: 'S7', price_cents: 1999 } }, reponse: { ok: true, slot_id: 'S7', price_cents: 1999 } },
       { contexte: 'actor staff', requete: { op: 'set_price', actor: 'm-sam', args: { slot_id: 'S7', price_cents: 1 } }, reponse: { ok: false, error: 'FORBIDDEN' } },
@@ -1301,13 +1595,12 @@ const P7_R1 = clause({
       const slot = ctx.locataire.slots.get(String(ctx.args.slot_id))
       if (slot === undefined) return fail('NOT_FOUND')
       const p = ctx.args.price_cents
-      if (!estEntier(p) || p < 0) return fail('INVALID_ARGUMENT')
+      if (!prixValide(p)) return fail('INVALID_ARGUMENT')
       slot.price_cents = p
       return succeed({ slot_id: slot.slot_id, price_cents: p })
     },
   },
   grandeurs: ['slot_id', 'price_cents'],
-  questions_ouvertes: ['slot_id inconnu (NOT_FOUND) et prix invalide (INVALID_ARGUMENT, controle apres NOT_FOUND) : non fixes par la racine'],
 })
 
 const P7_R2 = clause({
@@ -1343,7 +1636,6 @@ const P7_R2 = clause({
     },
   },
   grandeurs: ['member_id', 'tier', 'discount_bp'],
-  questions_ouvertes: ['member_id non membre (NOT_FOUND) et tier invalide (INVALID_ARGUMENT) : non fixes par la racine'],
 })
 
 const P7_R3 = clause({
@@ -1411,11 +1703,10 @@ const P7_R5 = clause({
   enters: 'P7',
   exits: 'P8',
   text:
-    "Remboursement à l'annulation. Annuler une réservation 'confirmed' rembourse 100 % de son montant à la carte : " +
-    "refunded_cents = amount_cents ; annuler une réservation 'waiting' rembourse 0. La réponse de cancel porte " +
-    "refunded_cents (centimes entiers). Après l'annulation, amount_cents de la réservation vaut 0.",
+    "Annulation totale d'une reservation confirmed : refunded_cents = amount_cents (100 %, vers la carte) ; waiting : 0. La reponse de cancel porte refunded_cents. Apres annulation totale, amount_cents vaut 0. Une annulation d'office par add_exception (P5.R2) rembourse de meme 100 % (amount_cents vers la carte).",
   contract: {
     operations: { cancel: { reponse: { refunded_cents: 'entier (centimes)' } } },
+    annulation_d_office: 'add_exception (P5.R2) : 100 %, amount_cents vers la carte',
     exemples: [{ contexte: 'p2 confirmed, amount_cents 5397', requete: { op: 'cancel', args: { booking_id: 'p2' } }, reponse: { ok: true, booking_id: 'p2', status: 'cancelled', refunded_cents: 5397, promoted: ['p3'] } }],
   },
   implementation: {
@@ -1443,19 +1734,15 @@ const P8_R1 = clause({
   enters: 'P8',
   exits: 'P15',
   text:
-    "Portefeuille de crédits. Chaque membre a, dans chaque locataire, un portefeuille de solde balance_cents (centimes " +
-    "d'euro, entier >= 0, initialement 0). top_up { member_id, amount_cents } (rôles admin, staff) crédite le " +
-    "portefeuille : amount_cents doit être un entier > 0, sinon { ok: false, error: 'INVALID_ARGUMENT' } ; réponse " +
-    "{ ok: true, member_id, balance_cents } avec le solde après crédit. get_wallet { member_id } : admin et staff pour " +
-    "tout membre, member pour lui-même seulement (sinon FORBIDDEN) ; réponse { ok: true, member_id, balance_cents }. " +
-    'member_id non membre du locataire -> NOT_FOUND.',
+    "Chaque membre a, dans chaque locataire, un portefeuille balance_cents (entier >= 0, initialement 0). top_up {member_id, amount_cents} (admin, staff) : amount_cents entier de 1 a 100 000 000 sinon INVALID_ARGUMENT ; reponse {ok: true, member_id, balance_cents} (solde apres). get_wallet {member_id} : admin, staff pour tout membre ; member pour lui-meme seulement (sinon FORBIDDEN) ; reponse {ok: true, member_id, balance_cents}.",
   contract: {
     operations: {
       top_up: {
         roles_autorises: ['admin', 'staff'],
-        arguments: { member_id: 'chaine', amount_cents: 'entier > 0 (centimes)' },
+        arguments: { member_id: 'chaine', amount_cents: 'entier de 1 a 100 000 000 (centimes)' },
         reponse: { ok: true, member_id: 'chaine', balance_cents: 'entier >= 0' },
         erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT', 'NOT_FOUND'],
+        ordre_des_controles: ['INVALID_ARGUMENT (amount_cents)', 'NOT_FOUND (member_id)'],
       },
       get_wallet: {
         roles_autorises: ['admin', 'staff', 'member:soi'],
@@ -1465,6 +1752,7 @@ const P8_R1 = clause({
       },
     },
     erreurs: ['INVALID_ARGUMENT'],
+    valeurs: { amount_cents_min: 1, amount_cents_max: RECHARGE_MAX_CENTS },
     exemples: [
       { requete: { op: 'top_up', actor: 'm-sam', args: { member_id: 'm-cleo', amount_cents: 2000 } }, reponse: { ok: true, member_id: 'm-cleo', balance_cents: 2000 } },
       { requete: { op: 'top_up', actor: 'm-sam', args: { member_id: 'm-dan', amount_cents: 0 } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
@@ -1477,7 +1765,7 @@ const P8_R1 = clause({
     'portefeuille.mouvement': mouvementPortefeuille,
     'top_up.effet': (ctx: PlatformContext): PlatformResponse => {
       const { member_id, amount_cents } = ctx.args
-      if (!estEntier(amount_cents) || amount_cents <= 0) return fail('INVALID_ARGUMENT')
+      if (!rechargeValide(amount_cents)) return fail('INVALID_ARGUMENT')
       if (ctx.role(member_id) === undefined) return fail('NOT_FOUND')
       const balance_cents = ctx.regle<Mouvement>('portefeuille.mouvement')(ctx, String(member_id), amount_cents)
       ctx.journaliser({ type: 'top_up', member_id: String(member_id), booking_id: null, amount_cents, credits_cents: amount_cents, card_cents: 0 })
@@ -1491,7 +1779,6 @@ const P8_R1 = clause({
     },
   },
   grandeurs: ['member_id', 'amount_cents', 'balance_cents'],
-  questions_ouvertes: ["member_id non membre pour top_up ou get_wallet : non fixe par la racine ; le modele repond NOT_FOUND (apres INVALID_ARGUMENT pour top_up)"],
 })
 
 const P8_R2 = clause({
@@ -1575,7 +1862,6 @@ const P8_R3 = clause({
     }) satisfies Vue<Booking>,
   },
   grandeurs: ['seats', 'status'],
-  questions_ouvertes: ["ordre ALREADY_CANCELLED avant INVALID_ARGUMENT non fixe explicitement par la racine"],
 })
 
 const P8_R4 = clause({
@@ -1584,21 +1870,15 @@ const P8_R4 = clause({
   exits: 'P9',
   replaces: 'P7.R5',
   text:
-    "Remboursement au prorata vers chaque source (remplace P7.R5). Soit A = amount_cents restant, C = " +
-    "paid_credits_cents restant et D = paid_card_cents restant (A = C + D), en centimes entiers. Annulation totale : " +
-    "rembourse C en crédits (re-crédités au portefeuille du membre) et D à la carte, puis A, C et D valent 0. Annulation " +
-    "partielle de k places sur n : R = floor(A × k / n) ; part crédits r_c = floor(R × C / A) (0 si A = 0) ; part carte " +
-    "r_d = R - r_c ; la réservation garde n - k places, A - R, C - r_c et D - r_d et reste 'confirmed' ; r_c est " +
-    "re-crédité au portefeuille ; les places libérées déclenchent la promotion. Une réservation 'waiting' annulée " +
-    "rembourse 0. La réponse de cancel porte refunded_cents = R (ou C + D pour une annulation totale), refund = " +
-    "{ credits_cents, card_cents } et promoted.",
+    "Remboursement : soit A = amount_cents restant, C = paid_credits_cents restant, D = paid_card_cents restant (A = C + D). Annulation totale : rembourse C en credits (re-credites au portefeuille) et D a la carte, puis A, C, D valent 0. Annulation partielle de k places sur n : R = floor(A x k / n) ; part credits r_c = floor(R x C / A) (0 si A = 0) ; part carte r_d = R - r_c ; la reservation garde n - k places, A - R, C - r_c, D - r_d et reste confirmed ; r_c est re-credite au portefeuille ; les places liberees declenchent la promotion. La reponse de cancel porte refunded_cents = R (ou C + D), refund = {credits_cents, card_cents}, promoted, et pour une annulation partielle status 'confirmed' et seats = n - k. L'annulation d'office par add_exception (P5.R2) rembourse de meme la totalite : C au portefeuille, D a la carte.",
   contract: {
     operations: {
       cancel: {
         reponse: { refunded_cents: 'entier', refund: { credits_cents: 'entier', card_cents: 'entier' }, promoted: 'tableau' },
       },
+      get_booking: { reponse_cancelled: { amount_cents: 0, paid_credits_cents: 0, paid_card_cents: 0 } },
     },
-    valeurs: { arrondi_rembourse: 'floor', arrondi_part_credits: 'floor, la carte recoit le reste' },
+    valeurs: { arrondi_rembourse: 'floor', arrondi_part_credits: 'floor, la carte recoit le reste', annulation_d_office: 'add_exception (P5.R2) : totalite, C au portefeuille, D a la carte' },
     exemples: [
       {
         contexte: 'q1 : 3 places, A 2250, C 2000, D 250',
@@ -1637,6 +1917,11 @@ const P8_R4 = clause({
     'vue.annulation.remboursement': ((ctx, _b, champs) => {
       champs.refunded_cents = typeof ctx.d.rembourse === 'number' ? ctx.d.rembourse : 0
       champs.refund = ctx.d.refund ?? { credits_cents: 0, card_cents: 0 }
+    }) satisfies Vue<Booking>,
+    'vue.reservation.frais_retenus': ((_ctx, b, champs) => {
+      if (b.status !== 'cancelled') return
+      champs.paid_credits_cents = b.paid_credits_cents ?? 0
+      champs.paid_card_cents = b.paid_card_cents ?? 0
     }) satisfies Vue<Booking>,
   },
   grandeurs: ['refunded_cents', 'refund.credits_cents', 'refund.card_cents', 'amount_cents', 'paid_credits_cents', 'paid_card_cents', 'balance_cents'],
@@ -1709,10 +1994,6 @@ const P9_R1 = clause({
     },
   },
   grandeurs: ['timezone', 'tenant_id'],
-  questions_ouvertes: [
-    "Q01 (provisoire) : create_recurring (P5.R1) garde start_time en heure UTC apres set_timezone ; une serie qui traverse un changement d'heure garde la meme heure UTC et change d'heure locale",
-    "Q05 (provisoire) : set_timezone reste permis apres l'emission de factures ; une facture emise est figee telle quelle (immuable) et les mois suivants se calculent avec le fuseau en vigueur a leur emission",
-  ],
 })
 
 const P9_R2 = clause({
@@ -1758,10 +2039,6 @@ const P9_R2 = clause({
     }) satisfies Vue<Slot>,
   },
   grandeurs: ['local_starts_at', 'starts_at', 'timezone'],
-  questions_ouvertes: [
-    "Q02 (provisoire) : l'heure ambigue d'automne est lue comme sa premiere occurrence (+02:00), comme la racine le fixe ; regle executee mais non exercee par un fait",
-    "Q61 (provisoire, racine P17-P24) : Q02 reste ouverte ; la trajectoire P17-P24 ne passe par aucune annulation autour du 26/10/2031 ni du 31/10/2032",
-  ],
 })
 
 type TauxAnnulation = (ctx: PlatformContext, b: Booking) => number
@@ -1770,20 +2047,14 @@ const P9_R3 = clause({
   id: 'P9.R3',
   enters: 'P9',
   text:
-    "Paliers d'annulation, en heure MURALE du site. Soit Ls l'heure locale murale du début du créneau (P9.R2). D48 = " +
-    "l'instant UTC de l'heure locale murale Ls moins 48 heures d'horloge (même heure, deux jours de calendrier plus tôt) ; " +
-    "D24 = l'instant UTC de Ls moins 24 heures d'horloge (même heure, la veille) ; chacune convertie par P9.R2. Ce ne sont " +
-    "PAS des durées écoulées : autour d'un changement d'heure, D48 peut être à 47 ou 49 heures réelles du début. Pour une " +
-    "annulation à l'instant at (champ at de l'opération) : at < D48 -> taux 10000 pb (100 %) ; D48 <= at < D24 -> 5000 pb " +
-    "(50 %) ; at >= D24 -> 0 pb (y compris après le début). D48 et D24 appartiennent au palier SUIVANT. Le palier vaut " +
-    "pour toute annulation, totale ou partielle, quel que soit l'acteur (admin, staff ou member). La réponse de cancel " +
-    "porte refund_rate_bp, le taux du palier en points de base, même pour une réservation waiting (qui ne rembourse rien).",
+    "Paliers d'annulation, en heure MURALE du site. Soit Ls l'heure locale murale du debut du creneau (P9.R2). D48 = l'instant UTC de l'heure locale murale (Ls moins 48 heures d'horloge : meme heure, deux jours de calendrier plus tot) ; D24 = l'instant UTC de (Ls moins 24 heures d'horloge : meme heure, la veille) ; chacune convertie par P9.R2. Ce ne sont PAS des durees ecoulees : autour d'un changement d'heure, D48 peut etre a 47 ou 49 heures reelles du debut. Pour une annulation a l'instant at (champ at de l'operation) : at < D48 -> taux 10000 pb (100 %) ; D48 <= at < D24 -> 5000 pb (50 %) ; at >= D24 -> 0 pb (y compris apres le debut). Le palier vaut pour toute annulation, totale ou partielle, quel que soit l'acteur (admin, staff ou membre). La reponse de cancel porte refund_rate_bp, le taux du palier, meme pour une reservation waiting (qui ne rembourse rien). Une annulation d'office par add_exception (P5.R2) n'applique aucun palier : son taux est FORCE a 10000 par P5.R2, quel que soit l'instant.",
   contract: {
     operations: { cancel: { reponse: { refund_rate_bp: 'entier : 10000 | 5000 | 0' } } },
     valeurs: {
       paliers_bp: [{ avant: 'D48', taux: 10000 }, { de: 'D48', avant: 'D24', taux: 5000 }, { de: 'D24', taux: 0 }],
       bornes: 'D48 et D24 appartiennent au palier suivant (at < D strict)',
       unite: 'points de base (10000 = 100 %)',
+      annulation_d_office: 'add_exception (P5.R2) : taux FORCE a 10000, aucun palier',
     },
     exemples: [
       { contexte: "S12 debut 09:00 locale le 2031-03-31 (07:00Z) ; D48 = 09:00 locale le 29/03 (+01:00) = 08:00Z", requete: { op: 'cancel', at: '2031-03-29T07:59:00Z', args: { booking_id: 't1' } }, reponse: { ok: true, refund_rate_bp: 10000 } },
@@ -1792,8 +2063,9 @@ const P9_R3 = clause({
   },
   implementation: {
     'annulation.taux': ((ctx, b) => {
+      if (typeof ctx.d.taux_force === 'number') return ctx.d.taux_force
       const slot = ctx.locataire.slots.get(b.slot_id)
-      if (slot === undefined) return 10000
+      if (slot === undefined) throw new Error(`CRENEAU-ABSENT ${b.slot_id} pour l'annulation de ${b.booking_id}`)
       const Ls = murale(ctx, Date.parse(slot.starts_at))
       const D48 = versUtc(ctx, Ls - 2 * JOUR_MS)
       const D24 = versUtc(ctx, Ls - JOUR_MS)
@@ -1801,11 +2073,6 @@ const P9_R3 = clause({
     }) satisfies TauxAnnulation,
   },
   grandeurs: ['refund_rate_bp', 'starts_at', 'at'],
-  questions_ouvertes: [
-    "Q03 (provisoire, exercee) : le palier s'applique quel que soit l'acteur ; une annulation par admin ou staff n'est pas remboursee a 100 % d'office",
-    "Q06 (provisoire) : refund_rate_bp d'une annulation de reservation waiting vaut le taux du palier (elle ne rembourse rien)",
-    "creneau supprime par add_exception : ses reservations sont deja cancelled ; le taux rendu par defaut serait 10000 (cas inatteignable par cancel)",
-  ],
 })
 
 type Avoir = (ctx: PlatformContext, b: Booking, e: JournalEntry, reason: string) => string | null
@@ -1822,22 +2089,18 @@ function inscrireRemboursement(ctx: PlatformContext, b: Booking, R: number, rc: 
   return ctx.regleOpt<Avoir>('comptabilite.avoir')?.(ctx, b, e, reason) ?? null
 }
 
+/** Frais d'annulation partielle déjà retenus sur une réservation (F, P9.R4 ; lus par P16.R2). */
+interface AvecFrais extends Booking {
+  frais_retenus_cents?: number
+}
+const avecFrais = (b: Booking): AvecFrais => b as AvecFrais
+
 const P9_R4 = clause({
   id: 'P9.R4',
   enters: 'P9',
   replaces: 'P8.R4',
   text:
-    "Remboursement selon le palier (remplace P8.R4). Soit A = amount_cents restant, C = paid_credits_cents restant, D = " +
-    "paid_card_cents restant (A = C + D), en centimes d'euro entiers, et t le taux du palier (P9.R3) en points de base. " +
-    "Annulation totale : R = floor(A × t / 10000). Annulation partielle de k places sur n : R = floor(A × k × t / " +
-    "(n × 10000)) (un seul arrondi). Dans les deux cas : r_c = floor(R × C / A) (0 si A = 0), r_d = R - r_c ; r_c est " +
-    "re-crédité au portefeuille, r_d rendu à la carte ; la réservation garde A - R, C - r_c, D - r_d. Annulation totale : " +
-    "statut 'cancelled', amount_cents vaut A - R (frais retenus, 0 si t = 10000) et get_booking d'une réservation " +
-    "cancelled porte encore amount_cents, paid_credits_cents et paid_card_cents ; annulation partielle : seats = n - k, " +
-    "statut 'confirmed', les places libérées déclenchent la promotion. Une réservation waiting annulée rembourse 0. " +
-    "Réponse de cancel : refunded_cents = R, refund = { credits_cents: r_c, card_cents: r_d }, refund_rate_bp, promoted, " +
-    "et pour une partielle seats (et seat_numbers à partir de P11). Avant P9 le taux vaut toujours 10000, ce qui redonne " +
-    'exactement P8.R4.',
+    "Remboursement selon le palier (remplace P8.R4). Soit A = amount_cents restant, C = paid_credits_cents restant, D = paid_card_cents restant (A = C + D) et t le taux du palier (P9.R3) en points de base. Annulation totale : R = floor(A x t / 10000). Annulation partielle de k places sur n : R = floor(A x k x t / (n x 10000)) (un seul arrondi). Dans les deux cas : r_c = floor(R x C / A) (0 si A = 0), r_d = R - r_c ; r_c est re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A - R, C - r_c, D - r_d. Annulation totale : statut cancelled, amount_cents vaut A - R (frais retenus, 0 si t = 10000) ; annulation partielle : seats = n - k, statut confirmed, les places liberees declenchent la promotion. Reponse de cancel : refunded_cents = R, refund = {credits_cents: r_c, card_cents: r_d}, refund_rate_bp, promoted, et pour une partielle seats (et seat_numbers a partir de P11). Avant P9 le taux vaut toujours 10000, ce qui redonne exactement P8.R4. Frais retenus : chaque reservation porte F, la somme des frais d'annulation partielle deja retenus (0 a sa creation) ; une annulation partielle de k places sur n ajoute floor(A x k / n) - R a F (part non rendue des places annulees) ; F sert au recalcul P16.R2. L'annulation d'office par add_exception (P5.R2) rend R = A (taux force 10000).",
   contract: {
     operations: {
       cancel: {
@@ -1845,8 +2108,14 @@ const P9_R4 = clause({
       },
       get_booking: { reponse_cancelled: { amount_cents: 'A - R', paid_credits_cents: 'C - r_c', paid_card_cents: 'D - r_d' } },
     },
-    valeurs: { arrondi_rembourse: 'floor, un seul arrondi', arrondi_part_credits: 'floor, la carte recoit le reste' },
+    valeurs: {
+      arrondi_rembourse: 'floor, un seul arrondi',
+      arrondi_part_credits: 'floor, la carte recoit le reste',
+      frais_retenus: 'F, 0 a la creation ; annulation partielle de k sur n : F += floor(A x k / n) - R ; lu par P16.R2',
+      annulation_d_office: 'add_exception (P5.R2) : R = A (taux force 10000)',
+    },
     exemples: [
+      { contexte: 'r16a : 4 places, A 4000 ; palier 5000', requete: { op: 'cancel', args: { booking_id: 'r16a', seats: 2 } }, reponse: { ok: true, status: 'confirmed', seats: 2, refunded_cents: 1000, refund_rate_bp: 5000 }, calcul: 'F = floor(4000 x 2 / 4) - 1000 = 1000' },
       {
         contexte: 't4 : 3 places, A 2250, C 500, D 1750 ; palier 5000',
         requete: { op: 'cancel', args: { booking_id: 't4', seats: 1 } },
@@ -1867,6 +2136,7 @@ const P9_R4 = clause({
         const D = b.paid_card_cents ?? A - C
         R = k === n ? Math.floor((A * t) / 10000) : Math.floor((A * k * t) / (n * 10000))
         rc = A === 0 ? 0 : Math.floor((R * C) / A)
+        if (k !== n) avecFrais(b).frais_retenus_cents = (avecFrais(b).frais_retenus_cents ?? 0) + Math.floor((A * k) / n) - R
         b.amount_cents = A - R
         b.paid_credits_cents = C - rc
         b.paid_card_cents = D - (R - rc)
@@ -1890,9 +2160,54 @@ const P9_R4 = clause({
     'refunded_cents', 'refund.credits_cents', 'refund.card_cents', 'refund_rate_bp',
     'amount_cents', 'paid_credits_cents', 'paid_card_cents', 'balance_cents',
   ],
-  questions_ouvertes: [
-    "Q04 (provisoire) : add_exception (P5.R2) sur une reservation payee n'applique ni remboursement, ni palier, ni avoir (choix de T70 conserve)",
-  ],
+})
+
+const P9_R5 = clause({
+  id: 'P9.R5',
+  enters: 'P9',
+  replaces: 'P5.R1',
+  text:
+    "create_recurring {series_id, weekday, start_time, capacity, from_date, until_date} (admin, staff) (remplace P5.R1) : weekday est le jour ISO (1 = lundi ... 7 = dimanche) ; start_time 'HH:MM' est l'heure MURALE locale du site (fuseau du locataire a l'instant de create_recurring, P9.R1) ; from_date et until_date 'AAAA-MM-JJ' sont des dates du calendrier LOCAL, bornes INCLUSES. Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, rien n'est cree) : (1) series_id absent ou vide, weekday hors 1..7, start_time hors 'HH:MM' (00:00 a 23:59), capacity non entiere ou hors de 1..10000, date mal formee, from_date > until_date, plage de plus de 366 jours (until_date - from_date > 365 jours), ou plage ne contenant aucun jour weekday -> INVALID_ARGUMENT ; (2) series_id deja pris dans le locataire, ou slot_id d'une seule de ses occurrences deja pris -> ALREADY_EXISTS (tout ou rien). Cree un creneau par date locale d de [from_date, until_date] dont le jour ISO vaut weekday, de slot_id '<series_id>@<AAAA-MM-JJ>' (d), capacite capacity, et de starts_at l'instant UTC de '<d> <start_time>' en heure locale, converti par P9.R2 (heure inexistante lue a +01:00, heure ambigue = premiere occurrence). Une serie hebdomadaire garde donc la meme heure locale de part et d'autre d'un changement d'heure ; en 'UTC', le resultat est celui de P5.R1. Les creneaux deja crees ne bougent pas. Reponse {ok: true, series_id, slot_ids} en ordre chronologique.",
+  contract: {
+    operations: {
+      create_recurring: {
+        roles_autorises: ['admin', 'staff'],
+        arguments: {
+          series_id: 'chaine non vide',
+          weekday: 'entier 1..7 (ISO, 1 = lundi)',
+          start_time: "'HH:MM' heure murale locale du site",
+          capacity: 'entier de 1 a 10000',
+          from_date: "'AAAA-MM-JJ' date locale, incluse",
+          until_date: "'AAAA-MM-JJ' date locale, incluse, until_date - from_date <= 365 jours",
+        },
+        reponse: { ok: true, series_id: 'chaine', slot_ids: 'tableau chronologique, au moins une occurrence' },
+        erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT', 'ALREADY_EXISTS'],
+        ordre_des_controles: ['INVALID_ARGUMENT (arguments, plage, serie sans occurrence)', 'ALREADY_EXISTS (tout ou rien)'],
+      },
+    },
+    valeurs: { weekday: 'ISO 8601, 1 = lundi', bornes: 'incluses', fuseau: 'heure murale locale du site (P9.R2)', capacity: '1..10000', plage_max: '366 dates (until_date - from_date <= 365 jours)' },
+    exemples: [
+      {
+        contexte: "t-clar en 'Europe/Paris' ; dimanches 23/03, 30/03 (passage a l'ete) et 06/04/2031 a 02:30 locale",
+        requete: { op: 'create_recurring', args: { series_id: 'W9', weekday: 7, start_time: '02:30', capacity: 1, from_date: '2031-03-23', until_date: '2031-04-06' } },
+        reponse: { ok: true, series_id: 'W9', slot_ids: ['W9@2031-03-23', 'W9@2031-03-30', 'W9@2031-04-06'] },
+        calcul: "23/03 : 02:30+01:00 = 01:30Z ; 30/03 : 02:30 inexistante, lue a +01:00 = 01:30Z (03:30+02:00) ; 06/04 : 02:30+02:00 = 00:30Z",
+      },
+      { calcul: "26/10/2031 a 02:30 locale (ambigue) : premiere occurrence, +02:00 = 00:30Z" },
+    ],
+  },
+  implementation: {
+    'autorisation.create_recurring': ['admin', 'staff'],
+    'serie.dates': datesDeSerie,
+    'create_recurring.effet': (ctx: PlatformContext): PlatformResponse =>
+      creerSerie(ctx, (c, d, hhmm) => isoSeconde(versUtc(c, Date.parse(`${d}T${hhmm}:00Z`)))),
+  },
+  grandeurs: ['series_id', 'weekday', 'start_time', 'capacity', 'from_date', 'until_date', 'slot_id', 'starts_at', 'slot_ids'],
+  unites: {
+    start_time: { unit: 'heure murale locale du site', format: "'HH:MM' (00:00 a 23:59), convertie par P9.R2" },
+    from_date: { unit: 'date du calendrier LOCAL du site', format: "'AAAA-MM-JJ', borne incluse" },
+    until_date: { unit: 'date du calendrier LOCAL du site', format: "'AAAA-MM-JJ', borne incluse, until_date - from_date <= 365 jours" },
+  },
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P10 */
@@ -1957,10 +2272,6 @@ const P10_R1 = clause({
     }) satisfies Vue<Booking>,
   },
   grandeurs: ['booking_id', 'member_id', 'no_show', 'absences_30d', 'suspended_until', 'starts_at'],
-  questions_ouvertes: [
-    "Q08 (provisoire) : une absence enregistree ne s'annule pas et une suspension ne se leve pas",
-    "Q09 (provisoire) : une reservation absente reste confirmed (no_show = true), reste facturee, compte dans booked, et peut encore etre annulee (au palier en vigueur, 0 % apres D24)",
-  ],
 })
 
 const P10_R2 = clause({
@@ -1996,9 +2307,6 @@ const P10_R2 = clause({
     }) satisfies Enregistrement,
   },
   grandeurs: ['absences_30d', 'suspended_until', 'starts_at', 'at'],
-  questions_ouvertes: [
-    "Q07 (provisoire) : une absence enregistree hors ordre n'est comptee que relativement a elle-meme ; les absences deja enregistrees ne sont pas reevaluees et aucune suspension retroactive n'est declenchee",
-  ],
 })
 
 const P10_R3 = clause({
@@ -2095,11 +2403,6 @@ const P11_R1 = clause({
     },
   },
   grandeurs: ['slot_id', 'assignments', 'seat_numbers', 'capacity', 'starts_at', 'at'],
-  questions_ouvertes: [
-    'Q10 (provisoire) : number_seats ne declenche aucune promotion ; une reservation waiting qui tiendrait reste en file jusqu a la prochaine liberation',
-    'Q11 (provisoire) : migrer un creneau surreserve (booked > capacity, possible a partir de P13) est refuse : INVALID_ARGUMENT, sans effet, controle place apres SLOT_CLOSED',
-    "Q12 (provisoire) : create_slot ne cree jamais un creneau numerote ; seul number_seats numerote",
-  ],
 })
 
 const P11_R2 = clause({
@@ -2222,6 +2525,7 @@ const implementationPromotion: Implementation = {
     if (slot !== undefined) slot.file = slot.file.filter((id) => id !== b.booking_id)
   }) satisfies RetraitFile,
   'liberation.promotion': promouvoir,
+  'promotion.condition.creneau_ouvert': ((ctx, slot) => creneauOuvert(ctx, slot)) satisfies ConditionPromotion,
   'vue.annulation.promus': ((ctx, _b, champs) => {
     champs.promoted = Array.isArray(ctx.d.promoted) ? [...(ctx.d.promoted as string[])] : []
   }) satisfies Vue<Booking>,
@@ -2233,15 +2537,11 @@ const P11_R4 = clause({
   exits: 'P12',
   replaces: 'P6.R4',
   text:
-    "Promotion premier-qui-tient (remplace P6.R4). Après toute libération de places, on parcourt la file depuis la tête et " +
-    "on promeut ('confirmed') la PREMIÈRE réservation qui tient ; on recommence depuis la tête tant qu'une réservation " +
-    "tient. Tenir : créneau non numéroté, seats <= available ; créneau numéroté, il existe un bloc de seats places " +
-    "consécutives libres, et la réservation promue reçoit le bloc libre de plus petit premier numéro. Les réservations " +
-    "sautées gardent leur rang ; annuler une réservation 'waiting' la retire de la file ; promoted liste les booking_id " +
-    "promus dans l'ordre de promotion ([] si aucun).",
+    "Promotion premier-qui-tient (remplace P6.R4). Apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation qui tient ; on recommence depuis la tete tant qu'une reservation tient. Tenir : non numerote, seats <= available ; numerote, il existe un bloc de seats places consecutives libres, et la reservation promue recoit le bloc libre de plus petit premier numero. Les reservations sautees gardent leur rang ; promoted liste les promus dans l'ordre de promotion. Une liberation de places a un instant at >= starts_at du creneau (annulation tardive, totale ou partielle) ne promeut personne : promoted = [] et les reservations en file y restent (a partir de P13, close_slot les expire).",
   contract: {
     operations: { cancel: { reponse: { promoted: 'tableau de booking_id, ordre de promotion' } } },
     exemples: [{ contexte: 'S17 : n2 annulee, n4 (1 place) en tete de file', requete: { op: 'cancel', args: { booking_id: 'n2' } }, reponse: { ok: true, booking_id: 'n2', status: 'cancelled', promoted: ['n4'] } }],
+    liberation_tardive: 'at >= starts_at du creneau : aucune promotion, la file reste (P13 : close_slot l expire)',
   },
   implementation: implementationPromotion,
   grandeurs: ['promoted', 'seats', 'available', 'seat_numbers'],
@@ -2291,18 +2591,10 @@ const P12_R1 = clause({
   enters: 'P12',
   replaces: 'P11.R4',
   text:
-    "RAPPORT DE BUG BUG-P12, comportement correct (remplace P11.R4, qu'il précise sans en changer le sens). Promotion " +
-    "premier-qui-tient : après toute libération de places, on parcourt la file depuis la tête et on promeut la PREMIÈRE " +
-    "réservation qui tient ; on recommence depuis la tête tant qu'une réservation tient. Sur un créneau numéroté, une " +
-    "réservation tient s'il existe un bloc de seats places consécutives libres parmi TOUTES les places libres du créneau au " +
-    "moment du parcours, quelle que soit l'opération qui les a libérées (annulation totale, partielle, ou une opération " +
-    "antérieure) ; la réservation promue reçoit le bloc libre de plus petit premier numéro. Non numéroté : seats <= " +
-    "available. Les réservations sautées gardent leur rang ; promoted liste les promus dans l'ordre de promotion. Scénario " +
-    "de reproduction fourni (sans la cause) : créneau numéroté de 4 places ; x1 (1 place) reçoit [1], x2 (2) [2,3], x3 (1) " +
-    "[4] ; x4 (2) attend ; annuler x1 ne promeut personne ; annuler 1 place de x2 libère la place 3 et ne promeut " +
-    "personne ; annuler x3 doit promouvoir x4 sur [3,4]. Observé en production : x4 reste en file.",
+    "RAPPORT DE BUG BUG-P12, comportement correct (remplace P11.R4, qu'il precise sans en changer le sens). Promotion premier-qui-tient : apres toute liberation de places, on parcourt la file depuis la tete et on promeut la PREMIERE reservation qui tient ; on recommence depuis la tete tant qu'une reservation tient. Sur un creneau numerote, une reservation tient s'il existe un bloc de seats places consecutives libres parmi TOUTES les places libres du creneau au moment du parcours, quelle que soit l'operation qui les a liberees (annulation totale, partielle, ou une operation anterieure) ; la reservation promue recoit le bloc libre de plus petit premier numero. Non numerote : seats <= available. Les reservations sautees gardent leur rang ; promoted liste les promus dans l'ordre de promotion. Scenario de reproduction fourni (sans la cause) : creneau numerote de 4 places ; x1 (1 place) recoit [1], x2 (2) [2,3], x3 (1) [4] ; x4 (2) attend ; annuler x1 ne promeut personne ; annuler 1 place de x2 libere la place 3 et ne promeut personne ; annuler x3 doit promouvoir x4 sur [3,4]. Observe en production : x4 reste en file. Une liberation de places a un instant at >= starts_at du creneau (annulation tardive, totale ou partielle) ne promeut personne : promoted = [] et les reservations en file y restent (a partir de P13, close_slot les expire).",
   contract: {
     operations: { cancel: { reponse: { promoted: 'tableau de booking_id, ordre de promotion' } } },
+    liberation_tardive: 'at >= starts_at du creneau : aucune promotion, la file reste (P13 : close_slot l expire)',
     rapport_de_bug: { id: 'BUG-P12', observe: { requete: { op: 'cancel', args: { booking_id: 'x3' } }, reponse: { ok: true, booking_id: 'x3', status: 'cancelled', promoted: [] } } },
     exemples: [
       { contexte: 'S16 numerote de 4 places : libres {1, 3} ; x3 [4] ; x4 (2) en file', requete: { op: 'cancel', args: { booking_id: 'x3' } }, reponse: { ok: true, booking_id: 'x3', status: 'cancelled', promoted: ['x4'] } },
@@ -2311,9 +2603,6 @@ const P12_R1 = clause({
   },
   implementation: implementationPromotion,
   grandeurs: ['promoted', 'seats', 'available', 'seat_numbers', 'free_seats'],
-  questions_ouvertes: [
-    "Q13 (provisoire, exercee) : P12.R1 est porte comme REMPLACEMENT de P11.R4 (meme mise en oeuvre, texte precise), choix de la racine, pour garder la non-contradiction mecanique",
-  ],
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P13 */
@@ -2366,9 +2655,6 @@ const P13_R1 = clause({
     }) satisfies Vue<Slot>,
   },
   grandeurs: ['seats', 'booked', 'available', 'capacity', 'overbook_limit', 'closed'],
-  questions_ouvertes: [
-    "Q17 (provisoire) : available d'un creneau clos reste overbook_limit - booked (il n'est plus reservable de toute facon : at >= starts_at)",
-  ],
 })
 
 const P13_R2 = clause({
@@ -2425,9 +2711,6 @@ const P13_R2 = clause({
     },
   },
   grandeurs: ['slot_id', 'expired', 'bumped', 'compensation_cents', 'booked', 'capacity', 'starts_at', 'at'],
-  questions_ouvertes: [
-    "Q14 (provisoire) : close_slot n'est jamais automatique ; un creneau surreserve non clos garde ses surnumeraires sans compensation",
-  ],
 })
 
 const P13_R3 = clause({
@@ -2475,10 +2758,6 @@ const P13_R3 = clause({
     }) satisfies Vue<Booking>,
   },
   grandeurs: ['status', 'compensation_cents', 'amount_cents', 'paid_credits_cents', 'paid_card_cents', 'balance_cents', 'bumped'],
-  questions_ouvertes: [
-    "Q15 (provisoire) : le debarquement suit l'ordre de confirmation ; une reservation partiellement annulee garde son rang de confirmation d'origine",
-    "Q16 (provisoire, exercee) : la compensation (1000 centimes par place) est due meme pour une reservation gratuite et meme si le debarquement d'un groupe entier fait descendre booked sous capacity",
-  ],
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P14 */
@@ -2490,8 +2769,13 @@ interface Facturation {
   readonly avoirs: Json[]
   seq: number
 }
-const facturation = (ctx: PlatformContext): Facturation =>
-  ctx.donnee<Facturation>(CLE_FACTURATION, () => ({ emis: new Set(), factures: new Map(), avoirs: [], seq: 0 }))
+const nouvelleFacturation = (): Facturation => ({ emis: new Set(), factures: new Map(), avoirs: [], seq: 0 })
+const facturation = (ctx: PlatformContext): Facturation => ctx.donnee<Facturation>(CLE_FACTURATION, nouvelleFacturation)
+/** Facturation d'un locataire quelconque (pas forcément celui de l'opération). */
+const facturationDe = (t: Tenant): Facturation => {
+  if (!t.donnees.has(CLE_FACTURATION)) t.donnees.set(CLE_FACTURATION, nouvelleFacturation())
+  return t.donnees.get(CLE_FACTURATION) as Facturation
+}
 
 type MoisDe = (ctx: PlatformContext, t: number) => string
 type DebutMois = (ctx: PlatformContext, mois: string) => number
@@ -2540,13 +2824,7 @@ const P14_R2 = clause({
   id: 'P14.R2',
   enters: 'P14',
   text:
-    "Émission. issue_invoices { month } (rôle admin seulement) émet les factures du mois 'AAAA-MM'. Contrôles après ceux " +
-    "d'acteur, dans cet ordre : month mal formé (forme autre que 'AAAA-MM', ou mois hors 01..12) -> { ok: false, error: " +
-    "'INVALID_ARGUMENT' } ; mois non terminé (at < premier instant du mois suivant en heure locale du site) -> " +
-    "{ ok: false, error: 'INVALID_ARGUMENT' } ; mois déjà émis pour ce locataire -> { ok: false, error: 'ALREADY_EXISTS' }. " +
-    "Une facture est émise pour chaque membre ayant au moins une ligne ou un avoir émis dans le mois ; invoice_id = " +
-    "'INV-<AAAA-MM>-<member_id>'. Réponse { ok: true, month, invoice_ids }, invoice_ids par member_id croissant (ordinal). " +
-    'Une facture émise est IMMUABLE : elle ne change plus jamais, et un mois émis ne se réémet pas.',
+    "issue_invoices {month} (admin) emet les factures du mois 'AAAA-MM'. Controles apres ceux d'acteur : month mal forme (mois hors 01..12) -> INVALID_ARGUMENT ; mois non termine (at < premier instant du mois suivant en heure locale du site) -> INVALID_ARGUMENT ; mois deja emis pour ce locataire -> ALREADY_EXISTS. Une facture est emise pour chaque membre ayant au moins une ligne ou un avoir emis dans le mois ; invoice_id = 'INV-<AAAA-MM>-<member_id>'. Reponse {ok: true, month, invoice_ids} par member_id croissant (ordinal). Une facture emise est IMMUABLE : elle ne change plus jamais. A partir de P14, set_timezone (P9.R1) est refuse {ok: false, error: 'INVALID_ARGUMENT'}, sans effet, des que le locataire a emis au moins une facture, meme vers le fuseau deja en vigueur ; avant la premiere facture il reste permis.",
   contract: {
     operations: {
       issue_invoices: {
@@ -2560,10 +2838,14 @@ const P14_R2 = clause({
       { contexte: "fuseau 'Europe/Paris'", requete: { op: 'issue_invoices', at: '2031-05-31T21:59:59Z', args: { month: '2031-05' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
       { requete: { op: 'issue_invoices', at: '2031-05-13T09:03:00Z', args: { month: '2031-03' } }, reponse: { ok: true, month: '2031-03', invoice_ids: ['INV-2031-03-m-cleo', 'INV-2031-03-m-dan', 'INV-2031-03-m-fay', 'INV-2031-03-m-gus'] } },
       { contexte: 'deja emis', requete: { op: 'issue_invoices', args: { month: '2031-03' } }, reponse: { ok: false, error: 'ALREADY_EXISTS' } },
+      { contexte: 't-alpha a emis des factures', requete: { op: 'set_timezone', tenant: 't-alpha', actor: 'm-ana', args: { timezone: 'Europe/Paris' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
+      { contexte: "t-clar n'a emis aucune facture", requete: { op: 'set_timezone', tenant: 't-clar', actor: 'm-own', args: { timezone: 'Europe/Paris' } }, reponse: { ok: true, tenant_id: 't-clar', timezone: 'Europe/Paris' } },
     ],
+    fuseau_verrouille: "set_timezone -> INVALID_ARGUMENT, sans effet, des la premiere facture emise du locataire (meme vers le fuseau en vigueur)",
   },
   implementation: {
     'autorisation.issue_invoices': ['admin'],
+    'set_timezone.etape.factures': etape(10, (ctx) => (facturation(ctx).emis.size > 0 ? fail('INVALID_ARGUMENT') : undefined)),
     'issue_invoices.effet': (ctx: PlatformContext): PlatformResponse => {
       const month = ctx.args.month
       if (typeof month !== 'string' || !MOIS.test(month)) return fail('INVALID_ARGUMENT')
@@ -2588,11 +2870,7 @@ const P14_R2 = clause({
       return succeed({ month, invoice_ids })
     },
   },
-  grandeurs: ['month', 'invoice_ids', 'invoice_id', 'at'],
-  questions_ouvertes: [
-    "Q19 (provisoire) : issue_invoices accepte d'emettre les mois dans le desordre et n'exige pas que les mois precedents soient emis ; le solde d'ouverture est lu dans l'historique du portefeuille",
-    "Q20 (provisoire, exercee) : tout locataire peut etre facture ; un mouvement de montant nul n'est pas une ligne ; un membre sans ligne ni avoir dans le mois n'a pas de facture, meme si son solde est non nul",
-  ],
+  grandeurs: ['month', 'invoice_ids', 'invoice_id', 'at', 'timezone'],
 })
 
 const P14_R3 = clause({
@@ -2677,9 +2955,6 @@ const P14_R3 = clause({
     'invoices.card_cents', 'credits_used_cents', 'top_ups_cents', 'compensations_cents', 'credit_notes_credits_cents',
     'opening_balance_cents', 'closing_balance_cents',
   ],
-  questions_ouvertes: [
-    "Q21 (provisoire, exercee) : format de ligne minimal { type, booking_id, amount_cents } : ni parts credits/carte par ligne, ni devise d'origine d'un rechargement en USD (la ligne porte les centimes d'EUR credites)",
-  ],
 })
 
 const P14_R4 = clause({
@@ -2745,10 +3020,6 @@ const P14_R4 = clause({
   grandeurs: [
     'credit_note_id', 'invoice_id', 'reason', 'month', 'issued_at',
     'credit_notes.amount_cents', 'credit_notes.credits_cents', 'credit_notes.card_cents', 'refunded_cents',
-  ],
-  questions_ouvertes: [
-    "Q18 (provisoire, exercee) : le remboursement d'une charge d'un mois passe mais non encore facture est une ligne refund du mois du remboursement (card_cents de ce mois peut devenir negatif)",
-    "Q22 (provisoire) : au-dela de AV-9999 la sequence continue sur 5 chiffres ou plus (AV-10000), sans troncature",
   ],
 })
 
@@ -2863,21 +3134,17 @@ const P15_R1 = clause({
   id: 'P15.R1',
   enters: 'P15',
   text:
-    "Table de taux. set_rate { currency, date, rate_micro } (rôle admin seulement) inscrit un taux dans la table datée du " +
-    "locataire. currency vaut 'USD' (l'EUR est la devise de compte, taux implicite 1) ; date 'AAAA-MM-JJ' ; rate_micro " +
-    "entier >= 1 = nombre d'EUR pour 1 USD multiplié par 1 000 000 (912500 = 0,9125 EUR par USD). Sinon " +
-    "{ ok: false, error: 'INVALID_ARGUMENT' }. Un taux déjà inscrit pour (currency, date) -> { ok: false, error: " +
-    "'ALREADY_EXISTS' } (la table ne se réécrit pas). Réponse { ok: true, currency, date, rate_micro }.",
+    "set_rate {currency, date, rate_micro} (admin) inscrit un taux dans la table datee du locataire. currency vaut 'USD' (l'EUR est la devise de compte, taux implicite 1) ; date 'AAAA-MM-JJ' ; rate_micro entier de 1 a 10 000 000 inclus = nombre d'EUR pour 1 USD multiplie par 1 000 000 (912500 = 0,9125 EUR par USD). Sinon INVALID_ARGUMENT. Un taux deja inscrit pour (currency, date) -> ALREADY_EXISTS (la table ne se reecrit pas). Reponse {ok: true, currency, date, rate_micro}.",
   contract: {
     operations: {
       set_rate: {
         roles_autorises: ['admin'],
-        arguments: { currency: "'USD'", date: "'AAAA-MM-JJ'", rate_micro: 'entier >= 1 (EUR par USD x 10^6)' },
+        arguments: { currency: "'USD'", date: "'AAAA-MM-JJ'", rate_micro: 'entier de 1 a 10 000 000 (EUR par USD x 10^6)' },
         reponse: { ok: true, currency: "'USD'", date: 'chaine', rate_micro: 'entier' },
         erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT', 'ALREADY_EXISTS'],
       },
     },
-    valeurs: { unite_rate_micro: 'EUR par USD x 10^6', devises: [...DEVISES], devise_de_compte: 'EUR' },
+    valeurs: { unite_rate_micro: 'EUR par USD x 10^6', devises: [...DEVISES], devise_de_compte: 'EUR', rate_micro_min: 1, rate_micro_max: RATE_MICRO_MAX },
     exemples: [
       { requete: { op: 'set_rate', actor: 'm-ana', args: { currency: 'USD', date: '2031-06-01', rate_micro: 912500 } }, reponse: { ok: true, currency: 'USD', date: '2031-06-01', rate_micro: 912500 } },
       { requete: { op: 'set_rate', actor: 'm-ana', args: { currency: 'GBP', date: '2031-06-01', rate_micro: 1170000 } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
@@ -2887,7 +3154,7 @@ const P15_R1 = clause({
     'autorisation.set_rate': ['admin'],
     'set_rate.effet': (ctx: PlatformContext): PlatformResponse => {
       const { currency, date, rate_micro } = ctx.args
-      if (currency !== 'USD' || dateUtc(date) === null || !estEntier(rate_micro) || rate_micro < 1) return fail('INVALID_ARGUMENT')
+      if (currency !== 'USD' || dateUtc(date) === null || !estEntier(rate_micro) || rate_micro < 1 || rate_micro > RATE_MICRO_MAX) return fail('INVALID_ARGUMENT')
       const table = ctx.donnee<Map<string, number>>(CLE_TAUX, () => new Map())
       if (table.has(String(date))) return fail('ALREADY_EXISTS')
       table.set(String(date), rate_micro)
@@ -2895,7 +3162,6 @@ const P15_R1 = clause({
     },
   },
   grandeurs: ['currency', 'date', 'rate_micro'],
-  questions_ouvertes: ["Q24 (provisoire) : pas de borne superieure pour rate_micro ; pas de taux EUR -> USD ; portefeuille et factures toujours en EUR"],
 })
 
 const P15_R2 = clause({
@@ -2955,20 +3221,12 @@ const P15_R4 = clause({
   enters: 'P15',
   replaces: 'P8.R1',
   text:
-    "Portefeuille (remplace P8.R1). Chaque membre a, dans chaque locataire, un portefeuille balance_cents en centimes " +
-    "d'EUR (entier >= 0, initialement 0). top_up { member_id, amount_cents, currency? } (rôles admin, staff) : amount_cents " +
-    "entier > 0 (centimes de currency) et currency absente, 'EUR' ou 'USD', sinon { ok: false, error: 'INVALID_ARGUMENT' } ; " +
-    "member_id non membre du locataire -> { ok: false, error: 'NOT_FOUND' } ; en USD, sans taux applicable (P15.R2) -> " +
-    "{ ok: false, error: 'RATE_UNAVAILABLE' }, sinon credited_cents = conversion P15.R3 de amount_cents au taux applicable " +
-    "à at ; en EUR credited_cents = amount_cents. Réponse { ok: true, member_id, balance_cents (après crédit), " +
-    "credited_cents, currency, rate_micro (USD seulement) }. get_wallet { member_id } : admin et staff pour tout membre ; " +
-    "member pour lui-même seulement (sinon FORBIDDEN) ; member_id non membre -> NOT_FOUND ; réponse { ok: true, member_id, " +
-    'balance_cents }.',
+    "Portefeuille (remplace P8.R1). Chaque membre a, dans chaque locataire, un portefeuille balance_cents en centimes d'EUR (entier >= 0, initialement 0). top_up {member_id, amount_cents, currency?} (admin, staff) : amount_cents entier de 1 a 100 000 000 et currency absente, 'EUR' ou 'USD', sinon INVALID_ARGUMENT ; member_id non membre -> NOT_FOUND ; en USD, sans taux applicable -> RATE_UNAVAILABLE, sinon credited_cents = conversion P15.R3 de amount_cents au taux applicable a at ; en EUR credited_cents = amount_cents. Reponse {ok: true, member_id, balance_cents (apres), credited_cents, currency, rate_micro (USD seulement)}. get_wallet {member_id} : admin, staff pour tout membre ; member pour lui-meme seulement (sinon FORBIDDEN) ; reponse {ok: true, member_id, balance_cents}.",
   contract: {
     operations: {
       top_up: {
         roles_autorises: ['admin', 'staff'],
-        arguments: { member_id: 'chaine', amount_cents: 'entier > 0 (centimes de currency)', currency: "'EUR' (defaut) | 'USD'" },
+        arguments: { member_id: 'chaine', amount_cents: 'entier de 1 a 100 000 000 (centimes de currency)', currency: "'EUR' (defaut) | 'USD'" },
         reponse: { ok: true, member_id: 'chaine', balance_cents: 'entier', credited_cents: 'entier', currency: 'chaine', rate_micro: 'entier (USD)' },
         erreurs: ['FORBIDDEN', 'INVALID_ARGUMENT', 'NOT_FOUND', 'RATE_UNAVAILABLE'],
       },
@@ -2992,7 +3250,7 @@ const P15_R4 = clause({
     'top_up.effet': (ctx: PlatformContext): PlatformResponse => {
       const { member_id, amount_cents } = ctx.args
       const currency = ctx.args.currency ?? 'EUR'
-      if (!estEntier(amount_cents) || amount_cents <= 0 || typeof currency !== 'string' || !(DEVISES as readonly string[]).includes(currency)) {
+      if (!rechargeValide(amount_cents) || typeof currency !== 'string' || !(DEVISES as readonly string[]).includes(currency)) {
         return fail('INVALID_ARGUMENT')
       }
       if (ctx.role(member_id) === undefined) return fail('NOT_FOUND')
@@ -3022,20 +3280,17 @@ const P15_R5 = clause({
   enters: 'P15',
   replaces: 'P7.R1',
   text:
-    "Prix en devise (remplace P7.R1). set_price { slot_id, price_cents, currency? } (rôle admin seulement) fixe le prix PAR " +
-    "PLACE du créneau en centimes entiers >= 0 de currency ('EUR' par défaut, ou 'USD' ; autre -> INVALID_ARGUMENT) ; " +
-    "réponse { ok: true, slot_id, price_cents, currency }. slot_id inconnu -> NOT_FOUND ; price_cents qui n'est pas un " +
-    "entier >= 0 -> INVALID_ARGUMENT. Tout créneau a le prix 0 EUR tant qu'aucun prix n'est fixé.",
+    "set_price {slot_id, price_cents, currency?} (admin) (remplace P7.R1) : prix PAR PLACE en centimes entiers de 0 a 100 000 000 de currency ('EUR' par defaut, ou 'USD' ; autre -> INVALID_ARGUMENT) ; reponse {ok: true, slot_id, price_cents, currency}. Tout creneau a le prix 0 EUR tant qu'aucun prix n'est fixe.",
   contract: {
     operations: {
       set_price: {
         roles_autorises: ['admin'],
-        arguments: { slot_id: 'chaine', price_cents: 'entier >= 0 (centimes de currency, par place)', currency: "'EUR' (defaut) | 'USD'" },
+        arguments: { slot_id: 'chaine', price_cents: 'entier de 0 a 100 000 000 (centimes de currency, par place)', currency: "'EUR' (defaut) | 'USD'" },
         reponse: { ok: true, slot_id: 'chaine', price_cents: 'entier', currency: 'chaine' },
         erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT'],
       },
     },
-    valeurs: { prix_par_defaut: '0 EUR' },
+    valeurs: { prix_par_defaut: '0 EUR', price_cents_min: 0, price_cents_max: PRIX_MAX_CENTS },
     exemples: [{ requete: { op: 'set_price', actor: 'm-ana', args: { slot_id: 'S22', price_cents: 1999, currency: 'USD' } }, reponse: { ok: true, slot_id: 'S22', price_cents: 1999, currency: 'USD' } }],
   },
   implementation: {
@@ -3047,7 +3302,7 @@ const P15_R5 = clause({
       if (slot === undefined) return fail('NOT_FOUND')
       const p = ctx.args.price_cents
       const currency = ctx.args.currency ?? 'EUR'
-      if (!estEntier(p) || p < 0 || typeof currency !== 'string' || !(DEVISES as readonly string[]).includes(currency)) return fail('INVALID_ARGUMENT')
+      if (!prixValide(p) || typeof currency !== 'string' || !(DEVISES as readonly string[]).includes(currency)) return fail('INVALID_ARGUMENT')
       slot.price_cents = p
       slot.price_currency = currency
       return succeed({ slot_id: slot.slot_id, price_cents: p, currency })
@@ -3055,10 +3310,6 @@ const P15_R5 = clause({
   },
   grandeurs: ['slot_id', 'price_cents', 'currency'],
   unites: { price_cents: PRIX_EN_DEVISE },
-  questions_ouvertes: [
-    "Q27 (provisoire, exercee) : set_price (P15.R5) et change_price (P16.R1) gouvernent des decisions distinctes (set_price.effet, change_price.effet) qui ecrivent le meme prix du creneau pour les confirmations futures",
-    "Q28 (provisoire) : get_slot ne porte ni price_cents ni price_currency",
-  ],
 })
 
 const P15_R6 = clause({
@@ -3138,9 +3389,6 @@ const P15_R6 = clause({
   },
   grandeurs: ['amount_cents', 'price_cents', 'seats', 'discount_bp', 'price_currency', 'original_amount_cents', 'rate_micro'],
   unites: { price_cents: PRIX_EN_DEVISE },
-  questions_ouvertes: [
-    "Q23 (provisoire) : une reservation en file d'un creneau en USD ne tient pas tant qu'aucun taux ne s'applique ; une reservation directe rend RATE_UNAVAILABLE (memorise)",
-  ],
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P16 */
@@ -3158,19 +3406,12 @@ const P16_R1 = clause({
   id: 'P16.R1',
   enters: 'P16',
   text:
-    "Changement de prix RÉTROACTIF. change_price { slot_id, price_cents, effective_from } (rôle admin seulement). Contrôles " +
-    "après ceux d'acteur, dans cet ordre : slot_id inconnu -> { ok: false, error: 'NOT_FOUND' } ; price_cents entier >= 0 " +
-    "(centimes de la devise du prix), sinon { ok: false, error: 'INVALID_ARGUMENT' } ; effective_from instant ISO 8601 UTC " +
-    "'AAAA-MM-JJTHH:MM:SSZ' et <= at, sinon { ok: false, error: 'INVALID_ARGUMENT' } (un changement futur passe par " +
-    "set_price). Effet : le prix du créneau devient price_cents (devise inchangée) pour toute confirmation FUTURE " +
-    "(réservation ou promotion après cette opération), et les trop-perçus sont rendus (P16.R2). Réponse { ok: true, " +
-    "slot_id, price_cents, adjusted } où adjusted liste, dans l'ordre de confirmation, { booking_id, refunded_cents, " +
-    'refund: { credits_cents, card_cents }, credit_note_id } des réservations ajustées.',
+    "change_price {slot_id, price_cents, effective_from} (admin) : changement de prix RETROACTIF. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; price_cents entier de 0 a 100 000 000 sinon INVALID_ARGUMENT ; effective_from instant ISO 8601 UTC <= at, sinon INVALID_ARGUMENT. Effet : le prix du creneau devient price_cents (devise inchangee) pour toute confirmation FUTURE (reservation ou promotion apres cette operation). Reponse {ok: true, slot_id, price_cents, adjusted} ou adjusted liste, dans l'ordre de confirmation, {booking_id, refunded_cents, refund: {credits_cents, card_cents}, credit_note_id} des reservations ajustees.",
   contract: {
     operations: {
       change_price: {
         roles_autorises: ['admin'],
-        arguments: { slot_id: 'chaine', price_cents: 'entier >= 0', effective_from: "'AAAA-MM-JJTHH:MM:SSZ' <= at" },
+        arguments: { slot_id: 'chaine', price_cents: 'entier de 0 a 100 000 000', effective_from: "'AAAA-MM-JJTHH:MM:SSZ' <= at" },
         reponse: { ok: true, slot_id: 'chaine', price_cents: 'entier', adjusted: 'tableau de { booking_id, refunded_cents, refund: { credits_cents, card_cents }, credit_note_id }' },
         erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT'],
       },
@@ -3186,7 +3427,7 @@ const P16_R1 = clause({
       const slot = ctx.locataire.slots.get(String(ctx.args.slot_id))
       if (slot === undefined) return fail('NOT_FOUND')
       const { price_cents, effective_from } = ctx.args
-      if (!estEntier(price_cents) || price_cents < 0) return fail('INVALID_ARGUMENT')
+      if (!prixValide(price_cents)) return fail('INVALID_ARGUMENT')
       if (!estInstant(effective_from) || Date.parse(effective_from) > ctx.instant) return fail('INVALID_ARGUMENT')
       slot.price_cents = price_cents
       const adjusted = ctx.regle<TropPercus>('tarif.trop_percus')(ctx, slot, Date.parse(effective_from))
@@ -3201,18 +3442,13 @@ const P16_R2 = clause({
   id: 'P16.R2',
   enters: 'P16',
   text:
-    "Trop-perçus. Pour chaque réservation 'confirmed' du créneau dont l'instant de confirmation est >= effective_from " +
-    "(borne incluse), dans l'ordre de confirmation : A' = montant recalculé par P15.R6 pour ses seats ACTUELS, avec le " +
-    "nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation. Si A' < A (amount_cents " +
-    "actuel) : trop-perçu T = A - A' ; r_c = floor(T × C / A), r_d = T - r_c (C = paid_credits_cents, D = paid_card_cents) ; " +
-    "r_c re-crédité au portefeuille, r_d rendu à la carte ; la réservation garde A', C - r_c, D - r_d. Si A' >= A : rien " +
-    "(une hausse ne s'applique qu'aux confirmations futures). Les réservations confirmées avant effective_from, waiting, " +
-    'annulées ou débarquées ne changent pas. Montants en centimes d\'euro entiers.',
+    "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas.",
   contract: {
-    valeurs: { borne_effective_from: 'incluse', arrondi_part_credits: 'floor, la carte recoit le reste' },
+    valeurs: { borne_effective_from: 'incluse', arrondi_part_credits: 'floor, la carte recoit le reste', A_prime: 'montant P15.R6 au nouveau prix pour les seats actuels + F (frais retenus, P9.R4)' },
     operations: { change_price: { adjusted: { refunded_cents: 'T = A - A\'', refund: { credits_cents: 'r_c', card_cents: 'r_d' } } } },
     exemples: [
       { contexte: "y2 : silver, A 1800, C 88, D 1712, confirmee a effective_from ; nouveau prix 1600", calcul: "A' = 1600 - 160 = 1440 ; T = 360 ; r_c = floor(360 x 88 / 1800) = 17 ; r_d = 343" },
+      { contexte: 'r16a : 2 places restantes, A 3000, F 1000 ; nouveau prix 800', calcul: "A' = 2 x 800 + 1000 = 2600 ; T = 400 (les frais retenus ne sont pas rendus)" },
     ],
   },
   implementation: {
@@ -3229,12 +3465,13 @@ const P16_R2 = clause({
         const { amount_cents: A2 } = ctx.regle<Montant>('tarif.montant')(ctx, {
           seats: b.seats, prix, devise: b.price_currency ?? devise, taux_bp, ...(b.rate_micro === undefined ? {} : { rate_micro: b.rate_micro }),
         })
-        if (A2 >= A) continue
-        const T = A - A2
+        const Aprime = A2 + (avecFrais(b).frais_retenus_cents ?? 0)
+        if (Aprime >= A) continue
+        const T = A - Aprime
         const C = b.paid_credits_cents ?? 0
         const D = b.paid_card_cents ?? A - C
         const rc = Math.floor((T * C) / A)
-        b.amount_cents = A2
+        b.amount_cents = Aprime
         b.paid_credits_cents = C - rc
         b.paid_card_cents = D - (T - rc)
         const credit_note_id = ctx.regle<DocumentTropPercu>('comptabilite.trop_percu')(ctx, b, T, rc)
@@ -3244,10 +3481,6 @@ const P16_R2 = clause({
     }) satisfies TropPercus,
   },
   grandeurs: ['effective_from', 'amount_cents', 'paid_credits_cents', 'paid_card_cents', 'refunded_cents', 'refund.credits_cents', 'refund.card_cents', 'balance_cents'],
-  questions_ouvertes: [
-    "Q25 (provisoire) : A' est recalcule sur les seats ACTUELS, meme pour une reservation deja partiellement annulee avec palier < 100 %",
-    "Q26 (provisoire) : sur un creneau en USD, A' utilise le rate_micro de la confirmation de la reservation",
-  ],
 })
 
 const P16_R3 = clause({
@@ -3279,15 +3512,15 @@ const P16_R3 = clause({
 const TEXTE_P17_R1 =
   "merge_tenants {source_tenant_id} fusionne le locataire SOURCE dans le locataire CIBLE, qui est le locataire de l'enveloppe (champ tenant) ; actor admin de la cible (P4.R2, P4.R3). Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, sans aucun effet) : (1) source_tenant_id inconnu (jamais cree, ou deja fusionne) -> NOT_FOUND ; (2) source_tenant_id = cible -> INVALID_ARGUMENT ; (3) actor non admin de la source -> FORBIDDEN ; (4) la source ou la cible a deja emis au moins une facture (P14.R2) -> INVALID_ARGUMENT ; (5) un identifiant renomme par P17.R2 existe deja dans son espace de la cible ou de la source -> INVALID_ARGUMENT. Effet : tout le contenu de la source passe dans la cible (P17.R2 a P17.R4), puis la source cesse d'exister : toute operation dont le champ tenant la nomme -> NOT_FOUND (P3.R2), merge_tenants qui la nomme -> NOT_FOUND, et create_tenant avec son identifiant -> ALREADY_EXISTS (l'identifiant reste reserve). La cible garde son proprietaire, son fuseau (P9.R1), sa sequence d'avoirs (P14.R4) et de pseudonymes (P18.R1) ; la table de taux (P15.R1) de la source s'ajoute a celle de la cible, une date deja presente dans la cible gardant le taux de la cible. Reponse {ok: true, tenant_id (la cible), source_tenant_id, renamed, merged_members, added_members}."
 const TEXTE_P17_R2 =
-  "Collisions d'identifiants, regle declaree. Espaces de noms : (a) slot_id ; (b) series_id ; (c) request_id / booking_id : les reservations ET les cles d'idempotence memorisees (P1.R4, y compris celles d'une reponse d'erreur) ; (d) import_id (P20.R1). Un identifiant de la SOURCE qui existe deja dans le meme espace de la CIBLE est renomme '<source_tenant_id>:<identifiant>' (exemple : 'M1' de t-mig-b devient 't-mig-b:M1') ; un identifiant sans collision garde son nom ; les identifiants de la cible ne changent jamais. Tout ce qui reference un identifiant renomme suit : slot_id des reservations, file d'attente, occurrences d'une serie, cle et booking_id/slot_id d'une reponse memorisee. renamed liste les renommages {kind, from, to} : kind 'slot', puis 'series', puis 'booking' (cle portant une reservation), puis 'request' (cle memorisee sans reservation), puis 'import' ; dans chaque kind, from croissant (ordinal UTF-16). Les member_id ne sont jamais renommes (P17.R3)."
+  "Collisions d'identifiants, regle declaree. Espaces de noms : (a) slot_id ; (b) series_id ; (c) request_id / booking_id : les reservations ET les cles d'idempotence memorisees (P1.R4, y compris celles d'une reponse d'erreur) ; (d) import_id (P20.R1) ; (e) pseudonymes (P18.R1). Un identifiant de la SOURCE qui existe deja dans le meme espace de la CIBLE est renomme '<source_tenant_id>:<identifiant>' (exemple : 'M1' de t-mig-b devient 't-mig-b:M1') ; un identifiant sans collision garde son nom ; les identifiants de la cible ne changent jamais. Tout ce qui reference un identifiant renomme suit : slot_id des reservations, file d'attente, occurrences d'une serie, cle et booking_id/slot_id d'une reponse memorisee. renamed liste les renommages {kind, from, to} : kind 'slot', puis 'series', puis 'booking' (cle portant une reservation), puis 'request' (cle memorisee sans reservation), puis 'import', puis 'pseudonym' ; dans chaque kind, from croissant (ordinal UTF-16). Les member_id ne sont jamais renommes (P17.R3). Une serie et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences courantes entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la serie recoivent le prefixe '<source_tenant_id>:' (le lien '<series_id>@<date>' est conserve) ; chacun de ces renommages figure dans renamed (kind 'slot' pour les occurrences, 'series' pour la serie). Un pseudonyme de la source (P18.R1) deja present dans la cible, comme pseudonyme ou comme member_id, est renomme '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs, reservations) ; renomme ou non, il reste un pseudonyme lisible dans la cible (P18.R3). Ce renommage figure dans renamed sous le kind 'pseudonym', place apres 'import'."
 const TEXTE_P17_R3 =
-  "Membres. Un member_id present dans les deux locataires designe la MEME personne : il n'est pas renomme ; son role devient le plus eleve des deux (admin > staff > member) ; son niveau (P7.R2) celui de plus fort taux de remise ; son portefeuille la SOMME des deux soldes, l'historique du portefeuille de la source (mouvements et lots P22.R2) rejoignant celui de la cible avec ses instants ; suspended_until la plus tardive des deux (null si aucune). Un membre present seulement dans la source est ajoute avec son role, son niveau, son portefeuille et sa suspension. merged_members (presents dans les deux) et added_members (source seulement) : member_id croissants (ordinal)."
+  "Membres. Un member_id present dans les deux locataires designe la MEME personne : il n'est pas renomme ; son role devient le plus eleve des deux (admin > staff > member) ; son niveau (P7.R2) celui de plus fort taux de remise ; son portefeuille la SOMME des deux soldes, l'historique du portefeuille de la source (mouvements et lots P22.R2) rejoignant celui de la cible avec ses instants ; suspended_until la plus tardive des deux (null si aucune). Un membre present seulement dans la source est ajoute avec son role, son niveau, son portefeuille et sa suspension. merged_members (presents dans les deux) et added_members (source seulement) : member_id croissants (ordinal). Un pseudonyme (P18.R1) n'est pas un membre : il ne figure ni dans merged_members ni dans added_members et suit P17.R2 (e)."
 const TEXTE_P17_R4 =
   "Historique conserve. Chaque reservation de la source passe dans la cible avec TOUT son etat, inchange hors renommage P17.R2 : member_id, status, seats, seat_numbers, rang en file d'attente, no_show, amount_cents, paid_credits_cents, paid_card_cents, devise et taux d'origine (P15.R6), instant et rang de confirmation (l'ordre de confirmation P13.R3 reste l'ordre global de la trajectoire), mouvements financiers (P14.R1). A partir de P17, toute reservation porte origin = {tenant_id, booking_id} : le locataire et le booking_id sous lesquels elle a ete CREEE (pour une reservation jamais fusionnee : son locataire et son booking_id actuels) ; les vues de reservation (reserve, get_booking) portent origin. Une reponse memorisee de la source est conservee sous sa cle (renommee s'il y a lieu) : seuls ses champs booking_id et slot_id de premier niveau sont reecrits selon le renommage ; le reste (dont origin) est inchange ; elle est rejouee a l'identique sous cette cle."
 const TEXTE_P18_R1 =
   "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}."
 const TEXTE_P18_R2 =
-  "Anonymisation. Dans tout le locataire, l'identifiant efface est remplace par le pseudonyme : member_id (et payeur) des reservations, portefeuille (solde, historique, lots), niveau, suspension, reponses et arguments memorises (toute valeur chaine EGALE au member_id, a toute profondeur), factures et avoirs (member_id, et l'invoice_id 'INV-<AAAA-MM>-<member_id>' devient 'INV-<AAAA-MM>-<pseudonyme>', y compris l'invoice_id cite par un avoir). C'est la SEULE exception a l'immuabilite des factures (P14.R2) : elle ne remplace que des identifiants ; aucun montant, aucune ligne, aucun ordre ne change ; les totaux de toutes les factures restent intacts. Les identifiants des autres membres, des reservations et des avoirs ne changent pas."
+  "Anonymisation. Dans tout le locataire, l'identifiant efface est remplace par le pseudonyme : member_id (et payeur) des reservations, portefeuille (solde, historique, lots), niveau, suspension, reponses et arguments memorises (seules les valeurs EGALES au member_id des cles member_id, payer_member_id, from_member_id et to_member_id, a toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>' ; un slot_id, un request_id ou un autre identifiant egal par hasard au member_id ne change pas), factures et avoirs (member_id, et l'invoice_id 'INV-<AAAA-MM>-<member_id>' devient 'INV-<AAAA-MM>-<pseudonyme>', y compris l'invoice_id cite par un avoir). C'est la SEULE exception a l'immuabilite des factures (P14.R2) : elle ne remplace que des identifiants ; aucun montant, aucune ligne, aucun ordre ne change ; les totaux de toutes les factures restent intacts. Les identifiants des autres membres, des reservations et des avoirs ne changent pas."
 const TEXTE_P18_R3 =
   "Apres effacement. Le membre efface n'est plus membre : il ne peut plus agir (FORBIDDEN, P4.R2) ; toute operation qui le designe comme member_id (reserve, top_up, set_tier, erase_member, ...) -> NOT_FOUND, et de meme pour le pseudonyme, sauf en lecture : list_documents, get_wallet (admin, staff) et le filtre member_id de report_revenue (P19.R3) acceptent le pseudonyme ; get_booking rend le pseudonyme. Les documents futurs du pseudonyme portent 'INV-<AAAA-MM>-<pseudonyme>' ; issue_invoices range les pseudonymes parmi les member_id par ordre croissant (ordinal). add_member avec l'ancien identifiant cree un NOUVEAU membre, sans historique (solde 0, aucun document)."
 const TEXTE_P19_R1 =
@@ -3315,7 +3548,7 @@ const TEXTE_P21_R4 =
 const TEXTE_P22_R1 =
   "Fin des remises par niveau (remplace P15.R6). Le montant est fixe a l'instant ou la reservation devient confirmed (reservation ou promotion) avec le prix et la devise du prix de CET instant, SANS remise : brut = seats x price_cents ; net = brut (taux 0 quel que soit le niveau) ; prix en EUR : amount_cents = net ; prix en USD : conversion P15.R3 au taux applicable a l'instant de la confirmation, avec price_currency, original_amount_cents et rate_micro comme a P15.R6 ; RATE_UNAVAILABLE comme a P15.R6. Cela vaut pour toute confirmation a partir de P22, y compris la promotion d'une reservation demandee avant P22. Les montants fixes avant P22 ne changent pas ; les factures et avoirs deja emis ne changent pas. set_tier reste accepte et le niveau reste enregistre, sans effet sur le prix. Le recalcul P16.R2 utilise le taux de remise de la confirmation de chaque reservation : son taux d'avant P22 pour une reservation confirmee avant P22, 0 pour une reservation confirmee a partir de P22."
 const TEXTE_P22_R2 =
-  "Lots de credits et expiration. Chaque entree de credits au portefeuille (top_up, compensation P13.R3, re-credit r_c d'un remboursement ou d'un trop-percu, y compris par avoir) forme un LOT {acquired_at = at de l'operation, expires_at = le meme instant UTC 12 mois civils plus tard (un 29 fevrier donne le 1er mars), remaining_cents}. Chaque debit de credits (paiement P8.R2, frais P23.R3) consomme les lots par expires_at croissant (le plus ancien d'abord), puis par ordre d'entree. Retroactivite : les lots sont reconstitues sur TOUT l'historique du portefeuille depuis P8, par la meme regle (y compris les anciens credits). Un lot expire a l'instant expires_at : pour une operation d'instant at >= expires_at son reste est perdu (a at = expires_at le lot est expire ; a expires_at - 1 s il ne l'est pas). L'expiration est un mouvement de portefeuille date de expires_at, de montant = reste du lot ; a instant egal elle precede l'operation. balance_cents = somme des restes des lots non expires."
+  "Lots de credits et expiration. Chaque entree de credits au portefeuille (top_up, compensation P13.R3, re-credit r_c d'un remboursement ou d'un trop-percu, y compris par avoir) forme un LOT {acquired_at = at de l'operation, expires_at = le meme instant UTC 12 mois civils plus tard (12 mois civils apres un 29 fevrier donnent le 28 fevrier de l'annee suivante, a la meme heure UTC), remaining_cents}. Chaque debit de credits (paiement P8.R2, frais P23.R3) consomme les lots par expires_at croissant (le plus ancien d'abord), puis par ordre d'entree. Retroactivite : les lots sont reconstitues sur TOUT l'historique du portefeuille depuis P8, par la meme regle (y compris les anciens credits). Un lot expire a l'instant expires_at : pour une operation d'instant at >= expires_at son reste est perdu (a at = expires_at le lot est expire ; a expires_at - 1 s il ne l'est pas). L'expiration est un mouvement de portefeuille date de expires_at, de montant = reste du lot ; a instant egal elle precede l'operation. balance_cents = somme des restes des lots non expires."
 const TEXTE_P22_R3 =
   "Vues des lots. get_wallet porte en plus lots = [{acquired_at, expires_at, remaining_cents}] : les lots non expires de reste > 0, par expires_at croissant puis ordre d'entree (acquired_at, expires_at : 'AAAA-MM-JJTHH:MM:SSZ'). La reponse de top_up porte en plus expires_at, l'echeance du lot cree."
 const TEXTE_P22_R4 =
@@ -3325,13 +3558,13 @@ const TEXTE_P23_R1 =
 const TEXTE_P23_R2 =
   "exchange_bookings {booking_id, with_booking_id} (admin, staff ; member -> FORBIDDEN) : les deux titulaires echangent leurs reservations ; sur un meme creneau numerote, cela echange leurs places. Controles apres ceux d'acteur, dans cet ordre : l'une des deux inconnue -> NOT_FOUND ; booking_id = with_booking_id, l'une non confirmed, ou meme titulaire -> INVALID_ARGUMENT ; l'un des deux creneaux commence (at >= starts_at) -> SLOT_CLOSED ; l'un des deux titulaires suspendu (at < suspended_until) -> SUSPENDED ; creneaux differents et l'un des titulaires a deja une autre reservation active sur le creneau qu'il recoit -> ALREADY_BOOKED. Effet : chacun devient titulaire de la reservation de l'autre ; chaque cedant paie les frais P23.R3 de la reservation qu'il cede (frais de booking_id d'abord). Reponse {ok: true, exchanged: [{booking_id, member_id (nouveau titulaire), fee_cents}, {booking_id: with_booking_id, member_id, fee_cents}]}."
 const TEXTE_P23_R3 =
-  "Frais de transfert : fee_cents = max(100, floor((A x 1000 + 5000) / 10000)), A = amount_cents actuel de la reservation cedee (10 % arrondi demi vers le haut au centime, minimum 100 centimes, meme pour une reservation gratuite ou peu chere). Payes par le cedant au moment du transfert : credits d'abord (lots P22.R2, le plus ancien d'abord), puis carte. C'est un mouvement de type 'fee' (booking_id, montant, part credits, part carte) date de l'operation. Les frais ne sont jamais rembourses. A partir de P23, les vues de reservation (reserve, get_booking) portent payer_member_id (le membre debite a la confirmation ; null si jamais confirmee) et transfers = [{from_member_id, to_member_id, at, fee_cents}] dans l'ordre des transferts ([] si aucun)."
+  "Frais de transfert : fee_cents = 0 si A = 0 ; sinon fee_cents = max(100, floor((A x 1000 + 5000) / 10000)), A = amount_cents actuel de la reservation cedee (10 % arrondi demi vers le haut au centime, minimum 100 centimes pour une reservation payante, meme peu chere ; une reservation gratuite se cede sans frais). Payes par le cedant au moment du transfert : credits d'abord (lots P22.R2, le plus ancien d'abord), puis carte. C'est un mouvement de type 'fee' (booking_id, montant, part credits, part carte) date de l'operation. Les frais ne sont jamais rembourses. A partir de P23, les vues de reservation (reserve, get_booking) portent payer_member_id (le membre debite a la confirmation ; null si jamais confirmee) et transfers = [{from_member_id, to_member_id, at, fee_cents}] dans l'ordre des transferts ([] si aucun)."
 const TEXTE_P23_R4 =
   "Payeur et remboursements. Le titulaire actuel peut annuler sa reservation (member pour sa reservation, P4.R3). Tout remboursement ulterieur d'une reservation transferee (annulation totale ou partielle, debarquement, trop-percu P16.R2) va au PAYEUR (payer_member_id), pas au titulaire : r_c re-credite a son portefeuille, r_d rendu a sa carte, ligne refund ou avoir sur SES documents (l'avoir cite la facture de la charge, celle du payeur). La compensation de debarquement (P13.R3) va au titulaire."
 const TEXTE_P23_R5 =
   "Factures (remplace P22.R4). Contenu de P22.R4, plus les lignes {type: 'fee', booking_id, amount_cents} des frais payes par le membre, comptees comme des charges : dans charges_cents, et leurs parts dans card_cents et credits_used_cents."
 const TEXTE_P24_R1 =
-  "Version du contrat. A partir de P24, l'enveloppe porte un champ version (au niveau de l'operation, hors args) : 'v1' ou 'v2' ; absent, il vaut 'v1'. Avant P24 ce champ est ignore. Toute autre valeur -> {ok: false, error: 'INVALID_ARGUMENT'} (forme v1), sans effet et avant tout autre controle (meme celui du tenant)."
+  "Version du contrat. A partir de P24, l'enveloppe porte un champ version (au niveau de l'operation, hors args) : 'v1' ou 'v2' ; absent, il vaut 'v1'. Avant P24 ce champ est ignore. Toute autre valeur -> {ok: false, error: 'INVALID_ARGUMENT'} (forme v1), sans effet et avant tout autre controle (meme celui du tenant). Juste apres ce controle, une operation dont le nom n'appartient ni au contrat v1 ni au contrat v2 de P24 -> INVALID_ARGUMENT dans la forme de la version (P1.R8)."
 const TEXTE_P24_R2 =
   "Correspondance declaree v1 <-> v2, bijective. Operations : reserve <-> create_reservation, cancel <-> cancel_reservation, get_booking <-> get_reservation, get_slot <-> get_session, create_slot <-> create_session, transfer_booking <-> transfer_reservation, exchange_bookings <-> exchange_reservations, import_bookings <-> import_reservations ; toutes les autres operations gardent leur nom. Champs : booking_id <-> reservation_id, slot_id <-> session_id, slot_ids <-> session_ids, seats <-> quantity, with_booking_id <-> with_reservation_id ; la correspondance porte sur les NOMS de cles, a toute profondeur, dans les arguments ET dans les reponses (exemples : rows[].slot_id, lines[].booking_id, origin.booking_id, assignments[].booking_id) ; les valeurs ne changent jamais, les autres cles non plus. Erreurs : v1 {ok: false, error: CODE} <-> v2 {ok: false, error: {code: CODE}} ; seule l'erreur de premier niveau change de forme (les error des lignes rejected d'un import restent des chaines)."
 const TEXTE_P24_R3 =
@@ -3361,13 +3594,28 @@ function egalProfond(a: unknown, b: unknown): boolean {
   return Object.is(a, b)
 }
 
-/** Remplace, à toute profondeur, toute valeur chaîne ÉGALE à `de` par `vers` (les clés ne changent pas). */
-function remplacerChaine<T>(v: T, de: string, vers: string): T {
-  if (v === de) return vers as T
-  if (Array.isArray(v)) return v.map((x: unknown) => remplacerChaine(x, de, vers)) as T
+/** Clés dont la valeur désigne un membre (P18.R2, clarification Q37). */
+const CLES_DE_MEMBRE: ReadonlySet<string> = new Set(['member_id', 'payer_member_id', 'from_member_id', 'to_member_id'])
+const FACTURE_ID = /^INV-\d{4}-\d{2}-/
+/** 'INV-<AAAA-MM>-<de>' devient 'INV-<AAAA-MM>-<vers>' ; tout autre identifiant est rendu tel quel. */
+const renommerFacture = (id: unknown, de: string, vers: string): unknown =>
+  typeof id === 'string' && FACTURE_ID.test(id) && id.slice(12) === de ? `${id.slice(0, 12)}${vers}` : id
+
+/**
+ * Remplace `de` par `vers`, à toute profondeur, dans les SEULES valeurs des clés de membre (member_id,
+ * payer_member_id, from_member_id, to_member_id) et dans le suffixe des invoice_id (clés invoice_id, invoice_ids) ;
+ * un slot_id, un request_id ou toute autre valeur égale par hasard à `de` ne change pas.
+ */
+function remplacerMembre<T>(v: T, de: string, vers: string, cle?: string): T {
+  if (typeof v === 'string') {
+    if (cle !== undefined && CLES_DE_MEMBRE.has(cle)) return (v === de ? vers : v) as T
+    if (cle === 'invoice_id' || cle === 'invoice_ids') return renommerFacture(v, de, vers) as T
+    return v
+  }
+  if (Array.isArray(v)) return v.map((x: unknown) => remplacerMembre(x, de, vers, cle)) as T
   if (v !== null && typeof v === 'object') {
     const out: Json = {}
-    for (const [k, x] of Object.entries(v as Json)) out[k] = remplacerChaine(x, de, vers)
+    for (const [k, x] of Object.entries(v as Json)) out[k] = remplacerMembre(x, de, vers, k)
     return out as T
   }
   return v
@@ -3415,7 +3663,7 @@ const suspensionsDe = (t: Tenant): Map<string, number> => donneeDe<Map<string, n
 /* ═══════════════════════════════════════════════════════════════════ P17 */
 
 const RANG_ROLE: Readonly<Record<string, number>> = { member: 0, staff: 1, admin: 2 }
-const ORDRE_DES_KINDS = ['slot', 'series', 'booking', 'request', 'import'] as const
+const ORDRE_DES_KINDS = ['slot', 'series', 'booking', 'request', 'import', 'pseudonym'] as const
 type Kind = (typeof ORDRE_DES_KINDS)[number]
 
 interface Renommage {
@@ -3428,6 +3676,7 @@ interface PlanFusion {
   readonly series: Map<string, string>
   readonly cles: Map<string, string>
   readonly imports: Map<string, string>
+  readonly pseudonymes: Map<string, string>
   readonly renamed: Renommage[]
 }
 type Planifier = (ctx: PlatformContext, source: Tenant, cible: Tenant) => PlanFusion | null
@@ -3484,6 +3733,12 @@ const P17_R1 = clause({
       if (aEmisUneFacture(source) || aEmisUneFacture(cible)) return fail('INVALID_ARGUMENT')
       const plan = ctx.regle<Planifier>('fusion.renommage')(ctx, source, cible)
       if (plan === null) return fail('INVALID_ARGUMENT')
+      for (const [de, vers] of plan.pseudonymes) {
+        ctx.regle<RenommerMembre>('membre.renommer')(ctx, source, de, vers)
+        const pseudos = pseudonymesDe(source).ensemble
+        pseudos.delete(de)
+        pseudos.add(vers)
+      }
       const membres = ctx.regle<FusionMembres>('fusion.membres')(ctx, source, cible)
       ctx.regle<FusionContenu>('fusion.contenu')(ctx, source, cible, plan)
       const absorbes = absorbesDe(cible)
@@ -3500,9 +3755,6 @@ const P17_R1 = clause({
     },
   },
   grandeurs: ['tenant_id', 'source_tenant_id', 'renamed', 'merged_members', 'added_members', 'actor'],
-  questions_ouvertes: [
-    "Q29 (provisoire, exercee) : la fusion est refusee INVALID_ARGUMENT des que la source ou la cible a emis une facture ; aucune regle ne fusionne deux historiques factures",
-  ],
 })
 
 const P17_R2 = clause({
@@ -3512,43 +3764,65 @@ const P17_R2 = clause({
   contract: {
     valeurs: {
       forme_du_renommage: '<source_tenant_id>:<identifiant>',
-      espaces: ['slot_id', 'series_id', 'request_id/booking_id', 'import_id'],
+      espaces: ['slot_id', 'series_id', 'request_id/booking_id', 'import_id', 'pseudonyme'],
       ordre_de_renamed: [...ORDRE_DES_KINDS],
       tri_dans_un_kind: 'from croissant (ordinal UTF-16)',
+      serie: 'series_id et ses occurrences renommes ensemble (lien <series_id>@<date> conserve)',
+      pseudonyme: "en collision avec un pseudonyme ou un member_id de la cible : '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite",
     },
     exemples: [
       { contexte: 'M1 existe dans t-mig-a et t-mig-b', calcul: "'M1' de t-mig-b devient 't-mig-b:M1' ; renamed [{ kind: 'slot', from: 'M1', to: 't-mig-b:M1' }, ...]" },
+      { contexte: 'serie SR dans t-q32a et t-q32b ; occurrence SR@2031-09-08 dans t-q32b seulement', requete: { op: 'merge_tenants', tenant: 't-q32a', actor: 'm-own', args: { source_tenant_id: 't-q32b' } }, reponse: { ok: true, renamed: [{ kind: 'slot', from: 'SR@2031-09-08', to: 't-q32b:SR@2031-09-08' }, { kind: 'series', from: 'SR', to: 't-q32b:SR' }] } },
+      { contexte: 'anon-0001 dans t-q34a et t-q34b', requete: { op: 'merge_tenants', tenant: 't-q34a', actor: 'm-own', args: { source_tenant_id: 't-q34b' } }, reponse: { ok: true, renamed: [{ kind: 'pseudonym', from: 'anon-0001', to: 't-q34b:anon-0001' }] } },
     ],
   },
   implementation: {
-    'fusion.renommage': ((_ctx, source, cible) => {
+    'fusion.renommage': ((ctx, source, cible) => {
       const prefixe = `${source.tenant_id}:`
-      const cles = (t: Tenant): Set<string> => new Set([...t.bookings.keys(), ...t.memo.keys()])
-      const espaces: Array<[Exclude<Kind, 'request'>, Set<string>, Set<string>, Map<string, string>]> = [
-        ['slot', new Set(source.slots.keys()), new Set(cible.slots.keys()), new Map()],
-        ['series', new Set(source.series.keys()), new Set(cible.series.keys()), new Map()],
-        ['booking', cles(source), cles(cible), new Map()],
-        ['import', new Set(importsDe(source).keys()), new Set(importsDe(cible).keys()), new Map()],
-      ]
       const renamed: Renommage[] = []
-      for (const [kind, ids, pris, renommes] of espaces) {
-        for (const id of ids) {
-          if (!pris.has(id)) continue
-          const to = `${prefixe}${id}`
-          if (pris.has(to) || ids.has(to)) return null
-          renommes.set(id, to)
-          renamed.push({ kind: kind === 'booking' && !source.bookings.has(id) ? 'request' : kind, from: id, to })
-        }
+      const plan: PlanFusion = { slots: new Map(), series: new Map(), cles: new Map(), imports: new Map(), pseudonymes: new Map(), renamed }
+      /** Renomme `id` en '<source>:<id>' ; faux si ce nom est déjà pris dans l'espace de la cible ou de la source. */
+      const renommer = (kind: Kind, id: string, vers: Map<string, string>, pris: ReadonlySet<string>, ids: ReadonlySet<string>): boolean => {
+        const to = `${prefixe}${id}`
+        if (pris.has(to) || ids.has(to)) return false
+        vers.set(id, to)
+        renamed.push({ kind, from: id, to })
+        return true
       }
+      const slotsSource = new Set(source.slots.keys())
+      const slotsCible = new Set(cible.slots.keys())
+      const seriesSource = new Set(source.series.keys())
+      const seriesCible = new Set(cible.series.keys())
+      // (b) et (a) : une série et ses occurrences se renomment ENSEMBLE
+      const dates = ctx.regle<(s: Series) => string[]>('serie.dates')
+      for (const se of source.series.values()) {
+        const occurrences = dates(se).map((d) => occurrence(se.series_id, d)).filter((id) => slotsSource.has(id))
+        if (!seriesCible.has(se.series_id) && !occurrences.some((id) => slotsCible.has(id))) continue
+        if (!renommer('series', se.series_id, plan.series, seriesCible, seriesSource)) return null
+        for (const id of occurrences) if (!renommer('slot', id, plan.slots, slotsCible, slotsSource)) return null
+      }
+      for (const id of slotsSource) {
+        if (!plan.slots.has(id) && slotsCible.has(id) && !renommer('slot', id, plan.slots, slotsCible, slotsSource)) return null
+      }
+      // (c) clés d'idempotence et réservations ; (d) imports
+      const cles = (t: Tenant): Set<string> => new Set([...t.bookings.keys(), ...t.memo.keys()])
+      const clesSource = cles(source)
+      const clesCible = cles(cible)
+      for (const id of clesSource) {
+        if (clesCible.has(id) && !renommer(source.bookings.has(id) ? 'booking' : 'request', id, plan.cles, clesCible, clesSource)) return null
+      }
+      const importsSource = new Set(importsDe(source).keys())
+      const importsCible = new Set(importsDe(cible).keys())
+      for (const id of importsSource) if (importsCible.has(id) && !renommer('import', id, plan.imports, importsCible, importsSource)) return null
+      // (e) pseudonymes : en collision avec un pseudonyme ou un member_id de la cible
+      const nomsCible = new Set([...pseudonymesDe(cible).ensemble, ...membresDe(cible)])
+      const nomsSource = new Set([...pseudonymesDe(source).ensemble, ...membresDe(source)])
+      for (const p of pseudonymesDe(source).ensemble) if (nomsCible.has(p) && !renommer('pseudonym', p, plan.pseudonymes, nomsCible, nomsSource)) return null
       renamed.sort((a, b) => ORDRE_DES_KINDS.indexOf(a.kind) - ORDRE_DES_KINDS.indexOf(b.kind) || ordinal(a.from, b.from))
-      const [slots, series, cles_, imports] = espaces.map((e) => e[3]) as [Map<string, string>, Map<string, string>, Map<string, string>, Map<string, string>]
-      return { slots, series, cles: cles_, imports, renamed }
+      return plan
     }) satisfies Planifier,
   },
-  grandeurs: ['renamed', 'slot_id', 'series_id', 'booking_id', 'request_id', 'import_id'],
-  questions_ouvertes: [
-    "Q32 (provisoire) : une serie renommee garde ses occurrences '<series_id>@<date>' sous leurs propres slot_id (renommes seulement s'ils entrent eux-memes en collision) ; le lien nom de serie / nom d'occurrence est rompu",
-  ],
+  grandeurs: ['renamed', 'slot_id', 'series_id', 'booking_id', 'request_id', 'import_id', 'member_id'],
 })
 
 const P17_R3 = clause({
@@ -3591,11 +3865,6 @@ const P17_R3 = clause({
     }) satisfies FusionMembres,
   },
   grandeurs: ['merged_members', 'added_members', 'member_id', 'role', 'tier', 'balance_cents', 'suspended_until'],
-  questions_ouvertes: [
-    "Q30 (provisoire, exercee) : un member_id present dans les deux locataires est la MEME personne : pas de renommage, role le plus eleve, niveau de plus forte remise, soldes additionnes",
-    "Q33 (provisoire) : les absences (P10) enregistrees dans la source rejoignent celles de la cible et comptent dans absences_30d des enregistrements suivants",
-    "Q34 (provisoire) : les pseudonymes P18 de la source rejoignent ceux de la cible sans renommage, meme s'ils coincident ; la cible garde sa sequence de pseudonymes",
-  ],
 })
 
 const P17_R4 = clause({
@@ -3661,9 +3930,6 @@ const P17_R4 = clause({
     }) satisfies Vue<Booking>,
   },
   grandeurs: ['origin', 'booking_id', 'slot_id', 'request_id', 'tenant_id'],
-  questions_ouvertes: [
-    "Q31 (provisoire) : seuls booking_id et slot_id de PREMIER niveau d'une reponse memorisee de la source sont reecrits ; une valeur imbriquee (promoted, waiting, rejected[].request_id d'un import memorise) garde l'ancien identifiant",
-  ],
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P18 */
@@ -3675,6 +3941,8 @@ interface BilanAnonymisation {
   readonly bookings_anonymized: number
 }
 type Anonymiser = (ctx: PlatformContext, membre: string, pseudo: string) => BilanAnonymisation
+/** Remplace l'identifiant `de` par `vers` dans tout le locataire `t` (P18.R2 ; aussi pour un pseudonyme renommé par P17.R2). */
+type RenommerMembre = (ctx: PlatformContext, t: Tenant, de: string, vers: string) => BilanAnonymisation
 
 const P18_R1 = clause({
   id: 'P18.R1',
@@ -3718,9 +3986,6 @@ const P18_R1 = clause({
     },
   },
   grandeurs: ['member_id', 'invoice_ids', 'credit_note_ids', 'bookings_anonymized', 'starts_at', 'at'],
-  questions_ouvertes: [
-    "Q35 (provisoire, exercee) : l'effacement est refuse INVALID_ARGUMENT tant que le membre a une reservation active (confirmed ou waiting) a venir ; elle n'est pas annulee d'office",
-  ],
 })
 
 const P18_R2 = clause({
@@ -3728,13 +3993,19 @@ const P18_R2 = clause({
   enters: 'P18',
   text: TEXTE_P18_R2,
   contract: {
-    valeurs: { invoice_id_renomme: 'INV-<AAAA-MM>-<pseudonyme>', montants: 'inchanges', exception_a_l_immuabilite: 'identifiants seulement' },
-    exemples: [{ calcul: "INV-2031-03-m-gus devient INV-2031-03-anon-0001 ; total_cents 3373 inchange" }],
+    valeurs: {
+      invoice_id_renomme: 'INV-<AAAA-MM>-<pseudonyme>',
+      montants: 'inchanges',
+      exception_a_l_immuabilite: 'identifiants seulement',
+      cles_anonymisees: ['member_id', 'payer_member_id', 'from_member_id', 'to_member_id', 'suffixe de invoice_id'],
+    },
+    exemples: [
+      { calcul: "INV-2031-03-m-gus devient INV-2031-03-anon-0001 ; total_cents 3373 inchange" },
+      { contexte: "z1 de m-yan sur le creneau d'identifiant 'm-yan', m-yan efface (anon-0001)", requete: { op: 'reserve', tenant: 't-q37', actor: 'm-own', args: { request_id: 'z1', member_id: 'anon-0001', slot_id: 'm-yan' } }, reponse: { ok: true, booking_id: 'z1', member_id: 'anon-0001', slot_id: 'm-yan', status: 'confirmed' } },
+    ],
   },
   implementation: {
-    'effacement.anonymiser': ((ctx, m, pseudo) => {
-      const t = ctx.locataire
-      t.members.delete(m)
+    'membre.renommer': ((_ctx, t, m, pseudo) => {
       const deplacer = <V>(map: Map<string, V>): void => {
         const v = map.get(m)
         if (v === undefined) return
@@ -3761,40 +4032,40 @@ const P18_R2 = clause({
           if (x.to_member_id === m) x.to_member_id = pseudo
         }
       }
-      for (const [k, r] of t.memo) t.memo.set(k, remplacerChaine(r, m, pseudo))
-      const args = argumentsMemorises(ctx)
-      for (const [k, a] of args) args.set(k, remplacerChaine(a, m, pseudo))
+      for (const [k, r] of t.memo) t.memo.set(k, remplacerMembre(r, m, pseudo))
+      const args = donneeDe<Map<string, ArgumentsNormalises>>(t, CLE_ARGUMENTS_IDEMPOTENCE, () => new Map())
+      for (const [k, a] of args) args.set(k, remplacerMembre(a, m, pseudo))
       const imports = importsDe(t)
-      for (const [k, x] of imports) imports.set(k, remplacerChaine(x, m, pseudo))
-      const f = facturation(ctx)
-      const renommer = (id: unknown): unknown =>
-        typeof id === 'string' && /^INV-\d{4}-\d{2}-/.test(id) && id.slice(12) === m ? `${id.slice(0, 12)}${pseudo}` : id
+      for (const [k, x] of imports) imports.set(k, remplacerMembre(x, m, pseudo))
+      const f = facturationDe(t)
       const factures = [...f.factures.values()]
       f.factures.clear()
       const invoice_ids: string[] = []
       for (const x of factures) {
         if (x.member_id === m) {
           x.member_id = pseudo
-          x.invoice_id = renommer(x.invoice_id)
+          x.invoice_id = renommerFacture(x.invoice_id, m, pseudo)
           invoice_ids.push(String(x.invoice_id))
         }
         f.factures.set(String(x.invoice_id), x)
       }
       const credit_note_ids: string[] = []
       for (const a of f.avoirs) {
-        a.invoice_id = renommer(a.invoice_id)
+        a.invoice_id = renommerFacture(a.invoice_id, m, pseudo)
         if (a.member_id === m) a.member_id = pseudo
         if (a.member_id === pseudo) credit_note_ids.push(String(a.credit_note_id))
       }
-      pseudonymesDe(t).ensemble.add(pseudo)
       return { invoice_ids: invoice_ids.sort(ordinal), credit_note_ids: credit_note_ids.sort(ordinal), bookings_anonymized }
+    }) satisfies RenommerMembre,
+    'effacement.anonymiser': ((ctx, m, pseudo) => {
+      const t = ctx.locataire
+      t.members.delete(m)
+      const bilan = ctx.regle<RenommerMembre>('membre.renommer')(ctx, t, m, pseudo)
+      pseudonymesDe(t).ensemble.add(pseudo)
+      return bilan
     }) satisfies Anonymiser,
   },
   grandeurs: ['member_id', 'invoice_id', 'credit_note_id', 'total_cents', 'balance_cents'],
-  questions_ouvertes: [
-    "Q36 (provisoire) : les arguments memorises sont anonymises comme les reponses ; a partir de P21, rejouer une cle de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT",
-    "Q37 (provisoire) : l'anonymisation remplace toute valeur chaine EGALE au member_id a toute profondeur des reponses et arguments memorises, sans restriction aux champs nommes member_id",
-  ],
 })
 
 const estPseudonyme = (ctx: PlatformContext, m: unknown): boolean =>
@@ -3827,7 +4098,7 @@ const P18_R3 = clause({
   },
   grandeurs: ['member_id', 'balance_cents', 'invoice_id'],
   questions_ouvertes: [
-    "Q38 (provisoire, exercee) : le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde son portefeuille ; un solde non nul n'est ni rembourse ni annule",
+    "Q38 (OUVERTE, decision du mandant ; choix provisoire exerce par la racine) : le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde son portefeuille ; un solde non nul n'est ni rembourse ni annule",
   ],
 })
 
@@ -3902,10 +4173,6 @@ const P19_R1 = clause({
     },
   },
   grandeurs: ['from', 'to', 'min_fill_bp', 'sort', 'page_size', 'page', 'slot_id', 'starts_at', 'capacity', 'booked', 'fill_bp'],
-  questions_ouvertes: [
-    "Q39 (provisoire, exercee) : report_occupancy filtre starts_at en instants UTC [from, to[, pas en mois locaux du site",
-    "Q40 (provisoire, exercee) : booked compte les reservations confirmed, absentes (no_show) comprises, et exclut les debarquees (bumped) ; les creneaux clos et passes sont inclus",
-  ],
 })
 
 const P19_R2 = clause({
@@ -3994,9 +4261,6 @@ const P19_R3 = clause({
     },
   },
   grandeurs: ['from_month', 'to_month', 'member_id', 'sort', 'invoice_id', 'month', 'total_cents', 'credit_notes_cents', 'net_cents', 'sum_net_cents', 'total', 'pages', 'rows'],
-  questions_ouvertes: [
-    "Q41 (provisoire, exercee) : report_revenue attribue chaque avoir a la facture qu'il cite (invoice_id), meme s'il est emis un autre mois",
-  ],
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P20 */
@@ -4064,9 +4328,6 @@ const P20_R1 = clause({
     },
   },
   grandeurs: ['import_id', 'rows', 'request_id', 'member_id', 'slot_id', 'seats'],
-  questions_ouvertes: [
-    "Q42 (provisoire, exercee) : une ligne d'import est un reserve complet : elle est payee (credits puis carte) et facturee",
-  ],
 })
 
 const P20_R2 = clause({
@@ -4101,9 +4362,6 @@ const P20_R2 = clause({
     }) satisfies BilanImport,
   },
   grandeurs: ['import_id', 'total', 'accepted', 'confirmed', 'import_bookings.waiting', 'duplicates', 'rejected', 'index'],
-  questions_ouvertes: [
-    "Q44 (provisoire) : duplicates compte aussi une ligne dont la cle a memorise un REFUS ; elle n'est pas listee dans rejected",
-  ],
 })
 
 const P20_R3 = clause({
@@ -4119,9 +4377,6 @@ const P20_R3 = clause({
     'performance.duree_import_ms': (): number => DUREE_IMPORT_MS,
   },
   grandeurs: ['plafond_p95_ms', 'duree_import_ms'],
-  questions_ouvertes: [
-    "Q43 (provisoire) : les plafonds (reserve 50 ms, lectures 20 ms, rapports 200 ms, autres 100 ms, import de 50 000 lignes 30 s) sont des propositions ; machine, echauffement et nombre d'appels sont laisses a T75",
-  ],
 })
 
 /** Mémoire d'idempotence d'un import (P20.R4) : seule une réponse ok: true est mémorisée, avec ses rows. */
@@ -4201,9 +4456,6 @@ const P21_R1 = clause({
     }),
   },
   grandeurs: ['request_id', 'member_id', 'slot_id', 'seats'],
-  questions_ouvertes: [
-    "Q45 (provisoire, exercee) : les arguments normalises ne comparent que member_id, slot_id et seats ; un rejeu par un autre actor ou a un autre instant n'est pas un conflit",
-  ],
 })
 
 const P21_R2 = clause({
@@ -4225,9 +4477,6 @@ const P21_R2 = clause({
     }),
   },
   grandeurs: ['import_id', 'rows'],
-  questions_ouvertes: [
-    "Q46 (provisoire) : rows est compare EN PROFONDEUR sans normalisation (une ligne sans seats differe d'une ligne seats: 1)",
-  ],
 })
 
 /** Créneaux touchés par l'opération courante (créneau ou créneau de la réservation de l'opération). */
@@ -4275,9 +4524,6 @@ const P21_R3 = clause({
     }) satisfies Invariant,
   },
   grandeurs: ['booked', 'overbook_limit', 'seat_numbers', 'balance_cents', 'request_id'],
-  questions_ouvertes: [
-    "Q47 (provisoire) : la serialisabilite n'est pas observable par une trajectoire sequentielle ; les parametres des essais (100 essais, 20 clients, quatre scenarios) restent a confirmer par T75",
-  ],
 })
 
 const P21_R4 = clause({
@@ -4305,10 +4551,12 @@ const P21_R4 = clause({
 
 /* ═══════════════════════════════════════════════════════════════════ P22 */
 
-/** Même instant UTC, 12 mois civils plus tard (un 29 février donne le 1er mars). */
+/** Même instant UTC, 12 mois civils plus tard ; le jour est borné au dernier jour du mois (29 février -> 28 février). */
 function plusDouzeMois(t: number): number {
   const d = new Date(t)
-  return Date.UTC(d.getUTCFullYear() + 1, d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds())
+  const an = d.getUTCFullYear() + 1
+  const dernierJour = new Date(Date.UTC(an, d.getUTCMonth() + 1, 0)).getUTCDate()
+  return Date.UTC(an, d.getUTCMonth(), Math.min(d.getUTCDate(), dernierJour), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds())
 }
 
 interface Lot {
@@ -4360,9 +4608,6 @@ const P22_R1 = clause({
   },
   grandeurs: ['amount_cents', 'price_cents', 'seats', 'discount_bp', 'price_currency', 'original_amount_cents', 'rate_micro'],
   unites: { price_cents: PRIX_EN_DEVISE },
-  questions_ouvertes: [
-    "Q52 (provisoire, exercee) : set_tier reste accepte apres la fin des remises ; le niveau est enregistre, sans effet sur le prix",
-  ],
 })
 
 const P22_R2 = clause({
@@ -4370,11 +4615,12 @@ const P22_R2 = clause({
   enters: 'P22',
   text: TEXTE_P22_R2,
   contract: {
-    valeurs: { duree: '12 mois civils, meme instant UTC', bornes: 'expire si at >= expires_at', consommation: "expires_at croissant puis ordre d'entree", retroactivite: 'tout l historique du portefeuille depuis P8' },
+    valeurs: { duree: '12 mois civils, meme instant UTC ; 29 fevrier + 12 mois = 28 fevrier', bornes: 'expire si at >= expires_at', consommation: "expires_at croissant puis ordre d'entree", retroactivite: 'tout l historique du portefeuille depuis P8' },
     lot: { acquired_at: "'AAAA-MM-JJTHH:MM:SSZ'", expires_at: "'AAAA-MM-JJTHH:MM:SSZ'", remaining_cents: 'entier' },
     exemples: [
       { contexte: 'lot de 400 expirant le 2032-08-11T09:02:00Z', requete: { op: 'get_wallet', at: '2032-08-11T09:01:59Z', args: { member_id: 'm-fay' } }, reponse: { ok: true, balance_cents: 900 } },
       { requete: { op: 'get_wallet', at: '2032-08-11T09:02:00Z', args: { member_id: 'm-fay' } }, reponse: { ok: true, balance_cents: 500 } },
+      { contexte: 'top_up de 1000 le 2032-02-29T10:00:00Z', requete: { op: 'get_wallet', args: { member_id: 'm-feb' } }, reponse: { ok: true, balance_cents: 1000, lots: [{ acquired_at: '2032-02-29T10:00:00Z', expires_at: '2033-02-28T10:00:00Z', remaining_cents: 1000 }] } },
     ],
   },
   implementation: {
@@ -4444,11 +4690,6 @@ const P22_R2 = clause({
     }),
   },
   grandeurs: ['acquired_at', 'expires_at', 'remaining_cents', 'balance_cents', 'at'],
-  questions_ouvertes: [
-    "Q48 (provisoire, exercee) : un re-credit (remboursement, trop-percu, avoir) forme un NOUVEAU lot de 12 mois a compter du re-credit",
-    "Q49 (provisoire) : les compensations (P13) forment des lots et expirent comme des credits achetes",
-    "Q51 (provisoire) : un 29 fevrier + 12 mois donne le 1er mars a la meme heure UTC",
-  ],
 })
 
 const P22_R3 = clause({
@@ -4533,9 +4774,6 @@ const P22_R4 = clause({
     'comptabilite.sortie.expiration': sortieExpiration,
   },
   grandeurs: [...GRANDEURS_FACTURE],
-  questions_ouvertes: [
-    "Q50 (provisoire, exercee) : une expiration est un mouvement : elle fait emettre une facture de total 0 pour un mois sans autre mouvement",
-  ],
 })
 
 /* ═══════════════════════════════════════════════════════════════════ P23 */
@@ -4608,9 +4846,6 @@ const P23_R1 = clause({
     },
   },
   grandeurs: ['booking_id', 'to_member_id', 'member_id', 'fee_cents', 'fee.credits_cents', 'fee.card_cents', 'starts_at', 'suspended_until', 'at'],
-  questions_ouvertes: [
-    "Q55 (provisoire) : un transfert DEPUIS un membre suspendu est permis (seul le destinataire est controle) ; une absence deja enregistree reste attachee a l'historique de l'ancien titulaire",
-  ],
 })
 
 const P23_R2 = clause({
@@ -4658,9 +4893,6 @@ const P23_R2 = clause({
     },
   },
   grandeurs: ['booking_id', 'with_booking_id', 'exchanged', 'member_id', 'fee_cents', 'seat_numbers'],
-  questions_ouvertes: [
-    "Q56 (provisoire, exercee) : exchange_bookings n'exige pas le consentement des deux titulaires (admin, staff seulement) ; un membre ne peut pas proposer d'echange (FORBIDDEN)",
-  ],
 })
 
 const TAUX_FRAIS_BP = 1000
@@ -4671,20 +4903,21 @@ const P23_R3 = clause({
   enters: 'P23',
   text: TEXTE_P23_R3,
   contract: {
-    valeurs: { taux_bp: TAUX_FRAIS_BP, minimum_cents: FRAIS_MINIMUM_CENTS, arrondi: 'demi vers le haut, au centime', formule: 'max(100, floor((A*1000 + 5000) / 10000))', paiement: 'credits (lots, le plus ancien d abord) puis carte', mouvement: "'fee'" },
+    valeurs: { taux_bp: TAUX_FRAIS_BP, minimum_cents: FRAIS_MINIMUM_CENTS, arrondi: 'demi vers le haut, au centime', formule: '0 si A = 0 ; sinon max(100, floor((A*1000 + 5000) / 10000))', reservation_gratuite: 0, paiement: 'credits (lots, le plus ancien d abord) puis carte', mouvement: "'fee'" },
     operations: {
       reserve: { reponse: { payer_member_id: 'member_id | null', transfers: 'tableau de { from_member_id, to_member_id, at, fee_cents }' } },
       get_booking: { reponse: { payer_member_id: 'member_id | null', transfers: 'tableau de { from_member_id, to_member_id, at, fee_cents }' } },
     },
     exemples: [
       { calcul: 'A = 600 : floor((600*1000 + 5000) / 10000) = 60 < 100 -> fee_cents 100' },
+      { contexte: 'f23a gratuite (A = 0)', requete: { op: 'transfer_booking', args: { booking_id: 'f23a', to_member_id: 'm-lou' } }, reponse: { ok: true, booking_id: 'f23a', member_id: 'm-lou', fee_cents: 0, fee: { credits_cents: 0, card_cents: 0 } } },
       { requete: { op: 'get_booking', args: { booking_id: 'h1' } }, reponse: { ok: true, booking_id: 'h1', member_id: 'm-gus', payer_member_id: 'm-cleo', transfers: [{ from_member_id: 'm-cleo', to_member_id: 'm-gus', at: '2032-08-16T09:06:00Z', fee_cents: 200 }] } },
     ],
   },
   implementation: {
     'transfert.frais': ((ctx, b, cedant) => {
       const A = b.amount_cents ?? 0
-      const fee_cents = Math.max(FRAIS_MINIMUM_CENTS, Math.floor((A * TAUX_FRAIS_BP + 5000) / 10000))
+      const fee_cents = A === 0 ? 0 : Math.max(FRAIS_MINIMUM_CENTS, Math.floor((A * TAUX_FRAIS_BP + 5000) / 10000))
       const credits = Math.min(ctx.regle<Solde>('portefeuille.solde')(ctx, cedant), fee_cents)
       if (credits > 0) ctx.regle<Mouvement>('portefeuille.mouvement')(ctx, cedant, -credits)
       ctx.journaliser({ type: 'fee', member_id: cedant, booking_id: b.booking_id, amount_cents: fee_cents, credits_cents: credits, card_cents: fee_cents - credits })
@@ -4696,9 +4929,6 @@ const P23_R3 = clause({
     }) satisfies Vue<Booking>,
   },
   grandeurs: ['fee_cents', 'fee.credits_cents', 'fee.card_cents', 'amount_cents', 'payer_member_id', 'transfers', 'balance_cents'],
-  questions_ouvertes: [
-    "Q54 (provisoire) : les frais ont un minimum de 100 centimes meme pour une reservation gratuite",
-  ],
 })
 
 const P23_R4 = clause({
@@ -4717,9 +4947,6 @@ const P23_R4 = clause({
     'reservation.payeur': ((_ctx, b) => payeurDe(b) ?? b.member_id) satisfies Payeur,
   },
   grandeurs: ['payer_member_id', 'refunded_cents', 'refund.credits_cents', 'refund.card_cents'],
-  questions_ouvertes: [
-    "Q53 (provisoire, exercee) : les remboursements d'une reservation transferee vont au PAYEUR, pas au titulaire qui annule ; la compensation de debarquement va au titulaire",
-  ],
 })
 
 const P23_R5 = clause({
@@ -4804,9 +5031,6 @@ const P24_R1 = clause({
     }),
   },
   grandeurs: ['version'],
-  questions_ouvertes: [
-    "Q60 (provisoire) : avant P24, version est ignoree et une operation au nom v2 est une operation inconnue ; le modele attendu leve OPERATION-SANS-CLAUSE (aucune reponse n'est fixee)",
-  ],
 })
 
 const P24_R2 = clause({
@@ -4827,12 +5051,9 @@ const P24_R2 = clause({
   implementation: {
     'contrat.correspondance': (): Correspondance => CORRESPONDANCE_V2,
     'contrat.renommer': renommerCles,
+    'contrat.forme_erreur': ((ctx, code) => (ctx.d.version === 'v2' ? erreurV2(code) : fail(code))) satisfies FormeErreur,
   },
   grandeurs: ['reservation_id', 'session_id', 'session_ids', 'quantity', 'with_reservation_id', 'booking_id', 'slot_id', 'slot_ids', 'seats', 'with_booking_id'],
-  questions_ouvertes: [
-    "Q57 (provisoire, exercee) : la correspondance ne renomme que les cles listees ; seat_numbers, free_seats, overbook_limit gardent leur nom en v2",
-    "Q58 (provisoire) : les error des lignes rejected d'un import restent des chaines en v2 ; seule l'erreur de premier niveau prend la forme { code }",
-  ],
 })
 
 const P24_R3 = clause({
@@ -4887,14 +5108,11 @@ const P24_R4 = clause({
     }),
   },
   grandeurs: ['version'],
-  questions_ouvertes: [
-    "Q59 (provisoire, exercee) : strict : une cle de l'autre version, meme inconnue de l'operation, est refusee INVALID_ARGUMENT ; une cle inconnue des deux versions est ignoree",
-  ],
 })
 
 /** La source unique de clauses de F-PLATFORM, P1 à P24, dans l'ordre d'entrée. */
 export const PLATFORM_CLAUSES: readonly PlatformClause[] = Object.freeze([
-  P1_R1, P1_R2, P1_R3, P1_R4, P1_R5, P1_R6, P1_R7,
+  P1_R1, P1_R2, P1_R3, P1_R4, P1_R5, P1_R6, P1_R7, P1_R8,
   P2_R1, P2_R2, P2_R3, P2_R4,
   P3_R1, P3_R2, P3_R3,
   P4_R1, P4_R2, P4_R3, P4_R4,
@@ -4902,7 +5120,7 @@ export const PLATFORM_CLAUSES: readonly PlatformClause[] = Object.freeze([
   P6_R1, P6_R2, P6_R3, P6_R4,
   P7_R1, P7_R2, P7_R3, P7_R4, P7_R5,
   P8_R1, P8_R2, P8_R3, P8_R4,
-  P9_R1, P9_R2, P9_R3, P9_R4,
+  P9_R1, P9_R2, P9_R3, P9_R4, P9_R5,
   P10_R1, P10_R2, P10_R3,
   P11_R1, P11_R2, P11_R3, P11_R4, P11_R5,
   P12_R1,

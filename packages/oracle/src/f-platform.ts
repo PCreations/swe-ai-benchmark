@@ -28,7 +28,7 @@ import {
 } from './f-platform-engine.js'
 
 export { PLATFORM_CLAUSES, PLATFORM_QUANTITIES } from './f-platform-clauses.js'
-export type { PlatformClause, PlatformResponse, PlatformStep, Quantity } from './f-platform-engine.js'
+export type { PlatformClause, PlatformResponse, PlatformStep, Precision, Quantity } from './f-platform-engine.js'
 
 /** Alias de lecture de la source unique. */
 export const platformClauses: readonly PlatformClause[] = PLATFORM_CLAUSES

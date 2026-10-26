@@ -141,6 +141,11 @@
  *   REPRODUCTION D'UN FAIT : un exemple dont l'operation et les arguments sont
  *     ceux de l'etape d'un fait (de N'IMPORTE QUELLE periode) et dont la
  *     reponse satisfait l'attendu de ce fait (egalite partielle de T70).
+ *     INTERDITE DANS LES TROIS DOCUMENTS (decision de l'orchestrateur) : les
+ *     trois fichiers forment tout l'enonce que voit le candidat, et 119
+ *     exemples de `contract.exemples` reproduisent un fait gele. A1 l'exige
+ *     de docs/spec.md et docs/api.md, A2 de docs/tickets/Pnn.md (criteres
+ *     compris) : un ticket ne peut pas recopier `contract.exemples` tels quels.
  *   TICKET : trois sections, chacune ouverte par le PREMIER titre Markdown dont
  *     le texte (sans accents, en minuscules) ne designe qu'une categorie :
  *     `ajout|added` ; `remplac|replac` ; `retir|removed|retired|supprim` —
@@ -167,7 +172,11 @@
  *     reecrit, vide, complete ou supprime `docs/spec.md` et `docs/api.md`
  *     (en alternance), cree d'avance le ticket de la periode suivante, ecrit
  *     son code (src/, tests/, candidate.mjs), des notes a la racine, dans
- *     docs/ et dans docs/tickets/ ; il releve l'espace a la sortie. A
+ *     docs/ et dans docs/tickets/, et ANNOTE son ticket courant Pnn.md ; il
+ *     releve l'espace a la sortie. REGLE DES TICKETS ANTERIEURS (decision de
+ *     l'orchestrateur) : a la periode n+1, le ticket Pnn.md devient de
+ *     l'historique ; il est CONSERVE tel que le candidat l'a laisse, seuls
+ *     les trois fichiers courants sont reecrits. A
  *     l'entree de la session n : les trois fichiers de n sont ceux du
  *     generateur pour n et ne portent aucune marque du candidat ; tout autre
  *     fichier present a la sortie de n-1 (tickets anterieurs compris) est
@@ -178,27 +187,27 @@
  *
  *   Chaque predicat est d'abord applique a des documents PARESSEUX calcules
  *   par la suite, et doit les REFUSER :
- *     A1 : spec = tous les textes de la source (copie tout), spec vide ; api
+ *     A1 : spec = tous les textes de la source (copie tout), spec vide, spec
+ *          augmentee des exemples de la source ; api
  *          = exemples de la source recopies (reproduisent des faits), api vide ;
  *          source fabriquee : une clause FABRIQUEE (texte inedit) doit figurer
  *          dans la spec a partir de son entree, et une clause dont la source
  *          fabriquee avance la sortie ne doit plus y figurer.
  *     A2 : ticket vide ; ticket qui range toutes les clauses actives dans
- *          « Ajoutees » ; ticket qui ignore les remplacements ; source
+ *          « Ajoutees » ; ticket qui ignore les remplacements ; ticket exact
+ *          qui recopie `contract.exemples` (refuse pour la seule
+ *          reproduction) ; source
  *          fabriquee : la clause retiree et la clause ajoutee doivent etre
  *          listees a leur periode, et nulle part a la suivante.
  *     A3 : le prompt recu augmente du texte d'une clause ; le prompt prive de
  *          la reference au ticket.
- *     A4 : la transition « le moteur ne reecrit rien » et la transition « le
- *          moteur efface docs/ puis le regenere » rejouees sur les releves
- *          REELS de la campagne.
+ *     A4 : les transitions « le moteur ne reecrit rien », « le moteur efface
+ *          docs/ puis le regenere » et « le moteur regenere le ticket
+ *          anterieur annote » rejouees sur les releves REELS de la campagne.
  *
  * ─────────────────────────────────────────────────────────────────────── VI
  * CE QUE CETTE SUITE NE PROUVE PAS
  *
- *  • Qu'une modification du candidat a un ticket ANTERIEUR (docs/tickets/Pkk.md,
- *    k < n) soit restauree ou conservee : ADR-021 ne tranche pas ; la suite ne
- *    modifie jamais un ticket anterieur.
  *  • Que les valeurs comparees par les controles de T74 (sequences ciblees,
  *    flux differentiels) figurent dans `docs/api.md` : seuls les faits de la
  *    racine sont connus a T73.
@@ -720,7 +729,7 @@ function cleForme(att: unknown): string {
 /** Defauts d'un `docs/spec.md` pour la periode n (A1). */
 function defautsSpec(spec: string, clauses: Clause[], n: number): string[] {
   const doc = normaliser(spec);
-  const out: string[] = [];
+  const out: string[] = defautsReproduction(spec, `P${n} spec`);
   for (const c of clauses) {
     const t = normaliser(texteDe(c));
     if (t === '') continue;
@@ -755,10 +764,17 @@ function defautsApi(api: string, clauses: Clause[], n: number): string[] {
       out.push(`P${n} api : forme comparee sans exemple ${k} (${f.id})`);
     }
   }
-  for (const x of exemples) {
+  out.push(...defautsReproduction(api, `P${n} api`));
+  return out;
+}
+
+/** IV, REPRODUCTION D'UN FAIT : applique aux TROIS documents (spec, api, ticket). */
+function defautsReproduction(md: string, ou: string): string[] {
+  const out: string[] = [];
+  for (const x of exemplesDe_md(md)) {
     for (const f of FAITS_PAR_REQUETE.get(cleRequete(x.op, x.args)) ?? []) {
       if (correspond(f.attendu, x.reponse)) {
-        out.push(`P${n} api : l'exemple ${x.op} ${court(rendu(x.args), 120)} reproduit le fait ${f.id}`);
+        out.push(`${ou} : l'exemple ${x.op} ${court(rendu(x.args), 120)} reproduit le fait ${f.id}`);
       }
     }
   }
@@ -854,6 +870,7 @@ function defautsTicket(ticket: string, clauses: Clause[], n: number): string[] {
     .filter((t) => categorie(t.texte) === 'criteres')
     .map((t) => corps(lignes, tous, t).join('\n'))
     .join('\n');
+  out.push(...defautsReproduction(ticket, `P${n} ticket`));
   if (criteres.trim() === '') out.push(`P${n} ticket : aucune section de criteres d'acceptation`);
   else {
     const exemples = exemplesDe_md(criteres);
@@ -1190,6 +1207,8 @@ function moduleCandidat(journal: string): string {
     "  else if (mode === 2) { ecrire('docs/api.md', lireOu('docs/api.md') + '\\n' + S + '\\n'); suppr('docs/spec.md'); }",
     "  else { ecrire('docs/spec.md', S + '\\n' + lireOu('docs/spec.md')); ecrire('docs/api.md', S + '\\n' + lireOu('docs/api.md')); }",
     "  ecrire(`docs/tickets/P${String(n + 1).padStart(2, '0')}.md`, S + ' ticket ecrit d avance par le candidat\\n');",
+    "  const courant = `docs/tickets/P${String(n).padStart(2, '0')}.md`;",
+    "  ecrire(courant, lireOu(courant) + `\\n<!-- ${S} : note du candidat sur son ticket -->\\n`);",
     "  ecrire('src/app.mjs', lireOu('src/app.mjs') + `// periode ${n} ${S}\\n`);",
     '  ecrire(`src/periode-${n}.mjs`, `export const periode = ${n};\\n`);',
     "  ecrire('tests/acceptance.test.mjs', lireOu('tests/acceptance.test.mjs') + `// test de la periode ${n}\\n`);",
@@ -1356,6 +1375,8 @@ describe('T73 — tickets et documentation dans le depot du candidat (ADR-021 de
       for (const n of PERIODES) {
         if (defautsSpec(tout, clauses, n).length === 0) temoins.push(`P${n} : une spec qui copie TOUTES les clauses passerait`);
         if (defautsSpec('', clauses, n).length === 0) temoins.push(`P${n} : une spec vide passerait`);
+        const specAvecExemples = clauses.filter((c) => active(c, n)).map(texteDe).join('\n\n') + '\n' + clauses.filter((c) => active(c, n)).flatMap(exemplesDe).map((e) => '```json\n' + JSON.stringify(e) + '\n```').join('\n');
+        if (n === 1 && !defautsSpec(specAvecExemples, clauses, n).some((x) => /reproduit le fait/u.test(x))) temoins.push('P1 : une spec qui recopie les exemples de la source passerait');
         if (defautsApi('', clauses, n).length === 0) temoins.push(`P${n} : une api vide passerait`);
       }
       if (!PERIODES.some((n) => defautsApi(copieDesExemples, clauses, n).some((d) => /reproduit le fait/u.test(d)))) {
@@ -1411,7 +1432,7 @@ describe('T73 — tickets et documentation dans le depot du candidat (ADR-021 de
           ...clauses.filter((c) => active(c, n)).map((c) => `- ${idDe(c)}`),
           ...clauses.filter((c) => active(c, n)).flatMap(exemplesDe).map((e) => '```json\n' + JSON.stringify(e) + '\n```'),
         ].join('\n');
-        if (n > 1 && defautsTicket(toutAjoute, clauses, n).length === 0) temoins.push(`P${n} : un ticket qui range toutes les clauses actives dans « ajoutees » passerait`);
+        if (n > 1 && !defautsTicket(toutAjoute, clauses, n).some((x) => /liste a tort/u.test(x))) temoins.push(`P${n} : un ticket qui range toutes les clauses actives dans « ajoutees » passerait`);
         const d = difference(clauses, n);
         if (d.remplacantes.size > 0) {
           const sansRemplacement = [
@@ -1424,8 +1445,30 @@ describe('T73 — tickets et documentation dans le depot du candidat (ADR-021 de
             ...d.nouvelles.map((id) => `- ${id}`),
             ...clauses.filter((c) => d.nouvelles.includes(idDe(c))).flatMap(exemplesDe).map((e) => '```json\n' + JSON.stringify(e) + '\n```'),
           ].join('\n');
-          if (defautsTicket(sansRemplacement, clauses, n).length === 0) temoins.push(`P${n} : un ticket qui ignore les remplacements passerait`);
+          if (!defautsTicket(sansRemplacement, clauses, n).some((x) => /remplacement .* non liste/u.test(x))) temoins.push(`P${n} : un ticket qui ignore les remplacements passerait`);
         }
+      }
+      // Un ticket par ailleurs exact qui recopie `contract.exemples` livre les reponses attendues.
+      const copieExemples = (n: number): string => {
+        const d = difference(clauses, n);
+        const parId = new Map(clauses.map((c) => [idDe(c), c]));
+        return [
+          '## Clauses ajoutees',
+          ...d.ajoutees.map((id) => `- ${id}`),
+          '## Clauses remplacees',
+          ...[...d.remplacantes].flatMap(([neuve, anciennes]) => anciennes.map((a) => `- ${neuve} remplace ${a}`)),
+          '## Clauses retirees',
+          ...d.retirees.map((id) => `- ${id}`),
+          "## Criteres d'acceptation",
+          ...d.nouvelles.flatMap((id) => [`### ${id}`, ...exemplesDe(parId.get(id) as Clause).map((e) => '```json\n' + JSON.stringify(e) + '\n```')]),
+        ].join('\n');
+      };
+      if (!PERIODES.some((n) => defautsTicket(copieExemples(n), clauses, n).some((x) => /reproduit le fait/u.test(x)))) {
+        temoins.push('un ticket qui recopie les exemples de la source ne serait jamais vu reproduire un fait');
+      }
+      const reproduitSeul = defautsTicket(copieExemples(2), clauses, 2);
+      if (reproduitSeul.length === 0 || !reproduitSeul.every((x) => /reproduit le fait/u.test(x))) {
+        temoins.push(`le ticket P02 qui recopie les exemples devrait etre refuse pour la seule reproduction : ${court(reproduitSeul.join(' | '), 400)}`);
       }
       aucunDefaut(temoins, 'predicats-A2-discriminants');
 
@@ -1511,9 +1554,11 @@ describe('T73 — tickets et documentation dans le depot du candidat (ADR-021 de
           if (v === undefined) modifs.add(`${ch}:supprime`);
           else if (v.includes(SENTINELLE)) modifs.add(`${ch}:modifie`);
         }
-        if ([...s.fichiers.keys()].some((k) => /^docs\/tickets\/P\d\d\.md$/u.test(k) && (s.fichiers.get(k) ?? '').includes(SENTINELLE))) modifs.add('ticket:anticipe');
+        const nnS = String(s.n).padStart(2, '0');
+        if ((s.fichiers.get(`docs/tickets/P${String(s.n + 1).padStart(2, '0')}.md`) ?? '').includes(SENTINELLE)) modifs.add('ticket:anticipe');
+        if ((s.fichiers.get(`docs/tickets/P${nnS}.md`) ?? '').includes(SENTINELLE)) modifs.add('ticket-courant:annote');
       }
-      exige(modifs.size === 5, 'le-candidat-a-modifie-les-trois-fichiers', `CANDIDAT-SIMULE-INACTIF : modifications observees ${rendu([...modifs])}`);
+      exige(modifs.size === 6, 'le-candidat-a-modifie-les-trois-fichiers', `CANDIDAT-SIMULE-INACTIF : modifications observees ${rendu([...modifs])}`);
 
       const docsParPeriode = new Map<number, Docs>();
       const defauts: string[] = [];
@@ -1535,6 +1580,10 @@ describe('T73 — tickets et documentation dans le depot du candidat (ADR-021 de
         efface.set('docs/api.md', docs.api);
         efface.set(cheminTicket(n), docs.ticket);
         if (defautsTransition(n, prec, efface, docs, clauses).length === 0) temoins.push(`P${n} : un moteur qui efface docs/ puis le regenere passerait`);
+        const restaure = new Map(prec);
+        for (const [k, v] of TROIS(n).map((ch, i) => [ch, [docs.spec, docs.api, docs.ticket][i]] as [string, string])) restaure.set(k, v);
+        restaure.set(cheminTicket(n - 1), (docsParPeriode.get(n - 1) as Docs).ticket);
+        if (defautsTransition(n, prec, restaure, docs, clauses).length === 0) temoins.push(`P${n} : un moteur qui regenere le ticket anterieur annote par le candidat passerait`);
       }
       aucunDefaut(temoins, 'predicats-A4-discriminants');
 

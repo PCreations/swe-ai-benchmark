@@ -15,7 +15,11 @@
     "MESURE A HEAD (f0497d7, T73 non implementee) : A1 et A2 rougissent sur",
     "CONTRAT-NON-SATISFAIT role=platformPeriodDocs ; A3 et A4 sur l'echec de",
     "`run-period --scenario-id F-PLATFORM` a P5 (« la trajectoire nominale (T11) ne porte",
-    "que 4 periode(s) ») — le scenario F-PLATFORM n'est pas materialise."
+    "que 4 periode(s) ») — le scenario F-PLATFORM n'est pas materialise.",
+    "",
+    "REVISION : M11 (ticket qui recopie contract.exemples, A2) et M12 (tickets anterieurs",
+    "regeneres, A4) ajoutes ; les douze mutants re-verifies sur la reference jetable, dont",
+    "les exemples des criteres sont desormais distincts des faits (argument `exemple: true`)."
   ],
   "schema": "bench.mutants/1",
   "task": "T73",
@@ -25,7 +29,7 @@
     "T73"
   ],
   "acceptance_entry": "acceptance/T73.spec.ts",
-  "mutant_count": 10,
+  "mutant_count": 12,
   "mutants": [
     {
       "id": "T73.M1",
@@ -210,6 +214,42 @@
         "T73.A3"
       ],
       "verifie_sur_reference_jetable": "drapeau moteur-efface-docs : A4 rouge, A1, A2 et A3 verts."
+    },
+    {
+      "id": "T73.M11",
+      "kills_case": "T73.A2",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "recopier dans le ticket les exemples de la source",
+      "target": "Le generateur des documents de periode (role `platformPeriodDocs`, II de acceptance/T73.spec.ts).",
+      "mutation": "Illustrer les criteres d'acceptation du ticket par les `contract.exemples` des clauses nouvelles, tels quels (requete et reponse de la source).",
+      "expected_effect": "T73.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P1 ticket : l'exemple create_slot {\"slot_id\":\"S1\",\"capacity\":3,...} reproduit le fait P3.F03` ... (119 defauts).",
+      "pourquoi_cette_perturbation": "Decision de l'orchestrateur : l'interdiction de reproduire un fait gele s'etend aux trois documents ; un ticket qui recopie `contract.exemples` livrerait au candidat les reponses attendues de l'oracle.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A3",
+        "T73.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau ticket-copie-les-exemples : A2 rouge, A1, A3 et A4 verts."
+    },
+    {
+      "id": "T73.M12",
+      "kills_case": "T73.A4",
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "regenerer les tickets anterieurs",
+      "target": "La materialisation des documents dans l'espace du candidat avant la session (meme cible que T73.M9).",
+      "mutation": "A la periode n, reecrire aussi docs/tickets/P01.md a P(n-1).md depuis le generateur.",
+      "expected_effect": "T73.A4 devient rouge.",
+      "observation_qui_echoue": "A4 : `P2 : docs/tickets/P01.md (present a la sortie de P1) a change` ... (23 defauts) : le candidat annote son ticket courant, et l'annotation doit survivre.",
+      "pourquoi_cette_perturbation": "Decision de l'orchestrateur : un ticket anterieur est de l'historique, conserve tel que le candidat l'a laisse ; seuls les trois fichiers courants sont reecrits.",
+      "doit_rester_vert": [
+        "T73.A1",
+        "T73.A2",
+        "T73.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau moteur-regenere-tickets-anterieurs : A4 rouge, A1, A2 et A3 verts."
     }
   ]
 }

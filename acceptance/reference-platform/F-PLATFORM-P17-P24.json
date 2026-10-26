@@ -68,6 +68,7 @@
     "desaccords": [
       "Premier jet de la trajectoire P21 : request_id c1, c2, c3 deja pris dans t-alpha (P4) ; le simulateur a rendu IDEMPOTENCY_CONFLICT partout : identifiants changes en r21a, r21b, r21c (le fait vise est la derniere place, pas une cle de P4).",
       "Premier jet de P22.F09/F10 : frontiere posee a 09:03:00 alors que le lot de m-fay date de 2031-08-11T09:02:00Z (P18-09) : etapes deplacees a 09:01:59 et 09:02:00.",
+      "Bloc contrat_v2.paires du premier commit (060c9f5) : la paire P24-09 / P24-20 n'etait pas equivalente (P24-16 et P24-17 changent la file entre les deux lectures) et P24-10 / P24-11 comparait deux operations differentes ; paires retirees, semantique des paires declarees dans le $comment (relu par le simulateur : les trois paires restantes se traduisent exactement).",
       "Premier jet de P23 : le transfert de f1 vers m-ana visait le frais minimum ; m-ana ayant f5 en file sur S60, c'est ALREADY_BOOKED (garde comme fait P23.F14) ; transfert vers m-sam ajoute (P23.F15)."
     ],
     "comptes": {
@@ -6547,7 +6548,7 @@
           "P24.R3",
           "P24.R4"
         ],
-        "$comment": "Lecture par T72.A3 : `correspondance` est la table declaree par P24.R2 (v1 -> v2, bijective). Une etape de P24 est BASCULEE dans l'autre version en renommant son op et les cles de ses args (a toute profondeur) et en posant version ('v2' si elle etait v1 ou sans version, 'v1' si elle etait v2). Rejouer la trajectoire P1-P24 en basculant toutes les etapes de P24 (sauf `hors_bascule`), puis une sur deux, doit donner, pour chaque etape basculee, la reponse d'origine traduite dans l'autre version (cles renommees ; erreur de premier niveau CODE <-> {code: CODE}), et pour toutes les autres etapes, la reponse d'origine a l'identique (meme effet). `hors_bascule` : requetes volontairement mal nommees ou de version inconnue, gardees telles quelles.",
+        "$comment": "Lecture par T72.A3 : `correspondance` est la table declaree par P24.R2 (v1 -> v2, bijective). Une etape de P24 est BASCULEE dans l'autre version en renommant son op et les cles de ses args (a toute profondeur) et en posant version ('v2' si elle etait v1 ou sans version, 'v1' si elle etait v2). Rejouer la trajectoire P1-P24 en basculant toutes les etapes de P24 (sauf `hors_bascule`), puis une sur deux, doit donner, pour chaque etape basculee, la reponse d'origine traduite dans l'autre version (cles renommees ; erreur de premier niveau CODE <-> {code: CODE}), et pour toutes les autres etapes, la reponse d'origine a l'identique (meme effet). `hors_bascule` : requetes volontairement mal nommees ou de version inconnue, gardees telles quelles. `paires` : etapes consecutives qui envoient la MEME requete (meme cle d'idempotence, ou meme lecture sans changement d'etat entre elles) en v2 puis en v1 : la reponse v2 traduite en v1 doit egaler la reponse v1.",
         "correspondance": {
           "operations": {
             "reserve": "create_reservation",
@@ -6580,25 +6581,15 @@
         "paires": [
           {
             "v2": "P24-03",
-            "v1": "P24-04",
-            "fait_v2": "P24.F03",
-            "fait_v1": "P24.F04"
+            "v1": "P24-04"
           },
           {
             "v2": "P24-06",
             "v1": "P24-07"
           },
           {
-            "v2": "P24-10",
-            "v1": "P24-11"
-          },
-          {
             "v2": "P24-17",
             "v1": "P24-18"
-          },
-          {
-            "v2": "P24-09",
-            "v1": "P24-20"
           }
         ]
       }

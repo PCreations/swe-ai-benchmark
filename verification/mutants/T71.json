@@ -50,23 +50,27 @@
       "direction": "rendre l'affectation de places de P11 dependante de l'ordre d'iteration",
       "target": "L'affectation de la migration (clause P11.R2) dans le modele attendu.",
       "mutation": "Affecter les blocs dans l'ordre d'iteration de la structure qui porte les reservations (ordre d'insertion / de creation) au lieu du tri seats decroissant puis booking_id croissant — perturbation prescrite (« rendre l'affectation de places de P11 dependante de l'ordre d'iteration »).",
-      "expected_effect": "T71.A2 devient rouge (et T71.A1).",
-      "observation_qui_echoue": "A2 (5) : `paire P11-25/P11-34` diverge (t-mig-a cree k1, k2, k3 ; t-mig-b k3, k1, k2) ; A2 (3) : `P11-08: P11.F06 attendu=... n1 [1,2] ... recu=... f-s2 [1]`.",
+      "expected_effect": "T71.A2 devient rouge.",
+      "observation_qui_echoue": "A2 (5) : `paire P11-25/P11-34` diverge (t-mig-a cree k1, k2, k3 ; t-mig-b k3, k1, k2) ; A2 (3) : `P11-08: P11.F06 attendu=... n1 [1,2] ... recu=... f-s2 [1]`, `P11-25: P11.F14`, `P11-34: P11.F15`. A1 : P11.F06, P11.F09, P11.F10, P11.F11, P11.F13, P11.F14, P11.F15.",
       "pourquoi_cette_perturbation": "Un rejeu identique ne revele pas un ordre d'iteration ; deux histoires differentes menant au meme ensemble de reservations, si.",
-      "doit_rester_vert": ["T71.A3", "T71.A4"]
+      "doit_rester_vert": ["T71.A3", "T71.A4"],
+      "tue_aussi": ["T71.A1"],
+      "verification": "verifie a l'execution (passe de clarification, 26/10/2026) : mutant applique a une copie jetable de packages/oracle, racine P1-P16 de HEAD, puis acceptance/T71.spec.ts ; A1 rouge, A2 rouge, A3 vert, A4 vert."
     },
     {
       "id": "T71.M4",
       "kills_case": "T71.A2",
       "proof_kind": "behaviour",
       "necessity": "targeted-perturbation",
-      "direction": "casser la contiguite ou le determinisme entre deux rejeux",
+      "direction": "casser la contiguite des places affectees a la migration",
       "target": "La migration de P11 dans le modele attendu.",
-      "mutation": "Affecter a chaque reservation les plus petits numeros libres un par un sans exiger un bloc (ou departager les ex aequo par un etat partage entre instances, par exemple un compteur de module non reinitialise).",
+      "mutation": "Distribuer les places a tour de role dans l'ordre d'affectation de P11.R2 (seats decroissant puis booking_id croissant) : la premiere reservation recoit la place 1, la deuxieme la place 2, ..., puis on recommence au debut de l'ordre tant qu'une reservation n'a pas toutes ses places. Les reservations d'une place gardent un numero ; les groupes recoivent des places non consecutives. Seule realisation de ce mutant.",
       "expected_effect": "T71.A2 devient rouge.",
-      "observation_qui_echoue": "A2 (2) `places non contigues` ou A2 (4) `deux rejeux divergent` : le second rejeu independant de la trajectoire rend une autre affectation.",
-      "pourquoi_cette_perturbation": "La carte exige « une place deterministe » et « deux rejeux ... la meme affectation » : un etat qui fuit entre rejeux viole la seconde exigence sans toucher a la premiere.",
-      "doit_rester_vert": ["T71.A3", "T71.A4"]
+      "observation_qui_echoue": "A2 (2) : `P11-08: n1 places non contigues [1,5]`, `P11-08: n3 places non contigues [2,6]`, `P11-25: k2 places non contigues [1,4]`, `P11-25: k3 places non contigues [2,5]` (et P11-34) ; A2 (3) : P11.F06, P11.F14, P11.F15. A1 : P11.F06, P11.F09, P11.F11, P11.F13, P11.F14, P11.F15, P14.F12.",
+      "pourquoi_cette_perturbation": "La carte exige « une place deterministe » et ADR-021 « groupes en places contigues » : une affectation deterministe mais eclatee passe un controle de rejeu ; seule la contiguite la refuse. (Les deux anciennes variantes ne tenaient pas : « plus petits numeros un par un » donne les memes blocs a la migration, toutes les places etant libres, et ne rougit que A1 ; un compteur de module non reinitialise rougit A2 mais laisse A1 vert, le premier rejeu etant juste.)",
+      "doit_rester_vert": ["T71.A3", "T71.A4"],
+      "tue_aussi": ["T71.A1"],
+      "verification": "verifie a l'execution (passe de clarification, 26/10/2026) : mutant applique a une copie jetable de packages/oracle, racine P1-P16 de HEAD, puis acceptance/T71.spec.ts ; A1 rouge, A2 rouge, A3 vert, A4 vert."
     },
     {
       "id": "T71.M5",
@@ -75,11 +79,13 @@
       "necessity": "targeted-perturbation",
       "direction": "omettre un avoir dans le rapprochement facture-portefeuille",
       "target": "La production des avoirs (clauses P14.R4, P16.R3) et leur restitution par list_documents dans le modele attendu.",
-      "mutation": "Ne pas emettre (ou ne pas lister) l'avoir d'un trop-percu de P16 — par exemple AV-0003 de y2 — tout en re-creditant le portefeuille — perturbation prescrite (« omettre un avoir dans le rapprochement facture-portefeuille »).",
-      "expected_effect": "T71.A3 devient rouge (et T71.A1).",
-      "observation_qui_echoue": "A3 : `P16: avoirs listes [AV-0001, AV-0002, AV-0004] au lieu de [AV-0001, ..., AV-0004]` et `P16 m-dan: INV-2031-07-m-dan compte 17 de credits d'avoirs, les avoirs du mois en portent 0` ou `portefeuille 1681 != cloture ... 1664`.",
+      "mutation": "Ne pas LISTER, dans la reponse de list_documents, l'avoir d'un trop-percu de P16 (reason 'price_change' : AV-0003 de y2), qui reste emis, compte dans credit_notes_credits_cents de la facture de juillet et re-credite au portefeuille — perturbation prescrite (« omettre un avoir dans le rapprochement facture-portefeuille »). Variante NON retenue : ne pas l'EMETTRE decale la sequence (AV-0004 devient AV-0003) et m-dan n'a plus de facture de juillet ; les messages d'A3 sont alors autres (`avoirs listes [AV-0001, AV-0002, AV-0003] au lieu de [... AV-0004]`, `P16 m-dan: portefeuille 1681 != cloture de la derniere facture 1664`).",
+      "expected_effect": "T71.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `P16: avoirs listes [AV-0001, AV-0002, AV-0004] au lieu de [AV-0001, AV-0002, AV-0003, AV-0004]` et `P16 m-dan: INV-2031-07-m-dan compte 17 de credits d'avoirs, les avoirs du mois en portent 0` ; A1 : `P16.F13 (P16-17) [frontiere rapprochement_apres_avoir]`.",
       "pourquoi_cette_perturbation": "Le rapprochement n'a de valeur que s'il voit les corrections ; un avoir oublie laisse des factures coherentes entre elles mais fausses envers le portefeuille.",
-      "doit_rester_vert": ["T71.A2", "T71.A4"]
+      "doit_rester_vert": ["T71.A2", "T71.A4"],
+      "tue_aussi": ["T71.A1"],
+      "verification": "verifie a l'execution (passe de clarification, 26/10/2026) : mutant applique a une copie jetable de packages/oracle, racine P1-P16 de HEAD, puis acceptance/T71.spec.ts ; A1 rouge, A2 vert, A3 rouge, A4 vert."
     },
     {
       "id": "T71.M6",
@@ -89,10 +95,13 @@
       "direction": "corriger une facture emise au lieu d'emettre un avoir",
       "target": "L'immuabilite des factures (clauses P14.R2, P14.R4) dans le modele attendu.",
       "mutation": "Reporter le remboursement d'une charge deja facturee comme ligne refund de la facture d'origine (la facture emise est reecrite) au lieu d'un avoir.",
-      "expected_effect": "T71.A3 devient rouge (et T71.A1).",
-      "observation_qui_echoue": "A3 : `facture INV-2031-06-m-dan modifiee depuis P15 (immuable)` et `avoirs listes ... au lieu de ...`.",
+      "expected_effect": "T71.A3 devient rouge.",
+      "observation_qui_echoue": "A1, A2 et A3 : `REPLAY-LEVE Error: RAPPROCHEMENT-ROMPU INV-2031-04-m-cleo` : la verification de rapprochement du modele attendu (P14.R6) leve des l'emission suivante, et le rejeu principal echoue avant toute comparaison ; le message « facture modifiee (immuable) » n'est jamais atteint.",
       "pourquoi_cette_perturbation": "« Factures mensuelles immuables, corrections par avoirs » (ADR-021, P14).",
-      "doit_rester_vert": ["T71.A2", "T71.A4"]
+      "doit_rester_vert": ["T71.A4"],
+      "tue_aussi": ["T71.A1", "T71.A2"],
+      "note_tue_aussi": "A2 rougit parce qu'elle lit le meme rejeu principal que A1 et A3 : un modele qui leve en P14 n'a plus de reponse pour P11. La specificite d'A2 n'est pas le critere de ce mutant ; T71.M3 et T71.M4 isolent A2.",
+      "verification": "verifie a l'execution (passe de clarification, 26/10/2026) : mutant applique a une copie jetable de packages/oracle, racine P1-P16 de HEAD, puis acceptance/T71.spec.ts ; A1 rouge, A2 rouge, A3 rouge, A4 vert."
     },
     {
       "id": "T71.M7",

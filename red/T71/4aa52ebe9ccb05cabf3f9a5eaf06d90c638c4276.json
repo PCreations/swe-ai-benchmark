@@ -1,0 +1,45 @@
+{
+  "schema": "bench.red/1",
+  "task": "T71",
+  "subject_commit": "4aa52ebe9ccb05cabf3f9a5eaf06d90c638c4276",
+  "dirty": false,
+  "input_digest": "09854ec69d40dbd938bd8a85f3470e78f26ce17c1885e4f35b18779cb31cb16a",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T71.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T71.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T71.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T71.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T71.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q19 (8b511ed) ne touchent que le rejeu"
+    }
+  ],
+  "mutation_proof": {
+    "T71.A4": {
+      "killed_by": "T71.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q19 (8b511ed) ne touchent que le rejeu"
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

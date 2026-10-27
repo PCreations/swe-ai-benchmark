@@ -1,0 +1,288 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T74 : au moins une par cas requis, dont la perturbation que",
+    "verification/cases.extensions.lock.json fixe pour chacun (M1 pour A1, M3/M4 pour A2, M7 pour",
+    "A3, M9 pour A4). Les cibles sont decrites par leur ROLE (II de acceptance/T74.spec.ts),",
+    "jamais par un chemin de fichier : T74 n'est pas implementee. Un mutant ne touche jamais la",
+    "suite, les racines gelees, la source de clauses, le candidat de reference ni son instantane.",
+    "",
+    "`doit_rester_vert` et `also_kills` ont ete VERIFIES pour chaque mutant, en l'appliquant",
+    "reellement : acceptance/T74.spec.ts execute (jest du depot) contre une reference jetable hors",
+    "depot (copie de travail sans .git ; generateurs de sequences ciblees et de flux, notateurs",
+    "cible et differentiel exportes par @bench/activities, persistance PostgreSQL reelle), mutant",
+    "active par la variable T74_MUTANT=<drapeau>. Sans mutant : A1-A4 verts en 7 min 42 s",
+    "(A1 96 s, A2 130 s, A3 7 s, A4 224 s ; 4 coeurs). Le resultat observe est consigne sous",
+    "`verifie_sur_reference_jetable`.",
+    "",
+    "MESURE A HEAD (3e8b664, T74 non implementee) : `node tools/bench verify:task T74 --json` rend",
+    "reason=ASSERTION_FAILED, suite chargee, A1-A4 FAIL sur CONTRAT-NON-SATISFAIT",
+    "(platformTargetedSequences, platformDifferentialStreams, scorePlatformTargeted) ; les",
+    "controles negatifs des predicats, l'echantillon de A4, l'integrite de l'instantane et les 494",
+    "faits geles rejoues contre le candidat de reference passent avant ces assertions."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T74",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T74"
+  ],
+  "acceptance_entry": "acceptance/T74.spec.ts",
+  "mutant_count": 13,
+  "mutants": [
+    {
+      "id": "T74.M1",
+      "kills_case": "T74.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "laisser une attente citer une clause inactive",
+      "target": "Le generateur de sequences ciblees (role `platformTargetedSequences`, II de acceptance/T74.spec.ts).",
+      "mutation": "A P7, faire citer a la premiere attente de la premiere sequence la clause P1.R5 (sortie a P2).",
+      "expected_effect": "T74.A1 devient rouge.",
+      "observation_qui_echoue": "A1 : `P7 sequence 0 (P1.R1) etape 0 (create_tenant) : attente citant la clause INACTIVE P1.R5`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T74.A1.",
+      "doit_rester_vert": [
+        "T74.A2",
+        "T74.A3",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau attente-inactive : A1 rouge, A2 vert, A3 vert, A4 vert."
+    },
+    {
+      "id": "T74.M2",
+      "kills_case": "T74.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "attente sans clause",
+      "target": "Le generateur de sequences ciblees (role `platformTargetedSequences`, II de acceptance/T74.spec.ts).",
+      "mutation": "A P10, retirer `clause` d'une attente (la reponse attendue reste).",
+      "expected_effect": "T74.A1 devient rouge.",
+      "observation_qui_echoue": "A1 : `P10 sequence 0 (P1.R1) etape 3 (add_member) : attente sans clause`.",
+      "pourquoi_cette_perturbation": "Une attente qui ne cite rien ne peut pas etre diagnostiquee avec sa clause (ADR-021 decision 3).",
+      "doit_rester_vert": [
+        "T74.A2",
+        "T74.A3",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau attente-sans-clause : A1 rouge, A2 vert, A3 vert, A4 vert."
+    },
+    {
+      "id": "T74.M3",
+      "kills_case": "T74.A2",
+      "also_kills": [
+        "T74.A4"
+      ],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "generer neuf flux",
+      "target": "Le generateur de flux differentiels (role `platformDifferentialStreams`, II).",
+      "mutation": "Rendre 9 flux au lieu de 10 a chaque periode.",
+      "expected_effect": "T74.A2 rouge ; T74.A4 aussi (le differentiel de la reference porte total 9 < 10).",
+      "observation_qui_echoue": "A2 : `P1 : 9 flux (< 10)` pour chaque periode ; A4 : `P1 : total 9 < 10`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T74.A2 (premiere moitie).",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau neuf-flux : A1 vert, A2 rouge, A3 vert, A4 rouge."
+    },
+    {
+      "id": "T74.M4",
+      "kills_case": "T74.A2",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "generer des flux de 999 operations",
+      "target": "Le generateur de flux differentiels (role `platformDifferentialStreams`, II).",
+      "mutation": "Tronquer chaque flux a 999 etapes.",
+      "expected_effect": "T74.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P1 flux 0 : 999 operations (< 1000)` (240 defauts).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T74.A2 (seconde moitie).",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A3",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau flux-999 : A1 vert, A2 rouge, A3 vert, A4 vert."
+    },
+    {
+      "id": "T74.M5",
+      "kills_case": "T74.A2",
+      "also_kills": [
+        "T74.A3"
+      ],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "flux non deterministes",
+      "target": "Le generateur de flux differentiels (role `platformDifferentialStreams`, II).",
+      "mutation": "Remplacer la graine par Math.random() a chaque appel.",
+      "expected_effect": "T74.A2 rouge ; T74.A3 aussi (l'etape fautive de la faute unique n'ouvre plus aucun flux regenere).",
+      "observation_qui_echoue": "A2 : `P1 : deux appels a la graine 7474 rendent des flux differents` ; A3 : `faute unique P13 : la premiere requete du flux fautif n'ouvre aucun flux genere`.",
+      "pourquoi_cette_perturbation": "ADR-021 L202 : « generes de facon deterministe a partir d'une graine ».",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau flux-hasard : A1 vert, A2 rouge, A3 rouge, A4 vert."
+    },
+    {
+      "id": "T74.M6",
+      "kills_case": "T74.A2",
+      "also_kills": [
+        "T74.A4"
+      ],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "flux qui n'exercent que les operations simples",
+      "target": "Le generateur de flux differentiels (role `platformDifferentialStreams`, II).",
+      "mutation": "Ne tirer que create_slot, reserve, create_tenant, add_member.",
+      "expected_effect": "T74.A2 rouge (couverture) ; T74.A4 aussi (le differentiel des prives de P2.R2, P5.R2... ne diverge plus).",
+      "observation_qui_echoue": "A2 : `P1 flux 0 : 2 operation(s) active(s) employee(s) (< 3 sur 5...)` ; A4 : `P2.R2 [ordre de file] : differentiel du prive jamais < 1`.",
+      "pourquoi_cette_perturbation": "Couverture minimale exigee par l'orchestrateur : les flux exercent les operations de la periode, pas seulement les plus simples.",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau flux-reserve-seul : A1 vert, A2 rouge, A3 vert, A4 rouge."
+    },
+    {
+      "id": "T74.M7",
+      "kills_case": "T74.A3",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ne pas persister la clause d'un echec",
+      "target": "Le notateur cible (role `scorePlatformTargeted`, II) et le notateur differentiel (role `scorePlatformDifferential`, II).",
+      "mutation": "Avant l'ecriture PostgreSQL, retirer `clause` de chaque echec (le resultat rendu la garde).",
+      "expected_effect": "T74.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `25 echec(s) rendu(s) jamais persiste(s) a l'identique (op, attendu, recu, clause)` et `persiste i : echec sans clause de la source`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T74.A3.",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A2",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau clause-non-persistee : A1 vert, A2 vert, A3 rouge, A4 vert."
+    },
+    {
+      "id": "T74.M8",
+      "kills_case": "T74.A3",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "reponse recue fabriquee",
+      "target": "Le notateur cible (role `scorePlatformTargeted`, II) et le notateur differentiel (role `scorePlatformDifferential`, II).",
+      "mutation": "Cible : received = {ok:false, error:'INVENTE'} ; differentiel : received = l'attendu.",
+      "expected_effect": "T74.A3 devient rouge.",
+      "observation_qui_echoue": "A3 : `reponse recue {\"ok\":false,\"error\":\"INVENTE\"} jamais envoyee par le candidat` et `attendu egal a la reponse recue`.",
+      "pourquoi_cette_perturbation": "Le diagnostic doit porter la reponse REELLEMENT recue (trafic de la fixture).",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A2",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau recu-invente : A1 vert, A2 vert, A3 rouge, A4 vert."
+    },
+    {
+      "id": "T74.M9",
+      "kills_case": "T74.A4",
+      "also_kills": [
+        "T74.A3"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "noter 1 le candidat prive d'une clause",
+      "target": "Le notateur cible (role `scorePlatformTargeted`, II).",
+      "mutation": "Jouer les sequences contre le candidat (trafic reel) sans comparer : toute sequence est satisfaite.",
+      "expected_effect": "T74.A4 rouge sur chaque entree de l'echantillon ; T74.A3 aussi (aucun echec cible).",
+      "observation_qui_echoue": "A4 : `P1.R4 P1 [decision] : le prive est note {score:1,...} sur sa clause (attendu < 1)` (24 defauts) ; A3 : `cible prive de P8.R2 P8 : aucun echec rendu`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T74.A4.",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau cible-sans-comparaison : A1 vert, A2 vert, A3 rouge, A4 rouge."
+    },
+    {
+      "id": "T74.M10",
+      "kills_case": "T74.A4",
+      "also_kills": [
+        "T74.A3"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "notateur cible constant, candidat jamais lance",
+      "target": "Le notateur cible (role `scorePlatformTargeted`, II).",
+      "mutation": "Rendre score 1 pour chaque clause sans lancer le candidat.",
+      "expected_effect": "T74.A4 rouge (trafic nul de la reference) ; T74.A3 aussi.",
+      "observation_qui_echoue": "A4 : `P1 : aucune requete recue par la reference (le notateur n'a pas lance le candidat)`.",
+      "pourquoi_cette_perturbation": "Danger nomme par T68 III (2) : une note qui ne vient pas d'une execution reelle.",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau cible-constante-1 : A1 vert, A2 vert, A3 rouge, A4 rouge."
+    },
+    {
+      "id": "T74.M11",
+      "kills_case": "T74.A4",
+      "also_kills": [
+        "T74.A3"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "notateur cible qui juge les attentes contre elles-memes",
+      "target": "Le notateur cible (role `scorePlatformTargeted`, II).",
+      "mutation": "Prendre les reponses attendues comme reponses recues, sans lancer le candidat.",
+      "expected_effect": "T74.A4 rouge (trafic nul) ; T74.A3 aussi.",
+      "observation_qui_echoue": "A4 : `aucune requete recue par la reference` ; A3 : `aucun echec rendu`.",
+      "pourquoi_cette_perturbation": "Un notateur qui compare l'attendu a lui-meme note 1 tout candidat.",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-lancer : A1 vert, A2 vert, A3 rouge, A4 rouge."
+    },
+    {
+      "id": "T74.M12",
+      "kills_case": "T74.A2",
+      "also_kills": [
+        "T74.A3",
+        "T74.A4"
+      ],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "notateur differentiel qui rend 1 toujours",
+      "target": "Le notateur differentiel (role `scorePlatformDifferential`, II).",
+      "mutation": "Rendre {score:1, satisfied:total, total} sans jouer les flux.",
+      "expected_effect": "T74.A2, T74.A3 et T74.A4 rouges.",
+      "observation_qui_echoue": "A2 : `P1 : 0 flux sur 10 retrouves entiers...` ; A3 : `differentiel prive de P8.R2 P8 : aucun echec rendu` ; A4 : `P1.R4 [decision] : differentiel du prive jamais < 1`.",
+      "pourquoi_cette_perturbation": "Controle negatif demande : notateur qui rend 1 toujours.",
+      "doit_rester_vert": [
+        "T74.A1"
+      ],
+      "verifie_sur_reference_jetable": "drapeau differentiel-constant-1 : A1 vert, A2 rouge, A3 rouge, A4 rouge."
+    },
+    {
+      "id": "T74.M13",
+      "kills_case": "T74.A2",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "score par operation au lieu de par flux",
+      "target": "Le notateur differentiel (role `scorePlatformDifferential`, II).",
+      "mutation": "score = operations concordantes / operations jouees, total = nombre d'operations.",
+      "expected_effect": "T74.A2 devient rouge.",
+      "observation_qui_echoue": "A2 : `P1 : total 10000 != 10 flux generes a la meme graine`.",
+      "pourquoi_cette_perturbation": "ADR-021 L202 : « le score differentiel est la fraction de flux sans divergence ».",
+      "doit_rester_vert": [
+        "T74.A1",
+        "T74.A3",
+        "T74.A4"
+      ],
+      "verifie_sur_reference_jetable": "drapeau fraction-par-operation : A1 vert, A2 rouge, A3 vert, A4 vert."
+    }
+  ]
+}

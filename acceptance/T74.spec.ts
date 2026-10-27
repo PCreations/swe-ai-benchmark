@@ -131,7 +131,8 @@
  *   f-platform-reference/{f-platform-engine,f-platform-clauses}.mjs, produits
  *   par generer.mjs (meme repertoire) a partir de packages/oracle/src/
  *   f-platform-{engine,clauses}.ts LUS PAR GIT au commit epingle dans
- *   MANIFEST.json (3e8b664, HEAD de T73), transpiles (types effaces, rien
+ *   MANIFEST.json (ffb09f3 : HEAD de T73 et correction de P14.R6 selon Q19),
+ *   transpiles (types effaces, rien
  *   d'autre). C'est le mecanisme FIXE ICI. L'instantane est COMMITTE avec la
  *   suite ; il n'importe pas @bench/oracle (la suite le verifie).
  *
@@ -144,7 +145,7 @@
  *     2. sa conformite a la source est etablie SANS le modele : A4 le rejoue
  *        d'abord, processus reel et redemarrage a chaque periode, sur toute la
  *        trajectoire principale des racines gelees, et exige chacun des faits
- *        calcules a la main (494 a l'ecriture) ;
+ *        calcules a la main (504 a ffb09f3) ;
  *     3. il s'execute en conditions reelles : processus distinct, protocole
  *        bench.platform/1, etat persiste dans BENCH_DATA_DIR (journal rejoue au
  *        demarrage), enveloppe v1/v2 telle qu'elle arrive sur le fil ;
@@ -245,17 +246,9 @@
  * 24 differentielles de la reference (10 x 1000 operations au moins chacune),
  * 24 ciblees restreintes et au moins 24 differentielles des prives, 2 fautes
  * uniques (A2), et les 5 notations de A3. Aucun seuil de la carte n'est reduit.
- * Mesure contre une reference jetable hors depot (4 coeurs) : 7 min 42 s (A1 96 s,
- * A2 130 s, A3 7 s, A4 224 s). Sous la limite de 20 minutes : aucune reduction.
- *
- * DEFAUT CONSTATE DU MODELE ATTENDU (hors portee de T74, packages/oracle) : la
- * verification de rapprochement de P14 (`comptabilite.rapprochement`) leve
- * RAPPROCHEMENT-ROMPU des qu'un membre a un solde non nul a l'ouverture de sa
- * PREMIERE facture (mois anterieurs jamais emis, permis par Q19) ; ex. : top_up
- * 777 en juin, top_up 2500 en juillet, issue_invoices '2031-07' -> leve, alors
- * que 777 + 2500 = 3277. Le modele leve alors en cours d'operation. Un generateur
- * de flux doit en tenir compte tant que le proprietaire de la source ne l'a pas
- * corrige ; le candidat de reference (meme code) repond alors INTERNAL_ERROR.
+ * Mesure contre une reference jetable hors depot (4 coeurs), instantane ffb09f3 :
+ * 3 min 36 s (A1 46 s, A2 56 s, A3 4 s, A4 108 s). Sous la limite de 20 minutes :
+ * aucune reduction.
  */
 
 import * as fs from 'node:fs';

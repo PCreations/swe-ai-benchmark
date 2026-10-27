@@ -388,10 +388,14 @@ const PRECISIONS: Readonly<Record<string, readonly Precision[]>> = {
   ],
   'P18.R1': [
     { question: 'Q35', classe: 'GARDER', texte: "erase_member -> INVALID_ARGUMENT tant que le membre a une réservation confirmed ou waiting sur un créneau qui n'a pas commencé ; il faut d'abord l'annuler." },
+    { question: 'Q62', classe: 'FIXER', texte: "Un pseudonyme est unique dans son locataire et ne designe jamais un membre. erase_member attribue le numero SUIVANT de la sequence du locataire (dernier numero attribue par erase_member dans ce locataire + 1, soit 1 au depart ; une fusion ne change pas la sequence de la cible, P17.R1) et saute, en poursuivant la sequence, tout numero dont 'anon-nnnn' est deja, dans ce locataire, le member_id d'un membre (proprietaire compris) ou un pseudonyme (y compris un pseudonyme venu d'une fusion, P17.R2) ; le numero retenu devient le dernier attribue. Ex. (t-q62) : un membre 'anon-0001' existe, m-qa est efface -> anon-0002, et le membre anon-0001 garde son portefeuille ; apres la fusion de t-q62b (ses pseudonymes anon-0001 et anon-0002 renommes par Q34, anon-0003 garde), m-qe est efface -> anon-0004." },
   ],
   'P18.R2': [
     { question: 'Q36', classe: 'GARDER', texte: "Les arguments mémorisés sont anonymisés comme les réponses : à partir de P21, rejouer une clé de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT." },
     { question: 'Q37', classe: 'CHANGER', texte: "L'anonymisation ne remplace que les valeurs des clés member_id, payer_member_id, from_member_id et to_member_id, à toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>'. Un slot_id, un request_id ou un autre identifiant égal par hasard au member_id ne change pas." },
+  ],
+  'P18.R3': [
+    { question: 'Q62', classe: 'GARDER', texte: "add_member dont member_id est un pseudonyme du locataire (P18.R1, y compris un pseudonyme venu d'une fusion) le designe comme member_id : NOT_FOUND, sans effet, controle fait apres ceux de P4.R1 ; seul l'ANCIEN identifiant d'un membre efface peut etre repris par add_member (nouveau membre). Un member_id de la forme 'anon-nnnn' qui n'est pas un pseudonyme du locataire est un identifiant comme un autre (le membre est cree, et la sequence de P18.R1 le saute)." },
   ],
   'P19.R1': [
     { question: 'Q39', classe: 'GARDER', texte: "report_occupancy filtre starts_at sur des instants UTC, from inclus et to exclu (et non sur des mois locaux)." },
@@ -1154,12 +1158,16 @@ const P4_R1 = clause({
   implementation: {
     'membres.role': (_ctx: PlatformContext, t: Tenant, m: string): string | undefined =>
       t.owner_id === m ? 'admin' : t.members.get(m),
-    'add_member.effet': (ctx: PlatformContext): PlatformResponse => {
+    'add_member.etape.arguments': etape(10, (ctx) => {
       const { member_id, role } = ctx.args
       if (!estChaine(member_id) || typeof role !== 'string' || !(ROLES as readonly string[]).includes(role)) {
         return fail('INVALID_ARGUMENT')
       }
-      if (member_id === ctx.locataire.owner_id) return fail('INVALID_ARGUMENT')
+      return member_id === ctx.locataire.owner_id ? fail('INVALID_ARGUMENT') : undefined
+    }),
+    'add_member.effet': (ctx: PlatformContext): PlatformResponse => {
+      const member_id = String(ctx.args.member_id)
+      const role = String(ctx.args.role)
       ctx.locataire.members.set(member_id, role)
       return succeed({ member_id, role })
     },
@@ -3994,10 +4002,15 @@ const P18_R1 = clause({
   },
   implementation: {
     'autorisation.erase_member': ['admin'],
+    // Q62 : numero suivant de la sequence du locataire (une fusion ne la change pas, P17.R1), en sautant tout
+    // 'anon-nnnn' deja member_id d'un membre (proprietaire compris) ou pseudonyme du locataire (fusion comprise).
     'effacement.pseudonyme': ((ctx) => {
       const p = pseudonymesDe(ctx.locataire)
-      p.seq += 1
-      return `anon-${String(p.seq).padStart(4, '0')}`
+      const nom = (n: number): string => `anon-${String(n).padStart(4, '0')}`
+      let n = p.seq + 1
+      while (ctx.role(nom(n)) !== undefined || p.ensemble.has(nom(n))) n += 1
+      p.seq = n
+      return nom(n)
     }) satisfies PseudonymeSuivant,
     'erase_member.effet': (ctx: PlatformContext): PlatformResponse => {
       const m = ctx.args.member_id
@@ -4109,6 +4122,7 @@ const P18_R3 = clause({
       get_wallet: { pseudonyme: 'accepte (admin, staff)' },
       report_revenue: { filtre_member_id: 'un pseudonyme est un member_id comme un autre' },
       reserve: { erreurs: ['NOT_FOUND'], membre_efface: 'NOT_FOUND, pseudonyme compris' },
+      add_member: { erreurs: ['NOT_FOUND'], pseudonyme: 'NOT_FOUND sans effet, apres les controles de P4.R1 ; ancien identifiant : nouveau membre' },
     },
     erreurs: ['NOT_FOUND', 'FORBIDDEN'],
     exemples: [
@@ -4122,6 +4136,8 @@ const P18_R3 = clause({
       if (!estPseudonyme(ctx, m)) return undefined
       return succeed({ member_id: m, balance_cents: ctx.regle<Solde>('portefeuille.solde')(ctx, String(m)) })
     }),
+    // Q62 : un pseudonyme ne designe jamais un membre ; controle apres ceux de P4.R1 (add_member.etape.arguments, rang 10).
+    'add_member.etape.pseudonyme': etape(20, (ctx) => (pseudonymesDe(ctx.locataire).ensemble.has(String(ctx.args.member_id)) ? fail('NOT_FOUND') : undefined)),
     'list_documents.etape.pseudonyme': etape(6, (ctx) => (estPseudonyme(ctx, ctx.args.member_id) ? documentsDe(ctx, ctx.args.member_id) : undefined)),
   },
   grandeurs: ['member_id', 'balance_cents', 'invoice_id'],

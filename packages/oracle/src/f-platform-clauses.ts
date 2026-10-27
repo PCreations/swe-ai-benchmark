@@ -347,6 +347,9 @@ const PRECISIONS: Readonly<Record<string, readonly Precision[]>> = {
     { question: 'Q18', classe: 'GARDER', texte: "Un remboursement dont la charge appartient à un mois non encore facturé est une ligne refund du mois où il a lieu, même si la charge date d'un mois passé ; card_cents et credits_used_cents d'une facture peuvent donc être négatifs." },
     { question: 'Q22', classe: 'GARDER', texte: "Les séquences d'avoirs et de pseudonymes ont au moins 4 chiffres, complétés par des zéros à gauche ; au-delà de 9999 elles continuent sans troncature (AV-10000)." },
   ],
+  'P14.R6': [
+    { question: 'Q19', classe: 'GARDER', texte: "Le rapprochement ne contraint que les instants ou sa condition tient (chaque mois ecoule portant un mouvement ou un avoir du membre est emis). Une facture s'ouvre toujours sur le solde REEL du portefeuille au premier instant local de son mois (Q19), y compris la PREMIERE facture d'un membre : ce solde est non nul quand des mois anterieurs portant ses mouvements (rechargement, remboursement, compensation...) n'ont pas ete emis, et ce n'est pas une rupture du rapprochement. issue_invoices n'a pas d'autres refus que ceux de P14.R2 : il emet alors les factures et repond { ok: true, month, invoice_ids }. Chaque facture verifie toujours, seule, closing = opening + top_ups + compensations + credit_notes_credits - credits_used ; la facture suivante d'un membre s'ouvre sur la cloture de sa precedente des qu'aucun mois strictement entre les deux ne porte de mouvement du membre ; la somme sur ses factures egale balance_cents des que la condition est retablie, par exemple apres l'emission, dans le desordre, du mois manquant, les factures deja emises restant inchangees. Ex. (t-q19) : 777 recharges en avril, 2500 en mai ; issue_invoices '2031-05' -> ok ; INV-2031-05-m-ivy s'ouvre a 777 et se clot a 3277 ; avril emis ensuite : 0 -> 777." },
+  ],
   'P15.R1': [
     { question: 'Q24', classe: 'CHANGER', texte: "rate_micro est un entier de 1 à 10 000 000 inclus, sinon INVALID_ARGUMENT." },
   ],
@@ -2859,14 +2862,19 @@ const P14_R2 = clause({
       }
       for (const a of f.avoirs) if (a.month === month) membres.add(String(a.member_id))
       const tries = [...membres].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-      const invoice_ids: string[] = []
-      for (const m of tries) {
-        const facture = ctx.regle<Facture>('comptabilite.facture')(ctx, m, month)
-        f.factures.set(String(facture.invoice_id), facture)
-        invoice_ids.push(String(facture.invoice_id))
-      }
+      // toutes les factures sont calculees avant toute ecriture ; l'emission est atomique : si le controle de
+      // rapprochement (P14.R6) leve, ni les factures ni le mois emis ne restent inscrits
+      const factures = tries.map((m) => ctx.regle<Facture>('comptabilite.facture')(ctx, m, month))
+      const invoice_ids = factures.map((x) => String(x.invoice_id))
+      for (const x of factures) f.factures.set(String(x.invoice_id), x)
       f.emis.add(month)
-      for (const m of tries) ctx.regle<Rapprochement>('comptabilite.rapprochement')(ctx, m)
+      try {
+        for (const m of tries) ctx.regle<Rapprochement>('comptabilite.rapprochement')(ctx, m)
+      } catch (e) {
+        for (const id of invoice_ids) f.factures.delete(id)
+        f.emis.delete(month)
+        throw e
+      }
       return succeed({ month, invoice_ids })
     },
   },
@@ -3086,28 +3094,48 @@ const P14_R6 = clause({
   },
   implementation: {
     'comptabilite.rapprochement': ((ctx, member) => {
+      // precision Q19 : une facture s'ouvre sur le solde REEL (meme la premiere) ; chaque facture verifie seule son
+      // identite ; la suivante s'ouvre sur la cloture de la precedente des qu'aucun mois strictement entre les deux ne
+      // porte de mouvement du membre ; la somme ne contraint le solde qu'une fois tous ses mois a mouvement emis
       const f = facturation(ctx)
+      const moisDe = ctx.regle<MoisDe>('comptabilite.mois')
+      const aMouvement = new Set<string>()
+      for (const h of historiquePortefeuille(ctx)) if (h.member_id === member) aMouvement.add(moisDe(ctx, h.t))
+      for (const e of ctx.locataire.journal) {
+        if (e.member_id === member && e.amount_cents > 0 && e.avoir === undefined) aMouvement.add(moisDe(ctx, Date.parse(e.at)))
+      }
+      for (const a of f.avoirs) if (a.member_id === member) aMouvement.add(String(a.month))
       const factures = [...f.factures.values()].filter((x) => x.member_id === member).sort((a, b) => (String(a.month) < String(b.month) ? -1 : 1))
-      let ouverture = 0
-      let moisPrecedent: string | null = null
       const sorties = ctx.regles<SortieDeFacture>('comptabilite.sortie.')
+      let precedente: Json | null = null
+      let somme = 0
       for (const x of factures) {
         const n = (k: string): number => x[k] as number
         const avoirs = f.avoirs.filter((a) => a.member_id === member && a.month === x.month).reduce((s, a) => s + (a.credits_cents as number), 0)
-        // la facture suivante s'ouvre sur la clôture de la précédente quand leurs mois se suivent (avant T72, ils se
-        // suivaient toujours) ; après des mois jamais émis, la chaîne repart de l'ouverture de la facture
-        const chainee = moisPrecedent === null || moisSuivant(moisPrecedent) === x.month
         const autres = sorties.reduce((s, sortie) => s + sortie(x), 0)
+        const variation = n('top_ups_cents') + n('compensations_cents') + avoirs - n('credits_used_cents') - autres
+        const chainee =
+          precedente !== null && ![...aMouvement].some((m) => m > String((precedente as Json).month) && m < String(x.month))
         if (
-          (chainee && n('opening_balance_cents') !== ouverture) ||
+          (chainee && n('opening_balance_cents') !== ((precedente as Json).closing_balance_cents as number)) ||
           n('credit_notes_credits_cents') !== avoirs ||
-          n('closing_balance_cents') !== n('opening_balance_cents') + n('top_ups_cents') + n('compensations_cents') + avoirs - n('credits_used_cents') - autres ||
+          n('closing_balance_cents') !== n('opening_balance_cents') + variation ||
           n('card_cents') + n('credits_used_cents') !== n('total_cents')
         ) {
           throw new Error(`RAPPROCHEMENT-ROMPU ${String(x.invoice_id)}`)
         }
-        ouverture = n('closing_balance_cents')
-        moisPrecedent = String(x.month)
+        somme += variation
+        precedente = x
+      }
+      // condition de P14.R6 : chaque mois portant un mouvement ou un avoir du membre est emis (le mois en cours, non
+      // termine, ne l'est jamais : un mouvement depuis la fin du dernier mois facture suspend la contrainte)
+      const condition = [...aMouvement].every((m) => f.emis.has(m))
+      if (condition && factures.length > 0) {
+        const derniere = factures[factures.length - 1] as Json
+        const solde = ctx.regle<Solde>('portefeuille.solde')(ctx, member)
+        if (somme !== solde || derniere.closing_balance_cents !== solde) {
+          throw new Error(`RAPPROCHEMENT-ROMPU ${String(derniere.invoice_id)}`)
+        }
       }
     }) satisfies Rapprochement,
   },

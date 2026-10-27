@@ -38,7 +38,15 @@
     "a un simulateur jetable hors depot etendu aux regles clarifiees : 0 desaccord sur les faits",
     "anciens et nouveaux. Pour cette passe, packages/oracle/src/f-platform-*.ts a ete LU en lecture",
     "seule (sur instruction) et execute seulement pour constater qu'il diverge sur les faits nouveaux",
-    "et sur eux seuls ; aucune valeur attendue n'en vient."
+    "et sur eux seuls ; aucune valeur attendue n'en vient.",
+    "",
+    "CORRECTION Q19 (fixture-transcriber de T71, 27/10/2026). Le test-author de T74 a signale que le controle de",
+    "rapprochement de P14 leve RAPPROCHEMENT-ROMPU quand la PREMIERE facture d'un membre s'ouvre sur un solde non nul,",
+    "ce que Q19 permet. Precision ecrite dans P14.R6 (precisions, Q19) ; cas exerce sur un locataire neuf t-q19 (UTC,",
+    "proprietaire m-ana, membres m-ivy et m-jo) : mise en place en FIN de P10 (P10-23..P10-32 : seule fenetre de la",
+    "trajectoire ou un mois anterieur a mai peut porter des mouvements, P14 commencant le 13 mai), cas en FIN de P14",
+    "(P14-30..P14-41 : emission de mai sur soldes d'ouverture 777 et 900, avril non emis, puis avril emis dans le desordre).",
+    "Faits P10.F13-F14 et P14.F25-F32 ; aucun fait existant decale ni modifie."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -82,8 +90,8 @@
         "faits": 27
       },
       "P10": {
-        "etapes": 22,
-        "faits": 12
+        "etapes": 32,
+        "faits": 14
       },
       "P11": {
         "etapes": 34,
@@ -98,8 +106,8 @@
         "faits": 19
       },
       "P14": {
-        "etapes": 29,
-        "faits": 24
+        "etapes": 41,
+        "faits": 32
       },
       "P15": {
         "etapes": 39,
@@ -109,7 +117,7 @@
         "etapes": 31,
         "faits": 24
       },
-      "total_faits": 157
+      "total_faits": 167
     },
     "clarification": {
       "source": "tri des questions ouvertes de F-PLATFORM (T70-01..T70-16, Q01-Q61, N-01..N-04)",
@@ -141,6 +149,28 @@
       ],
       "faits_existants_modifies": [],
       "questions_resolues": 29
+    },
+    "correction_q19": {
+      "source": "defaut signale par le test-author de T74 : le controle de rapprochement de P14 leve RAPPROCHEMENT-ROMPU quand la premiere facture d'un membre s'ouvre sur un solde non nul (permis par Q19)",
+      "precision": "P14.R6 precisions[Q19]",
+      "etapes_ajoutees": [
+        "P10-23..P10-32",
+        "P14-30..P14-41"
+      ],
+      "faits_ajoutes": [
+        "P10.F13",
+        "P10.F14",
+        "P14.F25",
+        "P14.F26",
+        "P14.F27",
+        "P14.F28",
+        "P14.F29",
+        "P14.F30",
+        "P14.F31",
+        "P14.F32"
+      ],
+      "faits_existants_modifies": [],
+      "confrontation": "faits calcules a la main puis recalcules ; trajectoire complete P1-P24 rejouee hors depot avec et sans les etapes ajoutees : reponses des etapes existantes identiques (0 difference) ; les valeurs des factures ajoutees concordent ; seule divergence du modele attendu actuel : P14-34 leve RAPPROCHEMENT-ROMPU INV-2031-05-m-ivy au lieu de repondre ok"
     }
   },
   "conventions": {
@@ -260,6 +290,14 @@
       "P16.F07",
       "P16.F08",
       "P16.F10"
+    ],
+    "premiere_facture_ouverture_non_nulle": [
+      "P14.F25",
+      "P14.F26",
+      "P14.F27",
+      "P14.F28",
+      "P14.F29",
+      "P14.F31"
     ]
   },
   "periodes": {
@@ -1711,6 +1749,124 @@
             "member_id": "m-dan",
             "slot_id": "S17"
           }
+        },
+        {
+          "id": "P10-23",
+          "period": "P10",
+          "at": "2031-04-28T09:00:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q19",
+            "owner_id": "m-ana"
+          }
+        },
+        {
+          "id": "P10-24",
+          "period": "P10",
+          "at": "2031-04-28T09:01:00Z",
+          "op": "add_member",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-ivy",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P10-25",
+          "period": "P10",
+          "at": "2031-04-28T09:02:00Z",
+          "op": "add_member",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-jo",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P10-26",
+          "period": "P10",
+          "at": "2031-04-28T09:03:00Z",
+          "op": "top_up",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-ivy",
+            "amount_cents": 777
+          }
+        },
+        {
+          "id": "P10-27",
+          "period": "P10",
+          "at": "2031-04-28T09:04:00Z",
+          "op": "create_slot",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "Q19A",
+            "capacity": 2,
+            "starts_at": "2031-04-30T18:00:00Z"
+          }
+        },
+        {
+          "id": "P10-28",
+          "period": "P10",
+          "at": "2031-04-28T09:05:00Z",
+          "op": "set_price",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "Q19A",
+            "price_cents": 1200
+          }
+        },
+        {
+          "id": "P10-29",
+          "period": "P10",
+          "at": "2031-04-28T09:06:00Z",
+          "op": "top_up",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-jo",
+            "amount_cents": 1500
+          }
+        },
+        {
+          "id": "P10-30",
+          "period": "P10",
+          "at": "2031-04-28T09:07:00Z",
+          "op": "reserve",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "request_id": "j1",
+            "member_id": "m-jo",
+            "slot_id": "Q19A"
+          }
+        },
+        {
+          "id": "P10-31",
+          "period": "P10",
+          "at": "2031-04-29T09:00:00Z",
+          "op": "cancel",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "booking_id": "j1"
+          }
+        },
+        {
+          "id": "P10-32",
+          "period": "P10",
+          "at": "2031-04-29T09:01:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-jo"
+          }
         }
       ],
       "faits": [
@@ -1896,6 +2052,45 @@
           },
           "justification": "m-dan n'est pas suspendu (P10.F09 : 2 absences) ; S17 a 1200, silver : remise floor((1200 x 1000 + 5000) / 10000) = floor(120,5) = 120, montant 1080, carte (solde 0).",
           "recalcul": "10 % de 1200 = 120 ; 1200 - 120 = 1080."
+        },
+        {
+          "id": "P10.F13",
+          "etape": "P10-31",
+          "clauses": [
+            "P9.R3",
+            "P9.R4",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "j1",
+            "status": "cancelled",
+            "refund_rate_bp": 5000,
+            "refunded_cents": 600,
+            "refund": {
+              "credits_cents": 600,
+              "card_cents": 0
+            },
+            "promoted": []
+          },
+          "justification": "Mise en place du cas Q19 (t-q19, UTC, sans facture). j1 : 1 place de Q19A a 1200 (niveau none, remise 0), confirmee le 2031-04-28T09:07Z et payee 1200 en credits (solde 1500 >= 1200 ; carte 0). Q19A debute 2031-04-30T18:00Z : D48 = 2031-04-28T18:00Z, D24 = 2031-04-29T18:00Z ; annulation a 2031-04-29T09:00Z, dans [D48, D24[ -> 5000 pb. R = floor(1200 x 5000 / 10000) = 600 ; r_c = floor(600 x 1200 / 1200) = 600 ; r_d = 0.",
+          "recalcul": "Moitie de 1200 = 600, payee entierement en credits donc rendue entierement en credits : 600 / 0."
+        },
+        {
+          "id": "P10.F14",
+          "etape": "P10-32",
+          "clauses": [
+            "P8.R1",
+            "P8.R2",
+            "P9.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-jo",
+            "balance_cents": 900
+          },
+          "justification": "m-jo en avril : rechargement 1500, charge j1 payee 1200 en credits (solde 300), remboursement de 600 en credits (P10.F13) : 900. Ce solde, dont 600 viennent d'un remboursement, sera l'ouverture de sa premiere facture emise (mai, P14.F27).",
+          "recalcul": "1500 - 1200 + 600 = 900 ; sans le remboursement il resterait 300."
         }
       ]
     },
@@ -3993,7 +4188,14 @@
         },
         {
           "id": "P14.R6",
-          "texte": "Rapprochement exact, a tout instant ou tous les mois ecoules sont factures et ou aucun mouvement n'a eu lieu depuis la fin du dernier mois facture : pour chaque membre, balance_cents du portefeuille = closing_balance_cents de sa derniere facture = somme, sur ses factures, de (top_ups + compensations + credit_notes_credits - credits_used) ; la facture suivante s'ouvre sur la cloture de la precedente ; et pour chaque facture, credit_notes_credits_cents = somme des credits_cents des avoirs du membre emis ce mois-la."
+          "texte": "Rapprochement exact, a tout instant ou tous les mois ecoules sont factures et ou aucun mouvement n'a eu lieu depuis la fin du dernier mois facture : pour chaque membre, balance_cents du portefeuille = closing_balance_cents de sa derniere facture = somme, sur ses factures, de (top_ups + compensations + credit_notes_credits - credits_used) ; la facture suivante s'ouvre sur la cloture de la precedente ; et pour chaque facture, credit_notes_credits_cents = somme des credits_cents des avoirs du membre emis ce mois-la.",
+          "precisions": [
+            {
+              "question": "Q19",
+              "classe": "GARDER",
+              "texte": "Le rapprochement ne contraint que les instants ou sa condition tient (chaque mois ecoule portant un mouvement ou un avoir du membre est emis). Une facture s'ouvre toujours sur le solde REEL du portefeuille au premier instant local de son mois (Q19), y compris la PREMIERE facture d'un membre : ce solde est non nul quand des mois anterieurs portant ses mouvements (rechargement, remboursement, compensation...) n'ont pas ete emis, et ce n'est pas une rupture du rapprochement. issue_invoices n'a pas d'autres refus que ceux de P14.R2 : il emet alors les factures et repond { ok: true, month, invoice_ids }. Chaque facture verifie toujours, seule, closing = opening + top_ups + compensations + credit_notes_credits - credits_used ; la facture suivante d'un membre s'ouvre sur la cloture de sa precedente des qu'aucun mois strictement entre les deux ne porte de mouvement du membre ; la somme sur ses factures egale balance_cents des que la condition est retablie, par exemple apres l'emission, dans le desordre, du mois manquant, les factures deja emises restant inchangees. Ex. (t-q19) : 777 recharges en avril, 2500 en mai ; issue_invoices '2031-05' -> ok ; INV-2031-05-m-ivy s'ouvre a 777 et se clot a 3277 ; avril emis ensuite : 0 -> 777."
+            }
+          ]
         }
       ],
       "ligne_adr": 74,
@@ -4316,6 +4518,144 @@
           "actor": "m-own",
           "args": {
             "timezone": "Europe/Paris"
+          }
+        },
+        {
+          "id": "P14-30",
+          "period": "P14",
+          "at": "2031-05-31T22:24:00Z",
+          "op": "create_slot",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "Q19B",
+            "capacity": 2,
+            "starts_at": "2031-06-05T18:00:00Z"
+          }
+        },
+        {
+          "id": "P14-31",
+          "period": "P14",
+          "at": "2031-05-31T22:25:00Z",
+          "op": "set_price",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "slot_id": "Q19B",
+            "price_cents": 400
+          }
+        },
+        {
+          "id": "P14-32",
+          "period": "P14",
+          "at": "2031-05-31T22:26:00Z",
+          "op": "top_up",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-ivy",
+            "amount_cents": 2500
+          }
+        },
+        {
+          "id": "P14-33",
+          "period": "P14",
+          "at": "2031-05-31T22:27:00Z",
+          "op": "reserve",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "request_id": "j2",
+            "member_id": "m-jo",
+            "slot_id": "Q19B"
+          }
+        },
+        {
+          "id": "P14-34",
+          "period": "P14",
+          "at": "2031-06-01T00:05:00Z",
+          "op": "issue_invoices",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "month": "2031-05"
+          }
+        },
+        {
+          "id": "P14-35",
+          "period": "P14",
+          "at": "2031-06-01T00:06:00Z",
+          "op": "list_documents",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-ivy"
+          }
+        },
+        {
+          "id": "P14-36",
+          "period": "P14",
+          "at": "2031-06-01T00:07:00Z",
+          "op": "list_documents",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-jo"
+          }
+        },
+        {
+          "id": "P14-37",
+          "period": "P14",
+          "at": "2031-06-01T00:08:00Z",
+          "op": "issue_invoices",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "month": "2031-04"
+          }
+        },
+        {
+          "id": "P14-38",
+          "period": "P14",
+          "at": "2031-06-01T00:09:00Z",
+          "op": "list_documents",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-ivy"
+          }
+        },
+        {
+          "id": "P14-39",
+          "period": "P14",
+          "at": "2031-06-01T00:10:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-ivy"
+          }
+        },
+        {
+          "id": "P14-40",
+          "period": "P14",
+          "at": "2031-06-01T00:11:00Z",
+          "op": "list_documents",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-jo"
+          }
+        },
+        {
+          "id": "P14-41",
+          "period": "P14",
+          "at": "2031-06-01T00:12:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q19",
+          "actor": "m-ana",
+          "args": {
+            "member_id": "m-jo"
           }
         }
       ],
@@ -5083,11 +5423,296 @@
           },
           "justification": "Frontiere Q05 : t-clar n'a emis aucune facture : set_timezone reste permis a P14.",
           "recalcul": "issued(t-clar) vide -> ok."
+        },
+        {
+          "id": "P14.F25",
+          "etape": "P14-34",
+          "clauses": [
+            "P14.R2",
+            "P14.R6"
+          ],
+          "attendu": {
+            "ok": true,
+            "month": "2031-05",
+            "invoice_ids": [
+              "INV-2031-05-m-ivy",
+              "INV-2031-05-m-jo"
+            ]
+          },
+          "justification": "t-q19 (UTC) : mai est termine a 2031-06-01T00:00:00Z, at = 00:05Z ; mai n'est pas emis ; avril (mouvements de m-ivy et m-jo) ne l'est pas non plus, ce que Q19 permet. Lignes de mai : top_up 2500 de m-ivy (P14-32), charge j2 de m-jo (P14-33). La PREMIERE facture de chacun s'ouvre sur un solde non nul (777, 900) : ce n'est pas une rupture du rapprochement (P14.R6, precision Q19), la condition de P14.R6 ne tenant pas (avril ecoule, non emis). Seuls les refus de P14.R2 existent : l'emission reussit. Ordre ordinal : 'm-ivy' < 'm-jo' ('i' < 'j').",
+          "recalcul": "Membres ayant une ligne en mai dans t-q19 = {m-ivy, m-jo} ; aucun refus applicable (mois bien forme, termine, non emis) -> ok, 2 factures."
+        },
+        {
+          "id": "P14.F26",
+          "etape": "P14-35",
+          "clauses": [
+            "P14.R3",
+            "P14.R5",
+            "P14.R6",
+            "P14.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-ivy",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-05-m-ivy",
+                "member_id": "m-ivy",
+                "month": "2031-05",
+                "lines": [
+                  {
+                    "type": "top_up",
+                    "booking_id": null,
+                    "amount_cents": 2500
+                  }
+                ],
+                "charges_cents": 0,
+                "refunds_cents": 0,
+                "total_cents": 0,
+                "card_cents": 0,
+                "credits_used_cents": 0,
+                "top_ups_cents": 2500,
+                "compensations_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 777,
+                "closing_balance_cents": 3277
+              }
+            ],
+            "credit_notes": []
+          },
+          "justification": "Cas du rapport T74 : 777 recharges en avril (P10-26, mois jamais emis a cet instant), 2500 en mai (P14-32). opening = solde reel au 2031-05-01T00:00Z = 777 (Q19), et non 0 ; seule ligne de mai : top_up 2500 (booking_id null). closing = 777 + 2500 + 0 + 0 - 0 = 3277 = solde au 2031-06-01T00:00Z.",
+          "recalcul": "Solde reel : 777 (28/04) puis 3277 (31/05 22:26Z) ; aucune charge ni remboursement : total 0, carte 0, credits 0."
+        },
+        {
+          "id": "P14.F27",
+          "etape": "P14-36",
+          "clauses": [
+            "P14.R3",
+            "P14.R5",
+            "P14.R6",
+            "P14.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-jo",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-05-m-jo",
+                "member_id": "m-jo",
+                "month": "2031-05",
+                "lines": [
+                  {
+                    "type": "charge",
+                    "booking_id": "j2",
+                    "amount_cents": 400
+                  }
+                ],
+                "charges_cents": 400,
+                "refunds_cents": 0,
+                "total_cents": 400,
+                "card_cents": 0,
+                "credits_used_cents": 400,
+                "top_ups_cents": 0,
+                "compensations_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 900,
+                "closing_balance_cents": 500
+              }
+            ],
+            "credit_notes": []
+          },
+          "justification": "Variante remboursement : l'ouverture 900 de la premiere facture de m-jo vient en partie du remboursement de 600 credits d'avril (P10.F13, ligne d'un mois non emis). Mai : charge j2 = 1 place de Q19B a 400, payee 400 en credits (900 >= 400). charges 400, refunds 0, total 400, carte 0, credits_used 400 ; closing = 900 + 0 + 0 + 0 - 400 = 500.",
+          "recalcul": "Solde : 900 au 1er mai, 900 - 400 = 500 apres j2 ; 0 + 400 = 400 = total."
+        },
+        {
+          "id": "P14.F28",
+          "etape": "P14-37",
+          "clauses": [
+            "P14.R2",
+            "P14.R6"
+          ],
+          "attendu": {
+            "ok": true,
+            "month": "2031-04",
+            "invoice_ids": [
+              "INV-2031-04-m-ivy",
+              "INV-2031-04-m-jo"
+            ]
+          },
+          "justification": "Q19 : avril, termine et non emis, s'emet APRES mai (dans le desordre). Membres ayant une ligne en avril : m-ivy (top_up 777), m-jo (top_up, charge j1, refund j1).",
+          "recalcul": "Avril non emis dans t-q19 (seul mai l'est) -> ok ; 'm-ivy' < 'm-jo'."
+        },
+        {
+          "id": "P14.F29",
+          "etape": "P14-38",
+          "clauses": [
+            "P14.R3",
+            "P14.R5",
+            "P14.R6",
+            "P14.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-ivy",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-04-m-ivy",
+                "member_id": "m-ivy",
+                "month": "2031-04",
+                "lines": [
+                  {
+                    "type": "top_up",
+                    "booking_id": null,
+                    "amount_cents": 777
+                  }
+                ],
+                "charges_cents": 0,
+                "refunds_cents": 0,
+                "total_cents": 0,
+                "card_cents": 0,
+                "credits_used_cents": 0,
+                "top_ups_cents": 777,
+                "compensations_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 0,
+                "closing_balance_cents": 777
+              },
+              {
+                "invoice_id": "INV-2031-05-m-ivy",
+                "member_id": "m-ivy",
+                "month": "2031-05",
+                "lines": [
+                  {
+                    "type": "top_up",
+                    "booking_id": null,
+                    "amount_cents": 2500
+                  }
+                ],
+                "charges_cents": 0,
+                "refunds_cents": 0,
+                "total_cents": 0,
+                "card_cents": 0,
+                "credits_used_cents": 0,
+                "top_ups_cents": 2500,
+                "compensations_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 777,
+                "closing_balance_cents": 3277
+              }
+            ],
+            "credit_notes": []
+          },
+          "justification": "Avril : opening 0 (m-ivy n'existait pas au 1er avril), top_up 777, closing 777. Mai, emise avant, est IMMUABLE et inchangee (P14.F26). La condition de P14.R6 est retablie : la facture de mai s'ouvre sur la cloture d'avril (777).",
+          "recalcul": "Chaine 0 -> 777 -> 3277 ; somme (777 - 0) + (2500 - 0) = 3277."
+        },
+        {
+          "id": "P14.F30",
+          "etape": "P14-39",
+          "clauses": [
+            "P14.R6",
+            "P8.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-ivy",
+            "balance_cents": 3277
+          },
+          "justification": "Solde = cloture de la derniere facture (mai) = 3277 ; aucun mouvement depuis le 2031-06-01T00:00Z.",
+          "recalcul": "777 + 2500 = 3277."
+        },
+        {
+          "id": "P14.F31",
+          "etape": "P14-40",
+          "clauses": [
+            "P14.R3",
+            "P14.R4",
+            "P14.R5",
+            "P14.R6",
+            "P14.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-jo",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-04-m-jo",
+                "member_id": "m-jo",
+                "month": "2031-04",
+                "lines": [
+                  {
+                    "type": "top_up",
+                    "booking_id": null,
+                    "amount_cents": 1500
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "j1",
+                    "amount_cents": 1200
+                  },
+                  {
+                    "type": "refund",
+                    "booking_id": "j1",
+                    "amount_cents": 600
+                  }
+                ],
+                "charges_cents": 1200,
+                "refunds_cents": 600,
+                "total_cents": 600,
+                "card_cents": 0,
+                "credits_used_cents": 600,
+                "top_ups_cents": 1500,
+                "compensations_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 0,
+                "closing_balance_cents": 900
+              },
+              {
+                "invoice_id": "INV-2031-05-m-jo",
+                "member_id": "m-jo",
+                "month": "2031-05",
+                "lines": [
+                  {
+                    "type": "charge",
+                    "booking_id": "j2",
+                    "amount_cents": 400
+                  }
+                ],
+                "charges_cents": 400,
+                "refunds_cents": 0,
+                "total_cents": 400,
+                "card_cents": 0,
+                "credits_used_cents": 400,
+                "top_ups_cents": 0,
+                "compensations_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 900,
+                "closing_balance_cents": 500
+              }
+            ],
+            "credit_notes": []
+          },
+          "justification": "Avril, dans l'ordre des operations : top_up 1500 (28/04 09:06), charge j1 1200 (09:07), refund j1 600 (29/04 ; la charge d'avril n'etait pas facturee : ligne, pas avoir, P14.R4). charges 1200, refunds 600, total 600 ; carte 0 - 0 = 0 ; credits_used 1200 - 600 = 600 ; top_ups 1500 ; closing = 0 + 1500 - 600 = 900 = ouverture de mai, inchangee.",
+          "recalcul": "Solde au 1er mai par l'historique : 1500 - 1200 + 600 = 900 ; chaine 0 -> 900 -> 500."
+        },
+        {
+          "id": "P14.F32",
+          "etape": "P14-41",
+          "clauses": [
+            "P14.R6",
+            "P8.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-jo",
+            "balance_cents": 500
+          },
+          "justification": "Solde = cloture de mai = 500 = somme sur ses factures de (top_ups + compensations + credit_notes_credits - credits_used).",
+          "recalcul": "(1500 - 600) + (0 - 400) = 500."
         }
       ],
       "rapprochement": {
         "regle": "P14.R6",
-        "$comment": "Lecture par T71.A3 : apres la derniere emission de la periode, pour chaque membre, l'etape `etape_documents` (list_documents) et l'etape `etape_portefeuille` (get_wallet) doivent se rapprocher EXACTEMENT : chaine des soldes, identite de chaque facture, avoirs du mois = credit_notes_credits_cents, solde = cloture de la derniere facture.",
+        "$comment": "Lecture par T71.A3 : apres la derniere emission de la periode, pour chaque membre, l'etape `etape_documents` (list_documents) et l'etape `etape_portefeuille` (get_wallet) doivent se rapprocher EXACTEMENT : chaine des soldes, identite de chaque facture, avoirs du mois = credit_notes_credits_cents, solde = cloture de la derniere facture. Membres de t-q19 (precision Q19 de P14.R6) : lus apres P14-37 (emission d'avril, dans le desordre), quand la condition de P14.R6 est retablie ; avant elle (P14-34 a P14-36) leur premiere facture s'ouvre sur un solde non nul sans rompre le rapprochement.",
         "apres_etape": "P14-15",
         "membres": [
           {
@@ -5119,6 +5744,16 @@
             "member_id": "m-sam",
             "etape_documents": "P14-26",
             "etape_portefeuille": "P14-27"
+          },
+          {
+            "member_id": "m-ivy",
+            "etape_documents": "P14-38",
+            "etape_portefeuille": "P14-39"
+          },
+          {
+            "member_id": "m-jo",
+            "etape_documents": "P14-40",
+            "etape_portefeuille": "P14-41"
           }
         ]
       }
@@ -7924,9 +8559,20 @@
       "classe": "GARDER",
       "decision": "issue_invoices peut émettre n'importe quel mois terminé, dans n'importe quel ordre, sans exiger que les mois précédents soient émis ; opening_balance_cents est le solde réel du portefeuille au premier instant local du mois.",
       "regles": [
-        "P14.R2"
+        "P14.R2",
+        "P14.R6"
       ],
-      "faits": []
+      "faits": [
+        "P14.F25",
+        "P14.F26",
+        "P14.F27",
+        "P14.F28",
+        "P14.F29",
+        "P14.F30",
+        "P14.F31",
+        "P14.F32"
+      ],
+      "complement": "Precision ajoutee a P14.R6 par le fixture-transcriber de T71 apres le defaut signale par le test-author de T74 (premiere facture sur solde d'ouverture non nul : RAPPROCHEMENT-ROMPU leve a tort). Mise en place en fin de P10 (t-q19, P10-23..P10-32), seule fenetre de la trajectoire ou un mois anterieur a mai peut porter des mouvements."
     },
     {
       "id": "Q20",

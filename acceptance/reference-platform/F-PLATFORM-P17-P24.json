@@ -70,10 +70,10 @@
   "prolonge": {
     "fixture": "F-PLATFORM-P9-P16",
     "chemin": "acceptance/reference-platform/F-PLATFORM-P9-P16.json",
-    "sha256": "76ebbdc1e3211347e53a707872cdace99b4198b1616d80e6f0ac4a99cd6af22a",
-    "commit": "f97044d137ef41df79dcffe4851fa3bcde641e30",
+    "sha256": "6aede33997bc343e00f9ebd9ddb8fdffaebf0e7bed6d659eb393ee7fed2b6e7c",
+    "commit": "8b511ed7fc5eb7fba59673eb0fb2f1f25571f636",
     "derniere_etape": "P16-31",
-    "etat_au_depart": "celui laisse par P16-31 (horloge 2031-08-01T12:07:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000)"
+    "etat_au_depart": "celui laisse par P16-31 (horloge 2031-08-01T12:07:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000) ; correction Q19 de T71 : t-q19 (UTC, proprietaire m-ana ; membres m-ivy, m-jo ; portefeuilles m-ivy 3277, m-jo 500 ; factures 2031-04 et 2031-05 emises ; creneaux Q19A (j1 cancelled) et Q19B (j2 confirmed, debut 2031-06-05T18:00:00Z))"
   },
   "scellement": {
     "tache": "T72",

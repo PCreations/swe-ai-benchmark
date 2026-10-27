@@ -1,0 +1,65 @@
+{
+  "schema": "bench.red/1",
+  "task": "T72",
+  "subject_commit": "52eeb62b2537ce7d150ea357dc7ea0b9e445ffbf",
+  "dirty": false,
+  "input_digest": "1d4cce3fbbe2cc59651024bfafcff5484bb1043394dcf435dbbfa2dd216736ba",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T72.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T72.A2",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T72.M5",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    },
+    {
+      "id": "T72.A3",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T72.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    },
+    {
+      "id": "T72.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T72.M9",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    },
+    {
+      "id": "T72.A5",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T72.M11",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    }
+  ],
+  "mutation_proof": {
+    "T72.A2": {
+      "killed_by": "T72.M5",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    },
+    "T72.A3": {
+      "killed_by": "T72.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    },
+    "T72.A4": {
+      "killed_by": "T72.M9",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    },
+    "T72.A5": {
+      "killed_by": "T72.M11",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les faits Q62 (52eeb62) ne touchent que le rejeu des faits"
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

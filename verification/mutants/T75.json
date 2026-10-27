@@ -1,0 +1,260 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T75 : au moins une par cas requis, dont la perturbation que",
+    "verification/cases.extensions.lock.json fixe pour chacun (M1 et M2 pour A1, M9 pour A2). Les cibles",
+    "sont decrites par leur ROLE (II de acceptance/T75.spec.ts), jamais par un chemin de fichier : T75",
+    "n'est pas implementee. Un mutant ne touche jamais la suite, les racines gelees, la source de clauses,",
+    "les candidats-fixtures ni l'instantane.",
+    "",
+    "`doit_rester_vert` et `also_kills` ont ete VERIFIES pour chaque mutant, en l'appliquant reellement :",
+    "acceptance/T75.spec.ts execute (jest du depot) contre une reference jetable hors depot (copie de",
+    "travail sans .git ; mesure de latence et essais paralleles exportes par @bench/activities,",
+    "persistance PostgreSQL 18 reelle), mutant active par la variable T75_MUTANT=<drapeau>, un mutant a la",
+    "fois, jamais deux mesures en parallele. Le resultat observe est consigne sous",
+    "`verifie_sur_reference_jetable`.",
+    "",
+    "SANS MUTANT : A1 et A2 verts, suite entiere 5 min 18 s (4 coeurs ; A1 ~ 286 s dont ~ 276 s pour la",
+    "mesure de la variante lente, A2 ~ 34 s). Les mutants qui rougissent A1 a la mesure de la reference",
+    "durent ~ 40 s ; ceux qui la depassent ~ 5 min 15 s.",
+    "M13 (essais sequentiels deguises) est le plus long : 901 s, la variante sans exclusion jouee une requete a la fois.",
+    "",
+    "",
+    "MESURE A HEAD (T75 non implementee) : `node tools/bench verify:task T75 --json` rend",
+    "reason=ASSERTION_FAILED, suite chargee, A1 et A2 FAIL sur CONTRAT-NON-SATISFAIT (platformLatency,",
+    "platformConcurrency), apres les controles negatifs des predicats, la concordance source/racine,",
+    "l'integrite des fixtures et la transparence du candidat (723 etapes identiques a celles du candidat",
+    "de T74)."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T75",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T75"
+  ],
+  "acceptance_entry": "acceptance/T75.spec.ts",
+  "mutant_count": 13,
+  "mutants": [
+    {
+      "id": "T75.M1",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "mesurer la latence moyenne au lieu du 95e centile",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "p95_ms = moyenne arithmetique des echantillons de chaque operation.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : `get_booking : p95 0.117 != rang le plus proche 0.132 des echantillons rendus` (26 defauts, des la mesure de la reference).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T75.A1 (premier volet).",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau moyenne : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M2",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "ne pas importer 50 000 reservations",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "Repartition litterale du profil (membre i mod membres, creneau i mod creneaux) : 50 000 lignes, 1 000 reservations creees.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : `import : \"import_bookings\" de 50000 lignes, 1000 acceptee(s) (attendu ... 50000 acceptees)` ; puis des echantillons refuses (get_booking, cancel sur des reservations absentes).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T75.A1 (second volet).",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau import-litteral : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M3",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre une mesure qui ignore la latence",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "Chaque echantillon rendu vaut 0,05 ms quel que soit le temps de reponse.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : `get_slot : 12 echantillon(s) non authentique(s) : l2143 : latence rendue 0.05 ms < traitement du candidat 0.117 ms` (16 defauts des la reference).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau latence-ignoree : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M4",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "recopier un plafond au lieu de lire celui de la clause",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "ceiling_ms = 100 pour toute operation.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : `get_booking : plafond 100 au lieu de 20 (source, clause P20.R3)` (7 defauts).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau plafond-unique : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M5",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre un verdict constant",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "pass = true quelles que soient les mesures.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : reference verte, puis variante lente : `verdict global true incoherent (attendu false d'apres les mesures)`.",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau verdict-constant : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M6",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "mesurer moins d'echantillons que le protocole",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "59 echantillons par operation au lieu de 60.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : `get_booking : 59 echantillon(s) (< 60)` (26 defauts).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau echantillons-insuffisants : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M7",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "supprimer l'echauffement",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "Aucune requete d'echauffement : le premier echantillon de chaque operation suit directement la preparation.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : `get_booking : echauffement 0 (< 10)` et `0 requete(s) get_booking avant le premier echantillon (< 10)` (46 defauts).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-echauffement : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M8",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ne pas persister les mesures",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
+      "mutation": "postgresDatabase ignore : rien n'est ecrit en base.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : apres la variante lente, `get_booking : mesure jamais persistee (p95 114.2, plafond 20)` (26 defauts).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-persistance-a1 : A1 rouge, A2 vert."
+    },
+    {
+      "id": "T75.M9",
+      "kills_case": "T75.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "accepter un candidat sans exclusion mutuelle",
+      "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
+      "mutation": "Les essais sont joues mais aucune violation n'est jamais rendue (pass = true).",
+      "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
+      "observation_qui_echoue": "A2 : `passe 1 : la variante sans exclusion passe (0 violation(s))` puis `essai 0 (derniere_place) : aucun depassement de capacite detecte` (152 defauts).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T75.A2.",
+      "doit_rester_vert": [
+        "T75.A1"
+      ],
+      "verifie_sur_reference_jetable": "drapeau verdict-constant-a2 : A1 vert, A2 rouge."
+    },
+    {
+      "id": "T75.M10",
+      "kills_case": "T75.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "tolerer un doublon idempotent",
+      "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
+      "mutation": "Le scenario rejeux_en_conflit n'est plus verifie (plusieurs creations pour une meme cle acceptees).",
+      "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
+      "observation_qui_echoue": "A2 : `passe 1 essai 2 (rejeux_en_conflit) : aucun doublon idempotent detecte (kinds [])` (50 defauts : 25 essais x 2 passes).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A1"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-controle-de-conflit : A1 vert, A2 rouge."
+    },
+    {
+      "id": "T75.M11",
+      "kills_case": "T75.A2",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "jouer moins d'essais que la clause",
+      "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
+      "mutation": "99 essais au lieu de 100.",
+      "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
+      "observation_qui_echoue": "A2 : `99 essai(s) (< 100) || scenario import_et_reserve : 24 essai(s) (< 25)`.",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A1"
+      ],
+      "verifie_sur_reference_jetable": "drapeau essais-99 : A1 vert, A2 rouge."
+    },
+    {
+      "id": "T75.M12",
+      "kills_case": "T75.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ne pas persister les violations",
+      "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
+      "mutation": "postgresDatabase ignore : rien n'est ecrit en base.",
+      "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
+      "observation_qui_echoue": "A2 : `75 violation(s) jamais persistee(s), ex. {\"trial\":0,\"scenario\":\"derniere_place\",\"kind\":\"capacity\",...}`.",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A1"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-persistance-a2 : A1 vert, A2 rouge."
+    },
+    {
+      "id": "T75.M13",
+      "kills_case": "T75.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "deguiser des essais sequentiels en essais paralleles",
+      "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
+      "mutation": "Vingt connexions ouvertes et rendues (clients = 20, request_ids de l'essai), mais chaque requete d'un essai attend la reponse de la precedente.",
+      "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
+      "observation_qui_echoue": "A2 : la reference passe (20 connexions distinctes), puis contre la variante sans exclusion `passe 1 : essai 0 (derniere_place) : 20 lot(s) (1,2,3,4) : requetes non simultanees (essai sequentiel deguise)`, un defaut par essai et par passe (352 defauts en tout ; 901 s, la variante retenant chaque requete 150 ms).",
+      "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
+      "doit_rester_vert": [
+        "T75.A1"
+      ],
+      "verifie_sur_reference_jetable": "drapeau essais-sequentiels : A1 vert, A2 rouge."
+    }
+  ]
+}

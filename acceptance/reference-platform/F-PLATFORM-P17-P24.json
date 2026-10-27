@@ -42,7 +42,13 @@
     "a un simulateur jetable hors depot etendu aux regles clarifiees : 0 desaccord sur les faits",
     "anciens et nouveaux. Pour cette passe, packages/oracle/src/f-platform-*.ts a ete LU en lecture",
     "seule (sur instruction) et execute seulement pour constater qu'il diverge sur les faits nouveaux",
-    "et sur eux seuls ; aucune valeur attendue n'en vient."
+    "et sur eux seuls ; aucune valeur attendue n'en vient.",
+    "",
+    "CORRECTION Q62 (fixture-transcriber de T72, 27/10/2026). La chasse aux levees du modele attendu par flux aleatoires",
+    "(T74) a trouve que le pseudonyme 'anon-nnnn' de P18.R1 peut deja appartenir, dans le locataire, a un membre (add_member",
+    "'anon-0001') ou a un pseudonyme venu d'une fusion, et qu'add_member peut reprendre un pseudonyme : deux personnes partagent",
+    "alors un identifiant. Precisions ecrites dans P18.R1 et P18.R3 (Q62) ; cas exerce sur les locataires neufs t-q62 et t-q62b",
+    "en FIN de P18 (P18-45..P18-68). Faits P18.F24-F33 ; aucun fait existant decale ni modifie."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -91,8 +97,8 @@
         "faits": 26
       },
       "P18": {
-        "etapes": 44,
-        "faits": 23
+        "etapes": 68,
+        "faits": 33
       },
       "P19": {
         "etapes": 18,
@@ -118,7 +124,7 @@
         "etapes": 25,
         "faits": 25
       },
-      "total_faits": 168
+      "total_faits": 178
     },
     "clarification": {
       "source": "tri des questions ouvertes de F-PLATFORM (T70-01..T70-16, Q01-Q61, N-01..N-04)",
@@ -146,6 +152,27 @@
       ],
       "faits_existants_modifies": [],
       "questions_resolues": 32
+    },
+    "correction_q62": {
+      "source": "chasse aux levees du modele attendu par flux differentiels aleatoires (role fixture-transcriber, a la demande de l'orchestrateur de T74) : erase_member attribue un pseudonyme deja porte, dans le locataire, par un membre ou par un pseudonyme venu d'une fusion ; add_member reprend un pseudonyme ; deux personnes partagent alors un identifiant",
+      "precision": "P18.R1 precisions[Q62] ; P18.R3 precisions[Q62]",
+      "etapes_ajoutees": [
+        "P18-45..P18-68"
+      ],
+      "faits_ajoutes": [
+        "P18.F24",
+        "P18.F25",
+        "P18.F26",
+        "P18.F27",
+        "P18.F28",
+        "P18.F29",
+        "P18.F30",
+        "P18.F31",
+        "P18.F32",
+        "P18.F33"
+      ],
+      "faits_existants_modifies": [],
+      "confrontation": "faits calcules a la main puis recalcules ; trajectoire complete P1-P24 rejouee hors depot avec et sans les etapes ajoutees : reponses des etapes existantes identiques ; un simulateur jetable (modele attendu copie hors depot, sequence de pseudonymes et add_member corriges selon Q62) reproduit les 10 faits ajoutes"
     }
   },
   "conventions": {
@@ -271,6 +298,12 @@
       "P24.F11",
       "P24.F17",
       "P24.F18"
+    ],
+    "pseudonyme_deja_pris": [
+      "P18.F25",
+      "P18.F26",
+      "P18.F30",
+      "P18.F33"
     ]
   },
   "periodes": {
@@ -1585,6 +1618,11 @@
               "question": "Q35",
               "classe": "GARDER",
               "texte": "erase_member -> INVALID_ARGUMENT tant que le membre a une réservation confirmed ou waiting sur un créneau qui n'a pas commencé ; il faut d'abord l'annuler."
+            },
+            {
+              "question": "Q62",
+              "classe": "FIXER",
+              "texte": "Un pseudonyme est unique dans son locataire et ne designe jamais un membre. erase_member attribue le numero SUIVANT de la sequence du locataire (dernier numero attribue par erase_member dans ce locataire + 1, soit 1 au depart ; une fusion ne change pas la sequence de la cible, P17.R1) et saute, en poursuivant la sequence, tout numero dont 'anon-nnnn' est deja, dans ce locataire, le member_id d'un membre (proprietaire compris) ou un pseudonyme (y compris un pseudonyme venu d'une fusion, P17.R2) ; le numero retenu devient le dernier attribue. Ex. (t-q62) : un membre 'anon-0001' existe, m-qa est efface -> anon-0002, et le membre anon-0001 garde son portefeuille ; apres la fusion de t-q62b (ses pseudonymes anon-0001 et anon-0002 renommes par Q34, anon-0003 garde), m-qe est efface -> anon-0004."
             }
           ]
         },
@@ -1616,7 +1654,14 @@
         },
         {
           "id": "P18.R3",
-          "texte": "Apres effacement. Le membre efface n'est plus membre : il ne peut plus agir (FORBIDDEN, P4.R2) ; toute operation qui le designe comme member_id (reserve, top_up, set_tier, erase_member, ...) -> NOT_FOUND, et de meme pour le pseudonyme, sauf en lecture : list_documents, get_wallet (admin, staff) et le filtre member_id de report_revenue (P19.R3) acceptent le pseudonyme ; get_booking rend le pseudonyme. Les documents futurs du pseudonyme portent 'INV-<AAAA-MM>-<pseudonyme>' ; issue_invoices range les pseudonymes parmi les member_id par ordre croissant (ordinal). add_member avec l'ancien identifiant cree un NOUVEAU membre, sans historique (solde 0, aucun document)."
+          "texte": "Apres effacement. Le membre efface n'est plus membre : il ne peut plus agir (FORBIDDEN, P4.R2) ; toute operation qui le designe comme member_id (reserve, top_up, set_tier, erase_member, ...) -> NOT_FOUND, et de meme pour le pseudonyme, sauf en lecture : list_documents, get_wallet (admin, staff) et le filtre member_id de report_revenue (P19.R3) acceptent le pseudonyme ; get_booking rend le pseudonyme. Les documents futurs du pseudonyme portent 'INV-<AAAA-MM>-<pseudonyme>' ; issue_invoices range les pseudonymes parmi les member_id par ordre croissant (ordinal). add_member avec l'ancien identifiant cree un NOUVEAU membre, sans historique (solde 0, aucun document).",
+          "precisions": [
+            {
+              "question": "Q62",
+              "classe": "GARDER",
+              "texte": "add_member dont member_id est un pseudonyme du locataire (P18.R1, y compris un pseudonyme venu d'une fusion) le designe comme member_id : NOT_FOUND, sans effet, controle fait apres ceux de P4.R1 ; seul l'ANCIEN identifiant d'un membre efface peut etre repris par add_member (nouveau membre). Un member_id de la forme 'anon-nnnn' qui n'est pas un pseudonyme du locataire est un identifiant comme un autre (le membre est cree, et la sequence de P18.R1 le saute)."
+            }
+          ]
         }
       ],
       "ligne_adr": 78,
@@ -2122,6 +2167,279 @@
           "args": {
             "member_id": "t-q34b:anon-0001"
           }
+        },
+        {
+          "id": "P18-45",
+          "period": "P18",
+          "at": "2031-08-11T09:51:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q62",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-46",
+          "period": "P18",
+          "at": "2031-08-11T09:52:00Z",
+          "op": "add_member",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-47",
+          "period": "P18",
+          "at": "2031-08-11T09:53:00Z",
+          "op": "add_member",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qa",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-48",
+          "period": "P18",
+          "at": "2031-08-11T09:54:00Z",
+          "op": "top_up",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qa",
+            "amount_cents": 300
+          }
+        },
+        {
+          "id": "P18-49",
+          "period": "P18",
+          "at": "2031-08-11T09:55:00Z",
+          "op": "top_up",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001",
+            "amount_cents": 500
+          }
+        },
+        {
+          "id": "P18-50",
+          "period": "P18",
+          "at": "2031-08-11T09:56:00Z",
+          "op": "erase_member",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qa"
+          }
+        },
+        {
+          "id": "P18-51",
+          "period": "P18",
+          "at": "2031-08-11T09:57:00Z",
+          "op": "add_member",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0002",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-52",
+          "period": "P18",
+          "at": "2031-08-11T09:58:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001"
+          }
+        },
+        {
+          "id": "P18-53",
+          "period": "P18",
+          "at": "2031-08-11T09:59:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0002"
+          }
+        },
+        {
+          "id": "P18-54",
+          "period": "P18",
+          "at": "2031-08-11T10:00:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q62b",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-55",
+          "period": "P18",
+          "at": "2031-08-11T10:01:00Z",
+          "op": "add_member",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qb",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-56",
+          "period": "P18",
+          "at": "2031-08-11T10:02:00Z",
+          "op": "add_member",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qc",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-57",
+          "period": "P18",
+          "at": "2031-08-11T10:03:00Z",
+          "op": "add_member",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qd",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-58",
+          "period": "P18",
+          "at": "2031-08-11T10:04:00Z",
+          "op": "top_up",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qd",
+            "amount_cents": 700
+          }
+        },
+        {
+          "id": "P18-59",
+          "period": "P18",
+          "at": "2031-08-11T10:05:00Z",
+          "op": "erase_member",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qb"
+          }
+        },
+        {
+          "id": "P18-60",
+          "period": "P18",
+          "at": "2031-08-11T10:06:00Z",
+          "op": "erase_member",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qc"
+          }
+        },
+        {
+          "id": "P18-61",
+          "period": "P18",
+          "at": "2031-08-11T10:07:00Z",
+          "op": "erase_member",
+          "tenant": "t-q62b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qd"
+          }
+        },
+        {
+          "id": "P18-62",
+          "period": "P18",
+          "at": "2031-08-11T10:08:00Z",
+          "op": "add_member",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qe",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-63",
+          "period": "P18",
+          "at": "2031-08-11T10:09:00Z",
+          "op": "top_up",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qe",
+            "amount_cents": 200
+          }
+        },
+        {
+          "id": "P18-64",
+          "period": "P18",
+          "at": "2031-08-11T10:10:00Z",
+          "op": "merge_tenants",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "source_tenant_id": "t-q62b"
+          }
+        },
+        {
+          "id": "P18-65",
+          "period": "P18",
+          "at": "2031-08-11T10:11:00Z",
+          "op": "erase_member",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-qe"
+          }
+        },
+        {
+          "id": "P18-66",
+          "period": "P18",
+          "at": "2031-08-11T10:12:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0003"
+          }
+        },
+        {
+          "id": "P18-67",
+          "period": "P18",
+          "at": "2031-08-11T10:13:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0004"
+          }
+        },
+        {
+          "id": "P18-68",
+          "period": "P18",
+          "at": "2031-08-11T10:14:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q62",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001"
+          }
         }
       ],
       "faits": [
@@ -2554,6 +2872,175 @@
           },
           "justification": "Q34 : le pseudonyme renomme reste lisible dans la cible par get_wallet (P18.R3) ; l'ancien choix ne le connaissait pas (NOT_FOUND).",
           "recalcul": "t-q34b:anon-0001 est un pseudonyme de t-q34a ; aucun credit -> 0."
+        },
+        {
+          "id": "P18.F24",
+          "etape": "P18-46",
+          "clauses": [
+            "P4.R1",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "role": "member"
+          },
+          "justification": "Q62 : t-q62 n'a encore efface personne ; 'anon-0001' n'y est pas un pseudonyme, c'est un member_id comme un autre (P4.R1 : non vide, role valide, pas le proprietaire) : membre cree.",
+          "recalcul": "Pseudonymes de t-q62 = {} ; anon-0001 n'est ni le proprietaire m-own ni un pseudonyme -> ok."
+        },
+        {
+          "id": "P18.F25",
+          "etape": "P18-50",
+          "clauses": [
+            "P18.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 0
+          },
+          "justification": "Q62 : dernier numero attribue par t-q62 = 0 ; le suivant, anon-0001, est le member_id d'un membre (P18-46) : saute ; anon-0002 n'est ni membre ni pseudonyme : m-qa devient anon-0002. Aucune facture, aucun avoir, aucune reservation.",
+          "recalcul": "Numeros essayes 1 (pris par le membre anon-0001), 2 (libre) -> anon-0002 ; listes vides et 0 reservation."
+        },
+        {
+          "id": "P18.F26",
+          "etape": "P18-51",
+          "clauses": [
+            "P18.R3",
+            "P4.R1"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "NOT_FOUND"
+          },
+          "justification": "P18.R3 : toute operation qui designe un pseudonyme comme member_id rend NOT_FOUND (sauf les lectures) ; seul l'ANCIEN identifiant d'un membre efface (m-qa) peut etre repris par add_member. anon-0002 est le pseudonyme de m-qa : NOT_FOUND, sans effet.",
+          "recalcul": "anon-0002 appartient aux pseudonymes de t-q62 et n'est pas un membre ; add_member n'est pas une lecture -> NOT_FOUND."
+        },
+        {
+          "id": "P18.F27",
+          "etape": "P18-52",
+          "clauses": [
+            "P18.R1",
+            "P15.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "balance_cents": 500
+          },
+          "justification": "Le membre anon-0001 garde son seul portefeuille : 500 recharges en P18-49 ; l'effacement de m-qa ne l'a pas touche (Q62 : un pseudonyme ne designe jamais un membre).",
+          "recalcul": "Mouvements du membre anon-0001 : +500 -> 500 ; les 300 de m-qa sont sous anon-0002."
+        },
+        {
+          "id": "P18.F28",
+          "etape": "P18-53",
+          "clauses": [
+            "P18.R2",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "balance_cents": 300
+          },
+          "justification": "P18.R3 : get_wallet (admin) lit le pseudonyme ; P18.R2 : le portefeuille de m-qa (300, P18-48) passe sous anon-0002 ; l'add_member refuse en P18-51 n'a rien change.",
+          "recalcul": "Solde de m-qa avant effacement 300 ; anonymise sans montant change -> 300."
+        },
+        {
+          "id": "P18.F29",
+          "etape": "P18-64",
+          "clauses": [
+            "P17.R1",
+            "P17.R2",
+            "P17.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "tenant_id": "t-q62",
+            "source_tenant_id": "t-q62b",
+            "renamed": [
+              {
+                "kind": "pseudonym",
+                "from": "anon-0001",
+                "to": "t-q62b:anon-0001"
+              },
+              {
+                "kind": "pseudonym",
+                "from": "anon-0002",
+                "to": "t-q62b:anon-0002"
+              }
+            ],
+            "merged_members": [
+              "m-own"
+            ],
+            "added_members": []
+          },
+          "justification": "Source t-q62b : pseudonymes anon-0001 (m-qb), anon-0002 (m-qc), anon-0003 (m-qd), seul membre m-own. Q34 : anon-0001 existe dans la cible comme member_id, anon-0002 comme pseudonyme : renommes '<source>:<pseudonyme>', kind 'pseudonym', from croissant ; anon-0003 est libre dans la cible : garde son nom. m-own est dans les deux ; aucun membre ajoute.",
+          "recalcul": "Cible : membres {m-own, anon-0001, m-qe}, pseudonymes {anon-0002} ; collisions {anon-0001, anon-0002} ; ni creneau, ni serie, ni cle, ni import."
+        },
+        {
+          "id": "P18.F30",
+          "etape": "P18-65",
+          "clauses": [
+            "P18.R1",
+            "P17.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0004",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 0
+          },
+          "justification": "Q62 : la cible garde sa sequence (P17.R1) : dernier numero attribue par t-q62 = 2 (P18-50) ; le suivant, anon-0003, est un pseudonyme venu de la fusion (m-qd) : saute ; anon-0004 est libre : m-qe devient anon-0004.",
+          "recalcul": "Numeros essayes 3 (pseudonyme de m-qd, garde a la fusion), 4 (libre) -> anon-0004 ; aucune facture, aucun avoir, aucune reservation."
+        },
+        {
+          "id": "P18.F31",
+          "etape": "P18-66",
+          "clauses": [
+            "P18.R3",
+            "P17.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0003",
+            "balance_cents": 700
+          },
+          "justification": "anon-0003 reste le pseudonyme de m-qd (700 recharges en P18-58 dans t-q62b, portefeuille passe dans la cible a la fusion) ; l'effacement de m-qe ne l'a pas repris, rien n'est additionne.",
+          "recalcul": "700 (m-qd) ; m-qe (200) est sous anon-0004, pas sous anon-0003."
+        },
+        {
+          "id": "P18.F32",
+          "etape": "P18-67",
+          "clauses": [
+            "P18.R2",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0004",
+            "balance_cents": 200
+          },
+          "justification": "Portefeuille de m-qe (200, P18-63) sous son pseudonyme anon-0004, lisible par l'admin.",
+          "recalcul": "+200 -> 200."
+        },
+        {
+          "id": "P18.F33",
+          "etape": "P18-68",
+          "clauses": [
+            "P17.R2",
+            "P18.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "balance_cents": 500
+          },
+          "justification": "Le membre anon-0001 de la cible n'a recu ni le portefeuille du pseudonyme anon-0001 de la source (renomme t-q62b:anon-0001, solde 0) ni celui de m-qe : 500 inchange.",
+          "recalcul": "500 (P18-49) ; aucun mouvement depuis."
         }
       ],
       "effacement": {
@@ -8039,6 +8526,31 @@
       "faits": [
         "P9.F22"
       ]
+    },
+    {
+      "id": "Q62",
+      "periode": "P18",
+      "sujet": "pseudonyme deja pris",
+      "question": "Le pseudonyme attribue par erase_member ('anon-nnnn', sequence par locataire) peut deja etre, dans le locataire, le member_id d'un membre (add_member 'anon-0001' avant tout effacement), un pseudonyme venu d'une fusion (la cible garde sa sequence, P17.R1), ou etre repris ensuite par add_member : deux personnes partagent alors un identifiant (portefeuilles et reservations confondus). Signale par les flux differentiels de T74 : le modele attendu leve RAPPROCHEMENT-ROMPU INV-...-anon-nnnn (des P19), INVARIANT-ROMPU deux reservations actives de anon-nnnn et INVARIANT-ROMPU solde negatif anon-nnnn (des P21).",
+      "classe": "FIXER",
+      "decision": "Un pseudonyme est unique dans son locataire et ne designe jamais un membre : erase_member prend le numero suivant de la sequence du locataire en sautant tout 'anon-nnnn' deja member_id ou pseudonyme du locataire ; add_member sur un pseudonyme du locataire -> NOT_FOUND (P18.R3), sans effet.",
+      "regles": [
+        "P18.R1",
+        "P18.R3"
+      ],
+      "faits": [
+        "P18.F24",
+        "P18.F25",
+        "P18.F26",
+        "P18.F27",
+        "P18.F28",
+        "P18.F29",
+        "P18.F30",
+        "P18.F31",
+        "P18.F32",
+        "P18.F33"
+      ],
+      "complement": "Precision ajoutee par le fixture-transcriber de T72 apres la chasse aux levees du modele attendu par flux aleatoires (T74). Cas exerce en fin de P18 sur des locataires neufs t-q62 et t-q62b (P18-45..P18-68)."
     }
   ]
 }

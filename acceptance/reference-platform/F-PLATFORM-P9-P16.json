@@ -46,7 +46,14 @@
     "proprietaire m-ana, membres m-ivy et m-jo) : mise en place en FIN de P10 (P10-23..P10-32 : seule fenetre de la",
     "trajectoire ou un mois anterieur a mai peut porter des mouvements, P14 commencant le 13 mai), cas en FIN de P14",
     "(P14-30..P14-41 : emission de mai sur soldes d'ouverture 777 et 900, avril non emis, puis avril emis dans le desordre).",
-    "Faits P10.F13-F14 et P14.F25-F32 ; aucun fait existant decale ni modifie."
+    "Faits P10.F13-F14 et P14.F25-F32 ; aucun fait existant decale ni modifie.",
+    "",
+    "DECISIONS DU MANDANT (fixture-transcriber, 27/10/2026, decision du mandant du 27/10/2026). Monnaie, P16.R2 : « Pas retroactif ».",
+    "change_price ne reajuste que les reservations confirmees dans la devise actuelle du creneau ; une reservation confirmee dans une",
+    "autre devise (set_price a change la devise apres sa confirmation) n'est pas ajustee, absente de adjusted, sans erreur (precision",
+    "Q63 de P16.R1 et P16.R2). Cas exerce en FIN de P16 sur un locataire neuf t-q63 (P16-32..P16-55) : EUR -> USD,",
+    "USD -> EUR et meme devise. Faits P16.F25-F35 ; aucun fait existant decale ni modifie. Q38 est resolue dans",
+    "F-PLATFORM-P17-P24.json : il ne reste aucune question ouverte."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -74,10 +81,10 @@
   "prolonge": {
     "fixture": "F-PLATFORM-P1-P8",
     "chemin": "acceptance/reference-platform/F-PLATFORM-P1-P8.json",
-    "sha256": "4890674e2ae0d59808463a49c7b52e378d0d46316a52b59114b0aad8262826ef",
-    "commit": "356340809639341e7a81b4d811357212f4f2c135",
+    "sha256": "980b46e7e7ee39b07ccbce9eb4e28e982141fa22c24e218c42e06a4b07fdc53e",
+    "commit": "561e6267617ee5c23dd411fc7eeed1474fe8e675",
     "derniere_etape": "P8-40",
-    "etat_au_depart": "celui laisse par P8-40 : t-alpha (proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 2000, m-dan 0, m-fay 0, m-gus 0 ; fuseau 'UTC' partout ; reservations et creneaux de P1-P8 (tous commencent avant le 2031-03-30) ; locataires default et t-beta inchanges ; passe de clarification : locataire t-clar (proprietaire m-own ; membres m-kim, m-lou, m-max, m-big ; fuseau UTC ; portefeuilles m-big 100000000, m-kim 600), series Y366 et Q4 (Q4@2031-03-20 exceptee), creneaux G6 et Q4 ; creneaux K10000 et N2 dans default"
+    "etat_au_depart": "celui laisse par P8-40 : t-alpha (proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 2000, m-dan 0, m-fay 0, m-gus 0 ; fuseau 'UTC' partout ; reservations et creneaux de P1-P8 (tous commencent avant le 2031-03-30) ; locataires default et t-beta inchanges ; passe de clarification : locataire t-clar (proprietaire m-own ; membres m-kim, m-lou, m-max, m-big ; fuseau UTC ; portefeuilles m-big 100000000, m-kim 600), series Y366 et Q4 (Q4@2031-03-20 exceptee), creneaux G6 et Q4 ; creneaux K10000 et N2 dans default ; decisions du mandant du 27/10/2026 : precision Q65 de P8.R4 seulement, etat inchange"
   },
   "scellement": {
     "tache": "T71",
@@ -114,10 +121,10 @@
         "faits": 26
       },
       "P16": {
-        "etapes": 31,
-        "faits": 24
+        "etapes": 55,
+        "faits": 35
       },
-      "total_faits": 167
+      "total_faits": 178
     },
     "clarification": {
       "source": "tri des questions ouvertes de F-PLATFORM (T70-01..T70-16, Q01-Q61, N-01..N-04)",
@@ -171,6 +178,28 @@
       ],
       "faits_existants_modifies": [],
       "confrontation": "faits calcules a la main puis recalcules ; trajectoire complete P1-P24 rejouee hors depot avec et sans les etapes ajoutees : reponses des etapes existantes identiques (0 difference) ; les valeurs des factures ajoutees concordent ; seule divergence du modele attendu actuel : P14-34 leve RAPPROCHEMENT-ROMPU INV-2031-05-m-ivy au lieu de repondre ok"
+    },
+    "decisions_du_mandant": {
+      "source": "decision du mandant du 27/10/2026 (reponse du mandant : « Pas retroactif »)",
+      "precision": "P16.R1 precisions[Q63] ; P16.R2 texte et precisions[Q63]",
+      "etapes_ajoutees": [
+        "P16-32..P16-55"
+      ],
+      "faits_ajoutes": [
+        "P16.F25",
+        "P16.F26",
+        "P16.F27",
+        "P16.F28",
+        "P16.F29",
+        "P16.F30",
+        "P16.F31",
+        "P16.F32",
+        "P16.F33",
+        "P16.F34",
+        "P16.F35"
+      ],
+      "faits_existants_modifies": [],
+      "confrontation": "faits calcules a la main puis recalcules ; trajectoire P1-P24 rejouee hors depot avec un simulateur jetable (modele attendu copie hors depot, filtre de devise de P16.R2 ajoute) : reponses des etapes existantes identiques ; les faits ajoutes concordent ; le modele attendu actuel diverge sur P16-41 (leve TAUX-ABSENT) et P16-49 (ajuste u2)"
     }
   },
   "conventions": {
@@ -298,6 +327,13 @@
       "P14.F28",
       "P14.F29",
       "P14.F31"
+    ],
+    "changement_de_devise_non_retroactif": [
+      "P16.F27",
+      "P16.F28",
+      "P16.F30",
+      "P16.F32",
+      "P16.F33"
     ]
   },
   "periodes": {
@@ -7072,16 +7108,23 @@
               "question": "Q27",
               "classe": "GARDER",
               "texte": "set_price fixe le prix des confirmations futures sans toucher aux réservations existantes ; change_price fixe ce même prix (devise inchangée) et rend EN PLUS les trop-perçus des confirmations depuis effective_from."
+            },
+            {
+              "question": "Q63",
+              "classe": "FIXER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "change_price garde la devise du creneau (devise inchangee) et ne reajuste que les reservations confirmees dans cette devise (P16.R2, Q63) ; une reservation confirmee dans une autre devise n'est pas dans adjusted, sans erreur."
             }
           ]
         },
         {
           "id": "P16.R2",
-          "texte": "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas.",
+          "texte": "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas. Monnaie (Q63, decision du mandant du 27/10/2026) : seules sont recalculees les reservations confirmees dans la devise ACTUELLE du creneau (devise d'une reservation : 'USD' si elle porte price_currency 'USD' (P15.R6), 'EUR' sinon, y compris avant P15) ; un changement de devise par set_price n'est jamais retroactif : une reservation confirmee dans une autre devise que celle du creneau au moment de change_price n'est pas ajustee, ne figure pas dans adjusted et ne produit ni remboursement, ni ligne, ni avoir ; ce n'est pas une erreur.",
           "valeurs": {
             "borne_effective_from": "incluse",
             "arrondi_part_credits": "floor, la carte recoit le reste",
-            "A_prime": "montant P15.R6 au nouveau prix pour les seats actuels + F (frais retenus, P9.R4)"
+            "A_prime": "montant P15.R6 au nouveau prix pour les seats actuels + F (frais retenus, P9.R4)",
+            "devise": "seulement les reservations confirmees dans la devise actuelle du creneau ; autre devise : non ajustee, absente de adjusted, sans erreur"
           },
           "precisions": [
             {
@@ -7093,6 +7136,12 @@
               "question": "Q26",
               "classe": "GARDER",
               "texte": "Le recalcul P16.R2 d'une réservation en USD utilise le rate_micro de sa confirmation."
+            },
+            {
+              "question": "Q63",
+              "classe": "FIXER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "Changement de devise non retroactif. change_price ne reajuste que les reservations confirmees dans la devise ACTUELLE du creneau (celle du dernier set_price ; change_price ne la change pas, P16.R1). Devise d'une reservation : 'USD' si elle a ete confirmee sur un prix en USD (price_currency 'USD', P15.R6), 'EUR' sinon. Une reservation confirmee dans l'autre devise (creneau passe de EUR a USD, ou de USD a EUR, par set_price apres sa confirmation) n'est pas ajustee : elle est absente de adjusted, garde amount_cents, paid_credits_cents, paid_card_cents (et en USD original_amount_cents, rate_micro), aucun remboursement, aucune ligne adjustment, aucun avoir ; change_price repond ok sans erreur. Les reservations de la devise actuelle sont ajustees selon P16.R2 (en USD avec le rate_micro de leur confirmation, Q26). Ex. (t-q63) : u1 confirmee 2000 EUR sur C1, C1 passe a 2000 USD, change_price 1500 -> adjusted [] ; u4 confirmee ensuite 1500 USD (1350) ; change_price 1000 -> adjusted [u4 : 450] seulement ; u2 confirmee 2000 USD (1800) sur C2, C2 passe a 2000 EUR, change_price 1500 -> adjusted [], u2 garde 1800 ; u3 confirmee 2000 EUR sur C3 reste en EUR, change_price 1500 -> adjusted [u3 : 500]."
             }
           ]
         },
@@ -7466,6 +7515,304 @@
             "slot_id": "R16",
             "price_cents": 100000001,
             "effective_from": "2031-07-31T22:30:00Z"
+          }
+        },
+        {
+          "id": "P16-32",
+          "period": "P16",
+          "at": "2031-08-01T12:08:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q63",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P16-33",
+          "period": "P16",
+          "at": "2031-08-01T12:09:00Z",
+          "op": "add_member",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-ua",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P16-34",
+          "period": "P16",
+          "at": "2031-08-01T12:10:00Z",
+          "op": "add_member",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-ub",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P16-35",
+          "period": "P16",
+          "at": "2031-08-01T12:11:00Z",
+          "op": "add_member",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-uc",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P16-36",
+          "period": "P16",
+          "at": "2031-08-01T12:12:00Z",
+          "op": "set_rate",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "currency": "USD",
+            "date": "2031-08-01",
+            "rate_micro": 900000
+          }
+        },
+        {
+          "id": "P16-37",
+          "period": "P16",
+          "at": "2031-08-01T12:13:00Z",
+          "op": "create_slot",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C1",
+            "capacity": 5,
+            "starts_at": "2031-09-15T10:00:00Z"
+          }
+        },
+        {
+          "id": "P16-38",
+          "period": "P16",
+          "at": "2031-08-01T12:14:00Z",
+          "op": "set_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C1",
+            "price_cents": 2000
+          }
+        },
+        {
+          "id": "P16-39",
+          "period": "P16",
+          "at": "2031-08-01T12:15:00Z",
+          "op": "reserve",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "request_id": "u1",
+            "member_id": "m-ua",
+            "slot_id": "C1"
+          }
+        },
+        {
+          "id": "P16-40",
+          "period": "P16",
+          "at": "2031-08-01T12:16:00Z",
+          "op": "set_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C1",
+            "price_cents": 2000,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "P16-41",
+          "period": "P16",
+          "at": "2031-08-01T12:17:00Z",
+          "op": "change_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C1",
+            "price_cents": 1500,
+            "effective_from": "2031-08-01T00:00:00Z"
+          }
+        },
+        {
+          "id": "P16-42",
+          "period": "P16",
+          "at": "2031-08-01T12:18:00Z",
+          "op": "get_booking",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "u1"
+          }
+        },
+        {
+          "id": "P16-43",
+          "period": "P16",
+          "at": "2031-08-01T12:19:00Z",
+          "op": "reserve",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "request_id": "u4",
+            "member_id": "m-ub",
+            "slot_id": "C1"
+          }
+        },
+        {
+          "id": "P16-44",
+          "period": "P16",
+          "at": "2031-08-01T12:20:00Z",
+          "op": "change_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C1",
+            "price_cents": 1000,
+            "effective_from": "2031-08-01T00:00:00Z"
+          }
+        },
+        {
+          "id": "P16-45",
+          "period": "P16",
+          "at": "2031-08-01T12:21:00Z",
+          "op": "create_slot",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C2",
+            "capacity": 5,
+            "starts_at": "2031-09-15T10:00:00Z"
+          }
+        },
+        {
+          "id": "P16-46",
+          "period": "P16",
+          "at": "2031-08-01T12:22:00Z",
+          "op": "set_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C2",
+            "price_cents": 2000,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "P16-47",
+          "period": "P16",
+          "at": "2031-08-01T12:23:00Z",
+          "op": "reserve",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "request_id": "u2",
+            "member_id": "m-ub",
+            "slot_id": "C2"
+          }
+        },
+        {
+          "id": "P16-48",
+          "period": "P16",
+          "at": "2031-08-01T12:24:00Z",
+          "op": "set_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C2",
+            "price_cents": 2000,
+            "currency": "EUR"
+          }
+        },
+        {
+          "id": "P16-49",
+          "period": "P16",
+          "at": "2031-08-01T12:25:00Z",
+          "op": "change_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C2",
+            "price_cents": 1500,
+            "effective_from": "2031-08-01T00:00:00Z"
+          }
+        },
+        {
+          "id": "P16-50",
+          "period": "P16",
+          "at": "2031-08-01T12:26:00Z",
+          "op": "get_booking",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "u2"
+          }
+        },
+        {
+          "id": "P16-51",
+          "period": "P16",
+          "at": "2031-08-01T12:27:00Z",
+          "op": "create_slot",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C3",
+            "capacity": 5,
+            "starts_at": "2031-09-15T10:00:00Z"
+          }
+        },
+        {
+          "id": "P16-52",
+          "period": "P16",
+          "at": "2031-08-01T12:28:00Z",
+          "op": "set_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C3",
+            "price_cents": 2000
+          }
+        },
+        {
+          "id": "P16-53",
+          "period": "P16",
+          "at": "2031-08-01T12:29:00Z",
+          "op": "reserve",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "request_id": "u3",
+            "member_id": "m-uc",
+            "slot_id": "C3"
+          }
+        },
+        {
+          "id": "P16-54",
+          "period": "P16",
+          "at": "2031-08-01T12:30:00Z",
+          "op": "change_price",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "C3",
+            "price_cents": 1500,
+            "effective_from": "2031-08-01T00:00:00Z"
+          }
+        },
+        {
+          "id": "P16-55",
+          "period": "P16",
+          "at": "2031-08-01T12:31:00Z",
+          "op": "get_booking",
+          "tenant": "t-q63",
+          "actor": "m-own",
+          "args": {
+            "booking_id": "u3"
           }
         }
       ],
@@ -8254,6 +8601,225 @@
           },
           "justification": "N-04 : change_price porte la meme borne de price_cents que set_price (100 000 000) -> INVALID_ARGUMENT, sans effet.",
           "recalcul": "100000001 > 100000000 -> refus."
+        },
+        {
+          "id": "P16.F25",
+          "etape": "P16-36",
+          "clauses": [
+            "P15.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "currency": "USD",
+            "date": "2031-08-01",
+            "rate_micro": 900000
+          },
+          "justification": "Taux de t-q63 (UTC) : 0,9 EUR pour 1 USD, applicable a toute date civile >= 2031-08-01 (P15.R2).",
+          "recalcul": "1 <= 900000 <= 10 000 000 ; aucune entree (USD, 2031-08-01) anterieure dans t-q63 -> ok."
+        },
+        {
+          "id": "P16.F26",
+          "etape": "P16-39",
+          "clauses": [
+            "P15.R6",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "u1",
+            "status": "confirmed",
+            "amount_cents": 2000,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 2000
+          },
+          "justification": "C1 en EUR (devise par defaut de set_price) ; m-ua niveau none (remise 0) : 1 x 2000 = 2000 EUR ; portefeuille 0 -> tout a la carte.",
+          "recalcul": "brut 2000, remise floor((2000 x 0 + 5000) / 10000) = 0 ; min(0, 2000) = 0 en credits, 2000 - 0 = 2000 carte."
+        },
+        {
+          "id": "P16.F27",
+          "etape": "P16-41",
+          "clauses": [
+            "P16.R1",
+            "P16.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "C1",
+            "price_cents": 1500,
+            "adjusted": []
+          },
+          "justification": "Q63, EUR -> USD : C1 est en USD depuis P16-40 ; u1 a ete confirmee en EUR (sans price_currency) : autre devise, pas recalculee, absente de adjusted ; aucune autre reservation confirmee sur C1 : adjusted vide, et pas d'erreur. Le prix de C1 devient 1500 USD.",
+          "recalcul": "reservations confirmed de C1 confirmees >= 2031-08-01T00:00:00Z : {u1} ; devise(u1) = EUR != USD = devise(C1) -> exclue ; [] ."
+        },
+        {
+          "id": "P16.F28",
+          "etape": "P16-42",
+          "clauses": [
+            "P16.R2",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "u1",
+            "status": "confirmed",
+            "amount_cents": 2000,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 2000
+          },
+          "justification": "Q63 : u1 n'a pas ete ajustee, son montant reste 2000 EUR (aucun remboursement).",
+          "recalcul": "A = 2000, C = 0, D = 2000 inchanges depuis P16-39."
+        },
+        {
+          "id": "P16.F29",
+          "etape": "P16-43",
+          "clauses": [
+            "P15.R6",
+            "P15.R3",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "u4",
+            "status": "confirmed",
+            "price_currency": "USD",
+            "original_amount_cents": 1500,
+            "rate_micro": 900000,
+            "amount_cents": 1350,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 1350
+          },
+          "justification": "C1 vaut 1500 USD (change_price P16-41, devise inchangee) ; taux applicable au 2031-08-01 : 900000 ; 1500 x 900000 / 10^6 = 1350 EUR exactement ; portefeuille 0 -> carte.",
+          "recalcul": "N = 1500 x 900000 = 1 350 000 000 ; q = 1350, r = 0 -> 1350."
+        },
+        {
+          "id": "P16.F30",
+          "etape": "P16-44",
+          "clauses": [
+            "P16.R1",
+            "P16.R2",
+            "P16.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "C1",
+            "price_cents": 1000,
+            "adjusted": [
+              {
+                "booking_id": "u4",
+                "refunded_cents": 450,
+                "refund": {
+                  "credits_cents": 0,
+                  "card_cents": 450
+                },
+                "credit_note_id": null
+              }
+            ]
+          },
+          "justification": "Q63 : seule u4, confirmee en USD (devise actuelle de C1), est recalculee : A' = conversion de 1000 USD au rate_micro de SA confirmation (900000) = 900, F = 0 ; T = 1350 - 900 = 450 ; r_c = floor(450 x 0 / 1350) = 0, r_d = 450 ; t-q63 n'a emis aucune facture : ligne adjustment, credit_note_id null. u1 (EUR) reste hors de adjusted.",
+          "recalcul": "1000 x 900000 / 10^6 = 900 ; 1350 - 900 = 450 ; C = 0 -> tout a la carte ; adjusted = [u4]."
+        },
+        {
+          "id": "P16.F31",
+          "etape": "P16-47",
+          "clauses": [
+            "P15.R6",
+            "P15.R3",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "u2",
+            "status": "confirmed",
+            "price_currency": "USD",
+            "original_amount_cents": 2000,
+            "rate_micro": 900000,
+            "amount_cents": 1800,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 1800
+          },
+          "justification": "C2 a 2000 USD ; m-ub niveau none ; 2000 x 0,9 = 1800 EUR ; carte (portefeuille 0). m-ub a deja u4 sur C1, autre creneau : pas ALREADY_BOOKED.",
+          "recalcul": "2000 x 900000 = 1 800 000 000 ; / 10^6 = 1800, reste 0."
+        },
+        {
+          "id": "P16.F32",
+          "etape": "P16-49",
+          "clauses": [
+            "P16.R1",
+            "P16.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "C2",
+            "price_cents": 1500,
+            "adjusted": []
+          },
+          "justification": "Q63, USD -> EUR : C2 est en EUR depuis P16-48 ; u2 a ete confirmee en USD : pas recalculee, absente de adjusted, aucun remboursement, pas d'erreur.",
+          "recalcul": "confirmees >= effective_from sur C2 : {u2} ; devise(u2) = USD != EUR -> exclue ; []."
+        },
+        {
+          "id": "P16.F33",
+          "etape": "P16-50",
+          "clauses": [
+            "P16.R2",
+            "P15.R6"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "u2",
+            "status": "confirmed",
+            "price_currency": "USD",
+            "original_amount_cents": 2000,
+            "rate_micro": 900000,
+            "amount_cents": 1800,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 1800
+          },
+          "justification": "Q63 : u2 garde son montant en USD converti (1800 EUR), sa devise et son taux d'origine ; rien n'est rendu.",
+          "recalcul": "A = C + D = 0 + 1800 = 1800, inchange depuis P16-47."
+        },
+        {
+          "id": "P16.F34",
+          "etape": "P16-54",
+          "clauses": [
+            "P16.R1",
+            "P16.R2",
+            "P16.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "slot_id": "C3",
+            "price_cents": 1500,
+            "adjusted": [
+              {
+                "booking_id": "u3",
+                "refunded_cents": 500,
+                "refund": {
+                  "credits_cents": 0,
+                  "card_cents": 500
+                },
+                "credit_note_id": null
+              }
+            ]
+          },
+          "justification": "Meme devise : C3 en EUR, u3 confirmee en EUR (2000, niveau none) ; A' = 1500 + F 0 ; T = 500 ; r_c = floor(500 x 0 / 2000) = 0 ; r_d = 500 ; aucune facture emise : ligne adjustment, credit_note_id null.",
+          "recalcul": "2000 - 1500 = 500 ; C = 0 -> carte 500."
+        },
+        {
+          "id": "P16.F35",
+          "etape": "P16-55",
+          "clauses": [
+            "P16.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "u3",
+            "status": "confirmed",
+            "amount_cents": 1500,
+            "paid_credits_cents": 0,
+            "paid_card_cents": 1500
+          },
+          "justification": "Apres ajustement en meme devise : A' = 1500, D = 2000 - 500 = 1500.",
+          "recalcul": "C 0 ; D 1500 ; A = C + D = 1500."
         }
       ],
       "rapprochement": {
@@ -8689,6 +9255,32 @@
         "P15.R5"
       ],
       "faits": []
+    },
+    {
+      "id": "Q63",
+      "periode": "P16",
+      "sujet": "changement de devise et change_price",
+      "question": "change_price recalcule-t-il une reservation confirmee dans une autre devise que la devise actuelle du creneau (set_price a change la devise apres la confirmation) ? Le modele attendu levait (EUR -> USD : TAUX-ABSENT) ou ajustait en silence une reservation USD au nouveau prix (USD -> EUR).",
+      "classe": "FIXER",
+      "origine": "decision du mandant du 27/10/2026",
+      "decision": "Pas retroactif : change_price ne reajuste que les reservations confirmees dans la devise actuelle du creneau ; une reservation confirmee dans une autre devise n'est pas ajustee (absente de adjusted), sans erreur.",
+      "regles": [
+        "P16.R1",
+        "P16.R2"
+      ],
+      "faits": [
+        "P16.F25",
+        "P16.F26",
+        "P16.F27",
+        "P16.F28",
+        "P16.F29",
+        "P16.F30",
+        "P16.F31",
+        "P16.F32",
+        "P16.F33",
+        "P16.F34",
+        "P16.F35"
+      ]
     }
   ]
 }

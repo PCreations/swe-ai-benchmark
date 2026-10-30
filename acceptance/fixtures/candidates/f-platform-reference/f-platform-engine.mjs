@@ -1,4 +1,4 @@
-// GENERE par acceptance/fixtures/candidates/f-platform-reference/generer.mjs depuis packages/oracle/src/f-platform-engine.ts au commit ffb09f39151a573143c06d4ff84654ddfa7479d5. NE PAS EDITER.
+// GENERE par acceptance/fixtures/candidates/f-platform-reference/generer.mjs depuis packages/oracle/src/f-platform-engine.ts au commit 29cdd0d132906afd3fd9f413a4c085b18f14aec1. NE PAS EDITER.
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/oracle — moteur d'exécution des clauses de F-PLATFORM (tâche T70,
 // ADR-021 décision 1).

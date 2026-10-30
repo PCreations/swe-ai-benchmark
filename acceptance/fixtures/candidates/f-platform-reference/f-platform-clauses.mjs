@@ -1,4 +1,4 @@
-// GENERE par acceptance/fixtures/candidates/f-platform-reference/generer.mjs depuis packages/oracle/src/f-platform-clauses.ts au commit ffb09f39151a573143c06d4ff84654ddfa7479d5. NE PAS EDITER.
+// GENERE par acceptance/fixtures/candidates/f-platform-reference/generer.mjs depuis packages/oracle/src/f-platform-clauses.ts au commit 29cdd0d132906afd3fd9f413a4c085b18f14aec1. NE PAS EDITER.
 // ─────────────────────────────────────────────────────────────────────────────
 // @bench/oracle — LA source de clauses de F-PLATFORM, périodes P1 à P24 (tâches
 // T70 pour P1-P8, T71 pour P9-P16, T72 pour P17-P24 ; ADR-021 décision 1 : « le
@@ -20,9 +20,11 @@
 //   compares                      — les grandeurs comparées ;
 //   precisions                    — les précisions de la règle dans la racine
 //                                   (passe de clarification : questions T70-xx,
-//                                   Qnn, N-0n tranchées), recopiées mot pour mot ;
-//   questions_ouvertes            — ce que la racine gelée laisse ouvert (seule
-//                                   Q38 reste ouverte : décision du mandant).
+//                                   Qnn, N-0n tranchées ; décisions du mandant
+//                                   du 27/10/2026 : Q38, Q63, Q64, Q65, avec leur
+//                                   origine), recopiées mot pour mot ;
+//   questions_ouvertes            — ce que la racine gelée laisse ouvert (plus
+//                                   rien : Q38 est tranchée par le mandant).
 //
 // Les règles sont celles de acceptance/reference-platform/F-PLATFORM-P1-P8.json,
 // F-PLATFORM-P9-P16.json et F-PLATFORM-P17-P24.json (`periodes.<Pn>.regles`),
@@ -32,8 +34,9 @@
 // moteur (f-platform-engine.ts) ne contient aucune règle, pas même l'instant et
 // le rang de confirmation (P1.R3). Les questions T70-01..T70-16, Q01-Q61 et
 // N-01..N-04 sont tranchées par la passe de clarification : les règles réécrites
-// portent le texte de la racine, et chaque clause ses `precisions`. Seule Q38
-// reste ouverte (P18.R3).
+// portent le texte de la racine, et chaque clause ses `precisions`. Q38, Q63,
+// Q64 et Q65 sont tranchées par la décision du mandant du 27/10/2026 (P18.R1,
+// P22.R2, P22.R4 ; P16.R1, P16.R2 ; P17.R1 ; P8.R4).
 // ─────────────────────────────────────────────────────────────────────────────
 import { fail, newTenant, succeed, clone, } from './f-platform-engine.mjs';
 /* ─────────────────────────────────────── unités et formats des grandeurs */
@@ -158,6 +161,7 @@ export const PLATFORM_QUANTITIES = {
     remaining_cents: { unit: CENTIMES, format: 'entier > 0, reste du lot' },
     lots: { unit: 'lots de credits', format: 'tableau JSON de { acquired_at, expires_at, remaining_cents }, expires_at croissant puis ordre d entree' },
     expired_cents: { unit: CENTIMES, format: 'entier >= 0, somme des lignes expiry du mois' },
+    wallet_refunds_cents: { unit: CENTIMES, format: "entier >= 0, somme des lignes wallet_refund du mois (remboursement du portefeuille a l'effacement, P18.R1)" },
     to_member_id: { unit: IDENT, format: 'member_id du destinataire' },
     with_booking_id: { unit: IDENT, format: "booking_id de l'autre reservation de l'echange" },
     fee_cents: { unit: CENTIMES, format: 'entier : 0 si A = 0, sinon max(100, floor((A x 1000 + 5000) / 10000))' },
@@ -244,6 +248,7 @@ const PRECISIONS = {
     'P8.R4': [
         { question: 'T70-09', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
         { question: 'Q04', classe: 'CHANGER', texte: "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée." },
+        { question: "Q65", classe: "GARDER", origine: "decision du mandant du 27/10/2026", texte: "Vue d'une reservation annulee. get_booking d'une reservation 'cancelled' porte, comme a partir de P9 (P9.R4), amount_cents, paid_credits_cents et paid_card_cents RESTANTS apres le remboursement, c'est-a-dire A, C et D tels que la reservation les garde : a P8 le remboursement d'une annulation totale (cancel sans seats, ou seats = n) et d'une annulation d'office par add_exception (P5.R2) est integral, donc amount_cents = paid_credits_cents = paid_card_cents = 0 (P8.F31 : q4a apres add_exception, A 1000 -> 0, C 600 -> 0, D 400 -> 0). Les frais retenus, le cas echeant (a partir de P9, taux de palier < 10000), sont ce qui reste dans ces champs : amount_cents = A - R, paid_credits_cents = C - r_c, paid_card_cents = D - r_d (P9.R4) ; le contrat n'exige aucun champ distinct (frais_retenus_cents ou autre), et F (somme des frais d'annulation partielle, P9.R4) reste interne. Precision sans effet sur aucun fait." },
     ],
     'P9.R2': [
         { question: 'Q02', classe: 'GARDER', texte: "Une heure locale ambiguë (de 02:00:00 à 02:59:59 le dernier dimanche d'octobre) désigne sa première occurrence (+02:00)." },
@@ -326,13 +331,16 @@ const PRECISIONS = {
     'P16.R1': [
         { question: 'N-04', classe: 'FIXER', texte: "capacity est un entier de 1 à 10 000 ; price_cents de 0 à 100 000 000 ; amount_cents de top_up de 1 à 100 000 000 ; une plage create_recurring couvre au plus 366 jours. Au-delà -> INVALID_ARGUMENT." },
         { question: 'Q27', classe: 'GARDER', texte: "set_price fixe le prix des confirmations futures sans toucher aux réservations existantes ; change_price fixe ce même prix (devise inchangée) et rend EN PLUS les trop-perçus des confirmations depuis effective_from." },
+        { question: "Q63", classe: "FIXER", origine: "decision du mandant du 27/10/2026", texte: "change_price garde la devise du creneau (devise inchangee) et ne reajuste que les reservations confirmees dans cette devise (P16.R2, Q63) ; une reservation confirmee dans une autre devise n'est pas dans adjusted, sans erreur." },
     ],
     'P16.R2': [
         { question: 'Q25', classe: 'CHANGER', texte: "A' = montant P15.R6 au nouveau prix pour les seats actuels + F, où F est la somme des frais d'annulation partielle déjà retenus sur la réservation (à chaque annulation partielle de k places sur n : F += floor(A × k / n) - R). Le trop-perçu T = A - A' ne rend jamais des frais d'annulation." },
         { question: 'Q26', classe: 'GARDER', texte: "Le recalcul P16.R2 d'une réservation en USD utilise le rate_micro de sa confirmation." },
+        { question: "Q63", classe: "FIXER", origine: "decision du mandant du 27/10/2026", texte: "Changement de devise non retroactif. change_price ne reajuste que les reservations confirmees dans la devise ACTUELLE du creneau (celle du dernier set_price ; change_price ne la change pas, P16.R1). Devise d'une reservation : 'USD' si elle a ete confirmee sur un prix en USD (price_currency 'USD', P15.R6), 'EUR' sinon. Une reservation confirmee dans l'autre devise (creneau passe de EUR a USD, ou de USD a EUR, par set_price apres sa confirmation) n'est pas ajustee : elle est absente de adjusted, garde amount_cents, paid_credits_cents, paid_card_cents (et en USD original_amount_cents, rate_micro), aucun remboursement, aucune ligne adjustment, aucun avoir ; change_price repond ok sans erreur. Les reservations de la devise actuelle sont ajustees selon P16.R2 (en USD avec le rate_micro de leur confirmation, Q26). Ex. (t-q63) : u1 confirmee 2000 EUR sur C1, C1 passe a 2000 USD, change_price 1500 -> adjusted [] ; u4 confirmee ensuite 1500 USD (1350) ; change_price 1000 -> adjusted [u4 : 450] seulement ; u2 confirmee 2000 USD (1800) sur C2, C2 passe a 2000 EUR, change_price 1500 -> adjusted [], u2 garde 1800 ; u3 confirmee 2000 EUR sur C3 reste en EUR, change_price 1500 -> adjusted [u3 : 500]." },
     ],
     'P17.R1': [
         { question: 'Q29', classe: 'GARDER', texte: "merge_tenants -> INVALID_ARGUMENT dès que la source ou la cible a émis au moins une facture (P14.R2)." },
+        { question: "Q64", classe: "FIXER", origine: "decision du mandant du 27/10/2026", texte: "Refuser la fusion. merge_tenants -> INVALID_ARGUMENT, sans aucun effet (la source existe toujours, rien n'est renomme ni ajoute), si le member_id d'un membre de la SOURCE (proprietaire compris) est egal a un pseudonyme de la CIBLE (P18.R1, y compris un pseudonyme venu d'une fusion anterieure) : un pseudonyme ne designe jamais un membre (Q62) et un member_id n'est jamais renomme (P17.R3). Ce controle est le SIXIEME, apres les cinq de P17.R1 (NOT_FOUND source, source = cible, actor non admin de la source, facture emise, renommage deja pris) : il n'est atteint que si ces cinq passent. Le sens inverse (pseudonyme de la source egal a un member_id de la cible) n'est PAS refuse : il est deja couvert par Q34 (P17.R2 (e)), le pseudonyme de la source est renomme '<source_tenant_id>:<pseudonyme>' (fait P18.F29 : anon-0001 de t-q62b, member_id d'un membre de t-q62, devient 't-q62b:anon-0001'). Un pseudonyme de la source egal a un pseudonyme de la cible suit de meme Q34. Ex. (t-q64a/t-q64b) : anon-0001, pseudonyme de t-q64a, est member_id d'un membre de t-q64b -> INVALID_ARGUMENT ; une fois ce membre efface dans t-q64b (il y devient anon-0002), la fusion reussit sans renommage." },
     ],
     'P17.R2': [
         { question: 'Q32', classe: 'CHANGER', texte: "Une série et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la série reçoivent le préfixe '<source_tenant_id>:'. Le lien '<series_id>@<date>' est ainsi conservé." },
@@ -348,10 +356,15 @@ const PRECISIONS = {
     ],
     'P18.R1': [
         { question: 'Q35', classe: 'GARDER', texte: "erase_member -> INVALID_ARGUMENT tant que le membre a une réservation confirmed ou waiting sur un créneau qui n'a pas commencé ; il faut d'abord l'annuler." },
+        { question: 'Q62', classe: 'FIXER', texte: "Un pseudonyme est unique dans son locataire et ne designe jamais un membre. erase_member attribue le numero SUIVANT de la sequence du locataire (dernier numero attribue par erase_member dans ce locataire + 1, soit 1 au depart ; une fusion ne change pas la sequence de la cible, P17.R1) et saute, en poursuivant la sequence, tout numero dont 'anon-nnnn' est deja, dans ce locataire, le member_id d'un membre (proprietaire compris) ou un pseudonyme (y compris un pseudonyme venu d'une fusion, P17.R2) ; le numero retenu devient le dernier attribue. Ex. (t-q62) : un membre 'anon-0001' existe, m-qa est efface -> anon-0002, et le membre anon-0001 garde son portefeuille ; apres la fusion de t-q62b (ses pseudonymes anon-0001 et anon-0002 renommes par Q34, anon-0003 garde), m-qe est efface -> anon-0004." },
+        { question: "Q38", classe: "CHANGER", origine: "decision du mandant du 27/10/2026", texte: "Remboursement du portefeuille a l'effacement (« Rembourser sur carte »). Soit B le solde balance_cents du membre a l'instant at de erase_member, apres les expirations de cet instant (P22.R2). Si B > 0 : B est rembourse sur sa carte et le portefeuille passe a 0 ; c'est un mouvement de portefeuille de type 'wallet_refund', date de at, de montant B, porte (comme tout l'historique, P18.R2) par le pseudonyme. Ligne de facture, exactement {type: 'wallet_refund', booking_id: null, amount_cents: B}, sur la facture du mois local de at (P14.R1) du pseudonyme ('INV-<AAAA-MM>-<pseudonyme>'), rangee a son instant parmi les lignes (ordre des operations, P14.R3 ; P22.R4) ; elle suffit a faire emettre cette facture (P14.R2). Ce n'est ni une charge ni un remboursement de reservation : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte (report_revenue, P19.R3, non plus). Toute facture emise a partir de P18 porte le champ wallet_refunds_cents = somme de ses lignes wallet_refund (0 sans ligne) ; les factures emises avant P18 ne le portent pas et ne changent pas. Identite de cloture (P14.R3 de P18 a P21, P22.R4 puis P23.R5 ensuite) : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents (a partir de P22) - wallet_refunds_cents ; le rapprochement P14.R6 somme, sur les factures du membre, (top_ups + compensations + credit_notes_credits - credits_used - expired - wallet_refunds), qui egale balance_cents quand sa condition tient. Lots (P22.R2) : le remboursement est un debit de credits qui consomme TOUS les lots restants (reste 0) : ils n'expirent plus, get_wallet du pseudonyme rend balance_cents 0 et lots []. Si B = 0 : aucun mouvement, aucune ligne. La reponse de erase_member est inchangee. Ex. (t-q38) : m-ra, 1000 recharges, 400 payes en credits, efface -> 600 rembourses, facture d'aout 2031 du pseudonyme : top_up 1000, charge 400, wallet_refund 600, cloture 0 = 0 + 1000 - 400 - 600 ; m-rb, solde 0, efface -> aucune ligne wallet_refund." },
     ],
     'P18.R2': [
         { question: 'Q36', classe: 'GARDER', texte: "Les arguments mémorisés sont anonymisés comme les réponses : à partir de P21, rejouer une clé de l'ancien membre avec son ancien member_id rend IDEMPOTENCY_CONFLICT." },
         { question: 'Q37', classe: 'CHANGER', texte: "L'anonymisation ne remplace que les valeurs des clés member_id, payer_member_id, from_member_id et to_member_id, à toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>'. Un slot_id, un request_id ou un autre identifiant égal par hasard au member_id ne change pas." },
+    ],
+    'P18.R3': [
+        { question: 'Q62', classe: 'GARDER', texte: "add_member dont member_id est un pseudonyme du locataire (P18.R1, y compris un pseudonyme venu d'une fusion) le designe comme member_id : NOT_FOUND, sans effet, controle fait apres ceux de P4.R1 ; seul l'ANCIEN identifiant d'un membre efface peut etre repris par add_member (nouveau membre). Un member_id de la forme 'anon-nnnn' qui n'est pas un pseudonyme du locataire est un identifiant comme un autre (le membre est cree, et la sequence de P18.R1 le saute)." },
     ],
     'P19.R1': [
         { question: 'Q39', classe: 'GARDER', texte: "report_occupancy filtre starts_at sur des instants UTC, from inclus et to exclu (et non sur des mois locaux)." },
@@ -385,9 +398,11 @@ const PRECISIONS = {
         { question: 'Q48', classe: 'GARDER', texte: "Tout re-crédit (remboursement, trop-perçu, avoir) forme un nouveau lot de 12 mois à compter de son instant ; il ne reprend pas l'échéance des crédits d'origine." },
         { question: 'Q49', classe: 'GARDER', texte: "Les compensations de débarquement forment des lots et expirent comme des crédits achetés." },
         { question: 'Q51', classe: 'CHANGER', texte: "12 mois civils après le 29 février donnent le 28 février de l'année suivante, à la même heure UTC." },
+        { question: "Q38", classe: "CHANGER", origine: "decision du mandant du 27/10/2026", texte: "Le remboursement du portefeuille a l'effacement (P18.R1, Q38) est un debit de credits date de l'effacement : il consomme TOUS les lots restants a cet instant (la reconstitution retroactive depuis P8 l'inclut) ; aucun lot du pseudonyme n'expire ensuite." },
     ],
     'P22.R4': [
         { question: 'Q50', classe: 'GARDER', texte: "Une expiration est un mouvement : elle produit une ligne expiry et, si c'est le seul mouvement du mois, une facture de total 0." },
+        { question: "Q38", classe: "CHANGER", origine: "decision du mandant du 27/10/2026", texte: "Une ligne {type: 'wallet_refund', booking_id: null, amount_cents} (P18.R1, Q38) est rangee a son instant ; wallet_refunds_cents = somme de ces lignes ; elle n'entre ni dans charges_cents, refunds_cents, total_cents, card_cents ni credits_used_cents ; identite : closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired - wallet_refunds." },
     ],
     'P23.R1': [
         { question: 'Q55', classe: 'GARDER', texte: "Seul le destinataire d'un transfert est contrôlé (SUSPENDED) ; un membre suspendu peut céder sa réservation. Une absence reste attachée au membre qui était titulaire quand elle a été enregistrée." },
@@ -1052,13 +1067,16 @@ const P4_R1 = clause({
     },
     implementation: {
         'membres.role': (_ctx, t, m) => t.owner_id === m ? 'admin' : t.members.get(m),
-        'add_member.effet': (ctx) => {
+        'add_member.etape.arguments': etape(10, (ctx) => {
             const { member_id, role } = ctx.args;
             if (!estChaine(member_id) || typeof role !== 'string' || !ROLES.includes(role)) {
                 return fail('INVALID_ARGUMENT');
             }
-            if (member_id === ctx.locataire.owner_id)
-                return fail('INVALID_ARGUMENT');
+            return member_id === ctx.locataire.owner_id ? fail('INVALID_ARGUMENT') : undefined;
+        }),
+        'add_member.effet': (ctx) => {
+            const member_id = String(ctx.args.member_id);
+            const role = String(ctx.args.role);
             ctx.locataire.members.set(member_id, role);
             return succeed({ member_id, role });
         },
@@ -2602,6 +2620,8 @@ const facturationDe = (t) => {
         t.donnees.set(CLE_FACTURATION, nouvelleFacturation());
     return t.donnees.get(CLE_FACTURATION);
 };
+/** Champs ajoutés par les clauses actives, insérés avant opening_balance_cents. */
+const champsDeFacture = (ctx, lignes) => Object.assign({}, ...ctx.regles('comptabilite.champ.').map((f) => f(lignes)));
 const MOIS = /^(\d{4})-(0[1-9]|1[0-2])$/;
 const moisSuivant = (mois) => {
     const [a, m] = mois.split('-').map(Number);
@@ -2767,6 +2787,7 @@ const P14_R3 = clause({
                 top_ups_cents: somme((t) => t === 'top_up', 'amount_cents'),
                 compensations_cents: somme((t) => t === 'compensation', 'amount_cents'),
                 credit_notes_credits_cents,
+                ...champsDeFacture(ctx, lignes),
                 opening_balance_cents: solde(debut(ctx, mois)),
                 closing_balance_cents: solde(debut(ctx, moisSuivant(mois))),
             };
@@ -3258,28 +3279,33 @@ const P16_R1 = clause({
 const P16_R2 = clause({
     id: 'P16.R2',
     enters: 'P16',
-    text: "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas.",
+    text: "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas. Monnaie (Q63, decision du mandant du 27/10/2026) : seules sont recalculees les reservations confirmees dans la devise ACTUELLE du creneau (devise d'une reservation : 'USD' si elle porte price_currency 'USD' (P15.R6), 'EUR' sinon, y compris avant P15) ; un changement de devise par set_price n'est jamais retroactif : une reservation confirmee dans une autre devise que celle du creneau au moment de change_price n'est pas ajustee, ne figure pas dans adjusted et ne produit ni remboursement, ni ligne, ni avoir ; ce n'est pas une erreur.",
     contract: {
-        valeurs: { borne_effective_from: 'incluse', arrondi_part_credits: 'floor, la carte recoit le reste', A_prime: 'montant P15.R6 au nouveau prix pour les seats actuels + F (frais retenus, P9.R4)' },
+        valeurs: { borne_effective_from: 'incluse', arrondi_part_credits: 'floor, la carte recoit le reste', A_prime: 'montant P15.R6 au nouveau prix pour les seats actuels + F (frais retenus, P9.R4)', devise: 'seulement les reservations confirmees dans la devise actuelle du creneau ; autre devise : non ajustee, absente de adjusted, sans erreur' },
         operations: { change_price: { adjusted: { refunded_cents: 'T = A - A\'', refund: { credits_cents: 'r_c', card_cents: 'r_d' } } } },
         exemples: [
             { contexte: "y2 : silver, A 1800, C 88, D 1712, confirmee a effective_from ; nouveau prix 1600", calcul: "A' = 1600 - 160 = 1440 ; T = 360 ; r_c = floor(360 x 88 / 1800) = 17 ; r_d = 343" },
             { contexte: 'r16a : 2 places restantes, A 3000, F 1000 ; nouveau prix 800', calcul: "A' = 2 x 800 + 1000 = 2600 ; T = 400 (les frais retenus ne sont pas rendus)" },
+            { contexte: 'Q63 (t-q63) : u1 confirmee 2000 EUR sur C1, puis set_price C1 2000 USD', calcul: 'change_price 1500 -> adjusted [] : u1 (EUR) n est pas dans la devise actuelle du creneau (USD), sans erreur' },
         ],
     },
     implementation: {
         'tarif.trop_percus': ((ctx, slot, effective_from) => {
             const devise = ctx.regle('tarif.devise')(ctx, slot);
             const prix = ctx.regle('tarif.prix')(ctx, slot);
+            // Q63 (decision du mandant) : seules les reservations confirmees dans la devise ACTUELLE du creneau sont
+            // recalculees ; devise d'une reservation : 'USD' si elle porte price_currency 'USD', 'EUR' sinon
+            const deviseDe = (b) => (b.price_currency === 'USD' ? 'USD' : 'EUR');
             const concernees = [...ctx.locataire.bookings.values()]
                 .filter((b) => b.slot_id === slot.slot_id && b.status === 'confirmed' && b.confirmed_at !== undefined && Date.parse(b.confirmed_at) >= effective_from)
+                .filter((b) => deviseDe(b) === devise)
                 .sort((a, b) => (a.confirmation_seq ?? a.seq) - (b.confirmation_seq ?? b.seq));
             const out = [];
             for (const b of concernees) {
                 const A = b.amount_cents ?? 0;
                 const taux_bp = b.discount_bp ?? ctx.regle('tarif.taux_remise')(ctx, b.member_id);
                 const { amount_cents: A2 } = ctx.regle('tarif.montant')(ctx, {
-                    seats: b.seats, prix, devise: b.price_currency ?? devise, taux_bp, ...(b.rate_micro === undefined ? {} : { rate_micro: b.rate_micro }),
+                    seats: b.seats, prix, devise, taux_bp, ...(b.rate_micro === undefined ? {} : { rate_micro: b.rate_micro }),
                 });
                 const Aprime = A2 + (avecFrais(b).frais_retenus_cents ?? 0);
                 if (Aprime >= A)
@@ -3323,11 +3349,11 @@ const P16_R3 = clause({
     grandeurs: ['credit_note_id', 'lines.amount_cents', 'refunds_cents', 'reason'],
 });
 /** Textes d'énoncé des clauses P17 à P24 (règles Pn.Rk). */
-const TEXTE_P17_R1 = "merge_tenants {source_tenant_id} fusionne le locataire SOURCE dans le locataire CIBLE, qui est le locataire de l'enveloppe (champ tenant) ; actor admin de la cible (P4.R2, P4.R3). Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, sans aucun effet) : (1) source_tenant_id inconnu (jamais cree, ou deja fusionne) -> NOT_FOUND ; (2) source_tenant_id = cible -> INVALID_ARGUMENT ; (3) actor non admin de la source -> FORBIDDEN ; (4) la source ou la cible a deja emis au moins une facture (P14.R2) -> INVALID_ARGUMENT ; (5) un identifiant renomme par P17.R2 existe deja dans son espace de la cible ou de la source -> INVALID_ARGUMENT. Effet : tout le contenu de la source passe dans la cible (P17.R2 a P17.R4), puis la source cesse d'exister : toute operation dont le champ tenant la nomme -> NOT_FOUND (P3.R2), merge_tenants qui la nomme -> NOT_FOUND, et create_tenant avec son identifiant -> ALREADY_EXISTS (l'identifiant reste reserve). La cible garde son proprietaire, son fuseau (P9.R1), sa sequence d'avoirs (P14.R4) et de pseudonymes (P18.R1) ; la table de taux (P15.R1) de la source s'ajoute a celle de la cible, une date deja presente dans la cible gardant le taux de la cible. Reponse {ok: true, tenant_id (la cible), source_tenant_id, renamed, merged_members, added_members}.";
+const TEXTE_P17_R1 = "merge_tenants {source_tenant_id} fusionne le locataire SOURCE dans le locataire CIBLE, qui est le locataire de l'enveloppe (champ tenant) ; actor admin de la cible (P4.R2, P4.R3). Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, sans aucun effet) : (1) source_tenant_id inconnu (jamais cree, ou deja fusionne) -> NOT_FOUND ; (2) source_tenant_id = cible -> INVALID_ARGUMENT ; (3) actor non admin de la source -> FORBIDDEN ; (4) la source ou la cible a deja emis au moins une facture (P14.R2) -> INVALID_ARGUMENT ; (5) un identifiant renomme par P17.R2 existe deja dans son espace de la cible ou de la source -> INVALID_ARGUMENT. ; (6) le member_id d'un membre de la source (proprietaire compris) est egal a un pseudonyme (P18.R1) de la cible -> INVALID_ARGUMENT (Q64). Effet : tout le contenu de la source passe dans la cible (P17.R2 a P17.R4), puis la source cesse d'exister : toute operation dont le champ tenant la nomme -> NOT_FOUND (P3.R2), merge_tenants qui la nomme -> NOT_FOUND, et create_tenant avec son identifiant -> ALREADY_EXISTS (l'identifiant reste reserve). La cible garde son proprietaire, son fuseau (P9.R1), sa sequence d'avoirs (P14.R4) et de pseudonymes (P18.R1) ; la table de taux (P15.R1) de la source s'ajoute a celle de la cible, une date deja presente dans la cible gardant le taux de la cible. Reponse {ok: true, tenant_id (la cible), source_tenant_id, renamed, merged_members, added_members}.";
 const TEXTE_P17_R2 = "Collisions d'identifiants, regle declaree. Espaces de noms : (a) slot_id ; (b) series_id ; (c) request_id / booking_id : les reservations ET les cles d'idempotence memorisees (P1.R4, y compris celles d'une reponse d'erreur) ; (d) import_id (P20.R1) ; (e) pseudonymes (P18.R1). Un identifiant de la SOURCE qui existe deja dans le meme espace de la CIBLE est renomme '<source_tenant_id>:<identifiant>' (exemple : 'M1' de t-mig-b devient 't-mig-b:M1') ; un identifiant sans collision garde son nom ; les identifiants de la cible ne changent jamais. Tout ce qui reference un identifiant renomme suit : slot_id des reservations, file d'attente, occurrences d'une serie, cle et booking_id/slot_id d'une reponse memorisee. renamed liste les renommages {kind, from, to} : kind 'slot', puis 'series', puis 'booking' (cle portant une reservation), puis 'request' (cle memorisee sans reservation), puis 'import', puis 'pseudonym' ; dans chaque kind, from croissant (ordinal UTF-16). Les member_id ne sont jamais renommes (P17.R3). Une serie et ses occurrences se renomment ENSEMBLE : si series_id ou le slot_id de l'une de ses occurrences courantes entre en collision, series_id et tous les slot_id '<series_id>@<date>' de la serie recoivent le prefixe '<source_tenant_id>:' (le lien '<series_id>@<date>' est conserve) ; chacun de ces renommages figure dans renamed (kind 'slot' pour les occurrences, 'series' pour la serie). Un pseudonyme de la source (P18.R1) deja present dans la cible, comme pseudonyme ou comme member_id, est renomme '<source_tenant_id>:<pseudonyme>', avec tout ce qui le cite (portefeuille, historique, lots, factures, avoirs, reservations) ; renomme ou non, il reste un pseudonyme lisible dans la cible (P18.R3). Ce renommage figure dans renamed sous le kind 'pseudonym', place apres 'import'.";
 const TEXTE_P17_R3 = "Membres. Un member_id present dans les deux locataires designe la MEME personne : il n'est pas renomme ; son role devient le plus eleve des deux (admin > staff > member) ; son niveau (P7.R2) celui de plus fort taux de remise ; son portefeuille la SOMME des deux soldes, l'historique du portefeuille de la source (mouvements et lots P22.R2) rejoignant celui de la cible avec ses instants ; suspended_until la plus tardive des deux (null si aucune). Un membre present seulement dans la source est ajoute avec son role, son niveau, son portefeuille et sa suspension. merged_members (presents dans les deux) et added_members (source seulement) : member_id croissants (ordinal). Un pseudonyme (P18.R1) n'est pas un membre : il ne figure ni dans merged_members ni dans added_members et suit P17.R2 (e).";
 const TEXTE_P17_R4 = "Historique conserve. Chaque reservation de la source passe dans la cible avec TOUT son etat, inchange hors renommage P17.R2 : member_id, status, seats, seat_numbers, rang en file d'attente, no_show, amount_cents, paid_credits_cents, paid_card_cents, devise et taux d'origine (P15.R6), instant et rang de confirmation (l'ordre de confirmation P13.R3 reste l'ordre global de la trajectoire), mouvements financiers (P14.R1). A partir de P17, toute reservation porte origin = {tenant_id, booking_id} : le locataire et le booking_id sous lesquels elle a ete CREEE (pour une reservation jamais fusionnee : son locataire et son booking_id actuels) ; les vues de reservation (reserve, get_booking) portent origin. Une reponse memorisee de la source est conservee sous sa cle (renommee s'il y a lieu) : seuls ses champs booking_id et slot_id de premier niveau sont reecrits selon le renommage ; le reste (dont origin) est inchange ; elle est rejouee a l'identique sous cette cle.";
-const TEXTE_P18_R1 = "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}.";
+const TEXTE_P18_R1 = "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2) ; un solde de portefeuille non nul est rembourse sur sa carte et le portefeuille passe a 0 (mouvement 'wallet_refund', precision Q38). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}.";
 const TEXTE_P18_R2 = "Anonymisation. Dans tout le locataire, l'identifiant efface est remplace par le pseudonyme : member_id (et payeur) des reservations, portefeuille (solde, historique, lots), niveau, suspension, reponses et arguments memorises (seules les valeurs EGALES au member_id des cles member_id, payer_member_id, from_member_id et to_member_id, a toute profondeur, ainsi que le suffixe des invoice_id 'INV-<AAAA-MM>-<member_id>' ; un slot_id, un request_id ou un autre identifiant egal par hasard au member_id ne change pas), factures et avoirs (member_id, et l'invoice_id 'INV-<AAAA-MM>-<member_id>' devient 'INV-<AAAA-MM>-<pseudonyme>', y compris l'invoice_id cite par un avoir). C'est la SEULE exception a l'immuabilite des factures (P14.R2) : elle ne remplace que des identifiants ; aucun montant, aucune ligne, aucun ordre ne change ; les totaux de toutes les factures restent intacts. Les identifiants des autres membres, des reservations et des avoirs ne changent pas.";
 const TEXTE_P18_R3 = "Apres effacement. Le membre efface n'est plus membre : il ne peut plus agir (FORBIDDEN, P4.R2) ; toute operation qui le designe comme member_id (reserve, top_up, set_tier, erase_member, ...) -> NOT_FOUND, et de meme pour le pseudonyme, sauf en lecture : list_documents, get_wallet (admin, staff) et le filtre member_id de report_revenue (P19.R3) acceptent le pseudonyme ; get_booking rend le pseudonyme. Les documents futurs du pseudonyme portent 'INV-<AAAA-MM>-<pseudonyme>' ; issue_invoices range les pseudonymes parmi les member_id par ordre croissant (ordinal). add_member avec l'ancien identifiant cree un NOUVEAU membre, sans historique (solde 0, aucun document).";
 const TEXTE_P19_R1 = "report_occupancy {from, to, min_fill_bp?, sort?, page_size?, page?} (admin, staff). Controles apres ceux d'acteur, dans cet ordre : from ou to absent ou pas au format 'AAAA-MM-JJTHH:MM:SSZ', ou from >= to -> INVALID_ARGUMENT ; min_fill_bp (defaut 0) pas un entier >= 0 -> INVALID_ARGUMENT ; sort (defaut 'starts_at') hors de {'starts_at', '-fill_bp', 'slot_id'} -> INVALID_ARGUMENT ; page_size (defaut 20) pas un entier de 1 a 100, ou page (defaut 1) pas un entier >= 1 -> INVALID_ARGUMENT. Lignes : une par creneau existant du locataire (une occurrence exceptee par P5.R2 n'existe plus) dont from <= starts_at < to (borne haute EXCLUE) : {slot_id, starts_at, capacity, booked, fill_bp}, booked = somme des seats des reservations confirmed (P13.R1), fill_bp = floor(booked x 10000 / capacity) (points de base ; peut depasser 10000 en surreservation). Filtre : fill_bp >= min_fill_bp (borne incluse).";
@@ -3344,7 +3370,7 @@ const TEXTE_P21_R4 = "Derniere place disputee : parmi des requetes reserve concu
 const TEXTE_P22_R1 = "Fin des remises par niveau (remplace P15.R6). Le montant est fixe a l'instant ou la reservation devient confirmed (reservation ou promotion) avec le prix et la devise du prix de CET instant, SANS remise : brut = seats x price_cents ; net = brut (taux 0 quel que soit le niveau) ; prix en EUR : amount_cents = net ; prix en USD : conversion P15.R3 au taux applicable a l'instant de la confirmation, avec price_currency, original_amount_cents et rate_micro comme a P15.R6 ; RATE_UNAVAILABLE comme a P15.R6. Cela vaut pour toute confirmation a partir de P22, y compris la promotion d'une reservation demandee avant P22. Les montants fixes avant P22 ne changent pas ; les factures et avoirs deja emis ne changent pas. set_tier reste accepte et le niveau reste enregistre, sans effet sur le prix. Le recalcul P16.R2 utilise le taux de remise de la confirmation de chaque reservation : son taux d'avant P22 pour une reservation confirmee avant P22, 0 pour une reservation confirmee a partir de P22.";
 const TEXTE_P22_R2 = "Lots de credits et expiration. Chaque entree de credits au portefeuille (top_up, compensation P13.R3, re-credit r_c d'un remboursement ou d'un trop-percu, y compris par avoir) forme un LOT {acquired_at = at de l'operation, expires_at = le meme instant UTC 12 mois civils plus tard (12 mois civils apres un 29 fevrier donnent le 28 fevrier de l'annee suivante, a la meme heure UTC), remaining_cents}. Chaque debit de credits (paiement P8.R2, frais P23.R3) consomme les lots par expires_at croissant (le plus ancien d'abord), puis par ordre d'entree. Retroactivite : les lots sont reconstitues sur TOUT l'historique du portefeuille depuis P8, par la meme regle (y compris les anciens credits). Un lot expire a l'instant expires_at : pour une operation d'instant at >= expires_at son reste est perdu (a at = expires_at le lot est expire ; a expires_at - 1 s il ne l'est pas). L'expiration est un mouvement de portefeuille date de expires_at, de montant = reste du lot ; a instant egal elle precede l'operation. balance_cents = somme des restes des lots non expires.";
 const TEXTE_P22_R3 = "Vues des lots. get_wallet porte en plus lots = [{acquired_at, expires_at, remaining_cents}] : les lots non expires de reste > 0, par expires_at croissant puis ordre d'entree (acquired_at, expires_at : 'AAAA-MM-JJTHH:MM:SSZ'). La reponse de top_up porte en plus expires_at, l'echeance du lot cree.";
-const TEXTE_P22_R4 = "Factures (remplace P14.R3). Contenu de P14.R3, plus : les lignes {type: 'expiry', booking_id: null, amount_cents} des expirations du membre dont expires_at tombe dans le mois (mois local, P14.R1), rangees a leur instant parmi les lignes ; le champ expired_cents = somme de ces lignes. Une expiration n'est ni une charge ni un remboursement : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte. Identite : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents. Les factures emises avant P22 ne portent pas expired_cents et ne changent pas.";
+const TEXTE_P22_R4 = "Factures (remplace P14.R3). Contenu de P14.R3, plus : les lignes {type: 'expiry', booking_id: null, amount_cents} des expirations du membre dont expires_at tombe dans le mois (mois local, P14.R1), rangees a leur instant parmi les lignes ; le champ expired_cents = somme de ces lignes. Une expiration n'est ni une charge ni un remboursement : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte. Identite : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents - wallet_refunds_cents (lignes 'wallet_refund' du remboursement a l'effacement, P18.R1, Q38 ; ni charge ni remboursement). Les factures emises avant P22 ne portent pas expired_cents et ne changent pas.";
 const TEXTE_P23_R1 = "transfer_booking {booking_id, to_member_id} (admin, staff pour toute reservation ; member seulement pour une reservation dont il est le TITULAIRE, member_id). Controles apres ceux d'acteur, dans cet ordre : booking_id inconnu -> NOT_FOUND ; actor member non titulaire -> FORBIDDEN ; to_member_id non membre -> NOT_FOUND ; statut different de confirmed, ou to_member_id = titulaire actuel -> INVALID_ARGUMENT ; at >= starts_at du creneau -> SLOT_CLOSED ; at < suspended_until du destinataire (P10.R3) -> SUSPENDED ; le destinataire a une AUTRE reservation active (confirmed ou waiting) sur le meme creneau -> ALREADY_BOOKED. Effet : le titulaire devient to_member_id ; la reservation garde booking_id, seats, seat_numbers, montants, payeur et rang de confirmation ; le cedant paie les frais P23.R3. Reponse {ok: true, booking_id, member_id (nouveau titulaire), fee_cents, fee: {credits_cents, card_cents}}.";
 const TEXTE_P23_R2 = "exchange_bookings {booking_id, with_booking_id} (admin, staff ; member -> FORBIDDEN) : les deux titulaires echangent leurs reservations ; sur un meme creneau numerote, cela echange leurs places. Controles apres ceux d'acteur, dans cet ordre : l'une des deux inconnue -> NOT_FOUND ; booking_id = with_booking_id, l'une non confirmed, ou meme titulaire -> INVALID_ARGUMENT ; l'un des deux creneaux commence (at >= starts_at) -> SLOT_CLOSED ; l'un des deux titulaires suspendu (at < suspended_until) -> SUSPENDED ; creneaux differents et l'un des titulaires a deja une autre reservation active sur le creneau qu'il recoit -> ALREADY_BOOKED. Effet : chacun devient titulaire de la reservation de l'autre ; chaque cedant paie les frais P23.R3 de la reservation qu'il cede (frais de booking_id d'abord). Reponse {ok: true, exchanged: [{booking_id, member_id (nouveau titulaire), fee_cents}, {booking_id: with_booking_id, member_id, fee_cents}]}.";
 const TEXTE_P23_R3 = "Frais de transfert : fee_cents = 0 si A = 0 ; sinon fee_cents = max(100, floor((A x 1000 + 5000) / 10000)), A = amount_cents actuel de la reservation cedee (10 % arrondi demi vers le haut au centime, minimum 100 centimes pour une reservation payante, meme peu chere ; une reservation gratuite se cede sans frais). Payes par le cedant au moment du transfert : credits d'abord (lots P22.R2, le plus ancien d'abord), puis carte. C'est un mouvement de type 'fee' (booking_id, montant, part credits, part carte) date de l'operation. Les frais ne sont jamais rembourses. A partir de P23, les vues de reservation (reserve, get_booking) portent payer_member_id (le membre debite a la confirmation ; null si jamais confirmee) et transfers = [{from_member_id, to_member_id, at, fee_cents}] dans l'ordre des transferts ([] si aucun).";
@@ -3436,7 +3462,7 @@ const P17_R1 = clause({
                 arguments: { source_tenant_id: 'chaine' },
                 reponse: { ok: true, tenant_id: 'chaine (la cible)', source_tenant_id: 'chaine', renamed: 'tableau de { kind, from, to }', merged_members: 'tableau', added_members: 'tableau' },
                 erreurs: ['FORBIDDEN', 'NOT_FOUND', 'INVALID_ARGUMENT'],
-                ordre_des_controles: ['NOT_FOUND source', 'INVALID_ARGUMENT source = cible', 'FORBIDDEN actor non admin de la source', 'INVALID_ARGUMENT facture emise', 'INVALID_ARGUMENT renommage deja pris'],
+                ordre_des_controles: ['NOT_FOUND source', 'INVALID_ARGUMENT source = cible', 'FORBIDDEN actor non admin de la source', 'INVALID_ARGUMENT facture emise', 'INVALID_ARGUMENT renommage deja pris', 'INVALID_ARGUMENT member_id de la source = pseudonyme de la cible'],
             },
             create_tenant: { erreurs: ['ALREADY_EXISTS'], identifiant_absorbe: 'reste reserve : ALREADY_EXISTS' },
         },
@@ -3444,6 +3470,7 @@ const P17_R1 = clause({
             { contexte: "m-ana n'est pas membre de t-beta", requete: { op: 'merge_tenants', tenant: 't-alpha', actor: 'm-ana', args: { source_tenant_id: 't-beta' } }, reponse: { ok: false, error: 'FORBIDDEN' } },
             { requete: { op: 'merge_tenants', tenant: 't-mig-a', actor: 'm-ana', args: { source_tenant_id: 't-gamma' } }, reponse: { ok: false, error: 'NOT_FOUND' } },
             { contexte: 'apres fusion de t-mig-b', requete: { op: 'create_tenant', args: { tenant_id: 't-mig-b', owner_id: 'm-ana' } }, reponse: { ok: false, error: 'ALREADY_EXISTS' } },
+            { contexte: 'Q64 : anon-0001, pseudonyme de t-q64a, est member_id d un membre de t-q64b', requete: { op: 'merge_tenants', tenant: 't-q64a', actor: 'm-own', args: { source_tenant_id: 't-q64b' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
         ],
     },
     implementation: {
@@ -3471,6 +3498,12 @@ const P17_R1 = clause({
                 return fail('INVALID_ARGUMENT');
             const plan = ctx.regle('fusion.renommage')(ctx, source, cible);
             if (plan === null)
+                return fail('INVALID_ARGUMENT');
+            // (6) Q64 (decision du mandant) : un member_id de la source (proprietaire compris) egal a un pseudonyme de la
+            // cible -> INVALID_ARGUMENT, sans effet (un pseudonyme ne designe jamais un membre, un member_id n'est jamais renomme)
+            const pseudosCible = pseudonymesDe(cible).ensemble;
+            const membresSource = [...source.members.keys(), ...(source.owner_id === undefined ? [] : [source.owner_id])];
+            if (membresSource.some((m) => pseudosCible.has(m)))
                 return fail('INVALID_ARGUMENT');
             for (const [de, vers] of plan.pseudonymes) {
                 ctx.regle('membre.renommer')(ctx, source, de, vers);
@@ -3693,6 +3726,7 @@ const P17_R4 = clause({
     },
     grandeurs: ['origin', 'booking_id', 'slot_id', 'request_id', 'tenant_id'],
 });
+const TYPE_REMBOURSEMENT_PORTEFEUILLE = 'wallet_refund';
 const P18_R1 = clause({
     id: 'P18.R1',
     enters: 'P18',
@@ -3708,17 +3742,32 @@ const P18_R1 = clause({
             },
         },
         valeurs: { pseudonyme: "'anon-' + 4 chiffres, sequence par locataire, a partir de anon-0001" },
+        remboursement_du_portefeuille: {
+            mouvement: "'wallet_refund', date de at, montant B = balance_cents apres les expirations de at, porte par le pseudonyme ; aucun si B = 0",
+            ligne: "{ type: 'wallet_refund', booking_id: null, amount_cents: B }, facture du mois local de at, rangee a son instant",
+            facture: { wallet_refunds_cents: 'somme des lignes wallet_refund (0 sans ligne), sur toute facture emise a partir de P18' },
+            hors_de: ['charges_cents', 'refunds_cents', 'total_cents', 'card_cents', 'credits_used_cents', 'report_revenue'],
+            identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used (- expired a partir de P22) - wallet_refunds',
+            lots: 'debit de credits qui consomme tous les lots restants (P22.R2)',
+        },
         exemples: [
             { requete: { op: 'erase_member', tenant: 't-alpha', actor: 'm-ana', args: { member_id: 'm-gus' } }, reponse: { ok: true, member_id: 'anon-0001', credit_note_ids: ['AV-0002'], bookings_anonymized: 13 } },
+            { contexte: 'Q38 (t-q38) : m-ra, 1000 recharges, 400 payes en credits, efface', calcul: 'B = 600 rembourses sur la carte ; facture d aout 2031 du pseudonyme : top_up 1000, charge 400, wallet_refund 600, cloture 0 = 0 + 1000 - 400 - 600' },
             { contexte: 'm-cleo a une reservation confirmed a venir', requete: { op: 'erase_member', tenant: 't-alpha', actor: 'm-ana', args: { member_id: 'm-cleo' } }, reponse: { ok: false, error: 'INVALID_ARGUMENT' } },
         ],
     },
     implementation: {
         'autorisation.erase_member': ['admin'],
+        // Q62 : numero suivant de la sequence du locataire (une fusion ne la change pas, P17.R1), en sautant tout
+        // 'anon-nnnn' deja member_id d'un membre (proprietaire compris) ou pseudonyme du locataire (fusion comprise).
         'effacement.pseudonyme': ((ctx) => {
             const p = pseudonymesDe(ctx.locataire);
-            p.seq += 1;
-            return `anon-${String(p.seq).padStart(4, '0')}`;
+            const nom = (n) => `anon-${String(n).padStart(4, '0')}`;
+            let n = p.seq + 1;
+            while (ctx.role(nom(n)) !== undefined || p.ensemble.has(nom(n)))
+                n += 1;
+            p.seq = n;
+            return nom(n);
         }),
         'erase_member.effet': (ctx) => {
             const m = ctx.args.member_id;
@@ -3734,11 +3783,28 @@ const P18_R1 = clause({
                     return fail('INVALID_ARGUMENT');
             }
             const pseudo = ctx.regle('effacement.pseudonyme')(ctx);
+            ctx.regle('effacement.remboursement_portefeuille')(ctx, m);
             const bilan = ctx.regle('effacement.anonymiser')(ctx, m, pseudo);
             return succeed({ member_id: pseudo, ...bilan });
         },
+        // Q38 (decision du mandant) : le solde B (apres les expirations de at, etape d'enveloppe) est rembourse sur la
+        // carte ; debit de credits (il consomme les lots restants, P22.R2) et ligne 'wallet_refund' du mois de at.
+        // Inscrit avant l'anonymisation : P18.R2 le fait porter par le pseudonyme, comme tout l'historique.
+        'effacement.remboursement_portefeuille': ((ctx, m) => {
+            const B = ctx.regle('portefeuille.solde')(ctx, m);
+            if (B <= 0)
+                return;
+            ctx.regle('portefeuille.mouvement')(ctx, m, -B);
+            ctx.journaliser({ type: TYPE_REMBOURSEMENT_PORTEFEUILLE, member_id: m, booking_id: null, amount_cents: B, credits_cents: B, card_cents: 0 });
+        }),
+        // toute facture emise a partir de P18 porte wallet_refunds_cents (0 sans ligne)
+        'comptabilite.champ.wallet_refunds_cents': ((lignes) => ({
+            wallet_refunds_cents: lignes.filter((e) => e.type === TYPE_REMBOURSEMENT_PORTEFEUILLE).reduce((s, e) => s + e.amount_cents, 0),
+        })),
+        // identite de cloture et rapprochement (P14.R3/P14.R6, P22.R4, P23.R5) : - wallet_refunds
+        'comptabilite.sortie.wallet_refund': ((x) => (typeof x.wallet_refunds_cents === 'number' ? x.wallet_refunds_cents : 0)),
     },
-    grandeurs: ['member_id', 'invoice_ids', 'credit_note_ids', 'bookings_anonymized', 'starts_at', 'at'],
+    grandeurs: ['member_id', 'invoice_ids', 'credit_note_ids', 'bookings_anonymized', 'starts_at', 'at', 'balance_cents', 'lines.amount_cents', 'wallet_refunds_cents'],
 });
 const P18_R2 = clause({
     id: 'P18.R2',
@@ -3847,6 +3913,7 @@ const P18_R3 = clause({
             get_wallet: { pseudonyme: 'accepte (admin, staff)' },
             report_revenue: { filtre_member_id: 'un pseudonyme est un member_id comme un autre' },
             reserve: { erreurs: ['NOT_FOUND'], membre_efface: 'NOT_FOUND, pseudonyme compris' },
+            add_member: { erreurs: ['NOT_FOUND'], pseudonyme: 'NOT_FOUND sans effet, apres les controles de P4.R1 ; ancien identifiant : nouveau membre' },
         },
         erreurs: ['NOT_FOUND', 'FORBIDDEN'],
         exemples: [
@@ -3861,12 +3928,11 @@ const P18_R3 = clause({
                 return undefined;
             return succeed({ member_id: m, balance_cents: ctx.regle('portefeuille.solde')(ctx, String(m)) });
         }),
+        // Q62 : un pseudonyme ne designe jamais un membre ; controle apres ceux de P4.R1 (add_member.etape.arguments, rang 10).
+        'add_member.etape.pseudonyme': etape(20, (ctx) => (pseudonymesDe(ctx.locataire).ensemble.has(String(ctx.args.member_id)) ? fail('NOT_FOUND') : undefined)),
         'list_documents.etape.pseudonyme': etape(6, (ctx) => (estPseudonyme(ctx, ctx.args.member_id) ? documentsDe(ctx, ctx.args.member_id) : undefined)),
     },
     grandeurs: ['member_id', 'balance_cents', 'invoice_id'],
-    questions_ouvertes: [
-        "Q38 (OUVERTE, decision du mandant ; choix provisoire exerce par la racine) : le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde son portefeuille ; un solde non nul n'est ni rembourse ni annule",
-    ],
 });
 const TRIS_OCCUPATION = ['starts_at', '-fill_bp', 'slot_id'];
 const TRIS_REVENUS = ['month', '-net_cents', 'member_id'];
@@ -4481,6 +4547,7 @@ function factureAvecExpirations(ctx, member, mois, frais) {
         compensations_cents: somme((t) => t === 'compensation', 'amount_cents'),
         expired_cents: somme((t) => t === 'expiry', 'amount_cents'),
         credit_notes_credits_cents,
+        ...champsDeFacture(ctx, lignes),
         opening_balance_cents: solde(debut(ctx, mois)),
         closing_balance_cents: solde(debut(ctx, moisSuivant(mois))),
     };
@@ -4489,7 +4556,7 @@ const sortieExpiration = (x) => (typeof x.expired_cents === 'number' ? x.expired
 const GRANDEURS_FACTURE = [
     'invoice_id', 'member_id', 'month', 'lines.amount_cents', 'charges_cents', 'refunds_cents', 'total_cents',
     'invoices.card_cents', 'credits_used_cents', 'top_ups_cents', 'compensations_cents', 'credit_notes_credits_cents',
-    'opening_balance_cents', 'closing_balance_cents', 'expired_cents',
+    'opening_balance_cents', 'closing_balance_cents', 'expired_cents', 'wallet_refunds_cents',
 ];
 const P22_R4 = clause({
     id: 'P22.R4',
@@ -4498,8 +4565,8 @@ const P22_R4 = clause({
     replaces: 'P14.R3',
     text: TEXTE_P22_R4,
     contract: {
-        facture: { lines: "tableau de { type: 'charge' | 'refund' | 'top_up' | 'compensation' | 'adjustment' | 'expiry', booking_id, amount_cents }, rangees a leur instant", expired_cents: 'entier' },
-        identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired',
+        facture: { lines: "tableau de { type: 'charge' | 'refund' | 'top_up' | 'compensation' | 'adjustment' | 'expiry' | 'wallet_refund', booking_id, amount_cents }, rangees a leur instant", expired_cents: 'entier', wallet_refunds_cents: 'entier' },
+        identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired - wallet_refunds',
         exemples: [
             { facture: { invoice_id: 'INV-2032-06-m-dan', month: '2032-06', lines: [{ type: 'expiry', booking_id: null, amount_cents: 1664 }], charges_cents: 0, total_cents: 0, credits_used_cents: 0, expired_cents: 1664, opening_balance_cents: 1681, closing_balance_cents: 17 } },
         ],
@@ -4690,8 +4757,8 @@ const P23_R5 = clause({
     replaces: 'P22.R4',
     text: TEXTE_P23_R5,
     contract: {
-        facture: { lines: "tableau de { type: 'charge' | 'refund' | 'top_up' | 'compensation' | 'adjustment' | 'expiry' | 'fee', booking_id, amount_cents }", charges_cents: 'charges + frais' },
-        identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired',
+        facture: { lines: "tableau de { type: 'charge' | 'refund' | 'top_up' | 'compensation' | 'adjustment' | 'expiry' | 'wallet_refund' | 'fee', booking_id, amount_cents }", charges_cents: 'charges + frais' },
+        identite: 'closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired - wallet_refunds',
         exemples: [
             { facture: { invoice_id: 'INV-2032-08-m-dan', lines: [{ type: 'charge', booking_id: 'h2', amount_cents: 4000 }, { type: 'fee', booking_id: 'h2', amount_cents: 400 }, { type: 'refund', booking_id: 'h2', amount_cents: 2000 }] } },
         ],

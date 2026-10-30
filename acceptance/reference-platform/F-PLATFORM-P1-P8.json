@@ -33,7 +33,12 @@
     "a un simulateur jetable hors depot etendu aux regles clarifiees : 0 desaccord sur les faits",
     "anciens et nouveaux. Pour cette passe, packages/oracle/src/f-platform-*.ts a ete LU en lecture",
     "seule (sur instruction) et execute seulement pour constater qu'il diverge sur les faits nouveaux",
-    "et sur eux seuls ; aucune valeur attendue n'en vient."
+    "et sur eux seuls ; aucune valeur attendue n'en vient.",
+    "",
+    "DECISIONS DU MANDANT (fixture-transcriber, 27/10/2026, sur reponse du mandant du 27/10/2026). Precision Q65 de P8.R4 :",
+    "get_booking d'une reservation annulee expose amount_cents, paid_credits_cents et paid_card_cents restants comme P9.R4",
+    "(fait P8.F31, signale par l'implementeur). Aucune etape ni aucun fait ne change. Q38 (solde d'un membre efface) est",
+    "tranchee par le mandant et resolue dans F-PLATFORM-P17-P24.json : il ne reste aucune question ouverte."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -137,6 +142,14 @@
       ],
       "faits_existants_modifies": [],
       "questions_resolues": 19
+    },
+    "decisions_du_mandant": {
+      "source": "decision du mandant du 27/10/2026 (reponses du mandant a trois questions ; precision P8.R4 signalee par l'implementeur)",
+      "precision": "P8.R4 precisions[Q65]",
+      "etapes_ajoutees": [],
+      "faits_ajoutes": [],
+      "faits_existants_modifies": [],
+      "confrontation": "trajectoire P1-P24 rejouee hors depot avant et apres : aucune reponse d'etape de P1-P8 ne change ; P8.F31 (q4a cancelled, 0/0/0) est reproduit"
     }
   },
   "conventions": {
@@ -4348,6 +4361,12 @@
               "question": "Q04",
               "classe": "CHANGER",
               "texte": "Quand add_exception retire une occurrence, chaque réservation 'confirmed' annulée d'office est remboursée INTÉGRALEMENT (taux 10000, quel que soit le palier) vers chaque source : C re-crédité au portefeuille, D rendu à la carte, au payeur à partir de P23. Si la charge appartient à un mois déjà facturé, un avoir de reason 'cancellation' est émis ; sinon c'est une ligne refund. Une réservation waiting ne rembourse rien. La réponse de add_exception est inchangée."
+            },
+            {
+              "question": "Q65",
+              "classe": "GARDER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "Vue d'une reservation annulee. get_booking d'une reservation 'cancelled' porte, comme a partir de P9 (P9.R4), amount_cents, paid_credits_cents et paid_card_cents RESTANTS apres le remboursement, c'est-a-dire A, C et D tels que la reservation les garde : a P8 le remboursement d'une annulation totale (cancel sans seats, ou seats = n) et d'une annulation d'office par add_exception (P5.R2) est integral, donc amount_cents = paid_credits_cents = paid_card_cents = 0 (P8.F31 : q4a apres add_exception, A 1000 -> 0, C 600 -> 0, D 400 -> 0). Les frais retenus, le cas echeant (a partir de P9, taux de palier < 10000), sont ce qui reste dans ces champs : amount_cents = A - R, paid_credits_cents = C - r_c, paid_card_cents = D - r_d (P9.R4) ; le contrat n'exige aucun champ distinct (frais_retenus_cents ou autre), et F (somme des frais d'annulation partielle, P9.R4) reste interne. Precision sans effet sur aucun fait."
             }
           ]
         }
@@ -5530,6 +5549,21 @@
         "P8.F25",
         "P8.F26",
         "P16.F24"
+      ]
+    },
+    {
+      "id": "Q65",
+      "periode": "P8",
+      "sujet": "vue d'une reservation annulee",
+      "question": "Signalee par l'implementeur : P8.R4 ne dit pas ce que get_booking expose pour une reservation 'cancelled' ; le fait P8.F31 compare amount_cents, paid_credits_cents et paid_card_cents a 0 sans regle qui l'enonce (P8.R2 ne parle que d'une reservation confirmed).",
+      "classe": "GARDER",
+      "origine": "decision du mandant du 27/10/2026",
+      "decision": "get_booking d'une reservation annulee expose amount_cents, paid_credits_cents et paid_card_cents restants, comme P9.R4 ; a P8 ils valent 0 apres une annulation totale ou d'office ; les frais retenus (a partir de P9) se lisent dans ces champs, sans champ distinct.",
+      "regles": [
+        "P8.R4"
+      ],
+      "faits": [
+        "P8.F31"
       ]
     }
   ]

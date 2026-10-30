@@ -173,6 +173,8 @@ export interface PlatformClause {
 export interface Precision {
   readonly question: string
   readonly classe: string
+  /** Origine d'une precision tranchee hors de la passe de clarification (ex. decision du mandant). */
+  readonly origine?: string
   readonly texte: string
 }
 

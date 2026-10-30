@@ -1,0 +1,45 @@
+{
+  "schema": "bench.red/1",
+  "task": "T71",
+  "subject_commit": "1b584f358daddc8a7f30f8dd210a36d566700504",
+  "dirty": false,
+  "input_digest": "2fb2f191cf32d617648ab06702a5114b0360f20b4b89e27c42fa83bcd70589e5",
+  "suite_loaded": true,
+  "suite_exit_code": 1,
+  "verdict": "RED_RECORDED",
+  "cases": [
+    {
+      "id": "T71.A1",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T71.A2",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T71.A3",
+      "state": "RED",
+      "reason": "ASSERTION_FAILED"
+    },
+    {
+      "id": "T71.A4",
+      "state": "GREEN_PROVEN_BY_MUTATION",
+      "killed_by": "T71.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les decisions du mandant (561e626..1b584f3) ne touchent que le rejeu"
+    }
+  ],
+  "mutation_proof": {
+    "T71.A4": {
+      "killed_by": "T71.M7",
+      "note": "contre-epreuve declaree dans verification/mutants, observee a l'execution par le test-author ; cas vert parce que les decisions du mandant (561e626..1b584f3) ne touchent que le rejeu"
+    }
+  },
+  "invalid_red_reasons": [
+    "MODULE_NOT_FOUND",
+    "TYPE_ERROR",
+    "SUITE_FAILED_TO_RUN"
+  ],
+  "note": "Un rouge par module introuvable ou suite non chargee n est PAS une preuve. Un vert a ce stade n est admis qu avec un mutant nomme qui le tue."
+}

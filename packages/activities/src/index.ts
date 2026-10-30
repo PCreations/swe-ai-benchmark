@@ -617,3 +617,22 @@ export {
   buildFPlatformPilotPrompt,
   materializeFPlatformPeriodDocs,
 } from './f-platform-pilot.js'
+
+/* ── T74 : controles cibles et tests differentiels F-PLATFORM (ADR-021
+   decisions 3 et 5) — notation par EXECUTION REELLE du candidat, protocole
+   bench.platform/1, echecs persistes dans PostgreSQL (voir
+   f-platform-checks-scoring.ts). Les generateurs viennent de @bench/scenario. */
+
+export {
+  PLATFORM_FAILURES_TABLE,
+  scorePlatformDifferential,
+  scorePlatformTargeted,
+} from './f-platform-checks-scoring.js'
+export type {
+  PlatformClauseScore,
+  PlatformFailure,
+  ScorePlatformDifferentialResult,
+  ScorePlatformInput,
+  ScorePlatformTargetedInput,
+  ScorePlatformTargetedResult,
+} from './f-platform-checks-scoring.js'

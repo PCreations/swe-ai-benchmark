@@ -182,3 +182,33 @@ export {
   renderPlatformPeriodDocs,
 } from './f-platform-docs.js'
 export type { PlatformPeriodDocsOptions } from './f-platform-docs.js'
+
+// ── T74 : controles cibles et tests differentiels de F-PLATFORM (ADR-021
+//    decisions 3 et 5) — generation pure ; la notation qui lance le candidat
+//    est dans @bench/activities (voir f-platform-checks.ts).
+export {
+  PLATFORM_CANDIDATE_PROTOCOL,
+  PLATFORM_CHECKS_PERIOD_COUNT,
+  PLATFORM_DIFFERENTIAL_MIN_OPERATIONS,
+  PLATFORM_DIFFERENTIAL_MIN_STREAMS,
+  diagnosePlatformDivergence,
+  generatePlatformDifferentialStreams,
+  generatePlatformTargetedSequences,
+  platformActiveOperations,
+  platformCanonicalJson,
+  platformClausesWithout,
+  platformExpectedResponses,
+  platformPeriodNumber,
+} from './f-platform-checks.js'
+export type {
+  GeneratePlatformDifferentialStreamsInput,
+  GeneratePlatformDifferentialStreamsResult,
+  GeneratePlatformTargetedSequencesInput,
+  GeneratePlatformTargetedSequencesResult,
+  PlatformCheckStep,
+  PlatformChecksInput,
+  PlatformDifferentialStream,
+  PlatformExpectation,
+  PlatformTargetedSequence,
+  PlatformTargetedStep,
+} from './f-platform-checks.js'

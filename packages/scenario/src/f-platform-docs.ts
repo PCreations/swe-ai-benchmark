@@ -49,6 +49,8 @@
 
 import { PlatformEngine, platformClauses, type PlatformClause, type PlatformStep } from '@bench/oracle'
 
+import { PLATFORM_CANDIDATE_PROTOCOL } from './f-platform-checks.js'
+
 type Json = Record<string, unknown>
 
 /** Nombre de périodes de F-PLATFORM (ADR-021 décision 2). */
@@ -670,6 +672,29 @@ function vocabulaireDesExemples(exemples: readonly Exemple[], out: Map<string, S
   for (const e of exemples) parcourir(e.reponse, '')
 }
 
+/**
+ * Le protocole du processus candidat (`bench.platform/1`, T74) : comment le
+ * moteur lance l'application et lui adresse les opérations de ce contrat. Les
+ * notateurs de `@bench/activities` (séquences ciblées, flux différentiels) le
+ * jouent tel qu'il est écrit ici ; le candidat n'a pas d'autre source pour
+ * l'apprendre.
+ */
+function protocoleCandidat(n: number): string[] {
+  const proto = PLATFORM_CANDIDATE_PROTOCOL
+  return [
+    `## Protocole du processus candidat (\`${proto}\`)`,
+    '',
+    "Le moteur exerce l'application en la lançant comme un processus (la commande de lancement du dépôt) et en lui adressant les opérations de ce contrat :",
+    '',
+    "- **État** : la variable d'environnement `BENCH_DATA_DIR` désigne le répertoire où l'application garde son état. L'état doit survivre à l'arrêt du processus : le moteur relance l'application sur le même `BENCH_DATA_DIR` (au moins à chaque période) et s'attend à retrouver tout ce qui a été fait. Un `BENCH_DATA_DIR` vide est un état vide.",
+    `- **Démarrage** : la première ligne écrite sur la sortie standard est l'objet JSON \`{"ready":true,"protocol":"${proto}"}\` (d'autres champs peuvent s'y ajouter) ; rien n'est écrit sur la sortie standard avant elle.`,
+    `- **Requêtes** : l'entrée standard porte ensuite une requête JSON par ligne, \`{"id", "period", "at", "op", "args", "tenant"?, "actor"?, "version"?}\` : \`id\` est un identifiant de requête choisi par le moteur ; \`period\` est la période en cours (\`"P${String(n)}"\` pour ce document) ; \`at\` est l'instant de l'opération (\`'AAAA-MM-JJTHH:MM:SSZ'\`, UTC), seule horloge de l'application ; \`op\` et \`args\` sont l'opération et ses arguments décrits ci-dessous ; les champs d'enveloppe en vigueur (section « Enveloppe ») sont au même niveau que \`op\`, hors \`args\`, et absents quand la requête ne les porte pas.`,
+    "- **Réponses** : pour chaque requête, une ligne JSON sur la sortie standard, dans l'ordre des requêtes : `{\"id\": <id de la requête>, \"response\": <réponse>}`, où `<réponse>` est la réponse de l'opération telle que ce contrat la décrit (`{ ok: true, ... }` ou `{ ok: false, error }`). Les réponses sont comparées à l'attendu comme des valeurs JSON : l'ordre des clés est indifférent, une clé absente n'est pas une clé à `null`.",
+    "- **Fin** : les opérations sont traitées une à une, dans l'ordre des lignes ; quand l'entrée standard se ferme, l'application répond à toutes les requêtes reçues puis se termine.",
+    '',
+  ]
+}
+
 function renderApi(clauses: readonly Clause[], n: number, ex: ExemplesDePeriode): string {
   const actives = clauses.filter((c) => active(c, n))
   const contrat = contratEnVigueur(clauses, n)
@@ -682,6 +707,7 @@ function renderApi(clauses: readonly Clause[], n: number, ex: ExemplesDePeriode)
     '',
     'Ce fichier est réécrit par le moteur au début de chaque période.',
     '',
+    ...protocoleCandidat(n),
   ]
 
   // Enveloppe.

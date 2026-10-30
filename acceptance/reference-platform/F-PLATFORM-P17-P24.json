@@ -48,7 +48,17 @@
     "(T74) a trouve que le pseudonyme 'anon-nnnn' de P18.R1 peut deja appartenir, dans le locataire, a un membre (add_member",
     "'anon-0001') ou a un pseudonyme venu d'une fusion, et qu'add_member peut reprendre un pseudonyme : deux personnes partagent",
     "alors un identifiant. Precisions ecrites dans P18.R1 et P18.R3 (Q62) ; cas exerce sur les locataires neufs t-q62 et t-q62b",
-    "en FIN de P18 (P18-45..P18-68). Faits P18.F24-F33 ; aucun fait existant decale ni modifie."
+    "en FIN de P18 (P18-45..P18-68). Faits P18.F24-F33 ; aucun fait existant decale ni modifie.",
+    "",
+    "DECISIONS DU MANDANT (fixture-transcriber, 27/10/2026, decision du mandant du 27/10/2026). Q38, P18 : « Rembourser sur carte ».",
+    "A l'effacement, un solde non nul est rembourse sur la carte, le portefeuille passe a 0, la facture du mois du pseudonyme porte une ligne",
+    "{type: 'wallet_refund', booking_id: null, amount_cents} ; wallet_refunds_cents entre dans l'identite de cloture (P14.R3/P22.R4) et le",
+    "rapprochement P14.R6 ; le remboursement consomme les lots restants (P22.R2). Precisions Q38 de P18.R1, P22.R2, P22.R4. Cela CHANGE six",
+    "faits existants (P18.F10, P18.F28, P18.F31, P18.F32, P22.F13, P22.F14), consignes dans scellement.desaccords. Cas exerce sur un locataire",
+    "neuf t-q38 en FIN de P18 (P18-69..P18-81) et en FIN de P22 (P22-23..P22-29).",
+    "Fusion, P17 : « Refuser la fusion ». merge_tenants -> INVALID_ARGUMENT, sans effet, si un member_id de la source est un pseudonyme de la",
+    "cible (sixieme controle de P17.R1, precision Q64) ; le sens inverse est deja couvert par Q34 (renommage, P18.F29). Cas exerce en FIN de",
+    "P18 sur t-q64a/t-q64b (P18-82..P18-90). questions_ouvertes est vide : il ne reste aucune question ouverte."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -76,10 +86,10 @@
   "prolonge": {
     "fixture": "F-PLATFORM-P9-P16",
     "chemin": "acceptance/reference-platform/F-PLATFORM-P9-P16.json",
-    "sha256": "6aede33997bc343e00f9ebd9ddb8fdffaebf0e7bed6d659eb393ee7fed2b6e7c",
-    "commit": "8b511ed7fc5eb7fba59673eb0fb2f1f25571f636",
-    "derniere_etape": "P16-31",
-    "etat_au_depart": "celui laisse par P16-31 (horloge 2031-08-01T12:07:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000) ; correction Q19 de T71 : t-q19 (UTC, proprietaire m-ana ; membres m-ivy, m-jo ; portefeuilles m-ivy 3277, m-jo 500 ; factures 2031-04 et 2031-05 emises ; creneaux Q19A (j1 cancelled) et Q19B (j2 confirmed, debut 2031-06-05T18:00:00Z))"
+    "sha256": "5cb38c266470fe0b5b4c0d2bc682f580f51633c8327929460535a411430349f9",
+    "commit": "dd13e03eb6edc9472e2bb67d407074e43ff8f8a3",
+    "derniere_etape": "P16-55",
+    "etat_au_depart": "celui laisse par P16-55 (horloge 2031-08-01T12:31:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000) ; correction Q19 de T71 : t-q19 (UTC, proprietaire m-ana ; membres m-ivy, m-jo ; portefeuilles m-ivy 3277, m-jo 500 ; factures 2031-04 et 2031-05 emises ; creneaux Q19A (j1 cancelled) et Q19B (j2 confirmed, debut 2031-06-05T18:00:00Z)) ; decision du mandant Q63 : t-q63 (UTC, proprietaire m-own ; membres m-ua, m-ub, m-uc ; taux USD 2031-08-01 = 900000 ; creneaux C1 (1000 USD ; u1 2000 EUR, u4 900), C2 (2000 EUR ; u2 1800 en USD), C3 (1500 EUR ; u3 1500), tous le 2031-09-15T10:00:00Z ; portefeuilles 0 ; aucune facture)"
   },
   "scellement": {
     "tache": "T72",
@@ -89,7 +99,13 @@
       "Premier jet de la trajectoire P21 : request_id c1, c2, c3 deja pris dans t-alpha (P4) ; le simulateur a rendu IDEMPOTENCY_CONFLICT partout : identifiants changes en r21a, r21b, r21c (le fait vise est la derniere place, pas une cle de P4).",
       "Premier jet de P22.F09/F10 : frontiere posee a 09:03:00 alors que le lot de m-fay date de 2031-08-11T09:02:00Z (P18-09) : etapes deplacees a 09:01:59 et 09:02:00.",
       "Bloc contrat_v2.paires du premier commit (060c9f5) : la paire P24-09 / P24-20 n'etait pas equivalente (P24-16 et P24-17 changent la file entre les deux lectures) et P24-10 / P24-11 comparait deux operations differentes ; paires retirees, semantique des paires declarees dans le $comment (relu par le simulateur : les trois paires restantes se traduisent exactement).",
-      "Premier jet de P23 : le transfert de f1 vers m-ana visait le frais minimum ; m-ana ayant f5 en file sur S60, c'est ALREADY_BOOKED (garde comme fait P23.F14) ; transfert vers m-sam ajoute (P23.F15)."
+      "Premier jet de P23 : le transfert de f1 vers m-ana visait le frais minimum ; m-ana ayant f5 en file sur S60, c'est ALREADY_BOOKED (garde comme fait P23.F14) ; transfert vers m-sam ajoute (P23.F15).",
+      "P18.F10 (P18-23) : decision du mandant Q38 — le choix provisoire gardait le solde sous le pseudonyme (547) ; le mandant fait rembourser ce solde sur la carte a l'effacement ; avant {\"ok\": true, \"member_id\": \"anon-0001\", \"balance_cents\": 547} ; apres {\"ok\": true, \"member_id\": \"anon-0001\", \"balance_cents\": 0}",
+      "P18.F28 (P18-53) : decision du mandant Q38 — le solde de m-qa (300) n'est plus porte par anon-0002 mais rembourse sur la carte ; avant {\"ok\": true, \"member_id\": \"anon-0002\", \"balance_cents\": 300} ; apres {\"ok\": true, \"member_id\": \"anon-0002\", \"balance_cents\": 0}",
+      "P18.F31 (P18-66) : decision du mandant Q38 — le solde de m-qd (700) est rembourse a l'effacement au lieu de passer sous anon-0003 dans la cible ; avant {\"ok\": true, \"member_id\": \"anon-0003\", \"balance_cents\": 700} ; apres {\"ok\": true, \"member_id\": \"anon-0003\", \"balance_cents\": 0}",
+      "P18.F32 (P18-67) : decision du mandant Q38 — le solde de m-qe (200) est rembourse a l'effacement au lieu de rester sous anon-0004 ; avant {\"ok\": true, \"member_id\": \"anon-0004\", \"balance_cents\": 200} ; apres {\"ok\": true, \"member_id\": \"anon-0004\", \"balance_cents\": 0}",
+      "P22.F13 (P22-15) : decision du mandant Q38 — le lot de 547 d'anon-0001 n'expire plus (consomme par le wallet_refund) : la facture INV-2032-07-anon-0001 n'est plus emise ; avant {\"ok\": true, \"month\": \"2032-07\", \"invoice_ids\": [\"INV-2032-07-anon-0001\", \"INV-2032-07-m-dan\"]} ; apres {\"ok\": true, \"month\": \"2032-07\", \"invoice_ids\": [\"INV-2032-07-m-dan\"]}",
+      "P22.F14 (P22-16) : decision du mandant Q38 — la facture INV-2032-07-anon-0001 (ligne expiry 547, ouverture 547, cloture 0) disparait de la liste ; avant {\"ok\": true, \"member_id\": \"anon-0001\", \"invoices\": [{\"invoice_id\": \"INV-2031-03-anon-0001\", \"lines\": [{\"type\": \"charge\", \"booking_id\": \"p5\", \"amount_cents\": 1498}, {\"type\": \"charge\", \"booking_id\": \"q4\", \"amount_cents\": 375}, {\"type\": \"refund\", \"booking_id\": \"q4\", \"amount_cents\": 375}, {\"type\": \"charge\", \"booking_id\": \"t6\", \"amount_cents\": 1500}, {\"type\": \"charge\", \"booking_id\": \"t5\", \"amount_cents\": 750}, {\"type\": \"refund\", \"booking_id\": \"t5\", \"amount_cents\": 375}], \"total_cents\": 3373}, {\"invoice_id\": \"INV-2031-04-anon-0001\"}, {\"invoice_id\": \"INV-2031-05-anon-0001\"}, {\"invoice_id\": \"INV-2031-06-anon-0001\"}, {\"invoice_id\": \"INV-2031-07-anon-0001\"}, {\"invoice_id\": \"INV-2032-07-anon-0001\", \"lines\": [{\"type\": \"expiry\", \"booking_id\": null, \"amount_cents\": 547}], \"total_cents\": 0, \"expired_cents\": 547, \"opening_balance_cents\": 547, \"closing_balance_cents\": 0}]} ; apres {\"ok\": true, \"member_id\": \"anon-0001\", \"invoices\": [{\"invoice_id\": \"INV-2031-03-anon-0001\", \"lines\": [{\"type\": \"charge\", \"booking_id\": \"p5\", \"amount_cents\": 1498}, {\"type\": \"charge\", \"booking_id\": \"q4\", \"amount_cents\": 375}, {\"type\": \"refund\", \"booking_id\": \"q4\", \"amount_cents\": 375}, {\"type\": \"charge\", \"booking_id\": \"t6\", \"amount_cents\": 1500}, {\"type\": \"charge\", \"booking_id\": \"t5\", \"amount_cents\": 750}, {\"type\": \"refund\", \"booking_id\": \"t5\", \"amount_cents\": 375}], \"total_cents\": 3373}, {\"invoice_id\": \"INV-2031-04-anon-0001\"}, {\"invoice_id\": \"INV-2031-05-anon-0001\"}, {\"invoice_id\": \"INV-2031-06-anon-0001\"}, {\"invoice_id\": \"INV-2031-07-anon-0001\"}]}"
     ],
     "comptes": {
       "P17": {
@@ -97,8 +113,8 @@
         "faits": 26
       },
       "P18": {
-        "etapes": 68,
-        "faits": 33
+        "etapes": 90,
+        "faits": 45
       },
       "P19": {
         "etapes": 18,
@@ -113,8 +129,8 @@
         "faits": 19
       },
       "P22": {
-        "etapes": 22,
-        "faits": 18
+        "etapes": 29,
+        "faits": 24
       },
       "P23": {
         "etapes": 34,
@@ -124,7 +140,7 @@
         "etapes": 25,
         "faits": 25
       },
-      "total_faits": 178
+      "total_faits": 196
     },
     "clarification": {
       "source": "tri des questions ouvertes de F-PLATFORM (T70-01..T70-16, Q01-Q61, N-01..N-04)",
@@ -173,6 +189,250 @@
       ],
       "faits_existants_modifies": [],
       "confrontation": "faits calcules a la main puis recalcules ; trajectoire complete P1-P24 rejouee hors depot avec et sans les etapes ajoutees : reponses des etapes existantes identiques ; un simulateur jetable (modele attendu copie hors depot, sequence de pseudonymes et add_member corriges selon Q62) reproduit les 10 faits ajoutes"
+    },
+    "decisions_du_mandant": {
+      "source": "decision du mandant du 27/10/2026 (reponses du mandant : Q38 « Rembourser sur carte » ; fusion « Refuser la fusion »)",
+      "precisions": [
+        "P18.R1 texte et precisions[Q38]",
+        "P22.R2 precisions[Q38]",
+        "P22.R4 texte et precisions[Q38]",
+        "P17.R1 texte, valeurs.ordre_des_controles et precisions[Q64]"
+      ],
+      "etapes_ajoutees": [
+        "P18-69..P18-81",
+        "P18-82..P18-90",
+        "P22-23..P22-29"
+      ],
+      "faits_ajoutes": [
+        "P18.F34",
+        "P18.F35",
+        "P18.F36",
+        "P18.F37",
+        "P18.F38",
+        "P18.F39",
+        "P18.F40",
+        "P18.F41",
+        "P18.F42",
+        "P18.F43",
+        "P18.F44",
+        "P18.F45",
+        "P22.F19",
+        "P22.F20",
+        "P22.F21",
+        "P22.F22",
+        "P22.F23",
+        "P22.F24"
+      ],
+      "faits_existants_modifies": [
+        {
+          "fait": "P18.F10",
+          "etape": "P18-23",
+          "avant": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "balance_cents": 547
+          },
+          "apres": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "balance_cents": 0
+          },
+          "raison": "decision du mandant Q38"
+        },
+        {
+          "fait": "P18.F28",
+          "etape": "P18-53",
+          "avant": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "balance_cents": 300
+          },
+          "apres": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "balance_cents": 0
+          },
+          "raison": "decision du mandant Q38"
+        },
+        {
+          "fait": "P18.F31",
+          "etape": "P18-66",
+          "avant": {
+            "ok": true,
+            "member_id": "anon-0003",
+            "balance_cents": 700
+          },
+          "apres": {
+            "ok": true,
+            "member_id": "anon-0003",
+            "balance_cents": 0
+          },
+          "raison": "decision du mandant Q38"
+        },
+        {
+          "fait": "P18.F32",
+          "etape": "P18-67",
+          "avant": {
+            "ok": true,
+            "member_id": "anon-0004",
+            "balance_cents": 200
+          },
+          "apres": {
+            "ok": true,
+            "member_id": "anon-0004",
+            "balance_cents": 0
+          },
+          "raison": "decision du mandant Q38"
+        },
+        {
+          "fait": "P22.F13",
+          "etape": "P22-15",
+          "avant": {
+            "ok": true,
+            "month": "2032-07",
+            "invoice_ids": [
+              "INV-2032-07-anon-0001",
+              "INV-2032-07-m-dan"
+            ]
+          },
+          "apres": {
+            "ok": true,
+            "month": "2032-07",
+            "invoice_ids": [
+              "INV-2032-07-m-dan"
+            ]
+          },
+          "raison": "decision du mandant Q38"
+        },
+        {
+          "fait": "P22.F14",
+          "etape": "P22-16",
+          "avant": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-03-anon-0001",
+                "lines": [
+                  {
+                    "type": "charge",
+                    "booking_id": "p5",
+                    "amount_cents": 1498
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "q4",
+                    "amount_cents": 375
+                  },
+                  {
+                    "type": "refund",
+                    "booking_id": "q4",
+                    "amount_cents": 375
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "t6",
+                    "amount_cents": 1500
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "t5",
+                    "amount_cents": 750
+                  },
+                  {
+                    "type": "refund",
+                    "booking_id": "t5",
+                    "amount_cents": 375
+                  }
+                ],
+                "total_cents": 3373
+              },
+              {
+                "invoice_id": "INV-2031-04-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2031-05-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2031-06-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2031-07-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2032-07-anon-0001",
+                "lines": [
+                  {
+                    "type": "expiry",
+                    "booking_id": null,
+                    "amount_cents": 547
+                  }
+                ],
+                "total_cents": 0,
+                "expired_cents": 547,
+                "opening_balance_cents": 547,
+                "closing_balance_cents": 0
+              }
+            ]
+          },
+          "apres": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-03-anon-0001",
+                "lines": [
+                  {
+                    "type": "charge",
+                    "booking_id": "p5",
+                    "amount_cents": 1498
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "q4",
+                    "amount_cents": 375
+                  },
+                  {
+                    "type": "refund",
+                    "booking_id": "q4",
+                    "amount_cents": 375
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "t6",
+                    "amount_cents": 1500
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "t5",
+                    "amount_cents": 750
+                  },
+                  {
+                    "type": "refund",
+                    "booking_id": "t5",
+                    "amount_cents": 375
+                  }
+                ],
+                "total_cents": 3373
+              },
+              {
+                "invoice_id": "INV-2031-04-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2031-05-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2031-06-anon-0001"
+              },
+              {
+                "invoice_id": "INV-2031-07-anon-0001"
+              }
+            ]
+          },
+          "raison": "decision du mandant Q38"
+        }
+      ],
+      "confrontation": "faits calcules a la main puis recalcules ; trajectoire complete P1-P24 rejouee hors depot avec un simulateur jetable (modele attendu copie hors depot, etendu de Q38, Q63 et Q64) : seules les reponses de P18-23, P18-53, P18-66, P18-67, P22-15 et P22-16 changent parmi les etapes existantes (plus le champ ajoute wallet_refunds_cents = 0 sur les factures emises a partir de P18 lues en P22-14, P23-26 et P24-22, non compare par leurs faits) ; les faits ajoutes concordent"
     }
   },
   "conventions": {
@@ -304,6 +564,18 @@
       "P18.F26",
       "P18.F30",
       "P18.F33"
+    ],
+    "remboursement_du_portefeuille_a_l_effacement": [
+      "P18.F38",
+      "P18.F39",
+      "P22.F20",
+      "P22.F21",
+      "P22.F24"
+    ],
+    "fusion_membre_egal_pseudonyme": [
+      "P18.F42",
+      "P18.F43",
+      "P18.F45"
     ]
   },
   "periodes": {
@@ -317,14 +589,15 @@
       "regles": [
         {
           "id": "P17.R1",
-          "texte": "merge_tenants {source_tenant_id} fusionne le locataire SOURCE dans le locataire CIBLE, qui est le locataire de l'enveloppe (champ tenant) ; actor admin de la cible (P4.R2, P4.R3). Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, sans aucun effet) : (1) source_tenant_id inconnu (jamais cree, ou deja fusionne) -> NOT_FOUND ; (2) source_tenant_id = cible -> INVALID_ARGUMENT ; (3) actor non admin de la source -> FORBIDDEN ; (4) la source ou la cible a deja emis au moins une facture (P14.R2) -> INVALID_ARGUMENT ; (5) un identifiant renomme par P17.R2 existe deja dans son espace de la cible ou de la source -> INVALID_ARGUMENT. Effet : tout le contenu de la source passe dans la cible (P17.R2 a P17.R4), puis la source cesse d'exister : toute operation dont le champ tenant la nomme -> NOT_FOUND (P3.R2), merge_tenants qui la nomme -> NOT_FOUND, et create_tenant avec son identifiant -> ALREADY_EXISTS (l'identifiant reste reserve). La cible garde son proprietaire, son fuseau (P9.R1), sa sequence d'avoirs (P14.R4) et de pseudonymes (P18.R1) ; la table de taux (P15.R1) de la source s'ajoute a celle de la cible, une date deja presente dans la cible gardant le taux de la cible. Reponse {ok: true, tenant_id (la cible), source_tenant_id, renamed, merged_members, added_members}.",
+          "texte": "merge_tenants {source_tenant_id} fusionne le locataire SOURCE dans le locataire CIBLE, qui est le locataire de l'enveloppe (champ tenant) ; actor admin de la cible (P4.R2, P4.R3). Controles apres ceux d'acteur, dans cet ordre (le premier qui echoue donne la reponse, sans aucun effet) : (1) source_tenant_id inconnu (jamais cree, ou deja fusionne) -> NOT_FOUND ; (2) source_tenant_id = cible -> INVALID_ARGUMENT ; (3) actor non admin de la source -> FORBIDDEN ; (4) la source ou la cible a deja emis au moins une facture (P14.R2) -> INVALID_ARGUMENT ; (5) un identifiant renomme par P17.R2 existe deja dans son espace de la cible ou de la source -> INVALID_ARGUMENT. ; (6) le member_id d'un membre de la source (proprietaire compris) est egal a un pseudonyme (P18.R1) de la cible -> INVALID_ARGUMENT (Q64). Effet : tout le contenu de la source passe dans la cible (P17.R2 a P17.R4), puis la source cesse d'exister : toute operation dont le champ tenant la nomme -> NOT_FOUND (P3.R2), merge_tenants qui la nomme -> NOT_FOUND, et create_tenant avec son identifiant -> ALREADY_EXISTS (l'identifiant reste reserve). La cible garde son proprietaire, son fuseau (P9.R1), sa sequence d'avoirs (P14.R4) et de pseudonymes (P18.R1) ; la table de taux (P15.R1) de la source s'ajoute a celle de la cible, une date deja presente dans la cible gardant le taux de la cible. Reponse {ok: true, tenant_id (la cible), source_tenant_id, renamed, merged_members, added_members}.",
           "valeurs": {
             "ordre_des_controles": [
               "NOT_FOUND source",
               "INVALID_ARGUMENT source = cible",
               "FORBIDDEN actor non admin de la source",
               "INVALID_ARGUMENT facture emise",
-              "INVALID_ARGUMENT renommage deja pris"
+              "INVALID_ARGUMENT renommage deja pris",
+              "INVALID_ARGUMENT member_id de la source = pseudonyme de la cible"
             ]
           },
           "precisions": [
@@ -332,6 +605,12 @@
               "question": "Q29",
               "classe": "GARDER",
               "texte": "merge_tenants -> INVALID_ARGUMENT dès que la source ou la cible a émis au moins une facture (P14.R2)."
+            },
+            {
+              "question": "Q64",
+              "classe": "FIXER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "Refuser la fusion. merge_tenants -> INVALID_ARGUMENT, sans aucun effet (la source existe toujours, rien n'est renomme ni ajoute), si le member_id d'un membre de la SOURCE (proprietaire compris) est egal a un pseudonyme de la CIBLE (P18.R1, y compris un pseudonyme venu d'une fusion anterieure) : un pseudonyme ne designe jamais un membre (Q62) et un member_id n'est jamais renomme (P17.R3). Ce controle est le SIXIEME, apres les cinq de P17.R1 (NOT_FOUND source, source = cible, actor non admin de la source, facture emise, renommage deja pris) : il n'est atteint que si ces cinq passent. Le sens inverse (pseudonyme de la source egal a un member_id de la cible) n'est PAS refuse : il est deja couvert par Q34 (P17.R2 (e)), le pseudonyme de la source est renomme '<source_tenant_id>:<pseudonyme>' (fait P18.F29 : anon-0001 de t-q62b, member_id d'un membre de t-q62, devient 't-q62b:anon-0001'). Un pseudonyme de la source egal a un pseudonyme de la cible suit de meme Q34. Ex. (t-q64a/t-q64b) : anon-0001, pseudonyme de t-q64a, est member_id d'un membre de t-q64b -> INVALID_ARGUMENT ; une fois ce membre efface dans t-q64b (il y devient anon-0002), la fusion reussit sans renommage."
             }
           ]
         },
@@ -1609,7 +1888,7 @@
       "regles": [
         {
           "id": "P18.R1",
-          "texte": "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}.",
+          "texte": "erase_member {member_id} (admin). Controles apres ceux d'acteur, dans cet ordre : member_id non membre du locataire (y compris un pseudonyme, ou un membre deja efface) -> NOT_FOUND ; member_id = proprietaire du locataire, ou = actor -> INVALID_ARGUMENT ; le membre a une reservation active (confirmed ou waiting) sur un creneau dont starts_at > at -> INVALID_ARGUMENT (elle doit d'abord etre annulee). Effet : le membre recoit un pseudonyme 'anon-nnnn' (sequence par locataire, 4 chiffres, a partir de anon-0001) et est anonymise (P18.R2) ; un solde de portefeuille non nul est rembourse sur sa carte et le portefeuille passe a 0 (mouvement 'wallet_refund', precision Q38). Reponse {ok: true, member_id (le pseudonyme), invoice_ids (factures renommees, ordre croissant), credit_note_ids (avoirs du membre, ordre croissant), bookings_anonymized (nombre de reservations dont member_id, ou le payeur P23.R4, valait le membre)}.",
           "valeurs": {
             "pseudonyme": "'anon-' + 4 chiffres, sequence par locataire, a partir de anon-0001"
           },
@@ -1623,6 +1902,12 @@
               "question": "Q62",
               "classe": "FIXER",
               "texte": "Un pseudonyme est unique dans son locataire et ne designe jamais un membre. erase_member attribue le numero SUIVANT de la sequence du locataire (dernier numero attribue par erase_member dans ce locataire + 1, soit 1 au depart ; une fusion ne change pas la sequence de la cible, P17.R1) et saute, en poursuivant la sequence, tout numero dont 'anon-nnnn' est deja, dans ce locataire, le member_id d'un membre (proprietaire compris) ou un pseudonyme (y compris un pseudonyme venu d'une fusion, P17.R2) ; le numero retenu devient le dernier attribue. Ex. (t-q62) : un membre 'anon-0001' existe, m-qa est efface -> anon-0002, et le membre anon-0001 garde son portefeuille ; apres la fusion de t-q62b (ses pseudonymes anon-0001 et anon-0002 renommes par Q34, anon-0003 garde), m-qe est efface -> anon-0004."
+            },
+            {
+              "question": "Q38",
+              "classe": "CHANGER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "Remboursement du portefeuille a l'effacement (« Rembourser sur carte »). Soit B le solde balance_cents du membre a l'instant at de erase_member, apres les expirations de cet instant (P22.R2). Si B > 0 : B est rembourse sur sa carte et le portefeuille passe a 0 ; c'est un mouvement de portefeuille de type 'wallet_refund', date de at, de montant B, porte (comme tout l'historique, P18.R2) par le pseudonyme. Ligne de facture, exactement {type: 'wallet_refund', booking_id: null, amount_cents: B}, sur la facture du mois local de at (P14.R1) du pseudonyme ('INV-<AAAA-MM>-<pseudonyme>'), rangee a son instant parmi les lignes (ordre des operations, P14.R3 ; P22.R4) ; elle suffit a faire emettre cette facture (P14.R2). Ce n'est ni une charge ni un remboursement de reservation : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte (report_revenue, P19.R3, non plus). Toute facture emise a partir de P18 porte le champ wallet_refunds_cents = somme de ses lignes wallet_refund (0 sans ligne) ; les factures emises avant P18 ne le portent pas et ne changent pas. Identite de cloture (P14.R3 de P18 a P21, P22.R4 puis P23.R5 ensuite) : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents (a partir de P22) - wallet_refunds_cents ; le rapprochement P14.R6 somme, sur les factures du membre, (top_ups + compensations + credit_notes_credits - credits_used - expired - wallet_refunds), qui egale balance_cents quand sa condition tient. Lots (P22.R2) : le remboursement est un debit de credits qui consomme TOUS les lots restants (reste 0) : ils n'expirent plus, get_wallet du pseudonyme rend balance_cents 0 et lots []. Si B = 0 : aucun mouvement, aucune ligne. La reponse de erase_member est inchangee. Ex. (t-q38) : m-ra, 1000 recharges, 400 payes en credits, efface -> 600 rembourses, facture d'aout 2031 du pseudonyme : top_up 1000, charge 400, wallet_refund 600, cloture 0 = 0 + 1000 - 400 - 600 ; m-rb, solde 0, efface -> aucune ligne wallet_refund."
             }
           ]
         },
@@ -2440,6 +2725,258 @@
           "args": {
             "member_id": "anon-0001"
           }
+        },
+        {
+          "id": "P18-69",
+          "period": "P18",
+          "at": "2031-08-11T10:15:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q38",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-70",
+          "period": "P18",
+          "at": "2031-08-11T10:16:00Z",
+          "op": "add_member",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-ra",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-71",
+          "period": "P18",
+          "at": "2031-08-11T10:17:00Z",
+          "op": "add_member",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-rb",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-72",
+          "period": "P18",
+          "at": "2031-08-11T10:18:00Z",
+          "op": "create_slot",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "R38",
+            "capacity": 2,
+            "starts_at": "2031-08-11T10:30:00Z"
+          }
+        },
+        {
+          "id": "P18-73",
+          "period": "P18",
+          "at": "2031-08-11T10:19:00Z",
+          "op": "set_price",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "slot_id": "R38",
+            "price_cents": 400
+          }
+        },
+        {
+          "id": "P18-74",
+          "period": "P18",
+          "at": "2031-08-11T10:20:00Z",
+          "op": "top_up",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-ra",
+            "amount_cents": 1000
+          }
+        },
+        {
+          "id": "P18-75",
+          "period": "P18",
+          "at": "2031-08-11T10:21:00Z",
+          "op": "top_up",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-rb",
+            "amount_cents": 300
+          }
+        },
+        {
+          "id": "P18-76",
+          "period": "P18",
+          "at": "2031-08-11T10:22:00Z",
+          "op": "reserve",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "request_id": "r38a",
+            "member_id": "m-ra",
+            "slot_id": "R38"
+          }
+        },
+        {
+          "id": "P18-77",
+          "period": "P18",
+          "at": "2031-08-11T10:23:00Z",
+          "op": "reserve",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "request_id": "r38b",
+            "member_id": "m-rb",
+            "slot_id": "R38"
+          }
+        },
+        {
+          "id": "P18-78",
+          "period": "P18",
+          "at": "2031-08-11T10:31:00Z",
+          "op": "erase_member",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-ra"
+          }
+        },
+        {
+          "id": "P18-79",
+          "period": "P18",
+          "at": "2031-08-11T10:32:00Z",
+          "op": "erase_member",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-rb"
+          }
+        },
+        {
+          "id": "P18-80",
+          "period": "P18",
+          "at": "2031-08-11T10:33:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001"
+          }
+        },
+        {
+          "id": "P18-81",
+          "period": "P18",
+          "at": "2031-08-11T10:34:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0002"
+          }
+        },
+        {
+          "id": "P18-82",
+          "period": "P18",
+          "at": "2031-08-11T10:35:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q64a",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-83",
+          "period": "P18",
+          "at": "2031-08-11T10:36:00Z",
+          "op": "create_tenant",
+          "args": {
+            "tenant_id": "t-q64b",
+            "owner_id": "m-own"
+          }
+        },
+        {
+          "id": "P18-84",
+          "period": "P18",
+          "at": "2031-08-11T10:37:00Z",
+          "op": "add_member",
+          "tenant": "t-q64a",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-wa",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-85",
+          "period": "P18",
+          "at": "2031-08-11T10:38:00Z",
+          "op": "erase_member",
+          "tenant": "t-q64a",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-wa"
+          }
+        },
+        {
+          "id": "P18-86",
+          "period": "P18",
+          "at": "2031-08-11T10:39:00Z",
+          "op": "add_member",
+          "tenant": "t-q64b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P18-87",
+          "period": "P18",
+          "at": "2031-08-11T10:40:00Z",
+          "op": "merge_tenants",
+          "tenant": "t-q64a",
+          "actor": "m-own",
+          "args": {
+            "source_tenant_id": "t-q64b"
+          }
+        },
+        {
+          "id": "P18-88",
+          "period": "P18",
+          "at": "2031-08-11T10:41:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q64b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001"
+          }
+        },
+        {
+          "id": "P18-89",
+          "period": "P18",
+          "at": "2031-08-11T10:42:00Z",
+          "op": "erase_member",
+          "tenant": "t-q64b",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001"
+          }
+        },
+        {
+          "id": "P18-90",
+          "period": "P18",
+          "at": "2031-08-11T10:43:00Z",
+          "op": "merge_tenants",
+          "tenant": "t-q64a",
+          "actor": "m-own",
+          "args": {
+            "source_tenant_id": "t-q64b"
+          }
         }
       ],
       "faits": [
@@ -2633,16 +3170,17 @@
           "id": "P18.F10",
           "etape": "P18-23",
           "clauses": [
+            "P18.R1",
             "P18.R2",
             "P18.R3"
           ],
           "attendu": {
             "ok": true,
             "member_id": "anon-0001",
-            "balance_cents": 547
+            "balance_cents": 0
           },
-          "justification": "Le portefeuille suit le pseudonyme : 547 (fin P16).",
-          "recalcul": "solde m-gus 547 (P16.F14 / P16-22) -> anon-0001."
+          "justification": "Q38 : a l'effacement de m-gus (P18-14), son solde de 547 (fin P16) a ete rembourse sur sa carte et le portefeuille est passe a 0 ; le pseudonyme anon-0001 reste lisible par get_wallet (admin, staff) avec un solde nul.",
+          "recalcul": "547 - 547 (wallet_refund, 2031-08-11T09:07:00Z) = 0 ; aucun mouvement de anon-0001 entre P18-14 et P18-23."
         },
         {
           "id": "P18.F11",
@@ -2937,16 +3475,17 @@
           "id": "P18.F28",
           "etape": "P18-53",
           "clauses": [
+            "P18.R1",
             "P18.R2",
             "P18.R3"
           ],
           "attendu": {
             "ok": true,
             "member_id": "anon-0002",
-            "balance_cents": 300
+            "balance_cents": 0
           },
-          "justification": "P18.R3 : get_wallet (admin) lit le pseudonyme ; P18.R2 : le portefeuille de m-qa (300, P18-48) passe sous anon-0002 ; l'add_member refuse en P18-51 n'a rien change.",
-          "recalcul": "Solde de m-qa avant effacement 300 ; anonymise sans montant change -> 300."
+          "justification": "P18.R3 : get_wallet (admin) lit le pseudonyme ; Q38 : le solde de m-qa (300, P18-48) a ete rembourse sur sa carte a son effacement (P18-50) : 0. L'add_member refuse en P18-51 n'a rien change ; le membre anon-0001 garde, lui, ses 500 (P18.F27).",
+          "recalcul": "300 - 300 (wallet_refund a P18-50) = 0."
         },
         {
           "id": "P18.F29",
@@ -3001,31 +3540,33 @@
           "id": "P18.F31",
           "etape": "P18-66",
           "clauses": [
+            "P18.R1",
             "P18.R3",
             "P17.R3"
           ],
           "attendu": {
             "ok": true,
             "member_id": "anon-0003",
-            "balance_cents": 700
+            "balance_cents": 0
           },
-          "justification": "anon-0003 reste le pseudonyme de m-qd (700 recharges en P18-58 dans t-q62b, portefeuille passe dans la cible a la fusion) ; l'effacement de m-qe ne l'a pas repris, rien n'est additionne.",
-          "recalcul": "700 (m-qd) ; m-qe (200) est sous anon-0004, pas sous anon-0003."
+          "justification": "anon-0003 reste le pseudonyme de m-qd ; Q38 : ses 700 (P18-58) ont ete rembourses sur sa carte a l'effacement dans t-q62b (P18-61), avant la fusion ; la fusion porte un portefeuille nul ; l'effacement de m-qe ne l'a pas repris, rien n'est additionne.",
+          "recalcul": "700 - 700 (wallet_refund a P18-61) = 0 ; m-qe (200) est sous anon-0004, pas sous anon-0003."
         },
         {
           "id": "P18.F32",
           "etape": "P18-67",
           "clauses": [
+            "P18.R1",
             "P18.R2",
             "P18.R3"
           ],
           "attendu": {
             "ok": true,
             "member_id": "anon-0004",
-            "balance_cents": 200
+            "balance_cents": 0
           },
-          "justification": "Portefeuille de m-qe (200, P18-63) sous son pseudonyme anon-0004, lisible par l'admin.",
-          "recalcul": "+200 -> 200."
+          "justification": "Q38 : le solde de m-qe (200, P18-63) a ete rembourse sur sa carte a son effacement (P18-65) ; get_wallet de son pseudonyme anon-0004 (admin) rend 0.",
+          "recalcul": "+200 - 200 (wallet_refund a P18-65) = 0."
         },
         {
           "id": "P18.F33",
@@ -3041,6 +3582,203 @@
           },
           "justification": "Le membre anon-0001 de la cible n'a recu ni le portefeuille du pseudonyme anon-0001 de la source (renomme t-q62b:anon-0001, solde 0) ni celui de m-qe : 500 inchange.",
           "recalcul": "500 (P18-49) ; aucun mouvement depuis."
+        },
+        {
+          "id": "P18.F34",
+          "etape": "P18-76",
+          "clauses": [
+            "P15.R6",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "r38a",
+            "status": "confirmed",
+            "amount_cents": 400,
+            "paid_credits_cents": 400,
+            "paid_card_cents": 0
+          },
+          "justification": "R38 a 400 EUR, m-ra niveau none (remise 0) : 400 ; solde 1000 -> 400 payes en credits, 0 a la carte ; il reste 600.",
+          "recalcul": "min(1000, 400) = 400 ; 400 - 400 = 0 ; 1000 - 400 = 600."
+        },
+        {
+          "id": "P18.F35",
+          "etape": "P18-77",
+          "clauses": [
+            "P15.R6",
+            "P8.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "booking_id": "r38b",
+            "status": "confirmed",
+            "amount_cents": 400,
+            "paid_credits_cents": 300,
+            "paid_card_cents": 100
+          },
+          "justification": "Deuxieme et derniere place de R38 ; solde de m-rb 300 < 400 : 300 en credits, 100 a la carte ; solde 0.",
+          "recalcul": "min(300, 400) = 300 ; 400 - 300 = 100 ; 300 - 300 = 0."
+        },
+        {
+          "id": "P18.F36",
+          "etape": "P18-78",
+          "clauses": [
+            "P18.R1",
+            "P18.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 1
+          },
+          "justification": "R38 a commence (10:30 < 10:31) : r38a n'empeche pas l'effacement ; premier pseudonyme de t-q38 (aucun membre 'anon-0001') ; aucune facture ni avoir ; une reservation (r38a). Q38 : le solde 600 est rembourse sur la carte, la reponse est inchangee.",
+          "recalcul": "sequence de t-q38 : 0 + 1 = 1 -> anon-0001 ; reservations de m-ra : {r38a} -> 1."
+        },
+        {
+          "id": "P18.F37",
+          "etape": "P18-79",
+          "clauses": [
+            "P18.R1",
+            "P18.R2"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 1
+          },
+          "justification": "Pseudonyme suivant de t-q38 ; une reservation (r38b) ; solde 0 : rien a rembourser (Q38).",
+          "recalcul": "1 + 1 = 2 -> anon-0002 ; {r38b} -> 1."
+        },
+        {
+          "id": "P18.F38",
+          "etape": "P18-80",
+          "clauses": [
+            "P18.R1",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "balance_cents": 0
+          },
+          "justification": "Q38, solde non nul : les 600 restants de m-ra ont ete rembourses sur sa carte a l'effacement ; le portefeuille du pseudonyme vaut 0.",
+          "recalcul": "1000 - 400 (r38a) - 600 (wallet_refund) = 0."
+        },
+        {
+          "id": "P18.F39",
+          "etape": "P18-81",
+          "clauses": [
+            "P18.R1",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "balance_cents": 0
+          },
+          "justification": "Q38, solde nul : m-rb n'avait plus de credits (300 payes pour r38b) ; aucun remboursement, solde 0.",
+          "recalcul": "300 - 300 = 0 ; B = 0 -> aucun mouvement."
+        },
+        {
+          "id": "P18.F40",
+          "etape": "P18-85",
+          "clauses": [
+            "P18.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 0
+          },
+          "justification": "Premier pseudonyme de t-q64a : anon-0001 ; ni facture, ni avoir, ni reservation ; solde 0 (Q38 : rien a rembourser).",
+          "recalcul": "sequence 0 + 1 = 1 ; aucun membre 'anon-0001' dans t-q64a."
+        },
+        {
+          "id": "P18.F41",
+          "etape": "P18-86",
+          "clauses": [
+            "P4.R1",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "role": "member"
+          },
+          "justification": "Dans t-q64b, 'anon-0001' n'est pas un pseudonyme (aucun effacement) : identifiant comme un autre (Q62), le membre est cree.",
+          "recalcul": "pseudonymes de t-q64b : {} ; membres : {m-own} -> creation."
+        },
+        {
+          "id": "P18.F42",
+          "etape": "P18-87",
+          "clauses": [
+            "P17.R1",
+            "P17.R3"
+          ],
+          "attendu": {
+            "ok": false,
+            "error": "INVALID_ARGUMENT"
+          },
+          "justification": "Q64 : les cinq premiers controles de P17.R1 passent (t-q64b existe, distinct, m-own admin des deux, aucune facture, aucun renommage) ; le sixieme echoue : le membre anon-0001 de la source porte le meme identifiant que le pseudonyme anon-0001 de la cible -> INVALID_ARGUMENT, sans effet.",
+          "recalcul": "membres de t-q64b {anon-0001, m-own} ∩ pseudonymes de t-q64a {anon-0001} = {anon-0001} != vide -> refus."
+        },
+        {
+          "id": "P18.F43",
+          "etape": "P18-88",
+          "clauses": [
+            "P17.R1",
+            "P15.R4"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "balance_cents": 0
+          },
+          "justification": "Sans effet : t-q64b existe toujours (une source fusionnee rendrait NOT_FOUND, P17.R1) et anon-0001 y est toujours membre.",
+          "recalcul": "t-q64b non absorbe ; solde du membre anon-0001 : 0."
+        },
+        {
+          "id": "P18.F44",
+          "etape": "P18-89",
+          "clauses": [
+            "P18.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 0
+          },
+          "justification": "Q62 : le numero 1 est saute car 'anon-0001' est, a cet instant, le member_id d'un membre de t-q64b (celui qu'on efface) ; pseudonyme anon-0002.",
+          "recalcul": "sequence de t-q64b : 0 ; n = 1 : 'anon-0001' membre -> saute ; n = 2 : libre -> anon-0002."
+        },
+        {
+          "id": "P18.F45",
+          "etape": "P18-90",
+          "clauses": [
+            "P17.R1",
+            "P17.R2",
+            "P17.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "tenant_id": "t-q64a",
+            "source_tenant_id": "t-q64b",
+            "renamed": [],
+            "merged_members": [
+              "m-own"
+            ],
+            "added_members": []
+          },
+          "justification": "Plus aucun membre de la source ne porte un pseudonyme de la cible (membres de t-q64b : m-own) ; le pseudonyme anon-0002 de la source n'existe pas dans la cible (pseudonyme anon-0001, membre m-own) : pas de renommage ; m-own est dans les deux.",
+          "recalcul": "{m-own} ∩ {anon-0001} = vide ; anon-0002 ∉ {anon-0001, m-own} -> renamed [] ; merged [m-own], added []."
         }
       ],
       "effacement": {
@@ -5325,6 +6063,12 @@
               "question": "Q51",
               "classe": "CHANGER",
               "texte": "12 mois civils après le 29 février donnent le 28 février de l'année suivante, à la même heure UTC."
+            },
+            {
+              "question": "Q38",
+              "classe": "CHANGER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "Le remboursement du portefeuille a l'effacement (P18.R1, Q38) est un debit de credits date de l'effacement : il consomme TOUS les lots restants a cet instant (la reconstitution retroactive depuis P8 l'inclut) ; aucun lot du pseudonyme n'expire ensuite."
             }
           ]
         },
@@ -5334,13 +6078,19 @@
         },
         {
           "id": "P22.R4",
-          "texte": "Factures (remplace P14.R3). Contenu de P14.R3, plus : les lignes {type: 'expiry', booking_id: null, amount_cents} des expirations du membre dont expires_at tombe dans le mois (mois local, P14.R1), rangees a leur instant parmi les lignes ; le champ expired_cents = somme de ces lignes. Une expiration n'est ni une charge ni un remboursement : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte. Identite : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents. Les factures emises avant P22 ne portent pas expired_cents et ne changent pas.",
+          "texte": "Factures (remplace P14.R3). Contenu de P14.R3, plus : les lignes {type: 'expiry', booking_id: null, amount_cents} des expirations du membre dont expires_at tombe dans le mois (mois local, P14.R1), rangees a leur instant parmi les lignes ; le champ expired_cents = somme de ces lignes. Une expiration n'est ni une charge ni un remboursement : charges_cents, refunds_cents, total_cents, card_cents et credits_used_cents n'en tiennent pas compte. Identite : closing_balance_cents = opening_balance_cents + top_ups_cents + compensations_cents + credit_notes_credits_cents - credits_used_cents - expired_cents - wallet_refunds_cents (lignes 'wallet_refund' du remboursement a l'effacement, P18.R1, Q38 ; ni charge ni remboursement). Les factures emises avant P22 ne portent pas expired_cents et ne changent pas.",
           "remplace": "P14.R3",
           "precisions": [
             {
               "question": "Q50",
               "classe": "GARDER",
               "texte": "Une expiration est un mouvement : elle produit une ligne expiry et, si c'est le seul mouvement du mois, une facture de total 0."
+            },
+            {
+              "question": "Q38",
+              "classe": "CHANGER",
+              "origine": "decision du mandant du 27/10/2026",
+              "texte": "Une ligne {type: 'wallet_refund', booking_id: null, amount_cents} (P18.R1, Q38) est rangee a son instant ; wallet_refunds_cents = somme de ces lignes ; elle n'entre ni dans charges_cents, refunds_cents, total_cents, card_cents ni credits_used_cents ; identite : closing = opening + top_ups + compensations + credit_notes_credits - credits_used - expired - wallet_refunds."
             }
           ]
         }
@@ -5602,6 +6352,85 @@
           "actor": "m-own",
           "args": {
             "member_id": "m-feb"
+          }
+        },
+        {
+          "id": "P22-23",
+          "period": "P22",
+          "at": "2032-08-12T09:10:00Z",
+          "op": "issue_invoices",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "month": "2031-08"
+          }
+        },
+        {
+          "id": "P22-24",
+          "period": "P22",
+          "at": "2032-08-12T09:11:00Z",
+          "op": "list_documents",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0001"
+          }
+        },
+        {
+          "id": "P22-25",
+          "period": "P22",
+          "at": "2032-08-12T09:12:00Z",
+          "op": "list_documents",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0002"
+          }
+        },
+        {
+          "id": "P22-26",
+          "period": "P22",
+          "at": "2032-08-12T09:13:00Z",
+          "op": "add_member",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-rc",
+            "role": "member"
+          }
+        },
+        {
+          "id": "P22-27",
+          "period": "P22",
+          "at": "2032-08-12T09:14:00Z",
+          "op": "top_up",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-rc",
+            "amount_cents": 800
+          }
+        },
+        {
+          "id": "P22-28",
+          "period": "P22",
+          "at": "2032-08-12T09:15:00Z",
+          "op": "erase_member",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "m-rc"
+          }
+        },
+        {
+          "id": "P22-29",
+          "period": "P22",
+          "at": "2032-08-12T09:16:00Z",
+          "op": "get_wallet",
+          "tenant": "t-q38",
+          "actor": "m-own",
+          "args": {
+            "member_id": "anon-0003"
           }
         }
       ],
@@ -5875,24 +6704,26 @@
           "clauses": [
             "P14.R2",
             "P22.R4",
-            "P18.R3"
+            "P22.R2",
+            "P18.R1"
           ],
           "attendu": {
             "ok": true,
             "month": "2032-07",
             "invoice_ids": [
-              "INV-2032-07-anon-0001",
               "INV-2032-07-m-dan"
             ]
           },
-          "justification": "Juillet 2032 : expiration du lot de 547 d'anon-0001 (2032-07-08T09:02:00Z) et du lot de 17 de m-dan (meme instant) ; tri ordinal, le pseudonyme d'abord.",
-          "recalcul": "'anon-0001' < 'm-dan'."
+          "justification": "Juillet 2032 : expiration du lot de 17 de m-dan (2032-07-08T09:02:00Z) seulement. Le lot de 547 d'anon-0001 (meme echeance) a ete consomme par le remboursement de l'effacement (P18-14, Q38) : aucune expiration, aucune ligne, pas de facture pour anon-0001.",
+          "recalcul": "membres avec ligne en 2032-07 : m-dan (expiry 17) ; anon-0001 : lots restants 0 depuis 2031-08-11 -> aucun mouvement."
         },
         {
           "id": "P22.F14",
           "etape": "P22-16",
           "clauses": [
             "P22.R4",
+            "P22.R2",
+            "P18.R1",
             "P18.R3"
           ],
           "attendu": {
@@ -5946,25 +6777,11 @@
               },
               {
                 "invoice_id": "INV-2031-07-anon-0001"
-              },
-              {
-                "invoice_id": "INV-2032-07-anon-0001",
-                "lines": [
-                  {
-                    "type": "expiry",
-                    "booking_id": null,
-                    "amount_cents": 547
-                  }
-                ],
-                "total_cents": 0,
-                "expired_cents": 547,
-                "opening_balance_cents": 547,
-                "closing_balance_cents": 0
               }
             ]
           },
-          "justification": "Factures emises inchangees : la facture de mars 2031 garde ses charges remisees (p5 gold 1498, t6 gold 1500) ; la nouvelle facture du pseudonyme porte l'expiration de 547.",
-          "recalcul": "547 - 547 = 0 ; lignes de mars identiques a P14.F07."
+          "justification": "Factures emises inchangees : la facture de mars 2031 garde ses charges remisees (p5 gold 1498, t6 gold 1500). Q38 : le solde de 547 a ete rembourse a l'effacement (2031-08) et ses lots consommes : pas d'expiration en juillet 2032, donc aucune facture 2032 pour le pseudonyme (aout 2031, qui porte la ligne wallet_refund, n'est pas emis dans t-alpha).",
+          "recalcul": "cinq factures 2031-03..2031-07 ; lots d'anon-0001 apres 2031-08-11T09:07:00Z : 0 -> aucune expiry ; lignes de mars identiques a P14.F07."
         },
         {
           "id": "P22.F15",
@@ -6056,6 +6873,176 @@
           },
           "justification": "Q51 : 12 mois civils apres le 29 fevrier 2032 donnent le 28 fevrier 2033 (fevrier 2033 n'a pas de 29), a la meme heure UTC (l'ancien choix donnait le 1er mars). Lot non echu au 2032-08-12.",
           "recalcul": "2033 non bissextile -> dernier jour de fevrier = 28 ; 10:00:00Z conserve."
+        },
+        {
+          "id": "P22.F19",
+          "etape": "P22-23",
+          "clauses": [
+            "P14.R2",
+            "P18.R1",
+            "P18.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "month": "2031-08",
+            "invoice_ids": [
+              "INV-2031-08-anon-0001",
+              "INV-2031-08-anon-0002"
+            ]
+          },
+          "justification": "Aout 2031 (termine) dans t-q38 : anon-0001 (top_up, charge, wallet_refund) et anon-0002 (top_up, charge) ont des lignes ; tri ordinal. Rapprochement (P14.R6 avec Q38) : seul mois a mouvement des deux pseudonymes, emis ; somme = solde 0 pour chacun.",
+          "recalcul": "anon-0001 : 1000 - 400 - 600 = 0 ; anon-0002 : 300 - 300 = 0 ; 'anon-0001' < 'anon-0002'."
+        },
+        {
+          "id": "P22.F20",
+          "etape": "P22-24",
+          "clauses": [
+            "P22.R4",
+            "P18.R1",
+            "P18.R3",
+            "P14.R5"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0001",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-08-anon-0001",
+                "member_id": "anon-0001",
+                "month": "2031-08",
+                "lines": [
+                  {
+                    "type": "top_up",
+                    "booking_id": null,
+                    "amount_cents": 1000
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "r38a",
+                    "amount_cents": 400
+                  },
+                  {
+                    "type": "wallet_refund",
+                    "booking_id": null,
+                    "amount_cents": 600
+                  }
+                ],
+                "charges_cents": 400,
+                "refunds_cents": 0,
+                "total_cents": 400,
+                "card_cents": 0,
+                "credits_used_cents": 400,
+                "top_ups_cents": 1000,
+                "compensations_cents": 0,
+                "expired_cents": 0,
+                "wallet_refunds_cents": 600,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 0,
+                "closing_balance_cents": 0
+              }
+            ],
+            "credit_notes": []
+          },
+          "justification": "Q38, solde non nul rembourse : ligne {wallet_refund, null, 600} a son instant (10:31, apres le top_up de 10:20 et la charge de 10:22) ; elle n'entre ni dans les charges, ni dans les remboursements, ni dans total/card/credits_used ; wallet_refunds_cents 600 ; ouverture 0 (membre ajoute le 11/08), cloture 0.",
+          "recalcul": "identite : 0 + 1000 + 0 + 0 - 400 - 0 - 600 = 0 = closing ; card + credits_used = 0 + 400 = 400 = total."
+        },
+        {
+          "id": "P22.F21",
+          "etape": "P22-25",
+          "clauses": [
+            "P22.R4",
+            "P18.R1",
+            "P18.R3",
+            "P14.R5"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0002",
+            "invoices": [
+              {
+                "invoice_id": "INV-2031-08-anon-0002",
+                "member_id": "anon-0002",
+                "month": "2031-08",
+                "lines": [
+                  {
+                    "type": "top_up",
+                    "booking_id": null,
+                    "amount_cents": 300
+                  },
+                  {
+                    "type": "charge",
+                    "booking_id": "r38b",
+                    "amount_cents": 400
+                  }
+                ],
+                "charges_cents": 400,
+                "refunds_cents": 0,
+                "total_cents": 400,
+                "card_cents": 100,
+                "credits_used_cents": 300,
+                "top_ups_cents": 300,
+                "compensations_cents": 0,
+                "expired_cents": 0,
+                "wallet_refunds_cents": 0,
+                "credit_notes_credits_cents": 0,
+                "opening_balance_cents": 0,
+                "closing_balance_cents": 0
+              }
+            ],
+            "credit_notes": []
+          },
+          "justification": "Q38, solde nul : aucune ligne wallet_refund, wallet_refunds_cents 0 ; la charge r38b (300 credits + 100 carte).",
+          "recalcul": "identite : 0 + 300 - 300 - 0 - 0 = 0 ; 100 + 300 = 400 = total."
+        },
+        {
+          "id": "P22.F22",
+          "etape": "P22-27",
+          "clauses": [
+            "P15.R4",
+            "P22.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "m-rc",
+            "balance_cents": 800,
+            "credited_cents": 800,
+            "expires_at": "2033-08-12T09:14:00Z"
+          },
+          "justification": "Lot de 800 acquis le 2032-08-12T09:14:00Z, echeance 12 mois civils plus tard.",
+          "recalcul": "0 + 800 ; 2032-08-12 + 12 mois = 2033-08-12, meme heure UTC."
+        },
+        {
+          "id": "P22.F23",
+          "etape": "P22-28",
+          "clauses": [
+            "P18.R1"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0003",
+            "invoice_ids": [],
+            "credit_note_ids": [],
+            "bookings_anonymized": 0
+          },
+          "justification": "Troisieme pseudonyme de t-q38 ; m-rc n'a ni facture ni reservation ; son solde de 800 est rembourse sur sa carte (Q38).",
+          "recalcul": "2 + 1 = 3 -> anon-0003."
+        },
+        {
+          "id": "P22.F24",
+          "etape": "P22-29",
+          "clauses": [
+            "P18.R1",
+            "P22.R2",
+            "P22.R3"
+          ],
+          "attendu": {
+            "ok": true,
+            "member_id": "anon-0003",
+            "balance_cents": 0,
+            "lots": []
+          },
+          "justification": "Q38 : le remboursement consomme le lot vivant de 800 (echeance 2033-08-12) : solde 0 et plus aucun lot (sans la decision, lots = [{800}]).",
+          "recalcul": "800 - 800 (wallet_refund a 09:15) = 0 ; lots de reste > 0 : aucun."
         }
       ]
     },
@@ -8104,14 +9091,7 @@
       }
     }
   },
-  "questions_ouvertes": [
-    {
-      "id": "Q38",
-      "periode": "P18",
-      "question": "Le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde le portefeuille : un solde non nul d'un membre efface n'est ni rembourse ni annule. Voulu ?",
-      "exerce": true
-    }
-  ],
+  "questions_ouvertes": [],
   "questions_resolues": [
     {
       "id": "Q29",
@@ -8551,6 +9531,60 @@
         "P18.F33"
       ],
       "complement": "Precision ajoutee par le fixture-transcriber de T72 apres la chasse aux levees du modele attendu par flux aleatoires (T74). Cas exerce en fin de P18 sur des locataires neufs t-q62 et t-q62b (P18-45..P18-68)."
+    },
+    {
+      "id": "Q38",
+      "periode": "P18",
+      "sujet": "solde d'un membre efface",
+      "question": "Le pseudonyme reste lisible (list_documents, get_wallet, report_revenue) et garde le portefeuille : un solde non nul d'un membre efface n'est ni rembourse ni annule. Voulu ?",
+      "classe": "CHANGER",
+      "origine": "decision du mandant du 27/10/2026",
+      "decision": "Rembourser sur carte : a l'effacement d'un membre dont le portefeuille n'est pas vide, le solde est rembourse sur sa carte, le portefeuille passe a 0 et la facture du mois porte une ligne {type: 'wallet_refund', booking_id: null, amount_cents} ; wallet_refunds_cents entre dans l'identite de cloture et le rapprochement ; le remboursement consomme les lots restants.",
+      "regles": [
+        "P18.R1",
+        "P22.R2",
+        "P22.R4"
+      ],
+      "faits": [
+        "P18.F34",
+        "P18.F35",
+        "P18.F36",
+        "P18.F37",
+        "P18.F38",
+        "P18.F39",
+        "P22.F19",
+        "P22.F20",
+        "P22.F21",
+        "P22.F22",
+        "P22.F23",
+        "P22.F24",
+        "P18.F10",
+        "P18.F28",
+        "P18.F31",
+        "P18.F32",
+        "P22.F13",
+        "P22.F14"
+      ]
+    },
+    {
+      "id": "Q64",
+      "periode": "P17",
+      "sujet": "member_id de la source egal a un pseudonyme de la cible",
+      "question": "merge_tenants : un member_id d'un membre de la source peut etre egal a un pseudonyme de la cible ; P17.R3 ne renomme jamais un member_id et Q62 interdit qu'un pseudonyme designe un membre. Que faire ?",
+      "classe": "FIXER",
+      "origine": "decision du mandant du 27/10/2026",
+      "decision": "Refuser la fusion : INVALID_ARGUMENT, sans effet, sixieme controle de P17.R1 apres les cinq existants. Le sens inverse (pseudonyme de la source egal a un member_id de la cible) est deja couvert par Q34 (renommage '<source>:<pseudonyme>', fait P18.F29) et n'est pas refuse.",
+      "regles": [
+        "P17.R1"
+      ],
+      "faits": [
+        "P18.F40",
+        "P18.F41",
+        "P18.F42",
+        "P18.F43",
+        "P18.F44",
+        "P18.F45"
+      ]
     }
   ]
 }

@@ -2,11 +2,11 @@
 //
 // INDEX TRANSPARENTS DU CANDIDAT DE REFERENCE DE T75. Pourquoi ils existent :
 // l'instantane de la source de clauses qu'execute le candidat de reference de T74
-// (../f-platform-reference/, commit ffb09f3) est ecrit pour l'exactitude, pas pour le
+// (../f-platform-reference/, commit 29cdd0d) est ecrit pour l'exactitude, pas pour le
 // volume : plusieurs decisions parcourent TOUTES les reservations du locataire. Mesure
 // (hors suite, en processus, 4 coeurs) apres import de 50 000 reservations selon le
-// profil `volume` de P20 : import 23,8 s (plafond 30 s), report_occupancy p95 380 ms
-// (plafond 200), erase_member p95 148 ms (plafond 100). Ce candidat-la ECHOUE donc
+// profil `volume` de P20 (instantane 29cdd0d) : import 31,1 s (plafond 30 s), report_occupancy
+// p95 350 ms (plafond 200), erase_member p95 226 ms (plafond 100). Ce candidat-la ECHOUE donc
 // P20.R3 : il ne peut pas servir de « candidat de reference normal » a T75.A1.
 //
 // Ce module ne change AUCUNE regle. Il restreint, pendant l'appel de quatre decisions
@@ -29,11 +29,11 @@
 // compartiment re-verifie neanmoins `b.slot_id` a chaque lecture.
 //
 // Transparence VERIFIEE : (1) par acceptance/T75.spec.ts, qui rejoue toute la trajectoire
-// gelee (723 etapes, P1 a P24) contre ce candidat ET contre celui de T74 et exige des
+// gelee (776 etapes, P1 a P24) contre ce candidat ET contre celui de T74 et exige des
 // reponses identiques octet pour octet ; (2) hors suite,
 // 3 802 operations du profil `volume` (import compris) : empreinte des reponses
-// identique avec et sans index. Avec les index : import 2,9 s, report_occupancy 9,6 ms,
-// erase_member 4,7 ms, merge_tenants 20 ms (p95 en processus).
+// identique avec et sans index. Avec les index (29cdd0d) : import 3,5 s, report_occupancy
+// 19 ms, erase_member 6 ms, merge_tenants 23 ms (p95 en processus).
 
 const CLES_DE_MEMBRE = new Set(['member_id', 'payer_member_id', 'from_member_id', 'to_member_id'])
 const FACTURE_ID = /^INV-\d{4}-\d{2}-/

@@ -13,16 +13,17 @@
     "fois, jamais deux mesures en parallele. Le resultat observe est consigne sous",
     "`verifie_sur_reference_jetable`.",
     "",
-    "SANS MUTANT : A1 et A2 verts, suite entiere 5 min 18 s (4 coeurs ; A1 ~ 286 s dont ~ 276 s pour la",
-    "mesure de la variante lente, A2 ~ 34 s). Les mutants qui rougissent A1 a la mesure de la reference",
-    "durent ~ 40 s ; ceux qui la depassent ~ 5 min 15 s.",
-    "M13 (essais sequentiels deguises) est le plus long : 901 s, la variante sans exclusion jouee une requete a la fois.",
-    "",
+    "SANS MUTANT (reverifie a 29cdd0d, instantane de T74 regenere ; candidat de T75 et variantes",
+    "reconstruits dessus, sans changement de code : ils importent l'instantane) : A1 et A2 verts, suite",
+    "entiere 7 min 11 s (4 coeurs ; A1 ~ 394 s dont ~ 370 s pour la mesure de la variante lente, A2 ~ 35 s).",
+    "Les 13 mutants rougissent exactement leur cas, l'autre reste vert. Les mutants qui rougissent A1 a la",
+    "mesure de la reference durent ~ 45 s ; ceux qui la depassent ~ 7 min ; M13 1 009 s.",
+    "(Premiere verification, ffb09f3 : 5 min 18 s sans mutant, memes verdicts.)",
     "",
     "MESURE A HEAD (T75 non implementee) : `node tools/bench verify:task T75 --json` rend",
     "reason=ASSERTION_FAILED, suite chargee, A1 et A2 FAIL sur CONTRAT-NON-SATISFAIT (platformLatency,",
     "platformConcurrency), apres les controles negatifs des predicats, la concordance source/racine,",
-    "l'integrite des fixtures et la transparence du candidat (723 etapes identiques a celles du candidat",
+    "l'integrite des fixtures et la transparence du candidat (776 etapes identiques a celles du candidat",
     "de T74)."
   ],
   "schema": "bench.mutants/1",
@@ -45,7 +46,7 @@
       "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
       "mutation": "p95_ms = moyenne arithmetique des echantillons de chaque operation.",
       "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
-      "observation_qui_echoue": "A1 : `get_booking : p95 0.117 != rang le plus proche 0.132 des echantillons rendus` (26 defauts, des la mesure de la reference).",
+      "observation_qui_echoue": "A1 : `get_booking : p95 0.139 != rang le plus proche 0.184 des echantillons rendus` (26 defauts, des la mesure de la reference).",
       "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T75.A1 (premier volet).",
       "doit_rester_vert": [
         "T75.A2"
@@ -79,7 +80,7 @@
       "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
       "mutation": "Chaque echantillon rendu vaut 0,05 ms quel que soit le temps de reponse.",
       "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
-      "observation_qui_echoue": "A1 : `get_slot : 12 echantillon(s) non authentique(s) : l2143 : latence rendue 0.05 ms < traitement du candidat 0.117 ms` (16 defauts des la reference).",
+      "observation_qui_echoue": "A1 : `get_slot : 60 echantillon(s) non authentique(s) : l2143 : latence rendue 0.05 ms < traitement du candidat ...` (23 defauts des la reference).",
       "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
       "doit_rester_vert": [
         "T75.A2"
@@ -164,7 +165,7 @@
       "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
       "mutation": "postgresDatabase ignore : rien n'est ecrit en base.",
       "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
-      "observation_qui_echoue": "A1 : apres la variante lente, `get_booking : mesure jamais persistee (p95 114.2, plafond 20)` (26 defauts).",
+      "observation_qui_echoue": "A1 : apres la variante lente, `get_booking : mesure jamais persistee (p95 188.8, plafond 20)` (26 defauts).",
       "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
       "doit_rester_vert": [
         "T75.A2"
@@ -249,7 +250,7 @@
       "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
       "mutation": "Vingt connexions ouvertes et rendues (clients = 20, request_ids de l'essai), mais chaque requete d'un essai attend la reponse de la precedente.",
       "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
-      "observation_qui_echoue": "A2 : la reference passe (20 connexions distinctes), puis contre la variante sans exclusion `passe 1 : essai 0 (derniere_place) : 20 lot(s) (1,2,3,4) : requetes non simultanees (essai sequentiel deguise)`, un defaut par essai et par passe (352 defauts en tout ; 901 s, la variante retenant chaque requete 150 ms).",
+      "observation_qui_echoue": "A2 : la reference passe (20 connexions distinctes), puis contre la variante sans exclusion `passe 1 : essai 0 (derniere_place) : 20 lot(s) (1,2,3,4) : requetes non simultanees (essai sequentiel deguise)`, un defaut par essai et par passe (352 defauts en tout ; 1 009 s, la variante retenant chaque requete 150 ms).",
       "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
       "doit_rester_vert": [
         "T75.A1"

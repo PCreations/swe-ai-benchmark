@@ -131,12 +131,13 @@
  *   acceptance/fixtures/candidates/f-platform-t75/candidat.mjs : le candidat de reference
  *   de T74 (meme instantane epingle de la source, ../f-platform-reference/), plus :
  *     (a) des INDEX TRANSPARENTS (accelerateur.mjs). Le candidat de T74 tel quel ECHOUE
- *         P20.R3 (mesure hors suite apres import de 50 000 reservations : import 23,8 s,
- *         report_occupancy p95 380 ms > 200, erase_member p95 148 ms > 100) : la source est
+ *         P20.R3 (mesure hors suite apres import de 50 000 reservations, instantane
+ *         29cdd0d : import 31,1 s > 30 s, report_occupancy p95 350 ms > 200, erase_member
+ *         p95 226 ms > 100) : la source est
  *         ecrite pour l'exactitude et parcourt toutes les reservations du locataire dans
  *         plusieurs decisions. Les index restreignent ces parcours aux entrees que la
  *         decision retient de toute facon ; A1 VERIFIE qu'il rend, sur toute la trajectoire
- *         gelee (P1 a P24, 723 etapes), les memes reponses que le candidat de T74 octet pour
+ *         gelee (P1 a P24, 776 etapes), les memes reponses que le candidat de T74 octet pour
  *         octet (les faits geles relevent de T74.A4, voir VI) ;
  *     (b) l'extension « connexions multiples » ci-dessus ; le moteur est synchrone, la
  *         boucle d'evenements sert d'exclusion mutuelle : chaque operation est atomique ;
@@ -159,15 +160,15 @@
  * MESURES DE REFERENCE ET MARGES (verdict STABLE)
  *
  *   Mesure hors suite (4 coeurs, Node 22), banc jetable conforme au protocole ci-dessus
- *   (10 + 60 requetes par operation) :
- *     - reference, trois executions : import de 50 000 lignes 2,0 a 2,6 s (plafond 30 s,
- *       rapport <= 0,09) ; pire operation toujours merge_tenants, p95 9 a 22 ms (plafond 100,
- *       rapport 0,09 a 0,22) ; report_occupancy 8 a 14 ms (200) ; get_* <= 0,31 ms (20).
- *       Mesure complete : ~ 5 s ;
- *     - variante-balayage, deux executions : chaque operation p95 114 a 155 ms ; get_booking,
- *       get_slot, get_wallet 5,7 a 7,7 fois leur plafond, reserve et cancel 2,3 a 2,8 fois, les
- *       « autre » 1,15 a 1,45 fois ; seuls report_occupancy et report_revenue (200 ms) restent
- *       dessous (rapport 0,58 a 0,70) ; pire rapport 6,2 a 7,7. Mesure : 270 a 276 s.
+ *   (10 + 60 requetes par operation), instantane 29cdd0d :
+ *     - reference, deux executions : import de 50 000 lignes 3,1 a 3,4 s (plafond 30 s,
+ *       rapport <= 0,12) ; pire operation merge_tenants, p95 14 a 16 ms (plafond 100,
+ *       rapport 0,14 a 0,16) ; report_occupancy 17 a 21 ms (200) ; get_* <= 0,87 ms (20).
+ *       Mesure complete : ~ 7 s. (A ffb09f3, trois executions : pire rapport 0,09 a 0,22.)
+ *     - variante-balayage : chaque operation p95 162 a 228 ms ; get_booking, get_slot,
+ *       get_wallet 8,1 a 9,2 fois leur plafond, reserve et cancel 3,4 a 4,6 fois, les
+ *       « autre » 1,66 a 2,24 fois, report_occupancy 1,06, report_revenue 0,95 ; pire rapport
+ *       9,2. Mesure : 371 s. (A ffb09f3, deux executions : pire rapport 6,2 a 7,7.)
  *   La suite EXIGE la marge, pas seulement le verdict : reference -> chaque rapport
  *   p95 / plafond <= MARGE_REFERENCE (0,5) et import / plafond <= 0,5 ; variante lente ->
  *   au moins une operation a p95 >= MARGE_LENTE (2) x plafond. Un hote trop lent ou trop
@@ -226,18 +227,16 @@
  *    request_id = booking_id rend les ecritures perdues indiscernables) : la detection du
  *    doublon idempotent est prouvee par rejeux_en_conflit.
  *  • Le plafond d'un import_bookings de moins de 50 000 lignes (« autre » ?) n'est pas mesure.
- *  • Que le candidat de reference reproduise les faits geles : l'instantane partage avec T74
- *    (ffb09f3) precede la precision Q62 de P18.R1/P18.R3 (52eeb62, d4a389c) et rend 7 faits
- *    de P18 autrement que la racine corrigee (P18.F25-F28, F30, F32, F33) ; c'est la
- *    precondition de T74.A4, qui demande de regenerer l'instantane (generer.mjs). Le candidat
- *    de T75 l'importe tel quel et suivra sa regeneration ; sa transparence est verifiee
- *    contre le candidat de T74, quel que soit l'instantane. Q62 ne touche aucune des quatre
- *    decisions indexees.
+ *  • Que le candidat de reference reproduise les faits geles : c'est la precondition de
+ *    T74.A4 sur l'instantane partage (29cdd0d : 543 faits, 776 etapes, tous reproduits).
+ *    Le candidat de T75 l'importe tel quel et suit toute regeneration ; sa transparence est
+ *    verifiee contre le candidat de T74, quel que soit l'instantane.
  *  • Elle ne lance aucun processus `claude`.
  *
- * DUREE — mesuree contre la reference jetable (4 coeurs) : 5 min 18 s (A1 ~ 286 s, dont ~ 276 s
- * pour la variante lente ; A2 ~ 34 s). Aucun seuil de la carte n'est reduit. Contre l'arbre
- * actuel (T75 non implementee) : ~ 3 s de cas, CONTRAT-NON-SATISFAIT.
+ * DUREE — mesuree contre la reference jetable (4 coeurs), instantane 29cdd0d : 7 min 11 s
+ * (A1 ~ 394 s, dont ~ 370 s pour la variante lente ; A2 ~ 35 s). Aucun seuil de la carte
+ * n'est reduit. Contre l'arbre actuel (T75 non implementee) : ~ 3 s de cas,
+ * CONTRAT-NON-SATISFAIT.
  */
 
 import * as fs from 'node:fs';

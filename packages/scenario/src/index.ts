@@ -212,3 +212,33 @@ export type {
   PlatformTargetedSequence,
   PlatformTargetedStep,
 } from './f-platform-checks.js'
+
+// ── T75 : controles de performance (P20 et suivantes) et de concurrence (P21
+//    et suivantes) de F-PLATFORM (ADR-021 decision 3) — plans et jugement purs,
+//    valeurs lues dans la source de clauses ; le banc qui lance le candidat est
+//    dans @bench/activities (voir f-platform-perf.ts).
+export {
+  PLATFORM_CONCURRENCY_SCENARIOS,
+  PLATFORM_LATENCY_MIN_SAMPLES,
+  PLATFORM_LATENCY_MIN_WARMUP,
+  judgePlatformConcurrencyTrial,
+  planPlatformConcurrency,
+  planPlatformVolume,
+  platformConcurrencyParameters,
+  platformLatencyCeiling,
+  platformLatencyCeilings,
+  platformP95,
+  platformVolumeRowAssignment,
+} from './f-platform-perf.js'
+export type {
+  PlanPlatformConcurrencyInput,
+  PlanPlatformVolumeInput,
+  PlatformConcurrencyParameters,
+  PlatformConcurrencyPlan,
+  PlatformConcurrencyTrialPlan,
+  PlatformConcurrencyViolation,
+  PlatformLatencyCeilings,
+  PlatformVolumeOperationPlan,
+  PlatformVolumePlan,
+  PlatformVolumeProfile,
+} from './f-platform-perf.js'

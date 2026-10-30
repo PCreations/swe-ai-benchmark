@@ -636,3 +636,25 @@ export type {
   ScorePlatformTargetedInput,
   ScorePlatformTargetedResult,
 } from './f-platform-checks-scoring.js'
+
+/* ── T75 : controles de performance (latence p95 apres import de volume, P20)
+   et de concurrence (essais paralleles, P21) F-PLATFORM (ADR-021 decision 3)
+   — EXECUTION REELLE du candidat, bench.platform/1 etendu aux connexions
+   multiples (BENCH_PLATFORM_SOCKET), mesures et violations persistees dans
+   PostgreSQL (voir f-platform-perf.ts). */
+
+export {
+  PLATFORM_CONCURRENCY_VIOLATIONS_TABLE,
+  PLATFORM_LATENCY_TABLE,
+  measurePlatformLatency,
+  runPlatformConcurrencyTrials,
+} from './f-platform-perf.js'
+export type {
+  MeasurePlatformLatencyInput,
+  MeasurePlatformLatencyResult,
+  PlatformBenchInput,
+  PlatformConcurrencyTrial,
+  PlatformLatencyImport,
+  PlatformLatencyMeasure,
+  RunPlatformConcurrencyTrialsResult,
+} from './f-platform-perf.js'

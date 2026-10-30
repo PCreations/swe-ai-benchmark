@@ -226,7 +226,7 @@ async function enParallele<T>(k: number, nb: number, travail: (i: number) => Pro
   return out
 }
 
-function verifierEntree(input: ScorePlatformInput): number {
+function verifierEntree(input: Pick<ScorePlatformInput, 'candidateCommand' | 'benchDataDir' | 'period' | 'periodIndex' | 'periodId'>): number {
   if (!Array.isArray(input.candidateCommand) || input.candidateCommand.length === 0 || typeof input.candidateCommand[0] !== 'string') {
     throw new Error('F-PLATFORM : candidateCommand vide')
   }
@@ -395,6 +395,9 @@ function runPsql(db: string, sql: string): string {
 }
 const lit = (s: string): string => `'${s.replace(/'/g, "''")}'`
 const jsonb = (v: unknown): string => `${lit(JSON.stringify(v === undefined ? null : v))}::jsonb`
+
+/* Partagés avec le banc de performance et de concurrence (T75, f-platform-perf.ts). */
+export { verifierEntree as verifyPlatformInput, runPsql as runPlatformPsql, lit as sqlLiteral, jsonb as jsonbLiteral }
 
 export const PLATFORM_FAILURES_TABLE = 'bench_f_platform_failures'
 

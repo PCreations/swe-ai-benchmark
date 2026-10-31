@@ -58,7 +58,14 @@
     "neuf t-q38 en FIN de P18 (P18-69..P18-81) et en FIN de P22 (P22-23..P22-29).",
     "Fusion, P17 : « Refuser la fusion ». merge_tenants -> INVALID_ARGUMENT, sans effet, si un member_id de la source est un pseudonyme de la",
     "cible (sixieme controle de P17.R1, precision Q64) ; le sens inverse est deja couvert par Q34 (renommage, P18.F29). Cas exerce en FIN de",
-    "P18 sur t-q64a/t-q64b (P18-82..P18-90). questions_ouvertes est vide : il ne reste aucune question ouverte."
+    "P18 sur t-q64a/t-q64b (P18-82..P18-90). questions_ouvertes est vide : il ne reste aucune question ouverte.",
+    "",
+    "DECISIONS DU MANDANT DU 31/10/2026 (fixture-transcriber, decision du mandant du 31/10/2026). Import de volume de P20 (Q67) :",
+    "repartition DECALEE, ligne i (0-base) -> creneau i mod creneaux, membre (i + floor(i / membres)) mod membres : 50 000 couples",
+    "(membre, creneau) distincts, 100 reservations par creneau, toutes acceptees (periodes.P20.volume.repartition). Latence de",
+    "erase_member (Q68) : mesuree sur des membres qui detiennent des reservations importees, jamais sur des membres sans reservation",
+    "(P20.R3 texte et precisions, periodes.P20.volume.erase_member). Aucune etape ni aucun fait ne change. prolonge suit la racine",
+    "P9-P16 (precision Q66 de P16.R2, texte seul)."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -86,10 +93,10 @@
   "prolonge": {
     "fixture": "F-PLATFORM-P9-P16",
     "chemin": "acceptance/reference-platform/F-PLATFORM-P9-P16.json",
-    "sha256": "5cb38c266470fe0b5b4c0d2bc682f580f51633c8327929460535a411430349f9",
-    "commit": "dd13e03eb6edc9472e2bb67d407074e43ff8f8a3",
+    "sha256": "010d4527c787705598419de21d99b6216c608cc7a09cf3df523ade1009355143",
+    "commit": "58801cd715ef2a1d6b4df1f5c403133fe7ccc26b",
     "derniere_etape": "P16-55",
-    "etat_au_depart": "celui laisse par P16-55 (horloge 2031-08-01T12:31:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000) ; correction Q19 de T71 : t-q19 (UTC, proprietaire m-ana ; membres m-ivy, m-jo ; portefeuilles m-ivy 3277, m-jo 500 ; factures 2031-04 et 2031-05 emises ; creneaux Q19A (j1 cancelled) et Q19B (j2 confirmed, debut 2031-06-05T18:00:00Z)) ; decision du mandant Q63 : t-q63 (UTC, proprietaire m-own ; membres m-ua, m-ub, m-uc ; taux USD 2031-08-01 = 900000 ; creneaux C1 (1000 USD ; u1 2000 EUR, u4 900), C2 (2000 EUR ; u2 1800 en USD), C3 (1500 EUR ; u3 1500), tous le 2031-09-15T10:00:00Z ; portefeuilles 0 ; aucune facture)"
+    "etat_au_depart": "celui laisse par P16-55 (horloge 2031-08-01T12:31:00Z) : t-alpha (fuseau Europe/Paris ; proprietaire m-ana ; staff m-sam ; membres m-cleo gold, m-dan silver, m-fay none, m-gus gold), portefeuilles m-cleo 1283, m-dan 1681, m-fay 0, m-gus 547 ; factures emises 2031-03 a 2031-07 ; avoirs AV-0001 a AV-0004 ; tous les creneaux de t-alpha commencent avant le 2031-08-01 ; t-mig-a et t-mig-b (UTC, proprietaire m-ana, membres m-x, m-y, m-z, creneau numerote M1 de 5 places, reservations k1 [5], k2 [1,2], k3 [3,4]) ; default et t-beta (proprietaire m-ben) inchanges ; passe de clarification : t-clar (fuseau Europe/Paris, aucune facture ; membres m-own admin, m-kim, m-lou, m-max, m-big ; series W9, W9b, Q9 ; creneaux B13 clos, R16 ; taux USD 2031-06-30 = 10000000) ; correction Q19 de T71 : t-q19 (UTC, proprietaire m-ana ; membres m-ivy, m-jo ; portefeuilles m-ivy 3277, m-jo 500 ; factures 2031-04 et 2031-05 emises ; creneaux Q19A (j1 cancelled) et Q19B (j2 confirmed, debut 2031-06-05T18:00:00Z)) ; decision du mandant Q63 : t-q63 (UTC, proprietaire m-own ; membres m-ua, m-ub, m-uc ; taux USD 2031-08-01 = 900000 ; creneaux C1 (1000 USD ; u1 2000 EUR, u4 900), C2 (2000 EUR ; u2 1800 en USD), C3 (1500 EUR ; u3 1500), tous le 2031-09-15T10:00:00Z ; portefeuilles 0 ; aucune facture) ; decision du mandant du 31/10/2026 : precision Q66 de P16.R2 seulement, etat inchange"
   },
   "scellement": {
     "tache": "T72",
@@ -433,6 +440,17 @@
         }
       ],
       "confrontation": "faits calcules a la main puis recalcules ; trajectoire complete P1-P24 rejouee hors depot avec un simulateur jetable (modele attendu copie hors depot, etendu de Q38, Q63 et Q64) : seules les reponses de P18-23, P18-53, P18-66, P18-67, P22-15 et P22-16 changent parmi les etapes existantes (plus le champ ajoute wallet_refunds_cents = 0 sur les factures emises a partir de P18 lues en P22-14, P23-26 et P24-22, non compare par leurs faits) ; les faits ajoutes concordent"
+    },
+    "decisions_du_mandant_du_31_10_2026": {
+      "source": "decision du mandant du 31/10/2026",
+      "precisions": [
+        "P20.R3 texte et precisions[Q67, Q68]",
+        "periodes.P20.volume : $comment, repartition (Q67), erase_member (Q68)"
+      ],
+      "etapes_ajoutees": [],
+      "faits_ajoutes": [],
+      "faits_existants_modifies": [],
+      "confrontation": "repartition recalculee hors depot : 50 000 couples (membre, creneau) distincts, 100 lignes par creneau (capacite 100), 50 par membre ; la lecture litterale en donne 1 000. Le profil n'est pas rejoue par T72 : aucune reponse d'etape de la trajectoire ne change"
     }
   },
   "conventions": {
@@ -4638,7 +4656,7 @@
         },
         {
           "id": "P20.R3",
-          "texte": "Plafond de latence declare, par operation, sur le volume importe (la mesure est faite par T75, pas par les faits de cette racine) : apres import de 50 000 reservations selon le profil `volume` de cette racine, la latence au 95e centile de chaque operation ne depasse pas : reserve 50 ms, cancel 50 ms, get_booking 20 ms, get_slot 20 ms, get_wallet 20 ms, list_documents 100 ms, report_occupancy 200 ms, report_revenue 200 ms, toute autre operation 100 ms ; un import_bookings de 50 000 lignes : 30 000 ms pour l'operation entiere. Une implementation qui parcourt toutes les reservations du locataire a chaque operation depasse ces plafonds.",
+          "texte": "Plafond de latence declare, par operation, sur le volume importe (la mesure est faite par T75, pas par les faits de cette racine) : apres import de 50 000 reservations selon le profil `volume` de cette racine, la latence au 95e centile de chaque operation ne depasse pas : reserve 50 ms, cancel 50 ms, get_booking 20 ms, get_slot 20 ms, get_wallet 20 ms, list_documents 100 ms, report_occupancy 200 ms, report_revenue 200 ms, toute autre operation 100 ms ; un import_bookings de 50 000 lignes : 30 000 ms pour l'operation entiere. La latence de erase_member est mesuree sur des membres qui detiennent des reservations importees (chemin d'effacement couteux), jamais sur des membres sans reservation (precision Q68). Une implementation qui parcourt toutes les reservations du locataire a chaque operation depasse ces plafonds.",
           "valeurs": {
             "unite": "millisecondes (ms), latence au 95e centile",
             "plafonds_p95_ms": {
@@ -4660,6 +4678,18 @@
               "question": "Q43",
               "classe": "GARDER",
               "texte": "Plafonds au 95e centile après import de 50 000 réservations : reserve et cancel 50 ms ; get_booking, get_slot et get_wallet 20 ms ; list_documents 100 ms ; report_occupancy et report_revenue 200 ms ; toute autre opération 100 ms ; un import de 50 000 lignes 30 000 ms."
+            },
+            {
+              "question": "Q67",
+              "classe": "FIXER",
+              "origine": "decision du mandant du 31/10/2026",
+              "texte": "Repartition de l'import de volume : ligne i (0-base) -> creneau i mod creneaux, membre (i + floor(i / membres)) mod membres (repartition DECALEE). Avec 500 creneaux de 100 places et 1 000 membres : 50 000 couples (membre, creneau) distincts, exactement 100 reservations par creneau, 50 par membre, toutes acceptees (accepted = 50 000). La lecture litterale (membre i mod membres, creneau i mod creneaux) ne donnait que ppcm(1000, 500) = 1 000 couples distincts : 49 000 lignes ALREADY_BOOKED (P1.R2)."
+            },
+            {
+              "question": "Q68",
+              "classe": "FIXER",
+              "origine": "decision du mandant du 31/10/2026",
+              "texte": "La latence de erase_member (plafond « autre ») est mesuree sur des membres qui DETIENNENT des reservations de l'import de volume (chemin d'effacement couteux, RGPD : anonymisation de leurs reservations et de l'historique, P18.R1/P18.R2), jamais sur des membres sans reservation. Les effacements ont lieu apres le debut des creneaux du profil (P18.R1 refuse l'effacement d'un membre qui a une reservation active sur un creneau a venir)."
             }
           ]
         },
@@ -5197,13 +5227,31 @@
       ],
       "volume": {
         "regle": "P20.R3",
-        "$comment": "Profil de volume pour T75 (non rejoue par T72) : un locataire neuf, `creneaux` creneaux de `capacite` places sans prix, `membres` membres, puis un seul import_bookings de `reservations` lignes (1 place chacune, membre i mod membres, creneau i mod creneaux), puis la mesure de latence de chaque operation contre P20.R3.",
+        "$comment": "Profil de volume pour T75 (non rejoue par T72) : un locataire neuf, `creneaux` creneaux de `capacite` places sans prix, `membres` membres, puis un seul import_bookings de `reservations` lignes (1 place chacune) selon la repartition DECALEE de `repartition` (precision Q67, decision du mandant du 31/10/2026 ; la repartition litterale membre i mod membres, creneau i mod creneaux ne donnait que ppcm(membres, creneaux) = 1 000 couples (membre, creneau) distincts), toutes ACCEPTEES, puis la mesure de latence de chaque operation contre P20.R3 ; erase_member est mesure sur des membres qui detiennent des reservations de l'import (`erase_member`, precision Q68).",
         "tenant_id": "t-volume",
         "creneaux": 500,
         "capacite": 100,
         "membres": 1000,
         "reservations": 50000,
         "places_par_ligne": 1,
+        "repartition": {
+          "regle": "ligne i (0-base) -> creneau i mod creneaux, membre (i + floor(i / membres)) mod membres",
+          "ligne": "i, de 0 a reservations - 1",
+          "creneau": "i mod creneaux",
+          "membre": "(i + floor(i / membres)) mod membres",
+          "couples_membre_creneau_distincts": 50000,
+          "reservations_par_creneau": 100,
+          "reservations_par_membre": 50,
+          "acceptees": 50000,
+          "origine": "decision du mandant du 31/10/2026",
+          "precision": "Q67"
+        },
+        "erase_member": {
+          "cibles": "membres du profil qui detiennent des reservations de l'import (50 chacun) : le chemin d'effacement couteux (RGPD, P18.R1/P18.R2), jamais des membres sans reservation",
+          "instant": "apres le debut des creneaux du profil (P18.R1 refuse l'effacement d'un membre qui a une reservation active sur un creneau a venir)",
+          "origine": "decision du mandant du 31/10/2026",
+          "precision": "Q68"
+        },
         "plafonds_p95_ms": {
           "reserve": 50,
           "cancel": 50,
@@ -9585,6 +9633,34 @@
         "P18.F44",
         "P18.F45"
       ]
+    },
+    {
+      "id": "Q67",
+      "periode": "P20",
+      "sujet": "repartition de l'import de volume",
+      "question": "Le profil `volume` de P20 (membre i mod membres, creneau i mod creneaux) ne donne, a la lettre, que ppcm(1000, 500) = 1 000 couples (membre, creneau) distincts : 49 000 lignes seraient ALREADY_BOOKED et il n'y aurait que 1 000 reservations, contre P20.R3 (« apres import de 50 000 reservations »). Quelle repartition ?",
+      "classe": "FIXER",
+      "origine": "decision du mandant du 31/10/2026",
+      "decision": "Repartition DECALEE : ligne i (0-base) -> creneau i mod creneaux, membre (i + floor(i / membres)) mod membres ; 50 000 couples distincts, exactement 100 reservations par creneau, toutes acceptees. Ecrite dans periodes.P20.volume.repartition et P20.R3.precisions[Q67].",
+      "regles": [
+        "P20.R3"
+      ],
+      "faits": []
+    },
+    {
+      "id": "Q68",
+      "periode": "P20",
+      "sujet": "latence de erase_member sur le volume",
+      "question": "Sur quels membres mesurer la latence de erase_member apres l'import de volume : des membres sans reservation (effacement bon marche) ou des membres qui detiennent des reservations importees ?",
+      "classe": "FIXER",
+      "origine": "decision du mandant du 31/10/2026",
+      "decision": "Sur des membres qui detiennent des reservations importees (chemin d'effacement couteux, RGPD), jamais sur des membres sans reservation. Ecrite dans P20.R3 (texte et precisions[Q68]) et periodes.P20.volume.erase_member.",
+      "regles": [
+        "P20.R3",
+        "P18.R1",
+        "P18.R2"
+      ],
+      "faits": []
     }
   ]
 }

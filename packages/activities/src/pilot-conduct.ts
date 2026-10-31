@@ -68,6 +68,7 @@ import { controlFLongPilotPeriod, fLongPilotReport, F_LONG_PERIOD_COUNT, F_LONG_
 import { F_PLATFORM_PERIOD_COUNT, F_PLATFORM_SCENARIO_ID } from './f-platform-pilot.js'
 import { controlFPlatformPilotPeriod, fPlatformPilotReport } from './f-platform-pilot-run.js'
 import { armOfConfiguration, parsePilotArms, type PilotArm } from './pilot-arms.js'
+import { assertPlatformSourceCalibrated } from './f-platform-calibration.js'
 
 type Json = Record<string, unknown>
 
@@ -725,6 +726,19 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
 
   // T76 : les bras declares sont valides AVANT toute ecriture et tout appel.
   const arms = parsePilotArms(manifest.arms, manifest.configurations ?? [])
+
+  // T77 (ADR-021 decision 6) : une campagne F-PLATFORM `--live` ne demarre
+  // pas sans calibration REUSSIE de l'empreinte de la source de clauses en
+  // vigueur dans le registre (BENCH_CALIBRATION_DIR, sinon le registre
+  // versionne) -- refus CALIBRATION_REQUIRED AVANT toute ecriture
+  // PostgreSQL, tout espace de travail et toute session.
+  if (
+    input.provider === 'claude-cli' &&
+    input.live === true &&
+    (manifest.corpus?.groups ?? []).some((g) => g.source_scenario_id === F_PLATFORM_SCENARIO_ID)
+  ) {
+    assertPlatformSourceCalibrated()
+  }
 
   const db = input.postgresDatabase
   const campaignId = input.campaignId

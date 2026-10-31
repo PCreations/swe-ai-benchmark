@@ -105,6 +105,36 @@ export interface PlatformChecksInput {
   readonly periodIndex?: number
   readonly periodId?: string
   readonly seed?: number | string
+  /**
+   * T77 : la source de clauses dont on tire les contrôles et le modèle attendu
+   * (même forme que `@bench/oracle#PLATFORM_CLAUSES`) ; absente, la source en
+   * vigueur. La calibration (`@bench/activities#calibratePlatformClauseSource`)
+   * juge ainsi une source FOURNIE, pas seulement celle du paquet.
+   */
+  readonly clauses?: readonly PlatformClause[]
+}
+
+/**
+ * T77 : la source de clauses EN VIGUEUR (celle que `@bench/oracle` exporte),
+ * relayée pour `@bench/activities` (calibration et refus de campagne), qui ne
+ * dépend pas de `@bench/oracle` directement.
+ */
+export const PLATFORM_CLAUSES_IN_FORCE: readonly PlatformClause[] = PLATFORM_CLAUSES
+export type { PlatformClause } from '@bench/oracle'
+
+/** Une source de clauses (tableau de même forme que `PLATFORM_CLAUSES`). */
+type Source = readonly PlatformClause[]
+
+const sourceDe = (input: { readonly clauses?: Source | undefined }): Source => input.clauses ?? PLATFORM_CLAUSES
+
+/** Un cache par source (identité de l'objet tableau). */
+function cacheDe<V>(caches: WeakMap<Source, Map<string, V>>, source: Source): Map<string, V> {
+  let m = caches.get(source)
+  if (m === undefined) {
+    m = new Map()
+    caches.set(source, m)
+  }
+  return m
 }
 
 export interface GeneratePlatformTargetedSequencesInput extends PlatformChecksInput {
@@ -265,12 +295,13 @@ interface ContratPeriode {
   readonly version: boolean
 }
 
-const CONTRATS = new Map<number, ContratPeriode>()
+const CONTRATS = new WeakMap<Source, Map<string, ContratPeriode>>()
 
-function contratDe(n: number): ContratPeriode {
-  const deja = CONTRATS.get(n)
+function contratDe(n: number, source: Source = PLATFORM_CLAUSES): ContratPeriode {
+  const cache = cacheDe(CONTRATS, source)
+  const deja = cache.get(String(n))
   if (deja !== undefined) return deja
-  const actives = PLATFORM_CLAUSES.filter((c) => estActive(c, n))
+  const actives = source.filter((c) => estActive(c, n))
   const ops = new Set<string>()
   const opV2 = new Map<string, string>()
   const cleV2 = new Map<string, string>()
@@ -298,13 +329,13 @@ function contratDe(n: number): ContratPeriode {
     actor: enveloppe.has('actor'),
     version: enveloppe.has('version'),
   }
-  CONTRATS.set(n, contrat)
+  cache.set(String(n), contrat)
   return contrat
 }
 
 /** Opérations en vigueur à la période n (noms v1, puis noms v2 s'il y en a). */
-export function platformActiveOperations(period: number | string): string[] {
-  const c = contratDe(platformPeriodNumber(period))
+export function platformActiveOperations(period: number | string, clauses?: readonly PlatformClause[]): string[] {
+  const c = contratDe(platformPeriodNumber(period), clauses ?? PLATFORM_CLAUSES)
   return [...c.ops, ...[...c.ops].map((o) => c.opV2.get(o)).filter((x): x is string => x !== undefined)]
 }
 
@@ -325,9 +356,10 @@ function renommerCles(v: unknown, cles: ReadonlyMap<string, string>): unknown {
  * si elle en remplace une, celle-ci reste en vigueur à sa place (sa sortie
  * devient celle de la clause ôtée).
  */
-export function platformClausesWithout(retirees: readonly string[]): PlatformClause[] {
+export function platformClausesWithout(retirees: readonly string[], clauses?: readonly PlatformClause[]): PlatformClause[] {
+  const source = clauses ?? PLATFORM_CLAUSES
   const ot = new Set(retirees)
-  const parId = new Map(PLATFORM_CLAUSES.map((c) => [c.id, c]))
+  const parId = new Map(source.map((c) => [c.id, c]))
   const report = new Map<string, string | null>()
   for (const id of ot) {
     const c = parId.get(id)
@@ -340,7 +372,7 @@ export function platformClausesWithout(retirees: readonly string[]): PlatformCla
     }
     if (!ot.has(remplacee)) report.set(remplacee, c.exits)
   }
-  return PLATFORM_CLAUSES.filter((c) => !ot.has(c.id)).map((c) => (report.has(c.id) ? { ...c, exits: report.get(c.id) ?? null } : c))
+  return source.filter((c) => !ot.has(c.id)).map((c) => (report.has(c.id) ? { ...c, exits: report.get(c.id) ?? null } : c))
 }
 
 /** Réponse JSON d'un moteur, ou le marqueur d'une exception (le moteur privé peut lever). */
@@ -467,9 +499,10 @@ class Tirage {
     graine: string,
     n: number,
     private readonly observer: (s: PlatformCheckStep) => Json,
+    source: Source = PLATFORM_CLAUSES,
   ) {
     this.r = new Rng(graine)
-    this.c = contratDe(n)
+    this.c = contratDe(n, source)
     // Début du flux : un instant de 2031-2032, différent d'un flux à l'autre
     // (saisons, changements d'heure, fins de mois).
     this.t = Date.UTC(2031, 0, 5) + this.r.int(0, 600) * JOUR + this.r.int(6, 20) * HEURE + this.r.int(0, 3) * 15 * 60_000
@@ -1012,11 +1045,11 @@ class Tirage {
 
 /* ═══════════════════════════════════════════════════════ flux différentiels */
 
-const FLUX = new Map<string, GeneratePlatformDifferentialStreamsResult>()
+const FLUX = new WeakMap<Source, Map<string, GeneratePlatformDifferentialStreamsResult>>()
 
-function tirerFlux(graine: string, n: number, longueur: number): PlatformCheckStep[] {
-  const modele = new PlatformEngine(PLATFORM_CLAUSES)
-  const t = new Tirage(graine, n, (s) => appliquer(modele, versEtape(s, n)))
+function tirerFlux(graine: string, n: number, longueur: number, source: Source): PlatformCheckStep[] {
+  const modele = new PlatformEngine(source)
+  const t = new Tirage(graine, n, (s) => appliquer(modele, versEtape(s, n)), source)
   return t.tirer(longueur)
 }
 
@@ -1029,23 +1062,25 @@ export function generatePlatformDifferentialStreams(input: GeneratePlatformDiffe
   const seed = graineDe(input)
   const count = Math.max(PLATFORM_DIFFERENTIAL_MIN_STREAMS, Math.floor(input.count ?? PLATFORM_DIFFERENTIAL_MIN_STREAMS))
   const length = Math.max(PLATFORM_DIFFERENTIAL_MIN_OPERATIONS, Math.floor(input.length ?? PLATFORM_DIFFERENTIAL_MIN_OPERATIONS))
+  const source = sourceDe(input)
+  const flux = cacheDe(FLUX, source)
   const cle = `${String(seed)}|${String(n)}|${String(count)}|${String(length)}`
-  const deja = FLUX.get(cle)
+  const deja = flux.get(cle)
   if (deja !== undefined) return clone(deja)
   const streams: PlatformDifferentialStream[] = []
   for (let i = 0; i < count; i += 1) {
-    streams.push({ index: i, period: `P${String(n)}`, steps: tirerFlux(`flux|${String(seed)}|P${String(n)}|${String(i)}`, n, length) })
+    streams.push({ index: i, period: `P${String(n)}`, steps: tirerFlux(`flux|${String(seed)}|P${String(n)}|${String(i)}`, n, length, source) })
   }
   const out: GeneratePlatformDifferentialStreamsResult = { period: `P${String(n)}`, seed, streams }
-  FLUX.set(cle, out)
+  flux.set(cle, out)
   return clone(out)
 }
 
 /* ════════════════════════════════════════════════════════ séquences ciblées */
 
 /** La clause active à n qui gouverne l'opération d'une étape (citée par les attentes de mise en place). */
-function clauseDeLOperation(s: PlatformCheckStep, n: number, repli: string): string {
-  const c = contratDe(n)
+function clauseDeLOperation(s: PlatformCheckStep, n: number, repli: string, source: Source): string {
+  const c = contratDe(n, source)
   const v1 = c.version && s.version === 'v2' ? (c.opV1.get(s.op) ?? s.op) : s.op
   const chercher = (decision: string): string | undefined => c.actives.find((x) => decision in x.implementation)?.id
   if (c.version && s.version !== undefined && s.version !== 'v1' && s.version !== 'v2') return chercher('requete.version') ?? repli
@@ -1079,8 +1114,8 @@ interface Frontiere {
 }
 
 /** Cherche, dans un flux tiré pour (clause, n, k), la première étape où source complète et source privée divergent. */
-function chercherFrontiere(clause: string, n: number, graine: string, longueur: number, privee: readonly PlatformClause[]): Frontiere | null {
-  const complet = new PlatformEngine(PLATFORM_CLAUSES)
+function chercherFrontiere(clause: string, n: number, graine: string, longueur: number, privee: readonly PlatformClause[], source: Source): Frontiere | null {
+  const complet = new PlatformEngine(source)
   const prive = new PlatformEngine(privee)
   const reponses: Json[] = []
   let trouve = false
@@ -1091,22 +1126,23 @@ function chercherFrontiere(clause: string, n: number, graine: string, longueur: 
     reponses.push(attendu)
     if (platformCanonicalJson(attendu) !== platformCanonicalJson(autre)) trouve = true
     return attendu
-  })
+  }, source)
   const steps = t.tirer(longueur, () => trouve)
   void clause
   return trouve ? { steps, reponses } : null
 }
 
-const SEQUENCES = new Map<string, PlatformTargetedSequence[]>()
+const SEQUENCES = new WeakMap<Source, Map<string, PlatformTargetedSequence[]>>()
 
-function sequencesDeLaClause(c: PlatformClause, n: number, seed: number | string): PlatformTargetedSequence[] {
+function sequencesDeLaClause(c: PlatformClause, n: number, seed: number | string, source: Source): PlatformTargetedSequence[] {
+  const cache = cacheDe(SEQUENCES, source)
   const cle = `${String(seed)}|${String(n)}|${c.id}`
-  const deja = SEQUENCES.get(cle)
+  const deja = cache.get(cle)
   if (deja !== undefined) return deja
-  const privee = platformClausesWithout([c.id])
+  const privee = platformClausesWithout([c.id], source)
   const trouvees: Frontiere[] = []
   for (let k = 0; k < ESSAIS.length && trouvees.length < SEQUENCES_PAR_CLAUSE; k += 1) {
-    const f = chercherFrontiere(c.id, n, `cible|${String(seed)}|P${String(n)}|${c.id}|${String(k)}`, ESSAIS[k] as number, privee)
+    const f = chercherFrontiere(c.id, n, `cible|${String(seed)}|P${String(n)}|${c.id}|${String(k)}`, ESSAIS[k] as number, privee, source)
     if (f !== null) trouvees.push(f)
     else if (trouvees.length > 0) break
   }
@@ -1118,26 +1154,26 @@ function sequencesDeLaClause(c: PlatformClause, n: number, seed: number | string
     discriminating,
     steps: steps.map((s, i) => ({
       ...s,
-      expect: { clause: i === steps.length - 1 ? c.id : clauseDeLOperation(s, n, c.id), response: reponses[i] as Json },
+      expect: { clause: i === steps.length - 1 ? c.id : clauseDeLOperation(s, n, c.id, source), response: reponses[i] as Json },
     })),
   })
   for (const f of trouvees) out.push(habiller(f.steps, f.reponses, true))
   if (out.length === 0) {
     // Privation sans effet observable dans le budget : une séquence courte qui
     // s'arrête sur une opération que la clause touche.
-    const modele = new PlatformEngine(PLATFORM_CLAUSES)
+    const modele = new PlatformEngine(source)
     const reponses: Json[] = []
     const t = new Tirage(`cible|${String(seed)}|P${String(n)}|${c.id}|repli`, n, (s) => {
       const r = appliquer(modele, versEtape(s, n))
       reponses.push(r)
       return r
-    })
+    }, source)
     const steps = t.tirer(40)
     const ops = opsDeLaClause(c)
     let fin = steps.length - 1
     for (let i = 8; i < steps.length; i += 1) {
       const s = steps[i] as PlatformCheckStep
-      const v1 = contratDe(n).opV1.get(s.op) ?? s.op
+      const v1 = contratDe(n, source).opV1.get(s.op) ?? s.op
       if (ops.has(v1)) {
         fin = i
         break
@@ -1145,7 +1181,7 @@ function sequencesDeLaClause(c: PlatformClause, n: number, seed: number | string
     }
     out.push(habiller(steps.slice(0, fin + 1), reponses.slice(0, fin + 1), false))
   }
-  SEQUENCES.set(cle, out)
+  cache.set(cle, out)
   return out
 }
 
@@ -1156,15 +1192,16 @@ function sequencesDeLaClause(c: PlatformClause, n: number, seed: number | string
 export function generatePlatformTargetedSequences(input: GeneratePlatformTargetedSequencesInput): GeneratePlatformTargetedSequencesResult {
   const n = platformPeriodNumber(input)
   const seed = graineDe(input)
-  const actives = contratDe(n).actives
+  const source = sourceDe(input)
+  const actives = contratDe(n, source).actives
   let visees: readonly PlatformClause[] = actives
   if (input.clause !== undefined) {
-    if (!PLATFORM_CLAUSES.some((c) => c.id === input.clause)) throw new Error(`F-PLATFORM : clause inconnue ${input.clause}`)
+    if (!source.some((c) => c.id === input.clause)) throw new Error(`F-PLATFORM : clause inconnue ${input.clause}`)
     visees = actives.filter((c) => c.id === input.clause)
   }
   const sequences: PlatformTargetedSequence[] = []
   for (const c of visees) {
-    for (const s of sequencesDeLaClause(c, n, seed)) sequences.push({ ...s, index: sequences.length })
+    for (const s of sequencesDeLaClause(c, n, seed, source)) sequences.push({ ...s, index: sequences.length })
   }
   return { period: `P${String(n)}`, seed, sequences: clone(sequences) }
 }
@@ -1172,9 +1209,9 @@ export function generatePlatformTargetedSequences(input: GeneratePlatformTargete
 /* ═════════════════════════════════════════════════════ aides de notation */
 
 /** Les réponses d'un modèle attendu NEUF aux étapes, dans l'ordre (période n pour toutes). */
-export function platformExpectedResponses(period: number | string, steps: readonly PlatformCheckStep[]): Json[] {
+export function platformExpectedResponses(period: number | string, steps: readonly PlatformCheckStep[], clauses?: readonly PlatformClause[]): Json[] {
   const n = platformPeriodNumber(period)
-  const modele = new PlatformEngine(PLATFORM_CLAUSES)
+  const modele = new PlatformEngine(clauses ?? PLATFORM_CLAUSES)
   return steps.map((s) => appliquer(modele, versEtape(s, n)))
 }
 
@@ -1193,13 +1230,16 @@ export function diagnosePlatformDivergence(input: {
   readonly budget?: number
   /** Instant (Date.now()) au-delà duquel on cesse de rejouer des privations. */
   readonly deadline?: number
+  /** T77 : la source de clauses du modèle attendu (absente : la source en vigueur). */
+  readonly clauses?: readonly PlatformClause[]
 }): { clause: string; method: 'privation' | 'operation' } {
   const n = platformPeriodNumber(input.period)
-  const c = contratDe(n)
+  const source = sourceDe(input)
+  const c = contratDe(n, source)
   const etape = input.steps[input.index]
   const repli = c.actives[0]?.id ?? 'P1.R1'
   if (etape === undefined) return { clause: repli, method: 'operation' }
-  const parOperation = clauseDeLOperation(etape, n, repli)
+  const parOperation = clauseDeLOperation(etape, n, repli, source)
   const v1 = c.opV1.get(etape.op) ?? etape.op
   const recu = platformCanonicalJson(input.received)
   const touche = c.actives.filter((x) => opsDeLaClause(x).has(v1))
@@ -1208,11 +1248,11 @@ export function diagnosePlatformDivergence(input: {
   const prefixe = input.steps.slice(0, input.index + 1).map((s) => versEtape(s, n))
   // Le candidat a répondu comme le modèle attendu jusqu'à `index` exclu : une
   // privation qui s'en écarte plus tôt n'explique pas la divergence.
-  const modele = new PlatformEngine(PLATFORM_CLAUSES)
+  const modele = new PlatformEngine(source)
   const attendus = prefixe.map((s) => platformCanonicalJson(appliquer(modele, s)))
   for (const x of ordre) {
     if (input.deadline !== undefined && Date.now() > input.deadline) break
-    const moteur = new PlatformEngine(platformClausesWithout([x.id]))
+    const moteur = new PlatformEngine(platformClausesWithout([x.id], source))
     let explique = true
     for (let i = 0; i < prefixe.length && explique; i += 1) {
       const r = platformCanonicalJson(appliquer(moteur, prefixe[i] as PlatformStep))

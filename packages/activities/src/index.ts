@@ -690,3 +690,31 @@ export type {
   FPlatformPilotReportInput,
   FPlatformReportTrajectory,
 } from './f-platform-pilot-run.js'
+
+/* ── T77 : la calibration avant toute campagne (ADR-021 decision 6,
+   L222-L228) — calibration d'une source de clauses F-PLATFORM par un candidat
+   de reference (notateurs de T74 + completude de docs/spec.md de T73),
+   empreinte de la source, registre (BENCH_CALIBRATION_DIR, sinon
+   packages/activities/calibrations/) et refus CALIBRATION_REQUIRED
+   (f-platform-calibration.ts). */
+export {
+  CALIBRATION_DIR_ENV,
+  PLATFORM_CALIBRATIONS_TABLE,
+  PLATFORM_CALIBRATION_SCHEMA,
+  PLATFORM_CALIBRATION_SEED,
+  PLATFORM_FINGERPRINT_SCHEMA,
+  PlatformCalibrationRequiredError,
+  assertPlatformSourceCalibrated,
+  calibratePlatformClauseSource,
+  calibrationDir,
+  defaultCalibrationDir,
+  findPlatformCalibration,
+  loadPlatformClauseSource,
+  platformClauseSourceFingerprint,
+} from './f-platform-calibration.js'
+export type {
+  CalibratePlatformInput,
+  CalibrationFailure,
+  CalibrationLookup,
+  PlatformFingerprint,
+} from './f-platform-calibration.js'

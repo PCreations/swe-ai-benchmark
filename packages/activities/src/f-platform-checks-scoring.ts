@@ -57,6 +57,7 @@ import {
   platformExpectedResponses,
   platformPeriodNumber,
   type PlatformCheckStep,
+  type PlatformClause,
   type PlatformTargetedSequence,
 } from '@bench/scenario'
 
@@ -76,6 +77,12 @@ export interface ScorePlatformInput {
   readonly timeoutMs?: number
   /** Répertoire courant du processus candidat. */
   readonly cwd?: string
+  /**
+   * T77 : la source de clauses dont on tire séquences, flux et modèle attendu
+   * (absente : la source en vigueur). La calibration note ainsi un candidat
+   * contre la source qu'elle calibre.
+   */
+  readonly clauses?: readonly PlatformClause[]
 }
 
 export interface ScorePlatformTargetedInput extends ScorePlatformInput {
@@ -249,6 +256,7 @@ export async function scorePlatformTargeted(input: ScorePlatformTargetedInput): 
     period: n,
     seed: input.seed,
     ...(input.clause !== undefined ? { clause: input.clause } : {}),
+    ...(input.clauses !== undefined ? { clauses: input.clauses } : {}),
   })
   const sequences: readonly PlatformTargetedSequence[] = lot.sequences
 
@@ -310,7 +318,7 @@ const BUDGET_DIAGNOSTIC_MS = 4_000
 
 export async function scorePlatformDifferential(input: ScorePlatformInput): Promise<ScorePlatformDifferentialResult> {
   const n = verifierEntree(input)
-  const { streams } = generatePlatformDifferentialStreams({ period: n, seed: input.seed })
+  const { streams } = generatePlatformDifferentialStreams({ period: n, seed: input.seed, ...(input.clauses !== undefined ? { clauses: input.clauses } : {}) })
 
   const jouer = async (i: number): Promise<{ index: number; recu: unknown; attendu: Json } | null> => {
     const f = streams[i]
@@ -319,7 +327,7 @@ export async function scorePlatformDifferential(input: ScorePlatformInput): Prom
     const requetes = f.steps.map((s, j) => requete(`f${String(i)}-${String(j)}`, n, s))
     const d = await dialoguer(input, dir, requetes)
     // Un modèle attendu NEUF par flux, sur l'état vide.
-    const attendus = platformExpectedResponses(n, f.steps)
+    const attendus = platformExpectedResponses(n, f.steps, input.clauses)
     for (let j = 0; j < f.steps.length; j += 1) {
       const recu = d.responses[j]
       const attendu = attendus[j] as Json
@@ -338,7 +346,14 @@ export async function scorePlatformDifferential(input: ScorePlatformInput): Prom
     const f = streams[i]
     if (f === undefined) return
     const s = f.steps[dv.index] as PlatformCheckStep
-    const diag = diagnosePlatformDivergence({ period: n, steps: f.steps, index: dv.index, received: dv.recu, deadline })
+    const diag = diagnosePlatformDivergence({
+      period: n,
+      steps: f.steps,
+      index: dv.index,
+      received: dv.recu,
+      deadline,
+      ...(input.clauses !== undefined ? { clauses: input.clauses } : {}),
+    })
     failures.push({
       kind: 'differential',
       period: `P${String(n)}`,

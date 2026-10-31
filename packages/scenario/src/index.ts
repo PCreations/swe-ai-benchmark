@@ -189,6 +189,7 @@ export type { PlatformPeriodDocsOptions } from './f-platform-docs.js'
 export {
   PLATFORM_CANDIDATE_PROTOCOL,
   PLATFORM_CHECKS_PERIOD_COUNT,
+  PLATFORM_CLAUSES_IN_FORCE,
   PLATFORM_DIFFERENTIAL_MIN_OPERATIONS,
   PLATFORM_DIFFERENTIAL_MIN_STREAMS,
   diagnosePlatformDivergence,
@@ -207,6 +208,7 @@ export type {
   GeneratePlatformTargetedSequencesResult,
   PlatformCheckStep,
   PlatformChecksInput,
+  PlatformClause,
   PlatformDifferentialStream,
   PlatformExpectation,
   PlatformTargetedSequence,

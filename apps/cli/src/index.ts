@@ -52,6 +52,7 @@ import { promisify } from 'node:util'
 
 import {
   buildReport,
+  calibratePlatformClauseSource,
   campaignOpsPreflight,
   candidateControlPeriodOnce,
   candidateControlReport,
@@ -215,6 +216,17 @@ const USAGE = `bench — commandes de campagne
         --mode                                recorded | live
         --provider                            fake
         --test-force-all-candidates-fail      point d'injection nomme (cahier:L141)
+
+  calibrate --scenario-id F-PLATFORM --candidate-command <argv JSON>
+            [--clause-source <module ES>] [--postgres-database <db>]
+        Calibre une source de clauses F-PLATFORM (T77, ADR-021 decision 6) :
+        le candidat de reference doit obtenir 1 sur chaque clause a chaque
+        periode, et chaque clause comparee doit figurer dans docs/spec.md.
+        Registre : BENCH_CALIBRATION_DIR, sinon packages/activities/
+        calibrations/. Sortie 0 seulement si la calibration est reussie.
+        pilot-conduct --provider claude-cli --live sur F-PLATFORM refuse
+        (CALIBRATION_REQUIRED) sans calibration reussie de la source en
+        vigueur.
 
   pilot-conduct <manifest.json> --campaign-id <id> --postgres-database <db>
                 --s3-bucket <bucket> --provider fake|claude-cli
@@ -1654,6 +1666,53 @@ async function commandDistributionResume(argv: readonly string[]): Promise<numbe
   return 0
 }
 
+/**
+ * `calibrate` (T77, ADR-021 decision 6, L222-L228). Calibre une source de
+ * clauses F-PLATFORM (la source en vigueur, ou celle qu'exporte
+ * `--clause-source <module ES>`) par le candidat de `--candidate-command`
+ * (tableau JSON argv, protocole bench.platform/1) : notateurs cible et
+ * differentiel de T74 a chaque periode 1..24, plus la completude de
+ * docs/spec.md (T73). Inscrit le rapport dans le registre
+ * (BENCH_CALIBRATION_DIR, sinon packages/activities/calibrations/), l'imprime
+ * en JSON sur stdout ; code 0 SEULEMENT si la calibration est reussie. Toute
+ * la logique est dans `@bench/activities` (src/f-platform-calibration.ts).
+ */
+async function commandCalibrate(argv: readonly string[]): Promise<number> {
+  const flags = parseFlags(argv)
+  const scenarioId = flags.get('scenario-id')
+  const candidateCommandRaw = flags.get('candidate-command')
+  if (scenarioId !== 'F-PLATFORM' || candidateCommandRaw === undefined) {
+    process.stderr.write('bench calibrate exige --scenario-id F-PLATFORM et --candidate-command <tableau JSON argv>\n')
+    return 1
+  }
+  let candidateCommand: unknown
+  try {
+    candidateCommand = JSON.parse(candidateCommandRaw) as unknown
+  } catch {
+    process.stderr.write('bench calibrate : --candidate-command doit etre un tableau JSON\n')
+    return 1
+  }
+  if (!Array.isArray(candidateCommand) || candidateCommand.length === 0 || !candidateCommand.every((x) => typeof x === 'string')) {
+    process.stderr.write('bench calibrate : --candidate-command doit etre un tableau JSON non vide de chaines\n')
+    return 1
+  }
+  const clauseSourcePath = flags.get('clause-source')
+  const postgresDatabase = flags.get('postgres-database')
+  try {
+    const report = await calibratePlatformClauseSource({
+      candidateCommand: candidateCommand as string[],
+      ...(clauseSourcePath !== undefined ? { clauseSourcePath } : {}),
+      ...(postgresDatabase !== undefined ? { postgresDatabase } : {}),
+    })
+    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)
+    return report['success'] === true ? 0 : 1
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    process.stderr.write(`bench calibrate : ${message}\n`)
+    return 1
+  }
+}
+
 async function main(): Promise<number> {
   const [command = '', ...rest] = process.argv.slice(2)
   if (command === 'demo') return commandDemo(rest)
@@ -1665,6 +1724,7 @@ async function main(): Promise<number> {
   if (command === 'campaign') return commandCampaignDispatch(rest)
   if (command === 'pilot') return commandPilot(rest)
   if (command === 'pilot-conduct') return commandPilotConduct(rest)
+  if (command === 'calibrate') return commandCalibrate(rest)
   if (command === 'candidate-period') return commandCandidatePeriod(rest)
   if (command === 'candidate-control-period') return commandCandidateControlPeriod(rest)
   if (command === 'candidate-control-report') return commandCandidateControlReport(rest)

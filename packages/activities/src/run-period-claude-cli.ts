@@ -74,6 +74,7 @@ import {
 } from './candidate-protocol-v2.js'
 import { buildCandidatePeriodPrompt, CANDIDATE_REQUIREMENTS_PERIOD_KEYS } from './candidate-requirements-statement.js'
 import { buildFLongPilotPrompt, F_LONG_SCENARIO_ID } from './f-long-pilot.js'
+import { withMethodInstruction } from './pilot-arms.js'
 import {
   buildFPlatformPilotPrompt,
   F_PLATFORM_PERIOD_COUNT,
@@ -94,6 +95,11 @@ export interface RunPeriodClaudeCliInput {
    *  et persiste avec la periode ; `undefined` quand le manifeste ne porte
    *  pas `model.effort` (comportement de T47/T49 inchange dans ce cas). */
   readonly effort?: string | undefined
+  /** T76 (ADR-021 decision 5) -- consigne de methode du bras de la
+   *  trajectoire, ajoutee MOT POUR MOT a la fin du prompt de la periode
+   *  (`withMethodInstruction`, ./pilot-arms.ts) ; absente ou `null` : prompt
+   *  inchange. */
+  readonly methodInstruction?: string | null | undefined
 }
 
 export interface ClaudeCliCandidate {
@@ -514,11 +520,12 @@ export async function runPeriodOnceClaudeCli(input: RunPeriodClaudeCliInput): Pr
       failure_reason: `${REASON_F_PLATFORM_EXHAUSTED} (P${String(periodIndex)})`,
     }
   }
-  const prompt = fLong
+  const commonPrompt = fLong
     ? buildFLongPilotPrompt(periodIndex)
     : fPlatform
       ? buildFPlatformPilotPrompt(periodIndex)
       : buildPrompt(await revealedRequirementsForPeriod(scenarioId, periodIndex), periodIndex)
+  const prompt = withMethodInstruction(commonPrompt, input.methodInstruction)
   const workspaceDir = ensureWorkspace(input.candidateWorkspaceRoot, campaignId)
   if (fPlatform) materializeFPlatformPeriodDocs(workspaceDir, periodIndex)
   else if (!fLong) writeProtocolFormVerificationScript(workspaceDir)

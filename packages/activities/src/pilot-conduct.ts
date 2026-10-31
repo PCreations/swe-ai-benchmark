@@ -66,6 +66,8 @@ import { aggregateClaudeCliUsage, countClaudeCliPeriods, runPeriodOnceClaudeCli 
 import { candidateControlReport, controlCandidateCommitOnce } from './candidate-control-period.js'
 import { controlFLongPilotPeriod, fLongPilotReport, F_LONG_PERIOD_COUNT, F_LONG_SCENARIO_ID } from './f-long-pilot.js'
 import { F_PLATFORM_PERIOD_COUNT, F_PLATFORM_SCENARIO_ID } from './f-platform-pilot.js'
+import { controlFPlatformPilotPeriod, fPlatformPilotReport } from './f-platform-pilot-run.js'
+import { armOfConfiguration, parsePilotArms, type PilotArm } from './pilot-arms.js'
 
 type Json = Record<string, unknown>
 
@@ -96,6 +98,13 @@ interface ConductManifest {
   readonly configurations?: readonly string[]
   readonly repetitions?: number
   readonly periods_per_trajectory?: number
+  /** AJOUTE par T76 (ADR-021 decision 5) -- optionnel, additif : les bras du
+   *  pilote, une configuration chacun, avec leur consigne de methode
+   *  (`./pilot-arms.ts`). Absent : aucun bras, prompts inchanges. */
+  readonly arms?: unknown
+  /** AJOUTE par T76 -- optionnel : nombre maximal de tirages du
+   *  reechantillonnage apparie (T33) et graine des tirages pseudo-aleatoires. */
+  readonly resampling?: { readonly max_draws?: number; readonly seed?: string }
 }
 
 function loadConductManifest(manifestPath: string): ConductManifest {
@@ -195,6 +204,9 @@ interface ConductTrajectoryPlan {
   readonly parent_project_id: string
   readonly scenario_id: string
   readonly configuration_id: string
+  /** T76 : identite du couple (groupe, clone, repetition), commune a toutes
+   *  les configurations -- les bras d'une meme repetition sont apparies. */
+  readonly pairing_key: string
 }
 
 /**
@@ -222,6 +234,7 @@ function planConductTrajectories(campaignId: string, manifest: ConductManifest):
             parent_project_id: group.source_parent_project_id,
             scenario_id: group.source_scenario_id,
             configuration_id: configurationId,
+            pairing_key: `${campaignId}--g${String(groupIndex)}--${cloneInstanceId}--rep${String(rep)}`,
           })
         }
       }
@@ -478,6 +491,7 @@ async function conductPilotClaudeCli(
   manifest: ConductManifest,
   plans: readonly ConductTrajectoryPlan[],
   effort: EffortLevel | undefined,
+  arms: readonly PilotArm[],
 ): Promise<Readonly<Json>> {
   if (input.live !== true) {
     throw new Error(
@@ -518,6 +532,10 @@ async function conductPilotClaudeCli(
         interrupted = true
         break outer
       }
+      // T76 (ADR-021 decision 5) : la consigne de methode du bras de CETTE
+      // configuration, lue dans le manifeste, ajoutee au prompt commun.
+      const arm = armOfConfiguration(arms, plan.configuration_id)
+      const sessionStartedAt = Date.now()
       const outcome = await runPeriodOnceClaudeCli({
         campaignId: plan.trajectory_key,
         postgresDatabase: db,
@@ -526,7 +544,9 @@ async function conductPilotClaudeCli(
         candidateWorkspaceRoot: input.candidateWorkspaceRoot,
         scenarioId: plan.scenario_id,
         effort,
+        methodInstruction: arm?.method_instruction ?? null,
       })
+      const sessionWallMs = Date.now() - sessionStartedAt
       if (!outcome.persisted) {
         throw new Error(
           `bench pilot-conduct : session claude-cli en échec pour ${plan.trajectory_key} période ${String(i)} : ${outcome.failure_reason ?? 'motif inconnu'}`,
@@ -560,7 +580,24 @@ async function conductPilotClaudeCli(
           usage: outcome.candidate.usage,
           stateRoot: candidateWorkspaceRoot,
         })
-      } else if (outcome.candidate !== undefined && plan.scenario_id !== F_PLATFORM_SCENARIO_ID) {
+      } else if (outcome.candidate !== undefined && plan.scenario_id === F_PLATFORM_SCENARIO_ID) {
+        // ── T76 (ADR-021 decisions 3 et 5) : le commit de la session est note
+        // par les notateurs cible et differentiel de T74 (execution reelle),
+        // ses regressions, couts et mesures de qualite du code sont persistes.
+        await controlFPlatformPilotPeriod({
+          postgresDatabase: db,
+          trajectoryKey: plan.trajectory_key,
+          configurationId: plan.configuration_id,
+          arm: arm?.arm ?? null,
+          periodIndex: outcome.period_index ?? i,
+          workspaceDir: outcome.candidate.workspace_dir,
+          commitSha: outcome.candidate.commit_sha,
+          usage: outcome.candidate.usage,
+          rawOutput: outcome.candidate.raw_output,
+          sessionWallMs,
+          pairingKey: plan.pairing_key,
+        })
+      } else if (outcome.candidate !== undefined) {
         // F-PLATFORM (T73) : le contrôle du commit par le protocole du
         // scenario de demonstration ne s'applique pas ; ses contrôles ciblés
         // et différentiels sont l'objet de T74.
@@ -634,6 +671,23 @@ async function conductPilotClaudeCli(
           }),
         }
       : {}),
+    // T76 (ADR-021 decision 5, L218) : enregistrements de periode, statistiques
+    // par bras et par periode, rapport de cout entre bras -- present seulement
+    // quand le manifeste porte une trajectoire F-PLATFORM.
+    ...(persistedTrajectories.some((t) => t.scenario_id === F_PLATFORM_SCENARIO_ID)
+      ? {
+          f_platform: await fPlatformPilotReport({
+            postgresDatabase: db,
+            trajectories: persistedTrajectories,
+            arms,
+            periodsPerTrajectory: manifest.periods_per_trajectory ?? 0,
+            resampling: {
+              ...(manifest.resampling?.max_draws !== undefined ? { maxDraws: manifest.resampling.max_draws } : {}),
+              seed: manifest.resampling?.seed ?? campaignId,
+            },
+          }),
+        }
+      : {}),
   }
 }
 
@@ -669,6 +723,9 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
     throw new Error(`bench pilot-conduct exige --provider fake|claude-cli (reçu ${JSON.stringify(input.provider)})`)
   }
 
+  // T76 : les bras declares sont valides AVANT toute ecriture et tout appel.
+  const arms = parsePilotArms(manifest.arms, manifest.configurations ?? [])
+
   const db = input.postgresDatabase
   const campaignId = input.campaignId
   const plans = planConductTrajectories(campaignId, manifest)
@@ -681,7 +738,7 @@ export async function conductPilot(input: ConductPilotInput): Promise<Readonly<J
   // reel ci-dessous (voir l'en-tete de ./run-period-claude-cli.ts) — c'est ce
   // qui rend A5 (fournisseur factice inchange) vrai PAR CONSTRUCTION.
   if (input.provider === 'claude-cli') {
-    return conductPilotClaudeCli(input, manifest, plans, effort)
+    return conductPilotClaudeCli(input, manifest, plans, effort, arms)
   }
 
   const dsn = dsnFor(db)

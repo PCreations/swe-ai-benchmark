@@ -658,3 +658,35 @@ export type {
   PlatformLatencyMeasure,
   RunPlatformConcurrencyTrialsResult,
 } from './f-platform-perf.js'
+
+/* ── T76 : le pilote F-PLATFORM a deux bras (ADR-021 decision 5, L214-L220)
+   — bras declares dans le manifeste avec leur consigne de methode
+   (pilot-arms.ts), mesures de qualite du code (code-quality.ts), notation et
+   persistance de chaque periode, rapport par bras et par periode et rapport
+   de cout B/A reechantillonne selon T33 (f-platform-pilot-run.ts,
+   paired-resampling.ts). */
+
+export {
+  METHOD_INSTRUCTION_SEPARATOR,
+  armOfConfiguration,
+  comparedArms,
+  parsePilotArms,
+  withMethodInstruction,
+} from './pilot-arms.js'
+export type { PilotArm } from './pilot-arms.js'
+export { DUPLICATION_WINDOW, isCandidateSourceFile, measureCodeQuality } from './code-quality.js'
+export type { CodeQualityMeasures, MeasureCodeQualityInput } from './code-quality.js'
+export { DEFAULT_MAX_DRAWS, empiricalInverseQuantileInterval, pairedDraws, ratioOfMeans } from './paired-resampling.js'
+export type { PairedDraws, PointwiseInterval } from './paired-resampling.js'
+export {
+  F_PLATFORM_PILOT_TABLE,
+  controlFPlatformPilotPeriod,
+  fPlatformPilotReport,
+  fPlatformSeedOf,
+  hasFPlatformPilotPeriod,
+} from './f-platform-pilot-run.js'
+export type {
+  ControlFPlatformPilotPeriodInput,
+  FPlatformPilotReportInput,
+  FPlatformReportTrajectory,
+} from './f-platform-pilot-run.js'

@@ -53,7 +53,11 @@
     "autre devise (set_price a change la devise apres sa confirmation) n'est pas ajustee, absente de adjusted, sans erreur (precision",
     "Q63 de P16.R1 et P16.R2). Cas exerce en FIN de P16 sur un locataire neuf t-q63 (P16-32..P16-55) : EUR -> USD,",
     "USD -> EUR et meme devise. Faits P16.F25-F35 ; aucun fait existant decale ni modifie. Q38 est resolue dans",
-    "F-PLATFORM-P17-P24.json : il ne reste aucune question ouverte."
+    "F-PLATFORM-P17-P24.json : il ne reste aucune question ouverte.",
+    "",
+    "DECISION DU MANDANT DU 31/10/2026 (fixture-transcriber, decision du mandant du 31/10/2026). P16.R2, precision Q66 : phrase ajoutee",
+    "au texte : « original_amount_cents garde la valeur fixée à la confirmation, même si elle diffère alors de amount_cents. » Precision",
+    "de texte seule : aucune etape, aucun fait ni aucun comportement ne change."
   ],
   "source": {
     "adr": "docs/adr/ADR-021-scenario-f-platform.md",
@@ -200,6 +204,14 @@
       ],
       "faits_existants_modifies": [],
       "confrontation": "faits calcules a la main puis recalcules ; trajectoire P1-P24 rejouee hors depot avec un simulateur jetable (modele attendu copie hors depot, filtre de devise de P16.R2 ajoute) : reponses des etapes existantes identiques ; les faits ajoutes concordent ; le modele attendu actuel diverge sur P16-41 (leve TAUX-ABSENT) et P16-49 (ajuste u2)"
+    },
+    "decisions_du_mandant_du_31_10_2026": {
+      "source": "decision du mandant du 31/10/2026",
+      "precision": "P16.R2 texte et precisions[Q66]",
+      "etapes_ajoutees": [],
+      "faits_ajoutes": [],
+      "faits_existants_modifies": [],
+      "confrontation": "precision de texte seule ; le modele attendu ne modifie original_amount_cents qu'a la confirmation (P15.R6, P22.R1) : aucune reponse d'etape ne change"
     }
   },
   "conventions": {
@@ -7119,7 +7131,7 @@
         },
         {
           "id": "P16.R2",
-          "texte": "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas. Monnaie (Q63, decision du mandant du 27/10/2026) : seules sont recalculees les reservations confirmees dans la devise ACTUELLE du creneau (devise d'une reservation : 'USD' si elle porte price_currency 'USD' (P15.R6), 'EUR' sinon, y compris avant P15) ; un changement de devise par set_price n'est jamais retroactif : une reservation confirmee dans une autre devise que celle du creneau au moment de change_price n'est pas ajustee, ne figure pas dans adjusted et ne produit ni remboursement, ni ligne, ni avoir ; ce n'est pas une erreur.",
+          "texte": "Trop-percus. Pour chaque reservation confirmed du creneau dont l'instant de confirmation est >= effective_from (borne incluse), dans l'ordre de confirmation : A' = montant recalcule par P15.R6 pour ses seats ACTUELS, avec le nouveau prix mais le niveau (taux de remise) et, en USD, le rate_micro de SA confirmation, PLUS F, la somme des frais d'annulation partielle deja retenus sur la reservation (P9.R4). Le trop-percu T = A - A' ne rend donc jamais des frais d'annulation. Si A' < A (amount_cents actuel) : trop-percu T = A - A' ; r_c = floor(T x C / A), r_d = T - r_c ; r_c re-credite au portefeuille, r_d rendu a la carte ; la reservation garde A', C - r_c, D - r_d. original_amount_cents garde la valeur fixée à la confirmation, même si elle diffère alors de amount_cents. Si A' >= A : rien (une hausse ne s'applique qu'aux confirmations futures). Les reservations confirmees avant effective_from, waiting, annulees ou debarquees ne changent pas. Monnaie (Q63, decision du mandant du 27/10/2026) : seules sont recalculees les reservations confirmees dans la devise ACTUELLE du creneau (devise d'une reservation : 'USD' si elle porte price_currency 'USD' (P15.R6), 'EUR' sinon, y compris avant P15) ; un changement de devise par set_price n'est jamais retroactif : une reservation confirmee dans une autre devise que celle du creneau au moment de change_price n'est pas ajustee, ne figure pas dans adjusted et ne produit ni remboursement, ni ligne, ni avoir ; ce n'est pas une erreur.",
           "valeurs": {
             "borne_effective_from": "incluse",
             "arrondi_part_credits": "floor, la carte recoit le reste",
@@ -7142,6 +7154,12 @@
               "classe": "FIXER",
               "origine": "decision du mandant du 27/10/2026",
               "texte": "Changement de devise non retroactif. change_price ne reajuste que les reservations confirmees dans la devise ACTUELLE du creneau (celle du dernier set_price ; change_price ne la change pas, P16.R1). Devise d'une reservation : 'USD' si elle a ete confirmee sur un prix en USD (price_currency 'USD', P15.R6), 'EUR' sinon. Une reservation confirmee dans l'autre devise (creneau passe de EUR a USD, ou de USD a EUR, par set_price apres sa confirmation) n'est pas ajustee : elle est absente de adjusted, garde amount_cents, paid_credits_cents, paid_card_cents (et en USD original_amount_cents, rate_micro), aucun remboursement, aucune ligne adjustment, aucun avoir ; change_price repond ok sans erreur. Les reservations de la devise actuelle sont ajustees selon P16.R2 (en USD avec le rate_micro de leur confirmation, Q26). Ex. (t-q63) : u1 confirmee 2000 EUR sur C1, C1 passe a 2000 USD, change_price 1500 -> adjusted [] ; u4 confirmee ensuite 1500 USD (1350) ; change_price 1000 -> adjusted [u4 : 450] seulement ; u2 confirmee 2000 USD (1800) sur C2, C2 passe a 2000 EUR, change_price 1500 -> adjusted [], u2 garde 1800 ; u3 confirmee 2000 EUR sur C3 reste en EUR, change_price 1500 -> adjusted [u3 : 500]."
+            },
+            {
+              "question": "Q66",
+              "classe": "GARDER",
+              "origine": "decision du mandant du 31/10/2026",
+              "texte": "Montant d'origine apres un ajustement. original_amount_cents garde la valeur fixée à la confirmation, même si elle diffère alors de amount_cents : change_price ne recalcule que amount_cents (A'), paid_credits_cents et paid_card_cents d'une reservation en USD ; original_amount_cents (montant net en centimes d'USD fixe a la confirmation, P15.R6), price_currency et rate_micro ne changent pas. Ex. (t-q63) : u4 confirmee 1500 USD (1350, rate_micro 900000), change_price 1000 -> amount_cents 900, original_amount_cents reste 1500. Precision de texte seule : aucun comportement, aucune etape ni aucun fait ne change."
             }
           ]
         },
@@ -9281,6 +9299,19 @@
         "P16.F34",
         "P16.F35"
       ]
+    },
+    {
+      "id": "Q66",
+      "periode": "P16",
+      "sujet": "original_amount_cents d'une reservation ajustee",
+      "question": "P16.R2 dit que la reservation ajustee garde A', C - r_c, D - r_d, sans dire ce que devient original_amount_cents (P15.R6) d'une reservation en USD : suit-il A' ou garde-t-il la valeur de la confirmation ?",
+      "classe": "GARDER",
+      "origine": "decision du mandant du 31/10/2026",
+      "decision": "original_amount_cents garde la valeur fixée à la confirmation, même si elle diffère alors de amount_cents. Phrase ajoutee au texte de P16.R2 ; precision de texte seule, sans changement de comportement.",
+      "regles": [
+        "P16.R2"
+      ],
+      "faits": []
     }
   ]
 }

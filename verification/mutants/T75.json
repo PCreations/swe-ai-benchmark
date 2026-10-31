@@ -2,9 +2,9 @@
   "$comment": [
     "PERTURBATIONS CIBLEES DE T75 : au moins une par cas requis, dont la perturbation que",
     "verification/cases.extensions.lock.json fixe pour chacun (M1 et M2 pour A1, M9 pour A2). Les cibles",
-    "sont decrites par leur ROLE (II de acceptance/T75.spec.ts), jamais par un chemin de fichier : T75",
-    "n'est pas implementee. Un mutant ne touche jamais la suite, les racines gelees, la source de clauses,",
-    "les candidats-fixtures ni l'instantane.",
+    "sont decrites par leur ROLE (II de acceptance/T75.spec.ts), jamais par un chemin de fichier. Un mutant",
+    "ne touche jamais la suite, les racines gelees, la source de clauses, les candidats-fixtures ni",
+    "l'instantane.",
     "",
     "`doit_rester_vert` et `also_kills` ont ete VERIFIES pour chaque mutant, en l'appliquant reellement :",
     "acceptance/T75.spec.ts execute (jest du depot) contre une reference jetable hors depot (copie de",
@@ -13,18 +13,20 @@
     "fois, jamais deux mesures en parallele. Le resultat observe est consigne sous",
     "`verifie_sur_reference_jetable`.",
     "",
-    "SANS MUTANT (reverifie a 29cdd0d, instantane de T74 regenere ; candidat de T75 et variantes",
-    "reconstruits dessus, sans changement de code : ils importent l'instantane) : A1 et A2 verts, suite",
-    "entiere 7 min 11 s (4 coeurs ; A1 ~ 394 s dont ~ 370 s pour la mesure de la variante lente, A2 ~ 35 s).",
-    "Les 13 mutants rougissent exactement leur cas, l'autre reste vert. Les mutants qui rougissent A1 a la",
-    "mesure de la reference durent ~ 45 s ; ceux qui la depassent ~ 7 min ; M13 1 009 s.",
-    "(Premiere verification, ffb09f3 : 5 min 18 s sans mutant, memes verdicts.)",
+    "REVERIFICATION APRES LA DECISION DU MANDANT DU 31/10/2026 (racine F-PLATFORM-P17-P24 : repartition",
+    "decalee Q67, erase_member mesure sur des membres qui detiennent des reservations importees Q68 ;",
+    "candidat de T75 : index de l'entrepot import.memoire, champs `member`/`held` du journal ; suite :",
+    "assertion Q68 dans T75.A1). La reference jetable est l'implementation de ef48fa4 copiee hors depot,",
+    "adaptee a la nouvelle regle (erase_member vise les membres du profil, 50 reservations importees",
+    "chacun) ; elle n'est pas committee. SANS MUTANT : A1 et A2 verts, suite entiere 7 min 3 s (4 coeurs ;",
+    "A1 ~ 381 s dont ~ 335 s pour la variante lente, A2 ~ 37 s). Les 14 mutants rougissent exactement",
+    "leur cas, l'autre reste vert. M14 (nouveau) est le comportement de ef48fa4 : effacements mesures sur",
+    "des membres sans reservation.",
+    "(Verifications precedentes : 29cdd0d, 7 min 11 s ; ffb09f3, 5 min 18 s ; memes verdicts.)",
     "",
-    "MESURE A HEAD (T75 non implementee) : `node tools/bench verify:task T75 --json` rend",
-    "reason=ASSERTION_FAILED, suite chargee, A1 et A2 FAIL sur CONTRAT-NON-SATISFAIT (platformLatency,",
-    "platformConcurrency), apres les controles negatifs des predicats, la concordance source/racine,",
-    "l'integrite des fixtures et la transparence du candidat (776 etapes identiques a celles du candidat",
-    "de T74)."
+    "MESURE A HEAD (implementation de ef48fa4, racine et suite du 31/10/2026) : `node tools/bench verify:task T75`",
+    "rend reason=ASSERTION_FAILED, sortie 1 : A1 ROUGE sur un seul defaut, `erase_member : 60 echantillon(s) sur un",
+    "membre qui ne detient aucune reservation importee (precision Q68 de P20.R3 ...)` (membres t-volume-n10...), A2 vert."
   ],
   "schema": "bench.mutants/1",
   "task": "T75",
@@ -34,7 +36,7 @@
     "T75"
   ],
   "acceptance_entry": "acceptance/T75.spec.ts",
-  "mutant_count": 13,
+  "mutant_count": 14,
   "mutants": [
     {
       "id": "T75.M1",
@@ -51,7 +53,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau moyenne : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau moyenne : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 49 s)."
     },
     {
       "id": "T75.M2",
@@ -63,12 +65,12 @@
       "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts).",
       "mutation": "Repartition litterale du profil (membre i mod membres, creneau i mod creneaux) : 50 000 lignes, 1 000 reservations creees.",
       "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
-      "observation_qui_echoue": "A1 : `import : \"import_bookings\" de 50000 lignes, 1000 acceptee(s) (attendu ... 50000 acceptees)` ; puis des echantillons refuses (get_booking, cancel sur des reservations absentes).",
+      "observation_qui_echoue": "A1 : `import : \"import_bookings\" de 50000 lignes, 1000 acceptee(s) (attendu import_bookings de 50000 lignes, 50000 acceptees)` ; puis des echantillons refuses (get_booking, cancel, mark_no_show sur des reservations absentes) ; 9 defauts.",
       "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T75.A1 (second volet).",
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau import-litteral : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau import-litteral : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 49 s)."
     },
     {
       "id": "T75.M3",
@@ -85,7 +87,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau latence-ignoree : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau latence-ignoree : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 50 s)."
     },
     {
       "id": "T75.M4",
@@ -102,7 +104,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau plafond-unique : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau plafond-unique : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 52 s)."
     },
     {
       "id": "T75.M5",
@@ -119,7 +121,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau verdict-constant : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau verdict-constant : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 377 s)."
     },
     {
       "id": "T75.M6",
@@ -136,7 +138,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau echantillons-insuffisants : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau echantillons-insuffisants : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 49 s)."
     },
     {
       "id": "T75.M7",
@@ -153,7 +155,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau sans-echauffement : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau sans-echauffement : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 49 s)."
     },
     {
       "id": "T75.M8",
@@ -170,7 +172,7 @@
       "doit_rester_vert": [
         "T75.A2"
       ],
-      "verifie_sur_reference_jetable": "drapeau sans-persistance-a1 : A1 rouge, A2 vert."
+      "verifie_sur_reference_jetable": "drapeau sans-persistance-a1 : A1 rouge, A2 vert (reverifie apres la decision du 31/10/2026, 368 s)."
     },
     {
       "id": "T75.M9",
@@ -187,7 +189,7 @@
       "doit_rester_vert": [
         "T75.A1"
       ],
-      "verifie_sur_reference_jetable": "drapeau verdict-constant-a2 : A1 vert, A2 rouge."
+      "verifie_sur_reference_jetable": "drapeau verdict-constant-a2 : A1 vert, A2 rouge (reverifie apres la decision du 31/10/2026, 355 s ; 152 defauts)."
     },
     {
       "id": "T75.M10",
@@ -204,7 +206,7 @@
       "doit_rester_vert": [
         "T75.A1"
       ],
-      "verifie_sur_reference_jetable": "drapeau sans-controle-de-conflit : A1 vert, A2 rouge."
+      "verifie_sur_reference_jetable": "drapeau sans-controle-de-conflit : A1 vert, A2 rouge (reverifie apres la decision du 31/10/2026, 364 s ; 50 defauts)."
     },
     {
       "id": "T75.M11",
@@ -221,7 +223,7 @@
       "doit_rester_vert": [
         "T75.A1"
       ],
-      "verifie_sur_reference_jetable": "drapeau essais-99 : A1 vert, A2 rouge."
+      "verifie_sur_reference_jetable": "drapeau essais-99 : A1 vert, A2 rouge (reverifie apres la decision du 31/10/2026, 319 s)."
     },
     {
       "id": "T75.M12",
@@ -238,7 +240,7 @@
       "doit_rester_vert": [
         "T75.A1"
       ],
-      "verifie_sur_reference_jetable": "drapeau sans-persistance-a2 : A1 vert, A2 rouge."
+      "verifie_sur_reference_jetable": "drapeau sans-persistance-a2 : A1 vert, A2 rouge (reverifie apres la decision du 31/10/2026, 361 s)."
     },
     {
       "id": "T75.M13",
@@ -250,12 +252,29 @@
       "target": "Les essais paralleles (role `platformConcurrency`, II de acceptance/T75.spec.ts).",
       "mutation": "Vingt connexions ouvertes et rendues (clients = 20, request_ids de l'essai), mais chaque requete d'un essai attend la reponse de la precedente.",
       "expected_effect": "T75.A2 devient rouge ; T75.A1 reste vert.",
-      "observation_qui_echoue": "A2 : la reference passe (20 connexions distinctes), puis contre la variante sans exclusion `passe 1 : essai 0 (derniere_place) : 20 lot(s) (1,2,3,4) : requetes non simultanees (essai sequentiel deguise)`, un defaut par essai et par passe (352 defauts en tout ; 1 009 s, la variante retenant chaque requete 150 ms).",
+      "observation_qui_echoue": "A2 : la reference passe (20 connexions distinctes), puis contre la variante sans exclusion `passe 1 : essai 0 (derniere_place) : 20 lot(s) (1,2,3,4) : requetes non simultanees (essai sequentiel deguise)`, un defaut par essai et par passe (352 defauts en tout ; 964 s, la variante retenant chaque requete 150 ms).",
       "pourquoi_cette_perturbation": "Controle negatif de la section V d'acceptance/T75.spec.ts.",
       "doit_rester_vert": [
         "T75.A1"
       ],
-      "verifie_sur_reference_jetable": "drapeau essais-sequentiels : A1 vert, A2 rouge."
+      "verifie_sur_reference_jetable": "drapeau essais-sequentiels : A1 vert, A2 rouge (reverifie apres la decision du 31/10/2026, 964 s)."
+    },
+    {
+      "id": "T75.M14",
+      "kills_case": "T75.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "mesurer erase_member sur des membres sans reservation importee",
+      "target": "La mesure de latence (role `platformLatency`, II de acceptance/T75.spec.ts) : le choix des membres que visent les requetes erase_member.",
+      "mutation": "Les requetes erase_member (echauffement et echantillons) visent des membres ajoutes pendant la mesure (add_member), qui ne detiennent aucune reservation, au lieu de membres du profil qui detiennent des reservations de l'import de volume.",
+      "expected_effect": "T75.A1 devient rouge ; T75.A2 reste vert.",
+      "observation_qui_echoue": "A1 : reference conforme jusqu'a l'authenticite, puis `erase_member : 60 echantillon(s) sur un membre qui ne detient aucune reservation importee (precision Q68 de P20.R3 : chemin d'effacement couteux exige) : m-erase_member-3123 : membre \"t-volume-n10\", 0 reservation(s) importee(s) detenue(s) ; ...` (1 defaut, seul : les plafonds sont tenus).",
+      "pourquoi_cette_perturbation": "Precision Q68 de P20.R3 (decision du mandant du 31/10/2026) : l'effacement doit etre mesure sur son chemin couteux (RGPD), sur des membres qui detiennent des reservations importees ; c'est le comportement de l'implementation de ef48fa4.",
+      "doit_rester_vert": [
+        "T75.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau effacement-sans-reservation : A1 rouge, A2 vert (49 s)."
     }
   ]
 }

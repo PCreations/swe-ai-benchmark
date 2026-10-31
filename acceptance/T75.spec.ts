@@ -19,9 +19,10 @@
  *     depassement de capacite ni doublon idempotent sous requetes paralleles, sur de
  *     nombreux essais » ;
  *   - la racine gelee acceptance/reference-platform/F-PLATFORM-P17-P24.json : regles
- *     P20.R3 (plafonds par operation), bloc `periodes.P20.volume` (profil d'import),
- *     regles P21.R1-R4 et bloc `periodes.P21.concurrence` (essais, clients, scenarios).
- *     Le `$comment` de la racine les reserve a T75 ;
+ *     P20.R3 (plafonds par operation ; precisions Q67 et Q68, decision du mandant du
+ *     31/10/2026), bloc `periodes.P20.volume` (profil d'import, `repartition`,
+ *     `erase_member`), regles P21.R1-R4 et bloc `periodes.P21.concurrence` (essais,
+ *     clients, scenarios). Le `$comment` de la racine les reserve a T75 ;
  *   - la source de clauses EXPORTEE (role `platformClauses`, T70 III ; lue comme en T74) :
  *     `P20.R3.contract.valeurs` (plafonds_p95_ms, import_50000_lignes_ms,
  *     volume_reservations) et `P21.R3.contract.valeurs` (essais_paralleles_min,
@@ -93,14 +94,20 @@
  *     - periode P20 pour toutes les requetes ; un candidat NEUF sur un BENCH_DATA_DIR vide ;
  *     - volume, d'apres `periodes.P20.volume` : le locataire `tenant_id`, `membres` membres,
  *       `creneaux` creneaux de `capacite` places, puis UN import_bookings de `reservations`
- *       lignes d'une place, dont les `reservations` sont ACCEPTEES (accepted = 50 000). La
- *       repartition litterale du profil (membre i mod membres, creneau i mod creneaux) ne
- *       donne que ppcm(1000, 500) = 1000 couples (membre, creneau) distincts : les 49 000
- *       autres lignes seraient ALREADY_BOOKED (P1.R2) et il n'y aurait que 1 000
- *       reservations, contre P20.R3 (« apres import de 50 000 reservations »). La suite
- *       exige donc accepted = 50 000 ; repartition RECOMMANDEE (question ouverte, voir VI) :
- *       ligne i (0-base) -> creneau i mod creneaux, membre (i + floor(i / membres)) mod
- *       membres (100 membres distincts par creneau, 50 reservations par membre) ;
+ *       lignes d'une place, dont les `reservations` sont ACCEPTEES (accepted = 50 000).
+ *       Repartition FIXEE PAR LA RACINE (`periodes.P20.volume.repartition`, precision Q67,
+ *       decision du mandant du 31/10/2026) : ligne i (0-base) -> creneau i mod creneaux,
+ *       membre (i + floor(i / membres)) mod membres (50 000 couples distincts, exactement
+ *       100 reservations par creneau, 50 par membre). La lecture litterale (membre i mod
+ *       membres, creneau i mod creneaux) ne donnait que ppcm(1000, 500) = 1000 couples
+ *       distincts (49 000 lignes ALREADY_BOOKED, P1.R2) : la suite exige accepted = 50 000 ;
+ *     - erase_member (precision Q68 de P20.R3, bloc `periodes.P20.volume.erase_member`) :
+ *       chacune de ses requetes mesurees (echantillons) vise un membre qui DETIENT, juste
+ *       avant l'operation, des reservations creees par l'import de volume (chemin
+ *       d'effacement couteux, RGPD), jamais un membre sans reservation ; la suite le lit
+ *       au journal du candidat (champs `member` et `held`, III.c). Plus generalement,
+ *       toute operation que le profil nomme par un bloc portant `cibles` est soumise a
+ *       cette exigence ;
  *     - operations mesurees : chaque operation ACTIVE a P20 (introduite par la racine de P1
  *       a P20) sauf import_bookings, qui est mesure par l'import de volume lui-meme contre
  *       `import_50000_lignes_ms` ; plafond d'une operation = `plafonds_p95_ms[op]`, a
@@ -142,7 +149,9 @@
  *     (b) l'extension « connexions multiples » ci-dessus ; le moteur est synchrone, la
  *         boucle d'evenements sert d'exclusion mutuelle : chaque operation est atomique ;
  *     (c) l'instrumentation BENCH_TRAFFIC_LOG (une ligne par requete : pid, data_dir, conn,
- *         id, op, period, ok, status, t_in, t_out, lot, rid, slot, args_h, rows, accepted).
+ *         id, op, period, ok, status, t_in, t_out, lot, rid, slot, member, held, args_h,
+ *         rows, accepted ; `held` : pour erase_member, nombre de reservations creees par un
+ *         import_bookings reussi que args.member_id detient juste avant l'operation).
  *   VARIANTES FAUTIVES (meme candidat, une transformation chacune, documentee dans le
  *   fichier) :
  *     - variante-balayage.mjs (A1) : AVANT chaque operation, relit chaque reservation de
@@ -160,15 +169,19 @@
  * MESURES DE REFERENCE ET MARGES (verdict STABLE)
  *
  *   Mesure hors suite (4 coeurs, Node 22), banc jetable conforme au protocole ci-dessus
- *   (10 + 60 requetes par operation), instantane 29cdd0d :
- *     - reference, deux executions : import de 50 000 lignes 3,1 a 3,4 s (plafond 30 s,
- *       rapport <= 0,12) ; pire operation merge_tenants, p95 14 a 16 ms (plafond 100,
- *       rapport 0,14 a 0,16) ; report_occupancy 17 a 21 ms (200) ; get_* <= 0,87 ms (20).
- *       Mesure complete : ~ 7 s. (A ffb09f3, trois executions : pire rapport 0,09 a 0,22.)
- *     - variante-balayage : chaque operation p95 162 a 228 ms ; get_booking, get_slot,
- *       get_wallet 8,1 a 9,2 fois leur plafond, reserve et cancel 3,4 a 4,6 fois, les
- *       « autre » 1,66 a 2,24 fois, report_occupancy 1,06, report_revenue 0,95 ; pire rapport
- *       9,2. Mesure : 371 s. (A ffb09f3, deux executions : pire rapport 6,2 a 7,7.)
+ *   (10 + 60 requetes par operation), instantane 29cdd0d, racine apres la decision du
+ *   mandant du 31/10/2026 (repartition decalee Q67 ; erase_member sur 70 membres qui
+ *   detiennent chacun 50 reservations importees, Q68 : `held` = 50 au journal) :
+ *     - reference, deux executions : import de 50 000 lignes 4,0 a 4,3 s (plafond 30 s,
+ *       rapport <= 0,15) ; pire operation merge_tenants, p95 11,5 a 16,1 ms (plafond 100,
+ *       rapport 0,12 a 0,16) ; report_occupancy 23 ms (200, 0,12) ; erase_member 10,9 a
+ *       11,0 ms (100, 0,11) ; get_* <= 0,63 ms (20). Mesure complete : ~ 8 a 9 s. Avec les
+ *       index de 6a849f4 (entrepot import.memoire recopie a chaque effacement d'un membre
+ *       importe), erase_member montait a 56 ms (0,56 > MARGE_REFERENCE) : voir
+ *       accelerateur.mjs. (Avant Q68, 29cdd0d : pire rapport 0,14 a 0,16.)
+ *     - variante-balayage : get_booking, get_slot, get_wallet 11,8 a 13,7 fois leur
+ *       plafond, reserve et cancel 5,1 a 6,0 fois, close_slot 3,1, erase_member 2,95 ; pire
+ *       rapport 13,7. Mesure : 334 s. (Avant Q68, 29cdd0d : pire rapport 9,2, 371 s.)
  *   La suite EXIGE la marge, pas seulement le verdict : reference -> chaque rapport
  *   p95 / plafond <= MARGE_REFERENCE (0,5) et import / plafond <= 0,5 ; variante lente ->
  *   au moins une operation a p95 >= MARGE_LENTE (2) x plafond. Un hote trop lent ou trop
@@ -186,7 +199,8 @@
  *
  *   ECHANTILLON AUTHENTIQUE (A1) — son `request_id` figure une fois dans le journal du
  *     candidat, dans le repertoire d'etat de l'import, apres l'import, avec la bonne
- *     operation, P20 et ok: true ; sa latence rendue est >= la duree de traitement
+ *     operation, P20 et ok: true ; pour erase_member (Q68), son membre detient au moins une
+ *     reservation importee (`held` >= 1) ; sa latence rendue est >= la duree de traitement
  *     journalisee par le candidat (t_out - t_in, a TOLERANCE_MS pres) : une mesure cote
  *     banc de la requete a la reponse ne peut pas etre plus courte. Les echantillons d'une
  *     operation ne se chevauchent pas cote candidat (une requete en vol a la fois).
@@ -206,7 +220,8 @@
  *        p95 qui est la mediane, un plafond unique recopie, une clause absente, 59
  *        echantillons, un echantillon refuse (ok: false), aucun echauffement, des
  *        echantillons concurrents, un import de 1 000 reservations, un verdict incoherent
- *        (constant), une operation manquante ; la reference doit passer avec marge, la
+ *        (constant), une operation manquante, un effacement mesure sur des membres sans
+ *        reservation importee (Q68) ; la reference doit passer avec marge, la
  *        variante lente echouer avec marge ; et l'echec doit etre persiste.
  *   A2 : le predicat refuse 99 essais, un scenario absent, un essai a 19 clients, un essai
  *        sur une seule connexion, des essais sequentiels deguises (un lot par requete
@@ -220,9 +235,9 @@
  *
  *  • La mesure est faite a P20 seulement (« a partir de P20 » : la clause est active ensuite,
  *    les periodes suivantes ne changent ni le volume ni les plafonds) ; la concurrence a P21.
- *  • Le profil `volume` de la racine ne produit pas 50 000 reservations a la lettre (II) :
- *    la suite tranche pour P20.R3 (50 000 acceptees) ; a confirmer par le proprietaire de la
- *    racine (SPEC_CONFLICT eventuel ; la racine n'est pas touchee ici).
+ *  • Repartition de l'import et cibles de erase_member : questions closes par la decision du
+ *    mandant du 31/10/2026 (Q67, Q68), ecrites dans la racine (II). La suite ne verifie pas
+ *    la repartition ligne par ligne : elle exige 50 000 lignes et 50 000 acceptees.
  *  • rejeux_simultanes n'est pas mis en defaut par la variante sans exclusion (la cle
  *    request_id = booking_id rend les ecritures perdues indiscernables) : la detection du
  *    doublon idempotent est prouvee par rejeux_en_conflit.
@@ -233,10 +248,12 @@
  *    verifiee contre le candidat de T74, quel que soit l'instantane.
  *  • Elle ne lance aucun processus `claude`.
  *
- * DUREE — mesuree contre la reference jetable (4 coeurs), instantane 29cdd0d : 7 min 11 s
- * (A1 ~ 394 s, dont ~ 370 s pour la variante lente ; A2 ~ 35 s). Aucun seuil de la carte
- * n'est reduit. Contre l'arbre actuel (T75 non implementee) : ~ 3 s de cas,
- * CONTRAT-NON-SATISFAIT.
+ * DUREE — mesuree contre la reference jetable (4 coeurs), instantane 29cdd0d, racine du
+ * 31/10/2026 : 7 min 3 s (A1 ~ 381 s, dont ~ 335 s pour la variante lente ; A2 ~ 37 s).
+ * Aucun seuil de la carte n'est reduit. Contre l'implementation de ef48fa4 (effacements
+ * mesures sur des membres ajoutes sans reservation) : ~ 6 min, A1 ROUGE sur le seul defaut
+ * Q68 (« erase_member : 60 echantillon(s) sur un membre qui ne detient aucune reservation
+ * importee »), A2 vert.
  */
 
 import * as fs from 'node:fs';
@@ -510,6 +527,8 @@ interface AttentesVolume {
   creneaux: number;
   membres: number;
   ops: string[];
+  /** Operations mesurees sur des membres qui detiennent des reservations importees (profil, precision Q68). */
+  surImportes: string[];
 }
 
 /** Plafonds et profil lus dans la source ET la racine (I) ; ils doivent concorder. */
@@ -540,6 +559,13 @@ function attentesVolume(clauses: Clause[]): { a: AttentesVolume; defauts: string
   const ops = new Set<string>();
   for (let m = 1; m <= PERIODE_VOLUME; m += 1) for (const o of OPERATIONS_INTRODUITES.get(m) ?? []) ops.add(o);
   ops.delete('import_bookings');
+  // Precision Q68 (decision du mandant du 31/10/2026) : le profil nomme, par un bloc portant `cibles`,
+  // chaque operation mesuree sur des membres qui DETIENNENT des reservations importees ; erase_member en est.
+  const surImportes = Object.entries(profil)
+    .filter(([k, v]) => ops.has(k) && estObjet(v) && typeof v.cibles === 'string')
+    .map(([k]) => k)
+    .sort();
+  if (ops.has('erase_member') && !surImportes.includes('erase_member')) defauts.push('profil de volume sans bloc erase_member { cibles } (precision Q68 de P20.R3)');
   return {
     a: {
       clause: porteuse === undefined ? '' : idDe(porteuse),
@@ -549,6 +575,7 @@ function attentesVolume(clauses: Clause[]): { a: AttentesVolume; defauts: string
       creneaux: estNombre(profil.creneaux) ? profil.creneaux : NaN,
       membres: estNombre(profil.membres) ? profil.membres : NaN,
       ops: [...ops].sort(),
+      surImportes,
     },
     defauts,
   };
@@ -720,6 +747,8 @@ interface Entree {
   lot: number | null;
   rid: string | null;
   slot: string | null;
+  member: string | null;
+  held: number | null;
   args_h: string;
   rows: number | null;
   accepted: number | null;
@@ -843,6 +872,7 @@ function defautsMesure(r: unknown, trafic: Entree[], a: AttentesVolume): string[
     // Authenticite (V).
     const faux: string[] = [];
     const vus: Entree[] = [];
+    const sansImport: string[] = [];
     ids.forEach((id, i) => {
       const es = index.get(id) ?? [];
       if (es.length !== 1) return void faux.push(`${id} vu ${es.length} fois`);
@@ -850,8 +880,11 @@ function defautsMesure(r: unknown, trafic: Entree[], a: AttentesVolume): string[
       if (e.op !== m.op || !e.ok || e.period !== `P${PERIODE_VOLUME}`) return void faux.push(`${id} : ${rendu(e.op)} ok=${String(e.ok)} ${rendu(e.period)}`);
       if (e.data_dir !== dossier || e.t_in < finImport) return void faux.push(`${id} : hors du volume importe`);
       if (lat[i] + TOLERANCE_MS < e.t_out - e.t_in) faux.push(`${id} : latence rendue ${lat[i]} ms < traitement du candidat ${(e.t_out - e.t_in).toFixed(3)} ms`);
+      // Precision Q68 : le membre vise detient, juste avant l'operation, des reservations creees par l'import.
+      if (a.surImportes.includes(m.op) && (typeof e.member !== 'string' || !Number.isInteger(e.held) || (e.held as number) < 1)) sansImport.push(`${id} : membre ${rendu(e.member)}, ${rendu(e.held)} reservation(s) importee(s) detenue(s)`);
       vus.push(e);
     });
+    if (sansImport.length > 0) out.push(`${ou} : ${sansImport.length} echantillon(s) sur un membre qui ne detient aucune reservation importee (precision Q68 de P20.R3 : chemin d'effacement couteux exige) : ${sansImport.slice(0, 3).join(' ; ')}`);
     vus.sort((x, y) => x.t_in - y.t_in);
     for (let i = 1; i < vus.length; i += 1) if (vus[i].t_in < vus[i - 1].t_out) faux.push(`${vus[i].id} arrive avant la reponse de ${vus[i - 1].id} (echantillons concurrents)`);
     if (vus.length > 0) {
@@ -879,7 +912,7 @@ function syntheseA1(a: AttentesVolume): { r: Json; t: Entree[] } {
   const t: Entree[] = [];
   let clock = 1000;
   const ligne = (id: string, op: string, dur: number, extra: Partial<Entree> = {}): Entree => {
-    const e: Entree = { pid: 1, data_dir: '/d', conn: 0, id, op, period: `P${PERIODE_VOLUME}`, resp: 'x', ok: true, status: null, t_in: clock, t_out: clock + dur, lot: null, rid: null, slot: null, args_h: 'a', rows: null, accepted: null, rang: t.length, ...extra };
+    const e: Entree = { pid: 1, data_dir: '/d', conn: 0, id, op, period: `P${PERIODE_VOLUME}`, resp: 'x', ok: true, status: null, t_in: clock, t_out: clock + dur, lot: null, rid: null, slot: null, member: null, held: null, args_h: 'a', rows: null, accepted: null, rang: t.length, ...extra };
     clock += dur + 1;
     t.push(e);
     return e;
@@ -889,11 +922,12 @@ function syntheseA1(a: AttentesVolume): { r: Json; t: Entree[] } {
   ligne('imp', 'import_bookings', 2000, { rows: a.reservations, accepted: a.reservations });
   const operations: Json = {};
   for (const op of a.ops) {
-    for (let k = 0; k < ECHAUFFEMENT_MIN; k += 1) ligne(`${op}-w${k}`, op, 1);
+    const membre = (k: number): Partial<Entree> => (a.surImportes.includes(op) ? { member: `m${k}`, held: 50 } : {});
+    for (let k = 0; k < ECHAUFFEMENT_MIN; k += 1) ligne(`${op}-w${k}`, op, 1, membre(k));
     const ids: string[] = [];
     const lat: number[] = [];
     for (let k = 0; k < ECHANTILLONS_MIN; k += 1) {
-      ligne(`${op}-${k}`, op, 1 + (k % 7) * 0.5);
+      ligne(`${op}-${k}`, op, 1 + (k % 7) * 0.5, membre(ECHAUFFEMENT_MIN + k));
       ids.push(`${op}-${k}`);
       lat.push(1.2 + (k % 7) * 0.5);
     }
@@ -1020,7 +1054,7 @@ function syntheseA2(a: AttentesConcurrence): { r: Json; t: Entree[] } {
       t.push({
         pid: 1, data_dir: '/d', conn: k + 1, id, op: imp ? 'import_bookings' : 'reserve', period: `P${PERIODE_CONCURRENCE}`, resp: scenario === 'rejeux_simultanes' ? 'r' : `r${k}`, ok: !(scenario === 'rejeux_en_conflit' && k > 0),
         status: scenario === 'derniere_place' ? (k === 0 ? 'confirmed' : 'waiting') : 'confirmed', t_in: clock + k * 0.01, t_out: clock + 150, lot: i + 1,
-        rid: imp ? null : scenario.startsWith('rejeux') ? `x${i}` : `x${i}-${k}`, slot: imp ? null : `s${i}`, args_h: scenario === 'rejeux_en_conflit' ? `a${k}` : 'a', rows: imp ? 10 : null, accepted: null, rang: t.length,
+        rid: imp ? null : scenario.startsWith('rejeux') ? `x${i}` : `x${i}-${k}`, slot: imp ? null : `s${i}`, member: null, held: null, args_h: scenario === 'rejeux_en_conflit' ? `a${k}` : 'a', rows: imp ? 10 : null, accepted: null, rang: t.length,
       });
     }
     clock += 200;
@@ -1211,7 +1245,14 @@ describe('T75 — controles de performance et de concurrence (ADR-021 decision 3
         ['une operation manquante', avec((r) => {
           delete (r.operations as Json)[op0];
         })],
+        ...a.surImportes.map((op): [string, { r: Json; t: Entree[] }] => [
+          `${op} mesure sur des membres sans reservation importee (precision Q68)`,
+          avec((_r, t) => {
+            for (const e of t) if (e.op === op) e.held = 0;
+          }),
+        ]),
       ];
+      exige(a.surImportes.includes('erase_member'), 'erase_member-mesure-sur-des-membres-importes-selon-le-profil', `operations a mesurer sur des membres importes : ${rendu(a.surImportes)}`);
       for (const [nom, c] of essais) if (defautsMesure(c.r, c.t, a).length === 0) temoins.push(`${nom} passerait`);
       aucunDefaut(temoins, 'predicat-A1-discriminant');
 

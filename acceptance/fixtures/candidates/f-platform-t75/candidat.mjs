@@ -20,11 +20,16 @@
 //      Node sert d'exclusion mutuelle entre connexions.
 //   3. INSTRUMENTATION (suite seulement) : BENCH_TRAFFIC_LOG, une ligne NDJSON par requete
 //      traitee : {pid, data_dir, conn, id, op, period, req, resp, ok, status, t_in, t_out,
-//      lot, rid, slot, args_h, rows, accepted}. req/resp : sha256 du JSON canonique, comme
+//      lot, rid, slot, member, held, args_h, rows, accepted}. req/resp : sha256 du JSON canonique, comme
 //      en T74 ; t_in : instant de lecture de la ligne de requete ; t_out : instant juste
 //      avant l'ecriture de la reponse (ms, performance.timeOrigin + performance.now()) ;
 //      lot : numero du lot (variante sans exclusion) ou null ; rid/slot : args.request_id
-//      et args.slot_id ; args_h : sha256 des args ; rows : nombre de lignes d'un import ;
+//      et args.slot_id ; member : args.member_id ; held (erase_member seulement, sinon
+//      null) : nombre de reservations du locataire qui ont ete CREEES PAR UN import_bookings
+//      reussi (ligne dont la reservation porte le request_id et le member_id de la ligne) et
+//      que args.member_id detient encore, compte JUSTE AVANT l'operation (precision Q68 de
+//      P20.R3 : l'effacement est mesure sur des membres qui detiennent des reservations
+//      importees) ; args_h : sha256 des args ; rows : nombre de lignes d'un import ;
 //      accepted/status : champs de la reponse.
 //
 // ─────────────────────────────────────────────────────────────── VARIANTES (FIXTURES)
@@ -91,9 +96,41 @@ function etapeDe(req, periode) {
   return step
 }
 
+/* Reservations creees par un import_bookings reussi : locataire -> membre -> Set(booking_id)
+   (instrumentation : champ `held` du journal de trafic ; suivi aussi au rejeu). */
+const IMPORTEES = new Map()
+const locataireDe = (step) => (typeof step.tenant === 'string' ? step.tenant : 'default')
+function suivreImport(moteur, step, r) {
+  if (step.op !== 'import_bookings' || r?.ok !== true || !Array.isArray(step.args?.rows)) return
+  const t = moteur.etat.tenants.get(locataireDe(step))
+  if (t === undefined) return
+  if (!IMPORTEES.has(locataireDe(step))) IMPORTEES.set(locataireDe(step), new Map())
+  const parMembre = IMPORTEES.get(locataireDe(step))
+  for (const row of step.args.rows) {
+    if (row === null || typeof row !== 'object' || typeof row.request_id !== 'string' || typeof row.member_id !== 'string') continue
+    const b = Map.prototype.get.call(t.bookings, row.request_id)
+    if (b === undefined || b.member_id !== row.member_id) continue
+    if (!parMembre.has(row.member_id)) parMembre.set(row.member_id, new Set())
+    parMembre.get(row.member_id).add(row.request_id)
+  }
+}
+/** Reservations importees que `m` detient encore dans le locataire de `req` (avant l'operation). */
+function importeesDetenues(req) {
+  const m = req?.args?.member_id
+  if (typeof m !== 'string') return 0
+  const t = engine.etat.tenants.get(locataireDe(req))
+  const ids = IMPORTEES.get(locataireDe(req))?.get(m)
+  if (t === undefined || ids === undefined) return 0
+  let n = 0
+  for (const id of ids) if (Map.prototype.get.call(t.bookings, id)?.member_id === m) n += 1
+  return n
+}
+
 function appliquerSur(moteur, step) {
   try {
-    return JSON.parse(JSON.stringify(moteur.apply(step)))
+    const r = JSON.parse(JSON.stringify(moteur.apply(step)))
+    suivreImport(moteur, step, r)
+    return r
   } catch (e) {
     return { ok: false, error: 'INTERNAL_ERROR', message: String(e?.message ?? e).slice(0, 300) }
   }
@@ -220,6 +257,8 @@ function journaliser(conn, e) {
       lot: e.lot,
       rid: typeof args.request_id === 'string' ? args.request_id : null,
       slot: typeof args.slot_id === 'string' ? args.slot_id : null,
+      member: typeof args.member_id === 'string' ? args.member_id : null,
+      held: typeof e.held === 'number' ? e.held : null,
       args_h: empreinte(args),
       rows: Array.isArray(args.rows) ? args.rows.length : null,
       accepted: typeof r?.accepted === 'number' ? r.accepted : null,
@@ -259,6 +298,7 @@ function recevoir(c, ligne) {
     mettreEnLot(e)
     return
   }
+  if (TRAFIC !== null && req !== null && typeof req === 'object' && req.op === 'erase_member') e.held = importeesDetenues(req)
   e.response = traiter(req)
   e.pret = true
   vidanger(c)

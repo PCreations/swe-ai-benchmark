@@ -97,3 +97,13 @@ champs du manifeste (`model`, `price`, `exposure`, `corpus`, `configurations`,
   principes SOLID, ADR-021 décision 5) est le texte EXACT ajouté à chaque
   prompt du bras. T76.A1 en dérive aussi, à l'exécution, une copie jetable à
   consigne jetonnée (2 périodes, 1 répétition), jamais committée.
+
+- `manifest-t77-claude-cli-f-platform-calibration.json` — fixture de
+  `acceptance/T77.spec.ts` (ADR-021 décision 6, T77.A1) : copie de
+  `manifest-t76-claude-cli-f-platform-two-arms.json` (F-PLATFORM, deux bras)
+  à ces seules différences près : le projet `PRJ-PILOT-T77-F-PLATFORM`, les
+  configurations `cfg-t77-bras-a`/`cfg-t77-bras-b`, `repetitions: 1` et
+  `periods_per_trajectory: 1` — soit 2 sessions et 2 périodes persistées quand
+  le pilote démarre. T77.A1 le lance sans calibration réussie de l'empreinte
+  en vigueur (refus attendu avant toute session), puis après une calibration
+  réussie (démarrage attendu), avec le module de dérivation de T76.

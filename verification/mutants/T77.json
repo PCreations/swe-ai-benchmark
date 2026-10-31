@@ -1,0 +1,255 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T77 : au moins une par cas requis, dont celle que",
+    "verification/cases.extensions.lock.json fixe pour chacun (M1 pour A1, M6 pour A2, M9 pour A3). Les cibles",
+    "sont decrites par leur ROLE (II de acceptance/T77.spec.ts), jamais par un chemin de fichier : T77 n'est pas",
+    "implementee. Un mutant ne touche jamais la suite, ses fixtures (candidat derive des documents, sources",
+    "alterees, manifeste), le faux `claude` ni son module de derivation.",
+    "",
+    "`doit_rester_vert` et `also_kills` ont ete VERIFIES pour chaque mutant, en l'appliquant reellement :",
+    "acceptance/T77.spec.ts execute (jest du depot) contre une reference jetable hors depot (copie de travail",
+    "sans .git ; `bench calibrate` : notateurs de T74 sur la source calibree, completude sur docs/spec.md rendu",
+    "a partir de cette source, empreinte sha256 des clauses mises en oeuvre comprises, registre",
+    "BENCH_CALIBRATION_DIR ; garde de `pilot-conduct` avant tout travail), mutant active par la variable",
+    "T77_MUTANT=<drapeau>, un mutant a la fois. Le resultat observe est consigne sous",
+    "`verifie_sur_reference_jetable`.",
+    "",
+    "SANS MUTANT : A1, A2 et A3 verts, suite entiere 10 min 55 s seule (4 coeurs, sans cache), 10 min 44 s",
+    "en parallele d'une autre suite (avec un cache disque des sequences generees, propre a la reference",
+    "jetable). Une calibration complete du candidat de reference : ~3 min 45 s sous charge. Les mutants ont",
+    "tourne deux a deux en parallele, avec ce cache (389-603 s chacun).",
+    "",
+    "MESURE A HEAD (T77 non implementee) : `pnpm verify:task T77` -> ASSERTION_FAILED (sortie 1), suite",
+    "chargee, 3 cas executes, 90 assertions ; `bench calibrate` est une commande inconnue (exit 2) : A1, A2 et",
+    "A3 rouges sur assertions ; la provenance du candidat (A2, II.5) et son controle negatif passent deja.",
+    "Duree a HEAD ~ 45 s."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T77",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T77"
+  ],
+  "acceptance_entry": "acceptance/T77.spec.ts",
+  "mutant_count": 12,
+  "mutants": [
+    {
+      "id": "T77.M1",
+      "kills_case": "T77.A1",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "lancer une campagne sans calibration reussie",
+      "target": "Le controle de calibration de `bench pilot-conduct --live` sur F-PLATFORM (II.4 de acceptance/T77.spec.ts).",
+      "mutation": "Ne pas consulter le registre : pilot-conduct demarre toujours.",
+      "expected_effect": "T77.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `8 DEFAUT(S) : P1 (registre vide) : pilot-conduct a reussi (code 0) sans calibration reussie de l'empreinte en vigueur ...`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T77.A1.",
+      "doit_rester_vert": [
+        "T77.A2",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-garde : A1 rouge, A2 vert, A3 vert (532 s)."
+    },
+    {
+      "id": "T77.M2",
+      "kills_case": "T77.A1",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "accepter la calibration reussie d'une autre empreinte",
+      "target": "La recherche, dans le registre, d'une calibration reussie (II.2/II.4).",
+      "mutation": "Toute calibration reussie leve le refus, quelle que soit son empreinte.",
+      "expected_effect": "T77.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `refus-apres-calibration-d-une-autre-empreinte` : P3 demarre (code 0, sessions du faux claude).",
+      "pourquoi_cette_perturbation": "« pour l'empreinte de la source de clauses en vigueur » : une source modifiee doit etre recalibree.",
+      "doit_rester_vert": [
+        "T77.A2",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau garde-accepte-toute-empreinte : A1 rouge, A2 vert, A3 vert (512 s)."
+    },
+    {
+      "id": "T77.M3",
+      "kills_case": "T77.A1",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "accepter une calibration echouee",
+      "target": "La recherche, dans le registre, d'une calibration reussie (II.2/II.4).",
+      "mutation": "Toute calibration de l'empreinte en vigueur leve le refus, reussie ou non.",
+      "expected_effect": "T77.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `refus-apres-calibration-echouee` : P2 demarre apres la seule calibration ECHOUEE K1.",
+      "pourquoi_cette_perturbation": "« calibration reussie » : un echec de calibration bloque la campagne (ADR-021 decision 6).",
+      "doit_rester_vert": [
+        "T77.A2",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau garde-accepte-echec : A1 rouge, A2 vert, A3 vert (514 s)."
+    },
+    {
+      "id": "T77.M4",
+      "kills_case": "T77.A1",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "refuser apres avoir commence la trajectoire",
+      "target": "Le moment du refus de pilot-conduct (II.4 « avant toute session »).",
+      "mutation": "Creer l'espace de travail de la premiere trajectoire sous --candidate-workspace-root, puis refuser.",
+      "expected_effect": "T77.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `1 DEFAUT(S) : P1 (registre vide) : espace(s) de travail cree(s) avant le refus : trajectoire-1`.",
+      "pourquoi_cette_perturbation": "« refuse de demarrer, avant toute session » : rien de la campagne ne doit exister.",
+      "doit_rester_vert": [
+        "T77.A2",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau garde-tardive : A1 rouge, A2 vert, A3 vert (502 s)."
+    },
+    {
+      "id": "T77.M5",
+      "kills_case": "T77.A1",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "calculer l'empreinte sans la mise en oeuvre des clauses",
+      "target": "L'empreinte de la source de clauses (II.3).",
+      "mutation": "Empreinte = sha256 du JSON des clauses, fonctions (mises en oeuvre) omises.",
+      "expected_effect": "T77.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `1 DEFAUT(S) : K3 : une source a la MISE EN OEUVRE differente a l'empreinte de la source en vigueur 0b0e61ee...`.",
+      "pourquoi_cette_perturbation": "T70.A1 : la mise en oeuvre fait partie de la clause ; un modele attendu different est une autre source.",
+      "doit_rester_vert": [
+        "T77.A2",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau empreinte-sans-mise-en-oeuvre : A1 rouge, A2 vert, A3 vert (554 s)."
+    },
+    {
+      "id": "T77.M6",
+      "kills_case": "T77.A2",
+      "also_kills": [
+        "T77.A1"
+      ],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "calibrer avec un candidat qui connait la source au lieu des seuls documents",
+      "target": "Le candidat note par `bench calibrate` (II.1 : celui de --candidate-command).",
+      "mutation": "Ignorer --candidate-command et noter le candidat de reference de T74 (instantane de la source de clauses).",
+      "expected_effect": "T77.A2, T77.A1 deviennent rouges ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `K1 : la calibration du candidat prive de P6.R2 devait ECHOUER [exit 0] ... success true` ; A2 : `24 DEFAUT(S) : P1 : aucune requete recue par le candidat de reference || ...`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T77.A2. Elle rougit aussi A1 : les calibrations K1 (candidat prive) et K3 (candidat qui ne demarre pas) y reussissent.",
+      "doit_rester_vert": [
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau candidat-de-la-source : A1 rouge, A2 rouge, A3 vert (389 s)."
+    },
+    {
+      "id": "T77.M7",
+      "kills_case": "T77.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "calibrer moins de 24 periodes",
+      "target": "Les periodes notees par `bench calibrate` (II.1).",
+      "mutation": "Ne noter que P1 a P23.",
+      "expected_effect": "T77.A2 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A2 : `1 DEFAUT(S) : P24 : aucun enregistrement de periode (periode + scores cibles) dans le rapport`.",
+      "pourquoi_cette_perturbation": "« obtient 1 sur chaque clause a CHAQUE PERIODE ».",
+      "doit_rester_vert": [
+        "T77.A1",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau periodes-tronquees : A1 vert, A2 rouge, A3 vert (603 s)."
+    },
+    {
+      "id": "T77.M8",
+      "kills_case": "T77.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ne noter que les clauses qui entrent a la periode",
+      "target": "Les scores cibles d'un enregistrement de periode (II.1).",
+      "mutation": "Ne retenir, a chaque periode, que les clauses dont c'est la periode d'entree.",
+      "expected_effect": "T77.A2 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A2 : `23 DEFAUT(S) : P2 : clause(s) active(s) sans score : P1.R1, P1.R2, P1.R3, ...`.",
+      "pourquoi_cette_perturbation": "« 1 sur CHAQUE clause » : chaque clause active est recontrolee a chaque periode (ADR-021 decision 3).",
+      "doit_rester_vert": [
+        "T77.A1",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau cibles-sans-regression : A1 vert, A2 rouge, A3 vert (489 s)."
+    },
+    {
+      "id": "T77.M9",
+      "kills_case": "T77.A3",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "faire reussir une calibration dont une clause manque de docs/spec.md",
+      "target": "La verification de completude de `bench calibrate` (II.1).",
+      "mutation": "Ne pas verifier la completude : seule la notation compte.",
+      "expected_effect": "T77.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `3 DEFAUT(S) : la calibration a reussi (code 0) ... success true ...`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T77.A3.",
+      "doit_rester_vert": [
+        "T77.A1",
+        "T77.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau sans-completude : A1 vert, A2 vert, A3 rouge (503 s)."
+    },
+    {
+      "id": "T77.M10",
+      "kills_case": "T77.A1",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "verifier la completude sur les documents de la source en vigueur",
+      "target": "La source dont docs/spec.md est rendu pour la completude (II.1 : CETTE source).",
+      "mutation": "Rendre docs/spec.md a partir de la source en vigueur, meme avec --clause-source.",
+      "expected_effect": "T77.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `1 DEFAUT(S) : K2 : la calibration de la source au texte augmente devait REUSSIR (temoin « une autre empreinte ») [exit 1] ...`.",
+      "pourquoi_cette_perturbation": "La completude est une propriete de la source calibree, pas de celle du paquet. OBSERVE : c'est A1 qui la prend (la calibration K2, source au texte augmente, echoue alors : le texte augmente de P1.R1 n'est pas dans la spec EN VIGUEUR) ; A3 ne la voit pas, le texte vide de P4.R4 manquant de toute spec. Classee A1 apres verification (elle avait ete prevue pour A3).",
+      "doit_rester_vert": [
+        "T77.A2",
+        "T77.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau completude-sur-la-source-en-vigueur : A1 rouge, A2 vert, A3 vert (493 s)."
+    },
+    {
+      "id": "T77.M11",
+      "kills_case": "T77.A3",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "tenir pour present un texte de clause vide",
+      "target": "Le predicat « presente dans docs/spec.md » (IV).",
+      "mutation": "Present = sous-chaine de la spec, sans exiger un texte non vide (la chaine vide est sous-chaine de tout).",
+      "expected_effect": "T77.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `3 DEFAUT(S) : la calibration a reussi (code 0) ...`.",
+      "pourquoi_cette_perturbation": "Un texte vide MANQUE : c'est le defaut « une regle manquait » d'ADR-021.",
+      "doit_rester_vert": [
+        "T77.A1",
+        "T77.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau completude-texte-vide-present : A1 vert, A2 vert, A3 rouge (498 s)."
+    },
+    {
+      "id": "T77.M12",
+      "kills_case": "T77.A3",
+      "also_kills": [],
+      "proof_kind": "refusal",
+      "necessity": "targeted-perturbation",
+      "direction": "nommer la clause manquante sans sa periode",
+      "target": "Les echecs de completude du rapport (II.1).",
+      "mutation": "Les echecs de completude portent la clause mais pas la periode.",
+      "expected_effect": "T77.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `1 DEFAUT(S) : aucun echec ne nomme P4.R4 a P4, sa periode d'entree (echecs : [])`.",
+      "pourquoi_cette_perturbation": "« echoue en nommant la clause ET la periode ».",
+      "doit_rester_vert": [
+        "T77.A1",
+        "T77.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau echec-sans-periode : A1 vert, A2 vert, A3 rouge (469 s)."
+    }
+  ]
+}

@@ -84,3 +84,16 @@ champs du manifeste (`model`, `price`, `exposure`, `corpus`, `configurations`,
   T69.A3 est dérivé du seul prompt reçu (acceptance/fixtures/claude-cli/
   t69-derive-reference-candidate.mjs) ; celui de T69.A4 est le candidat v4
   privé de `cancel@2`, `capacity@1` et `quota@1`.
+
+- `manifest-t76-claude-cli-f-platform-two-arms.json` — fixture de
+  `acceptance/T76.spec.ts` (ADR-021 décision 5, T76.A1 à A3) : un groupe
+  `source_scenario_id: "F-PLATFORM"`, un clone, DEUX configurations
+  (`cfg-t76-bras-a`, `cfg-t76-bras-b`), `repetitions: 2` et
+  `periods_per_trajectory: 24` — soit 4 trajectoires (deux par bras) et 96
+  périodes persistées attendues. Il porte le champ ADDITIF `arms` que fixe
+  `acceptance/T76.spec.ts` (II.1) : `[{arm, configuration, label,
+  method_instruction}]`, un bras par configuration ; bras A « naturel »
+  (`method_instruction: null`), bras B « discipliné » dont la consigne (ATDD et
+  principes SOLID, ADR-021 décision 5) est le texte EXACT ajouté à chaque
+  prompt du bras. T76.A1 en dérive aussi, à l'exécution, une copie jetable à
+  consigne jetonnée (2 périodes, 1 répétition), jamais committée.

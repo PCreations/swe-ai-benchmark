@@ -156,6 +156,18 @@
 //                                         propre `counter.txt` dans ce
 //                                         repertoire), et `errors.log` si la
 //                                         derivation echoue.
+//
+// AJOUTE PAR acceptance/T76.spec.ts (ADDITIF — ne change AUCUN comportement
+// existant : aucun module de derivation anterieur (T55..T73) ne rend de champ
+// `stdout`) :
+//   Si le module de BENCH_FAKE_CLAUDE_WORKSPACE_DERIVE_MODULE rend, en plus de
+//   `{relPath, content, params}`, un champ `stdout` de type texte, ce texte est
+//   ecrit sur stdout A LA PLACE du JSON « success » par defaut (comme
+//   BENCH_FAKE_CLAUDE_STDOUT_RAW, qui reste PRIORITAIRE s'il est pose).
+//   NECESSAIRE pour T76 : les comptes de tokens, de tours et la duree que rend
+//   une session doivent dependre du bras, de la trajectoire et de la periode
+//   (rapport des couts du bras B sur le bras A), alors que STDOUT_RAW est le
+//   MEME pour toutes les invocations d'un appel `pilot-conduct`.
 
 const argv = process.argv.slice(2);
 
@@ -227,6 +239,7 @@ async function main() {
     }
   }
 
+  let derivedStdout; // acceptance/T76.spec.ts (ADDITIF) : `stdout` rendu par le module de derivation
   const writeRelPath = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_RELPATH;
   const writeContent = process.env.BENCH_FAKE_CLAUDE_WORKSPACE_WRITE_CONTENT;
   if (writeRelPath !== undefined && writeContent !== undefined) {
@@ -252,6 +265,8 @@ async function main() {
       const dest = path.resolve(process.cwd(), derive.relPath);
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.writeFileSync(dest, derive.content);
+      // acceptance/T76.spec.ts (ADDITIF, voir en-tete) : sortie propre a CETTE invocation.
+      if (derive !== null && typeof derive === 'object' && typeof derive.stdout === 'string') derivedStdout = derive.stdout;
       if (deriveLogDir !== undefined) {
         fs.mkdirSync(deriveLogDir, { recursive: true });
         const counterFile = path.join(deriveLogDir, 'counter.txt');
@@ -318,6 +333,8 @@ async function main() {
 
   if (rawOverride !== undefined) {
     process.stdout.write(rawOverride);
+  } else if (derivedStdout !== undefined) {
+    process.stdout.write(derivedStdout);
   } else {
     process.stdout.write(
       JSON.stringify({

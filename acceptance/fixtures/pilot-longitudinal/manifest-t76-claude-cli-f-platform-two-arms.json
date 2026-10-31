@@ -1,0 +1,47 @@
+{
+  "schema": "bench.pilot.manifest/1",
+  "corpus": {
+    "groups": [
+      {
+        "source_parent_project_id": "PRJ-PILOT-T76-F-PLATFORM",
+        "source_scenario_id": "F-PLATFORM",
+        "clone_instance_ids": [
+          "PRJ-PILOT-T76-F-PLATFORM-clone-1"
+        ]
+      }
+    ]
+  },
+  "model": {
+    "name": "bench-fake-claude-cli-model-a"
+  },
+  "price": {
+    "tariff_micro_usd": "340"
+  },
+  "exposure": {
+    "predefined": true,
+    "value": "1"
+  },
+  "budget": {
+    "unbounded": true
+  },
+  "configurations": [
+    "cfg-t76-bras-a",
+    "cfg-t76-bras-b"
+  ],
+  "arms": [
+    {
+      "arm": "A",
+      "configuration": "cfg-t76-bras-a",
+      "label": "naturel",
+      "method_instruction": null
+    },
+    {
+      "arm": "B",
+      "configuration": "cfg-t76-bras-b",
+      "label": "discipline",
+      "method_instruction": "Méthode : développe en ATDD — écris d'abord les tests d'acceptation, à partir des critères du ticket, puis le code qui les fait passer — et respecte les principes SOLID."
+    }
+  ],
+  "repetitions": 2,
+  "periods_per_trajectory": 24
+}

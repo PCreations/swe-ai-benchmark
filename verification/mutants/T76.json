@@ -1,0 +1,234 @@
+{
+  "$comment": [
+    "PERTURBATIONS CIBLEES DE T76 : au moins une par cas requis, dont la perturbation que",
+    "verification/cases.extensions.lock.json fixe pour chacun (M1 pour A1, M3 pour A2, M7 pour A3). Les",
+    "cibles sont decrites par leur ROLE (II de acceptance/T76.spec.ts), jamais par un chemin de fichier : T76",
+    "n'est pas implementee. Un mutant ne touche jamais la suite, le manifeste, le faux `claude`, son module",
+    "de derivation ni le candidat de reference.",
+    "",
+    "`doit_rester_vert` et `also_kills` ont ete VERIFIES pour chaque mutant, en l'appliquant reellement :",
+    "acceptance/T76.spec.ts execute (jest du depot) contre une reference jetable hors depot (copie de travail",
+    "sans .git ; bras du manifeste et consigne dans le prompt, notation T74 de chaque periode, mesures de",
+    "qualite par `node --test --experimental-test-coverage`, persistance PostgreSQL 18 reelle, rapport par",
+    "bras et par periode, rapport B/A et tirages exhaustifs apparies), mutant active par la variable",
+    "T76_MUTANT=<drapeau>, un mutant a la fois. Le resultat observe est consigne sous",
+    "`verifie_sur_reference_jetable`.",
+    "",
+    "SANS MUTANT : A1, A2 et A3 verts, suite entiere 8 min 40 s (4 coeurs ; le pilote principal de 96",
+    "periodes ~ 8 min, le pilote jetonne de A1 ~ 20 s ; A2 et A3 relisent le pilote principal en < 1 s).",
+    "Les 11 mutants rougissent exactement leur cas, les deux autres restent verts (475-529 s chacun).",
+    "",
+    "MESURE A HEAD (T76 non implementee) : la suite charge, le pilote principal s'execute (96 sessions du",
+    "faux `claude`, ~ 40 s) ; A1 FAIL (96 prompts B sans consigne), A2 et A3 FAIL (AUCUN enregistrement de",
+    "periode dans le rapport)."
+  ],
+  "schema": "bench.mutants/1",
+  "task": "T76",
+  "verification_command": [
+    "pnpm",
+    "verify:task",
+    "T76"
+  ],
+  "acceptance_entry": "acceptance/T76.spec.ts",
+  "mutant_count": 11,
+  "mutants": [
+    {
+      "id": "T76.M1",
+      "kills_case": "T76.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "faire differer les prompts des deux bras au-dela de la consigne de methode",
+      "target": "Le prompt d'une periode F-PLATFORM du bras B (chemin claude-cli de pilot-conduct, II.2 de acceptance/T76.spec.ts).",
+      "mutation": "Ajouter, apres la consigne de methode du bras B, la ligne `(bras B)`.",
+      "expected_effect": "T76.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 : `96 DEFAUT(S) : P1 : prompt B != prompt A + consigne (...)`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T76.A1.",
+      "doit_rester_vert": [
+        "T76.A2",
+        "T76.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau prompt-different : A1 rouge, A2 vert, A3 vert (489 s)."
+    },
+    {
+      "id": "T76.M2",
+      "kills_case": "T76.A1",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ecrire la consigne en dur au lieu de la lire dans le manifeste",
+      "target": "La consigne de methode ajoutee au prompt du bras B (II.1/II.2 de acceptance/T76.spec.ts).",
+      "mutation": "Quand le bras porte une consigne, ajouter le texte de la consigne du manifeste principal, quelle que soit la consigne declaree.",
+      "expected_effect": "T76.A1 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A1 (pilote court a consigne jetonnee) : `2 DEFAUT(S) : P1 : prompt B != prompt A + consigne (...)` ; le pilote principal reste conforme.",
+      "pourquoi_cette_perturbation": "« la consigne de methode declaree par le manifeste » : sans le pilote jetonne, une consigne codee en dur passerait.",
+      "doit_rester_vert": [
+        "T76.A2",
+        "T76.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau consigne-codee-en-dur : A1 rouge, A2 vert, A3 vert (499 s)."
+    },
+    {
+      "id": "T76.M3",
+      "kills_case": "T76.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ne pas persister les mesures de qualite (couverture, nombre de tests)",
+      "target": "La persistance PostgreSQL de la periode (II.5 « persistee » de acceptance/T76.spec.ts).",
+      "mutation": "Persister l'enregistrement de periode sans ses mesures de qualite ; le rapport les reprend d'une table en memoire.",
+      "expected_effect": "T76.A2 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A2 : `96 DEFAUT(S) : A rep 1 P1 : 21|0.588...|30|31|0|0 || ...` (mesures-de-qualite-persistees-dans-postgresql).",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T76.A2.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau qualite-non-persistee : A1 vert, A2 rouge, A3 vert (529 s)."
+    },
+    {
+      "id": "T76.M4",
+      "kills_case": "T76.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "compter les fichiers de test au lieu des tests",
+      "target": "La mesure « nombre de tests ecrits par le candidat » (II.5 de acceptance/T76.spec.ts).",
+      "mutation": "tests_written = nombre de fichiers de test decouverts.",
+      "expected_effect": "T76.A2 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A2 : `48 DEFAUT(S) : B rep 1 P1 : tests=1, le candidat en a ecrit 2 || ...`.",
+      "pourquoi_cette_perturbation": "Distingue la mesure d'ADR-021 (« nombre de tests ») de celle de T65 (fichiers de test).",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau tests-fichiers : A1 vert, A2 rouge, A3 vert (492 s)."
+    },
+    {
+      "id": "T76.M5",
+      "kills_case": "T76.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "ne compter aucune regression",
+      "target": "Le calcul des regressions G d'une periode (II.5 de acceptance/T76.spec.ts).",
+      "mutation": "regressions = [] a chaque periode.",
+      "expected_effect": "T76.A2 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A2 : `16 DEFAUT(S) : A rep 2 (privee) P9 : regressions [], attendu [\"P1.R4\",...,\"P6.R2\",...] (II.5)`.",
+      "pourquoi_cette_perturbation": "Sans la trajectoire privee de P6.R2 a partir de P9, une liste toujours vide passerait.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau regressions-vides : A1 vert, A2 rouge, A3 vert (482 s)."
+    },
+    {
+      "id": "T76.M6",
+      "kills_case": "T76.A2",
+      "also_kills": [],
+      "proof_kind": "behaviour",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre une couverture binaire (1 des qu'il y a des tests)",
+      "target": "La mesure de couverture (II.5 de acceptance/T76.spec.ts).",
+      "mutation": "coverage = 1 si la couverture mesuree est > 0, sinon 0.",
+      "expected_effect": "T76.A2 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A2 : `48 DEFAUT(S) : B rep 1 P1 : couverture 1 hors de ]0, 1[ ...`.",
+      "pourquoi_cette_perturbation": "La couverture doit etre mesuree, pas deduite de la presence de tests.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A3"
+      ],
+      "verifie_sur_reference_jetable": "drapeau couverture-binaire : A1 vert, A2 rouge, A3 vert (480 s)."
+    },
+    {
+      "id": "T76.M7",
+      "kills_case": "T76.A3",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "calculer le rapport B/A comme moyenne des rapports au lieu du rapport des moyennes",
+      "target": "Le rapport du cout de B sur A et ses tirages (II.4.d et II.5 de acceptance/T76.spec.ts).",
+      "mutation": "ratio = moyenne, sur les repetitions (tirees), de cout_B(r) / cout_A(r).",
+      "expected_effect": "T76.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `96 DEFAUT(S) : par periode P1 : rapport 3.6103, attendu 3.5862 (rapport des moyennes de B sur A) || ...`.",
+      "pourquoi_cette_perturbation": "Perturbation prescrite par verification/cases.extensions.lock.json#T76.A3.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau moyenne-des-rapports : A1 vert, A2 vert, A3 rouge (485 s)."
+    },
+    {
+      "id": "T76.M8",
+      "kills_case": "T76.A3",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "rapporter A sur B au lieu de B sur A",
+      "target": "Le rapport de cout (II.5 de acceptance/T76.spec.ts).",
+      "mutation": "ratio = moyenne des couts de A / moyenne des couts de B.",
+      "expected_effect": "T76.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `144 DEFAUT(S) : par periode P1 : rapport 0.2788, attendu 3.5862 ...`.",
+      "pourquoi_cette_perturbation": "Le sens du rapport est fixe par la carte (« le cout de B sur celui de A »).",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau rapport-a-sur-b : A1 vert, A2 vert, A3 rouge (490 s)."
+    },
+    {
+      "id": "T76.M9",
+      "kills_case": "T76.A3",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "tirer les indices des deux bras independamment",
+      "target": "Le manifeste de tirages du reechantillonnage (T33.A2, II.5 de acceptance/T76.spec.ts).",
+      "mutation": "Le bras B suit chaque tirage du bras A renverse.",
+      "expected_effect": "T76.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `48 DEFAUT(S) : par periode P1 : les deux bras ne suivent pas les memes indices (T33.A2) ...`.",
+      "pourquoi_cette_perturbation": "Bootstrap apparie de T33 : un meme tirage pour les deux bras.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau tirages-independants : A1 vert, A2 vert, A3 rouge (487 s)."
+    },
+    {
+      "id": "T76.M10",
+      "kills_case": "T76.A3",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "donner un effectif qui n'est pas le nombre de trajectoires",
+      "target": "Les objets de statistiques par bras et par periode (II.4.c de acceptance/T76.spec.ts).",
+      "mutation": "n = 24 (nombre de periodes) au lieu du nombre de trajectoires du bras.",
+      "expected_effect": "T76.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `2688 DEFAUT(S) : A P1 score cible P1.R1 [...] : {mean:1,min:1,max:1,n:24}, attendu {...n:2}`.",
+      "pourquoi_cette_perturbation": "« l'effectif de chaque mesure » par bras et par periode.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau effectif-periodes : A1 vert, A2 vert, A3 rouge (480 s)."
+    },
+    {
+      "id": "T76.M11",
+      "kills_case": "T76.A3",
+      "also_kills": [],
+      "proof_kind": "numeric",
+      "necessity": "targeted-perturbation",
+      "direction": "rendre le cumule a la place du rapport par periode",
+      "target": "La serie par periode du rapport de cout (II.4.d de acceptance/T76.spec.ts).",
+      "mutation": "per_period = la serie cumulee.",
+      "expected_effect": "T76.A3 devient rouge ; les autres cas restent verts.",
+      "observation_qui_echoue": "A3 : `69 DEFAUT(S) : par periode P2 : rapport 3.6094, attendu 3.6286 ...`.",
+      "pourquoi_cette_perturbation": "« par periode ET cumule » : deux series distinctes.",
+      "doit_rester_vert": [
+        "T76.A1",
+        "T76.A2"
+      ],
+      "verifie_sur_reference_jetable": "drapeau cumul-seulement : A1 vert, A2 vert, A3 rouge (475 s)."
+    }
+  ]
+}

@@ -629,13 +629,7 @@ const P1_R2 = clause({
   id: 'P1.R2',
   enters: 'P1',
   text:
-    "Réservation. L'opération reserve reçoit request_id (chaîne non vide, identifiant de la requête), member_id " +
-    "(le membre pour qui l'on réserve) et slot_id. Les contrôles s'appliquent dans cet ordre exact, et le premier qui " +
-    "échoue donne la réponse : (1) idempotence (clause P1.R4) ; (2) slot_id inconnu -> { ok: false, error: 'NOT_FOUND' } ; " +
-    "(3) l'instant de l'opération (champ at) est supérieur ou égal à starts_at -> { ok: false, error: 'SLOT_CLOSED' } : " +
-    "un créneau n'est réservable que si at < starts_at, strictement ; (4) member_id a déjà une réservation ACTIVE sur ce " +
-    "créneau -> { ok: false, error: 'ALREADY_BOOKED' } ; (5) admission (règle d'admission en vigueur). Une réservation " +
-    'réussie répond { ok: true, booking_id, member_id, slot_id, status }.',
+    'reserve {request_id, member_id, slot_id} : controles dans cet ordre exact (le premier qui echoue donne la reponse) : (1) idempotence (P1.R4) ; (2) slot_id inconnu -> NOT_FOUND ; (3) at >= starts_at -> SLOT_CLOSED (reservable seulement si at < starts_at, strictement) ; (4) le member_id a deja une reservation ACTIVE sur ce creneau -> ALREADY_BOOKED ; (5) admission (P1.R5).',
   contract: {
     operations: {
       reserve: {
@@ -728,10 +722,7 @@ const P1_R4 = clause({
   enters: 'P1',
   exits: 'P21',
   text:
-    "Idempotence de reserve. La première réponse produite pour un request_id est mémorisée, y compris une réponse " +
-    "d'erreur (NOT_FOUND, SLOT_CLOSED, ALREADY_BOOKED, et FULL tant que ce refus existe). Toute requête reserve ultérieure portant le même " +
-    "request_id renvoie cette réponse mémorisée à l'identique, sans aucun effet, quels que soient ses autres arguments " +
-    "et l'état courant (même si la réservation a changé depuis, ou si le créneau a de la place).",
+    "Idempotence : la premiere reponse produite pour un request_id est memorisee (y compris une reponse d'erreur : NOT_FOUND, SLOT_CLOSED, ALREADY_BOOKED, FULL). Toute requete reserve ulterieure portant le meme request_id renvoie cette reponse memorisee a l'identique, sans aucun effet, quels que soient ses autres arguments et l'etat courant.",
   contract: {
     operations: { reserve: { idempotence: 'cle request_id ; premiere reponse rejouee a l\'identique, erreurs comprises' } },
     erreurs: ['NOT_FOUND', 'SLOT_CLOSED', 'ALREADY_BOOKED', 'FULL'],
@@ -769,9 +760,7 @@ const P1_R5 = clause({
   enters: 'P1',
   exits: 'P2',
   text:
-    "Admission. booked est le nombre de places occupées par les réservations 'confirmed' du créneau ; chaque " +
-    "réservation occupe exactement 1 place. Si booked + 1 <= capacity, la réservation est créée 'confirmed' ; sinon la " +
-    "requête est refusée { ok: false, error: 'FULL' } et rien n'est créé.",
+    "Admission : booked = nombre de places occupees par les reservations confirmed. Si booked + 1 <= capacity la reservation est confirmed ; sinon la requete est refusee FULL et rien n'est cree.",
   contract: {
     operations: { reserve: { admission: 'confirmed si booked + 1 <= capacity, sinon FULL', erreurs: ['FULL'] } },
     valeurs: { places_par_reservation: 1 },
@@ -795,10 +784,7 @@ const P1_R6 = clause({
   id: 'P1.R6',
   enters: 'P1',
   text:
-    "Annulation. L'opération cancel reçoit booking_id. booking_id inconnu -> { ok: false, error: 'NOT_FOUND' } ; " +
-    "réservation déjà 'cancelled' -> { ok: false, error: 'ALREADY_CANCELLED' } ; sinon son statut devient 'cancelled' " +
-    "et sa place est libérée. Aucune règle de délai : l'annulation est permise à tout instant. Réponse " +
-    "{ ok: true, booking_id, status: 'cancelled' }.",
+    "cancel {booking_id} : inconnu -> NOT_FOUND ; deja cancelled -> ALREADY_CANCELLED ; sinon statut cancelled et la place est liberee. Aucune regle de delai : l'annulation est permise a tout instant. Reponse {ok: true, booking_id, status: 'cancelled'}.",
   contract: {
     operations: {
       cancel: {
@@ -844,10 +830,7 @@ const P1_R7 = clause({
   id: 'P1.R7',
   enters: 'P1',
   text:
-    "Lectures. get_booking { booking_id } -> { ok: true, booking_id, member_id, slot_id, status } (vue de la " +
-    "réservation), ou { ok: false, error: 'NOT_FOUND' } si booking_id est inconnu. get_slot { slot_id } -> " +
-    "{ ok: true, slot_id, capacity, starts_at, booked, available }, ou NOT_FOUND si slot_id est inconnu. booked est la " +
-    "somme des places des réservations 'confirmed' du créneau et available = capacity - booked.",
+    'get_booking {booking_id} -> {ok: true, booking_id, member_id, slot_id, status} ou NOT_FOUND. get_slot {slot_id} -> {ok: true, slot_id, capacity, starts_at, booked, available} avec available = capacity - booked, ou NOT_FOUND.',
   contract: {
     operations: {
       get_booking: {
@@ -941,10 +924,7 @@ const P2_R1 = clause({
   exits: 'P6',
   replaces: 'P1.R5',
   text:
-    "Admission avec file d'attente (remplace P1.R5). Si booked + 1 <= capacity, la réservation est créée 'confirmed' ; " +
-    "sinon elle est créée avec le statut 'waiting' et ajoutée en QUEUE de la file d'attente du créneau. Le refus FULL " +
-    "n'existe plus. La réponse d'une réservation en attente porte position, son rang dans la file compté à partir de 1 " +
-    "(1 = tête de file).",
+    "Admission : si booked + 1 <= capacity la reservation est confirmed ; sinon elle est creee avec le statut waiting et ajoutee en QUEUE de la file d'attente du creneau. Le refus FULL n'existe plus. La reponse d'une reservation en attente porte position (rang 1-base dans la file).",
   contract: {
     operations: { reserve: { admission: "confirmed si booked + 1 <= capacity, sinon waiting en queue de file", reponse_attente: { status: "'waiting'", position: 'entier >= 1' } } },
     retire: ['FULL'],
@@ -1012,9 +992,7 @@ const P2_R3 = clause({
   id: 'P2.R3',
   enters: 'P2',
   text:
-    "Lectures avec file. get_slot porte en plus waiting : la liste ordonnée des booking_id en attente sur le créneau " +
-    "(tête de file en premier, [] si personne). get_booking d'une réservation 'waiting' porte position (rang 1-base " +
-    "dans la file) ; une réservation qui n'est pas 'waiting' n'a pas de champ position.",
+    "get_slot porte en plus waiting : la liste ordonnee des booking_id en attente (tete en premier). get_booking d'une reservation waiting porte position ; une reservation non waiting n'a pas de position.",
   contract: {
     operations: {
       get_slot: { reponse: { waiting: 'tableau de booking_id' } },
@@ -1042,8 +1020,7 @@ const P2_R4 = clause({
   id: 'P2.R4',
   enters: 'P2',
   text:
-    "Une réservation 'waiting' est ACTIVE : elle déclenche { ok: false, error: 'ALREADY_BOOKED' } pour une nouvelle " +
-    'réservation du même membre sur le même créneau, exactement comme une réservation confirmed.',
+    'Une reservation waiting est ACTIVE : elle declenche ALREADY_BOOKED pour le meme membre sur le meme creneau.',
   contract: {
     valeurs: { active: ['confirmed', 'waiting'] },
     erreurs: ['ALREADY_BOOKED'],
@@ -1063,10 +1040,7 @@ const P3_R1 = clause({
   id: 'P3.R1',
   enters: 'P3',
   text:
-    "Création d'un locataire. create_tenant { tenant_id, owner_id } crée un locataire ; tenant_id est une chaîne non " +
-    "vide, owner_id le member_id de son propriétaire. Un tenant_id déjà pris (y compris 'default') -> " +
-    "{ ok: false, error: 'ALREADY_EXISTS' }. Réponse { ok: true, tenant_id }. owner_id n'a d'effet qu'à partir de P4. " +
-    "create_tenant ne porte pas de champ tenant.",
+    "create_tenant {tenant_id, owner_id} cree un locataire (tenant_id deja pris -> ALREADY_EXISTS). Reponse {ok: true, tenant_id}. owner_id n'a d'effet qu'a partir de P4.",
   contract: {
     operations: {
       create_tenant: {
@@ -1096,10 +1070,7 @@ const P3_R2 = clause({
   id: 'P3.R2',
   enters: 'P3',
   text:
-    "Locataire de chaque opération. Toute opération autre que create_tenant porte un champ tenant, au niveau de " +
-    "l'opération (hors args) ; absent, il vaut 'default'. Le locataire 'default' existe implicitement et contient tout ce " +
-    "qui a été créé en P1 et P2. Un tenant inconnu -> { ok: false, error: 'NOT_FOUND' }, contrôle fait avant tous les " +
-    'autres.',
+    "Toute autre operation porte un champ tenant (au niveau de l'operation, hors args) ; absent, il vaut 'default'. Le locataire 'default' existe implicitement et contient tout ce qui a ete cree en P1 et P2. Un tenant inconnu -> NOT_FOUND (controle avant tous les autres).",
   contract: {
     enveloppe: { tenant: "chaine, hors args ; absent -> 'default'" },
     erreurs: ['NOT_FOUND'],
@@ -1124,10 +1095,7 @@ const P3_R3 = clause({
   id: 'P3.R3',
   enters: 'P3',
   text:
-    "Isolation des locataires. slot_id, booking_id (donc request_id) et member_id sont propres à chaque locataire : " +
-    "le même identifiant peut exister dans deux locataires sans rapport entre eux. Une ressource d'un autre locataire est " +
-    "introuvable : { ok: false, error: 'NOT_FOUND' }, jamais FORBIDDEN. L'idempotence de reserve est clé par le couple " +
-    '(tenant, request_id).',
+    "Isolation : slot_id, booking_id/request_id et member_id sont propres a chaque locataire. Une ressource d'un autre locataire est introuvable : NOT_FOUND (jamais FORBIDDEN). L'idempotence est cle par (tenant, request_id).",
   contract: {
     isolation: ['slot_id', 'booking_id', 'request_id', 'member_id'],
     idempotence: { cle: '(tenant, request_id)' },
@@ -1190,10 +1158,7 @@ const P4_R2 = clause({
   id: 'P4.R2',
   enters: 'P4',
   text:
-    "Acteur. Toute opération sauf create_tenant porte un champ actor (au niveau de l'opération, hors args) : le " +
-    "member_id de celui qui agit. Ordre des contrôles : (1) tenant inconnu -> NOT_FOUND ; (2) actor absent ou non membre " +
-    "du locataire -> { ok: false, error: 'FORBIDDEN' } ; (3) rôle de l'actor non autorisé pour l'opération -> " +
-    "{ ok: false, error: 'FORBIDDEN' } ; puis les contrôles propres à l'opération.",
+    "Toute operation sauf create_tenant porte un champ actor (au niveau de l'operation). Ordre des controles : (1) tenant inconnu -> NOT_FOUND ; (2) actor absent ou non membre du locataire -> FORBIDDEN ; (3) role de l'actor non autorise pour l'operation -> FORBIDDEN ; puis les controles propres a l'operation.",
   contract: {
     enveloppe: { actor: 'member_id, hors args ; obligatoire sauf create_tenant' },
     ordre_des_controles: ['tenant inconnu -> NOT_FOUND', 'actor absent ou non membre -> FORBIDDEN', 'role non autorise -> FORBIDDEN', "controles de l'operation"],
@@ -1224,11 +1189,7 @@ const P4_R3 = clause({
   id: 'P4.R3',
   enters: 'P4',
   text:
-    "Permissions par opération. add_member : admin. create_slot : admin, staff. reserve : admin et staff pour tout " +
-    "member_id ; member seulement si member_id = actor (sinon FORBIDDEN, contrôle fait avant l'idempotence). cancel et " +
-    "get_booking : admin et staff pour toute réservation ; member seulement pour ses propres réservations (booking_id " +
-    "inconnu -> NOT_FOUND d'abord, puis réservation d'un autre membre -> FORBIDDEN). get_slot : tous les rôles. " +
-    "create_tenant : sans contrôle d'acteur.",
+    "Permissions par operation : add_member : admin. create_slot : admin, staff. reserve : admin, staff pour tout member_id ; member seulement si member_id = actor (sinon FORBIDDEN, controle avant l'idempotence). cancel et get_booking : admin, staff pour toute reservation ; member seulement pour ses propres reservations (booking inconnu -> NOT_FOUND d'abord, puis reservation d'un autre -> FORBIDDEN). get_slot : tous les roles. create_tenant : sans controle d'acteur.",
   contract: {
     permissions: {
       add_member: ['admin'],
@@ -1263,9 +1224,7 @@ const P4_R4 = clause({
   id: 'P4.R4',
   enters: 'P4',
   text:
-    "Une réponse FORBIDDEN n'est jamais mémorisée pour l'idempotence : le même request_id reste utilisable ensuite. " +
-    "reserve : un member_id qui n'est pas membre du locataire -> { ok: false, error: 'NOT_FOUND' }, contrôle fait après " +
-    "celui de l'existence du créneau et avant SLOT_CLOSED.",
+    "Une reponse FORBIDDEN n'est jamais memorisee pour l'idempotence : le meme request_id reste utilisable. reserve : un member_id qui n'est pas membre du locataire -> NOT_FOUND (apres le controle d'existence du creneau).",
   contract: {
     operations: { reserve: { erreurs: ['NOT_FOUND', 'FORBIDDEN'], membre_inconnu: 'NOT_FOUND, apres slot inconnu, avant SLOT_CLOSED' } },
     idempotence: { jamais_memorise: ['FORBIDDEN'] },
@@ -1427,9 +1386,7 @@ const P5_R3 = clause({
   id: 'P5.R3',
   enters: 'P5',
   text:
-    "list_occurrences { series_id } (tous les rôles) -> { ok: true, series_id, slot_ids } : les slot_id des occurrences " +
-    "courantes de la série, exceptions exclues, en ordre chronologique ; series_id inconnu -> " +
-    "{ ok: false, error: 'NOT_FOUND' }.",
+    'list_occurrences {series_id} (tous les roles) -> {ok: true, series_id, slot_ids} : occurrences courantes, exceptions exclues, ordre chronologique.',
   contract: {
     operations: {
       list_occurrences: {
@@ -1462,10 +1419,7 @@ const P6_R1 = clause({
   enters: 'P6',
   exits: 'P13',
   text:
-    "Réservations de groupe. reserve accepte un argument seats, nombre de places demandées : entier >= 1, 1 par défaut " +
-    "s'il est absent ; toute autre valeur -> { ok: false, error: 'INVALID_ARGUMENT' }. Toute réservation porte seats, et " +
-    "les réponses de reserve et de get_booking le renvoient. booked est la SOMME des seats des réservations 'confirmed' " +
-    'du créneau ; available = capacity - booked.',
+    'reserve accepte seats (entier >= 1, 1 par defaut ; sinon INVALID_ARGUMENT). Toute reservation porte seats et ses reponses (reserve, get_booking) le renvoient. booked = SOMME des seats des reservations confirmed ; available = capacity - booked.',
   contract: {
     operations: {
       reserve: { arguments: { seats: 'entier >= 1, defaut 1' }, reponse: { seats: 'entier' }, erreurs: ['INVALID_ARGUMENT'] },
@@ -1492,8 +1446,7 @@ const P6_R2 = clause({
   id: 'P6.R2',
   enters: 'P6',
   text:
-    "Groupe trop grand. seats > capacity -> { ok: false, error: 'GROUP_TOO_LARGE' }, contrôle placé après SLOT_CLOSED " +
-    "(et après la validité de seats) et avant ALREADY_BOOKED. seats = capacity est permis.",
+    'seats > capacity -> GROUP_TOO_LARGE (controle place apres SLOT_CLOSED et avant ALREADY_BOOKED). seats = capacity est permis.',
   contract: {
     operations: { reserve: { erreurs: ['GROUP_TOO_LARGE'], ordre_des_controles: ['SLOT_CLOSED', 'INVALID_ARGUMENT (seats)', 'GROUP_TOO_LARGE', 'ALREADY_BOOKED'] } },
     exemples: [{ contexte: 'S6 de capacity 5', requete: { op: 'reserve', args: { request_id: 'g5', member_id: 'm-ana', slot_id: 'S6', seats: 6 } }, reponse: { ok: false, error: 'GROUP_TOO_LARGE' } }],
@@ -1512,9 +1465,7 @@ const P6_R3 = clause({
   exits: 'P11',
   replaces: 'P2.R1',
   text:
-    "Admission tout ou rien (remplace P2.R1). Si seats <= available, la réservation est 'confirmed' pour toutes ses " +
-    "places ; sinon elle entre ENTIÈRE en queue de file ('waiting', avec position), jamais partiellement. Une demande qui " +
-    'tient est confirmée même si des groupes plus anciens attendent.',
+    'Admission tout ou rien : si seats <= available la reservation est confirmed pour toutes ses places ; sinon elle entre ENTIERE en queue de file (waiting), jamais partiellement. Une demande qui tient est confirmee meme si des groupes plus anciens attendent.',
   contract: {
     operations: { reserve: { admission: "confirmed si seats <= available, sinon waiting entiere en queue de file" } },
     exemples: [
@@ -1629,10 +1580,7 @@ const P7_R2 = clause({
   id: 'P7.R2',
   enters: 'P7',
   text:
-    "Niveaux d'abonnement. set_tier { member_id, tier } (rôle admin seulement) : tier vaut 'none', 'silver' ou 'gold' ; " +
-    "le niveau par défaut d'un membre est 'none' ; réponse { ok: true, member_id, tier }. Taux de remise, en points de " +
-    "base (1 pb = 1/10000) : none 0, silver 1000 (10 %), gold 2500 (25 %). member_id non membre du locataire -> " +
-    "NOT_FOUND ; tier hors de ces trois valeurs -> INVALID_ARGUMENT.",
+    'set_tier {member_id, tier} (admin) : tier dans {none, silver, gold} ; niveau par defaut none ; reponse {ok: true, member_id, tier}. Taux de remise en points de base : none 0, silver 1000 (10 %), gold 2500 (25 %).',
   contract: {
     operations: {
       set_tier: {
@@ -1665,13 +1613,7 @@ const P7_R3 = clause({
   enters: 'P7',
   exits: 'P15',
   text:
-    "Montant d'une réservation. Il est fixé à l'instant où la réservation devient 'confirmed' (à la réservation ou à la " +
-    "promotion), avec le prix et le niveau de CET instant : brut = seats × price_cents ; remise = brut × taux / 10000 " +
-    "arrondi au centime, demi vers le haut, soit floor((brut × taux + 5000) / 10000) ; amount_cents = brut - remise. La " +
-    "remise porte sur le brut TOTAL, pas place par place ; l'arrondi porte sur la REMISE. Tous les montants sont des " +
-    "centimes d'euro entiers. Un changement de prix ou de niveau ultérieur ne modifie pas un montant déjà fixé. Les " +
-    "réservations confirmées avant P7 ont amount_cents 0. Une réservation 'waiting' n'a pas encore de montant : reserve " +
-    "et get_booking portent amount_cents pour une réservation qui n'est pas 'waiting'.",
+    "Montant, fixe a l'instant ou la reservation devient confirmed (a la reservation ou a la promotion), avec le prix et le niveau de CET instant : brut = seats x price_cents ; remise = arrondi au centime, demi vers le haut, de brut x taux / 10000, soit floor((brut x taux + 5000) / 10000) ; amount_cents = brut - remise. La remise porte sur le brut TOTAL, pas place par place ; l'arrondi porte sur la REMISE. Un changement de prix ou de niveau ulterieur ne modifie pas un montant fixe. Les reservations confirmees avant P7 ont amount_cents 0. Une reservation waiting n'a pas encore de montant.",
   contract: {
     operations: {
       reserve: { reponse: { amount_cents: "entier, si status != 'waiting'" } },
@@ -1704,7 +1646,8 @@ const P7_R4 = clause({
   id: 'P7.R4',
   enters: 'P7',
   exits: 'P8',
-  text: "Paiement. Le montant amount_cents est payé entièrement par carte au moment de la confirmation.",
+  text:
+    'Paiement : le montant est paye entierement par carte a la confirmation.',
   contract: {
     paiement: { source: 'carte', moment: 'confirmation (reservation ou promotion)' },
     operations: { reserve: { paiement: 'carte, amount_cents entier' } },
@@ -1808,11 +1751,7 @@ const P8_R2 = clause({
   enters: 'P8',
   replaces: 'P7.R4',
   text:
-    "Paiement crédits puis carte (remplace P7.R4). À la confirmation (réservation ou promotion), avec le solde de cet " +
-    "instant : paid_credits_cents = min(balance_cents, amount_cents), débité du portefeuille du membre de la réservation ; " +
-    "paid_card_cents = amount_cents - paid_credits_cents. Les réservations payées avant P8 ont paid_credits_cents 0 et " +
-    "paid_card_cents = amount_cents. reserve et get_booking d'une réservation 'confirmed' portent amount_cents, " +
-    'paid_credits_cents et paid_card_cents (centimes entiers).',
+    "Paiement a la confirmation (reservation ou promotion), avec le solde de cet instant : paid_credits_cents = min(balance_cents, amount_cents), debite du portefeuille ; paid_card_cents = amount_cents - paid_credits_cents. Les reservations payees avant P8 ont paid_credits_cents 0 et paid_card_cents = amount_cents. reserve et get_booking d'une reservation confirmed portent amount_cents, paid_credits_cents, paid_card_cents.",
   contract: {
     operations: {
       reserve: { reponse: { amount_cents: 'entier', paid_credits_cents: 'entier', paid_card_cents: 'entier' } },
@@ -1845,12 +1784,7 @@ const P8_R3 = clause({
   id: 'P8.R3',
   enters: 'P8',
   text:
-    "Annulation partielle. cancel { booking_id, seats? } : soit n le nombre de places restantes de la réservation. seats " +
-    "absent ou égal à n = annulation totale ; 1 <= seats < n = annulation partielle, permise seulement pour une " +
-    "réservation 'confirmed' ; seats < 1, seats > n, seats non entier, ou annulation partielle d'une réservation " +
-    "'waiting' -> { ok: false, error: 'INVALID_ARGUMENT' }, sans effet. Ce contrôle suit NOT_FOUND, FORBIDDEN et " +
-    "ALREADY_CANCELLED. Une annulation partielle laisse la réservation 'confirmed' avec n - seats places, libère les places " +
-    "annulées (promotion) et répond { ok: true, booking_id, status: 'confirmed', seats: n - seats, ... }.",
+    "cancel {booking_id, seats?} : seats absent ou egal aux places restantes n = annulation totale ; 1 <= seats < n = annulation partielle (reservation confirmed seulement) ; seats < 1, seats > n, ou annulation partielle d'une reservation waiting -> INVALID_ARGUMENT, sans effet.",
   contract: {
     operations: {
       cancel: {
@@ -1984,11 +1918,7 @@ const P9_R1 = clause({
   id: 'P9.R1',
   enters: 'P9',
   text:
-    "Fuseau du site. set_timezone { timezone } (rôle admin seulement) fixe le fuseau du site du locataire de l'opération. " +
-    "timezone vaut exactement 'UTC' ou 'Europe/Paris' ; toute autre valeur -> { ok: false, error: 'INVALID_ARGUMENT' }, " +
-    "sans effet. Tout locataire (y compris 'default') a le fuseau 'UTC' tant qu'aucun n'est fixé. Réponse " +
-    "{ ok: true, tenant_id, timezone }. Les instants stockés (starts_at, at) restent en UTC : changer de fuseau ne " +
-    'modifie aucun instant ni aucun montant déjà fixé.',
+    "set_timezone {timezone} (admin) fixe le fuseau du site du locataire courant. timezone vaut exactement 'UTC' ou 'Europe/Paris' ; toute autre valeur -> INVALID_ARGUMENT, sans effet. Tout locataire (y compris 'default') a le fuseau 'UTC' tant qu'aucun n'est fixe. Reponse {ok: true, tenant_id, timezone}. Les instants stockes (starts_at, at) restent en UTC : changer de fuseau ne modifie aucun instant ni aucun montant deja fixe.",
   contract: {
     operations: {
       set_timezone: {
@@ -2022,13 +1952,7 @@ const P9_R2 = clause({
   id: 'P9.R2',
   enters: 'P9',
   text:
-    "Heure locale. 'UTC' : décalage +00:00 toute l'année. 'Europe/Paris' : UTC+1 (+01:00), sauf de l'instant 01:00:00Z du " +
-    "dernier dimanche de mars (inclus) à l'instant 01:00:00Z du dernier dimanche d'octobre (exclu), où c'est UTC+2 " +
-    "(+02:00) ; en 2031 : 2031-03-30T01:00:00Z et 2031-10-26T01:00:00Z. Conversion d'une heure locale murale en instant " +
-    "UTC : une heure locale INEXISTANTE (saut de printemps, de 02:00:00 à 02:59:59 locale le jour du passage) est " +
-    "interprétée avec le décalage d'AVANT le saut (+01:00), ce qui revient à l'avancer d'une heure ; une heure locale " +
-    "AMBIGUË (automne, de 02:00:00 à 02:59:59) désigne sa PREMIÈRE occurrence (+02:00). get_slot porte en plus " +
-    "local_starts_at : l'heure locale du début au format 'AAAA-MM-JJTHH:MM:SS+HH:MM' (décalage en vigueur à cet instant).",
+    "Heure locale. 'UTC' : decalage +00:00 toute l'annee. 'Europe/Paris' : UTC+1, sauf de l'instant 01:00:00Z du dernier dimanche de mars (inclus) a l'instant 01:00:00Z du dernier dimanche d'octobre (exclu), ou c'est UTC+2 ; en 2031 : 2031-03-30T01:00:00Z et 2031-10-26T01:00:00Z. Conversion d'une heure locale murale en instant UTC : une heure locale INEXISTANTE (saut de printemps, de 02:00:00 a 02:59:59 locale le jour du passage) est interpretee avec le decalage d'AVANT le saut (UTC+1), ce qui revient a l'avancer d'une heure ; une heure locale AMBIGUE (automne, de 02:00:00 a 02:59:59) designe sa PREMIERE occurrence (UTC+2). get_slot porte en plus local_starts_at : l'heure locale du debut au format 'AAAA-MM-JJTHH:MM:SS+HH:MM' (decalage en vigueur a cet instant).",
   contract: {
     operations: { get_slot: { reponse: { local_starts_at: "'AAAA-MM-JJTHH:MM:SS+HH:MM'" } } },
     valeurs: {
@@ -2251,13 +2175,7 @@ const P10_R1 = clause({
   id: 'P10.R1',
   enters: 'P10',
   text:
-    "Absences. mark_no_show { booking_id } (rôles admin, staff) enregistre une absence. Contrôles après ceux d'acteur " +
-    "(P4.R2), dans cet ordre : booking_id inconnu -> { ok: false, error: 'NOT_FOUND' } ; statut différent de 'confirmed' -> " +
-    "{ ok: false, error: 'INVALID_ARGUMENT' } ; at < starts_at du créneau (créneau pas encore commencé) -> " +
-    "{ ok: false, error: 'INVALID_ARGUMENT' } ; absence déjà enregistrée pour cette réservation -> " +
-    "{ ok: false, error: 'ALREADY_EXISTS' }. Effet : la réservation porte no_show = true ; son statut reste 'confirmed' ; " +
-    "aucun remboursement. Réponse { ok: true, booking_id, member_id, absences_30d, suspended_until } (P10.R2). À partir " +
-    'de P10, les vues de réservation (reserve, get_booking) portent no_show (booléen, false par défaut).',
+    "mark_no_show {booking_id} (admin, staff) enregistre une absence. Controles apres ceux d'acteur (P4.R2), dans cet ordre : booking_id inconnu -> NOT_FOUND ; statut different de confirmed -> INVALID_ARGUMENT ; at < starts_at du creneau (creneau pas encore commence) -> INVALID_ARGUMENT ; absence deja enregistree pour cette reservation -> ALREADY_EXISTS. Effet : la reservation porte no_show = true ; son statut reste confirmed ; aucun remboursement. Reponse {ok: true, booking_id, member_id, absences_30d, suspended_until}. A partir de P10, les vues de reservation (reserve, get_booking) portent no_show (booleen, false par defaut).",
   contract: {
     operations: {
       mark_no_show: {
@@ -2300,13 +2218,7 @@ const P10_R2 = clause({
   id: 'P10.R2',
   enters: 'P10',
   text:
-    "Fenêtre de 30 jours. L'instant d'une absence est le starts_at de son créneau (pas l'instant de l'enregistrement). À " +
-    "l'enregistrement d'une absence d'instant T, absences_30d = nombre d'absences enregistrées du même membre dans le même " +
-    "locataire (celle-ci comprise) dont l'instant est dans ]T - 30 jours, T] : borne basse EXCLUE, borne haute incluse ; " +
-    "30 jours = 30 × 86400 = 2 592 000 secondes exactement (durée absolue, indépendante du fuseau et des changements " +
-    "d'heure). Si absences_30d >= 3, le membre est suspendu : suspended_until = max(ancienne valeur, at + 7 × 86400 s " +
-    "= at + 604 800 s), où at est l'instant de l'opération mark_no_show. suspended_until est un instant ISO 8601 UTC " +
-    "'AAAA-MM-JJTHH:MM:SSZ' ; il vaut null tant que le membre n'a jamais été suspendu ; une valeur échue reste affichée.",
+    "Fenetre de 30 jours. L'instant d'une absence est le starts_at de son creneau (pas l'instant de l'enregistrement). A l'enregistrement d'une absence d'instant T, absences_30d = nombre d'absences enregistrees du meme membre dans le meme locataire (celle-ci comprise) dont l'instant est dans ]T - 30 jours, T] : borne basse EXCLUE, borne haute incluse ; 30 jours = 30 x 86400 secondes exactement (duree absolue, independante du fuseau et des changements d'heure). Si absences_30d >= 3, le membre est suspendu : suspended_until = max(ancienne valeur, at + 7 x 86400 s) ou at est l'instant de l'operation mark_no_show. suspended_until vaut null tant que le membre n'a jamais ete suspendu ; une valeur echue reste affichee.",
   contract: {
     operations: { mark_no_show: { reponse: { absences_30d: 'entier >= 1', suspended_until: "'AAAA-MM-JJTHH:MM:SSZ' | null" } } },
     valeurs: { seuil: SEUIL_ABSENCES, fenetre_s: 2_592_000, fenetre: ']T - 30 j, T]', suspension_s: 604_800, origine_suspension: "at de l'operation mark_no_show" },
@@ -2335,11 +2247,7 @@ const P10_R3 = clause({
   id: 'P10.R3',
   enters: 'P10',
   text:
-    "Suspension. reserve : nouveau contrôle placé après « member_id non membre -> NOT_FOUND » et avant « at >= starts_at " +
-    "-> SLOT_CLOSED » : si at < suspended_until du member_id -> { ok: false, error: 'SUSPENDED' } (à at = suspended_until, " +
-    "la réservation est de nouveau permise). SUSPENDED est mémorisé pour l'idempotence comme les autres refus de reserve " +
-    "(seul FORBIDDEN ne l'est pas) : rejouer le même request_id après la fin de la suspension rend encore SUSPENDED. La " +
-    "suspension n'empêche ni l'annulation, ni la promotion d'une réservation déjà en file, ni une lecture.",
+    "reserve : nouveau controle place apres 'member_id non membre -> NOT_FOUND' et avant 'at >= starts_at -> SLOT_CLOSED' : si at < suspended_until du member_id -> SUSPENDED (a at = suspended_until, la reservation est de nouveau permise). SUSPENDED est memorise pour l'idempotence comme les autres refus de reserve (seul FORBIDDEN ne l'est pas) : rejouer le meme request_id apres la fin de la suspension rend encore SUSPENDED. La suspension n'empeche ni l'annulation, ni la promotion d'une reservation deja en file, ni une lecture.",
   contract: {
     operations: {
       reserve: {
@@ -2376,13 +2284,7 @@ const P11_R1 = clause({
   id: 'P11.R1',
   enters: 'P11',
   text:
-    "MIGRATION vers des places numérotées. number_seats { slot_id } (rôle admin seulement) migre un créneau vers des places " +
-    "numérotées 1..capacity. Contrôles après ceux d'acteur, dans cet ordre : slot_id inconnu -> { ok: false, error: " +
-    "'NOT_FOUND' } ; créneau déjà numéroté -> { ok: false, error: 'ALREADY_EXISTS' } ; at >= starts_at -> { ok: false, " +
-    "error: 'SLOT_CLOSED' } ; créneau surréservé (booked > capacity) -> { ok: false, error: 'INVALID_ARGUMENT' }. Réponse " +
-    "{ ok: true, slot_id, assignments } : assignments liste { booking_id, seat_numbers } dans l'ordre d'affectation " +
-    "(P11.R2). La migration ne libère aucune place et ne promeut personne. Un créneau non migré reste non numéroté (ses " +
-    "réservations n'ont pas de seat_numbers) ; un créneau n'est numéroté que par number_seats.",
+    "number_seats {slot_id} (admin) : MIGRATION d'un creneau vers des places numerotees 1..capacity. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; creneau deja numerote -> ALREADY_EXISTS ; at >= starts_at -> SLOT_CLOSED. Reponse {ok: true, slot_id, assignments} : assignments liste {booking_id, seat_numbers} dans l'ordre d'affectation (P11.R2). Un creneau non migre reste non numerote (ses reservations n'ont pas de seat_numbers).",
   contract: {
     operations: {
       number_seats: {
@@ -2431,13 +2333,7 @@ const P11_R2 = clause({
   id: 'P11.R2',
   enters: 'P11',
   text:
-    "Affectation déterministe à la migration. Seules les réservations 'confirmed' du créneau reçoivent des places ; les " +
-    "'waiting' n'en reçoivent pas et gardent leur rang. Ordre : seats DÉCROISSANT, puis booking_id CROISSANT en comparaison " +
-    "ordinale des unités de code UTF-16 (l'ordre de la comparaison de chaînes de JavaScript, '<'). Chaque réservation " +
-    "reçoit, dans cet ordre, le bloc de places consécutives qui suit le précédent, à partir de la place 1 (la première " +
-    "reçoit 1..seats). L'affectation ne dépend que de l'ensemble { booking_id, seats } des réservations confirmed : ni de " +
-    "leur ordre de création, ni de l'ordre d'itération d'une structure, ni de l'historique. Deux rejeux de la migration " +
-    'sur le même état donnent la même affectation.',
+    "Affectation deterministe a la migration. Seules les reservations confirmed du creneau recoivent des places ; les waiting n'en recoivent pas et gardent leur rang. Ordre : seats DECROISSANT, puis booking_id CROISSANT en comparaison ordinale des unites de code UTF-16 (l'ordre de la comparaison de chaines de JavaScript, '<'). Chaque reservation recoit, dans cet ordre, le bloc de places consecutives qui suit le precedent, a partir de la place 1 (la premiere recoit 1..seats). L'affectation ne depend que de l'ensemble {booking_id, seats} des reservations confirmed : ni de leur ordre de creation, ni de l'ordre d'iteration d'une structure, ni de l'historique. Deux rejeux de la migration sur le meme etat donnent la meme affectation.",
   contract: {
     operations: { number_seats: { ordre_d_affectation: ['seats desc', 'booking_id asc (ordinal UTF-16)'] } },
     valeurs: { cle_de_tri: ['seats desc', 'booking_id asc (ordinal UTF-16)'], premiere_place: 1 },
@@ -2469,12 +2365,7 @@ const P11_R3 = clause({
   enters: 'P11',
   replaces: 'P6.R3',
   text:
-    "Admission tout ou rien (remplace P6.R3). Créneau NON numéroté : inchangé (seats <= available -> 'confirmed' pour toutes " +
-    "ses places, sinon entrée ENTIÈRE en queue de file, 'waiting', avec position). Créneau numéroté : la réservation est " +
-    "'confirmed' si et seulement s'il existe un bloc de seats places consécutives libres ; elle reçoit alors le bloc libre " +
-    "de plus petit premier numéro (premier qui tient) ; sinon elle entre entière en queue de file ('waiting'), même si " +
-    "available >= seats. Une demande qui tient est confirmée même si des réservations plus anciennes attendent. Les vues " +
-    "d'une réservation 'confirmed' d'un créneau numéroté (reserve, get_booking) portent seat_numbers, liste croissante.",
+    "Admission tout ou rien (remplace P6.R3). Creneau non numerote : inchange (seats <= available -> confirmed pour toutes ses places, sinon entree ENTIERE en queue de file). Creneau numerote : la reservation est confirmed si et seulement s'il existe un bloc de seats places consecutives libres ; elle recoit alors le bloc libre de plus petit premier numero (premier qui tient) ; sinon elle entre entiere en queue de file (waiting), meme si available >= seats. Une demande qui tient est confirmee meme si des reservations plus anciennes attendent. Les vues d'une reservation confirmed d'un creneau numerote (reserve, get_booking) portent seat_numbers, liste croissante.",
   contract: {
     operations: {
       reserve: { admission: 'non numerote : seats <= available ; numerote : bloc de seats places consecutives libres (premier qui tient)', reponse: { seat_numbers: 'tableau croissant, creneau numerote' } },
@@ -2573,10 +2464,7 @@ const P11_R5 = clause({
   id: 'P11.R5',
   enters: 'P11',
   text:
-    "Libération des places numérotées. Une annulation totale libère toutes les places de la réservation. Une annulation " +
-    "partielle de k places libère les k places de PLUS GRANDS numéros de la réservation, qui garde les autres ; la " +
-    "réponse de cancel porte alors seat_numbers (les places gardées, liste croissante). get_slot porte numbered (booléen) " +
-    'et, pour un créneau numéroté, free_seats : la liste croissante des places libres.',
+    'Liberation des places numerotees. Une annulation totale libere toutes les places de la reservation. Une annulation partielle de k places libere les k places de PLUS GRANDS numeros de la reservation, qui garde les autres ; la reponse de cancel porte alors seat_numbers (les places gardees). get_slot porte numbered (booleen) et, pour un creneau numerote, free_seats : la liste croissante des places libres.',
   contract: {
     operations: {
       cancel: { reponse_partielle: { seat_numbers: 'places gardees, tableau croissant' } },
@@ -2638,14 +2526,7 @@ const P13_R1 = clause({
   enters: 'P13',
   replaces: 'P6.R1',
   text:
-    "Places et surréservation (remplace P6.R1). reserve accepte seats, nombre de places demandées : entier >= 1, 1 par " +
-    "défaut s'il est absent ; toute autre valeur -> { ok: false, error: 'INVALID_ARGUMENT' } ; toute réservation porte " +
-    "seats et les réponses de reserve et de get_booking le renvoient. booked = SOMME des seats des réservations " +
-    "'confirmed'. Plafond d'admission : créneau NON numéroté, plafond = capacity + floor(capacity × 1000 / 10000) " +
-    "(surréservation de 10 %, arrondie à la place inférieure : 9 -> 9, 10 -> 11, 19 -> 20, 20 -> 22) ; créneau numéroté, " +
-    "plafond = capacity (pas de surréservation). available = plafond - booked ; l'admission (P11.R3) et la promotion " +
-    "(P12.R1) comparent seats à ce available. GROUP_TOO_LARGE reste jugé contre capacity (seats > capacity). get_slot " +
-    'porte overbook_limit (le plafond) et closed (booléen).',
+    "Places et surreservation (remplace P6.R1). reserve accepte seats (entier >= 1, 1 par defaut ; sinon INVALID_ARGUMENT) ; toute reservation porte seats et ses reponses le renvoient. booked = SOMME des seats des reservations confirmed. Plafond d'admission : creneau NON numerote, plafond = capacity + floor(capacity x 1000 / 10000) (surreservation de 10 %, arrondie a la place inferieure) ; creneau numerote, plafond = capacity (pas de surreservation). available = plafond - booked ; l'admission (P11.R3) et la promotion (P12.R1) comparent seats a ce available. GROUP_TOO_LARGE reste juge contre capacity (seats > capacity). get_slot porte overbook_limit (le plafond) et closed (booleen).",
   contract: {
     operations: {
       reserve: { arguments: { seats: 'entier >= 1, defaut 1' }, reponse: { seats: 'entier' }, erreurs: ['INVALID_ARGUMENT', 'GROUP_TOO_LARGE'] },
@@ -2683,14 +2564,7 @@ const P13_R2 = clause({
   id: 'P13.R2',
   enters: 'P13',
   text:
-    "Clôture. close_slot { slot_id } (rôles admin, staff) clôture un créneau à son début. Contrôles après ceux d'acteur, " +
-    "dans cet ordre : slot_id inconnu -> { ok: false, error: 'NOT_FOUND' } ; at < starts_at -> { ok: false, error: " +
-    "'INVALID_ARGUMENT' } ; créneau déjà clos -> { ok: false, error: 'ALREADY_CLOSED' }. Effets, dans cet ordre : (1) toutes " +
-    "les réservations 'waiting' passent 'cancelled' (expirées, rien à rembourser) et la file est vidée ; (2) tant que " +
-    "booked > capacity, la réservation 'confirmed' confirmée la PLUS RÉCEMMENT (ordre de confirmation P13.R3) est " +
-    "débarquée ENTIÈRE (statut 'bumped', P13.R3), même si cela fait descendre booked sous capacity. Réponse { ok: true, " +
-    "slot_id, expired, bumped, compensation_cents } : expired dans l'ordre de la file, bumped dans l'ordre de " +
-    "débarquement, compensation_cents = somme des compensations (centimes d'euro). close_slot n'est jamais automatique.",
+    "close_slot {slot_id} (admin, staff) cloture un creneau a son debut. Controles apres ceux d'acteur : slot_id inconnu -> NOT_FOUND ; at < starts_at -> INVALID_ARGUMENT ; creneau deja clos -> ALREADY_CLOSED. Effets, dans cet ordre : (1) toutes les reservations waiting passent cancelled (expirees, rien a rembourser) ; (2) tant que booked > capacity, la reservation confirmed confirmee la PLUS RECEMMENT (ordre de confirmation P13.R3) est debarquee ENTIERE (statut bumped), meme si cela fait descendre booked sous capacity. Reponse {ok: true, slot_id, expired, bumped, compensation_cents} : expired dans l'ordre de la file, bumped dans l'ordre de debarquement, compensation_cents = somme des compensations.",
   contract: {
     operations: {
       close_slot: {
@@ -2739,14 +2613,7 @@ const P13_R3 = clause({
   id: 'P13.R3',
   enters: 'P13',
   text:
-    "Ordre de confirmation et débarquement. L'ordre de confirmation est l'ordre dans lequel les réservations sont devenues " +
-    "'confirmed' le long de la trajectoire (à la réservation ou à la promotion ; à l'intérieur d'une opération, dans " +
-    "l'ordre de promoted) ; une annulation partielle ne change pas ce rang. Débarquement d'une réservation : remboursement " +
-    "intégral vers chaque source (C re-crédité au portefeuille, D à la carte), puis amount_cents, paid_credits_cents et " +
-    "paid_card_cents valent 0 ; compensation de 1000 centimes d'euro PAR PLACE débarquée, créditée au portefeuille du " +
-    "membre (crédits), due même pour une réservation gratuite. Le statut devient 'bumped' ; get_booking le rend avec ces " +
-    "montants. 'bumped' n'est pas un statut actif : cancel -> { ok: false, error: 'ALREADY_CANCELLED' }, mark_no_show -> " +
-    "{ ok: false, error: 'INVALID_ARGUMENT' }.",
+    "Ordre de confirmation : l'ordre dans lequel les reservations sont devenues confirmed le long de la trajectoire (a la reservation ou a la promotion ; a l'interieur d'une operation, dans l'ordre de promoted). Debarquement d'une reservation : remboursement integral vers chaque source (C re-credite au portefeuille, D a la carte), puis amount_cents, paid_credits_cents, paid_card_cents valent 0 ; compensation de 1000 centimes PAR PLACE debarquee, creditee au portefeuille du membre (credits). bumped n'est pas un statut actif : cancel -> ALREADY_CANCELLED, mark_no_show -> INVALID_ARGUMENT.",
   contract: {
     valeurs: { compensation_par_place_cents: COMPENSATION_PAR_PLACE_CENTS, status: ['confirmed', 'waiting', 'cancelled', 'bumped'] },
     operations: {
@@ -2823,12 +2690,7 @@ const P14_R1 = clause({
   id: 'P14.R1',
   enters: 'P14',
   text:
-    "Mouvements financiers d'un membre dans un locataire, chacun daté par le at de l'opération qui le produit : charge " +
-    "(réservation devenue 'confirmed' avec amount_cents > 0 : montant, part crédits, part carte), refund (remboursement " +
-    "R > 0 d'une annulation ou d'un débarquement, NON couvert par un avoir), top_up (crédits achetés, en centimes d'euro " +
-    "crédités), compensation (P13.R3), et adjustment à partir de P16. Les mouvements de montant nul ne sont pas des lignes. " +
-    "Le mois d'un mouvement est le mois CIVIL LOCAL du site 'AAAA-MM' (fuseau du locataire au moment de l'émission, P9.R2) " +
-    'de son instant ; tous les mouvements depuis P1 comptent.',
+    "Mouvements financiers d'un membre dans un locataire, chacun date par le at de l'operation qui le produit : charge (reservation devenue confirmed avec amount_cents > 0 : montant, part credits, part carte), refund (remboursement R > 0 d'une annulation ou d'un debarquement, NON couvert par un avoir), top_up (credits achetes), compensation (P13.R3). Les mouvements de montant nul ne sont pas des lignes. Le mois d'un mouvement est le mois CIVIL LOCAL du site (fuseau du locataire au moment de l'emission, P9.R2) de son instant ; tous les mouvements depuis P1 comptent.",
   contract: {
     mouvements: ['charge', 'refund', 'top_up', 'compensation', 'adjustment (P16)'],
     valeurs: { mois: "'AAAA-MM', mois civil local du site", montant_nul: "pas de ligne" },
@@ -2910,16 +2772,7 @@ const P14_R3 = clause({
   enters: 'P14',
   exits: 'P22',
   text:
-    "Contenu d'une facture : invoice_id, member_id, month, lines (dans l'ordre des opérations ; au sein d'une opération, le " +
-    "remboursement avant la compensation, puis les charges des promus dans l'ordre de promoted ; chaque ligne { type, " +
-    "booking_id (null pour top_up), amount_cents }), charges_cents = somme des charges, refunds_cents = somme des lignes " +
-    "de remboursement (refund, et adjustment à partir de P16), total_cents = charges_cents - refunds_cents, card_cents = " +
-    "parts carte des charges - parts carte des remboursements, credits_used_cents = parts crédits des charges - parts " +
-    "crédits des remboursements (ces deux montants sont SIGNÉS et card_cents + credits_used_cents = total_cents), " +
-    "top_ups_cents, compensations_cents, credit_notes_credits_cents = somme des credits_cents des avoirs émis dans le mois " +
-    "pour ce membre, opening_balance_cents et closing_balance_cents = solde du portefeuille au premier instant (local) du " +
-    "mois et au premier instant du mois suivant. Tous les montants en centimes d'euro entiers. Identité : closing = " +
-    'opening + top_ups + compensations + credit_notes_credits - credits_used.',
+    "Contenu d'une facture : invoice_id, member_id, month, lines (dans l'ordre des operations ; au sein d'une operation, le remboursement avant la compensation, puis les charges des promus dans l'ordre de promoted ; chaque ligne {type, booking_id (null pour top_up), amount_cents}), charges_cents = somme des charges, refunds_cents = somme des lignes de remboursement (refund, et adjustment a partir de P16), total_cents = charges_cents - refunds_cents, card_cents = parts carte des charges - parts carte des remboursements, credits_used_cents = parts credits des charges - parts credits des remboursements (ces deux montants sont signes et card_cents + credits_used_cents = total_cents), top_ups_cents, compensations_cents, credit_notes_credits_cents = somme des credits_cents des avoirs emis dans le mois pour ce membre, opening_balance_cents et closing_balance_cents = solde du portefeuille au premier instant du mois et au premier instant du mois suivant. Identite : closing = opening + top_ups + compensations + credit_notes_credits - credits_used.",
   contract: {
     facture: {
       invoice_id: "'INV-<AAAA-MM>-<member_id>'",
@@ -2994,14 +2847,7 @@ const P14_R4 = clause({
   id: 'P14.R4',
   enters: 'P14',
   text:
-    "Avoirs. Un remboursement R > 0 (annulation, débarquement) dont la CHARGE appartient à un mois déjà facturé (mois local " +
-    "de la confirmation de la réservation) ne devient pas une ligne : il fait l'objet d'un avoir émis à l'instant de " +
-    "l'opération : { credit_note_id 'AV-nnnn' (séquence par locataire, 4 chiffres, à partir de AV-0001), invoice_id (la " +
-    "facture de la charge), member_id, booking_id, reason ('cancellation', 'bump', 'price_change' à partir de P16), month " +
-    "(mois local d'émission 'AAAA-MM'), issued_at (instant ISO 8601 UTC 'AAAA-MM-JJTHH:MM:SSZ'), amount_cents = R, " +
-    "credits_cents = r_c, card_cents = r_d } (centimes d'euro). Sinon le remboursement est une ligne refund du mois où il " +
-    "a lieu, même si la charge date d'un mois passé non encore facturé. La réponse de cancel porte credit_note_id " +
-    "(l'avoir émis, ou null).",
+    "Avoirs. Un remboursement R > 0 (annulation, debarquement) dont la CHARGE appartient a un mois deja facture (mois local de la confirmation de la reservation) ne devient pas une ligne : il fait l'objet d'un avoir emis a l'instant de l'operation : {credit_note_id 'AV-nnnn' (sequence par locataire, 4 chiffres, a partir de AV-0001), invoice_id (la facture de la charge), member_id, booking_id, reason ('cancellation', 'bump', 'price_change' a partir de P16), month (mois local d'emission), issued_at, amount_cents = R, credits_cents = r_c, card_cents = r_d}. Sinon le remboursement est une ligne refund du mois ou il a lieu. La reponse de cancel porte credit_note_id (l'avoir emis, ou null).",
   contract: {
     avoir: {
       credit_note_id: "'AV-nnnn'",
@@ -3072,10 +2918,7 @@ const P14_R5 = clause({
   id: 'P14.R5',
   enters: 'P14',
   text:
-    "Documents. list_documents { member_id } : admin et staff pour tout membre ; member pour lui-même seulement (sinon " +
-    "{ ok: false, error: 'FORBIDDEN' }) ; member_id non membre du locataire -> { ok: false, error: 'NOT_FOUND' }. Réponse " +
-    "{ ok: true, member_id, invoices, credit_notes } : invoices, les factures émises du membre (contenu P14.R3) par mois " +
-    'croissant ; credit_notes, ses avoirs (contenu P14.R4) par credit_note_id croissant.',
+    'list_documents {member_id} (admin, staff pour tout membre ; member pour lui-meme seulement, sinon FORBIDDEN ; member_id non membre -> NOT_FOUND) -> {ok: true, member_id, invoices (par mois croissant), credit_notes (par credit_note_id croissant)}.',
   contract: {
     operations: {
       list_documents: {
@@ -3103,11 +2946,7 @@ const P14_R6 = clause({
   id: 'P14.R6',
   enters: 'P14',
   text:
-    "Rapprochement exact, à tout instant où tous les mois écoulés sont facturés et où aucun mouvement n'a eu lieu depuis la " +
-    "fin du dernier mois facturé : pour chaque membre, balance_cents du portefeuille = closing_balance_cents de sa " +
-    "dernière facture = somme, sur ses factures, de (top_ups + compensations + credit_notes_credits - credits_used) ; la " +
-    "facture suivante s'ouvre sur la clôture de la précédente ; et pour chaque facture, credit_notes_credits_cents = somme " +
-    "des credits_cents des avoirs du membre émis ce mois-là. Le modèle attendu vérifie ces identités à chaque émission.",
+    "Rapprochement exact, a tout instant ou tous les mois ecoules sont factures et ou aucun mouvement n'a eu lieu depuis la fin du dernier mois facture : pour chaque membre, balance_cents du portefeuille = closing_balance_cents de sa derniere facture = somme, sur ses factures, de (top_ups + compensations + credit_notes_credits - credits_used) ; la facture suivante s'ouvre sur la cloture de la precedente ; et pour chaque facture, credit_notes_credits_cents = somme des credits_cents des avoirs du membre emis ce mois-la.",
   contract: {
     invariants: [
       'balance_cents = closing_balance_cents de la derniere facture',
@@ -3221,8 +3060,7 @@ const P15_R2 = clause({
   id: 'P15.R2',
   enters: 'P15',
   text:
-    "Taux applicable à un instant : l'entrée de la table de plus grande date <= la date CIVILE LOCALE du site (P9.R2) de " +
-    "cet instant. Aucune entrée -> { ok: false, error: 'RATE_UNAVAILABLE' } pour l'opération qui en a besoin.",
+    "Taux applicable a un instant : l'entree de plus grande date <= la date CIVILE LOCALE du site (P9.R2) de cet instant. Aucune entree -> RATE_UNAVAILABLE.",
   contract: {
     erreurs: ['RATE_UNAVAILABLE'],
     valeurs: { date_du_taux: "'AAAA-MM-JJ', date civile LOCALE du site" },
@@ -3246,10 +3084,7 @@ const P15_R3 = clause({
   id: 'P15.R3',
   enters: 'P15',
   text:
-    "Conversion USD -> EUR, déclarée : eur_cents = usd_cents × rate_micro / 1 000 000 arrondi au centime le plus proche, et " +
-    "à égalité exacte (demi-centime) vers le centime PAIR (arrondi bancaire). Calcul exact en entiers : N = usd_cents × " +
-    "rate_micro ; q = floor(N / 10^6), r = N - q × 10^6 ; 2r > 10^6 -> q + 1 ; 2r < 10^6 -> q ; 2r = 10^6 -> q si q pair, " +
-    'q + 1 si q impair.',
+    'Conversion USD -> EUR, declaree : eur_cents = usd_cents x rate_micro / 1 000 000 arrondi au centime le plus proche, et a egalite exacte (demi-centime) vers le centime PAIR (arrondi bancaire). Calcul exact en entiers : q = floor(N / 10^6), r = N - q x 10^6 avec N = usd_cents x rate_micro ; 2r > 10^6 -> q + 1 ; 2r < 10^6 -> q ; 2r = 10^6 -> q si q pair, q + 1 si q impair.',
   contract: {
     valeurs: { arrondi: 'demi au pair (bancaire), au centime', formule: 'N = usd_cents x rate_micro ; q = floor(N / 10^6) ; r = N - q x 10^6' },
     exemples: [
@@ -3371,17 +3206,7 @@ const P15_R6 = clause({
   exits: 'P22',
   replaces: 'P7.R3',
   text:
-    "Montant (remplace P7.R3). Fixé à l'instant où la réservation devient 'confirmed', avec le prix, la devise du prix et " +
-    "le niveau de CET instant : brut = seats × price_cents ; remise = floor((brut × taux + 5000) / 10000) (taux en points " +
-    "de base : none 0, silver 1000, gold 2500 ; demi vers le haut, sur la remise, sur le brut total) ; net = brut - remise, " +
-    "dans la devise du prix. Prix en EUR : amount_cents = net. Prix en USD : amount_cents = conversion P15.R3 de net au " +
-    "taux applicable (P15.R2) à l'instant de la confirmation (réservation ou promotion) ; la réservation porte alors " +
-    "price_currency 'USD', original_amount_cents = net (centimes d'USD) et rate_micro. amount_cents est toujours en " +
-    "centimes d'EUR ; tout remboursement se calcule sur amount_cents, sans reconversion. Réserver un créneau en USD sans " +
-    "taux applicable -> { ok: false, error: 'RATE_UNAVAILABLE' } (contrôle placé juste avant l'admission, mémorisé) ; une " +
-    "réservation en file d'un tel créneau ne tient pas tant qu'aucun taux ne s'applique. Un changement ultérieur de prix, " +
-    "de niveau ou de taux ne modifie pas un montant fixé (sauf P16). Les réservations confirmées avant P7 ont amount_cents " +
-    '0 ; une réservation waiting n\'a pas de montant : reserve et get_booking portent amount_cents si status != waiting.',
+    "Montant (remplace P7.R3). Fixe a l'instant ou la reservation devient confirmed, avec le prix, la devise du prix et le niveau de CET instant : brut = seats x price_cents ; remise = floor((brut x taux + 5000) / 10000) (demi vers le haut, sur la remise, sur le brut total) ; net = brut - remise, dans la devise du prix. Prix en EUR : amount_cents = net. Prix en USD : amount_cents = conversion P15.R3 de net au taux applicable a l'instant de la confirmation (reservation ou promotion) ; la reservation porte alors price_currency 'USD', original_amount_cents = net (centimes USD) et rate_micro. amount_cents est toujours en centimes d'EUR ; tout remboursement se calcule sur amount_cents, sans reconversion. Reserver un creneau en USD sans taux applicable -> RATE_UNAVAILABLE (controle place juste avant l'admission, memorise) ; une reservation en file d'un tel creneau ne tient pas tant qu'aucun taux ne s'applique. Un changement ulterieur de prix, de niveau ou de taux ne modifie pas un montant fixe (sauf P16). Les reservations confirmees avant P7 ont amount_cents 0 ; une reservation waiting n'a pas de montant.",
   contract: {
     operations: {
       reserve: {
@@ -3545,10 +3370,7 @@ const P16_R3 = clause({
   id: 'P16.R3',
   enters: 'P16',
   text:
-    "Document d'un trop-perçu : si la charge de la réservation appartient à un mois déjà facturé, un avoir (P14.R4) de " +
-    "reason 'price_change' et amount_cents = T ; sinon une ligne de type 'adjustment' { type: 'adjustment', booking_id, " +
-    "amount_cents = T } du mois où a lieu le changement, comptée dans refunds_cents, card_cents et credits_used_cents comme " +
-    'un remboursement (P14.R3). credit_note_id de adjusted vaut l\'avoir ou null.',
+    "Document d'un trop-percu : si la charge de la reservation appartient a un mois deja facture, un avoir (P14.R4) de reason 'price_change' et amount_cents = T ; sinon une ligne de type 'adjustment' (booking_id, amount_cents = T) du mois ou a lieu le changement, comptee dans refunds_cents, card_cents et credits_used_cents comme un remboursement (P14.R3). credit_note_id de adjusted vaut l'avoir ou null.",
   contract: {
     ligne: { type: "'adjustment'", booking_id: 'chaine', amount_cents: 'T' },
     avoir: { reason: "'price_change'", amount_cents: 'T' },
